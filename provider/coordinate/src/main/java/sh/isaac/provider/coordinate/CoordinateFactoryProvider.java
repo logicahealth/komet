@@ -246,6 +246,7 @@ public class CoordinateFactoryProvider
      * @param stampPath the stamp path
      * @param precedence the precedence
      * @param moduleSpecificationList the module specification list
+     * @param modulePriorityList
      * @param allowedStateSet the allowed state set
      * @param dateTimeText the date time text
      * @return the stamp coordinate
@@ -254,13 +255,14 @@ public class CoordinateFactoryProvider
     public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
             StampPrecedence precedence,
             List<ConceptSpecification> moduleSpecificationList,
+            int[] modulePriorityList,
             EnumSet<Status> allowedStateSet,
             CharSequence dateTimeText) {
         final StampPositionImpl stampPosition = new StampPositionImpl(
                 LocalDateTime.parse(dateTimeText).toEpochSecond(ZoneOffset.UTC),
                 stampPath.getNid());
 
-        return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, allowedStateSet);
+        return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, modulePriorityList, allowedStateSet);
     }
 
     /**
@@ -277,13 +279,14 @@ public class CoordinateFactoryProvider
     public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
             StampPrecedence precedence,
             List<ConceptSpecification> moduleSpecificationList,
-            EnumSet<Status> allowedStateSet,
+             int[] modulePriorityList,
+           EnumSet<Status> allowedStateSet,
             TemporalAccessor temporal) {
         final StampPositionImpl stampPosition = new StampPositionImpl(
                 LocalDateTime.from(temporal).toEpochSecond(ZoneOffset.UTC),
                 stampPath.getNid());
 
-        return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, allowedStateSet);
+        return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, modulePriorityList, allowedStateSet);
     }
 
     /**
@@ -305,6 +308,7 @@ public class CoordinateFactoryProvider
     public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
             StampPrecedence precedence,
             List<ConceptSpecification> moduleSpecificationList,
+            int[] modulePriorityList,
             EnumSet<Status> allowedStateSet,
             int year,
             int month,
@@ -322,7 +326,7 @@ public class CoordinateFactoryProvider
                         second).toEpochSecond(ZoneOffset.UTC),
                 stampPath.getNid());
 
-        return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, allowedStateSet);
+        return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, modulePriorityList, allowedStateSet);
     }
 
     /**
@@ -523,9 +527,9 @@ public class CoordinateFactoryProvider
         }
         
         // add in module preferences if there is more than one. 
-        if (languageCoordinate.getModulePreferenceList().length != 0) {
+        if (languageCoordinate.getModulePreferenceListForLanguage().length != 0) {
             List<DescriptionVersion> versionList = preferredForDialect.versionList();
-            for (int preference: languageCoordinate.getModulePreferenceList()) {
+            for (int preference: languageCoordinate.getModulePreferenceListForLanguage()) {
                 for (DescriptionVersion descriptionVersion: versionList) {
                     if (descriptionVersion.getModuleNid() == preference) {
                         LatestVersion<DescriptionVersion> preferredForModule = new LatestVersion(descriptionVersion);

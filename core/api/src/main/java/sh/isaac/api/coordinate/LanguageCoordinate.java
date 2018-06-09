@@ -128,7 +128,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the module preference list. 
     */
 
-   int[] getModulePreferenceList();
+   int[] getModulePreferenceListForLanguage();
    /**
     * Convenience method - returns true if FQN is at the top of the latestDescription list.
     *

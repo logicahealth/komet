@@ -392,8 +392,13 @@ public class ConceptSnapshotImpl
     }    
 
     @Override
-    public int[] getModulePreferenceList() {
-        return this.manifoldCoordinate.getModulePreferenceList();
+    public int[] getModulePreferenceListForLanguage() {
+        return this.manifoldCoordinate.getModulePreferenceListForLanguage();
+    }
+
+    @Override
+    public int[] getModulePreferenceListForVersions() {
+        return this.manifoldCoordinate.getModulePreferenceListForVersions();
     }
     
 }

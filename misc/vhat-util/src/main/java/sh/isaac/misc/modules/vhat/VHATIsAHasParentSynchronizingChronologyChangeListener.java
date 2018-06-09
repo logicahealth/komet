@@ -240,7 +240,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       if (VHAT_STAMP_COORDINATE == null) {
          StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
          VHAT_STAMP_COORDINATE = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, getVHATModules(StampCoordinates.getDevelopmentLatest()),
-               Status.ANY_STATUS_SET);
+               new int[0], Status.ANY_STATUS_SET);
       }
 
       return VHAT_STAMP_COORDINATE;

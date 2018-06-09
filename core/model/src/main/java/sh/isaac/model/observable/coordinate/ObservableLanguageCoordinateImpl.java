@@ -72,8 +72,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  *
  * @author kec
  */
-@XmlRootElement(name = "observableLanguageCoordinate")
-@XmlAccessorType(XmlAccessType.FIELD)
 public final class ObservableLanguageCoordinateImpl
         extends ObservableCoordinateImpl
         implements ObservableLanguageCoordinate {
@@ -81,22 +79,18 @@ public final class ObservableLanguageCoordinateImpl
     /**
      * The language concept sequence property.
      */
-    @XmlTransient
     IntegerProperty languageConceptSequenceProperty = null;
 
     /**
      * The dialect assemblage preference list property.
      */
-    @XmlTransient
     ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty = null;
 
     /**
      * The description type preference list property.
      */
-    @XmlTransient
     ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty = null;
 
-    @XmlTransient
     ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty = null;
 
     /**
@@ -207,7 +201,7 @@ public final class ObservableLanguageCoordinateImpl
 
     @Override
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Optional.ofNullable(nextProrityLanguageCoordinateProperty().get());
     }
 
     /**
@@ -340,8 +334,8 @@ public final class ObservableLanguageCoordinateImpl
     }
 
     @Override
-    public int[] getModulePreferenceList() {
-        return this.languageCoordinate.getModulePreferenceList();
+    public int[] getModulePreferenceListForLanguage() {
+        return this.languageCoordinate.getModulePreferenceListForLanguage();
     }
     
     

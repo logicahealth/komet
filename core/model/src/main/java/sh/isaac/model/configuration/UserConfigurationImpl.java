@@ -144,7 +144,7 @@ public class UserConfigurationImpl implements UserConfiguration
 		
 		stampCoordinate = globalConfig.getDefaultStampCoordinate().deepClone();
 		//stampCoordinate.allowedStatesProperty();
-		//stampCoordinate.moduleNidProperty();
+		//stampCoordinate.moduleNidsProperty();
 		//stampCoordinate.stampPositionProperty().get().stampPathNidProperty();
 		stampCoordinate.stampPositionProperty().get().timeProperty().set(getOption(ConfigurationOption.TIME));
 		//stampCoordinate.stampPrecedenceProperty()

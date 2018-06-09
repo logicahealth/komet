@@ -370,7 +370,7 @@ public class TaxonomyProvider
         return getSnapshot(new ManifoldCoordinateImpl(
                 new StampCoordinateImpl(StampPrecedence.TIME,
                         new StampPositionImpl(Long.MAX_VALUE, pathNid),
-                        modules, allowedStates), null));
+                        modules, new int[0], allowedStates), null));
     }
 
     @Override

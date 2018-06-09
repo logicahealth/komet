@@ -70,6 +70,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      new NidSet(),
+                                     new int[0],
                                      Status.makeAnyStateSet());
    }
 
@@ -85,6 +86,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      new NidSet(),
+                                     new int[0],
                                      Status.makeActiveOnlySet());
    }
 
@@ -100,6 +102,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      new NidSet(),
+                                     new int[0],
                                      Status.makeAnyStateSet());
    }
 
@@ -115,6 +118,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      new NidSet(),
+                                     new int[0],
                                      Status.makeActiveOnlySet());
    }
 }

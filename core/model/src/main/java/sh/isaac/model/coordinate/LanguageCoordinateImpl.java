@@ -353,7 +353,7 @@ public class LanguageCoordinateImpl
     }
 
     @Override
-    public int[] getModulePreferenceList() {
+    public int[] getModulePreferenceListForLanguage() {
         return modulePreferenceList;
     }
     

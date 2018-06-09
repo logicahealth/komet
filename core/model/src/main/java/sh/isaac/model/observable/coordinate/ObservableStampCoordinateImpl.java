@@ -50,6 +50,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableIntegerArray;
 import sh.isaac.api.Status;
@@ -80,7 +81,7 @@ public class ObservableStampCoordinateImpl
    /** The stamp position property. */
    ObjectProperty<ObservableStampPosition> stampPositionProperty;
 
-   /** The module sequences property. */
+   /** The module nids property. */
    ObjectProperty<ObservableIntegerArray> moduleNidsProperty;
 
    /** The allowed states. */
@@ -160,7 +161,7 @@ public class ObservableStampCoordinateImpl
     * @return the object property
     */
    @Override
-   public ObjectProperty<ObservableIntegerArray> moduleNidProperty() {
+   public ObjectProperty<ObservableIntegerArray> moduleNidsProperty() {
       if (this.moduleNidsProperty == null) {
          this.moduleNidsProperty = new SimpleObjectProperty<>(this,
                ObservableFields.MODULE_NID_ARRAY_FOR_STAMP_COORDINATE.toExternalString(),
@@ -285,5 +286,41 @@ public class ObservableStampCoordinateImpl
         return this.stampCoordinate.getImmutableAllStateAnalog();
     }
 
+    @Override
+    public int[] getModulePreferenceListForVersions() {
+        return this.stampCoordinate.getModulePreferenceListForVersions();
+    }
+    /**
+     * The dialect assemblage preference list property.
+     */
+    ObjectProperty<ObservableIntegerArray> modulePreferenceListForVersionsProperty = null;
+
+    @Override
+    public ObjectProperty<ObservableIntegerArray> modulePreferenceListForVersionsProperty() {
+        if (this.modulePreferenceListForVersionsProperty == null) {
+            ObservableIntegerArray preferenceList = FXCollections.observableIntegerArray(getModulePreferenceListForVersions());
+            preferenceList.addListener(this::modulePreferenceListForVersionsChanged);
+            this.modulePreferenceListForVersionsProperty = new SimpleObjectProperty<>(this,
+                    ObservableFields.MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE.toExternalString(),
+                    preferenceList);
+            this.modulePreferenceListForVersionsProperty.addListener(this::modulePreferenceListForVersionsChanged);
+            
+        }
+
+        return this.modulePreferenceListForVersionsProperty;
+    }
+ 
+    
+    private void modulePreferenceListForVersionsChanged(ObservableValue<? extends ObservableIntegerArray> observable, ObservableIntegerArray oldValue, ObservableIntegerArray newValue) {
+        this.stampCoordinate.setModulePreferenceListForVersions(newValue.toArray(new int[newValue.size()]));
+        newValue.addListener(this::modulePreferenceListForVersionsChanged);
+    }
+    
+    private void modulePreferenceListForVersionsChanged(ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) {
+        this.stampCoordinate.setModulePreferenceListForVersions(observableArray.toArray(new int[observableArray.size()]));
+    }
+    
+
+    
 }
 

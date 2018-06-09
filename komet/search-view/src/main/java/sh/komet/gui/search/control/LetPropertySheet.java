@@ -184,7 +184,7 @@ public class LetPropertySheet{
         this.items.add(new PropertySheetItemDateTimeWrapper(TIME, this.manifoldForModification.getStampCoordinate()
                 .stampPositionProperty().get().timeProperty()));
         this.items.add(new PropertySheetItemListViewWrapper(
-                this.manifoldForModification.getStampCoordinate().moduleNidProperty().get(),
+                this.manifoldForModification.getStampCoordinate().moduleNidsProperty().get(),
                 MODULE,
                 this.manifoldForModification, buildListOfAllModules()));
         this.items.add(new PropertySheetItemConceptNidWrapper(this.manifoldForDisplay,
@@ -219,7 +219,7 @@ public class LetPropertySheet{
     private int[] buildListOfAllModules(){
        int[] arrayOfModules;
        ObservableIntegerArray manifoldModules = this.manifoldForDisplay.getManifoldCoordinate().getStampCoordinate()
-               .moduleNidProperty().get();
+               .moduleNidsProperty().get();
        if (manifoldModules.size() == 0) {
           ArrayList<Integer> moduleNIDs = new ArrayList<>();
           TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);

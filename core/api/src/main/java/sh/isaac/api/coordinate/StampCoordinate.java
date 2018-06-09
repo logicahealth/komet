@@ -84,6 +84,14 @@ public interface StampCoordinate
    NidSet getModuleNids();
 
    /**
+    * Gets the module preference list for versions. Used to adjudicate which component to 
+    * return when more than one version is available. For example, if two modules
+    * have versions the same component, which one do you prefer to return?
+    * @return the module preference list for versions. 
+    */
+
+   int[] getModulePreferenceListForVersions();
+   /**
     * Gets the stamp position.
     *
     * @return the position (time on a path) that is used to

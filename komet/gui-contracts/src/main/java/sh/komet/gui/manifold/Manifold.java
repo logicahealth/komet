@@ -428,8 +428,13 @@ public class Manifold
     }
 
     @Override
-    public int[] getModulePreferenceList() {
-        return this.observableManifoldCoordinate.getModulePreferenceList();
+    public int[] getModulePreferenceListForLanguage() {
+        return this.observableManifoldCoordinate.getModulePreferenceListForLanguage();
+    }
+
+    @Override
+    public int[] getModulePreferenceListForVersions() {
+        return this.observableManifoldCoordinate.getModulePreferenceListForVersions();
     }
     
     
