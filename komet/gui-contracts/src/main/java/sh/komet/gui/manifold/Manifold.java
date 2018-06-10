@@ -426,6 +426,16 @@ public class Manifold
     public StampCoordinate getImmutableAllStateAnalog() {
         return getStampCoordinate().getImmutableAllStateAnalog();
     }
+
+    @Override
+    public int[] getModulePreferenceListForLanguage() {
+        return this.observableManifoldCoordinate.getModulePreferenceListForLanguage();
+    }
+
+    @Override
+    public int[] getModulePreferenceListForVersions() {
+        return this.observableManifoldCoordinate.getModulePreferenceListForVersions();
+    }
     
     
 }

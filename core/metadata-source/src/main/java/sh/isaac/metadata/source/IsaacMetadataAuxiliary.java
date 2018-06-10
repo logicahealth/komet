@@ -116,6 +116,7 @@ import static sh.isaac.model.observable.ObservableFields.CONCEPT_VERSION;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DESCRIPTION;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DIALECT;
+import static sh.isaac.model.observable.ObservableFields.MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.NATIVE_ID_FOR_COMPONENT;
 import static sh.isaac.model.observable.ObservableFields.UUID_LIST_FOR_COMPONENT;
 
@@ -190,7 +191,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept("Module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
             pushParent(current());
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
-               createConcept("SNOMED CT® core modules", "SNOMED CT core").setPrimordialUuid("1b4f1ba5-b725-390f-8c3b-33ec7096bdca");
+               createConcept(TermAux.SCT_CORE_MODULE);
                createConcept("US Extension modules", "US Extension");
                createConcept("LOINC® modules", "LOINC").addDescription("Logical Observation Identifiers Names and Codes", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("RxNorm modules", "RxNorm");
@@ -594,6 +595,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(PATH_NID_FOR_EDIT_CORDINATE);
                   createConcept(LANGUAGE_NID_FOR_LANGUAGE_COORDINATE);
                   createConcept(DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE);
+                  createConcept(MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE);
                   createConcept(DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE);
                   createConcept(STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE);
                   createConcept(INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE);

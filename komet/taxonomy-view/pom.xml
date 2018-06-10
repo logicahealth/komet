@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.48</version>
+      <version>4.49</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>taxonomy-view</artifactId>

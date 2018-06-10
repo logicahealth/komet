@@ -100,7 +100,7 @@ public class IbdfArtifactImportMenuOption implements MenuProvider
 		}
 	}
 
-	private void showView()
+	private void ibdfImport(boolean delta)
 	{
 		try
 		{
@@ -108,7 +108,7 @@ public class IbdfArtifactImportMenuOption implements MenuProvider
 
 			ListView<IBDFFile> ibdfPicker = new ListView<>();
 
-			FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(storedPrefs, (results) -> {
+			FxUtils.waitWithProgress("Reading IBDF Files", "Reading available IBDF Files", MavenArtifactUtils.readAvailableIBDFFiles(delta, storedPrefs, (results) -> {
 				ibdfSourceFiles_.clear();
 				// TODO tie this to some sort of dynamic thing about what types are supported by the direct importer...
 				for (IBDFFile sdo : results)
@@ -198,6 +198,7 @@ public class IbdfArtifactImportMenuOption implements MenuProvider
 							LoadTermstore lt = new LoadTermstore(inputStreams, true, true);
 							lt.dontSetDBMode();
 							lt.execute();
+							Get.taxonomyService().notifyTaxonomyListenersToRefresh();
 							Platform.runLater(() -> 
 							{
 								Alert ibdfDialog = new Alert(AlertType.INFORMATION);
@@ -246,11 +247,16 @@ public class IbdfArtifactImportMenuOption implements MenuProvider
 		if (appMenu == AppMenu.TOOLS)
 		{
 			this.window_ = window;
-			MenuItem mi = new MenuItem("IBDF Artifact Import");
-			mi.setOnAction(event -> {
-				showView();
+			MenuItem miImport = new MenuItem("IBDF Artifact Import");
+			miImport.setOnAction(event -> {
+				ibdfImport(false);
 			});
-			return new MenuItem[] { mi };
+			
+			MenuItem miDeltaImport = new MenuItem("IBDF Delta Artifact Import");
+			miDeltaImport.setOnAction(event -> {
+				ibdfImport(true);
+			});
+			return new MenuItem[] { miImport, miDeltaImport };
 		}
 		return new MenuItem[] {};
 	}

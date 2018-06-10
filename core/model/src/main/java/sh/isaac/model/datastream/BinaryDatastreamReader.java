@@ -19,7 +19,10 @@ package sh.isaac.model.datastream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.nio.file.Path;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -27,6 +30,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.NamedThreadFactory;
+import sh.isaac.api.util.ThreadPoolExecutorFixed;
 
 /**
  *
@@ -41,6 +46,7 @@ public class BinaryDatastreamReader
     private final Semaphore processingSemaphore;
     private final long bytesToProcess;
     private final AtomicReference<Throwable> exception = new AtomicReference<>();
+    private ThreadPoolExecutor parsingExecutor;
     
     /**
      * Read an IBDF file, parse each object, and call the provided consumer with each parsed object.
@@ -53,8 +59,11 @@ public class BinaryDatastreamReader
         this.action = action;
         this.path = path;
         this.bytesToProcess = path.toFile().length();
-        permits = processInOrder ? 1 : Runtime.getRuntime().availableProcessors() * 2;
+        permits = Runtime.getRuntime().availableProcessors() * 2;
         processingSemaphore = new Semaphore(permits);
+        parsingExecutor = processInOrder ? 
+              new ThreadPoolExecutorFixed(1, 1, 5, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), new NamedThreadFactory("BinaryDataStreamOrderedRead", false)) 
+              : Get.executor();
         addToTotalWork(this.bytesToProcess);
         updateTitle("Importing from " + path.toFile().getName());
         Get.activeTasks().add(this);
@@ -96,12 +105,17 @@ public class BinaryDatastreamReader
                 this.processingSemaphore.acquireUninterruptibly();
                 
                 Processor processor = new Processor(unparsedObject);
-                Get.executor().execute(processor);
+                parsingExecutor.execute(processor);
             }
             this.processingSemaphore.acquireUninterruptibly(permits);
             throwIfException();
             return objectCount;
         } finally {
+            if (parsingExecutor != Get.executor()) {
+                //they asked for in-order parsing, we need to shut down our own executor
+                parsingExecutor.shutdown();
+                parsingExecutor.awaitTermination(1, TimeUnit.MINUTES);
+            }
             Get.activeTasks().remove(this);
         }
     }

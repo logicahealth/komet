@@ -157,6 +157,9 @@ public interface CoordinateFactory
     * @param precedence Specifies how precedence of two compared {@code StampCoordinate} objects are handled.
     * @param moduleSpecificationList List of allowed modules to include in version computations.
     *           An empty list is a wildcard (will include all modules)
+    * @param modulePriorityList the module priority list for versions. Used to adjudicate which component to 
+    * return when more than one version is available. For example, if two modules
+    * have versions the same component, which one do you prefer to return? An empty list is a wildcard (no module preference
     * @param allowedStateSet allowed states to be included in version computations based on the returned {@code StampCoordinate}
     * @param dateTimeText the text to parse such as "2007-12-03T10:15:30", which is specified by the ISO-8601 extended offset date-time format.
     * @return a new instance that implements {@code StampCoordinate} with the provided temporal information
@@ -164,6 +167,7 @@ public interface CoordinateFactory
    StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
          List<ConceptSpecification> moduleSpecificationList,
+         int[] modulePriorityList,
          EnumSet<Status> allowedStateSet,
          CharSequence dateTimeText);
 
@@ -174,6 +178,9 @@ public interface CoordinateFactory
     * @param precedence Specifies how precedence of two compared {@code StampCoordinate} objects are handled.
     * @param moduleSpecificationList List of allowed modules to include in version computations.
     *          An empty list is a wildcard (will include all modules)
+    * @param modulePriorityList the module priority list for versions. Used to adjudicate which component to 
+    * return when more than one version is available. For example, if two modules
+    * have versions the same component, which one do you prefer to return? An empty list is a wildcard (no module preference)
     * @param allowedStateSet allowed states to be included in version computations based on the returned {@code StampCoordinate}
     * @param temporal the temporal object to specify the time on a path for the returned  {@code StampCoordinate}
     * @return a new instance that implements {@code StampCoordinate} with the provided temporal information
@@ -181,6 +188,7 @@ public interface CoordinateFactory
    StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
          List<ConceptSpecification> moduleSpecificationList,
+         int[] modulePriorityList,
          EnumSet<Status> allowedStateSet,
          TemporalAccessor temporal);
 
@@ -191,6 +199,9 @@ public interface CoordinateFactory
     * @param precedence Specifies how precedence of two compared {@code StampCoordinate} objects are handled.
     * @param moduleSpecificationList List of allowed modules to include in version computations.
     *          An empty list is a wildcard (will include all modules)
+    * @param modulePriorityList the module priority list for versions. Used to adjudicate which component to 
+    * return when more than one version is available. For example, if two modules
+    * have versions the same component, which one do you prefer to return? An empty list is a wildcard (no module preference)
     * @param allowedStateSet allowed states to be included in version computations based on the returned {@code StampCoordinate}
     * @param year the year to represent, from MIN_YEAR to MAX_YEAR
     * @param month the month-of-year to represent, from 1 (January) to 12 (December)
@@ -203,6 +214,7 @@ public interface CoordinateFactory
    StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
          List<ConceptSpecification> moduleSpecificationList,
+         int[] modulePriorityList,
          EnumSet<Status> allowedStateSet,
          int year,
          int month,

@@ -108,11 +108,12 @@ public class MavenArtifactUtils
 	/**
 	 * Reads converted ibdf files from the local folder, and a nexus repository in a background thread.
 	 * 
+	 * @param deltaArtifacts - true, if you want to read IBDF files that are deltas of other IBDF files.  False for standard IBDF files only (non-delta)
 	 * @param storedPrefs
 	 * @param resultHandler results handed here, in a thread, when complete
 	 * @return the already-executing task
 	 */
-	public static Task<Void> readAvailableIBDFFiles(StoredPrefs storedPrefs, Consumer<List<IBDFFile>> resultHandler)
+	public static Task<Void> readAvailableIBDFFiles(boolean deltaArtifacts, StoredPrefs storedPrefs, Consumer<List<IBDFFile>> resultHandler)
 	{
 		Task<Void> t = new Task<Void>()
 		{
@@ -126,7 +127,7 @@ public class MavenArtifactUtils
 					log.debug("Reading local m2 folder");
 					updateMessage("Reading the local m2 folder");
 
-					for (IBDFFile i : readLocalIBDFArtifacts(temp))
+					for (IBDFFile i : readLocalIBDFArtifacts(temp, deltaArtifacts))
 					{
 						if (i.getArtifactId().equals("metadata"))
 						{
@@ -142,7 +143,7 @@ public class MavenArtifactUtils
 					{
 						log.debug("Reading available nexus versions");
 						// TODO if/when we support more than just nexus, look at the URL, and use it to figure out which reader to construct
-						foundFiles.addAll(new NexusRead(storedPrefs).readIBDFFiles());
+						foundFiles.addAll(new NexusRead(storedPrefs).readIBDFFiles(deltaArtifacts));
 					}
 				}
 				catch (Exception e)
@@ -322,14 +323,15 @@ public class MavenArtifactUtils
 	 * A convenience method to read all available ibdf datasets from the local repository
 	 * 
 	 * @param mavenRepositoryFolder
+	 * @param deltaArtifacts if true, returns artifacts that are deltas of other artifacts.  If false, returns standard (non-delta) artifacts.
 	 * @return the IBDF Files found that are metadata
 	 */
-	public static IBDFFile[] readLocalIBDFArtifacts(File mavenRepositoryFolder)
+	public static IBDFFile[] readLocalIBDFArtifacts(File mavenRepositoryFolder, boolean deltaArtifacts)
 	{
 		ArrayList<IBDFFile> files = new ArrayList<>();
 		if (mavenRepositoryFolder.isDirectory())
 		{
-			File browseFolder = new File(mavenRepositoryFolder, "sh/isaac/terminology/converted");
+			File browseFolder = new File(mavenRepositoryFolder, deltaArtifacts ? "sh/isaac/terminology/diffs" : "sh/isaac/terminology/converted");
 
 			for (File artifactId : browseFolder.listFiles())
 			{
@@ -360,7 +362,7 @@ public class MavenArtifactUtils
 							}
 							for (String classifier : ibdfClassifiers)
 							{
-								files.add(new IBDFFile("sh.isaac.terminology.converted", artifactId.getName(), versionFolder.getName(), classifier));
+								files.add(new IBDFFile(deltaArtifacts ? "sh/isaac/terminology/diffs" : "sh/isaac/terminology/converted", artifactId.getName(), versionFolder.getName(), classifier));
 							}
 						}
 					}

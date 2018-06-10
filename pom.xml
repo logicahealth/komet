@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>4.48</version>
+   <version>4.49</version>
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
@@ -96,7 +96,7 @@
       <json-io.version>4.10.0</json-io.version>
       <junit.version>4.12</junit.version>
       <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-      <log4j.version>2.11.0</log4j.version>
+      <log4j.version>2.9.1</log4j.version>  <!-- Until this is resolved, don't move forward... https://issues.apache.org/jira/browse/LOG4J2-2152 -->
       <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
       <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
       <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>

@@ -390,6 +390,16 @@ public class ConceptSnapshotImpl
         }
         return versions;
     }    
+
+    @Override
+    public int[] getModulePreferenceListForLanguage() {
+        return this.manifoldCoordinate.getModulePreferenceListForLanguage();
+    }
+
+    @Override
+    public int[] getModulePreferenceListForVersions() {
+        return this.manifoldCoordinate.getModulePreferenceListForVersions();
+    }
     
 }
 

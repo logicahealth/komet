@@ -250,7 +250,7 @@ public class VHATDeltaImport extends ConverterBaseMojo
 						.forEach(i -> modulesToRead.add(i));
 
 				this.readCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid()),
-						modulesToRead, Status.ANY_STATUS_SET);
+						modulesToRead, new int[0], Status.ANY_STATUS_SET);
 				this.editCoordinate = new EditCoordinateImpl(Get.identifierService().getNidForUuids(author), Get.identifierService().getNidForUuids(module),
 						Get.identifierService().getNidForUuids(path));
 
