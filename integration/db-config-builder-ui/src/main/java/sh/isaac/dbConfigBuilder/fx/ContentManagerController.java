@@ -2178,8 +2178,8 @@ public class ContentManagerController
 					//but its close enough for our use case.
 					deltaCalculatorVersion.getItems().add(version);
 				});
-				sourceConversionConverterVersion.getSelectionModel().select(Math.max(0, sourceConversionConverterVersion.getItems().size() - 2));
-				deltaCalculatorVersion.getSelectionModel().select(Math.max(0, deltaCalculatorVersion.getItems().size() - 2));
+				sourceConversionConverterVersion.getSelectionModel().select(Math.max(0, sourceConversionConverterVersion.getItems().size() - 1));
+				deltaCalculatorVersion.getSelectionModel().select(Math.max(0, deltaCalculatorVersion.getItems().size() - 1));
 			});
 		});
 		
