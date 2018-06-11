@@ -13,6 +13,7 @@
 			<includes>
 				<include>diff.ibdf</include>
 				<include>diff.json</include>
+				<include>stats.txt</include>
 			</includes>
 			<outputDirectory>/</outputDirectory>
 		</fileSet>
