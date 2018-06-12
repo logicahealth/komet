@@ -87,7 +87,7 @@ public class StampCoordinateImmutableWrapper implements StampCoordinate {
     }
 
     public ChangeListener<StampPrecedence> setStampPrecedenceProperty(ObjectProperty<StampPrecedence> stampPrecedenceProperty) {
-        return stampCoordinate.setStampPrecedenceProperty(stampPrecedenceProperty);
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -99,4 +99,10 @@ public class StampCoordinateImmutableWrapper implements StampCoordinate {
     public StampCoordinate getImmutableAllStateAnalog() {
         return this;
     }
+
+    @Override
+    public int[] getModulePreferenceListForVersions() {
+        return stampCoordinate.getModulePreferenceListForVersions();
+    }
+    
 }

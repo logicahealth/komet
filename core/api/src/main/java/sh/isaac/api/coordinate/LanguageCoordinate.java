@@ -129,7 +129,7 @@ public interface LanguageCoordinate extends Coordinate {
     * name in the multiple case is unspecified.
     */
 
-   int[] getModulePreferenceList();
+   int[] getModulePreferenceListForLanguage();
    /**
     * Convenience method - returns true if FQN is at the top of the latestDescription list.
     *

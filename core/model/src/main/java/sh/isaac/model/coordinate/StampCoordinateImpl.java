@@ -59,12 +59,7 @@ import javafx.collections.SetChangeListener;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -84,24 +79,21 @@ import sh.isaac.api.observable.coordinate.ObservableStampPosition;
  *
  * @author kec
  */
-@XmlRootElement(name = "stampCoordinate")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class StampCoordinateImpl
          implements StampCoordinate {
    /** The stamp precedence. */
    StampPrecedence stampPrecedence;
 
    /** The stamp position. */
-   @XmlElement(type = StampPositionImpl.class)
    StampPosition stampPosition;
 
    /** The module sequences. */
-   @XmlJavaTypeAdapter(ConceptSequenceSetAdapter.class)
-   NidSet moduleSequences;
+   NidSet moduleNids;
 
    /** The allowed states. */
-   @XmlJavaTypeAdapter(EnumSetAdapter.class)
    EnumSet<Status> allowedStates;
+   
+   int[] modulePriorityList;
    
    private StampCoordinateImmutableWrapper stampCoordinateImmutable = null;
 
@@ -119,20 +111,25 @@ public class StampCoordinateImpl
     *
     * @param stampPrecedence the stamp precedence
     * @param stampPosition the stamp position
-    * @param moduleSequences the module sequences
+    * @param moduleNids the module nids to include in the version computation
+     * @param modulePriorityList empty if no preference, or module nids in the priority
+     * order that should be used if a version computation returns two different versions
+     * for different modules. 
     * @param allowedStates the allowed states
     */
    public StampCoordinateImpl(StampPrecedence stampPrecedence,
                               StampPosition stampPosition,
-                              NidSet moduleSequences,
+                              NidSet moduleNids,
+                              int[] modulePriorityList,
                               EnumSet<Status> allowedStates) {
       this.stampPrecedence = stampPrecedence;
       this.stampPosition   = stampPosition;
-      this.moduleSequences = moduleSequences;
+      this.moduleNids = moduleNids;
+      this.modulePriorityList = modulePriorityList;
       this.allowedStates   = allowedStates;
 
-      if (this.moduleSequences == null) {
-         this.moduleSequences = new NidSet();
+      if (this.moduleNids == null) {
+         this.moduleNids = new NidSet();
       }
    }
 
@@ -142,16 +139,33 @@ public class StampCoordinateImpl
     * @param stampPrecedence the stamp precedence
     * @param stampPosition the stamp position
     * @param moduleSpecifications the module specifications
+    * @param moduleSpecificationPriorities the priority of the modules to use 
+    * when contradictions is encountered. 
     * @param allowedStates the allowed states
     */
    public StampCoordinateImpl(StampPrecedence stampPrecedence,
                               StampPosition stampPosition,
                               List<ConceptSpecification> moduleSpecifications,
+                              List<ConceptSpecification> moduleSpecificationPriorities,
                               EnumSet<Status> allowedStates) {
       this(stampPrecedence,
            stampPosition,
            NidSet.of(moduleSpecifications.stream()
                  .mapToInt((spec) -> spec.getNid())),
+           moduleSpecificationPriorities.stream().mapToInt((spec) -> spec.getNid()).toArray(),
+           allowedStates);
+   }
+
+   public StampCoordinateImpl(StampPrecedence stampPrecedence,
+                              StampPosition stampPosition,
+                              List<ConceptSpecification> moduleSpecifications,
+                              int[] moduleSpecificationPriorities,
+                              EnumSet<Status> allowedStates) {
+      this(stampPrecedence,
+           stampPosition,
+           NidSet.of(moduleSpecifications.stream()
+                 .mapToInt((spec) -> spec.getNid())),
+           moduleSpecificationPriorities,
            allowedStates);
    }
 
@@ -198,7 +212,7 @@ public class StampCoordinateImpl
             return false;
         }
         
-        return this.moduleSequences.equals(other.moduleSequences);
+        return this.moduleNids.equals(other.moduleNids);
     }
 
    /**
@@ -212,7 +226,7 @@ public class StampCoordinateImpl
 
       hash = 11 * hash + Objects.hashCode(this.stampPrecedence);
       hash = 11 * hash + Objects.hashCode(this.stampPosition);
-      hash = 11 * hash + Objects.hashCode(this.moduleSequences);
+      hash = 11 * hash + Objects.hashCode(this.moduleNids);
       hash = 11 * hash + Objects.hashCode(this.allowedStates);
       return hash;
    }
@@ -230,7 +244,8 @@ public class StampCoordinateImpl
 
       return new StampCoordinateImpl(this.stampPrecedence,
                                      anotherStampPosition,
-                                     this.moduleSequences,
+                                     this.moduleNids,
+                                     this.modulePriorityList,
                                      this.allowedStates);
    }
 
@@ -245,12 +260,12 @@ public class StampCoordinateImpl
       final EnumSet<Status> newAllowedStates = EnumSet.noneOf(Status.class);
 
       newAllowedStates.addAll(Arrays.asList(states));
-      return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSequences, newAllowedStates);
+      return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleNids, this.modulePriorityList, newAllowedStates);
    }
    
    @Override
    public StampCoordinate makeCoordinateAnalog(EnumSet<Status> states) {
-      return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSequences, states);
+      return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleNids, this.modulePriorityList, states);
    }
 
    /**
@@ -268,10 +283,18 @@ public class StampCoordinateImpl
              .append(this.stampPosition)
              .append(", modules: ");
 
-      if (this.moduleSequences.isEmpty()) {
+      if (this.moduleNids.isEmpty()) {
          builder.append("all, ");
       } else {
-         builder.append(Get.conceptDescriptionTextList(this.moduleSequences))
+         builder.append(Get.conceptDescriptionTextList(this.moduleNids))
+                .append(", ");
+      }
+      
+      builder.append("module priorities: ");
+      if (this.modulePriorityList == null || this.modulePriorityList.length == 0) {
+         builder.append("none, ");
+      } else {
+         builder.append(Get.conceptDescriptionTextList(this.modulePriorityList))
                 .append(", ");
       }
 
@@ -322,7 +345,7 @@ public class StampCoordinateImpl
     */
    @Override
    public NidSet getModuleNids() {
-      return this.moduleSequences;
+      return this.moduleNids;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -339,7 +362,7 @@ public class StampCoordinateImpl
                                                                     boolean sizeChanged,
                                                                     int from,
                                                                     int to) -> {
-               this.moduleSequences = NidSet.of(observableArray.toArray(new int[observableArray.size()]));
+               this.moduleNids = NidSet.of(observableArray.toArray(new int[observableArray.size()]));
             };
 
       moduleSequencesProperty.getValue()
@@ -477,9 +500,20 @@ public class StampCoordinateImpl
    public StampCoordinateImpl deepClone() {
       StampCoordinateImpl newCoordinate = new StampCoordinateImpl(stampPrecedence,
                               stampPosition.deepClone(),
-                              NidSet.of(moduleSequences.stream()),
+                              NidSet.of(moduleNids.stream()),
+                              this.modulePriorityList.clone(),
                               EnumSet.copyOf(allowedStates));
       return newCoordinate;
    }
+
+    @Override
+    public int[] getModulePreferenceListForVersions() {
+        return this.modulePriorityList;
+    }
+   
+    public void setModulePreferenceListForVersions(int[] modulePriorityList) {
+        this.modulePriorityList = modulePriorityList;
+    }
+   
 }
 

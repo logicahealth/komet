@@ -239,26 +239,8 @@ public class LanguageCoordinateImpl
       return this.dialectAssemblagePreferenceList;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Set dialect assemblage preference list property.
-    *
-    * @param dialectAssemblagePreferenceListProperty the dialect assemblage preference list property
-    * @return the array change listener
-    */
-   public ArrayChangeListener<ObservableIntegerArray> setDialectAssemblagePreferenceListProperty(
-           ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty) {
-      final ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
-                                                                    boolean sizeChanged,
-                                                                    int from,
-                                                                    int to) -> {
-               this.dialectAssemblagePreferenceList = observableArray.toArray(new int[observableArray.size()]);
-            };
-
-      dialectAssemblagePreferenceListProperty.getValue()
-            .addListener(new WeakArrayChangeListener(listener));
-      return listener;
+   public void setDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList) {
+      this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -384,7 +366,7 @@ public class LanguageCoordinateImpl
     }
 
     @Override
-    public int[] getModulePreferenceList() {
+    public int[] getModulePreferenceListForLanguage() {
         return modulePreferenceList;
     }
     

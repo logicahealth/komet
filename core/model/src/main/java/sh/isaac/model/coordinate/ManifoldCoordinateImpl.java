@@ -350,8 +350,15 @@ public class ManifoldCoordinateImpl
     }
 
     @Override
-    public int[] getModulePreferenceList() {
-        return languageCoordinate.getModulePreferenceList();
+    public int[] getModulePreferenceListForLanguage() {
+        return languageCoordinate.getModulePreferenceListForLanguage();
     }
+
+    @Override
+    public int[] getModulePreferenceListForVersions() {
+        return stampCoordinate.getModulePreferenceListForVersions();
+    }
+    
+    
 }
 

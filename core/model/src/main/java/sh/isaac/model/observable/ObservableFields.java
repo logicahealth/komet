@@ -76,6 +76,10 @@ public enum ObservableFields
    DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
       "Dialect assemblage nid preference list for language coordinate", "Dialect preferences"),
    
+   MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE(
+      "Module nid preference list for stamp coordinate", "Mofule for version preferences"),
+   
+   
    NEXT_PRIORITY_LANGUAGE_COORDINATE(
       "Next priority language coordinate", "Next coordinate"),
 

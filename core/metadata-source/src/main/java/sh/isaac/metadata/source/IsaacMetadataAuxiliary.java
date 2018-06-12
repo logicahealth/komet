@@ -116,6 +116,7 @@ import static sh.isaac.model.observable.ObservableFields.CONCEPT_VERSION;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DESCRIPTION;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DIALECT;
+import static sh.isaac.model.observable.ObservableFields.MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.NATIVE_ID_FOR_COMPONENT;
 import static sh.isaac.model.observable.ObservableFields.UUID_LIST_FOR_COMPONENT;
 
@@ -594,6 +595,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(PATH_NID_FOR_EDIT_CORDINATE);
                   createConcept(LANGUAGE_NID_FOR_LANGUAGE_COORDINATE);
                   createConcept(DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE);
+                  createConcept(MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE);
                   createConcept(DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE);
                   createConcept(STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE);
                   createConcept(INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE);

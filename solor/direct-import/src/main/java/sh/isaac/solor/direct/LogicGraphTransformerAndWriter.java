@@ -163,6 +163,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
         StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH,
                 stampPosition,
                 new NidSet(),
+                new int[0],
                 Status.makeActiveOnlySet());
 
         // only process active concepts...

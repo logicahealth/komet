@@ -345,8 +345,13 @@ public class ObservableManifoldCoordinateImpl
     }
 
     @Override
-    public int[] getModulePreferenceList() {
-        return manifoldCoordinate.getModulePreferenceList();
+    public int[] getModulePreferenceListForLanguage() {
+        return manifoldCoordinate.getModulePreferenceListForLanguage();
+    }
+
+    @Override
+    public int[] getModulePreferenceListForVersions() {
+        return manifoldCoordinate.getModulePreferenceListForVersions();
     }
     
     

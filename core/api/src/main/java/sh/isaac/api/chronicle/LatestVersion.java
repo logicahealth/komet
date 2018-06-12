@@ -49,9 +49,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Optional;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -267,7 +264,6 @@ public final class LatestVersion<V> {
     * @return an Optional describing the value of this Optional if a value is present and the value matches the given predicate, otherwise an empty Optional
     */
    public LatestVersion<V> filter(Predicate<LatestVersion<V>> predicate) {
-      //throw new UnsupportedOperationException("not implemented yet...");
       if (predicate.test(this)) {
          return this;
       }

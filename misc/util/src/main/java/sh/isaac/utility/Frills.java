@@ -707,6 +707,7 @@ public class Frills
                                                      existingStampCoordinate.getStampPrecedence(),
                                                            existingStampCoordinate.getStampPosition(),
                                                            moduleSequenceSet,
+                                                           new int[0],
                                                            allowedStates);
 
       return newStampCoordinate;
@@ -1947,6 +1948,7 @@ public class Frills
                                            stampCoordinate.getStampPrecedence(),
                                                  stampPosition,
                                                  stampCoordinate.getModuleNids(),
+                                                 new int[0],
                                                  stampCoordinate.getAllowedStates());
 
       if (temp.getModuleNids()
@@ -1987,6 +1989,7 @@ public class Frills
                                                   precedence,
                                                         stampPosition,
                                                         NidSet.of(stamp.getModuleNid()),
+                                                        new int[0],
                                                         EnumSet.of(stamp.getStatus()));
 
       LOG.debug("Created StampCoordinate from Stamp: " + stamp + ": " + stampCoordinate);
@@ -2022,6 +2025,7 @@ public class Frills
                                                   precedence,
                                                         stampPosition,
                                                         NidSet.of(version.getModuleNid()),
+                                                        new int[0],
                                                         EnumSet.of(version.getStatus()));
 
       LOG.debug("Created StampCoordinate from StampedVersion: " + toString(version) + ": " + stampCoordinate);
@@ -2236,7 +2240,7 @@ public class Frills
       // StampCoordinate with LATEST ACTIVE_ONLY from all VHAT modules
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
       final Set<Integer> vhatModules = Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, null);
-      final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.of(vhatModules), Status.ACTIVE_ONLY_SET);
+      final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, NidSet.of(vhatModules), new int[0], Status.ACTIVE_ONLY_SET);
 
       final Set<Integer> matchingVuidSemanticNids = new HashSet<>();
 
