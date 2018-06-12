@@ -695,6 +695,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 					log.info("  " + s);
 				}
 			}
+			inputStream.close();
 		}
 	}
 	
