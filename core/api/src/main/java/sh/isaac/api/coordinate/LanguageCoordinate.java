@@ -125,7 +125,8 @@ public interface LanguageCoordinate extends Coordinate {
     * Gets the module preference list. Used to adjudicate which component to 
     * return when more than one component is available. For example, if two modules
     * have different preferred names for the component, which one do you prefer to return?
-    * @return the module preference list. 
+    * @return the module preference list.  If this list is null or empty, the returned preferred
+    * name in the multiple case is unspecified.
     */
 
    int[] getModulePreferenceList();

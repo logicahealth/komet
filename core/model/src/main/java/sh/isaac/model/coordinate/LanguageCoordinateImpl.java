@@ -113,7 +113,7 @@ public class LanguageCoordinateImpl
     * @param languageConceptId the language concept id
     * @param dialectAssemblagePreferenceList the dialect assemblage preference list
     * @param descriptionTypePreferenceList the description type preference list
-     * @param modulePreferenceList the module preference list
+    * @param modulePreferenceList the module preference list.  See {@link LanguageCoordinate#getModulePreferenceList()}
     */
    public LanguageCoordinateImpl(int languageConceptId,
                                  int[] dialectAssemblagePreferenceList,
@@ -123,6 +123,19 @@ public class LanguageCoordinateImpl
       this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
       this.descriptionTypePreferenceList = descriptionTypePreferenceList;
       this.modulePreferenceList = modulePreferenceList;
+   }
+   
+   /**
+    * Instantiates a new language coordinate impl, with an unspecified set of modulePreferences.
+    *
+    * @param languageConceptId the language concept id
+    * @param dialectAssemblagePreferenceList the dialect assemblage preference list
+    * @param descriptionTypePreferenceList the description type preference list
+    */
+   public LanguageCoordinateImpl(int languageConceptId,
+                                 int[] dialectAssemblagePreferenceList,
+                                 int[] descriptionTypePreferenceList) {
+      this(languageConceptId, dialectAssemblagePreferenceList, descriptionTypePreferenceList, new int[] {});
    }
 
    //~--- methods -------------------------------------------------------------
