@@ -97,24 +97,15 @@ public class StampCoordinateImpl
    
    private StampCoordinateImmutableWrapper stampCoordinateImmutable = null;
 
-   //~--- constructors --------------------------------------------------------
-
-   /**
-    * Instantiates a new stamp coordinate impl.
-    */
-   private StampCoordinateImpl() {
-      // for jaxb
-   }
-
    /**
     * Instantiates a new stamp coordinate impl.
     *
     * @param stampPrecedence the stamp precedence
     * @param stampPosition the stamp position
     * @param moduleNids the module nids to include in the version computation
-     * @param modulePriorityList empty if no preference, or module nids in the priority
-     * order that should be used if a version computation returns two different versions
-     * for different modules. 
+    * @param modulePriorityList empty if no preference, or module nids in the priority
+    * order that should be used if a version computation returns two different versions
+    * for different modules. 
     * @param allowedStates the allowed states
     */
    public StampCoordinateImpl(StampPrecedence stampPrecedence,
@@ -131,6 +122,21 @@ public class StampCoordinateImpl
       if (this.moduleNids == null) {
          this.moduleNids = new NidSet();
       }
+   }
+   
+   /**
+    * Instantiates a new stamp coordinate impl, with an empty modulePriority list.
+    *
+    * @param stampPrecedence the stamp precedence
+    * @param stampPosition the stamp position
+    * @param moduleNids the module nids to include in the version computation
+    * @param allowedStates the allowed states
+    */
+   public StampCoordinateImpl(StampPrecedence stampPrecedence,
+                              StampPosition stampPosition,
+                              NidSet moduleNids,
+                              EnumSet<Status> allowedStates) {
+      this(stampPrecedence, stampPosition, moduleNids, new int[] {}, allowedStates);
    }
 
    /**
