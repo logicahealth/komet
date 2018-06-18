@@ -63,36 +63,56 @@ public class SpinedIntLongMap {
    }
 
    public void put(int index, long element) {
-      if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
+       if (index < 0) {
+           if (ModelGet.sequenceStore() != null) {
+              index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+           }
+           else {
+              index = Integer.MAX_VALUE + index;
+           }
+       }
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
       this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
    }
 
    public long get(int index) {
-      if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
+       if (index < 0) {
+           if (ModelGet.sequenceStore() != null) {
+              index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+           }
+           else {
+              index = Integer.MAX_VALUE + index;
+           }
+       }
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
    }
 
    public boolean containsKey(int index) {
-      if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
+       if (index < 0) {
+           if (ModelGet.sequenceStore() != null) {
+              index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+           }
+           else {
+              index = Integer.MAX_VALUE + index;
+           }
+       }
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != INITIAL_VALUE;
    }
    
    public long getAndUpdate(int index, LongUnaryOperator generator) {
-      if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
+       if (index < 0) {
+           if (ModelGet.sequenceStore() != null) {
+              index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+           }
+           else {
+              index = Integer.MAX_VALUE + index;
+           }
+       }
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).updateAndGet(indexInSpine, generator);

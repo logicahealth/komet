@@ -83,7 +83,12 @@ import sh.isaac.model.ModelGet;
 
    public void put(int index, E element) {
       if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
+         if (ModelGet.sequenceStore() != null) {
+            index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+         }
+         else {
+            index = Integer.MAX_VALUE + index;
+         }
       } 
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
@@ -93,7 +98,12 @@ import sh.isaac.model.ModelGet;
 
    public E get(int index) {
       if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
+         if (ModelGet.sequenceStore() != null) {
+            index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+         }
+         else {
+            index = Integer.MAX_VALUE + index;
+         }
       }
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
@@ -102,7 +112,12 @@ import sh.isaac.model.ModelGet;
 
    public Optional<E> getOptional(int index) {
       if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
+         if (ModelGet.sequenceStore() != null) {
+            index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+         }
+         else {
+            index = Integer.MAX_VALUE + index;
+         }
       }
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
@@ -110,16 +125,21 @@ import sh.isaac.model.ModelGet;
    }
 
    public boolean containsKey(int index) {
-      if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
-      }
+       if (index < 0) {
+           if (ModelGet.sequenceStore() != null) {
+              index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+           }
+           else {
+              index = Integer.MAX_VALUE + index;
+           }
+       }
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != null;
    }
    
    public int size() {
-       int size = 0;
+      int size = 0;
       int currentSpineCount = this.spineCount.get();
       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
          AtomicReferenceArray<E> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
@@ -150,7 +170,12 @@ import sh.isaac.model.ModelGet;
    } 
    public E accumulateAndGet(int index, E x, BinaryOperator<E> accumulatorFunction) {
       if (index < 0) {
-         index = ModelGet.identifierService().getElementSequenceForNid(index);
+         if (ModelGet.sequenceStore() != null) {
+            index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+         }
+         else {
+            index = Integer.MAX_VALUE + index;
+         }
       }
       int spineIndex = index/spineSize;
       int indexInSpine = index % spineSize;

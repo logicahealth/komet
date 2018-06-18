@@ -187,7 +187,12 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
     @Override
     public byte[][] get(int index) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+            if (ModelGet.sequenceStore() != null) {
+               index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+               index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
@@ -202,7 +207,12 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
     @Override
     public void put(int index, byte[][] element) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+           if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+             }
+             else {
+                index = Integer.MAX_VALUE + index;
+             }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;

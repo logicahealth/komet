@@ -41,7 +41,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sh.isaac.model.ContainerSequenceService;
 import sh.isaac.model.ModelGet;
 
 /**
@@ -56,7 +55,6 @@ public class SpinedIntIntArrayMap {
     protected final int elementsPerSpine;
     private final ConcurrentMap<Integer, AtomicReferenceArray<int[]>> spines = new ConcurrentHashMap<>();
     private Function<int[], String> elementStringConverter;
-    private final ContainerSequenceService identifierService = ModelGet.identifierService();
     private final Semaphore diskSemaphore = new Semaphore(1);
     protected final AtomicInteger spineCount = new AtomicInteger();
     protected final ConcurrentSkipListSet<Integer> changedSpineIndexes = new ConcurrentSkipListSet<>();
@@ -197,9 +195,12 @@ public class SpinedIntIntArrayMap {
 
     public void put(int index, int[] element) {
         if (index < 0) {
-            index = identifierService.getElementSequenceForNid(index);
-        } else {
-            throw new IllegalStateException("Identifiers must be negative: " + index);
+            if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+                index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / elementsPerSpine;
         int indexInSpine = index % elementsPerSpine;
@@ -219,9 +220,12 @@ public class SpinedIntIntArrayMap {
 
     public int[] get(int index) {
         if (index < 0) {
-            index = identifierService.getElementSequenceForNid(index);
-        } else {
-            throw new IllegalStateException("Identifiers must be negative: " + index);
+            if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+                index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / elementsPerSpine;
         int indexInSpine = index % elementsPerSpine;
@@ -230,9 +234,12 @@ public class SpinedIntIntArrayMap {
 
     public boolean containsKey(int index) {
         if (index < 0) {
-            index = identifierService.getElementSequenceForNid(index);
-        } else {
-            throw new IllegalStateException("Identifiers must be negative: " + index);
+            if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+                index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / elementsPerSpine;
         int indexInSpine = index % elementsPerSpine;
@@ -257,9 +264,12 @@ public class SpinedIntIntArrayMap {
 
     public int[] accumulateAndGet(int index, int[] x, BinaryOperator<int[]> accumulatorFunction) {
         if (index < 0) {
-            index = identifierService.getElementSequenceForNid(index);
-        } else {
-            throw new IllegalStateException("Identifiers must be negative: " + index);
+            if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+                index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / elementsPerSpine;
         int indexInSpine = index % elementsPerSpine;

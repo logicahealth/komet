@@ -17,12 +17,11 @@
 package sh.isaac.model;
 
 import javax.inject.Singleton;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
 import sh.isaac.api.StaticIsaacCache;
 
 /**
@@ -36,18 +35,20 @@ import sh.isaac.api.StaticIsaacCache;
 public class ModelGet implements StaticIsaacCache {
    private static final Logger LOG = LogManager.getLogger();
    
-   static ContainerSequenceService containerSequenceService;
+   static IdentifierService identifierService;
    static TaxonomyDebugService taxonomyDebugService;
+   static DataStore dataStore;
+   static SequenceStore sequenceStore;
    
    private ModelGet() {
       //For HK2
    }
    
-   public static ContainerSequenceService identifierService() {
-      if (containerSequenceService == null) {
-         containerSequenceService = Get.service(ContainerSequenceService.class);
+   public static IdentifierService identifierService() {
+      if (identifierService == null) {
+         identifierService = Get.service(IdentifierService.class);
       }
-      return containerSequenceService;
+      return identifierService;
    }
    public static TaxonomyDebugService taxonomyDebugService() {
       if (taxonomyDebugService == null) {
@@ -56,10 +57,33 @@ public class ModelGet implements StaticIsaacCache {
       return taxonomyDebugService;
    }
    
+   public static DataStore dataStore() {
+      if (dataStore == null) {
+         dataStore = Get.service(DataStore.class);
+         if (dataStore instanceof SequenceStore) {
+            sequenceStore = (SequenceStore)dataStore;
+         }
+      }
+      return dataStore;
+   }
+   
+   /**
+    * Note, this may return null, as sequenceStore is only optionally implemented by some (not all) implementations of dataStore. 
+    * @return The sequenceStore, if the underlying datastore supports the sequenceStore methods.
+    */
+   public static SequenceStore sequenceStore() {
+     if (dataStore == null) {
+        dataStore();  //This populates sequenceStore, if possible
+     }
+     return sequenceStore;
+  }
+   
    @Override
    public void reset() {
       LOG.debug("ModelGet Cache clear");
-      containerSequenceService = null;
+      identifierService = null;
       taxonomyDebugService = null;
+      dataStore = null;
+      sequenceStore = null;
    }
 }
