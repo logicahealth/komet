@@ -259,6 +259,9 @@ public interface AssemblageService
       return getSemanticChronologyStream(assemblageConceptSequence).mapToInt((semantic) -> semantic.getReferencedComponentNid());
    }
    
+   /**
+    * @return an array of nids for the concepts that define assemblages. 
+    */
    int[] getAssemblageConceptNids(); 
    
    /**
