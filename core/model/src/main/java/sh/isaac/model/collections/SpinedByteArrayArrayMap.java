@@ -186,7 +186,7 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
                 }
                 
             });
-            clear();
+            //clear();
             return wroteAny.get();
         } catch (IOException ex) {
             LOG.error(ex);
