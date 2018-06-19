@@ -220,7 +220,7 @@ public class IsomorphicResultsBottomUp
         // Add the deletions
         getDeletedRelationshipRoots().forEach((deletionRoot) -> {
             // deleted relationships roots come from the comparison expression.
-            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorNid(deletionRoot.getNodeIndex());
+            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorSequence(deletionRoot.getNodeIndex());
             if (predecessorNid.isPresent()) {
                 int comparisonExpressionToReferenceNodeId = this.comparisonExpressionToReferenceNodeIdMap[predecessorNid.getAsInt()];
                 if (comparisonExpressionToReferenceNodeId >= 0) {
@@ -452,10 +452,10 @@ public class IsomorphicResultsBottomUp
         nodesNotInSolution.stream().forEach((additionNode) -> {
             int additionRoot = additionNode;
 
-            OptionalInt predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
+            OptionalInt predecessorNid = this.referenceVisitData.getPredecessorSequence(additionRoot);
             while (predecessorNid.isPresent() && nodesNotInSolution.contains(predecessorNid.getAsInt())) {
                 additionRoot = predecessorNid.getAsInt();
-                predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
+                predecessorNid = this.referenceVisitData.getPredecessorSequence(additionRoot);
             }
 
             this.referenceAdditionRoots.add(additionRoot);
@@ -487,10 +487,10 @@ public class IsomorphicResultsBottomUp
         comparisonNodesNotInSolution.stream().forEach((deletedNode) -> {
             int deletedRoot = deletedNode;
 
-            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorNid(deletedRoot);
+            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorSequence(deletedRoot);
             while (predecessorNid.isPresent() && comparisonNodesNotInSolution.contains(predecessorNid.getAsInt())) {
                 deletedRoot = predecessorNid.getAsInt();
-                predecessorNid = this.comparisonVisitData.getPredecessorNid(deletedRoot);
+                predecessorNid = this.comparisonVisitData.getPredecessorSequence(deletedRoot);
             }
 
             this.comparisonDeletionRoots.add(deletedRoot);
@@ -510,9 +510,9 @@ public class IsomorphicResultsBottomUp
             Set<IsomorphicSolution> possibleSolutions) {
         // Using a set to eliminate duplicate solutions.
         final Set<IsomorphicSolution> outgoingPossibleNodes = new HashSet<>();
-
-        possibleSolutions.forEach((incomingPossibleSolution) -> {
-            incomingPossibleNodes.forEach((isomorphicSearchNode) -> {
+        
+        for (IsomorphicSolution incomingPossibleSolution: possibleSolutions) {
+            for (IsomorphicSearchBottomUpNode isomorphicSearchNode: incomingPossibleNodes) {
                 if (this.comparisonExpression.getNode(isomorphicSearchNode.nodeId)
                         .equals(this.referenceExpression.getNode(solutionNodeId))) {
                     final int[] generatedPossibleSolution = new int[incomingPossibleSolution.getSolution().length];
@@ -531,9 +531,10 @@ public class IsomorphicResultsBottomUp
                     if (localIsomorphicSolution.legal) {
                         outgoingPossibleNodes.add(localIsomorphicSolution);
                     }
-                }
-            });
-        });
+                }            
+            }
+                   
+        }
 
         if (outgoingPossibleNodes.isEmpty()) {
             outgoingPossibleNodes.addAll(possibleSolutions);
@@ -616,12 +617,12 @@ public class IsomorphicResultsBottomUp
             final OpenIntHashSet nextSetToTry = new OpenIntHashSet();
 
             nodesToTry.forEachKey((referenceNodeId) -> {
-                final OptionalInt predecessorNid = this.referenceVisitData.getPredecessorNid(
+                final OptionalInt predecessorNid = this.referenceVisitData.getPredecessorSequence(
                         referenceNodeId);  // only add if the node matches. ?
 
                 if (predecessorNid.isPresent()) {
                     if (!nodesProcessed.contains(predecessorNid.getAsInt())) {
-                        this.referenceVisitData.getPredecessorNid(referenceNodeId).ifPresent(nextSetToTry::add);
+                        this.referenceVisitData.getPredecessorSequence(referenceNodeId).ifPresent(nextSetToTry::add);
                         nodesProcessed.add(predecessorNid.getAsInt());
                     }
                 }

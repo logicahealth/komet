@@ -42,6 +42,7 @@ package sh.isaac.api.logic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
@@ -164,6 +165,12 @@ public interface LogicNode
     * @return the node semantic
     */
    NodeSemantic getNodeSemantic();
+   
+   /**
+    * 
+    * @return a UUID for this node, based on it's semantics, not on it's identity. 
+    */
+   UUID getNodeUuid();
    
    /**
     * Gets the preferred description for this node.

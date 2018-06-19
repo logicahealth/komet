@@ -305,9 +305,8 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
      * @param time the time
      * @param moduleNid the module
      * @param stampCoordinate for determining current version if a graph already exists. 
-     * @return the semantic chronology
-     */
-    public SemanticChronology addLogicGraph(int conceptNid,
+      */
+    public void addLogicGraph(int conceptNid,
             LogicalExpression logicalExpression,
             PremiseType premiseType,
             long time,
@@ -343,9 +342,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                 LogicGraphVersionImpl logicGraphLatest = latest.get();
                 LogicalExpression latestExpression = logicGraphLatest.getLogicalExpression();
                 IsomorphicResults isomorphicResults = latestExpression.findIsomorphisms(logicalExpression);
-                if (isomorphicResults.equivalent()) {
-                    return existingGraph;
-                } else {
+                if (!isomorphicResults.equivalent()) {
                     int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
                     final MutableLogicGraphVersion newVersion
                                       = existingGraph.createMutableVersion(stamp);
@@ -355,9 +352,6 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                     Get.assemblageService().writeSemanticChronology(existingGraph);
                 }
 //                LOG.info("Isomorphic results: " + isomorphicResults);
-                return existingGraph;
-            } else {
-                throw new IllegalStateException("unreachable");
             }
         } else {
 
@@ -378,7 +372,6 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             index(sci);
             Get.assemblageService().writeSemanticChronology(sci);
 
-            return sci;
         }
 
     }

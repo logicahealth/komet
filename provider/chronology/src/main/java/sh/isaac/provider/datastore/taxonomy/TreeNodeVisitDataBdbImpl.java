@@ -484,7 +484,7 @@ public class TreeNodeVisitDataBdbImpl
     * {@inheritDoc}
     */
    @Override
-   public OptionalInt getPredecessorNid(int nodeNid) {
+   public OptionalInt getPredecessorSequence(int nodeNid) {
       int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
       if (nodeSequence == Integer.MAX_VALUE) {
          throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
@@ -504,7 +504,7 @@ public class TreeNodeVisitDataBdbImpl
     * @param predecessorNid the predecessor sequence
     */
    @Override
-   public void setPredecessorNid(int nodeNid, int predecessorNid) {
+   public void setPredecessorSequence(int nodeNid, int predecessorNid) {
       int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
       if (nodeSequence == Integer.MAX_VALUE) {
          throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
