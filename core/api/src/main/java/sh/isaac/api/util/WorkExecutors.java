@@ -88,7 +88,7 @@ import sh.isaac.api.LookupService;
  * as there are cores present on the computer - with a minimum of 6 threads.  This executor has an unbounded queue
  * depth, and FIFO behavior.
  *
- * The {@link #getIOExecutor()} that this provides is a standard thread pool with 4 threads.  This executor has an unbounded queue
+ * The {@link #getIOExecutor()} that this provides is a standard thread pool with 6 threads.  This executor has an unbounded queue
  * depth, and FIFO behavior.  This executor is good for jobs that tend to block on disk IO, where you don't want many running in parallel.
  *
  * If you wish to use this code outside of an HK2 managed application (or in utility code that may operate in and out
