@@ -362,7 +362,7 @@ public class MavenArtifactUtils
 							}
 							for (String classifier : ibdfClassifiers)
 							{
-								files.add(new IBDFFile(deltaArtifacts ? "sh/isaac/terminology/diffs" : "sh/isaac/terminology/converted", artifactId.getName(), versionFolder.getName(), classifier));
+								files.add(new IBDFFile(deltaArtifacts ? "sh.isaac.terminology.diffs" : "sh.isaac.terminology.converted", artifactId.getName(), versionFolder.getName(), classifier));
 							}
 						}
 					}

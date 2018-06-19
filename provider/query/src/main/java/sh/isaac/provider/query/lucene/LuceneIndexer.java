@@ -257,7 +257,7 @@ public abstract class LuceneIndexer
    /**
     * Commit writer.
     */
-   private final void commitWriter() {
+   private void commitWriter() {
       try {
          this.indexWriter.commit();
          this.referenceManager.maybeRefreshBlocking();

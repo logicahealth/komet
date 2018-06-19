@@ -41,6 +41,7 @@ package sh.isaac.provider.commit;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -137,10 +138,11 @@ public class ChangeSetLoadProvider
 
       final CommitService commitService = Get.commitService();
 
-      Files.newDirectoryStream(this.changesetPath, path -> path.toFile().isFile() 
+      try (DirectoryStream<Path> stream = Files.newDirectoryStream(this.changesetPath, path -> path.toFile().isFile() 
               && path.toString().endsWith(".ibdf") 
-              && path.toFile().length() > 0)
-           .forEach(
+              && path.toFile().length() > 0))
+      {
+           stream.forEach(
                path -> {
                   LOG.debug("File {}", path.toAbsolutePath());
 
@@ -170,6 +172,7 @@ public class ChangeSetLoadProvider
                      throw new RuntimeException(e);
                   }
                });
+      }
       LOG.info(
           "Finished Change Set Load Provider load.  Loaded {}, Skipped {} because they were previously processed",
           loaded.get(),

@@ -84,6 +84,14 @@ public interface LogicalExpression extends CommittableObject {
    void processDepthFirst(BiConsumer<LogicNode, TreeNodeVisitData> consumer);
 
    /**
+    * Present the consumer the nodes of this expression in a depth-first manner,
+    * starting with the root node.
+    * @param consumer the consumer of the nodes.
+    * @param treeNodeVisitData the visitData object to be used in the depth first processing. 
+    */
+   void processDepthFirst(BiConsumer<LogicNode, TreeNodeVisitData> consumer, TreeNodeVisitData treeNodeVisitData);
+
+   /**
     * Process the fragment starting at fragmentRoot in a depth first manner.
     *
     * @param fragmentRoot the fragment root

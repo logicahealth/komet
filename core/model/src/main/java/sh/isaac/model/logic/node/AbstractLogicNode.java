@@ -365,7 +365,7 @@ public abstract class AbstractLogicNode
     *
     * @return the node uuid
     */
-   protected UUID getNodeUuid() {
+   public UUID getNodeUuid() {
       if (this.nodeUuid == null) {
          this.nodeUuid = initNodeUuid();
       }
