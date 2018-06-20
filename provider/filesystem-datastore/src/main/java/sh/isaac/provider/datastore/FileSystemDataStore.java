@@ -933,12 +933,18 @@ public class FileSystemDataStore
                     return currentValue;
                  });
          
-         SpinedIntIntMap elementSequenceToNidMap = getAssemblageNid_ElementSequenceToNid_Map(assemblageNid);
-         elementSequenceToNidMap.put(elementSequence, nid);
+         getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).put(elementSequence, nid);
          return elementSequence;
       }
+   
+   
 
-   /** 
+   @Override
+   public int getNidForElementSequence(int assemblageNid, int sequence) {
+      return getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).get(sequence);
+   }
+
+/** 
     * {@inheritDoc}
     */
    @Override

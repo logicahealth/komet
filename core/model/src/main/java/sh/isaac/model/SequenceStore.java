@@ -30,4 +30,6 @@ public interface SequenceStore
     public int getElementSequenceForNid(int nid); 
     
     public int getElementSequenceForNid(int nid, int assemblageNid);
+    
+    public int getNidForElementSequence(int assemblageNid, int sequence);
 }

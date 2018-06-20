@@ -360,4 +360,17 @@ public class DatastoreLocator implements DataStore, SequenceStore
 		}
 		throw new UnsupportedOperationException();
 	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNidForElementSequence(int assemblageNid, int sequence)
+	{
+		if (implementsSequenceStore())
+		{
+			return ((SequenceStore)dataStore).getNidForElementSequence(assemblageNid, sequence);
+		}
+		throw new UnsupportedOperationException();
+	}
 }

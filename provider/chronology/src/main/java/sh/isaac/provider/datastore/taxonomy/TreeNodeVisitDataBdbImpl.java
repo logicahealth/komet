@@ -44,12 +44,12 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
-import org.eclipse.collections.api.tuple.primitive.IntIntPair;
-import org.eclipse.collections.impl.map.mutable.primitive.IntIntHashMap;
-import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.TreeNodeVisitData;
+import sh.isaac.model.ModelGet;
+import sh.isaac.model.SequenceStore;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -93,7 +93,7 @@ public class TreeNodeVisitDataBdbImpl
    /**
     * The processor may use this userNodeSet for their own purposes, such as the concepts referenced at node or above.
     */
-   private HashMap<String, IntObjectHashMap<OpenIntHashSet>> userNodeMap = new HashMap<>();
+   HashMap<String, OpenIntHashSet[]> userNodeMap = new HashMap<>();
 
    /**
     * The startNid for this traversal.
@@ -132,45 +132,54 @@ public class TreeNodeVisitDataBdbImpl
     * The distance list. For each node, the distance from the root is tracked in this list, where the node is
     * represented by the index of the list, and the distance is represented by the value of the list at the index.
     */
-   protected final IntIntHashMap distanceMap;
+   protected final IntArrayList distanceList;
 
    /**
     * The discovery time list. For each node, the discovery time is tracked in this list, where the node is represented
-    * by the key, and the discovery time is represented by the value.
+    * by the index of the list, and the discovery time is represented by the value of the list at the index.
     */
-   protected final IntIntHashMap discoveryTimeMap;
+   protected final IntArrayList discoveryTimeList;
 
    /**
     * The finish time list. For each node, the finish time is tracked in this list, where the node is represented by the
-    * key, and the finish time is represented by the value.
+    * index of the list, and the finish time is represented by the value of the list at the index.
     */
-   protected final IntIntHashMap finishTimeMap;
+   protected final IntArrayList finishTimeList;
 
    /**
-    * The predecessor nid set. For each node, the identifier of it's predecessor is provided, where the node is
-    * represented by the key, and the identifier of the predecessor is represented by the value of the
-    * list at the key.
+    * The predecessor nid list. For each node, the identifier of it's predecessor is provided, where the node is
+    * represented by the index of the list, and the identifier of the predecessor is represented by the value of the
+    * list at the index.
     */
-   protected final IntIntHashMap predecessorNidMap;
+   protected final IntArrayList predecessorNidList;
 
    /**
-    * The sibling group sequence map. For each node, the identifier of it's sibling group is provided, where the node
-    * is represented by the key, and the sibling group is represented by the value.
+    * The sibling group sequence list. For each node, the identifier of it's sibling group is provided, where the node
+    * is represented by the index of the list, and the sibling group is represented by the value of the list at the
+    * index.
     */
-   protected final IntIntHashMap siblingGroupNidMap;
+   protected final IntArrayList siblingGroupNidList;
+   
+   private SequenceStore ss;
+   private int conceptAssemblageNid;
 
    /**
     * Instantiates a new tree node visit data.
+    * @param conceptAssemblageNid The assemblage Nid which specifies the assemblage where the concepts in this tree
+    * where created within.  
     */
-   public TreeNodeVisitDataBdbImpl() {
+   public TreeNodeVisitDataBdbImpl(int conceptAssemblageNid) {
       this.visitStarted = new OpenIntHashSet();
       this.visitEnded = new OpenIntHashSet();
       this.leafNodes = new OpenIntHashSet();
-      this.distanceMap = new IntIntHashMap();
-      this.discoveryTimeMap = new IntIntHashMap();
-      this.finishTimeMap = new IntIntHashMap();
-      this.siblingGroupNidMap = new IntIntHashMap();
-      this.predecessorNidMap = new IntIntHashMap();
+      this.distanceList = new IntArrayList();
+      this.discoveryTimeList = new IntArrayList();
+      this.finishTimeList = new IntArrayList();
+      this.siblingGroupNidList = new IntArrayList();
+      this.predecessorNidList = new IntArrayList();
+      this.predecessorNidList.fillFromToWith(0, this.predecessorNidList.size() - 1, -1);
+      this.conceptAssemblageNid = conceptAssemblageNid;
+      ss = ModelGet.sequenceStore();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -220,7 +229,7 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public int getDiscoveryTime(int nodeNid) {
-      return this.discoveryTimeMap.get(nodeNid);
+      return this.discoveryTimeList.getQuick(nidToSequence(nodeNid));
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -234,8 +243,11 @@ public class TreeNodeVisitDataBdbImpl
       if (nodeNid >= 0) {
          throw new IllegalStateException("Nid is positive: " + nodeNid);
       }
-
-      this.discoveryTimeMap.put(nodeNid, discoveryTime);
+      int sequence = nidToSequence(nodeNid);
+      if (sequence >= this.discoveryTimeList.size()) {
+         this.discoveryTimeList.setSize(sequence + 1);
+      }
+      this.discoveryTimeList.set(sequence, discoveryTime);
    }
 
    //~--- getValueSpliterator methods ---------------------------------------------------------
@@ -247,7 +259,7 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public int getDistance(int nodeNid) {
-      return this.distanceMap.get(nodeNid);
+      return this.distanceList.getQuick(nidToSequence(nodeNid));
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -259,7 +271,11 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public void setDistance(int nodeNid, int distance) {
-      this.distanceMap.put(nodeNid, distance);
+      int sequence = nidToSequence(nodeNid);
+      if (sequence >= this.distanceList.size()) {
+         this.distanceList.setSize(sequence + 1);
+      }
+      this.distanceList.set(sequence, distance);
       this.maxDepth = Math.max(this.maxDepth, distance);
    }
 
@@ -272,7 +288,7 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public int getFinishTime(int nodeNid) {
-      return this.finishTimeMap.get(nodeNid);
+      return this.finishTimeList.getQuick(nidToSequence(nodeNid));
    }
 
    /**
@@ -282,7 +298,12 @@ public class TreeNodeVisitDataBdbImpl
     * @param finishTime the finish time
     */
    private void setFinishTime(int nodeNid, int finishTime) {
-      this.finishTimeMap.put(nodeNid, finishTime);
+      int sequence = nidToSequence(nodeNid);
+      if (sequence >= this.finishTimeList.size()) {
+         this.finishTimeList.setSize(sequence + 1);
+      }
+
+      this.finishTimeList.set(sequence, finishTime);
    }
 
    /**
@@ -326,9 +347,9 @@ public class TreeNodeVisitDataBdbImpl
    public OpenIntHashSet getNodeIdsForDepth(int depth) {
       final OpenIntHashSet nodeIdsForDepth = new OpenIntHashSet();
 
-      for (IntIntPair iterateDepth : distanceMap.keyValuesView()) {
-         if (iterateDepth.getTwo() == depth) {
-            nodeIdsForDepth.add(iterateDepth.getOne());
+      for (int i = 0; i < this.distanceList.size(); i++) {
+         if (this.distanceList.get(i) == depth) {
+            nodeIdsForDepth.add(sequenceToNid(i));
          }
       }
 
@@ -396,10 +417,14 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public OptionalInt getPredecessorNid(int nodeNid) {
-      if (this.predecessorNidMap.contains(nodeNid)) {
-         return OptionalInt.of(this.predecessorNidMap.get(nodeNid));
+      int sequence = nidToSequence(nodeNid);
+      if (this.predecessorNidList.getQuick(sequence) == -1) {
+         return OptionalInt.empty();
       }
-      return OptionalInt.empty();
+      else
+      {
+         return OptionalInt.of(this.predecessorNidList.getQuick(sequence));
+      }
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -411,7 +436,14 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public void setPredecessorNid(int nodeNid, int predecessorNid) {
-      this.predecessorNidMap.put(nodeNid, predecessorNid);
+      int sequence = nidToSequence(nodeNid);
+      int oldSize = this.predecessorNidList.size();
+      if (sequence >= oldSize) {
+         this.predecessorNidList.setSize(sequence + 1);
+         this.predecessorNidList.fillFromToWith(oldSize, sequence - 1, -1);  //In case there are gaps
+      }
+
+      this.predecessorNidList.set(sequence, predecessorNid);
    }
 
    //~--- getValueSpliterator methods ---------------------------------------------------------
@@ -423,7 +455,7 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public int getSiblingGroupForNid(int nodeNid) {
-      return this.siblingGroupNidMap.get(nodeNid);
+      return this.siblingGroupNidList.getQuick(nidToSequence(nodeNid));
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -435,7 +467,11 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public void setSiblingGroupForNid(int nodeNid, int value) {
-      this.siblingGroupNidMap.put(nodeNid, value);
+      int sequence = nidToSequence(nodeNid);
+      if (sequence >= this.siblingGroupNidList.size()) {
+         this.siblingGroupNidList.setSize(sequence + 1);
+      }
+      this.siblingGroupNidList.set(sequence, value);
    }
 
    //~--- getValueSpliterator methods ---------------------------------------------------------
@@ -463,36 +499,69 @@ public class TreeNodeVisitDataBdbImpl
     * Gets the userNodeSet.
     *
     * @param nodeSetKey
-    * @param nodeId the node id
+    * @param nodeNid the node sequence
     * @return the concepts referenced at node or above
     */
    @Override
-   public OpenIntHashSet getUserNodeSet(String nodeSetKey, int nodeId) {
-      if (!this.userNodeMap.containsKey(nodeSetKey)) {
-           this.userNodeMap.put(nodeSetKey, new IntObjectHashMap<OpenIntHashSet>());
-      }
-      
-      IntObjectHashMap<OpenIntHashSet> userNodeSet = this.userNodeMap.get(nodeSetKey);
+   public OpenIntHashSet getUserNodeSet(String nodeSetKey, int nodeNid) {
+        int nodeSequence = nidToSequence(nodeNid);
+        // lazy creation to save memory since not all tree traversals want to
+        // use this capability.
+        if (!this.userNodeMap.containsKey(nodeSetKey)) {
+           this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[nodeSequence + 1]);
+        }
 
-      if (!userNodeSet.containsKey(nodeId)) {
-        userNodeSet.put(nodeId, new OpenIntHashSet());
-      }
-      return userNodeSet.get(nodeId);
+        OpenIntHashSet[] userNodeSet = this.userNodeMap.get(nodeSetKey);
+
+        if (nodeSequence >= userNodeSet.length) {
+           OpenIntHashSet[] replacement = new OpenIntHashSet[nodeSequence + 1];
+           this.userNodeMap.put(nodeSetKey, replacement);
+           for (int i = 0; i < userNodeSet.length; i++) {
+              replacement[i] = userNodeSet[i];
+           }
+           userNodeSet = replacement;
+        }
+        
+       if (userNodeSet[nodeSequence] == null) {
+          userNodeSet[nodeSequence] = new OpenIntHashSet();
+       }
+       return userNodeSet[nodeSequence];
    }
 
+   //~--- set methods ---------------------------------------------------------
    /**
     * Set the user node set.
     *
     * @param nodeSetKey
-    * @param nodeId the node sequence
+    * @param nodeNid the node sequence
     * @param conceptSet the concept set
     */
    @Override
-   public void setUserNodeSet(String nodeSetKey, int nodeId, OpenIntHashSet conceptSet) {
-      if (!this.userNodeMap.containsKey(nodeSetKey)) {
-            this.userNodeMap.put(nodeSetKey, new IntObjectHashMap<OpenIntHashSet>());
-      }
+   public void setUserNodeSet(String nodeSetKey, int nodeNid, OpenIntHashSet conceptSet) {
+      int nodeSequence = nidToSequence(nodeNid);
+     // lazy creation to save memory since not all tree traversals want to use this capability.
+     if (!this.userNodeMap.containsKey(nodeSetKey)) {
+        this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[nodeSequence + 1]);
+     }
 
-      this.userNodeMap.get(nodeSetKey).put(nodeId, conceptSet);
+     this.userNodeMap.get(nodeSetKey)[nodeSequence] = conceptSet;
+   }
+   
+   private int nidToSequence(int nid) {
+      if (ss == null) {
+         return Integer.MAX_VALUE + nid; 
+      }
+      else {
+         return ss.getElementSequenceForNid(nid, conceptAssemblageNid);
+      }
+   }
+   
+   private int sequenceToNid(int sequence) {
+   if (ss == null) {
+         return Integer.MAX_VALUE + sequence; 
+      }
+      else {
+         return ss.getNidForElementSequence(conceptAssemblageNid, sequence);
+      }
    }
 }

@@ -1048,9 +1048,13 @@ public class BdbProvider
          return currentValue;
       });
 
-      SpinedIntIntMap elementSequenceToNidMap = this.getAssemblageNid_ElementSequenceToNid_Map(assemblageNid);
-      elementSequenceToNidMap.put(elementSequence, nid);
+      this.getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).put(elementSequence, nid);
       return elementSequence;
+   }
+   
+   @Override
+   public int getNidForElementSequence(int assemblageNid, int sequence) {
+      return getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).get(sequence);
    }
 
    /**
