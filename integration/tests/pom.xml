@@ -63,9 +63,9 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>filesystem-datastore</artifactId>
+         <artifactId>datastore-locator</artifactId>
          <version>${project.version}</version>
-       </dependency>
+      </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>logic</artifactId>

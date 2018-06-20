@@ -345,7 +345,6 @@ public class TreeNodeVisitDataImpl implements TreeNodeVisitData {
     *
     * @return the graph size
     */
-   @Override
    public int getGraphSize() {
       return this.graphSize;
    }

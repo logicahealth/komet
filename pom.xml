@@ -134,6 +134,7 @@
       <xodus.version>1.1.0</xodus.version>
       <fontawesome.version>4.7.0-5</fontawesome.version>
       <xml-apis.version>1.4.01</xml-apis.version>  <!-- Be really careful about changing this... tis a nightmare dependency -->
+      <eclipse-collections.version>9.2.0</eclipse-collections.version>
 
       <repackage-mojo.version>1.0</repackage-mojo.version>
       <sisu-guice.version>3.2.6</sisu-guice.version>
@@ -607,6 +608,11 @@
              <groupId>xml-apis</groupId>
              <artifactId>xml-apis</artifactId>
              <version>${xml-apis.version}</version>
+         </dependency>
+         <dependency>
+             <groupId>org.eclipse.collections</groupId>
+             <artifactId>eclipse-collections</artifactId>
+             <version>${eclipse-collections.version}</version>
          </dependency>
       </dependencies>
    </dependencyManagement>

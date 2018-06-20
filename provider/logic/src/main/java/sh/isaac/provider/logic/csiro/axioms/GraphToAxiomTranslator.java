@@ -94,14 +94,14 @@ public class GraphToAxiomTranslator {
    /** The axioms. */
    Set<Axiom> axioms = new ConcurrentSkipListSet<>();
 
-   /** The sequence logic concept map. */
-   SpinedIntObjectMap<Concept> sequenceLogicConceptMap = new SpinedIntObjectMap<>();
+   /** The nid logic concept map. */
+   SpinedIntObjectMap<Concept> nidLogicConceptMap = new SpinedIntObjectMap<>();  //TODO [refactortest], see if this is still the best approach when not using a sequence store
 
    /** The sequence logic role map. */
-   ConcurrentHashMap<Integer, Role> sequenceLogicRoleMap = new ConcurrentHashMap<>();
+   ConcurrentHashMap<Integer, Role> nidLogicRoleMap = new ConcurrentHashMap<>();
 
    /** The sequence logic feature map. */
-   ConcurrentHashMap<Integer, Feature> sequenceLogicFeatureMap = new ConcurrentHashMap<>();
+   ConcurrentHashMap<Integer, Feature> nidLogicFeatureMap = new ConcurrentHashMap<>();
 
    /** The loaded concepts. */
    ConcurrentSkipListSet<Integer> loadedConceptNids = new ConcurrentSkipListSet<>();
@@ -116,9 +116,9 @@ public class GraphToAxiomTranslator {
     */
    public void clear() {
       this.axioms.clear();
-      this.sequenceLogicRoleMap.clear();
-      this.sequenceLogicFeatureMap.clear();
-      this.sequenceLogicConceptMap.clear();
+      this.nidLogicRoleMap.clear();
+      this.nidLogicFeatureMap.clear();
+      this.nidLogicConceptMap.clear();
       this.loadedConceptNids.clear();
    }
 
@@ -147,9 +147,9 @@ public class GraphToAxiomTranslator {
     */
    @Override
    public String toString() {
-      return "GraphToAxiomTranslator{" + "axioms=" + this.axioms.size() + ", sequenceLogicConceptMap=" +
-             this.sequenceLogicConceptMap.size() + ", sequenceLogicRoleMap=" +
-             this.sequenceLogicRoleMap.size() + ", sequenceLogicFeatureMap=" + this.sequenceLogicFeatureMap.size() +
+      return "GraphToAxiomTranslator{" + "axioms=" + this.axioms.size() + ", nidLogicConceptMap=" +
+             this.nidLogicConceptMap.size() + ", sequenceLogicRoleMap=" +
+             this.nidLogicRoleMap.size() + ", sequenceLogicFeatureMap=" + this.nidLogicFeatureMap.size() +
              '}';
    }
 
@@ -482,28 +482,14 @@ public class GraphToAxiomTranslator {
     * @return the concept
     */
    private Concept getConcept(int name) {
-
-      if (name < 0) {
-         name = ModelGet.identifierService().getElementSequenceForNid(name);
-      }
-      final Optional<Concept> optionalConcept = this.sequenceLogicConceptMap.getOptional(name);
+      final Optional<Concept> optionalConcept = this.nidLogicConceptMap.getOptional(name);
 
       if (optionalConcept.isPresent()) {
          return optionalConcept.get();
       }
       Concept concept = Factory.createNamedConcept(Integer.toString(name));
-      this.sequenceLogicConceptMap.put(name, concept);
+      this.nidLogicConceptMap.put(name, concept);
       return concept;
-   }
-
-   /**
-    * Gets the concept from sequence.
-    *
-    * @param sequence the sequence
-    * @return the concept from sequence
-    */
-   public Optional<Concept> getConceptFromSequence(int sequence) {
-      return this.sequenceLogicConceptMap.getOptional(sequence);
    }
 
    /**
@@ -514,14 +500,14 @@ public class GraphToAxiomTranslator {
     */
    private Feature getFeature(int name) {
 
-      final Feature feature = this.sequenceLogicFeatureMap.get(name);
+      final Feature feature = this.nidLogicFeatureMap.get(name);
 
       if (feature != null) {
          return feature;
       }
 
-      this.sequenceLogicFeatureMap.putIfAbsent(name, Factory.createNamedFeature(Integer.toString(name)));
-      return this.sequenceLogicFeatureMap.get(name);
+      this.nidLogicFeatureMap.putIfAbsent(name, Factory.createNamedFeature(Integer.toString(name)));
+      return this.nidLogicFeatureMap.get(name);
    }
 
    /**
@@ -541,14 +527,14 @@ public class GraphToAxiomTranslator {
     */
    private Role getRole(int name) {
  
-      final Role role = this.sequenceLogicRoleMap.get(name);
+      final Role role = this.nidLogicRoleMap.get(name);
 
       if (role != null) {
          return role;
       }
 
-      this.sequenceLogicRoleMap.putIfAbsent(name, Factory.createNamedRole(Integer.toString(name)));
-      return this.sequenceLogicRoleMap.get(name);
+      this.nidLogicRoleMap.putIfAbsent(name, Factory.createNamedRole(Integer.toString(name)));
+      return this.nidLogicRoleMap.get(name);
    }
 }
 

@@ -65,7 +65,6 @@ public interface TreeNodeVisitData {
     */
    int getDistance(int nodeId);
 
-   //~--- get methods ---------------------------------------------------------
    /**
     * Gets the finish time.
     *
@@ -74,15 +73,6 @@ public interface TreeNodeVisitData {
    */
    int getFinishTime(int nodeId);
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the graph size.
-    *
-    * @return the graph size
-    */
-   int getGraphSize();
-
-   //~--- get methods ---------------------------------------------------------
    /**
     * Gets the leaf nodes.
     *

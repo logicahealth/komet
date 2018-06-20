@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>sh.isaac</groupId>
@@ -11,15 +12,15 @@
     <name>ISAAC provider: (MMP)</name>
     <description>Aggregator project for provider ISAAC provider modules</description>
     <profiles>
-    <profile>
-         <id>bdb</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <modules>
-            <module>bdb-datastore</module>
-         </modules>
-      </profile>
+        <profile>
+            <id>bdb</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>bdb-datastore</module>
+            </modules>
+        </profile>
     </profiles>
     <modules>
         <module>commit</module>
@@ -41,5 +42,6 @@
         <module>chronology</module>
         <module>xodus-datastore</module>
         <module>memory-managment</module>
+        <module>datastore-locator</module>
     </modules>
 </project>

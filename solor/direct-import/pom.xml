@@ -32,6 +32,10 @@
          <artifactId>util</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
+      <dependency>
+          <groupId>org.eclipse.collections</groupId>
+          <artifactId>eclipse-collections</artifactId>
+      </dependency>
       <!-- When mojos execute, route all logging through log4j2 -->
       <dependency>
          <groupId>sh.isaac.core</groupId>

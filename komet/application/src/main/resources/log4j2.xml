@@ -39,6 +39,8 @@
 	<Loggers>
 		<!-- To quiet down individual loggers, add entries like this -->
 		<Logger name="sh.isaac.api.LookupService" level="error" />
+		<Logger name="jetbrains.exodus.gc" level="warn" />
+		<Logger name="jetbrains.exodus.io" level="warn" />
 		<Root level="info">
 			<AppenderRef ref="STDOUT" />
 			<AppenderRef ref="FILE-NORMAL" />

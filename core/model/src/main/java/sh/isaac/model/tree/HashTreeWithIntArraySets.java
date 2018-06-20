@@ -91,17 +91,17 @@ public class HashTreeWithIntArraySets
    //~--- fields --------------------------------------------------------------
 
    /**
-    * The concept sequences with parents.
+    * The concept nids with parents.
     */
    final OpenIntHashSet conceptNidsWithParents;
 
    /**
-    * The concept sequences with children.
+    * The concept nids with children.
     */
    final OpenIntHashSet conceptNidsWithChildren;
 
    /**
-    * The concept sequences.
+    * The concept nids.
     */
    final OpenIntHashSet conceptNids;
 
@@ -133,7 +133,7 @@ public class HashTreeWithIntArraySets
       this.conceptNidsWithParents    = new OpenIntHashSet();
       this.conceptNidsWithChildren   = new OpenIntHashSet();
       this.conceptNids               = new OpenIntHashSet();
-      this.childNid_ParentNidSetArray_Map = new SpinedIntIntArrayMap();
+      this.childNid_ParentNidSetArray_Map = new SpinedIntIntArrayMap();  //TODO [refactortest], see if this is still the best approach, when using a store without sequences
       this.parentNid_ChildNidSetArray_Map = new SpinedIntIntArrayMap();
    }
 
@@ -441,15 +441,15 @@ public class HashTreeWithIntArraySets
     * Adds the parents as children.
     *
     * @param tree the tree
-    * @param childSequence the childIndex sequence
-    * @param parentSequences the parentIndex sequences
+    * @param childNid the child identifier
+    * @param parentNids the parent identifiers
     */
-   private void addParentsAsChildren(HashTreeWithIntArraySets tree, int childSequence, int[] parentSequences) {
-      IntStream.of(parentSequences)
+   private void addParentsAsChildren(HashTreeWithIntArraySets tree, int childNid, int[] parentNids) {
+      IntStream.of(parentNids)
                .forEach(
-                   (parentSequence) -> {
-                      tree.addChild(childSequence, parentSequence);
-                      addParentsAsChildren(tree, parentSequence, getParentNids(parentSequence));
+                   (parentNid) -> {
+                      tree.addChild(childNid, parentNid);
+                      addParentsAsChildren(tree, parentNid, getParentNids(parentNid));
                    });
    }
 
@@ -751,29 +751,21 @@ public class HashTreeWithIntArraySets
    }
 
    /**
-    * Gets the root sequences.
+    * Gets the root nids.
     *
-    * @return the root sequences
+    * @return the root nids
     */
    @Override
    public final int[] getRootNids() {
       OpenIntHashSet rootSet = (OpenIntHashSet) this.conceptNidsWithChildren.clone();
 
       this.conceptNidsWithParents.forEachKey(
-          (sequence) -> {
-             rootSet.remove(sequence);
+          (nid) -> {
+             rootSet.remove(nid);
              return true;
           });
 
-      int[] rootSequences = rootSet.keys()
-                                   .elements();
-
-      for (int i = 0; i < rootSet.size(); i++) {
-         rootSequences[i] = ModelGet.identifierService()
-                                    .getNidForElementSequence(rootSequences[i], assemblageNid);
-      }
-
-      return rootSequences;
+      return rootSet.keys().elements();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -830,65 +822,41 @@ public class HashTreeWithIntArraySets
       }
    }
 
-   protected void printWatch(int conceptNid, String prefix) {
+   protected void printWatch(final int conceptNid, String prefix) {
       if (!Get.configurationService().isVerboseDebugEnabled()) {
          return;
       }
-      int nid = conceptNid;
 
-      if (nid >= 0) {
-         nid = ModelGet.identifierService()
-                       .getNidForElementSequence(conceptNid, assemblageNid);
-      }
+      int[] record   = ModelGet.taxonomyDebugService().getTaxonomyData(ModelGet.identifierService().getAssemblageNid(conceptNid).getAsInt(), conceptNid);
 
-      SpinedIntIntArrayMap taxonomyMap = ModelGet.taxonomyDebugService()
-                                                 .getTaxonomyRecordMap(
-                                                       ModelGet.identifierService()
-                                                             .getAssemblageNid(nid)
-                                                             .getAsInt());
-      int[] record   = taxonomyMap.get(nid);
-      int   finalNid = nid;
-
-      LOG.debug("\n" + prefix + " watch: " + Get.conceptDescriptionText(nid));
+      LOG.debug("\n" + prefix + " watch: " + Get.conceptDescriptionText(conceptNid));
       LOG.debug("\nTaxonomy record: " + Arrays.toString(record));
-      LOG.debug("\n" + ModelGet.taxonomyDebugService().describeTaxonomyRecord(nid));
+      LOG.debug("\n" + ModelGet.taxonomyDebugService().describeTaxonomyRecord(conceptNid));
       childNid_ParentNidSetArray_Map.forEach(
-          (int sequence,
+          (int inNid,
            int[] parentArray) -> {
              if (Arrays.stream(parentArray)
-                       .anyMatch((value) -> value == finalNid)) {
-                int sequenceNid = sequence;
-
-                if (sequenceNid >= 0) {
-                   sequenceNid = ModelGet.identifierService()
-                                         .getNidForElementSequence(sequence, assemblageNid);
-                }
+                       .anyMatch((value) -> value == conceptNid)) {
 
                 System.out.println(
                     prefix + Get.conceptDescriptionText(
-                        finalNid) + " found in parent set of: " + sequence + " " + Get.conceptDescriptionText(
-                            sequenceNid));
+                          conceptNid) + " found in parent set of: " + inNid + " " + Get.conceptDescriptionText(
+                            inNid));
              }
           });
       parentNid_ChildNidSetArray_Map.forEach(
-          (int sequence,
+          (int inNid,
            int[] childArray) -> {
              if (Arrays.stream(childArray)
-                       .anyMatch((value) -> value == finalNid)) {
-                int sequenceNid = sequence;
-
-                if (sequenceNid >= 0) {
-                   sequenceNid = ModelGet.identifierService()
-                                         .getNidForElementSequence(sequence, assemblageNid);
-                }
+                       .anyMatch((value) -> value == conceptNid)) {
 
                 System.out.println(
                     prefix + Get.conceptDescriptionText(
-                        finalNid) + " found in child set of: " + sequence + " " + Get.conceptDescriptionText(
-                            sequenceNid));
+                          conceptNid) + " found in child set of: " + inNid + " " + Get.conceptDescriptionText(
+                            inNid));
              }
           });
-      LOG.debug(Get.concept(nid)
+      LOG.debug(Get.concept(conceptNid)
                             .toString());
       LOG.debug("");
    }

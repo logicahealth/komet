@@ -56,7 +56,7 @@ import java.util.stream.IntStream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
-
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- interfaces -------------------------------------------------------------
@@ -205,5 +205,18 @@ public interface IdentifierService
      * @return disk space used in bytes
      */
     long getSizeOnDisk();
+    
+    /**
+     * This object type is normally set when the first object is written to the assemblage, so there 
+     * is no need for calling this method directly. 
+     * @param nid
+     * @param assemblageNid the required assemblageNid for this nid.
+     * @param objectType 
+     * @param versionType
+     * @return true, if this is the first time setupNid was called for this nid.  Returns false if the nid was previously setup, 
+     * and this method call was a no-op.
+     * @throws IllegalStateException if the nid was already set up and the previous type(s) don't match, or the nid is unknown.
+     */
+    boolean setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) throws IllegalStateException;
 }
 

@@ -60,7 +60,7 @@ public class ModelGet implements StaticIsaacCache {
    public static DataStore dataStore() {
       if (dataStore == null) {
          dataStore = Get.service(DataStore.class);
-         if (dataStore instanceof SequenceStore) {
+         if (dataStore.implementsSequenceStore()) {
             sequenceStore = (SequenceStore)dataStore;
          }
       }

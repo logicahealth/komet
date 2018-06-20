@@ -39,16 +39,13 @@
 
 package sh.isaac.provider.bdb;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -60,22 +57,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import java.util.function.BinaryOperator;
+import java.util.stream.IntStream;
+import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-
+import org.glassfish.hk2.api.Rank;
+import org.jvnet.hk2.annotations.Service;
 import com.sleepycat.bind.tuple.IntegerBinding;
 import com.sleepycat.bind.tuple.StringBinding;
 import com.sleepycat.je.Cursor;
@@ -90,14 +78,14 @@ import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
-
+import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
-import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
@@ -105,14 +93,14 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.ContainerSequenceService;
+import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.SequenceStore;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.model.collections.SpinedNidNidSetMap;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.model.DataStore;
 import sh.isaac.model.taxonomy.TaxonomyRecord;
 
 //~--- classes ----------------------------------------------------------------
@@ -121,13 +109,15 @@ import sh.isaac.model.taxonomy.TaxonomyRecord;
  *
  * @author kec
  */
-//@Service
-//@RunLevel(value = LookupService.SL_L0)  //TODO [KEC] Service disabled, as it doesn't work at the moment...
+/** Align this with {@link DatabaseImplementation#BDB} */
+@Service (name="BDB")
+@Singleton
+@Rank(value=-10)
 //However, rather than disabling services, we should likely have a HK2 "name" on each DataStore implementation, and 
 //a user preference to select which one we run with.
 //TODO [DAN 3] [KEC] All of the fields set up in the class construction need to be properly cleared / purged on a shutdown/startup cycle.
 public class BdbProvider
-         implements DataStore {
+         implements DataStoreSubService, SequenceStore {
    /**
     * The Constant LOG.
     */
@@ -190,6 +180,9 @@ public class BdbProvider
 //      LOG.info("Put assemblage type map with result of: " + result);
 //   }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void putChronologyData(ChronologyImpl chronology) {
       int assemblageNid = chronology.getAssemblageNid();
@@ -211,10 +204,11 @@ public class BdbProvider
 
       DatabaseEntry key = new DatabaseEntry();
 
-      IntegerBinding.intToEntry(chronology.getElementSequence(), key);
+      IntegerBinding.intToEntry(getElementSequenceForNid(chronology.getNid()), key);
 
       //TODO [KEC] this probably isn't right, see the changes made in commit 7064a7b50cac9666fd93d252605d2d25ad173d86 to FileSystemDataStore, 
       //specifically, the getDataList method.
+      //This could probably be redone with the new methods to get the versions distinct from the chronologies
       byte[] data = chronology.getDataToWrite();
       Database     database = getChronologyDatabase(assemblageNid);
 
@@ -352,7 +346,7 @@ public class BdbProvider
    private Database populateMapFromBdb(SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map,
          int assemblageNid)
             throws DatabaseException {
-      ContainerSequenceService idService = ModelGet.identifierService();
+      IdentifierService        idService = ModelGet.identifierService();
       IntArrayBinding          binding   = new IntArrayBinding();
       DiskOrderedCursorConfig  docc      = new DiskOrderedCursorConfig();
       DatabaseEntry            foundKey  = new DatabaseEntry();
@@ -368,7 +362,7 @@ public class BdbProvider
       try (DiskOrderedCursor cursor = database.openCursor(docc)) {
          while (cursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
             int elementSequence = IntegerBinding.entryToInt(foundKey);
-            int nid             = idService.getNidForElementSequence(elementSequence, assemblageNid);
+            int nid             = getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).get(elementSequence);
 
             origin_DestinationTaxonomyRecord_Map.put(nid, binding.entryToObject(foundData));
          }
@@ -395,10 +389,10 @@ public class BdbProvider
    }
 
    /**
-    * Start me.
+    * {@inheritDoc}
     */
-   @PostConstruct
-   private void startMe() {
+   @Override
+   public void startup() {
       try {
          MemoryConfiguration memoryConfiguration = Get.configurationService().getGlobalDatastoreConfiguration().getMemoryConfiguration()
                .orElse(MemoryConfiguration.ALL_CHRONICLES_MANAGED_BY_DB);
@@ -489,10 +483,10 @@ public class BdbProvider
    }
 
    /**
-    * Stop me.
+    * {@inheritDoc}
     */
-   @PreDestroy
-   private void stopMe() {
+   @Override
+   public void shutdown() {
       LOG.info("Stopping BDB Provider.");
 
       try {
@@ -597,8 +591,7 @@ public class BdbProvider
       return assemblageConceptNids;
    }
 
-   @Override
-   public ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageObjectTypeMap() {
+   private ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageObjectTypeMap() {
       Database      database = getNoDupDatabase(MISC_MAP);
       DatabaseEntry key      = new DatabaseEntry();
 
@@ -613,14 +606,43 @@ public class BdbProvider
 
       return new ConcurrentHashMap<>();
    }
+   
+   @Override
+   public IsaacObjectType getIsaacObjectTypeForAssemblageNid(int assemblageNid) {
+       IsaacObjectType result = getAssemblageObjectTypeMap().get(assemblageNid);
+       if (result == null) {
+          return IsaacObjectType.UNKNOWN;
+       }
+       return result;
+   }
+
+   @Override
+   public NidSet getAssemblageNidsForType(IsaacObjectType searchType) {
+      final NidSet results = new NidSet();
+      getAssemblageObjectTypeMap().forEach((nid, type)-> {
+         if (searchType == type) {
+            results.add(nid);
+         }
+      });
+      return results;
+   }
+
+   @Override
+   public void putAssemblageIsaacObjectType(int assemblageNid, IsaacObjectType type) throws IllegalStateException
+   {
+      IsaacObjectType oldValue = getAssemblageObjectTypeMap().computeIfAbsent(assemblageNid, (i -> type));
+      if (oldValue != type) {
+         throw new IllegalStateException("Tried to change the isaac object type of " + assemblageNid + " from " + oldValue + " to " + type);
+      }
+   }
+
 
    @Override
    public Optional<ByteArrayDataBuffer> getChronologyData(int nid) {
       int      assemblageNid   = ModelGet.identifierService()
                                          .getAssemblageNid(nid)
                                          .getAsInt();
-      int      elementSequence = ModelGet.identifierService()
-                                         .getElementSequenceForNid(nid, assemblageNid);
+      int      elementSequence = getElementSequenceForNid(nid, assemblageNid);
       Database database        = getChronologyDatabase(assemblageNid);
 
       try (Cursor cursor = database.openCursor(null, CursorConfig.READ_UNCOMMITTED)) {
@@ -671,8 +693,8 @@ public class BdbProvider
    }
 
    @Override
-   public SpinedNidNidSetMap getComponentToSemanticNidsMap() {
-      return componentToSemanticMap;
+   public int[] getSemanticNidsForComponent(int componentNid) {
+      return componentToSemanticMap.get(componentNid);
    }
 
    @Override
@@ -731,8 +753,7 @@ public class BdbProvider
       return database;
    }
 
-   @Override
-   public ConcurrentMap<Integer, AtomicInteger> getSequenceGeneratorMap() {
+   private ConcurrentMap<Integer, AtomicInteger> getSequenceGeneratorMap() {
       Database      database = getNoDupDatabase(MISC_MAP);
       DatabaseEntry key      = new DatabaseEntry();
 
@@ -759,8 +780,7 @@ public class BdbProvider
       return spinedMapDirectory;
    }
 
-   @Override
-   public SpinedIntIntMap getAssemblageNid_ElementSequenceToNid_Map(int assemblageNid) {
+   private SpinedIntIntMap getAssemblageNid_ElementSequenceToNid_Map(int assemblageNid) {
       Database        mapDatabase = getNoDupDatabase("Assemblage" + assemblageNid);
       SpinedIntIntMap map         = new SpinedIntIntMap();
 
@@ -783,18 +803,15 @@ public class BdbProvider
 
    public static final String NID_ASSEMBLAGENID_MAP_KEY = "nid_AssemblageNid_Map";
    public static final String NID_ELEMENT_SEQUENCE_MAP_KEY = "nid_ElementSequence_Map";
-   @Override
-   public SpinedNidIntMap getNidToAssemblageNidMap() {
+   
+   private SpinedNidIntMap getNidToAssemblageNidMap() {
       return getSpinedNidIntMap(NID_ASSEMBLAGENID_MAP_KEY);
    }
-
-   @Override
-   public SpinedNidIntMap getNidToElementSequenceMap() {
+   
+   private SpinedNidIntMap getNidToElementSequenceMap() {
       return getSpinedNidIntMap(NID_ELEMENT_SEQUENCE_MAP_KEY);
    }
 
-   
-   
    private SpinedNidIntMap getSpinedNidIntMap(String databaseKey) {
       Database        mapDatabase = getNoDupDatabase(databaseKey);
       SpinedNidIntMap map         = new SpinedNidIntMap();
@@ -829,8 +846,7 @@ public class BdbProvider
       return database;
    }
 
-   @Override
-   public SpinedIntIntArrayMap getTaxonomyMap(int assemblageNid) {
+   private SpinedIntIntArrayMap getTaxonomyMap(int assemblageNid) {
          String spinedMapKey = "TaxonomySpinedMap" + assemblageNid;
 
          if (spinedTaxonomyMapMap.containsKey(spinedMapKey)) {
@@ -853,13 +869,25 @@ public class BdbProvider
    }
    
    @Override
+   public int[] getTaxonomyData(int assemblageNid, int conceptNid)
+   {
+      return getTaxonomyMap(assemblageNid).get(conceptNid);
+   }
+
+   @Override
+   public int[] accumulateAndGetTaxonomyData(int assemblageId, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction)
+   {
+      return getTaxonomyMap(assemblageId).accumulateAndGet(conceptNid, newData, accumulatorFunction);
+   }
+   
+   @Override
    public boolean hasChronologyData(int nid, IsaacObjectType expectedType) {
       int assemblageNid = ModelGet.identifierService().getAssemblageNid(nid).getAsInt();
 //      if (expectedType != assemblageToObjectType_Map.get(assemblageNid)) {
 //          return false;
 //       }
       //TODO [KEC] this must validate the expectedType, with info that doesn't appear to be here - but maybe related to the "abandoned" method at the top?
-      int elementSequence = ModelGet.identifierService().getElementSequenceForNid(nid, assemblageNid);
+      int elementSequence = getElementSequenceForNid(nid, assemblageNid);
       Database database = getChronologyDatabase(assemblageNid);
 
       try (Cursor cursor = database.openCursor(null, CursorConfig.READ_UNCOMMITTED)) {
@@ -947,12 +975,6 @@ public class BdbProvider
    }
 
    @Override
-   public ConcurrentHashMap<Integer, VersionType> getAssemblageVersionTypeMap() {
-      // TODO [KEC] Auto-generated method stub
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public int getAssemblageMemoryInUse(int assemblageNid) {
       // TODO [KEC] Auto-generated method stub
       return 0;
@@ -979,5 +1001,122 @@ public class BdbProvider
    public void unregisterDataWriteListener(DataWriteListener dataWriteListener) {
       writeListeners.remove(dataWriteListener);
    }
-}
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public int getElementSequenceForNid(int nid) {
+        int elementSequence = getNidToElementSequenceMap().get(nid);
+        if (elementSequence != Integer.MAX_VALUE) {
+           return elementSequence;
+        }
+        return getElementSequenceForNid(nid, ModelGet.identifierService().getAssemblageNid(nid).orElseThrow(() -> new RuntimeException("No assemblage nid available for " + nid 
+              + " " + Get.identifierService().getUuidPrimordialForNid(nid))));
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public int getElementSequenceForNid(int nid, int assemblageNid) {
+      if (nid >= 0) {
+         throw new IllegalStateException("Nids must be negative. Found: " + nid);
+      }
+      if (assemblageNid >= 0) {
+         throw new IllegalStateException("assemblageNid must be negative. Found: " + assemblageNid);
+      }
+
+      int assemblageForNid = this.getNidToAssemblageNidMap().get(nid);
+      if (assemblageForNid == Integer.MAX_VALUE)
+      {
+         this.getNidToAssemblageNidMap().put(nid, assemblageNid);
+      }
+      else if (assemblageNid != assemblageForNid)
+      {
+         throw new IllegalStateException("Assemblage nids do not match: \n" + Get.conceptDescriptionText(assemblageNid) + "(" + assemblageNid + ") and\n"
+               + Get.conceptDescriptionText(assemblageForNid) + "(" + assemblageForNid + ")");
+      }
+
+      AtomicInteger sequenceGenerator = this.getSequenceGeneratorMap().computeIfAbsent(assemblageNid, (key) -> new AtomicInteger(1));
+      int elementSequence = this.getNidToElementSequenceMap().getAndUpdate(nid, (currentValue) -> {
+         if (currentValue == Integer.MAX_VALUE)
+         {
+            return sequenceGenerator.getAndIncrement();
+         }
+         return currentValue;
+      });
+
+      SpinedIntIntMap elementSequenceToNidMap = this.getAssemblageNid_ElementSequenceToNid_Map(assemblageNid);
+      elementSequenceToNidMap.put(elementSequence, nid);
+      return elementSequence;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public OptionalInt getAssemblageOfNid(int nid) {
+         int value = getNidToAssemblageNidMap().get(nid);
+         if (value != Integer.MAX_VALUE) {
+            return OptionalInt.of(value);
+         }
+         return OptionalInt.empty();
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void setAssemblageForNid(int nid, int assemblage) throws IllegalArgumentException {
+         OptionalInt current = getAssemblageOfNid(nid);
+         if (current.isPresent() && current.getAsInt() != assemblage) {
+              throw new IllegalArgumentException("The nid " + nid + " is already assigned to assemblage " 
+                      + current + " and cannot be reassigned to " + nid);
+         }
+         else {
+            getNidToAssemblageNidMap().put(nid,  assemblage);
+         }
+   }
+   
+      public ConcurrentHashMap<Integer, VersionType> getAssemblageVersionTypeMap() {
+         // TODO [KEC] Auto-generated method stub
+         throw new UnsupportedOperationException();
+      }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public VersionType getVersionTypeForAssemblageNid(int assemblageNid) {
+         VersionType result = getAssemblageVersionTypeMap().get(assemblageNid);
+         if (result == null) {
+            return VersionType.UNKNOWN;
+         }
+         return result;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public void putAssemblageVersionType(int assemblageNid, VersionType type) throws IllegalStateException {
+         VersionType oldValue = getAssemblageVersionTypeMap().computeIfAbsent(assemblageNid, (i -> type));
+         if (oldValue != type) {
+            throw new IllegalStateException("Tried to change the version type of " + assemblageNid + " from " + oldValue + " to " + type);
+         }
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public IntStream getNidsForAssemblage(int assemblageNid) {
+         return getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).valueStream();
+   }
+
+   @Override
+   public boolean implementsSequenceStore() {
+      return true;
+   }
+}

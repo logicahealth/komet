@@ -64,6 +64,7 @@ import sh.isaac.api.IsaacCache;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.UserConfiguration;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.util.UuidT5Generator;
@@ -108,6 +109,8 @@ public class ConfigurationServiceProvider
    private SimpleObjectProperty<BuildMode> dbBuildMode = new SimpleObjectProperty<>(null);
    
    private DatabaseInitialization dbInitMode = DatabaseInitialization.NO_DATA_LOAD;
+   
+   private DatabaseImplementation dbImplementation = DatabaseImplementation.DEFAULT;
    
    private Cache<UUID, UserConfiguration> userConfigCache;
    
@@ -380,6 +383,36 @@ public class ConfigurationServiceProvider
       dbInitMode = initMode;
    }
 
+   @Override
+   public DatabaseImplementation getDatabaseImplementation()
+   {
+      String temp = System.getProperty(SystemPropertyConstants.DATA_STORE_TYPE);
+      DatabaseImplementation diFromSystem = null;
+      if (StringUtils.isNotBlank(temp)) {
+         try {
+            diFromSystem = DatabaseImplementation.valueOf(temp);
+            if (diFromSystem == null) {
+               LogManager.getLogger().warn("Ignoring invalid value '{}' for system property '{}'", temp, SystemPropertyConstants.DATA_STORE_TYPE);
+            }
+         }
+         catch (Exception e) {
+            LogManager.getLogger().warn("Ignoring invalid value '{}' for system property '{}'", temp, SystemPropertyConstants.DATA_STORE_TYPE);
+         }
+      }
+
+      if (diFromSystem != null) {
+         LOG.info("Overriding the DatabaseImplementation configuration of {} with the value {} from a system property", dbImplementation, diFromSystem);
+         return diFromSystem;
+      }
+
+      return dbImplementation == null ? DatabaseImplementation.DEFAULT : dbImplementation;
+   }
+   
+   @Override
+   public void setDatabaseImplementation(DatabaseImplementation implementation) {
+      dbImplementation = implementation;
+   }
+
    /**
     * {@inheritDoc}
     */
@@ -397,6 +430,7 @@ public class ConfigurationServiceProvider
          this.systemPropertyIbdfImportPath = null;
          this.userDataStoreFolderPath = null;
          this.userIbdfImportPath = null;
+         this.dbImplementation = null;
       }
    }
 }

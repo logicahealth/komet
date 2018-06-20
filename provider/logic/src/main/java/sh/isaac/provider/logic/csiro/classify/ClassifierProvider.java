@@ -37,15 +37,11 @@
 package sh.isaac.provider.logic.csiro.classify;
 
 import java.util.Optional;
-//~--- JDK imports ------------------------------------------------------------
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.concurrent.Task;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import javafx.concurrent.Task;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.classifier.ClassifierResults;
@@ -55,12 +51,11 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.configuration.ManifoldCoordinates;
+import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.taxonomy.GraphCollector;
 import sh.isaac.model.tree.HashTreeBuilder;
 import sh.isaac.model.tree.HashTreeWithIntArraySets;
-import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 
 //~--- classes ----------------------------------------------------------------
@@ -143,9 +138,15 @@ public class ClassifierProvider
       final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinates.getInferredManifoldCoordinate(
               StampCoordinates.getDevelopmentLatestActiveOnly(),
               Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate());
+      IntFunction<int[]> taxonomyDataProvider = new IntFunction<int[]>() {
+          final int assemblageNid = manifoldCoordinate.getConceptAssemblageNid();
+          @Override
+          public int[] apply(int conceptNid) {
+              return Get.taxonomyService().getTaxonomyData(assemblageNid, conceptNid);
+          }
+      };
       final GraphCollector collector
-              = new GraphCollector(((TaxonomyProvider)Get.taxonomyService()).getOrigin_DestinationTaxonomyRecord_Map(manifoldCoordinate.getConceptAssemblageNid()),
-                      manifoldCoordinate);
+              = new GraphCollector(taxonomyDataProvider, manifoldCoordinate);
       final HashTreeBuilder graphBuilder = conceptSequenceStream.collect(()
               -> new HashTreeBuilder(manifoldCoordinate, this.logicCoordinate.getConceptAssemblageNid()),
               collector,
@@ -165,9 +166,15 @@ public class ClassifierProvider
       final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinates.getStatedManifoldCoordinate(
               StampCoordinates.getDevelopmentLatestActiveOnly(),
               Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate());
+      IntFunction<int[]> taxonomyDataProvider = new IntFunction<int[]>() {
+          final int assemblageNid = manifoldCoordinate.getConceptAssemblageNid();
+          @Override
+          public int[] apply(int conceptNid) {
+              return Get.taxonomyService().getTaxonomyData(assemblageNid, conceptNid);
+          }
+      };
       final GraphCollector collector
-              = new GraphCollector(((TaxonomyProvider)Get.taxonomyService()).getOrigin_DestinationTaxonomyRecord_Map(manifoldCoordinate.getConceptAssemblageNid()),
-                      manifoldCoordinate);
+              = new GraphCollector(taxonomyDataProvider, manifoldCoordinate);
       final HashTreeBuilder graphBuilder = conceptSequenceStream.collect(() 
               -> new HashTreeBuilder(manifoldCoordinate, this.logicCoordinate.getConceptAssemblageNid()),
               collector,
