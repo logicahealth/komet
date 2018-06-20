@@ -46,6 +46,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,6 +60,7 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.maven.plugin.AbstractMojo;
@@ -66,6 +68,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.spi.LocationAwareLogger;
 import com.cedarsoftware.util.io.JsonWriter;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.DataTarget;
@@ -235,9 +240,32 @@ public class LoadTermstore
    
    private InputStream[] inputIBDFStreams;
    
-   final Set<Integer> deferredActionNids = new ConcurrentSkipListSet<>();
+   private final Set<Integer> deferredActionNids = new ConcurrentSkipListSet<>();
+   
+   private final int writeAheadLimit = 30;
+   private final Semaphore writeAheadLimiter = new Semaphore(writeAheadLimit);
 
    //~--- methods -------------------------------------------------------------
+   
+   private void futzXodusLogging(String loggerName)
+   {
+      //xodus uses slf4j API for logging, as does maven.  Maven uses the a hacked version of SimpleLogger 
+      //from the slf4j implementation by default.  Our plugins mostly use log4j, which 
+      //allows us to configure them.  But the xodus logging seems to ignore the re-route to log4j
+      //library, and just logs directly to the MavenSimpleLogger, which we can't configure.
+      //And its really noisy.  So, this hack is to quiet it down....
+      try
+      {
+         Logger l = LoggerFactory.getLogger(loggerName);  //This is actually a MavenSimpleLogger, but due to various classloader issues, can't work with the directly.
+         Field f = l.getClass().getSuperclass().getDeclaredField("currentLogLevel");
+         f.setAccessible(true);
+         f.set(l, LocationAwareLogger.WARN_INT);
+      }
+      catch (Exception e)
+      {
+         getLog().warn("Failed to reset the log level of " + loggerName + ", it will continue being noisy.", e);
+      }
+   }
 
    /**
     * Execute.
@@ -248,6 +276,9 @@ public class LoadTermstore
    @Override
    public void execute()
             throws MojoExecutionException {
+      //Quiet down some noisy xodus loggers
+      futzXodusLogging("jetbrains.exodus.gc.GarbageCollector");
+      futzXodusLogging("jetbrains.exodus.io.FileDataReader");
       if (setDBBuildMode) {
          Get.configurationService()
          .setDBBuildMode(BuildMode.DB);
@@ -409,9 +440,20 @@ public class LoadTermstore
                    switch (object.getIsaacObjectType()) {
                    case CONCEPT:
                       if (!this.activeOnly || isActive((Chronology) object)) {
-                         Get.conceptService()
-                            .writeConcept(((ConceptChronology) object));
-                         this.conceptCount++;
+                         writeAheadLimiter.acquire();
+                         Get.workExecutors().getIOExecutor().execute(() -> 
+                         {
+                             try {
+                                Get.conceptService().writeConcept(((ConceptChronology) object));
+                                writeAheadLimiter.release();
+                                this.conceptCount++;
+                             }
+                             catch (Exception e) {
+                                getLog().error("Write Error - ", e);
+                                throw e;
+                             }
+                         });
+                         
                       } else {
                          this.skippedItems.add(((Chronology) object).getNid());
                       }
@@ -499,13 +541,24 @@ public class LoadTermstore
                       if (!this.semanticTypesToSkip.contains(sc.getVersionType()) &&
                             (!this.activeOnly ||
                              (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
-                         Get.assemblageService()
-                            .writeSemanticChronology(sc);
-                         if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
-                            deferredActionNids.add(sc.getNid());
-                         }
+                          final SemanticChronology finalSc = sc;
+                          Get.workExecutors().getIOExecutor().execute(() -> 
+                          {
+                              try {
+                                 Get.assemblageService().writeSemanticChronology(finalSc);
+                                 writeAheadLimiter.release();
+                                 if (finalSc.getVersionType() == VersionType.LOGIC_GRAPH) {
+                                     deferredActionNids.add(finalSc.getNid());
+                                  }
 
-                         this.semanticCount++;
+                                  this.semanticCount++;
+                              }
+                              catch (Exception e) {
+                                 getLog().error("Write Error - ", e);
+                                 throw e;
+                              }
+                          });
+                        
                       } else {
                          this.skippedItems.add(sc.getNid());
                       }
@@ -564,6 +617,9 @@ public class LoadTermstore
           }
        }
        
+       //make sure all threads done writing
+       writeAheadLimiter.acquire(writeAheadLimit);
+       writeAheadLimiter.release(writeAheadLimit);
        if (this.skippedItems.size() > 0) {
            this.skippedAny = true;
         }
