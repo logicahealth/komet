@@ -521,6 +521,7 @@ public class BdbProvider
             myDbEnvironment.close();
             databaseStartState = DataStoreStartState.NOT_YET_CHECKED;
             dataStoreId = Optional.empty();
+            this.writeListeners.clear();
          }
       } catch (Throwable ex) {
          ex.printStackTrace();

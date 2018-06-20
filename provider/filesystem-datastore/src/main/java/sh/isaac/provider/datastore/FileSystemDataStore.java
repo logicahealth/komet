@@ -420,6 +420,7 @@ public class FileSystemDataStore
             this.nidToElementSequenceMap.clear();
             this.lastSyncTask = null;
             this.lastSyncFuture = null;
+            this.writeListeners.clear();
         } catch (InterruptedException | ExecutionException ex) {
             LOG.error("Unexpected error in FileSystemDataStore shutdown", ex);
             throw new RuntimeException(ex);
