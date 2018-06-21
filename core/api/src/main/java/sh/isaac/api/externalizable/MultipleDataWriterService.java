@@ -204,7 +204,7 @@ public class MultipleDataWriterService implements DataWriterService
             catch (final IOException e) {
                 return e;
             }
-        }, true);
+        }, writers.size() > 1);
     }
 
     /**
@@ -234,7 +234,7 @@ public class MultipleDataWriterService implements DataWriterService
             };
             
             if (thread) {
-                Get.workExecutors().getIOExecutor().execute(r);
+                Get.workExecutors().getPotentiallyBlockingExecutor().execute(r);
             }
             else {
                 r.run();
@@ -285,7 +285,7 @@ public class MultipleDataWriterService implements DataWriterService
                 catch (final RuntimeException e) {
                     return new IOException(e);
                 }
-            }, true);
+            }, writers.size() > 1);
         }
         catch (final IOException e) {
             if ((e.getCause() != null) && (e.getCause() instanceof RuntimeException)) {
@@ -330,12 +330,18 @@ public class MultipleDataWriterService implements DataWriterService
 
             final String fileNamePrefix = this.prefix + this.sdf.format(new Date()) + "_" + UUID.randomUUID().toString();
 
-            for (final DataWriterService writer : this.writers) {
+            handleMulti((writer) -> {
                 String extension = writer.getCurrentPath().getFileName().toString();
 
                 extension = extension.substring(extension.lastIndexOf('.'));
-                writer.configure(writer.getCurrentPath().getParent().resolve(fileNamePrefix + extension));
-            }
+                try {
+                    writer.configure(writer.getCurrentPath().getParent().resolve(fileNamePrefix + extension));
+                }
+                catch (IOException e) {
+                    return e;
+                }
+                return null;
+            }, writers.size() > 1);
 
             this.objectWriteCount.set(0);
             resume();
