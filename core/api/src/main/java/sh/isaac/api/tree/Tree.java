@@ -62,12 +62,12 @@ public interface Tree {
     */
    int getAssemblageNid();
    /**
-    * Visit the nodes of this tree that are accessible via the startSequence in
-    * a breadth-first manner, and provide the sequence of the visited node, and
+    * Visit the nodes of this tree that are accessible via the startNid in
+    * a breadth-first manner, and provide the nid of the visited node, and
     * the {@code TreeNodeVisitDataImpl} to the consumer. Nodes are processed when
     * they are discovered,
     *
-    * @param rootNid starting sequence for the breadth-first traversal of
+    * @param rootNid starting nid for the breadth-first traversal of
     * this tree.
     * @param consumer The consumer that accepts each node and the
     * {@code TreeNodeVisitDataImpl} during the traversal.
@@ -82,17 +82,17 @@ public interface Tree {
     * The child is the root of the ancestor tree, and the root of the original
     * source tree becomes the leaf of the ancestor tree.
     *
-    * @param childNid sequence of the node to compute the ancestor tree from.
-    * @return a tree with the {@code childSequence} as the root
+    * @param childNid nid of the node to compute the ancestor tree from.
+    * @return a tree with the {@code childNid} as the root
     */
    Tree createAncestorTree(int childNid);
 
    /**
-    * Visit the nodes of this tree that are accessible via the startSequence in
-    * a depth-first manner, and provide the sequence of the visited node, and
+    * Visit the nodes of this tree that are accessible via the startNid in
+    * a depth-first manner, and provide the nid of the visited node, and
     * the {@code TreeNodeVisitDataImpl} to the consumer.
     *
-    * @param rootNid starting sequence for the depth-first traversal of
+    * @param rootNid starting nid for the depth-first traversal of
     * this tree.
     * @param consumer The consumer that accepts each node and the
     * {@code TreeNodeVisitDataImpl} during the traversal.
@@ -112,27 +112,27 @@ public interface Tree {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the children sequences.
+    * Gets the children nids.
     *
-    * @param parentNid sequence of the concept from which to find children
-    * @return an array of child sequences.
+    * @param parentNid nid of the concept from which to find children
+    * @return an array of child nids.
     */
    int[] getChildNids(int parentNid);
 
    /**
-    * Gets the descendent sequence set.
+    * Gets the descendent nid set.
     *
-    * @param parentNid sequence of the concept from which to compute
+    * @param parentNid nid of the concept from which to compute
     * descendents.
-    * @return {@code BitSet} of the descendents of the {@code parentSequence}
+    * @return {@code BitSet} of the descendents of the {@code parentNid}
     */
    NidSet getDescendentNidSet(int parentNid);
 
    /**
-    * Gets the parent sequences.
+    * Gets the parent identifiers.
     *
-    * @param childNid sequence of the concept from which to find parent
-    * @return an array of parent sequences.
+    * @param childNid nid of the concept from which to find parent
+    * @return an array of parent nids.
     */
    int[] getParentNids(int childNid);
    
@@ -144,25 +144,25 @@ public interface Tree {
     */
    void removeParent(int childNid, int parentNid);
    /**
-    * Gets the root sequences.
+    * Gets the root nids.
     *
-    * @return sequence identifiers for the root concept[s] of this tree.
+    * @return nid identifiers for the root concept[s] of this tree.
     */
    int[] getRootNids();
    
    /**
-    * Determine if the childSequence is a taxonomic descendent of the parentSequence. 
+    * Determine if the childNid is a taxonomic descendent of the parentNid. 
     * @param childNid
     * @param parentNid
-    * @return true if the childSequence is a descendent of the parentSequence by any route. 
+    * @return true if the childNid is a descendent of the parentNid by any route. 
     */
    boolean isDescendentOf(int childNid, int parentNid);
    
    /**
-    * Determine if the childNid is a taxonomic child of the parentSequence. 
+    * Determine if the childNid is a taxonomic child of the parentNid. 
     * @param childNid
     * @param parentNid
-    * @return true if the childNid is a descendent of the parentSequence by any route. 
+    * @return true if the childNid is a descendent of the parentNid by any route. 
     */
    boolean isChildOf(int childNid, int parentNid);
 }
