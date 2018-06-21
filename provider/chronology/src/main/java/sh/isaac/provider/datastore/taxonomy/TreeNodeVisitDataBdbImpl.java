@@ -127,7 +127,6 @@ public class TreeNodeVisitDataBdbImpl
               return 0;
            });
 
-   //TODO [refactor test] test these changes
    /**
     * The distance list. For each node, the distance from the root is tracked in this list, where the node is
     * represented by the index of the list, and the distance is represented by the value of the list at the index.
