@@ -18,6 +18,7 @@ package sh.isaac.provider.datastore;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -79,7 +80,7 @@ public class DatastoreLocator implements DataStore, SequenceStore
 			DatabaseImplementation di;
 			if (dbTypeFile.isFile())
 			{
-				di = DatabaseImplementation.parse(new String(Files.readAllBytes(dbTypeFile.toPath().resolve(dbType))));
+				di = DatabaseImplementation.parse(new String(Files.readAllBytes(folderPath.resolve(dbType))));
 				LOG.info("Existing database type is " + di);
 			}
 			else
@@ -96,7 +97,7 @@ public class DatastoreLocator implements DataStore, SequenceStore
 					dataStore = LookupService.get().getService(DataStoreSubService.class, di.name());
 					break;
 				case DEFAULT:
-					dataStore = LookupService.get().getService(DataStoreSubService.class, DatabaseImplementation.FILESYSTEM.name());
+					dataStore = LookupService.get().getService(DataStoreSubService.class, DatabaseImplementation.XODUS.name());
 					break;
 				default :
 					throw new RuntimeException("Oops");
@@ -104,7 +105,11 @@ public class DatastoreLocator implements DataStore, SequenceStore
 			if (dataStore == null)
 			{
 				throw new RuntimeException("No implementation of a DataStoreSubService is available on the classpath with the name of " 
-						+ (di == DatabaseImplementation.DEFAULT ? DatabaseImplementation.FILESYSTEM.name() : di.name()));
+						+ (di == DatabaseImplementation.DEFAULT ? DatabaseImplementation.XODUS.name() : di.name()));
+			}
+			if (!dbTypeFile.isFile())
+			{
+				Files.write(folderPath.resolve(dbType), di.name().getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
 			}
 			dataStore.startup();
 		}
