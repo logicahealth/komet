@@ -7,7 +7,19 @@
    </Appenders>
    <Loggers>
       <!-- Quiet down various loggers that we don't want flooding the console with debug info -->
-      <!--Logger name="gov.va.oia.HK2Utilities" level="info" /-->
+      <Logger name="net.sagebits.HK2Utilities" level="info" />
+      <Logger name="sh.isaac.api.LookupService" level="info" />
+      <Logger name="sh.isaac.api.collections.UuidIntMapMap" level="info" />
+      <Logger name="sh.isaac.model.waitfree.CasSequenceObjectMap" level="error" />
+      <Logger name="sh.isaac.provider.identifier.IdentifierProvider" level="info" />
+      <Logger name="sh.isaac.provider.query.lucene" level="info" />
+      <Logger name="sh.isaac.provider.logic" level="info" />
+      <Logger name="sh.isaac.provider.datastore" level="info"/>
+      <Logger name="sh.isaac.model.tree" level="info"/>
+      <Logger name="jetbrains.exodus.gc.GarbageCollector" level="warn"/>
+      <Logger name="jetbrains.exodus.io.FileDataReader" level="warn"/>
+      <Logger name="jetbrains.exodus.env" level="warn"/>
+        
       <Root level="info">
          <AppenderRef ref="STDOUT" />
       </Root>

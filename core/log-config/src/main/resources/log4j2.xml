@@ -20,7 +20,10 @@ logging config -->
 		<Logger name="sh.isaac.provider.logic" level="info" />
 		<Logger name="sh.isaac.provider.datastore" level="info"/>
 		<Logger name="sh.isaac.model.tree" level="info"/>
-
+		<Logger name="sh.isaac.provider.datastore.taxonomy.TaxonomyProvider" level="info"/>
+		<Logger name="jetbrains.exodus.gc.GarbageCollector" level="warn"/>
+		<Logger name="jetbrains.exodus.io.FileDataReader" level="warn"/>
+		<Logger name="jetbrains.exodus.env" level="warn"/>
 		<Root level="debug">
 			<AppenderRef ref="STDOUT" />
 		</Root>
