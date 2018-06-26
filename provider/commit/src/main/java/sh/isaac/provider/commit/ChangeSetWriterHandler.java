@@ -66,6 +66,8 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.MultipleDataWriterService;
+import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.util.NamedThreadFactory;
 
 
@@ -143,8 +145,13 @@ public class ChangeSetWriterHandler
       if (this.writeEnabled && !Get.configurationService().isInDBBuildMode()) {
          // Do in the backgound
          writePermits.acquireUninterruptibly();  //prevent incoming commits from getting to far ahead
-         final Runnable r = () -> {
+      final TimedTask<Void> tt = new TimedTask<Void>() {
+         @Override
+         protected Void call() throws Exception {
             try {
+               updateTitle("Writing Changeset for commit " + commitRecord.getCommitComment());
+               Get.activeTasks().add(this);
+               LookupService.getService(ActiveTasks.class).get().add(this);
                if ((commitRecord.getConceptsInCommit() != null) && (commitRecord.getConceptsInCommit().size() > 0)) {
                   conceptNidSetChange(commitRecord.getConceptsInCommit());
                   LOG.debug("handle Post Commit: {} concepts", commitRecord.getConceptsInCommit().size());
@@ -161,10 +168,13 @@ public class ChangeSetWriterHandler
             }
             finally {
                writePermits.release();
+               Get.activeTasks().remove(this);
             }
-         };
+            return null;
+         }
+      };
 
-         this.changeSetWriteExecutor.execute(r);
+         this.changeSetWriteExecutor.execute(tt);
       }
       else
       {
@@ -264,11 +274,12 @@ public class ChangeSetWriterHandler
    */
    @PreDestroy
    private void stopMe() {
-      LOG.info("Stopping ChangeSetWriterHandler pre-destroy");
+      LOG.info("Stopping ChangeSetWriterHandler waiting for all writes to complete");
       Get.postCommitService().removeChangeSetListener(this);
       disable();
       writePermits.acquireUninterruptibly(MAX_AVAILABLE);
       writePermits.release(MAX_AVAILABLE);
+      LOG.info("Stopping ChangeSetWriterHandler writes complete");
 
       if (this.changeSetWriteExecutor != null) {
          this.changeSetWriteExecutor.shutdown();
