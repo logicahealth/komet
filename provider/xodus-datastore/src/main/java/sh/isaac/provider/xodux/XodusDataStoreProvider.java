@@ -23,16 +23,16 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Spliterator;
 import java.util.Spliterator.OfInt;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
@@ -45,6 +45,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import jetbrains.exodus.ArrayByteIterable;
 import jetbrains.exodus.ArrayByteIterable.Iterator;
 import jetbrains.exodus.ByteIterable;
@@ -62,7 +64,6 @@ import jetbrains.exodus.env.TransactionalComputable;
 import jetbrains.exodus.io.SharedOpenFilesCache;
 import jetbrains.exodus.log.Log;
 import sh.isaac.api.ConfigurationService;
-import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
@@ -93,26 +94,26 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	private static final String XODUS_STORE = "xodus-store";
 	private File xodusFolder;
 
-	private volatile HashMap<String, Store> xodusStores;  //enviornmentID + storeId -> Store
-	private HashMap<String, Environment> xodusEnvironments; //enviornmentId -> Enviornment
+	private final int splitNidsIntoBuckets = 10;
+	
+	private volatile ConcurrentHashMap<String, Store> xodusStores;  //enviornmentID + storeId -> Store
+	private ConcurrentHashMap<String, Environment> xodusEnvironments; //enviornmentId -> Enviornment
 
 	private DataStoreStartState datastoreStartState = DataStoreStartState.NOT_YET_CHECKED;
 	private Optional<UUID> dataStoreId = Optional.empty();
-
-	private final Semaphore syncSemaphore = new Semaphore(1);
-	private final Semaphore pendingSync = new Semaphore(1);
-	private SyncTask lastSyncTask = null;
-	private Future<?> lastSyncFuture = null;
 
 	private ArrayList<DataWriteListener> writeListeners = new ArrayList<>();
 
 	private final String COMPONENT_TO_SEMANTIC_NIDS_MAP = "componentToSemanticNidsMap";
 	private final String NID_TO_ASSEMBLAGE_NID_MAP = "nidToAssemblageNidMap";
-	private final String ASSEMBLAGE__TO_ISAAC_OBJECT_TYPE_MAP = "assemblageToIsaacObjectTypeMap";
-	private final String ASSEMBLAGE__TO_VERSION_TYPE_MAP = "assemblageToVersionTypeMap";
+	private final String ASSEMBLAGE_TO_ISAAC_OBJECT_TYPE_MAP = "assemblageToIsaacObjectTypeMap";
+	private final String ASSEMBLAGE_TO_VERSION_TYPE_MAP = "assemblageToVersionTypeMap";
 	private final String TAXONOMY = "taxonomy";
 	private final String CHRONICLE = "chronicle";
 	private final String VERSION = "version";
+	
+	Cache<Integer, IsaacObjectType> assemblageToObjectTypeCache = Caffeine.newBuilder().maximumSize(100).build();
+	Cache<Integer, VersionType> assemblageToVersionTypeCache = Caffeine.newBuilder().maximumSize(100).build();
 
 	/**
 	 * {@inheritDoc}
@@ -128,9 +129,9 @@ public class XodusDataStoreProvider implements DataStoreSubService
 			Path folderPath = configurationService.getDataStoreFolderPath();
 
 			xodusFolder = new File(folderPath.toFile(), XODUS_STORE);
-			xodusFolder.mkdirs();  // TODO maybe preopen common stores?
-			xodusStores = new HashMap<>();
-			xodusEnvironments = new HashMap<>();
+			xodusFolder.mkdirs();
+			xodusStores = new ConcurrentHashMap<>();
+			xodusEnvironments = new ConcurrentHashMap<>();
 
 			if (new File(xodusFolder, DATASTORE_ID_FILE).isFile())
 			{
@@ -181,6 +182,9 @@ public class XodusDataStoreProvider implements DataStoreSubService
 			datastoreStartState = DataStoreStartState.NOT_YET_CHECKED;
 			dataStoreId = Optional.empty();
 			writeListeners.clear();
+			
+			assemblageToObjectTypeCache.invalidateAll();
+			assemblageToVersionTypeCache.invalidateAll();
 			
 			//Best way to shutdown the rest of xodus, at the moment:
 			//Clear xodus caches
@@ -237,47 +241,41 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	
 	private Store getStore(final String envId, final String storeName, boolean withDupes)
 	{
-		Store store = xodusStores.get(envId + storeName);
-		if (store == null)
+		Store store = xodusStores.computeIfAbsent((envId + storeName), key -> 
 		{
-			synchronized (xodusStores)
+			Environment env = xodusEnvironments.computeIfAbsent(envId, envKey -> 
 			{
-				store = xodusStores.get(envId + storeName);
-				if (store == null)
-				{
-					Environment env = xodusEnvironments.get(envId);
-					if (env == null)
-					{
-						File file = new File(xodusFolder, envId);
-						file.mkdirs();
-						EnvironmentConfig config = new EnvironmentConfig();
-						config.setLogFileSize(8192l * 4l);
-						env = Environments.newInstance(file, config);
-						xodusEnvironments.put(envId, env);
-					}
+				File file = new File(xodusFolder, envId);
+				file.mkdirs();
+				EnvironmentConfig config = new EnvironmentConfig();
+				config.setLogFileSize(8192l * 4l);
+				return Environments.newInstance(file, config);
+			});
 
-					store = env.computeInExclusiveTransaction(new TransactionalComputable<Store>()
-					{
-						@Override
-						public Store compute(final Transaction txn)
-						{
-							return txn.getEnvironment().openStore(storeName, withDupes ? StoreConfig.WITH_DUPLICATES_WITH_PREFIXING
-									: StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);
-						}
-					});
-					xodusStores.put(envId + storeName, store);
+			return env.computeInExclusiveTransaction(new TransactionalComputable<Store>()
+			{
+				@Override
+				public Store compute(final Transaction txn)
+				{
+					return txn.getEnvironment().openStore(storeName, withDupes ? StoreConfig.WITH_DUPLICATES_WITH_PREFIXING
+							: StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);
 				}
-			}
-		}
+			});
+		});
 		return store;
 	}
 
 	/**
 	 * For cases where this is only one store in an environment, and it does not allow dupes
 	 */
-	private Store getStore(final String storeId)
+	private Store getStore(final String storeName)
 	{
-		return getStore(storeId, false);
+		return getStore(storeName, false);
+	}
+	
+	private String getEnvIdForItem(int assemblage, int nid)
+	{
+		return new String(assemblage + "-" + ((nid * -1) % splitNidsIntoBuckets));
 	}
 
 	@Override
@@ -297,18 +295,35 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	{
 		return dataStoreId;
 	}
-
 	@Override
 	public Future<?> sync()
 	{
-		if (pendingSync.tryAcquire())
+		TimedTaskWithProgressTracker<Void> tt = new TimedTaskWithProgressTracker<Void>()
 		{
-			lastSyncTask = new SyncTask();
-			lastSyncFuture = Get.executor().submit(lastSyncTask);
-			return lastSyncFuture;
-		}
-
-		return lastSyncFuture;
+			@Override
+			protected Void call() throws Exception
+			{
+				try
+				{
+					Get.activeTasks().add(this);
+					addToTotalWork(writeListeners.size());
+					updateMessage("Notifying all write listeners to sync...");
+					for (DataWriteListener dwl : writeListeners)
+					{
+						dwl.sync();
+						completedUnitOfWork();
+					}
+					updateMessage("sync complete");
+					XodusDataStoreProvider.LOG.info("Xodus Datastore sync complete.");
+					return null;
+				}
+				finally
+				{
+					Get.activeTasks().remove(this);
+				}
+			}
+		};
+		return Get.executor().submit(tt);
 	}
 
 	@Override
@@ -336,10 +351,10 @@ public class XodusDataStoreProvider implements DataStoreSubService
 				}
 			}
 
-			Store chronologyStore = getStore(Integer.toString(assemblageNid), CHRONICLE, false);
-			Store versionStore = getStore(Integer.toString(assemblageNid), VERSION, true);
+			Store chronologyStore = getStore(getEnvIdForItem(assemblageNid, chronology.getNid()), CHRONICLE, false);
+			Store versionStore = getStore(getEnvIdForItem(assemblageNid, chronology.getNid()), VERSION, true);
+			ArrayByteIterable key = nidToIterable(chronology.getNid());
 			chronologyStore.getEnvironment().executeInTransaction((Transaction txn) -> {
-				ArrayByteIterable key = nidToIterable(chronology.getNid());
 				ByteIterable chronologyOldValue = chronologyStore.get(txn, key);
 				if (chronologyOldValue != null)
 				{
@@ -355,7 +370,6 @@ public class XodusDataStoreProvider implements DataStoreSubService
 				HashSet<ByteBuffer> existingVersions = new HashSet<>();
 				try (Cursor cursor = versionStore.openCursor(txn))
 				{
-					
 					final ByteIterable v = cursor.getSearchKey(key);
 					if (v != null)
 					{
@@ -422,18 +436,26 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	@Override
 	public int[] getAssemblageConceptNids()
 	{
-		int[] results = new int[xodusEnvironments.size()];
-		int i = 0;
+		HashSet<Integer> results = new HashSet<>(xodusEnvironments.size());
 		for (String s : xodusEnvironments.keySet())  // The keys are assemblage Nids, except for the special ones, that are strings...
 		{
-			OptionalInt oi = NumericUtils.getInt(s);
-			if (oi.isPresent())
+			//the nid has a trailing splitter, so it looks like "-123435-4" = we want the middle nid part, and need to make it negative.
+			String[] chunks = s.split("-");
+			if (chunks.length == 3)
 			{
-				results[i++] = oi.getAsInt();
+				OptionalInt oi = NumericUtils.getInt(chunks[1]);
+				if (oi.isPresent())
+				{
+					results.add(oi.getAsInt() * -1);
+				}
 			}
 		}
-		int[] finalResult = new int[i];
-		System.arraycopy(results, 0, finalResult, 0, i);
+		int[] finalResult = new int[results.size()];
+		int i = 0;
+		for (int nid : results)
+		{
+			finalResult[i++] = nid;
+		}
 		return finalResult;
 	}
 
@@ -446,8 +468,8 @@ public class XodusDataStoreProvider implements DataStoreSubService
 		{
 			return Optional.empty();
 		}
-		Store assemblageToChronicle = getStore(Integer.toString(assemblageId.getAsInt()), CHRONICLE, false);
-		Store assemblageToVersion = getStore(Integer.toString(assemblageId.getAsInt()), VERSION, true);
+		Store assemblageToChronicle = getStore(getEnvIdForItem(assemblageId.getAsInt(), nid), CHRONICLE, false);
+		Store assemblageToVersion = getStore(getEnvIdForItem(assemblageId.getAsInt(), nid), VERSION, true);
 		ArrayByteIterable computedKey = nidToIterable(nid);
 		
 		ByteArrayDataBuffer badb = new ByteArrayDataBuffer();
@@ -476,16 +498,26 @@ public class XodusDataStoreProvider implements DataStoreSubService
 		}
 		
 		txn = assemblageToVersion.getEnvironment().beginReadonlyTransaction();
-		try
+		
+		try (Cursor cursor = assemblageToVersion.openCursor(txn))
 		{
-			ByteIterable bi = assemblageToVersion.get(txn, computedKey);
+			final ByteIterable bi = cursor.getSearchKey(computedKey);
 			if (bi != null)
 			{
-				
 				Iterator byteIterator = new ArrayByteIterable(bi).iterator();
 				while (byteIterator.hasNext())
 				{
 					badb.putByte(byteIterator.next());
+				}
+				// there is a value for specified key, the variable v contains the leftmost value
+				while (cursor.getNextDup())
+				{
+					// this loop traverses all pairs with the same key, values differ on each iteration
+					byteIterator = new ArrayByteIterable(cursor.getValue()).iterator();
+					while (byteIterator.hasNext())
+					{
+						badb.putByte(byteIterator.next());
+					}
 				}
 			}
 			else
@@ -542,8 +574,13 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	public int getAssemblageSizeOnDisk(int assemblageNid)
 	{
 		//The same environment carries both the CHRONICLE and VERSION stores, so don't need to read both
-		return (int) getStore(Integer.toString(assemblageNid), CHRONICLE, false).getEnvironment().getStatistics()
-				.getStatisticsItem(EnvironmentStatistics.Type.DISK_USAGE).getTotal();
+		int result = 0;
+		for (int i = 0; i < splitNidsIntoBuckets; i++)
+		{
+			result += (int) getStore((assemblageNid + "-" + i), CHRONICLE, false).getEnvironment().getStatistics()
+					.getStatisticsItem(EnvironmentStatistics.Type.DISK_USAGE).getTotal();
+		}
+		return result;
 	}
 
 	@Override
@@ -554,7 +591,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 		{
 			return false;
 		}
-		Store assemblageToData = getStore(Integer.toString(assemblageId.getAsInt()), CHRONICLE, false);
+		Store assemblageToData = getStore(getEnvIdForItem(assemblageId.getAsInt(), nid), CHRONICLE, false);
 		return storeHasKey(nid, assemblageToData);
 	}
 
@@ -580,12 +617,13 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	 * {@inheritDoc}
 	 */
 	@Override
-	public IntStream getNidsForAssemblage(int assemblageNid)
+	public IntStream getNidsForAssemblage(final int assemblageNid)
 	{
 		//TODO this is going to cause a leak, if they don't iterate the entire stream for whatever reason.
 		//Need to handle.  Hard to fix though, because I can't have a cleanup thread close the transaction, due to the same-thread rules in xodus.
 		//Likely need to iterate the data in a new thread here, and have that thread handle self closing, and just hand data back to the stream
-		Store store = getStore(Integer.toString(assemblageNid), CHRONICLE, false);
+		AtomicInteger storeBucket = new AtomicInteger(0);
+		AtomicReference<Store> store = new AtomicReference<Store>();
 		AtomicLong lastRead = new AtomicLong(System.currentTimeMillis());
 		
 		final Supplier<? extends Spliterator.OfInt> streamSupplier = new Supplier<OfInt>()
@@ -593,17 +631,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 			Transaction txn;
 			Cursor cursor;
 			{
-				txn = store.getEnvironment().beginReadonlyTransaction();
-				
-				try
-				{
-					cursor = store.openCursor(txn);
-				}
-				catch (Exception e)
-				{
-					txn.abort();
-					throw e;
-				}
+				nextStore();
 			}
 			
 			/**
@@ -619,12 +647,13 @@ public class XodusDataStoreProvider implements DataStoreSubService
 					{
 						try
 						{
-							return store.count(txn);
+							return store.get().count(txn) * splitNidsIntoBuckets;
 						}
 						catch (Exception e)
 						{
 							if (!txn.isFinished()) 
 							{
+								cursor.close();
 								txn.abort();
 							}
 							throw e;
@@ -648,31 +677,81 @@ public class XodusDataStoreProvider implements DataStoreSubService
 					{
 						try
 						{
-							if (cursor.getNext())
+							boolean cursorHasNext = cursor.getNext();
+							if (!cursorHasNext)
 							{
-								action.accept(compressedByteIterableToNid(cursor.getKey()));
-								lastRead.set(System.currentTimeMillis());
-								return true;
-							}
-							else
-							{
-								if (!txn.isFinished()) 
+								while (!cursorHasNext && nextStore())
 								{
-									txn.abort();
+									//If there are no items in this store, go to the next store
+									cursorHasNext = cursor.getNext();
+									if (!cursorHasNext)
+									{
+										//Nothing in this store.
+										if (!txn.isFinished()) 
+										{
+											cursor.close();
+											txn.abort();
+										}
+									}
 								}
-								return false;
+								
+								//If we got here, and we still have no items, we are done.
+								if (!cursorHasNext)
+								{
+									if (!txn.isFinished()) 
+									{
+										cursor.close();
+										txn.abort();
+									}
+									return false;
+								}
 							}
+
+							action.accept(compressedByteIterableToNid(cursor.getKey()));
+							lastRead.set(System.currentTimeMillis());
+							return true;
 						}
 						catch (Exception e)
 						{
 							if (!txn.isFinished()) 
 							{
+								cursor.close();
 								txn.abort();
 							}
 							throw e;
 						}
 					}
 				};
+			}
+			
+			private boolean nextStore()
+			{
+				if (txn != null && !txn.isFinished()) 
+				{
+					cursor.close();
+					txn.abort();
+				}
+				if (storeBucket.get() < splitNidsIntoBuckets)
+				{
+					store.set(getStore((assemblageNid + "-" + storeBucket.getAndIncrement()), CHRONICLE, false));
+					txn = store.get().getEnvironment().beginReadonlyTransaction();
+					
+					try
+					{
+						cursor = store.get().openCursor(txn);
+					}
+					catch (Exception e)
+					{
+						txn.abort();
+						throw e;
+					}
+					return true;
+				}
+				else
+				{
+					store.set(null);
+					return false;
+				}
 			}
 		};
 		
@@ -686,7 +765,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	@Override
 	public OptionalInt getAssemblageOfNid(int nid)
 	{
-		Store nidToAssemblageNidMap = getStore(NID_TO_ASSEMBLAGE_NID_MAP);
+		Store nidToAssemblageNidMap = getStore(NID_TO_ASSEMBLAGE_NID_MAP +  "-" + Integer.toString((nid * -1) % splitNidsIntoBuckets));
 		ArrayByteIterable computedKey = nidToIterable(nid);
 		
 		Transaction txn = nidToAssemblageNidMap.getEnvironment().beginReadonlyTransaction();
@@ -714,10 +793,34 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	@Override
 	public void setAssemblageForNid(int nid, int assemblage) throws IllegalArgumentException
 	{
-		Store nidToAssemblageNidMap = getStore(NID_TO_ASSEMBLAGE_NID_MAP);
-		nidToAssemblageNidMap.getEnvironment().executeInTransaction((Transaction txn) -> {
-			ArrayByteIterable key = nidToIterable(nid);
-			ByteIterable oldValue = nidToAssemblageNidMap.get(txn, key);
+		Store nidToAssemblageNidMap = getStore(NID_TO_ASSEMBLAGE_NID_MAP +  "-" + Integer.toString((nid * -1) % splitNidsIntoBuckets));
+		ArrayByteIterable key = nidToIterable(nid);
+		
+		//read only, as this will be faster / not lock the way a write transaction will.
+		Transaction txn = nidToAssemblageNidMap.getEnvironment().beginReadonlyTransaction();
+		try
+		{
+			ByteIterable bi = nidToAssemblageNidMap.get(txn, key);
+			if (bi != null)
+			{
+				int storedAssemblageId = compressedByteIterableToNid(bi);
+				if (storedAssemblageId != assemblage)
+				{
+					throw new IllegalArgumentException("Not allowed to change the assemblage type of a nid");
+				}
+				return;
+			}
+		}
+		finally
+		{
+			txn.abort();
+		}
+		
+		//If we get here, not yet stored.
+		nidToAssemblageNidMap.getEnvironment().executeInTransaction((Transaction writeTxn) -> {
+			
+			//reread in transaction, in case it changed...
+			ByteIterable oldValue = nidToAssemblageNidMap.get(writeTxn, key);
 			if (oldValue != null)
 			{
 				if (compressedByteIterableToNid(oldValue) != assemblage)
@@ -727,7 +830,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 			}
 			else
 			{
-				nidToAssemblageNidMap.put(txn, key, nidToIterable(assemblage));
+				nidToAssemblageNidMap.put(writeTxn, key, nidToIterable(assemblage));
 			}
 		});
 	}
@@ -738,7 +841,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	@Override
 	public int[] getTaxonomyData(int assemblageNid, int conceptNid)
 	{
-		Store taxonomyDataMap = getStore(TAXONOMY + assemblageNid);
+		Store taxonomyDataMap = getStore(TAXONOMY + assemblageNid +  "-" + Integer.toString((conceptNid * -1) % splitNidsIntoBuckets));
 		ArrayByteIterable computedKey = nidToIterable(conceptNid);
 		
 		Transaction txn = taxonomyDataMap.getEnvironment().beginReadonlyTransaction();
@@ -768,7 +871,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	public int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction)
 	{
 		AtomicReference<int[]> result = new AtomicReference<int[]>(newData);
-		Store taxonomyDataMap = getStore(TAXONOMY + assemblageNid);
+		Store taxonomyDataMap = getStore(TAXONOMY + assemblageNid +  "-" + Integer.toString((conceptNid * -1) % splitNidsIntoBuckets));
 		taxonomyDataMap.getEnvironment().executeInTransaction((Transaction txn) -> {
 			ArrayByteIterable key = nidToIterable(conceptNid);
 			ByteIterable oldValue = taxonomyDataMap.get(txn, key);
@@ -793,25 +896,35 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	@Override
 	public IsaacObjectType getIsaacObjectTypeForAssemblageNid(int assemblageNid)
 	{
-		Store assemblageToIsaacObjectTypeMap = getStore(ASSEMBLAGE__TO_ISAAC_OBJECT_TYPE_MAP);
-		ArrayByteIterable computedKey = nidToIterable(assemblageNid);
-		
-		Transaction txn = assemblageToIsaacObjectTypeMap.getEnvironment().beginReadonlyTransaction();
-		try
+		IsaacObjectType iot = assemblageToObjectTypeCache.getIfPresent(assemblageNid);
+		if (iot != null)
 		{
-			ByteIterable bi = assemblageToIsaacObjectTypeMap.get(txn, computedKey);
-			if (bi != null)
-			{
-				return IsaacObjectType.values()[IntegerBinding.compressedEntryToInt(bi)];
-			}
-			else
-			{
-				return IsaacObjectType.UNKNOWN;
-			}
+			return iot;
 		}
-		finally
+		else
 		{
-			txn.abort();
+			Store assemblageToIsaacObjectTypeMap = getStore(ASSEMBLAGE_TO_ISAAC_OBJECT_TYPE_MAP);
+			ArrayByteIterable computedKey = nidToIterable(assemblageNid);
+			
+			Transaction txn = assemblageToIsaacObjectTypeMap.getEnvironment().beginReadonlyTransaction();
+			try
+			{
+				ByteIterable bi = assemblageToIsaacObjectTypeMap.get(txn, computedKey);
+				if (bi != null)
+				{
+					iot = IsaacObjectType.values()[IntegerBinding.compressedEntryToInt(bi)];
+					assemblageToObjectTypeCache.put(assemblageNid, iot);
+					return iot;
+				}
+				else
+				{
+					return IsaacObjectType.UNKNOWN;
+				}
+			}
+			finally
+			{
+				txn.abort();
+			}
 		}
 	}
 
@@ -819,7 +932,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	public NidSet getAssemblageNidsForType(IsaacObjectType type)
 	{
 		NidSet results = new NidSet();
-		Store store = getStore(ASSEMBLAGE__TO_ISAAC_OBJECT_TYPE_MAP);
+		Store store = getStore(ASSEMBLAGE_TO_ISAAC_OBJECT_TYPE_MAP);
 		Transaction txn = store.getEnvironment().beginReadonlyTransaction();
 		try (Cursor cursor = store.openCursor(txn))
 		{
@@ -845,7 +958,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	@Override
 	public void putAssemblageIsaacObjectType(int assemblageNid, IsaacObjectType type) throws IllegalStateException
 	{
-		Store assemblageToIsaacObjectTypeMap = getStore(ASSEMBLAGE__TO_ISAAC_OBJECT_TYPE_MAP);
+		Store assemblageToIsaacObjectTypeMap = getStore(ASSEMBLAGE_TO_ISAAC_OBJECT_TYPE_MAP);
 		assemblageToIsaacObjectTypeMap.getEnvironment().executeInTransaction((Transaction txn) -> {
 			ArrayByteIterable key = nidToIterable(assemblageNid);
 			ByteIterable oldValue = assemblageToIsaacObjectTypeMap.get(txn, key);
@@ -869,25 +982,35 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	@Override
 	public VersionType getVersionTypeForAssemblageNid(int assemblageNid)
 	{
-		Store assemblageToVersionTypeMap = getStore(ASSEMBLAGE__TO_VERSION_TYPE_MAP);
-		ArrayByteIterable computedKey = nidToIterable(assemblageNid);
-		
-		Transaction txn = assemblageToVersionTypeMap.getEnvironment().beginReadonlyTransaction();
-		try
+		VersionType vt = assemblageToVersionTypeCache.getIfPresent(assemblageNid);
+		if (vt != null)
 		{
-			ByteIterable bi = assemblageToVersionTypeMap.get(txn, computedKey);
-			if (bi != null)
-			{
-				return VersionType.values()[IntegerBinding.compressedEntryToInt(bi)];
-			}
-			else
-			{
-				return VersionType.UNKNOWN;
-			}
+			return vt;
 		}
-		finally
+		else
 		{
-			txn.abort();
+			Store assemblageToVersionTypeMap = getStore(ASSEMBLAGE_TO_VERSION_TYPE_MAP);
+			ArrayByteIterable computedKey = nidToIterable(assemblageNid);
+			
+			Transaction txn = assemblageToVersionTypeMap.getEnvironment().beginReadonlyTransaction();
+			try
+			{
+				ByteIterable bi = assemblageToVersionTypeMap.get(txn, computedKey);
+				if (bi != null)
+				{
+					vt = VersionType.values()[IntegerBinding.compressedEntryToInt(bi)];
+					assemblageToVersionTypeCache.put(assemblageNid, vt);
+					return vt;
+				}
+				else
+				{
+					return VersionType.UNKNOWN;
+				}
+			}
+			finally
+			{
+				txn.abort();
+			}
 		}
 	}
 
@@ -897,7 +1020,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	@Override
 	public void putAssemblageVersionType(int assemblageNid, VersionType type) throws IllegalStateException
 	{
-		Store assemblageToVersionTypeMap = getStore(ASSEMBLAGE__TO_VERSION_TYPE_MAP);
+		Store assemblageToVersionTypeMap = getStore(ASSEMBLAGE_TO_VERSION_TYPE_MAP);
 		assemblageToVersionTypeMap.getEnvironment().executeInTransaction((Transaction txn) -> {
 			ArrayByteIterable key = nidToIterable(assemblageNid);
 			ByteIterable oldValue = assemblageToVersionTypeMap.get(txn, key);
@@ -913,57 +1036,6 @@ public class XodusDataStoreProvider implements DataStoreSubService
 				assemblageToVersionTypeMap.put(txn, key, IntegerBinding.intToCompressedEntry(type.ordinal()));
 			}
 		});
-	}
-	
-	private class SyncTask extends TimedTaskWithProgressTracker<Void>
-	{
-		public SyncTask()
-		{
-			updateTitle("Writing data to disk");
-		}
-
-		@Override
-		protected Void call() throws Exception
-		{
-			Get.activeTasks().add(this);
-			pendingSync.release();
-			syncSemaphore.acquireUninterruptibly();
-
-			try
-			{
-				if (Get.configurationService().isInDBBuildMode(BuildMode.IBDF))
-				{
-					// No reason to write out all the files below (some of which fail anyway) during IBDF Build mode, because the
-					// purpose of IBDF DBBuildMode is to generate IBDF files, not a valid database.
-					addToTotalWork(1);
-					updateMessage("Bypass writes on shutdown due to DB Build mode");
-					completedUnitOfWork();
-					XodusDataStoreProvider.LOG.info("Skipping write secondary to BuildMode.IBDF");
-				}
-				else
-				{
-					addToTotalWork(2);
-					updateMessage("Speeding up background garbage collection");
-					for (Environment env : xodusEnvironments.values())
-					{
-						env.gc();
-					}
-					completedUnitOfWork();
-					
-					updateMessage("Notifying all write listeners to sync...");
-					writeListeners.forEach(listener -> listener.sync());
-					completedUnitOfWork();  // 2
-				}
-				updateMessage("Write complete");
-				XodusDataStoreProvider.LOG.info("Xodus Datastore sync complete.");
-				return null;
-			}
-			finally
-			{
-				syncSemaphore.release();
-				Get.activeTasks().remove(this);
-			}
-		}
 	}
 	
 	@Override
