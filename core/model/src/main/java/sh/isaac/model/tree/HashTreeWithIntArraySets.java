@@ -61,6 +61,8 @@ import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.EclipseIntObjectMap;
+import sh.isaac.model.collections.IntObjectMap;
 import sh.isaac.model.collections.MergeIntArray;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 
@@ -97,12 +99,12 @@ public class HashTreeWithIntArraySets
    /**
     * map from a nid key to an array of parent nids.
     */
-   protected final SpinedIntIntArrayMap childNid_ParentNidSetArray_Map;
+   protected final IntObjectMap<int[]> childNid_ParentNidSetArray_Map;
 
    /**
     * Map from a nid key to an array of child nids.
     */
-   protected final SpinedIntIntArrayMap parentNid_ChildNidSetArray_Map;
+   protected final IntObjectMap<int[]> parentNid_ChildNidSetArray_Map;
    protected final ManifoldCoordinate        manifoldCoordinate;
    protected final int                       assemblageNid;
    protected final OpenIntHashSet roots = new OpenIntHashSet();
@@ -120,8 +122,8 @@ public class HashTreeWithIntArraySets
       this.conceptNidsWithParents    = new OpenIntHashSet();
       this.conceptNidsWithChildren   = new OpenIntHashSet();
       this.conceptNids               = new OpenIntHashSet();
-      this.childNid_ParentNidSetArray_Map = new SpinedIntIntArrayMap();  //TODO [refactortest], see if this is still the best approach, when using a store without sequences
-      this.parentNid_ChildNidSetArray_Map = new SpinedIntIntArrayMap();
+      this.childNid_ParentNidSetArray_Map = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntIntArrayMap(): new EclipseIntObjectMap<int[]>();
+      this.parentNid_ChildNidSetArray_Map = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntIntArrayMap() : new EclipseIntObjectMap<int[]>();
    }
 
    /**

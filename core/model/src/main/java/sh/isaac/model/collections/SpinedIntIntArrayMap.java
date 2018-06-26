@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -47,7 +48,7 @@ import sh.isaac.model.ModelGet;
  *
  * @author kec
  */
-public class SpinedIntIntArrayMap {
+public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -98,6 +99,25 @@ public class SpinedIntIntArrayMap {
         }
 
         return sizeInBytes;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int size() {
+       int size = 0;
+       int currentSpineCount = this.spineCount.get();
+       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
+          AtomicReferenceArray<int[]> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
+          for (int indexInSpine = 0; indexInSpine < elementsPerSpine; indexInSpine++) {
+             int[] element = spine.get(indexInSpine);
+             if (element != null) {
+                size++;
+             }
+          }
+       }
+       return size;
     }
 
     /**
@@ -188,11 +208,15 @@ public class SpinedIntIntArrayMap {
     }
 
     private AtomicReferenceArray<int[]> newSpine(Integer spineKey) {
-        AtomicReferenceArray<int[]> spine = new AtomicReferenceArray(elementsPerSpine);
+        AtomicReferenceArray<int[]> spine = new AtomicReferenceArray<>(elementsPerSpine);
         this.spineCount.set(Math.max(this.spineCount.get(), spineKey + 1));
         return spine;
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void put(int index, int[] element) {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {
@@ -218,6 +242,10 @@ public class SpinedIntIntArrayMap {
         this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int[] get(int index) {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {
@@ -231,7 +259,47 @@ public class SpinedIntIntArrayMap {
         int indexInSpine = index % elementsPerSpine;
         return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<int[]> getOptional(int key)
+    {
+        return Optional.ofNullable(get(key));
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int[] getAndSet(int index, int[] element) {
+        if (index < 0) {
+            if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+                index = Integer.MAX_VALUE + index;
+            }
+        }
+        int spineIndex = index / elementsPerSpine;
+        int indexInSpine = index % elementsPerSpine;
+        this.changedSpineIndexes.add(spineIndex);
+        return this.spines.computeIfAbsent(spineIndex, this::newSpine).getAndSet(indexInSpine, element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+        this.spines.clear();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean containsKey(int index) {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {
@@ -246,7 +314,7 @@ public class SpinedIntIntArrayMap {
         return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != null;
     }
 
-    public void forEach(Processor<int[]> processor) {
+    public void forEach(IntBiConsumer<int[]> consumer) {
         int currentSpineCount = getSpineCount();
         int key = 0;
         for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
@@ -254,7 +322,7 @@ public class SpinedIntIntArrayMap {
             for (int indexInSpine = 0; indexInSpine < elementsPerSpine; indexInSpine++) {
                 int[] element = spine.get(indexInSpine);
                 if (element != null) {
-                    processor.process(key, element);
+                    consumer.accept(key, element);
                 }
                 key++;
             }

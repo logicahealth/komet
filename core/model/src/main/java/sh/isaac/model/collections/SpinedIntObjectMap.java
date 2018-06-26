@@ -36,7 +36,7 @@ import sh.isaac.model.ModelGet;
  * @author kec
  * @param <E> the generic type for the spined list. 
  */
- public class SpinedIntObjectMap<E>   {
+ public class SpinedIntObjectMap<E> implements IntObjectMap<E>  {
    private static final int DEFAULT_SPINE_SIZE = 1024;
    protected final int spineSize;
    protected final ConcurrentMap<Integer, AtomicReferenceArray<E>> spines = new ConcurrentHashMap<>();
@@ -48,6 +48,10 @@ import sh.isaac.model.ModelGet;
       this.elementStringConverter = elementStringConverter;
    }
    
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public void clear() {
        spines.clear();
    }
@@ -76,11 +80,15 @@ import sh.isaac.model.ModelGet;
    }
 
    protected AtomicReferenceArray<E> newSpine(Integer spineKey) {
-      AtomicReferenceArray<E> spine = new AtomicReferenceArray(spineSize);
+      AtomicReferenceArray<E> spine = new AtomicReferenceArray<E>(spineSize);
       this.spineCount.set(Math.max(this.spineCount.get(), spineKey +1));
       return spine;
    }
-
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public void put(int index, E element) {
       if (index < 0) {
          if (ModelGet.sequenceStore() != null) {
@@ -95,7 +103,31 @@ import sh.isaac.model.ModelGet;
       this.changedSpineIndexes.add(spineIndex);
       this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
    }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public E getAndSet(int index, E element)
+   {
+     if (index < 0) {
+         if (ModelGet.sequenceStore() != null) {
+            index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+         }
+         else {
+            index = Integer.MAX_VALUE + index;
+         }
+      } 
+      int spineIndex = index/spineSize;
+      int indexInSpine = index % spineSize;
+      this.changedSpineIndexes.add(spineIndex);
+      return this.spines.computeIfAbsent(spineIndex, this::newSpine).getAndSet(indexInSpine, element);
+   }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public E get(int index) {
       if (index < 0) {
          if (ModelGet.sequenceStore() != null) {
@@ -110,6 +142,10 @@ import sh.isaac.model.ModelGet;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public Optional<E> getOptional(int index) {
       if (index < 0) {
          if (ModelGet.sequenceStore() != null) {
@@ -124,6 +160,10 @@ import sh.isaac.model.ModelGet;
       return Optional.ofNullable(this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine));
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public boolean containsKey(int index) {
        if (index < 0) {
            if (ModelGet.sequenceStore() != null) {
@@ -138,6 +178,10 @@ import sh.isaac.model.ModelGet;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != null;
    }
    
+   /**
+    * {@inheritDoc}
+    */
+   @Override
    public int size() {
       int size = 0;
       int currentSpineCount = this.spineCount.get();
@@ -153,7 +197,7 @@ import sh.isaac.model.ModelGet;
       return size;
    }
    
-   public void forEach(Processor<E> processor) {
+   public void forEach(IntBiConsumer<E> consumer) {
       int currentSpineCount = this.spineCount.get();
       int key = 0;
       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
@@ -161,7 +205,7 @@ import sh.isaac.model.ModelGet;
          for (int indexInSpine = 0; indexInSpine < spineSize; indexInSpine++) {
             E element = spine.get(indexInSpine);
             if (element != null) {
-               processor.process(key, (E) element);
+               consumer.accept(key, (E) element);
             }
             key++;
          }
@@ -183,10 +227,6 @@ import sh.isaac.model.ModelGet;
       return this.spines.computeIfAbsent(spineIndex, this::newSpine)
               .accumulateAndGet(indexInSpine, x, accumulatorFunction);
       
-   }
-   
-   public interface Processor<E> {
-      public void process(int key, E value);
    }
 
    public Stream<E> stream() {

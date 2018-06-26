@@ -63,9 +63,12 @@ import au.csiro.ontology.model.Feature;
 import au.csiro.ontology.model.Literal;
 import au.csiro.ontology.model.Operator;
 import au.csiro.ontology.model.Role;
-
 import sh.isaac.api.DataSource;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicNode;
+import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.EclipseIntObjectMap;
+import sh.isaac.model.collections.IntObjectMap;
 import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
@@ -80,8 +83,6 @@ import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -95,7 +96,8 @@ public class GraphToAxiomTranslator {
    Set<Axiom> axioms = new ConcurrentSkipListSet<>();
 
    /** The nid logic concept map. */
-   SpinedIntObjectMap<Concept> nidLogicConceptMap = new SpinedIntObjectMap<>();  //TODO [refactortest], see if this is still the best approach when not using a sequence store
+   IntObjectMap<Concept> nidLogicConceptMap;
+
 
    /** The sequence logic role map. */
    ConcurrentHashMap<Integer, Role> nidLogicRoleMap = new ConcurrentHashMap<>();
@@ -106,10 +108,9 @@ public class GraphToAxiomTranslator {
    /** The loaded concepts. */
    ConcurrentSkipListSet<Integer> loadedConceptNids = new ConcurrentSkipListSet<>();
 
-   /** The f. */
-   Factory f = new Factory();
-
-   //~--- methods -------------------------------------------------------------
+   public GraphToAxiomTranslator() {
+      nidLogicConceptMap = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntObjectMap<>() : new EclipseIntObjectMap<>();
+   }
 
    /**
     * Clear.
@@ -244,6 +245,7 @@ public class GraphToAxiomTranslator {
     * @param logicGraph the logic graph
     * @return the optional
     */
+   @SuppressWarnings("deprecation")
    private Optional<Literal> generateLiterals(LogicNode logicNode, Concept c, LogicalExpressionImpl logicGraph) {
       switch (logicNode.getNodeSemantic()) {
       case LITERAL_BOOLEAN:
