@@ -75,6 +75,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
@@ -639,9 +640,9 @@ public class CommitProvider
         return Get.executor().submit(() -> {
             for (Task<?> updateTask : pendingCommitTasks) {
                 try {
-                    LOG.info("Waiting for completion of: " + updateTask.getTitle());
+                    Platform.runLater(() -> LOG.info("Waiting for completion of: " + updateTask.getTitle()));
                     updateTask.get();
-                    LOG.info("Completed: " + updateTask.getTitle());
+                    Platform.runLater(() -> LOG.info("Completed: " + updateTask.getTitle()));
                 } catch (Throwable ex) {
                     LOG.error("Error syncing CommitProvider", ex);
                 }
