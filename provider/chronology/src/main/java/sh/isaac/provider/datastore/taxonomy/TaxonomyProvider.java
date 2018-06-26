@@ -291,6 +291,9 @@ public class TaxonomyProvider
                 updateTask.get();
             }
             this.sync().get();
+            // make sure updates are done prior to allowing other services to stop.
+            this.updatePermits.acquireUninterruptibly(MAX_AVAILABLE);
+            this.updatePermits.release(MAX_AVAILABLE);
             this.semanticNidsForUnhandledChanges.clear();
             this.pendingUpdateTasks.clear();
             this.snapshotCache.clear();
@@ -301,8 +304,6 @@ public class TaxonomyProvider
         } catch (InterruptedException | ExecutionException ex) {
             LOG.error("Exception during service stop. ", ex);
         }
-        // make sure updates are done prior to allowing other services to stop.
-        this.updatePermits.acquireUninterruptibly(MAX_AVAILABLE);
         LOG.info("BdbTaxonomyProvider stopped");
     }
 
