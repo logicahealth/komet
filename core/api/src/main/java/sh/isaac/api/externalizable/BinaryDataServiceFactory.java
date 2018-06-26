@@ -60,22 +60,6 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface BinaryDataServiceFactory {
-   /**
-    * Gets the queue reader.
-    *
-    * @param dataPath data file location
-    * @return the BinaryDataReaderService for the given dataPath
-    * @throws FileNotFoundException the file not found exception
-    */
-   BinaryDataReaderQueueService getQueueReader(Path dataPath)
-            throws FileNotFoundException;
-   
-   /**
-    * Gets the queue reader.
-    * @param inputStream the inputStream to read
-    * @return the BinaryDataReaderService for the given dataPath
-    */
-   BinaryDataReaderQueueService getQueueReader(InputStream inputStream);
 
    /**
     * Gets the reader.

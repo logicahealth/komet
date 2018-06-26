@@ -68,9 +68,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.spi.LocationAwareLogger;
 import com.cedarsoftware.util.io.JsonWriter;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.DataTarget;
@@ -87,8 +84,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
-import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
-import sh.isaac.api.externalizable.BinaryDataServiceFactory;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
@@ -100,6 +95,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.Assertion;
+import sh.isaac.model.datastream.BinaryDatastreamReader;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
@@ -230,43 +226,18 @@ public class LoadTermstore
    
    private final HashSet<VersionType> semanticTypesToSkip = new HashSet<>();
 
-   private final HashSet<Integer> skippedItems = new HashSet<>();
-
    private boolean skippedAny = false;
    
    private boolean setDBBuildMode = true;
-
-   private int conceptCount, semanticCount, stampAliasCount, stampCommentCount, itemCount, itemFailure, mergeCount;
    
+   private int itemCount;
+
    private InputStream[] inputIBDFStreams;
    
    private final Set<Integer> deferredActionNids = new ConcurrentSkipListSet<>();
-   
-   private final int writeAheadLimit = 30;
-   private final Semaphore writeAheadLimiter = new Semaphore(writeAheadLimit);
 
    //~--- methods -------------------------------------------------------------
    
-   private void futzXodusLogging(String loggerName)
-   {
-      //xodus uses slf4j API for logging, as does maven.  Maven uses the a hacked version of SimpleLogger 
-      //from the slf4j implementation by default.  Our plugins mostly use log4j, which 
-      //allows us to configure them.  But the xodus logging seems to ignore the re-route to log4j
-      //library, and just logs directly to the MavenSimpleLogger, which we can't configure.
-      //And its really noisy.  So, this hack is to quiet it down....
-      try
-      {
-         Logger l = LoggerFactory.getLogger(loggerName);  //This is actually a MavenSimpleLogger, but due to various classloader issues, can't work with the directly.
-         Field f = l.getClass().getSuperclass().getDeclaredField("currentLogLevel");
-         f.setAccessible(true);
-         f.set(l, LocationAwareLogger.WARN_INT);
-      }
-      catch (Exception e)
-      {
-         getLog().warn("Failed to reset the log level of " + loggerName + ", it will continue being noisy.", e);
-      }
-   }
-
    /**
     * Execute.
     *
@@ -277,8 +248,8 @@ public class LoadTermstore
    public void execute()
             throws MojoExecutionException {
       //Quiet down some noisy xodus loggers
-      futzXodusLogging("jetbrains.exodus.gc.GarbageCollector");
-      futzXodusLogging("jetbrains.exodus.io.FileDataReader");
+      SLF4jUtils.quietDownXodus();
+      
       if (setDBBuildMode) {
          Get.configurationService()
          .setDBBuildMode(BuildMode.DB);
@@ -363,13 +334,19 @@ public class LoadTermstore
       try {
          for (final File f: temp) {
             getLog().info("Loading termstore from " + f.getCanonicalPath() + (this.activeOnly ? " active items only" : ""));
-            process(Get.binaryDataQueueReader(f.toPath()), f.getName());
+            FileHandler fh = new FileHandler(f.getName());
+            final BinaryDatastreamReader reader = new BinaryDatastreamReader(item -> fh.process(item), f.toPath());
+            Get.executor().submit(reader).get();
+            fh.summarize();
          }
          
          if (inputIBDFStreams != null) {
             for (final InputStream is : inputIBDFStreams) {
                 getLog().info("Loading termstore inputStream " + (this.activeOnly ? " active items only" : ""));
-                process(LookupService.get().getService(BinaryDataServiceFactory.class).getQueueReader(is), is.toString());
+                FileHandler fh = new FileHandler(is.toString());
+                final BinaryDatastreamReader reader = new BinaryDatastreamReader(item -> fh.process(item), is);
+                Get.executor().submit(reader).get();
+                fh.summarize();
             }
          }
          
@@ -415,45 +392,44 @@ public class LoadTermstore
          Get.startIndexTask().get();
 
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
-         getLog().info("Loaded with exception " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
-                       this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +
-                       ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
-               : ""));
+         getLog().error("Loaded with exception");
          throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
       } 
    }
    
-   private void process(BinaryDataReaderQueueService reader, String inputIdentifier) throws InterruptedException
+
+   class FileHandler
    {
-       final BlockingQueue<IsaacExternalizable> queue  = reader.getQueue();
+       private int conceptCount, semanticCount, stampAliasCount, stampCommentCount, itemFailure, mergeCount;
        int duplicateCount = 0;
        final int statedNid = Get.identifierService().getNidForUuids(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
-
-       while (!queue.isEmpty() || !reader.isFinished()) {
-          final IsaacExternalizable object = queue.poll(500, TimeUnit.MILLISECONDS);
-
+       private final HashSet<Integer> skippedItems = new HashSet<>();
+       String inputIdentifier;
+       
+      protected FileHandler(String fileName)
+      {
+         inputIdentifier = fileName;
+      }
+   
+      
+      private void process(IsaacExternalizable object)
+      {
           if (object != null) {
-             this.itemCount++;
+             LoadTermstore.this.itemCount++;
 
              try {
                 if (null != object.getIsaacObjectType()) {
                    switch (object.getIsaacObjectType()) {
                    case CONCEPT:
-                      if (!this.activeOnly || isActive((Chronology) object)) {
-                         writeAheadLimiter.acquire();
-                         Get.workExecutors().getIOExecutor().execute(() -> 
-                         {
-                             try {
-                                Get.conceptService().writeConcept(((ConceptChronology) object));
-                                writeAheadLimiter.release();
-                                this.conceptCount++;
-                             }
-                             catch (Exception e) {
-                                getLog().error("Write Error - ", e);
-                                throw e;
-                             }
-                         });
-                         
+                      if (!LoadTermstore.this.activeOnly || isActive((Chronology) object)) {
+                         try {
+                            Get.conceptService().writeConcept(((ConceptChronology) object));
+                            this.conceptCount++;
+                         }
+                         catch (Exception e) {
+                            getLog().error("Write Error - ", e);
+                            throw e;
+                         }
                       } else {
                          this.skippedItems.add(((Chronology) object).getNid());
                       }
@@ -464,9 +440,9 @@ public class LoadTermstore
                       SemanticChronology sc = (SemanticChronology) object;
                       
                       if (sc.getPrimordialUuid().equals(TermAux.MASTER_PATH_SEMANTIC_UUID)) {
-                         getLog().info("Loading master path semantic at count: " + this.itemCount);
+                         getLog().info("Loading master path semantic at count: " + LoadTermstore.this.itemCount);
                       } else if (sc.getPrimordialUuid().equals(TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID)) {
-                         getLog().info("Loading development path semantic at count: " + this.itemCount);
+                         getLog().info("Loading development path semantic at count: " + LoadTermstore.this.itemCount);
                       }
 
                       if (mergeLogicGraphs) {
@@ -538,27 +514,21 @@ public class LoadTermstore
                          }
                       }
 
-                      if (!this.semanticTypesToSkip.contains(sc.getVersionType()) &&
-                            (!this.activeOnly ||
+                      if (!LoadTermstore.this.semanticTypesToSkip.contains(sc.getVersionType()) &&
+                            (!LoadTermstore.this.activeOnly ||
                              (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
-                          final SemanticChronology finalSc = sc;
-                          Get.workExecutors().getIOExecutor().execute(() -> 
-                          {
-                              try {
-                                 Get.assemblageService().writeSemanticChronology(finalSc);
-                                 writeAheadLimiter.release();
-                                 if (finalSc.getVersionType() == VersionType.LOGIC_GRAPH) {
-                                     deferredActionNids.add(finalSc.getNid());
-                                  }
+                          try {
+                             Get.assemblageService().writeSemanticChronology(sc);
+                             if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
+                                 deferredActionNids.add(sc.getNid());
+                              }
 
-                                  this.semanticCount++;
-                              }
-                              catch (Exception e) {
-                                 getLog().error("Write Error - ", e);
-                                 throw e;
-                              }
-                          });
-                        
+                              this.semanticCount++;
+                          }
+                          catch (Exception e) {
+                             getLog().error("Write Error - ", e);
+                             throw e;
+                          }
                       } else {
                          this.skippedItems.add(sc.getNid());
                       }
@@ -609,31 +579,33 @@ public class LoadTermstore
                 }
              }
 
-             if (this.itemCount % 50000 == 0) {
-                getLog().info("Read " + this.itemCount + " entries, " + "Loaded " + this.conceptCount +
+             if (LoadTermstore.this.itemCount % 50000 == 0) {
+                getLog().info("Read " + LoadTermstore.this.itemCount + " entries, " + "Loaded " + this.conceptCount +
                               " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount +
                               " stampAlias, " + this.stampCommentCount + " stampComment");
              }
+
+
           }
-       }
-       
-       //make sure all threads done writing
-       writeAheadLimiter.acquire(writeAheadLimit);
-       writeAheadLimiter.release(writeAheadLimit);
+      }
+      
+   protected void summarize()
+   {
        if (this.skippedItems.size() > 0) {
-           this.skippedAny = true;
-        }
+           LoadTermstore.this.skippedAny = true;
+       }
 
         getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount + " stampAlias, " 
               + stampCommentCount + " stampComments, " + mergeCount + " merged semantics" + (skippedItems.size() > 0 ? ", skipped for inactive " + skippedItems.size() : "")  
                       + ((duplicateCount > 0) ? " Duplicates " + duplicateCount : "") 
                       + ((this.itemFailure > 0) ? " Failures " + this.itemFailure : "") + " from " + inputIdentifier);
-        getLog().info("running item count: "  + this.itemCount);
+        getLog().info("running item count: "  + LoadTermstore.this.itemCount);
         this.conceptCount      = 0;
         this.semanticCount     = 0;
         this.stampAliasCount   = 0;
         this.stampCommentCount = 0;
         this.skippedItems.clear();
+      }
    }
 
    /**
