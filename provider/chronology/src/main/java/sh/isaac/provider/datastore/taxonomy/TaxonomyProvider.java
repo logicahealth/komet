@@ -593,7 +593,30 @@ public class TaxonomyProvider
             }
 
             for (int parentNid : getTaxonomyParentConceptNids(childId)) {
-                if (isKindOf(parentNid, kindofNid)) {
+                if (isKindOf(parentNid, kindofNid, 0)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
+        private boolean isKindOf(int childId, int kindofNid, int depth) {
+            if (depth > 40) {
+                LOG.warn("Taxonomy depth > 40: " + depth + "; \n" + Get.conceptDescriptionText(childId) + " <? \n" + Get.conceptDescriptionText(kindofNid));
+            }
+            if (depth > 60) {
+                LOG.error("Taxonomy depth > 60" + Get.conceptDescriptionText(childId) + " <? " + Get.conceptDescriptionText(kindofNid));
+                LOG.error("Return false secondary to presumed cycle. ");
+                // TODO raise alert to user via alert mechanism. 
+                return false;
+            }
+            if (isChildOf(childId, kindofNid)) {
+                return true;
+            }
+
+            for (int parentNid : getTaxonomyParentConceptNids(childId)) {
+                if (isKindOf(parentNid, kindofNid, depth + 1)) {
                     return true;
                 }
             }

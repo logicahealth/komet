@@ -1108,6 +1108,12 @@ public class LogicalExpressionImpl
       depthFirstVisit(consumer, fragmentRoot, graphVisitData, 0);
    }
 
+    @Override
+    public void processDepthFirst(BiConsumer<LogicNode, TreeNodeVisitData> consumer, TreeNodeVisitData treeNodeVisitData) {
+        init();
+        depthFirstVisit(consumer, getRoot(), treeNodeVisitData, 0);
+    }
+
    /**
     * Sort.
     */
@@ -1195,7 +1201,7 @@ public class LogicalExpressionImpl
 
       logicNode.addConceptsReferencedByNode(graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, logicNode.getNodeIndex()));
 
-      OptionalInt predecessorNid = graphVisitData.getPredecessorNid(logicNode.getNodeIndex());
+      OptionalInt predecessorNid = graphVisitData.getPredecessorSequence(logicNode.getNodeIndex());
       if (predecessorNid.isPresent()) {
          
          graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorNid.getAsInt()).forEachKey((node) -> {
@@ -1230,7 +1236,7 @@ public class LogicalExpressionImpl
 
          for (final LogicNode child : logicNode.getChildren()) {
             graphVisitData.setSiblingGroupForNid(child.getNodeIndex(), siblingGroupSequence);
-            graphVisitData.setPredecessorNid(child.getNodeIndex(), logicNode.getNodeIndex());
+            graphVisitData.setPredecessorSequence(child.getNodeIndex(), logicNode.getNodeIndex());
             depthFirstVisit(consumer, child, graphVisitData, depth + 1);
          }
       }
@@ -1239,7 +1245,7 @@ public class LogicalExpressionImpl
    }
 
    /**
-    * Inits the.
+    * Initializes the logic nodes.
     */
    protected void init() {
       this.logicNodes.trimToSize();

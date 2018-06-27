@@ -415,14 +415,15 @@ public class TreeNodeVisitDataBdbImpl
     * {@inheritDoc}
     */
    @Override
-   public OptionalInt getPredecessorNid(int nodeNid) {
-      int sequence = nidToSequence(nodeNid);
-      if (this.predecessorNidList.getQuick(sequence) == -1) {
+   public OptionalInt getPredecessorSequence(int nodeNid) {
+      int nodeSequence = nidToSequence(nodeNid);
+      int toReturn = this.predecessorNidList.getQuick(nodeSequence);
+      if (toReturn == -1 ) {
          return OptionalInt.empty();
       }
       else
       {
-         return OptionalInt.of(this.predecessorNidList.getQuick(sequence));
+         return OptionalInt.of(toReturn);
       }
    }
 
@@ -434,15 +435,15 @@ public class TreeNodeVisitDataBdbImpl
     * @param predecessorNid the predecessor sequence
     */
    @Override
-   public void setPredecessorNid(int nodeNid, int predecessorNid) {
-      int sequence = nidToSequence(nodeNid);
+   public void setPredecessorSequence(int nodeNid, int predecessorNid) {
+      int nodeSequence = nidToSequence(nodeNid);
       int oldSize = this.predecessorNidList.size();
-      if (sequence >= oldSize) {
-         this.predecessorNidList.setSize(sequence + 1);
-         this.predecessorNidList.fillFromToWith(oldSize, sequence - 1, -1);  //In case there are gaps
+      if (nodeSequence >= oldSize) {
+          this.predecessorNidList.setSize(nodeSequence + 1);
+          this.predecessorNidList.fillFromToWith(oldSize, nodeSequence - 1, -1);  //In case there are gaps
       }
 
-      this.predecessorNidList.set(sequence, predecessorNid);
+      this.predecessorNidList.set(nodeSequence, predecessorNid);
    }
 
    //~--- getValueSpliterator methods ---------------------------------------------------------

@@ -103,14 +103,21 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
         }
         return spineFilesRead;
     }
-
-    private void readSpine(int spineIndex) {
-        String spineKey = SPINE_PREFIX + spineIndex;
-        File spineFile = new File(directory, spineKey);
-        readSpine(spineFile);
+    @Override
+    protected AtomicReferenceArray<byte[][]> newSpine(Integer spineKey) {
+        if (spineKey < this.spineCount.get()) {
+            return readSpine(spineKey);
+        }
+        return makeNewSpine(spineKey);
     }
 
-    private void readSpine(File spineFile) throws NumberFormatException {
+    protected AtomicReferenceArray<byte[][]> readSpine(int spineIndex) {
+        String spineKey = SPINE_PREFIX + spineIndex;
+        File spineFile = new File(directory, spineKey);
+        return readSpine(spineFile);
+    }
+
+    private AtomicReferenceArray<byte[][]> readSpine(File spineFile) throws NumberFormatException {
         int spineIndex = Integer.parseInt(spineFile.getName().substring(SPINE_PREFIX.length()));
         if (spineFile.exists()) {
             diskSemaphore.acquireUninterruptibly();
@@ -131,18 +138,20 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
                     }
                 }
                 AtomicReferenceArray<byte[][]> spine = new AtomicReferenceArray<>(spineArray);
-                this.spines.putIfAbsent(spineIndex, spine);
+                return this.spines.putIfAbsent(spineIndex, spine);
+                
             } catch (IOException ex) {
                 LOG.error(ex);
             } finally {
                 diskSemaphore.release();
             }
-        } else {
-            this.spines.putIfAbsent(spineIndex, newSpine(spineIndex));
-        }
+        } 
+        return this.spines.putIfAbsent(spineIndex, makeNewSpine(spineIndex));
+        
     }
 
     public boolean write(File directory) {
+        lock();
         try {
             AtomicBoolean wroteAny = new AtomicBoolean(false);
             SpineFileUtil.writeSpineCount(directory, spineCount.get());
@@ -177,10 +186,13 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
                 }
                 
             });
+            //clear();
             return wroteAny.get();
         } catch (IOException ex) {
             LOG.error(ex);
             throw new RuntimeException(ex);
+        } finally {
+            release();
         }
     }
 

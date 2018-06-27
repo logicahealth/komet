@@ -19,6 +19,7 @@ package sh.isaac.api.tree;
 import java.util.OptionalInt;
 import java.util.Set;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.logic.LogicNode;
 
 /**
  *
@@ -64,6 +65,10 @@ public interface TreeNodeVisitData {
      * @return the distance
     */
    int getDistance(int nodeId);
+   
+   default int getDistance(LogicNode node) {
+       return getDistance(node.getNodeIndex());
+   }
 
    /**
     * Gets the finish time.
@@ -117,7 +122,7 @@ public interface TreeNodeVisitData {
     * @param nodeId the node id
     * @return the predecessor nid
     */
-   OptionalInt getPredecessorNid(int nodeId);
+   OptionalInt getPredecessorSequence(int nodeId);
 
    //~--- get methods ---------------------------------------------------------
    /**
@@ -186,7 +191,7 @@ public interface TreeNodeVisitData {
     * @param nodeId the node id
     * @param predecessorNodeId the predecessor node id
     */
-   void setPredecessorNid(int nodeId, int predecessorNodeId);
+   void setPredecessorSequence(int nodeId, int predecessorNodeId);
 
    //~--- set methods ---------------------------------------------------------
    /**
