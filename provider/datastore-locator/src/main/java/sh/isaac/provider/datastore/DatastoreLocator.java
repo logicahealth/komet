@@ -97,7 +97,7 @@ public class DatastoreLocator implements DataStore, SequenceStore
 					dataStore = LookupService.get().getService(DataStoreSubService.class, di.name());
 					break;
 				case DEFAULT:
-					dataStore = LookupService.get().getService(DataStoreSubService.class, DatabaseImplementation.XODUS.name());
+					dataStore = LookupService.get().getService(DataStoreSubService.class, DatabaseImplementation.FILESYSTEM.name());
 					break;
 				default :
 					throw new RuntimeException("Oops");
@@ -105,7 +105,7 @@ public class DatastoreLocator implements DataStore, SequenceStore
 			if (dataStore == null)
 			{
 				throw new RuntimeException("No implementation of a DataStoreSubService is available on the classpath with the name of " 
-						+ (di == DatabaseImplementation.DEFAULT ? DatabaseImplementation.XODUS.name() : di.name()));
+						+ (di == DatabaseImplementation.DEFAULT ? DatabaseImplementation.FILESYSTEM.name() : di.name()));
 			}
 			if (!dbTypeFile.isFile())
 			{
