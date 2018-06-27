@@ -94,7 +94,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	private static final String XODUS_STORE = "xodus-store";
 	private File xodusFolder;
 
-	private final int splitNidsIntoBuckets = 10;
+	private final int splitNidsIntoBuckets = 15;
 	
 	private volatile ConcurrentHashMap<String, Store> xodusStores;  //enviornmentID + storeId -> Store
 	private ConcurrentHashMap<String, Environment> xodusEnvironments; //enviornmentId -> Enviornment
