@@ -18,7 +18,6 @@ package sh.isaac.model;
 
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.TaxonomyService;
-import sh.isaac.model.collections.SpinedIntIntArrayMap;
 
 /**
  *
@@ -26,6 +25,5 @@ import sh.isaac.model.collections.SpinedIntIntArrayMap;
  */
 @Contract
 public interface TaxonomyDebugService extends TaxonomyService {
-   SpinedIntIntArrayMap getTaxonomyRecordMap(int conceptAssemblageNid);
    String describeTaxonomyRecord(int nid);
 }

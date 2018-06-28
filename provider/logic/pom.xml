@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>logic</artifactId>
     <packaging>jar</packaging>
-   <name>ISAAC provider: Logic</name>
+    <name>ISAAC provider: Logic</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.misc</groupId>
@@ -21,16 +21,11 @@
             <artifactId>model</artifactId>
             <version>${project.version}</version>
         </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>chronology</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>filesystem-datastore</artifactId>
-         <version>${project.version}</version>
-      </dependency>
+        <dependency>
+            <groupId>sh.isaac.provider</groupId>
+            <artifactId>chronology</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>sh.isaac.core</groupId>
             <artifactId>mojo</artifactId>

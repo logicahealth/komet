@@ -63,9 +63,12 @@ import au.csiro.ontology.model.Feature;
 import au.csiro.ontology.model.Literal;
 import au.csiro.ontology.model.Operator;
 import au.csiro.ontology.model.Role;
-
 import sh.isaac.api.DataSource;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicNode;
+import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.EclipseIntObjectMap;
+import sh.isaac.model.collections.IntObjectMap;
 import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
@@ -80,8 +83,6 @@ import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -94,31 +95,31 @@ public class GraphToAxiomTranslator {
    /** The axioms. */
    Set<Axiom> axioms = new ConcurrentSkipListSet<>();
 
-   /** The sequence logic concept map. */
-   SpinedIntObjectMap<Concept> sequenceLogicConceptMap = new SpinedIntObjectMap<>();
+   /** The nid logic concept map. */
+   IntObjectMap<Concept> nidLogicConceptMap;
+
 
    /** The sequence logic role map. */
-   ConcurrentHashMap<Integer, Role> sequenceLogicRoleMap = new ConcurrentHashMap<>();
+   ConcurrentHashMap<Integer, Role> nidLogicRoleMap = new ConcurrentHashMap<>();
 
    /** The sequence logic feature map. */
-   ConcurrentHashMap<Integer, Feature> sequenceLogicFeatureMap = new ConcurrentHashMap<>();
+   ConcurrentHashMap<Integer, Feature> nidLogicFeatureMap = new ConcurrentHashMap<>();
 
    /** The loaded concepts. */
    ConcurrentSkipListSet<Integer> loadedConceptNids = new ConcurrentSkipListSet<>();
 
-   /** The f. */
-   Factory f = new Factory();
-
-   //~--- methods -------------------------------------------------------------
+   public GraphToAxiomTranslator() {
+      nidLogicConceptMap = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntObjectMap<>() : new EclipseIntObjectMap<>();
+   }
 
    /**
     * Clear.
     */
    public void clear() {
       this.axioms.clear();
-      this.sequenceLogicRoleMap.clear();
-      this.sequenceLogicFeatureMap.clear();
-      this.sequenceLogicConceptMap.clear();
+      this.nidLogicRoleMap.clear();
+      this.nidLogicFeatureMap.clear();
+      this.nidLogicConceptMap.clear();
       this.loadedConceptNids.clear();
    }
 
@@ -147,9 +148,9 @@ public class GraphToAxiomTranslator {
     */
    @Override
    public String toString() {
-      return "GraphToAxiomTranslator{" + "axioms=" + this.axioms.size() + ", sequenceLogicConceptMap=" +
-             this.sequenceLogicConceptMap.size() + ", sequenceLogicRoleMap=" +
-             this.sequenceLogicRoleMap.size() + ", sequenceLogicFeatureMap=" + this.sequenceLogicFeatureMap.size() +
+      return "GraphToAxiomTranslator{" + "axioms=" + this.axioms.size() + ", nidLogicConceptMap=" +
+             this.nidLogicConceptMap.size() + ", sequenceLogicRoleMap=" +
+             this.nidLogicRoleMap.size() + ", sequenceLogicFeatureMap=" + this.nidLogicFeatureMap.size() +
              '}';
    }
 
@@ -244,6 +245,7 @@ public class GraphToAxiomTranslator {
     * @param logicGraph the logic graph
     * @return the optional
     */
+   @SuppressWarnings("deprecation")
    private Optional<Literal> generateLiterals(LogicNode logicNode, Concept c, LogicalExpressionImpl logicGraph) {
       switch (logicNode.getNodeSemantic()) {
       case LITERAL_BOOLEAN:
@@ -482,28 +484,14 @@ public class GraphToAxiomTranslator {
     * @return the concept
     */
    private Concept getConcept(int name) {
-
-      if (name < 0) {
-         name = ModelGet.identifierService().getElementSequenceForNid(name);
-      }
-      final Optional<Concept> optionalConcept = this.sequenceLogicConceptMap.getOptional(name);
+      final Optional<Concept> optionalConcept = this.nidLogicConceptMap.getOptional(name);
 
       if (optionalConcept.isPresent()) {
          return optionalConcept.get();
       }
       Concept concept = Factory.createNamedConcept(Integer.toString(name));
-      this.sequenceLogicConceptMap.put(name, concept);
+      this.nidLogicConceptMap.put(name, concept);
       return concept;
-   }
-
-   /**
-    * Gets the concept from sequence.
-    *
-    * @param sequence the sequence
-    * @return the concept from sequence
-    */
-   public Optional<Concept> getConceptFromSequence(int sequence) {
-      return this.sequenceLogicConceptMap.getOptional(sequence);
    }
 
    /**
@@ -514,14 +502,14 @@ public class GraphToAxiomTranslator {
     */
    private Feature getFeature(int name) {
 
-      final Feature feature = this.sequenceLogicFeatureMap.get(name);
+      final Feature feature = this.nidLogicFeatureMap.get(name);
 
       if (feature != null) {
          return feature;
       }
 
-      this.sequenceLogicFeatureMap.putIfAbsent(name, Factory.createNamedFeature(Integer.toString(name)));
-      return this.sequenceLogicFeatureMap.get(name);
+      this.nidLogicFeatureMap.putIfAbsent(name, Factory.createNamedFeature(Integer.toString(name)));
+      return this.nidLogicFeatureMap.get(name);
    }
 
    /**
@@ -541,14 +529,14 @@ public class GraphToAxiomTranslator {
     */
    private Role getRole(int name) {
  
-      final Role role = this.sequenceLogicRoleMap.get(name);
+      final Role role = this.nidLogicRoleMap.get(name);
 
       if (role != null) {
          return role;
       }
 
-      this.sequenceLogicRoleMap.putIfAbsent(name, Factory.createNamedRole(Integer.toString(name)));
-      return this.sequenceLogicRoleMap.get(name);
+      this.nidLogicRoleMap.putIfAbsent(name, Factory.createNamedRole(Integer.toString(name)));
+      return this.nidLogicRoleMap.get(name);
    }
 }
 

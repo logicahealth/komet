@@ -252,18 +252,6 @@ public class Get
    }
 
    /**
-    * Binary data queue reader.
-    *
-    * @param dataPath the data path
-    * @return the binary data reader queue service
-    * @throws FileNotFoundException the file not found exception
-    */
-   public static BinaryDataReaderQueueService binaryDataQueueReader(Path dataPath)
-            throws FileNotFoundException {
-      return getService(BinaryDataServiceFactory.class).getQueueReader(dataPath);
-   }
-
-   /**
     * Binary data reader.
     *
     * @param dataPath the data path

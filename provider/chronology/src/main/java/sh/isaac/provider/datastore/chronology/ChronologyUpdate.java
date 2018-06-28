@@ -122,10 +122,10 @@ public class ChronologyUpdate implements StaticIsaacCache {
                     TaxonomyFlag.CONCEPT_STATUS.bits);
         }
 
-        SpinedIntIntArrayMap map = TAXONOMY_SERVICE.getTaxonomyRecordMap(conceptChronology.getAssemblageNid());
         int[] record = taxonomyRecord.pack();
         //TaxonomyRecord.validate(record);
-        map.accumulateAndGet(
+        TAXONOMY_SERVICE.accumulateAndGetTaxonomyData(
+                conceptChronology.getAssemblageNid(),
                 conceptChronology.getNid(),
                 record,
                 ChronologyUpdate::merge);
@@ -157,15 +157,13 @@ public class ChronologyUpdate implements StaticIsaacCache {
             // this is the CPU hog...
             processVersionNode(referencedComponentNid, versionGraph.getRoot(), taxonomyRecordForConcept, taxonomyFlags);
         }
-
-        SpinedIntIntArrayMap origin_DestinationTaxonomyRecord_Map = TAXONOMY_SERVICE.getTaxonomyRecordMap(
-                conceptAssemblageNid);
         int[] start = taxonomyRecordForConcept.pack();
         //start = start.clone();
         //TaxonomyRecord.validate(start);
         //int[] begin = origin_DestinationTaxonomyRecord_Map.get(logicGraphChronology.getReferencedComponentNid());
         //begin = begin.clone();
-        int[] result = origin_DestinationTaxonomyRecord_Map.accumulateAndGet(
+        int[] result = TAXONOMY_SERVICE.accumulateAndGetTaxonomyData(
+                conceptAssemblageNid,
                 logicGraphChronology.getReferencedComponentNid(),
                 start, ChronologyUpdate::merge);
         //result = result.clone();
@@ -490,10 +488,10 @@ public class ChronologyUpdate implements StaticIsaacCache {
         destinationTaxonomyRecord.addStampRecord(originNid, CHILD_OF_NID, stampSequence, taxonomyFlags.bits);
 
         int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(originNid).getAsInt();
-        SpinedIntIntArrayMap map = TAXONOMY_SERVICE.getOrigin_DestinationTaxonomyRecord_Map(conceptAssemblageNid);
         int[] record = destinationTaxonomyRecord.pack();
         //TaxonomyRecord.validate(record);
-        map.accumulateAndGet(
+        TAXONOMY_SERVICE.accumulateAndGetTaxonomyData(
+                conceptAssemblageNid,
                 destinationNid,
                 record,
                 ChronologyUpdate::merge);

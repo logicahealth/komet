@@ -56,11 +56,6 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>filesystem-datastore</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
          <artifactId>query</artifactId>
          <version>${project.version}</version>
       </dependency>

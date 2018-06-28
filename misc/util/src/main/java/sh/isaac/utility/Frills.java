@@ -37,7 +37,6 @@
 
 package sh.isaac.utility;
 
-import sh.isaac.api.util.SctId;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
@@ -51,9 +50,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.PrimitiveIterator;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -128,12 +127,12 @@ import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.util.NumericUtils;
+import sh.isaac.api.util.SctId;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.mapping.constants.IsaacMappingConstants;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.concept.ConceptVersionImpl;
-import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
@@ -1302,9 +1301,9 @@ public class Frills
       }
 
       // if it is a negative integer, assume nid
-      Optional<Integer> nid = NumericUtils.getNID(localIdentifier);
+      OptionalInt nid = NumericUtils.getNID(localIdentifier);
       if (nid.isPresent()) {
-         return Get.conceptService().getOptionalConcept(nid.get());
+         return Get.conceptService().getOptionalConcept(nid.getAsInt());
       }
 
       if (SctId.isValidSctId(localIdentifier)) {
@@ -1546,11 +1545,11 @@ public class Frills
       }
 
       try {
-         Optional<Integer> intId = NumericUtils.getInt(id);
+         OptionalInt intId = NumericUtils.getInt(id);
          if (intId.isPresent())
          {
-            if (intId.get() < 0) {
-               nid = intId.get();
+            if (intId.getAsInt() < 0) {
+               nid = intId.getAsInt();
             }
 
             if (nid != null) {

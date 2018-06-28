@@ -281,14 +281,13 @@ public class TaxonomyRecordPrimitive {
     * Checks if concept active.
     *
     * @param conceptNid the concept nid
-    * @param taxonomyMap the taxonomy map
+    * @param taxonomyData the taxonomy map
     * @param sc the sc
     * @return true, if concept active
     */
    public static boolean isConceptActive(int conceptNid,
-         SpinedIntIntArrayMap taxonomyMap,
+         final int[] taxonomyData,
          StampCoordinate sc) {
-      final int[] taxonomyData = taxonomyMap.get(conceptNid);
 
       if (taxonomyData != null) {
          if (new TaxonomyRecordPrimitive(taxonomyData).isConceptActive(conceptNid, sc)) {
@@ -374,17 +373,16 @@ public class TaxonomyRecordPrimitive {
     *
     * @param conceptNid the concept nid
     * @param typeNid the type nid
-    * @param taxonomyMap the taxonomy map
+    * @param taxonomyData the taxonomy map
     * @param vp the vp
     * @param flags the flags
     * @return the if active via type
     */
    public static Optional<TaxonomyRecordPrimitive> getIfActiveViaType(int conceptNid,
          int typeNid,
-         SpinedIntIntArrayMap taxonomyMap,
+         final int[] taxonomyData,
          ManifoldCoordinate vp,
          int flags) {
-      final int[] taxonomyData = taxonomyMap.get(conceptNid);
 
       if (taxonomyData != null) {
          TaxonomyRecordPrimitive record = new TaxonomyRecordPrimitive(taxonomyData);
@@ -400,14 +398,13 @@ public class TaxonomyRecordPrimitive {
     * Gets the if concept active.
     *
     * @param conceptNid the concept nid
-    * @param taxonomyMap the taxonomy map
+    * @param taxonomyData the taxonomy map
     * @param vp the vp
     * @return the if concept active
     */
    public static Optional<TaxonomyRecordPrimitive> getIfConceptActive(int conceptNid,
-         SpinedIntIntArrayMap taxonomyMap,
+         final int[] taxonomyData,
          ManifoldCoordinate vp) {
-      final int[] taxonomyData = taxonomyMap.get(conceptNid);
 
       if (taxonomyData != null) {
          TaxonomyRecordPrimitive record = new TaxonomyRecordPrimitive(taxonomyData);

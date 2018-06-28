@@ -53,7 +53,6 @@ import javax.inject.Singleton;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
 import sh.isaac.api.externalizable.DataWriterService;
@@ -69,23 +68,6 @@ import sh.isaac.api.externalizable.DataWriterService;
 @Singleton
 public class BinaryDataProviderFactory
          implements BinaryDataServiceFactory {
-
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public BinaryDataReaderQueueService getQueueReader(Path dataPath)
-            throws FileNotFoundException {
-      return new BinaryDataReaderQueueProvider(dataPath);
-   }
-   
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public BinaryDataReaderQueueService getQueueReader(InputStream inputStream) {
-      return new BinaryDataReaderQueueProvider(inputStream);
-   }
 
    /**
     * {@inheritDoc}

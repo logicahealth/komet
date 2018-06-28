@@ -68,13 +68,6 @@ public interface ObservableConceptChronology
         extends ObservableChronology, ConceptChronology {
 
    /**
-    * Concept sequence property.
-    *
-    * @return the integer property
-    */
-   IntegerProperty entrySequenceProperty();
-
-   /**
     * A test for validating that a concept contains an active description. Used
     * to validate concept proxies or concept specs at runtime.
     * @param descriptionText text to match against.

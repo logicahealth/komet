@@ -39,31 +39,20 @@
 
 package sh.isaac.provider.commit;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -73,13 +62,14 @@ import sh.isaac.api.commit.ChangeSetListener;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.externalizable.DataWriterService;
-import sh.isaac.api.externalizable.MultipleDataWriterService;
-import sh.isaac.api.util.NamedThreadFactory;
-import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.externalizable.DataWriterService;
+import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.MultipleDataWriterService;
+import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.util.NamedThreadFactory;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  * {@link ChangeSetWriterHandler}.
@@ -102,8 +92,7 @@ public class ChangeSetWriterHandler
    /** The Constant CHANGESETS. */
    private static final String CHANGESETS = "changesets";
 
-   //~--- fields --------------------------------------------------------------
-   private static final int MAX_AVAILABLE = Runtime.getRuntime().availableProcessors() * 2;
+   private static final int MAX_AVAILABLE = 20;
    private final Semaphore writePermits = new Semaphore(MAX_AVAILABLE);
 
    /** The change set writer handler uuid. */
@@ -121,94 +110,86 @@ public class ChangeSetWriterHandler
    /** The change set folder. */
    private Path changeSetFolder;
 
-   //~--- constructors --------------------------------------------------------
-
    /**
-    * Instantiates a new change set writer handler.
-    *
-    * @throws Exception the exception
-    */
-   public ChangeSetWriterHandler()
+   * For HK2
+   *
+   * @throws Exception the exception
+   */
+   private ChangeSetWriterHandler()
             throws Exception {
-
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Disable.
-    */
+   * {@inheritDoc}
+   */
    @Override
    public void disable() {
       this.writeEnabled = false;
    }
 
    /**
-    * Enable.
-    */
+   * {@inheritDoc}
+   */
    @Override
    public void enable() {
       this.writeEnabled = true;
    }
 
    /**
-    * Handle post commit.
-    *
-    * @param commitRecord the commit record
-    */
+   * {@inheritDoc}
+   */
    @Override
-   public void handlePostCommit(CommitRecord commitRecord) {
+   public void handlePostCommit(CommitRecord commitRecord)
+   {
       LOG.info("handle Post Commit");
-      writePermits.acquireUninterruptibly();
-      try {
-
       if (this.writeEnabled && !Get.configurationService().isInDBBuildMode()) {
          // Do in the backgound
-         writePermits.acquireUninterruptibly();
-         final Runnable r = () -> {
-                               try {
-                                  if ((commitRecord.getConceptsInCommit() != null) &&
-                                      (commitRecord.getConceptsInCommit().size() > 0)) {
-                                     conceptNidSetChange(commitRecord.getConceptsInCommit());
-                                     LOG.debug("handle Post Commit: {} concepts",
-                                               commitRecord.getConceptsInCommit()
-                                                     .size());
-                                  }
+         writePermits.acquireUninterruptibly();  //prevent incoming commits from getting to far ahead
+      final TimedTask<Void> tt = new TimedTask<Void>() {
+         @Override
+         protected Void call() throws Exception {
+            try {
+               updateTitle("Writing Changeset for commit " + commitRecord.getCommitComment());
+               Get.activeTasks().add(this);
+               LookupService.getService(ActiveTasks.class).get().add(this);
+               if ((commitRecord.getConceptsInCommit() != null) && (commitRecord.getConceptsInCommit().size() > 0)) {
+                  conceptNidSetChange(commitRecord.getConceptsInCommit());
+                  LOG.debug("handle Post Commit: {} concepts", commitRecord.getConceptsInCommit().size());
+               }
 
-                                  if ((commitRecord.getSemanticNidsInCommit() != null) &&
-                                      (commitRecord.getSemanticNidsInCommit().size() > 0)) {
-                                     semanticNidSetChange(commitRecord.getSemanticNidsInCommit());
-                                     LOG.debug("handle Post Commit: {} semantics",
-                                               commitRecord.getSemanticNidsInCommit()
-                                                     .size());
-                                  }
-                               } catch (final Exception e) {
-                                  LOG.error("Error in Change set writer handler ", e.getMessage());
-                                  throw new RuntimeException(e);
-                               } finally {
-                                  writePermits.release();
-                               }
-                            };
+               if ((commitRecord.getSemanticNidsInCommit() != null) && (commitRecord.getSemanticNidsInCommit().size() > 0)) {
+                  semanticNidSetChange(commitRecord.getSemanticNidsInCommit());
+                  LOG.debug("handle Post Commit: {} semantics", commitRecord.getSemanticNidsInCommit().size());
+               }
+            }
+            catch (final Exception e) {
+               LOG.error("Error in Change set writer handler ", e.getMessage());
+               throw new RuntimeException(e);
+            }
+            finally {
+               writePermits.release();
+               Get.activeTasks().remove(this);
+            }
+            return null;
+         }
+      };
 
-         this.changeSetWriteExecutor.execute(r);
-      } else {
+         this.changeSetWriteExecutor.execute(tt);
+      }
+      else
+      {
          if (Get.configurationService().isInDBBuildMode()) {
-            LOG.info("ChangeSetWriter ignoring commit because in db build mode. ");
+            LOG.debug("ChangeSetWriter ignoring commit because in db build mode. ");
          }
          if (!this.writeEnabled) {
-            LOG.info("ChangeSetWriter ignoring commit because write disabled. ");
+            LOG.debug("ChangeSetWriter ignoring commit because write disabled. ");
          }
-      }
-      } finally {
-         writePermits.release();
       }
    }
 
    /**
-    * Pause.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
+   * {@inheritDoc}
+   */
    @Override
    public void pause()
             throws IOException {
@@ -218,10 +199,8 @@ public class ChangeSetWriterHandler
    }
 
    /**
-    * Resume.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
+   * {@inheritDoc}
+   */
    @Override
    public void resume()
             throws IOException {
@@ -231,52 +210,40 @@ public class ChangeSetWriterHandler
    }
 
    /**
-    * Sequence set change.
-    *
-    * @param conceptSequenceSet the concept sequence set
-    */
+   * @param conceptNidSet the concept sequence set
+   */
+   private void conceptNidSetChange(NidSet conceptNidSet) {
+      conceptNidSet.stream().forEach((conceptSequence) -> {
+         final ConceptChronology concept = Get.conceptService().getConceptChronology(conceptSequence);
 
-   /*
-    */
-   private void conceptNidSetChange(NidSet conceptSequenceSet) {
-      conceptSequenceSet.stream().forEach((conceptSequence) -> {
-                                    final ConceptChronology concept = Get.conceptService()
-                                                                                                      .getConceptChronology(
-                                                                                                         conceptSequence);
-
-                                    try {
-                                       writeToFile(concept);
-                                    } catch (final Exception e) {
-                                       throw new RuntimeException("Error writing concept " + conceptSequence , e);
-                                    }
-                                 });
+         try {
+            writeToFile(concept);
+         }
+         catch (final Exception e) {
+            throw new RuntimeException("Error writing concept " + conceptSequence, e);
+         }
+      });
    }
 
    /**
-    * Sequence set change.
-    *
-    * @param semanticSequenceSet the semantic sequence set
-    */
+   * @param semanticNidSet the semantic sequence set
+   */
+   private void semanticNidSetChange(NidSet semanticNidSet) {
+      semanticNidSet.stream().forEach((semanticSequence) -> {
+         final SemanticChronology semantic = Get.assemblageService().getSemanticChronology(semanticSequence);
 
-   /*
-    */
-   private void semanticNidSetChange(NidSet semanticSequenceSet) {
-      semanticSequenceSet.stream().forEach((semanticSequence) -> {
-                                   final SemanticChronology semantic = Get.assemblageService()
-                                                                                                  .getSemanticChronology(
-                                                                                                     semanticSequence);
-
-                                   try {
-                                      writeToFile(semantic);
-                                   } catch (final Exception e) {
-                                      throw new RuntimeException("Error writing semantic " + semanticSequence, e);
-                                   }
-                                });
+         try {
+            writeToFile(semantic);
+         }
+         catch (final Exception e) {
+            throw new RuntimeException("Error writing semantic " + semanticSequence, e);
+         }
+      });
    }
 
    /**
-    * Start me.
-    */
+   * For HK2
+   */
    @PostConstruct
    private void startMe() {
       try {
@@ -293,25 +260,26 @@ public class ChangeSetWriterHandler
          
          this.writer = new MultipleDataWriterService(this.changeSetFolder, "ChangeSet-", Optional.of(JSON_FILE_SUFFIX), Optional.of(IBDF_FILE_SUFFIX));
          enable();
-         this.changeSetWriteExecutor = Executors.newSingleThreadExecutor(new NamedThreadFactory("ISAAC-changeset-write",
-               false));
-         Get.postCommitService()
-            .addChangeSetListener(this);
+         this.changeSetWriteExecutor = Executors.newSingleThreadExecutor(new NamedThreadFactory("ISAAC-changeset-write", false));
+         Get.postCommitService().addChangeSetListener(this);
       } catch (final Exception e) {
          LOG.error("Error in ChangeSetWriterHandler post-construct ", e);
-         LookupService.getService(SystemStatusService.class)
-                      .notifyServiceConfigurationFailure("Change Set Writer Handler", e);
+         LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure("Change Set Writer Handler", e);
          throw new RuntimeException(e);
       }
    }
 
    /**
-    * Stop me.
-    */
+   * For HK2
+   */
    @PreDestroy
    private void stopMe() {
-      LOG.info("Stopping ChangeSetWriterHandler pre-destroy");
+      LOG.info("Stopping ChangeSetWriterHandler waiting for all writes to complete");
+      Get.postCommitService().removeChangeSetListener(this);
       disable();
+      writePermits.acquireUninterruptibly(MAX_AVAILABLE);
+      writePermits.release(MAX_AVAILABLE);
+      LOG.info("Stopping ChangeSetWriterHandler writes complete");
 
       if (this.changeSetWriteExecutor != null) {
          this.changeSetWriteExecutor.shutdown();
@@ -323,55 +291,48 @@ public class ChangeSetWriterHandler
 
          try {
             this.writer.close();
-         } catch (final IOException e) {
+         }
+         catch (final IOException e) {
             LOG.error("Error closing changeset writer!", e);
-         } finally {
+         }
+         finally {
             this.writer = null;
          }
       }
    }
 
    /**
-    * Write to file.
-    *
-    * @param ochreObject the ochre object
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
+   * Write to file.
+   *
+   * @param ochreObject the ochre object
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
    private void writeToFile(IsaacExternalizable ochreObject)
             throws IOException {
       this.writer.put(ochreObject);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the listener uuid.
-    *
-    * @return the listener uuid
-    */
+   * {@inheritDoc}
+   */
    @Override
    public UUID getListenerUuid() {
       return this.changeSetWriterHandlerUuid;
    }
 
    /**
-    * Gets the write folder.
-    *
-    * @return the write folder
-    */
+   * {@inheritDoc}
+   */
    @Override
    public Path getWriteFolder() {
       return this.changeSetFolder;
    }
 
    /**
-    * Gets the write status.
-    *
-    * @return the write status
-    */
+   * {@inheritDoc}
+   */
    @Override
    public boolean getWriteStatus() {
       return this.writeEnabled;
    }
 }
-

@@ -39,21 +39,17 @@ package sh.isaac.provider.datastore.taxonomy;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.collections.SpinedIntIntMap;
-import sh.isaac.model.collections.SpinedNidIntMap;
+import sh.isaac.model.SequenceStore;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -162,47 +158,27 @@ public class TreeNodeVisitDataBdbImpl
     * index.
     */
    protected final IntArrayList siblingGroupNidList;
+   
+   private SequenceStore ss;
+   private int conceptAssemblageNid;
 
-   /**
-    * The graph size.
-    */
-   private final int graphSize;
-   private final int conceptAssemblageNid;
-   private final SpinedNidIntMap nid_sequenceInAssemblage_map;
-   private final SpinedIntIntMap sequenceInAssemblage_nid_map;
-
-   //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new tree node visit data.
-    *
-    * @param graphSize the graph size
-    * @param conceptAssemblageNid
-    * @param nid_sequenceInAssemblage_map
-    * @param sequenceInAssemblage_nid_map
-    *
-    *
+    * @param conceptAssemblageNid The assemblage Nid which specifies the assemblage where the concepts in this tree
+    * where created within.  
     */
-   public TreeNodeVisitDataBdbImpl(int graphSize,
-           int conceptAssemblageNid,
-           SpinedNidIntMap nid_sequenceInAssemblage_map,
-           SpinedIntIntMap sequenceInAssemblage_nid_map) {
-      this.conceptAssemblageNid = conceptAssemblageNid;
-      this.nid_sequenceInAssemblage_map = nid_sequenceInAssemblage_map;
-      this.sequenceInAssemblage_nid_map = sequenceInAssemblage_nid_map;
-      this.graphSize = graphSize + 1;
+   public TreeNodeVisitDataBdbImpl(int conceptAssemblageNid) {
       this.visitStarted = new OpenIntHashSet();
       this.visitEnded = new OpenIntHashSet();
       this.leafNodes = new OpenIntHashSet();
-      this.distanceList = new IntArrayList(new int[this.graphSize]);
-      this.distanceList.fillFromToWith(0, this.graphSize - 1, -1);
-      this.discoveryTimeList = new IntArrayList(new int[this.graphSize]);
-      this.discoveryTimeList.fillFromToWith(0, this.graphSize - 1, -1);
-      this.finishTimeList = new IntArrayList(new int[this.graphSize]);
-      this.finishTimeList.fillFromToWith(0, this.graphSize - 1, -1);
-      this.siblingGroupNidList = new IntArrayList(new int[this.graphSize]);
-      this.siblingGroupNidList.fillFromToWith(0, this.graphSize - 1, -1);
-      this.predecessorNidList = new IntArrayList(new int[this.graphSize]);
-      this.predecessorNidList.fillFromToWith(0, this.graphSize - 1, -1);
+      this.distanceList = new IntArrayList();
+      this.discoveryTimeList = new IntArrayList();
+      this.finishTimeList = new IntArrayList();
+      this.siblingGroupNidList = new IntArrayList();
+      this.predecessorNidList = new IntArrayList();
+      this.predecessorNidList.fillFromToWith(0, this.predecessorNidList.size() - 1, -1);
+      this.conceptAssemblageNid = conceptAssemblageNid;
+      ss = ModelGet.sequenceStore();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -252,12 +228,7 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public int getDiscoveryTime(int nodeNid) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
-      }
-
-      return this.discoveryTimeList.getQuick(nodeSequence);
+      return this.discoveryTimeList.getQuick(nidToSequence(nodeNid));
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -271,15 +242,11 @@ public class TreeNodeVisitDataBdbImpl
       if (nodeNid >= 0) {
          throw new IllegalStateException("Nid is positive: " + nodeNid);
       }
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
+      int sequence = nidToSequence(nodeNid);
+      if (sequence >= this.discoveryTimeList.size()) {
+         this.discoveryTimeList.setSize(sequence + 1);
       }
-      if (nodeSequence >= this.discoveryTimeList.size()) {
-         this.discoveryTimeList.setSize(nodeSequence + 1);
-      }
-
-      this.discoveryTimeList.set(nodeSequence, discoveryTime);
+      this.discoveryTimeList.set(sequence, discoveryTime);
    }
 
    //~--- getValueSpliterator methods ---------------------------------------------------------
@@ -291,11 +258,7 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public int getDistance(int nodeNid) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
-      }
-      return this.distanceList.getQuick(nodeSequence);
+      return this.distanceList.getQuick(nidToSequence(nodeNid));
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -307,15 +270,11 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public void setDistance(int nodeNid, int distance) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
+      int sequence = nidToSequence(nodeNid);
+      if (sequence >= this.distanceList.size()) {
+         this.distanceList.setSize(sequence + 1);
       }
-      if (nodeSequence >= this.distanceList.size()) {
-         this.distanceList.setSize(nodeSequence + 1);
-      }
-
-      this.distanceList.set(nodeSequence, distance);
+      this.distanceList.set(sequence, distance);
       this.maxDepth = Math.max(this.maxDepth, distance);
    }
 
@@ -328,14 +287,9 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public int getFinishTime(int nodeNid) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
-      }
-      return this.finishTimeList.getQuick(nodeSequence);
+      return this.finishTimeList.getQuick(nidToSequence(nodeNid));
    }
 
-   //~--- set methods ---------------------------------------------------------
    /**
     * Set finish time.
     *
@@ -343,29 +297,14 @@ public class TreeNodeVisitDataBdbImpl
     * @param finishTime the finish time
     */
    private void setFinishTime(int nodeNid, int finishTime) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
-      }
-      if (nodeSequence >= this.finishTimeList.size()) {
-         this.finishTimeList.setSize(nodeSequence + 1);
+      int sequence = nidToSequence(nodeNid);
+      if (sequence >= this.finishTimeList.size()) {
+         this.finishTimeList.setSize(sequence + 1);
       }
 
-      this.finishTimeList.set(nodeSequence, finishTime);
+      this.finishTimeList.set(sequence, finishTime);
    }
 
-   //~--- getValueSpliterator methods ---------------------------------------------------------
-   /**
-    * Gets the graph size.
-    *
-    * @return the graph size
-    */
-   @Override
-   public int getGraphSize() {
-      return this.graphSize;
-   }
-
-   //~--- set methods ---------------------------------------------------------
    /**
     * Sets the leaf node.
     *
@@ -409,7 +348,7 @@ public class TreeNodeVisitDataBdbImpl
 
       for (int i = 0; i < this.distanceList.size(); i++) {
          if (this.distanceList.get(i) == depth) {
-            nodeIdsForDepth.add(this.sequenceInAssemblage_nid_map.get(i));
+            nodeIdsForDepth.add(sequenceToNid(i));
          }
       }
 
@@ -424,15 +363,11 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public NodeStatus getNodeStatus(int nodeNid) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
-      }
-      if (!this.visitStarted.contains(nodeSequence)) {
+      if (!this.visitStarted.contains(nodeNid)) {
          return NodeStatus.UNDISCOVERED;
       }
 
-      if (this.visitEnded.contains(nodeSequence)) {
+      if (this.visitEnded.contains(nodeNid)) {
          return NodeStatus.FINISHED;
       }
 
@@ -448,17 +383,13 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public void setNodeStatus(int nodeNid, NodeStatus nodeStatus) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
-      }
       switch (nodeStatus) {
          case FINISHED:
-            this.visitEnded.add(nodeSequence);
+            this.visitEnded.add(nodeNid);
             break;
 
          case PROCESSING:
-            this.visitStarted.add(nodeSequence);
+            this.visitStarted.add(nodeNid);
             break;
 
          case UNDISCOVERED:
@@ -485,32 +416,31 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public OptionalInt getPredecessorSequence(int nodeNid) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
-      }
+      int nodeSequence = nidToSequence(nodeNid);
       int toReturn = this.predecessorNidList.getQuick(nodeSequence);
       if (toReturn == -1 ) {
          return OptionalInt.empty();
       }
-      return OptionalInt.of(toReturn);
+      else
+      {
+         return OptionalInt.of(toReturn);
+      }
    }
 
    //~--- set methods ---------------------------------------------------------
    /**
-    * Set predecessor sequence.
+    * Set predecessor nid.
     *
     * @param nodeNid the node nid
     * @param predecessorNid the predecessor sequence
     */
    @Override
    public void setPredecessorSequence(int nodeNid, int predecessorNid) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
-      }
-      if (nodeSequence >= this.predecessorNidList.size()) {
-         this.predecessorNidList.setSize(nodeSequence + 1);
+      int nodeSequence = nidToSequence(nodeNid);
+      int oldSize = this.predecessorNidList.size();
+      if (nodeSequence >= oldSize) {
+          this.predecessorNidList.setSize(nodeSequence + 1);
+          this.predecessorNidList.fillFromToWith(oldSize, nodeSequence - 1, -1);  //In case there are gaps
       }
 
       this.predecessorNidList.set(nodeSequence, predecessorNid);
@@ -525,11 +455,7 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public int getSiblingGroupForNid(int nodeNid) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
-      }
-      return this.siblingGroupNidList.get(nodeSequence);
+      return this.siblingGroupNidList.getQuick(nidToSequence(nodeNid));
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -541,11 +467,11 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public void setSiblingGroupForNid(int nodeNid, int value) {
-      int nodeSequence = nid_sequenceInAssemblage_map.get(nodeNid);
-      if (nodeSequence == Integer.MAX_VALUE) {
-         throw new IllegalStateException("nodeSequence not initialized: " + nodeSequence);
+      int sequence = nidToSequence(nodeNid);
+      if (sequence >= this.siblingGroupNidList.size()) {
+         this.siblingGroupNidList.setSize(sequence + 1);
       }
-      this.siblingGroupNidList.set(nodeSequence, value);
+      this.siblingGroupNidList.set(sequence, value);
    }
 
    //~--- getValueSpliterator methods ---------------------------------------------------------
@@ -578,35 +504,28 @@ public class TreeNodeVisitDataBdbImpl
     */
    @Override
    public OpenIntHashSet getUserNodeSet(String nodeSetKey, int nodeNid) {
-      if (nodeNid < 0) {
-         int assemblageNid = ModelGet.identifierService().getAssemblageNid(nodeNid).getAsInt();
-         if (assemblageNid < 0) {
-            int nodeSequence = ModelGet.identifierService().getElementSequenceForNid(nodeNid);
-            // lazy creation to save memory since not all tree traversals want to
-            // use this capability.
-            if (!this.userNodeMap.containsKey(nodeSetKey)) {
-               this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[this.graphSize]);
-            }
+        int nodeSequence = nidToSequence(nodeNid);
+        // lazy creation to save memory since not all tree traversals want to
+        // use this capability.
+        if (!this.userNodeMap.containsKey(nodeSetKey)) {
+           this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[nodeSequence + 1]);
+        }
 
-            OpenIntHashSet[] userNodeSet = this.userNodeMap.get(nodeSetKey);
+        OpenIntHashSet[] userNodeSet = this.userNodeMap.get(nodeSetKey);
 
-            if (nodeSequence < userNodeSet.length) {
-               if (userNodeSet[nodeSequence] == null) {
-                  userNodeSet[nodeSequence] = new OpenIntHashSet((int) Math.log(this.graphSize));
-               }
-            } else {
-               if (userNodeSet[nodeSequence] == null) {
-                  userNodeSet[nodeSequence] = new OpenIntHashSet((int) Math.log(this.graphSize));
-               }
-            }
-
-            return userNodeSet[nodeSequence];
-         }
-         LOG.warn("Trying to retrieve sequence for unknown nid: " + nodeNid);
-         return new OpenIntHashSet();
-      }
-
-      throw new UnsupportedOperationException("Node nid > 0: " + nodeNid);
+        if (nodeSequence >= userNodeSet.length) {
+           OpenIntHashSet[] replacement = new OpenIntHashSet[nodeSequence + 1];
+           this.userNodeMap.put(nodeSetKey, replacement);
+           for (int i = 0; i < userNodeSet.length; i++) {
+              replacement[i] = userNodeSet[i];
+           }
+           userNodeSet = replacement;
+        }
+        
+       if (userNodeSet[nodeSequence] == null) {
+          userNodeSet[nodeSequence] = new OpenIntHashSet();
+       }
+       return userNodeSet[nodeSequence];
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -614,19 +533,35 @@ public class TreeNodeVisitDataBdbImpl
     * Set the user node set.
     *
     * @param nodeSetKey
-    * @param nodeSequence the node sequence
+    * @param nodeNid the node sequence
     * @param conceptSet the concept set
     */
    @Override
-   public void setUserNodeSet(String nodeSetKey, int nodeSequence, OpenIntHashSet conceptSet) {
-      if (nodeSequence >= 0) {
-         // lazy creation to save memory since not all tree traversals want to
-         // use this capability.
-         if (!this.userNodeMap.containsKey(nodeSetKey)) {
-            this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[this.graphSize]);
-         }
+   public void setUserNodeSet(String nodeSetKey, int nodeNid, OpenIntHashSet conceptSet) {
+      int nodeSequence = nidToSequence(nodeNid);
+     // lazy creation to save memory since not all tree traversals want to use this capability.
+     if (!this.userNodeMap.containsKey(nodeSetKey)) {
+        this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[nodeSequence + 1]);
+     }
 
-         this.userNodeMap.get(nodeSetKey)[nodeSequence] = conceptSet;
+     this.userNodeMap.get(nodeSetKey)[nodeSequence] = conceptSet;
+   }
+   
+   private int nidToSequence(int nid) {
+      if (ss == null) {
+         return Integer.MAX_VALUE + nid; 
+      }
+      else {
+         return ss.getElementSequenceForNid(nid, conceptAssemblageNid);
+      }
+   }
+   
+   private int sequenceToNid(int sequence) {
+   if (ss == null) {
+         return Integer.MAX_VALUE + sequence; 
+      }
+      else {
+         return ss.getNidForElementSequence(conceptAssemblageNid, sequence);
       }
    }
 }

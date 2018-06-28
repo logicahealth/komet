@@ -42,8 +42,8 @@ package sh.isaac.api.util;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.math.BigDecimal;
-
 import java.util.Optional;
+import java.util.OptionalInt;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -160,11 +160,11 @@ public class NumericUtils {
     * @param string the string
     * @return the int
     */
-   public static Optional<Integer> getInt(String string) {
+   public static OptionalInt getInt(String string) {
       try {
-         return Optional.of(Integer.parseInt(string.trim()));
+         return OptionalInt.of(Integer.parseInt(string.trim()));
       } catch (final Exception e) {
-         return Optional.empty();
+         return OptionalInt.empty();
       }
    }
 
@@ -218,11 +218,11 @@ public class NumericUtils {
     * @param string the string
     * @return the nid
     */
-   public static Optional<Integer> getNID(String string) {
-      final Optional<Integer> possibleInt = getInt(string);
+   public static OptionalInt getNID(String string) {
+      final OptionalInt possibleInt = getInt(string);
 
-      return (possibleInt.isPresent() && (possibleInt.get() < 0)) ? possibleInt
-            : Optional.empty();
+      return (possibleInt.isPresent() && (possibleInt.getAsInt() < 0)) ? possibleInt
+            : OptionalInt.empty();
    }
 
    /**

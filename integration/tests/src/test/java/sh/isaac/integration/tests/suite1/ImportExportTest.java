@@ -325,6 +325,19 @@ public class ImportExportTest {
       Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
       logTree(roots[0], taxonomyTree);
    }
+   
+   /**
+    * Sanity check for a data store method that isn't well tested
+    */
+   @Test(
+      groups           = { "load" },
+      dependsOnMethods = { "testClassify" }
+   )
+   public void testGetAssemblageConceptNids() {
+      int[] assemblageNids = ModelGet.dataStore().getAssemblageConceptNids();
+      Assert.assertEquals(assemblageNids.length, 11);
+      Assert.assertTrue(Arrays.toString(assemblageNids).contains(MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() + ""));
+   }
 
    /**
     * Test load.

@@ -44,6 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
 
@@ -241,4 +242,26 @@ public interface ConfigurationService {
     * @param initMode the new mode
     */
    public void setDatabaseInitializationMode(DatabaseInitialization initMode);
+   
+   /**
+    * @return The DatabaseImplementation instruction, when creating a new datastore.
+    * 
+    * This defaults to {@link DatabaseImplementation#DEFAULT}, which will leave the 
+    * choice up to the DatastoreLocator implementation.
+    * 
+    * Note that this value can be overridden by specifying a system property of 
+    * {@link SystemPropertyConstants#DATA_STORE_TYPE} with a value from 
+    * {@link DatabaseImplementation}
+    * 
+    * If the system property is specified, it takes priority over any set or default value.
+    */
+   public DatabaseImplementation getDatabaseImplementation();
+   
+   /**
+    * Set the database implementation.  This must be set prior to starting ISAAC.  This is 
+    * only useful when creating a new database - if opening an existing database, it selects
+    * the proper implementation based on the contents of the DB folder.
+    * @param implementation the new implementation
+    */
+   public void setDatabaseImplementation(DatabaseImplementation implementation);
 }

@@ -68,14 +68,5 @@ public interface ObservableSemanticChronology
     * @return the integer property
     */
    IntegerProperty referencedComponentNidProperty();
-
-   /**
-    * Semantic sequence property.
-    *
-    * @return the integer property
-    */
-   IntegerProperty entrySequenceProperty();
-
-   
 }
 

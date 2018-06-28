@@ -40,6 +40,7 @@
 package sh.isaac.api;
 
 import java.util.EnumSet;
+import java.util.function.BinaryOperator;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -71,6 +72,13 @@ import sh.isaac.api.tree.TreeNodeVisitData;
 @Contract
 public interface TaxonomyService
         extends DatastoreServices {
+   /**
+    * Return the stored taxonomy data for the specified concept in the given assemblage.
+    * @param assemblageNid The assemblage to read the data from
+    * @param conceptNid The concept within the assemblage to read the data from
+    * @return The taxonomy data
+    */
+   int[] getTaxonomyData(int assemblageNid, int conceptNid);
    /**
     * Update the taxonomy by extracting relationships from the logical
     * definitions in the {@code logicGraphChronology}. This method will be
@@ -152,5 +160,17 @@ public interface TaxonomyService
     */
    void notifyTaxonomyListenersToRefresh();
    
+   /**
+    * Atomically updates the element at index {@code conceptNid} with the  results of applying the given function 
+    * to the current and given values, returning the updated value. The function should  be side-effect-free, since 
+    * it may be re-applied when attempted updates fail due to contention among threads.  The function is applied with 
+    * the current value at index {@code conceptNid} as its first  argument, and the given update as the second argument.
+    * @param assemblageNid The assemblage to read the data from
+    * @param conceptNid The concept within the assemblage to read the data from, and to store the new data on
+    * @param newData The new value
+    * @param accumulatorFunction The function to merge the old and new values
+    * @return The new, merged value.
+    */
+   int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction);
 }
 

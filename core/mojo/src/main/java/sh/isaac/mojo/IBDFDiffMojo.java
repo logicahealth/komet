@@ -90,25 +90,6 @@ public class IBDFDiffMojo extends AbstractMojo
 	@Parameter(required = true)
 	private boolean generateRetiresForMissingModuleMetadata;
 	
-	private void futzLogging(String loggerName)
-	{
-		//xodus uses slf4j API for logging, as does maven.  Maven uses the a hacked version of SimpleLogger 
-		//from the slf4j implementation by default.  Our plugins mostly use log4j, which 
-		//allows us to configure them.  But the xodus logging seems to ignore the re-route to log4j
-		//library, and just logs directly to the MavenSimpleLogger, which we can't configure.
-		//And its really noisy.  So, this hack is to quiet it down....
-		try
-		{
-			Logger l = LoggerFactory.getLogger(loggerName);  //This is actually a MavenSimpleLogger, but due to various classloader issues, can't work with the directly.
-			Field f = l.getClass().getSuperclass().getDeclaredField("currentLogLevel");
-			f.setAccessible(true);
-			f.set(l, LocationAwareLogger.WARN_INT);
-		}
-		catch (Exception e)
-		{
-			getLog().warn("Failed to reset the log level of " + loggerName + ", it will continue being noisy.", e);
-		}
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -116,10 +97,6 @@ public class IBDFDiffMojo extends AbstractMojo
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException
 	{
-		//Quiet down some noisy xodus loggers
-		futzLogging("jetbrains.exodus.gc.GarbageCollector");
-		futzLogging("jetbrains.exodus.io.FileDataReader");
-		
 		try
 		{
 			UUID authorUUID = UUID.fromString(author);

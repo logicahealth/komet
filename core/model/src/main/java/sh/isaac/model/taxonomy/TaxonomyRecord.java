@@ -448,18 +448,18 @@ public class TaxonomyRecord {
         final int maxIndex = theKeys.size() - 1;
 
         for (int i = 0; i <= maxIndex; i++) {
-            final int conceptSequence = theKeys.get(i);
+            final int conceptNid = theKeys.get(i);
 
             if (i > 0) {
                 buf.append("\n   ");
             }
 
-            buf.append(Get.conceptDescriptionText(conceptSequence));
+            buf.append(Get.conceptDescriptionText(conceptNid));
             buf.append(" <");
-            buf.append(conceptSequence);
+            buf.append(conceptNid);
             buf.append("> <-");
 
-            final TypeStampTaxonomyRecords records = this.conceptNidRecordMap.get(conceptSequence);
+            final TypeStampTaxonomyRecords records = this.conceptNidRecordMap.get(conceptNid);
 
             for (TypeStampTaxonomyRecord record : records.values()) {
                 buf.append("\n      ");
@@ -479,8 +479,7 @@ public class TaxonomyRecord {
      * @return the concept sequence stamp records
      */
     public Optional<TypeStampTaxonomyRecords> getConceptNidStampRecords(int conceptNid) {
-        final int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
-        return Optional.ofNullable(this.conceptNidRecordMap.get(conceptSequence));
+        return Optional.ofNullable(this.conceptNidRecordMap.get(conceptNid));
     }
 
     /**

@@ -43,6 +43,7 @@ package sh.isaac.provider.datastore.taxonomy;
 
 import sh.isaac.model.taxonomy.GraphCollector;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
@@ -56,7 +57,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
-import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.tree.HashTreeBuilder;
 
 //~--- classes ----------------------------------------------------------------
@@ -70,7 +70,7 @@ public class TreeBuilderTask
    private final AtomicInteger             conceptsProcessed = new AtomicInteger();
    private String                          message           = "setting up taxonomy collection";
    private final int                       conceptCount;
-   private final SpinedIntIntArrayMap      originDestinationTaxonomyRecordMap;
+   private final IntFunction<int[]>        taxonomyDataProvider;
    private final ManifoldCoordinate        manifoldCoordinate;
    private final int                       conceptAssemblageNid;
    private boolean                         stopRequested = false;
@@ -80,12 +80,12 @@ public class TreeBuilderTask
    
    //~--- constructors --------------------------------------------------------
 
-   public TreeBuilderTask(SpinedIntIntArrayMap originDestinationTaxonomyRecordMap,
+   public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
                           ManifoldCoordinate manifoldCoordinate) {
-      if (originDestinationTaxonomyRecordMap == null) {
-         throw new IllegalStateException("originDestinationTaxonomyRecordMap cannot be null");
+      if (taxonomyDataProvider == null) {
+         throw new IllegalStateException("taxonomyDataProvider cannot be null");
       }
-      this.originDestinationTaxonomyRecordMap = originDestinationTaxonomyRecordMap;
+      this.taxonomyDataProvider               = taxonomyDataProvider;
       this.manifoldCoordinate                 = manifoldCoordinate;
       this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate()
             .getConceptAssemblageNid();
@@ -131,7 +131,7 @@ public class TreeBuilderTask
    }
 
    private Tree compute() {
-      GraphCollector  collector = new GraphCollector(this.originDestinationTaxonomyRecordMap, this.manifoldCoordinate);
+      GraphCollector  collector = new GraphCollector(this.taxonomyDataProvider, this.manifoldCoordinate);
       IntStream       conceptNidStream = Get.identifierService()
                                             .getNidsForAssemblage(conceptAssemblageNid);
       

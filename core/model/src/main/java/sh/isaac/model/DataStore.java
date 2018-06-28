@@ -39,29 +39,18 @@
 
 package sh.isaac.model;
 
-//~--- JDK imports ------------------------------------------------------------
 
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import java.util.OptionalInt;
+import java.util.function.BinaryOperator;
+import java.util.stream.IntStream;
 import org.jvnet.hk2.annotations.Contract;
-
 import sh.isaac.api.DatastoreServices;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.model.collections.SpinedIntIntArrayMap;
-import sh.isaac.model.collections.SpinedIntIntMap;
-import sh.isaac.model.collections.SpinedNidIntMap;
-import sh.isaac.model.collections.SpinedNidNidSetMap;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  *
@@ -70,29 +59,106 @@ import sh.isaac.model.collections.SpinedNidNidSetMap;
 @Contract
 public interface DataStore
         extends DatastoreServices {
+   
+   /**
+    * Store the specified chronology data.  
+    * @param chronology The object to write
+    */
    void putChronologyData(ChronologyImpl chronology);
 
-   //~--- get methods ---------------------------------------------------------
-
+   /**
+    * @return an array of nids for the concepts that define assemblages. 
+    */
    int[] getAssemblageConceptNids();
 
-   ConcurrentHashMap<Integer, IsaacObjectType> getAssemblageObjectTypeMap();
+   /**
+    * Return the type, if known, for the specified assemblageNid.  
+    * @param assemblageNid  The nid to lookup
+    * @return The type, or {@link IsaacObjectType#UNKNOWN} if it is unknown.
+    */
+   IsaacObjectType getIsaacObjectTypeForAssemblageNid(int assemblageNid);
+   
+   /**
+    * Return the concept nids of all assemblages that are of the specified type
+    * @param type The type to look for
+    * @return all matching assemblage Nids.
+    */
+   NidSet getAssemblageNidsForType(IsaacObjectType type);
+   
+   /**
+    * Store the type information for an assemblage.  
+    * @param assemblageNid the nid to store type information for
+    * @param type the type
+    * @throws IllegalStateException If the assemblage already has a type which doesn't match the provided type
+    */
+   void putAssemblageIsaacObjectType(int assemblageNid, IsaacObjectType type) throws IllegalStateException;
 
+   /**
+    * Return the stored chronology data for the specified nid, or an empty optional, if no data is stored.
+    * @param nid
+    * @return the data
+    */
    Optional<ByteArrayDataBuffer> getChronologyData(int nid);
 
-   SpinedNidNidSetMap getComponentToSemanticNidsMap();
-
-   ConcurrentMap<Integer, AtomicInteger> getSequenceGeneratorMap();
-
-   SpinedIntIntMap getAssemblageNid_ElementSequenceToNid_Map(int assemblageNid);
+   /**
+    * Gets the SemanticChronology nids for component.
+    *
+    * @param componentNid the component nid
+    * @return the SemanticChronology nids for component
+    */
+   int[] getSemanticNidsForComponent(int componentNid);
    
-   SpinedNidIntMap getNidToAssemblageNidMap();
+   /**
+    * Get the assemblage nid id that contains the specified nid.
+    * @param nid The nid of the object to find the assemblage container for
+    * @return the assemblage nid that contains the nid
+    */
+   OptionalInt getAssemblageOfNid(int nid);
    
-   SpinedNidIntMap getNidToElementSequenceMap();
+   /**
+    * Assign a nid to the specified assemblage.  Nids may only belong to a single assemblage, if 
+    * you try to reassign a nid to a new assemblage, this will throw an IllegalArgumentException.
+    * @param nid The nid to assign
+    * @param assemblage The assemblage to assign it to
+    * @throws IllegalArgumentException If you attempt to re-assign a nid to a new assemblage
+    */
+   void setAssemblageForNid(int nid, int assemblage) throws IllegalArgumentException;
+   
+   /**
+    * Return the stored taxonomy data for the specified concept in the given assemblage.
+    * @param assemblageNid The assemblage to read the data from
+    * @param conceptNid The concept within the assemblage to read the data from
+    * @return The taxonomy data
+    */
+   int[] getTaxonomyData(int assemblageNid, int conceptNid);
+   
+   /**
+    * Atomically updates the element at index {@code conceptNid} with the  results of applying the given function 
+    * to the current and given values, returning the updated value. The function should  be side-effect-free, since 
+    * it may be re-applied when attempted updates fail due to contention among threads.  The function is applied with 
+    * the current value at index {@code conceptNid} as its first  argument, and the given update as the second argument.
+    * @param assemblageNid The assemblage to read the data from
+    * @param conceptNid The concept within the assemblage to read the data from, and to store the new data on
+    * @param newData The new value
+    * @param accumulatorFunction The function to merge the old and new values
+    * @return The new, merged value.
+    */
+   int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction);
 
-   SpinedIntIntArrayMap getTaxonomyMap(int assemblageNid);
-
-   ConcurrentHashMap<Integer, VersionType> getAssemblageVersionTypeMap();
+   /**
+    * Return the version type, if known, for the specified assemblageNid.  
+    * @param assemblageNid  The nid to lookup
+    * @return The type, or {@link VersionType#UNKNOWN} if it is unknown.
+    */
+   VersionType getVersionTypeForAssemblageNid(int assemblageNid);
+   
+   /**
+    * Store the type information for an assemblage.  
+    * @param assemblageNid the nid to store version type information for
+    * @param type the type
+    * @throws IllegalStateException If the assemblage already has a version type which doesn't match the provided type
+    */
+   void putAssemblageVersionType(int assemblageNid, VersionType type) throws IllegalStateException;
    
    int getAssemblageMemoryInUse(int assemblageNid);
 
@@ -121,5 +187,16 @@ public interface DataStore
     * @param dataWriteListener the listener to stop sending write events to
     */
    void unregisterDataWriteListener(DataWriteListener dataWriteListener);
+
+   /**
+    * @param assemblageNid
+    * @return the stream of nids in the assemblage
+    */
+   IntStream getNidsForAssemblage(int assemblageNid);
+   
+   /**
+    * @return true, if this implementation also implements {@link SequenceStore}
+    */
+   boolean implementsSequenceStore();
 }
 
