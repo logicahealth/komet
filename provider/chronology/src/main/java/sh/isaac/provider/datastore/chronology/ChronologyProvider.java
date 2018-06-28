@@ -223,6 +223,9 @@ public class ChronologyProvider
         LOG.info("Starting chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
         this.metadataLoaded.set(-1);
         store = Get.service(DataStore.class);
+        if (store == null) {
+            throw new RuntimeException("Failed to get a data store!");
+        }
     }
 
     /**
