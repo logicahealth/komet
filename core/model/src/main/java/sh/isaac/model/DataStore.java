@@ -104,7 +104,7 @@ public interface DataStore
     * Gets the SemanticChronology nids for component.
     *
     * @param componentNid the component nid
-    * @return the SemanticChronology nids for component
+    * @return the SemanticChronology nids for component.  Should not return null, rather, return an empty array, if none
     */
    int[] getSemanticNidsForComponent(int componentNid);
    
