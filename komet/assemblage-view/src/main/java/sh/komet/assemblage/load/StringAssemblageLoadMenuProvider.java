@@ -55,8 +55,8 @@ public class StringAssemblageLoadMenuProvider implements MenuProvider {
     @Override
     public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
         if (parentMenu == AppMenu.FILE) {
-            MenuItem processJson = new MenuItem("Import String Assemblage...");
-            processJson.setOnAction((ActionEvent event) -> {
+            MenuItem importStringAssembalge = new MenuItem("Import String Assemblage...");
+            importStringAssembalge.setOnAction((ActionEvent event) -> {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Open Tab Delimited File");
                 fileChooser.getExtensionFilters().addAll(
@@ -80,7 +80,7 @@ public class StringAssemblageLoadMenuProvider implements MenuProvider {
 
                 //Get.executor().execute(new HdxJson(selectedFile));
             });
-            return new MenuItem[]{processJson};
+            return new MenuItem[]{importStringAssembalge};
         }
         return new MenuItem[]{};
     }

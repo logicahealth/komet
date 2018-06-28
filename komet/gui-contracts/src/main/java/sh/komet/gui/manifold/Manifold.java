@@ -110,7 +110,9 @@ public class Manifold
    private static final HashMap<String, ArrayDeque<HistoryRecord>> GROUP_HISTORY_MAP         = new HashMap<>();
    private static final ObservableSet<EditInFlight>                EDITS_IN_PROCESS = FXCollections.observableSet();
 
-   public enum ManifoldGroup {UNLINKED("unlinked"), SEARCH("search"), TAXONOMY("taxonomy"), FLWOR("flwor"), CLINICAL_STATEMENT("statement");
+   public enum ManifoldGroup {UNLINKED("unlinked"), SEARCH("search"), 
+   TAXONOMY("taxonomy"), FLWOR("flwor"), CLINICAL_STATEMENT("statement"),
+   CORRELATION("correlation");
       private String groupName;
       private ManifoldGroup(String name) {
          this.groupName = name;
@@ -129,6 +131,7 @@ public class Manifold
       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.SEARCH.getGroupName(), () -> Iconography.SIMPLE_SEARCH.getIconographic());
       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.TAXONOMY.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.FLWOR.getGroupName(), () -> Iconography.FLWOR_SEARCH.getIconographic());
+      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.CORRELATION.getGroupName(), () -> new Label("C"));
    }
 
    //~--- fields --------------------------------------------------------------

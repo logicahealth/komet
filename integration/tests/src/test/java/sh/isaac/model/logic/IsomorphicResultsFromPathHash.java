@@ -17,7 +17,9 @@
 package sh.isaac.model.logic;
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import sh.isaac.api.logic.IsomorphicResults;
@@ -59,12 +61,21 @@ public class IsomorphicResultsFromPathHash extends TimedTaskWithProgressTracker<
 
         IsomorphicSolution incomingSolution = new IsomorphicSolution(solution, referenceExpressionData, comparisonExpressionData);
 
-        return solve(referenceExpression.getRoot(), comparisonExpression.getRoot(), incomingSolution);
+        BitSet nodesInSolution = new BitSet(solution.length);
+        nodesInSolution.set(referenceExpression.getRoot().getNodeIndex());
+        return solve(referenceExpression.getRoot(), comparisonExpression.getRoot(), incomingSolution, nodesInSolution);
     }
 
-    private IsomorphicSolution solve(LogicNode referenceNode, LogicNode comparisonNode, IsomorphicSolution incomingSolution) {
+    private IsomorphicSolution solve(LogicNode referenceNode, LogicNode comparisonNode, IsomorphicSolution incomingSolution, BitSet referenceNodesInSolution) {
         if (referenceNode.getChildren().length == 0) {
             return incomingSolution;
+        }
+        if (referenceNode.getNodeIndex() == 144 || referenceNode.getNodeIndex() == 150) {
+            System.out.println("Found node " + referenceNode.getNodeIndex());
+        }
+        BitSet comparisonNodeChildren = new BitSet();
+        for (LogicNode comparisonChild : comparisonNode.getChildren()) {
+            comparisonNodeChildren.set(comparisonChild.getNodeIndex());
         }
         int distance = referenceExpressionData.getDistance(referenceNode) + 1;
         HashMap<UUID, List<ScoreRecord>> comparisonChildLineageHashAtLevel = comparisonExpressionData.getLineageHash_ScoreRecord_Map_ForDistance(distance);
@@ -76,43 +87,98 @@ public class IsomorphicResultsFromPathHash extends TimedTaskWithProgressTracker<
             if (lineageMatches == null || lineageMatches.isEmpty()) {
                 // find a semantic match...
                 List<ScoreRecord> semanticMatches = comparisonChildSemanticUuidAtLevel.get(referenceExpressionData.nodeSemanticUuid[referenceChild.getNodeIndex()]);
-                if (semanticMatches.isEmpty()) {
+                if (semanticMatches == null || semanticMatches.isEmpty()) {
                     return incomingSolution;
                 }
                 IsomorphicSolution outgoingSolution = null;
 
                 for (ScoreRecord semanticMatch : semanticMatches) {
-                    int[] solution = Arrays.copyOf(incomingSolution.getSolution(), referenceExpression.getNodeCount());
-                    solution[referenceChild.getNodeIndex()] = semanticMatch.node;
-                    IsomorphicSolution matchSolution = new IsomorphicSolution(solution, referenceExpressionData, comparisonExpressionData);
-                    IsomorphicSolution solveForMatchSolution = solve(referenceChild, comparisonExpression.getNode(solution[referenceChild.getNodeIndex()]), matchSolution);
-                    if (outgoingSolution == null || solveForMatchSolution.score > outgoingSolution.score) {
-                        outgoingSolution = solveForMatchSolution;
+                    if (!referenceNodesInSolution.get(semanticMatch.nodeIndex)) {
+                        int[] solution = Arrays.copyOf(incomingSolution.getSolution(), referenceExpression.getNodeCount());
+                        solution[referenceChild.getNodeIndex()] = semanticMatch.nodeIndex;
+                        referenceNodesInSolution.set(semanticMatch.nodeIndex);
+                        IsomorphicSolution matchSolution = new IsomorphicSolution(solution, referenceExpressionData, comparisonExpressionData);
+                        IsomorphicSolution solveForMatchSolution = solve(referenceChild, comparisonExpression.getNode(solution[referenceChild.getNodeIndex()]), matchSolution, referenceNodesInSolution);
+                        if (outgoingSolution == null || solveForMatchSolution.score > outgoingSolution.score) {
+                            outgoingSolution = solveForMatchSolution;
+                        }
                     }
+                }
+                if (outgoingSolution == null) {
+                    return incomingSolution;
                 }
                 return outgoingSolution;
 
             }
             // add the first match and its children to the solution. 
-            ScoreRecord lineageMatch = lineageMatches.get(0);
-            int[] solution = Arrays.copyOf(incomingSolution.getSolution(), referenceExpression.getNodeCount());
-            solution[referenceChild.getNodeIndex()] = lineageMatch.node;
-            IsomorphicSolution matchSolution = new IsomorphicSolution(solution, referenceExpressionData, comparisonExpressionData);
-            return solve(referenceChild, comparisonExpression.getNode(solution[referenceChild.getNodeIndex()]), matchSolution);
+            // if the node had not already been used, and if the parent of the node is correct. 
+            for (ScoreRecord lineageMatch : lineageMatches) {
+                if (!referenceNodesInSolution.get(lineageMatch.nodeIndex)) {
+                    if (comparisonNodeChildren.get(lineageMatch.nodeIndex)) {
+                        int[] solution = Arrays.copyOf(incomingSolution.getSolution(), referenceExpression.getNodeCount());
+                        solution[referenceChild.getNodeIndex()] = lineageMatch.nodeIndex;
+                        referenceNodesInSolution.set(lineageMatch.nodeIndex);
+                        IsomorphicSolution matchSolution = new IsomorphicSolution(solution, referenceExpressionData, comparisonExpressionData);
+                        return solve(referenceChild, comparisonExpression.getNode(solution[referenceChild.getNodeIndex()]), matchSolution, referenceNodesInSolution);
+                    }
+                }
+            }
+            return incomingSolution;
         }
-        for (LogicNode child : referenceNode.getChildren()) {
-            UUID referenceChildHash = referenceExpressionData.lineageHash[child.getNodeIndex()];
-            List<ScoreRecord> matchesForChild = comparisonChildLineageHashAtLevel.get(referenceChildHash);
-            if (matchesForChild == null || matchesForChild.isEmpty()) {
-                // find a semantic match
-            } else if (matchesForChild.size() == 1) {
-                // only match, no need to try multiple possiblities
-                // add the match and its children to the solution. 
-            } else {
-                // find the best match
+        int[] workingSolution = Arrays.copyOf(incomingSolution.getSolution(), referenceExpression.getNodeCount());
+        // match and eliminate lineage matches first
+        for (LogicNode referenceChild : referenceNode.getChildren()) {
+        if (referenceChild.getNodeIndex() == 144) {
+            System.out.println("Found node b " + referenceChild.getNodeIndex());
+        }
+            
+            UUID referenceLineageHash = referenceExpressionData.lineageHash[referenceChild.getNodeIndex()];
+            List<ScoreRecord> lineageMatchesForChild = comparisonChildLineageHashAtLevel.get(referenceLineageHash);
+            if (lineageMatchesForChild != null) {
+                Iterator<ScoreRecord> lineageMatchIterator = lineageMatchesForChild.iterator();
+                while (lineageMatchIterator.hasNext()) {
+                    ScoreRecord lineageMatch = lineageMatchIterator.next();
+                    // verify that this match is a referenceChild of the parent... Only want connected matches. 
+                    if (comparisonNodeChildren.get(lineageMatch.nodeIndex)) {
+                        // All matches are the same, since the lineage matches. Take the first one. 
+                        // remove from future consideration.  
+                        lineageMatchIterator.remove();
+                        referenceNodesInSolution.set(referenceChild.getNodeIndex());
+                        workingSolution[referenceChild.getNodeIndex()] = lineageMatch.nodeIndex;
+                        IsomorphicSolution matchSolution = new IsomorphicSolution(workingSolution, referenceExpressionData, comparisonExpressionData);
+                        matchSolution = solve(referenceChild, comparisonExpression.getNode(lineageMatch.nodeIndex), matchSolution, referenceNodesInSolution);
+                        workingSolution = matchSolution.getSolution();
+                    }
+                }
             }
         }
-        return null; // not yet complete.
+        // then do semantic match for any remaining. 
+        for (LogicNode referenceChild : referenceNode.getChildren()) {
+        if (referenceChild.getNodeIndex() == 144) {
+            System.out.println("Found node c " + referenceChild.getNodeIndex());
+        }
+            if (!referenceNodesInSolution.get(referenceChild.getNodeIndex())) {
+                // find a semantic match
+                UUID nodeSemanticUuid = referenceExpressionData.nodeSemanticUuid[referenceChild.getNodeIndex()];
+                List<ScoreRecord> semanticMatchesForChild = comparisonChildSemanticUuidAtLevel.get(nodeSemanticUuid);
+                if (semanticMatchesForChild != null) {
+                    Iterator<ScoreRecord> semanticMatchIterator = semanticMatchesForChild.iterator();
+                    while (semanticMatchIterator.hasNext()) {
+                        ScoreRecord semanticMatch = semanticMatchIterator.next();
+                        if (comparisonNodeChildren.get(semanticMatch.nodeIndex)) {
+                            // TODO replace greedy algorithm with best score algorithm
+                            semanticMatchIterator.remove();
+                            referenceNodesInSolution.set(referenceChild.getNodeIndex());
+                            workingSolution[referenceChild.getNodeIndex()] = semanticMatch.nodeIndex;
+                            IsomorphicSolution matchSolution = new IsomorphicSolution(workingSolution, referenceExpressionData, comparisonExpressionData);
+                            matchSolution = solve(referenceChild, comparisonExpression.getNode(semanticMatch.nodeIndex), matchSolution, referenceNodesInSolution);
+                            workingSolution = matchSolution.getSolution();
+                        }
+                    }
+                }
+            }
+        }
+        return new IsomorphicSolution(workingSolution, referenceExpressionData, comparisonExpressionData);
     }
 
     @Override

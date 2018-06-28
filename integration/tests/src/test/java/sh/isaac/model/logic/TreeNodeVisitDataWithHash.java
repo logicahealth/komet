@@ -125,13 +125,13 @@ public class TreeNodeVisitDataWithHash extends TreeNodeVisitDataImpl {
     }
     
     public static class ScoreRecord implements Comparable<ScoreRecord> {
-        final int node;
+        final int nodeIndex;
         final UUID nodeChildHash;
         final int nodesInRecord;
         final UUID nodeSemanticUuid;
 
         public ScoreRecord(int node, UUID nodeChildHash, int nodesInRecord, UUID nodeSemanticUuid) {
-            this.node = node;
+            this.nodeIndex = node;
             this.nodeChildHash = nodeChildHash;
             this.nodesInRecord = nodesInRecord;
             this.nodeSemanticUuid = nodeSemanticUuid;
@@ -153,7 +153,7 @@ public class TreeNodeVisitDataWithHash extends TreeNodeVisitDataImpl {
 
         @Override
         public String toString() {
-            return "ScoreRecord{" + "node=" + node + ", uuid=" + nodeChildHash + 
+            return "ScoreRecord{" + "node=" + nodeIndex + ", uuid=" + nodeChildHash + 
                     ", nodesInRecord=" + nodesInRecord + 
                     ", nodeSemanticUuid=" + nodeSemanticUuid + '}';
         }

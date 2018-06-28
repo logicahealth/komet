@@ -14,91 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.model.logic;
+package sh.komet.gui.provider.concept.comparison;
 
-
-import java.io.File;
-import java.util.prefs.BackingStoreException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Ignore;
-import org.testng.annotations.Test;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.constants.DatabaseInitialization;
-import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.logic.LogicalExpression;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
-import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.api.preferences.PreferencesService;
-import sh.isaac.api.util.RecursiveDelete;
-import sh.isaac.komet.preferences.UserConfigurationPerOSProvider;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderImpl;
 
 /**
  *
  * @author kec
  */
-@Test(suiteName = "isomorphic-suite")
-public class IsomorphicResultsBottomUpNGTest {
+public class CorrelationTestGenerator {
 
-	private static final Logger LOG = LogManager.getLogger();
-
-	@BeforeClass
-	public void configure() throws Exception {
-		LOG.info("isomorphic-suite setup");
-		File db = new File("target/isomorphic-suite");
-		RecursiveDelete.delete(db);
-		//Don't overwrite "real" config
-		UserConfigurationPerOSProvider.nodeName = "userConfigForTest";
-		db.mkdirs();
-		System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
-		LookupService.startupPreferenceProvider();
-		//Make sure remnants from any previous test are gone
-		IsaacPreferences mainDataStore = Get.service(PreferencesService.class).getUserPreferences();
-		mainDataStore.node(UserConfigurationPerOSProvider.nodeName).removeNode();
-		Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
-		LookupService.startupIsaac();
-	}
-
-	@AfterClass
-	public void shutdown() throws BackingStoreException {
-		LOG.info("isomorphic-suite teardown");
-		//cleanup
-		IsaacPreferences mainDataStore = Get.service(PreferencesService.class).getUserPreferences();
-		mainDataStore.node(UserConfigurationPerOSProvider.nodeName).removeNode();
-		LookupService.shutdownSystem();
-	}
-    
-    LogicalExpression referenceExpression = makeReferenceExpression();
-    LogicalExpression comparisonExpression = makeComparisonExpression();
-
-    public IsomorphicResultsBottomUpNGTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @BeforeMethod
-    public void setUpMethod() throws Exception {
-    }
-
-    @AfterMethod
-    public void tearDownMethod() throws Exception {
-    }
-    
     public static LogicalExpression makeReferenceExpression() {
         LogicalExpressionBuilderImpl leb = new LogicalExpressionBuilderImpl();
 //Root[152]➞[151]
@@ -768,100 +698,6 @@ SufficientSet(
         
         
 	return  leb.build();
-    }
-
-    /**
-     * Test of generatePossibleSolutions method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    @Ignore
-    public void testGeneratePossibleSolutions() {
-        
-        System.out.println("generatePossibleSolutions");
-        long start = System.currentTimeMillis();
-        IsomorphicResultsBottomUp results = new IsomorphicResultsBottomUp(referenceExpression, comparisonExpression);  
-        System.out.println(results);
-        
-        IsomorphicResultsFromPathHash isomorphicResultsFromPathHash = new IsomorphicResultsFromPathHash(referenceExpression, comparisonExpression);
-        IsomorphicSolution solution2 = isomorphicResultsFromPathHash.call();
-        
-        
-        LOG.info("Duration: " + (System.currentTimeMillis() - start));
-        //LOG.info(results);
-        // assertEquals(result, expResult);
-        // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
-    }
-    
-
-    /**
-     * Test of getAddedRelationshipRoots method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    public void testGetAddedRelationshipRoots() {
-    }
-
-    /**
-     * Test of getAdditionalNodeRoots method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    public void testGetAdditionalNodeRoots() {
-    }
-
-    /**
-     * Test of getComparisonExpression method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    public void testGetComparisonExpression() {
-    }
-
-    /**
-     * Test of getDeletedNodeRoots method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    public void testGetDeletedNodeRoots() {
-    }
-
-    /**
-     * Test of getDeletedRelationshipRoots method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    public void testGetDeletedRelationshipRoots() {
-    }
-
-    /**
-     * Test of getIsomorphicExpression method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    public void testGetIsomorphicExpression() {
-    }
-
-    /**
-     * Test of getMergedExpression method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    public void testGetMergedExpression() {
-    }
-
-    /**
-     * Test of getReferenceExpression method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    public void testGetReferenceExpression() {
-    }
-
-    /**
-     * Test of getSharedRelationshipRoots method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    public void testGetSharedRelationshipRoots() {
-    }
-
-    /**
-     * Test of equivalent method, of class IsomorphicResultsBottomUp.
-     */
-    //@Test
-    public void testEquivalent() {
     }
     
 }

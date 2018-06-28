@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<AnchorPane id="AnchorPane" prefHeight="869.0" prefWidth="1354.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/9" fx:controller="sh.komet.gui.provider.concept.comparison.ConceptCorrelationController">
+   <children>
+      <SplitPane dividerPositions="0.5536332179930796" layoutX="309.0" layoutY="312.0" orientation="VERTICAL" prefHeight="869.0" prefWidth="1350.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+                  <ScrollPane prefHeight="476.0" prefWidth="1370.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <content>
+                        <GridPane>
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="450.0" />
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="450.0" />
+                              <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="450.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+                          </rowConstraints>
+                           <children>
+                              <BorderPane fx:id="referenceBorderPane" prefHeight="200.0" prefWidth="200.0" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                 <top>
+                                    <Label text="Reference" BorderPane.alignment="CENTER" />
+                                 </top>
+                              </BorderPane>
+                              <BorderPane fx:id="correlationBorderPane" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                 <top>
+                                    <Label text="Correlation" BorderPane.alignment="CENTER" />
+                                 </top>
+                              </BorderPane>
+                              <BorderPane fx:id="comparisonBorderPane" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                 <top>
+                                    <Label text="Comparison" BorderPane.alignment="CENTER" />
+                                 </top>
+                              </BorderPane>
+                           </children>
+                        </GridPane>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="384.0" prefWidth="1353.0" />
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

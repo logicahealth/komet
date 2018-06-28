@@ -29,6 +29,7 @@ public enum AppMenu
 	EDIT("_Edit"),
 	TOOLS("_Tools"),
 	WINDOW("_Window"),
+	NEW_WINDOW("_New Window"), // menu within the window menu
 	HELP("_Help");
 
 	private final String menuName;

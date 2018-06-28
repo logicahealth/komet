@@ -42,6 +42,7 @@ package sh.isaac.model.logic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.OptionalInt;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -158,7 +159,17 @@ public class IsomorphicSolution
     */
    @Override
    public String toString() {
-      return "solution{" + this.legal + "  s:" + this.score + ", " + Arrays.toString(this.solution) + '}';
+       StringBuilder sb = new StringBuilder();
+       sb.append("solution{").append(this.legal).append("  s:");
+       sb.append(this.score).append(", [");
+       for (int i = 0; i < this.solution.length; i++) {
+           sb.append(i).append(":").append(this.solution[i]);
+           if (i < this.solution.length - 1) {
+               sb.append(", ");
+           }
+       }
+       sb.append("]}");
+      return sb.toString();
    }
 
    /**
@@ -188,7 +199,7 @@ public class IsomorphicSolution
     */
    final void score(TreeNodeVisitData referenceTreeVisitData, TreeNodeVisitData comparisonTreeVisitData) {
       final OpenIntHashSet                       parentNodeIds = new OpenIntHashSet(this.solution.length);
-      final OpenIntHashSet                       usedNodeIds = new OpenIntHashSet(this.solution.length);
+      final BitSet                       usedNodeIds = new BitSet(this.solution.length);
       final OpenIntObjectHashMap<OpenIntHashSet> siblingGroupToNodeSequenceMap = new OpenIntObjectHashMap<>();
       int                                        sum                           = 0;
 
@@ -199,12 +210,12 @@ public class IsomorphicSolution
          if (this.solution[i] >= 0) {
             sum++;
 
-            if (usedNodeIds.contains(this.solution[i])) {
+            if (usedNodeIds.get(this.solution[i])) {
                this.legal = false;
                this.score = -1;
                return;
             } else {
-               usedNodeIds.add(this.solution[i]);
+               usedNodeIds.set(this.solution[i]);
             }
 
             final OptionalInt referenceParentNodeId = referenceTreeVisitData.getPredecessorSequence(i);
