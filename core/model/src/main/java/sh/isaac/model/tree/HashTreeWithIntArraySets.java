@@ -61,9 +61,9 @@ import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.collections.EclipseIntObjectMap;
 import sh.isaac.model.collections.IntObjectMap;
 import sh.isaac.model.collections.MergeIntArray;
+import sh.isaac.model.collections.IntObjectMapImpl;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 
 /**
@@ -122,8 +122,8 @@ public class HashTreeWithIntArraySets
       this.conceptNidsWithParents    = new OpenIntHashSet();
       this.conceptNidsWithChildren   = new OpenIntHashSet();
       this.conceptNids               = new OpenIntHashSet();
-      this.childNid_ParentNidSetArray_Map = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntIntArrayMap(): new EclipseIntObjectMap<int[]>();
-      this.parentNid_ChildNidSetArray_Map = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntIntArrayMap() : new EclipseIntObjectMap<int[]>();
+      this.childNid_ParentNidSetArray_Map = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntIntArrayMap(): new IntObjectMapImpl<>();
+      this.parentNid_ChildNidSetArray_Map = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntIntArrayMap() : new IntObjectMapImpl<>();
    }
 
    /**

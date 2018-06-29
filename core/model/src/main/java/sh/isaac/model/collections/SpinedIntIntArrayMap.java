@@ -217,7 +217,7 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
      * {@inheritDoc}
      */
     @Override
-    public void put(int index, int[] element) {
+    public boolean put(int index, int[] element) {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {
                 index = ModelGet.sequenceStore().getElementSequenceForNid(index);
@@ -229,7 +229,7 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
         int spineIndex = index / elementsPerSpine;
         int indexInSpine = index % elementsPerSpine;
         this.changedSpineIndexes.add(spineIndex);
-        this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
+        return this.spines.computeIfAbsent(spineIndex, this::newSpine).getAndSet(indexInSpine, element) == null;
     }
 
     private void internalPut(int index, int[] element) {
@@ -330,6 +330,7 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
         }
     }
 
+    @Override
     public int[] accumulateAndGet(int index, int[] x, BinaryOperator<int[]> accumulatorFunction) {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {

@@ -97,7 +97,7 @@ public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
     }
 
     protected AtomicReferenceArray<E> makeNewSpine(Integer spineKey) {
-        AtomicReferenceArray<E> spine = new AtomicReferenceArray<E>(spineSize);
+        AtomicReferenceArray<E> spine = new AtomicReferenceArray<>(spineSize);
         this.spineCount.set(Math.max(this.spineCount.get(), spineKey + 1));
         return spine;
     }
@@ -106,7 +106,7 @@ public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
      * {@inheritDoc}
      */
     @Override
-    public void put(int index, E element) {
+    public boolean put(int index, E element) {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {
                 index = ModelGet.sequenceStore().getElementSequenceForNid(index);
@@ -120,7 +120,7 @@ public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
         this.changedSpineIndexes.add(spineIndex);
         readWriteSemaphore.acquireUninterruptibly();
         try {
-            this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
+            return this.spines.computeIfAbsent(spineIndex, this::newSpine).getAndSet(indexInSpine, element) == null;
         } finally {
             readWriteSemaphore.release();
         }
