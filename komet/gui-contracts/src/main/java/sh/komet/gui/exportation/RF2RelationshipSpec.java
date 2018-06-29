@@ -78,7 +78,7 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
                     if(parentNode != null)
                         tempNode = parentNode;
 
-                    int parentIndex = treeNodeVisitData.getPredecessorSequence(tempNode.getNodeIndex()).getAsInt();
+                    int parentIndex = treeNodeVisitData.getPredecessorNid(tempNode.getNodeIndex()).getAsInt();
                     parentNode = logicalExpression.getNode(parentIndex);
 
                 }while(!(parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET ||

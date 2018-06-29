@@ -117,14 +117,14 @@ public class ClassifierProvider
 
    //~--- get methods ---------------------------------------------------------
    /**
-    * Gets the concept sequence for expression.
+    * Gets the concept nid for expression.
     *
     * @param expression the expression
     * @param editCoordinate the edit coordinate
-    * @return the concept sequence for expression
+    * @return the concept nid for expression
     */
    @Override
-   public Task<Integer> getConceptSequenceForExpression(LogicalExpression expression, EditCoordinate editCoordinate) {
+   public Task<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate) {
       return GetConceptNidForExpressionTask.create(expression, this, editCoordinate);
    }
 

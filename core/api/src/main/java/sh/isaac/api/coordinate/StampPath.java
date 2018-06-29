@@ -53,9 +53,9 @@ import java.util.Collection;
 public interface StampPath
         extends Comparable<StampPath> {
    /**
-    * Gets the path concept sequence.
+    * Gets the path concept nid.
     *
-    * @return the sequence of the concept that defines this STAMP path.
+    * @return the nid of the concept that defines this STAMP path.
     */
    int getPathConceptNid();
 

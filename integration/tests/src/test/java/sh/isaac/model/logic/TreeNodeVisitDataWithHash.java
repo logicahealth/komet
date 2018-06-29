@@ -73,11 +73,11 @@ public class TreeNodeVisitDataWithHash extends TreeNodeVisitDataImpl {
             ArrayList<UUID> hashParts = new ArrayList<>(children.length + 1);
             hashParts.add(node.getNodeUuid());
             int nodesForHash = 1;
-            OptionalInt predecessorSequence = getPredecessorSequence(nodeSequence);
+            OptionalInt predecessorSequence = getPredecessorNid(nodeSequence);
             if (predecessorSequence.isPresent()) {
                 hashParts.add(expression.getNode(predecessorSequence.getAsInt()).getNodeUuid());
             }
-            getPredecessorSequence(nodeSequence);
+            getPredecessorNid(nodeSequence);
             for (LogicNode child: children) {
                 hashParts.add(lineageHash[child.getNodeIndex()]);
                 nodesForHash = nodesForHash + nodesInHash[child.getNodeIndex()];

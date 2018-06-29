@@ -218,7 +218,7 @@ public class IsomorphicSolution
                usedNodeIds.set(this.solution[i]);
             }
 
-            final OptionalInt referenceParentNodeId = referenceTreeVisitData.getPredecessorSequence(i);
+            final OptionalInt referenceParentNodeId = referenceTreeVisitData.getPredecessorNid(i);
             final int      siblingGroup             = referenceTreeVisitData.getSiblingGroupForNid(i);
             OpenIntHashSet nodesInSiblingGroup      = siblingGroupToNodeSequenceMap.get(siblingGroup);
 

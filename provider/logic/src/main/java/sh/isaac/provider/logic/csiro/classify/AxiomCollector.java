@@ -74,7 +74,7 @@ import sh.isaac.model.logic.LogicalExpressionImpl;
 //TODO move to CSIRO specific module
 public class AxiomCollector
          implements Collector<LogicalExpressionImpl, Set<Axiom>, Set<Axiom>> {
-   /** The concept sequences. */
+   /** The concept nids. */
    BitSet conceptSequences;
 
    /** The concepts. */
@@ -86,7 +86,7 @@ public class AxiomCollector
    /** The never group role sequences. */
    OpenIntHashSet neverGroupRoleSequences;
 
-   /** The role group concept sequence. */
+   /** The role group concept nid. */
    int roleGroupConceptSequence;
 
    //~--- constructors --------------------------------------------------------
@@ -94,10 +94,10 @@ public class AxiomCollector
    /**
     * Instantiates a new axiom collector.
     *
-    * @param conceptSequences the concept sequences
+    * @param conceptSequences the concept nids
     * @param roleSequences the role sequences
     * @param neverGroupRoleSequences the never group role sequences
-    * @param roleGroupConceptSequence the role group concept sequence
+    * @param roleGroupConceptSequence the role group concept nid
     */
    public AxiomCollector(BitSet conceptSequences,
                          OpenIntHashSet roleSequences,

@@ -193,9 +193,9 @@ public interface LanguageCoordinate extends Coordinate {
    }
 
    /**
-    * Gets the language concept sequence.
+    * Gets the language concept nid.
     *
-    * @return the language concept sequence
+    * @return the language concept nid
     */
    int getLanguageConceptNid();
 

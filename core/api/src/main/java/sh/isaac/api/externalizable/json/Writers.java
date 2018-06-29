@@ -256,15 +256,15 @@ public class Writers {
             if (sv instanceof DescriptionVersion) {
                final DescriptionVersion ds = (DescriptionVersion) sv;
 
-               output.write("\"caseSignificanceSequence\":\"");
+               output.write("\"caseSignificanceNid\":\"");
                output.write(ds.getCaseSignificanceConceptNid() + "");
                output.write("\",");
                mainWriter.newLine();
-               output.write("\"languageConceptSequence\":\"");
+               output.write("\"languageConceptNid\":\"");
                output.write(ds.getLanguageConceptNid() + "");
                output.write("\",");
                mainWriter.newLine();
-               output.write("\"descriptionTypeConceptSequence\":\"");
+               output.write("\"descriptionTypeConceptNid\":\"");
                output.write(ds.getDescriptionTypeConceptNid() + "");
                output.write("\",");
                mainWriter.newLine();
@@ -313,7 +313,7 @@ public class Writers {
                
                if (parents.size() > 0)
                {
-                  output.write("\"parentConceptSequence\":[");
+                  output.write("\"parentConceptNid\":[");
                   mainWriter.tabIn();
                   for (int i = 0; i < parents.size(); i++)
                   {

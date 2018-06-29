@@ -90,16 +90,16 @@ public class ConceptProxy
    /**
     * Instantiates a new concept proxy.
     *
-    * @param conceptSequenceOrNid the concept sequence or nid
+    * @param conceptNid the concept nid
     */
-   public ConceptProxy(int conceptSequenceOrNid) {
+   public ConceptProxy(int conceptNid) {
       final ConceptChronology cc = Get.conceptService()
-              .getConceptChronology(conceptSequenceOrNid);
+              .getConceptChronology(conceptNid);
 
       this.uuids = cc.getUuidList()
               .toArray(new UUID[0]);
-      this.fullyQualfiedName = Get.defaultCoordinate().getFullySpecifiedDescriptionText(conceptSequenceOrNid);
-      this.regularName = Get.defaultCoordinate().getRegularName(conceptSequenceOrNid);
+      this.fullyQualfiedName = Get.defaultCoordinate().getFullySpecifiedDescriptionText(conceptNid);
+      this.regularName = Get.defaultCoordinate().getRegularName(conceptNid);
    }
 
    /**
@@ -353,7 +353,7 @@ public class ConceptProxy
     * name will be set to the fully qualified name, minus the semantic tag.
     * @param fullyQualfiedName the fullyQualfiedName to set
     */
-   public void setFullyQualfiedName(String fullyQualfiedName) {
+   public final void setFullyQualfiedName(String fullyQualfiedName) {
       this.fullyQualfiedName = SemanticTags.addSemanticTagIfAbsent(fullyQualfiedName, METADATA_SEMANTIC_TAG);
       if (this.regularName == null) {
          this.regularName = Optional.of(SemanticTags.stripSemanticTagIfPresent(this.fullyQualfiedName));
@@ -364,7 +364,7 @@ public class ConceptProxy
     * @param regularName the regularName to set
     * If the passed regular name contains a semantic tag, it will be stripped.
     */
-   public void setRegularName(String regularName) {
+   public final void setRegularName(String regularName) {
       this.regularName = Optional.ofNullable(SemanticTags.stripSemanticTagIfPresent(regularName));
    }
 

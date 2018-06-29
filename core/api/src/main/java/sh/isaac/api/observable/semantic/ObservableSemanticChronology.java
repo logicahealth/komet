@@ -56,7 +56,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 public interface ObservableSemanticChronology
         extends ObservableChronology, SemanticChronology {
    /**
-    * Assemblage sequence property.
+    * Assemblage nid property.
     *
     * @return the integer property
     */

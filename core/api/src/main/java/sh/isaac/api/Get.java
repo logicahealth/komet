@@ -353,27 +353,26 @@ public class Get
     * preferred description, as specified in the default
     * {@code StampCoordinate} and the default {@code LanguageCoordinate}.
     *
-    * @param conceptId nid or sequence of the concept to get the description
+    * @param conceptNid nid of the concept to get the description
     * for
     * @return a description for this concept. If no description can be found,
-    * {@code "No desc for: " + conceptId;} will be returned.
+    * {@code "No desc for: " + conceptNid;} will be returned.
     *  TODO: make getDescriptionOptional return a LatestVersion, which has optional value, rather than returning an
     *  Optional&gt;LatestVersion>&lt;
     */
-   public static String conceptDescriptionText(int conceptId) {
-     if (conceptId >= 0) {
-         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptId);
+   public static String conceptDescriptionText(int conceptNid) {
+     if (conceptNid >= 0) {
+         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
       final LatestVersion<DescriptionVersion> descriptionOptional =
-         defaultConceptSnapshotService().getDescriptionOptional(
-             conceptId);
+         defaultConceptSnapshotService().getDescriptionOptional(conceptNid);
 
       if (descriptionOptional.isPresent()) {
          return descriptionOptional.get()
                                    .getText();
       }
 
-      return "No desc for: " + conceptId;
+      return "No desc for: " + conceptNid;
    }
 
    /**

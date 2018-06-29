@@ -133,7 +133,7 @@ public interface IdentifierService
     * Gets the nid assigned to the uuids.
     *
     * @param uuids the uuids
-    * @return the concept sequence for uuids
+    * @return the concept nid for uuids
     * @throws NoSuchElementException if no nid has been assigned
     */
    int getNidForUuids(Collection<UUID> uuids) throws NoSuchElementException;
@@ -142,7 +142,7 @@ public interface IdentifierService
     * Gets the nid assigned to the uuids.
     *
     * @param uuids the uuids
-    * @return the concept sequence for uuids
+    * @return the concept nid for uuids
     * @throws NoSuchElementException if no nid has been assigned
     */
    int getNidForUuids(UUID... uuids) throws NoSuchElementException;

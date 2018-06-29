@@ -60,25 +60,25 @@ public interface MutableStampedVersion
     */
    void setStatus(Status state);
    /**
-    * Sets the author sequence.
+    * Sets the author nid.
     *
-    * @param authorSequence the new author sequence
+    * @param authorNid the new author nid
     */
-   void setAuthorNid(int authorSequence);
+   void setAuthorNid(int authorNid);
 
    /**
-    * Sets the module sequence.
+    * Sets the module nid.
     *
-    * @param moduleSequence the new module sequence
+    * @param moduleNid the new module nid
     */
-   void setModuleNid(int moduleSequence);
+   void setModuleNid(int moduleNid);
 
    /**
-    * Sets the path sequence.
+    * Sets the path nid.
     *
-    * @param pathSequence the new path sequence
+    * @param pathNid the new path nid
     */
-   void setPathNid(int pathSequence);
+   void setPathNid(int pathNid);
 
    /**
     * Sets the time.

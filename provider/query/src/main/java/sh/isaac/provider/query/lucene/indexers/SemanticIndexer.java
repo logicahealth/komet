@@ -532,7 +532,7 @@ public class SemanticIndexer
       /**
        * Builds the column handling query.
        *
-       * @param assemblageConceptNid the semantic concept sequence
+       * @param assemblageConceptNid the semantic concept nid
        * @param searchColumns the search columns
        * @return the query
        */

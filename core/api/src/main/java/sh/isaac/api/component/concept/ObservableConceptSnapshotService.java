@@ -25,32 +25,15 @@ import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
  */
 public interface ObservableConceptSnapshotService extends SharedConceptSnapshotService {
 
-/**
-    * Simple method for getting text of the description of a concept.
-    * This method will return a description type according to the constraints of
-    * the
-    * {@code StampCoordinate} and the default
-    * {@code LanguageCoordinate}.
-    * @param conceptId nid or sequence of the concept to get the description for
-    * @return a description for this concept. If no description can be found,
-    * {@code "No desc for: " + conceptId;} will be returned.
-    */
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Checks if concept active.
-    *
-    * @param conceptId nid or sequence of the concept to determine if it is active
-    * according to the {@code StampCoordinate} of this snapshot service
-    * @return true, if concept active
-    */
+
       /**
     * Gets the concept snapshot.
     *
-    * @param conceptId nid or sequence of the concept to get the {@code ConceptSnapshot} for
+    * @param conceptNid of the concept to get the {@code ConceptSnapshot} for
     * @return a concept that internally uses the {@code StampCoordinate}
     * and {@code LanguageCoordinate} for
     */
-   ConceptSnapshot getConceptSnapshot(int conceptId);
+   ConceptSnapshot getConceptSnapshot(int conceptNid);
 
    /**
     * Gets the concept snapshot.
@@ -66,28 +49,28 @@ public interface ObservableConceptSnapshotService extends SharedConceptSnapshotS
     * of the language coordinate, finally any description if there is no
     * preferred or fully specified description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
-    * @param conceptId nid or sequence of the concept to get the description for
+    * @param conceptNid of the concept to get the description for
     * @return a Optional description for this concept.
     */
-   LatestVersion<ObservableDescriptionVersion> getDescriptionOptional(int conceptId);
+   LatestVersion<ObservableDescriptionVersion> getDescriptionOptional(int conceptNid);
 
    /**
     * Gets the fully specified description.
     *
-    * @param conceptId nid or sequence of the concept to get the description for
+    * @param conceptNid of the concept to get the description for
     * @return The fully specified description for this concept. Optional in case
     * there is not description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(int conceptId);
+   LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(int conceptNid);
 
    /**
     * Gets the preferred description.
     *
-    * @param conceptId nid or sequence of the concept to get the description for
+    * @param conceptNid of the concept to get the description for
     * @return The preferred description for this concept. Optional in case
     * there is not description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   LatestVersion<ObservableDescriptionVersion> getPreferredDescription(int conceptId);
+   LatestVersion<ObservableDescriptionVersion> getPreferredDescription(int conceptNid);
 }

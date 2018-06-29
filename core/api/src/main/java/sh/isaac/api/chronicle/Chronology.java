@@ -149,10 +149,10 @@ public interface Chronology
     * Gets the SemanticChronology list from assemblage.
     *
     * @param <V>
-    * @param assemblageSequence the assemblage sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the SemanticChronology list from assemblage
     */
-   <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence);
+   <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageConceptNid);
 
    /**
     * Gets the unwritten version list.

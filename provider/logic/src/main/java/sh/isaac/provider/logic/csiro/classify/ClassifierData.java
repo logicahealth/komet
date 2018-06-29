@@ -302,9 +302,9 @@ public class ClassifierData
 
     //~--- get methods ---------------------------------------------------------
     /**
-     * Gets the affected concept sequence set.
+     * Gets the affected concept nid set.
      *
-     * @return the affected concept sequence set
+     * @return the affected concept nid set
      */
     public Set<Integer> getAffectedConceptNidSet() {
 

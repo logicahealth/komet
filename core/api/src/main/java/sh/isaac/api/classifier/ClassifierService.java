@@ -74,6 +74,6 @@ public interface ClassifierService {
     * @return  A task that can be used to block, if the caller wishes to wait
     * for the results.
     */
-   Task<Integer> getConceptSequenceForExpression(LogicalExpression expression, EditCoordinate editCoordinate);
+   Task<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate);
 }
 

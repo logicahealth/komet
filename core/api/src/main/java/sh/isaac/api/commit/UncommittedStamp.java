@@ -65,13 +65,13 @@ public class UncommittedStamp {
    /** The status. */
    public Status status;
 
-   /** The author sequence. */
+   /** The author nid. */
    public int authorNid;
 
-   /** The module sequence. */
+   /** The module nid. */
    public int moduleNid;
 
-   /** The path sequence. */
+   /** The path nid. */
    public int pathNid;
 
    //~--- constructors --------------------------------------------------------

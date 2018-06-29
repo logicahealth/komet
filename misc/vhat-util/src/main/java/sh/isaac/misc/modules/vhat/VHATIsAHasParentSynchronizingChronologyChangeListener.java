@@ -114,7 +114,7 @@ import sh.isaac.utility.Frills;
 public class VHATIsAHasParentSynchronizingChronologyChangeListener implements ChronologyChangeListener {
    private static final Logger LOG = LogManager.getLogger(VHATIsAHasParentSynchronizingChronologyChangeListener.class);
 
-   // Cached VHAT module sequences
+   // Cached VHAT module nids
    private static NidSet VHAT_MODULES = null;
 
    private static StampCoordinate VHAT_STAMP_COORDINATE = null;
@@ -229,7 +229,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
    }
    
    private static NidSet getVHATModules(StampCoordinate coord) {
-      // Initialize VHAT module sequences cache
+      // Initialize VHAT module nids cache
       if (VHAT_MODULES == null || VHAT_MODULES.size() == 0) { // Should be unnecessary
          VHAT_MODULES = NidSet.of(Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, coord));
       }
@@ -513,7 +513,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
          // Get active has_parent association dynamic semantics attached to component
          Collection<DynamicVersion<?>> hasParentAssociationDynamicSemantics = getActiveHasParentAssociationDynamicSemanticsAttachedToComponent(referencedConcept.getNid());
 
-         // Create set of parent concept sequences from active has_parent association dynamic semantics attached to component
+         // Create set of parent concept nids from active has_parent association dynamic semantics attached to component
          Set<Integer> parentSequencesFromHasParentAssociationDynamicSemantics = new HashSet<>();
          for (DynamicVersion<?> hasParentAssociationDynamicSemantic : hasParentAssociationDynamicSemantics) {
             UUID parentUuid = ((DynamicUUIDImpl) hasParentAssociationDynamicSemantic.getData()[0]).getDataUUID();

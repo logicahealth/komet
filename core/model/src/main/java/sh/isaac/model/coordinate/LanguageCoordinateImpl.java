@@ -85,7 +85,7 @@ import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LanguageCoordinateImpl
          implements LanguageCoordinate {
-   /** The language concept sequence. */
+   /** The language concept nid. */
    int languageConceptNid;
 
    /** The dialect assemblage preference list. */
@@ -265,9 +265,9 @@ public class LanguageCoordinateImpl
    }
 
    /**
-    * Gets the language concept sequence.
+    * Gets the language concept nid.
     *
-    * @return the language concept sequence
+    * @return the language concept nid
     */
    @Override
    public int getLanguageConceptNid() {
@@ -277,9 +277,9 @@ public class LanguageCoordinateImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set language concept sequence property.
+    * Set language concept nid property.
     *
-    * @param languageConceptSequenceProperty the language concept sequence property
+    * @param languageConceptSequenceProperty the language concept nid property
     * @return the change listener
     */
    public ChangeListener<Number> setLanguageConceptNidProperty(IntegerProperty languageConceptSequenceProperty) {

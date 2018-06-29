@@ -122,7 +122,7 @@ public interface TreeNodeVisitData {
     * @param nodeId the node id
     * @return the predecessor nid
     */
-   OptionalInt getPredecessorSequence(int nodeId);
+   OptionalInt getPredecessorNid(int nodeId);
 
    //~--- get methods ---------------------------------------------------------
    /**
@@ -191,7 +191,7 @@ public interface TreeNodeVisitData {
     * @param nodeId the node id
     * @param predecessorNodeId the predecessor node id
     */
-   void setPredecessorSequence(int nodeId, int predecessorNodeId);
+   void setPredecessorNid(int nodeId, int predecessorNodeId);
 
    //~--- set methods ---------------------------------------------------------
    /**

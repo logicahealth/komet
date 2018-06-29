@@ -76,9 +76,9 @@ public interface StampCoordinate
 
    /**
     * An empty array is a wild-card, and should match all modules. If there are
-    * one or more module sequences specified, only those modules will be included
+    * one or more module nids specified, only those modules will be included
     * in the results.
-    * @return the set of module sequences to include in results based on this
+    * @return the set of module nids to include in results based on this
     * stamp coordinate.
     */
    NidSet getModuleNids();

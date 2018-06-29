@@ -521,7 +521,7 @@ public class TermAux implements StaticIsaacCache {
    // ~--- methods -------------------------------------------------------------
 
    /**
-    * Case significance to concept sequence.
+    * Case significance to concept nid.
     *
     * @param initialCaseSignificant the initial case significant
     * @return the int
@@ -545,25 +545,16 @@ public class TermAux implements StaticIsaacCache {
       return TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getNid() == nid;
    }
 
-   // ~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the concept specification for language sequence.
-    *
-    * @param languageConceptNid the language concept sequence
-    * @return the concept specification for language sequence
-    */
-    
     
 
     // ~--- get methods ---------------------------------------------------------
     /**
-     * Gets the concept specification for language sequence.
+     * Gets the concept specification for language nid.
      *
-     * @param languageConceptNid the language concept sequence
-     * @return the concept specification for language sequence
+     * @param languageConceptNid the language concept nid
+     * @return the concept specification for language nid
      */
-    public static ConceptSpecification getConceptSpecificationForLanguageSequence(int languageConceptNid) {
+    public static ConceptSpecification getConceptSpecificationForLanguageNid(int languageConceptNid) {
         if (languageConceptNid == ENGLISH_LANGUAGE.getNid()
                 || languageConceptNid == ENGLISH_DIALECT_ASSEMBLAGE.getNid() || languageConceptNid == GB_DIALECT_ASSEMBLAGE.getNid()) {
             return ENGLISH_LANGUAGE;

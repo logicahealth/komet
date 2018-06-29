@@ -400,7 +400,7 @@ public class Frills
    /**
     * Defines association.
     *
-    * @param conceptNid the concept sequence
+    * @param conceptNid the concept nid
     * @return true, if the concept is properly defined as a semantic which represents an association.  See {@link DynamicConstants#DYNAMIC_ASSOCIATION}
     */
    public static boolean definesAssociation(int conceptNid) {
@@ -453,7 +453,7 @@ public class Frills
    /**
     * Checks if the concept is specified in such a way that it defines a mapping assemblage.  See {@link IsaacMappingConstants#DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE}
     *
-    * @param conceptNid the concept sequence
+    * @param conceptNid the concept nid
     * @return true, if successful
     */
    public static boolean definesMapping(int conceptNid) {
@@ -466,7 +466,7 @@ public class Frills
    }
    
    /**
-    * Walk up the module tree, looking for the module concept sequence directly under {@link MetaData#MODULE____SOLOR} - return it if found, otherwise, return null.
+    * Walk up the module tree, looking for the module concept nid directly under {@link MetaData#MODULE____SOLOR} - return it if found, otherwise, return null.
     */
    private static Integer findTermTypeConcept(int conceptModuleNid, StampCoordinate stamp)
    {
@@ -681,8 +681,8 @@ public class Frills
     * Make stamp coordinate analog varying by modules only.
     *
     * @param existingStampCoordinate the existing stamp coordinate
-    * @param requiredModuleSequence the required module sequence
-    * @param optionalModuleSequences the optional module sequences
+    * @param requiredModuleSequence the required module nid
+    * @param optionalModuleSequences the optional module nids
     * @return the stamp coordinate
     */
    public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate,
@@ -1028,7 +1028,7 @@ public class Frills
     * @param recursive recurse down from the concept
     * @param leafOnly only return leaf nodes
     * @param stamp - optional - defaults to system default if not provided.
-    * @return the set of concept sequence ids that represent the children
+    * @return the set of concept nid ids that represent the children
     */
    public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
       
@@ -1148,12 +1148,12 @@ public class Frills
 
          final int               componentNid = componentId;
          final ArrayList<String> values       = new ArrayList<>(1);
-         final int assemblageConceptSequence = Get.identifierService().getNidForUuids(assemblageConceptUuid);
+         final int assemblageConceptNid = Get.identifierService().getNidForUuids(assemblageConceptUuid);
 
          Get.assemblageService()
             .getSnapshot(SemanticVersion.class,
                 (stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
-            .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, assemblageConceptSequence)
+            .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, assemblageConceptNid)
             .forEach(latestSemantic -> {
                    if (latestSemantic.get()
                                    .getChronology()
@@ -1716,7 +1716,7 @@ public class Frills
    /**
     * Convenience method to find the nearest concept related to a semantic.  Recursively walks referenced components until it finds a concept.
     * @param nid 
-    * @return the nearest concept sequence, or -1, if no concept can be found.
+    * @return the nearest concept nid, or -1, if no concept can be found.
     */
    public static Optional<Integer> getNearestConcept(int nid)
    {
@@ -1894,7 +1894,7 @@ public class Frills
     * @param componentNid
     *           - referenced component nid of requested semantics
     * @param allowedAssemblageNids
-    *           - set of concept sequences of allowed assemblages
+    *           - set of concept nids of allowed assemblages
     * @param typesToExclude
     *           - set of VersionType restrictions
     * @return the filtered stream of semantics
@@ -2048,7 +2048,7 @@ public class Frills
    
    /**
     * Returns the set of terminology types (which are concepts directly under {@link MetaData#MODULE____SOLOR} for any concept in the system as a 
-    * set of concept sequences.
+    * set of concept nids.
     * 
     * Also, if the concept is a child of {@link MetaData#METADATA____SOLOR}, then it will also be marked with the terminology type of 
     * {@link MetaData#SOLOR_MODULE____SOLOR} -even if there is no concept version that exists using the MetaData#SOLOR_MODULE____SOLOR} module - this gives 

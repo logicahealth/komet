@@ -63,56 +63,56 @@ public interface SemanticBuilderService<C extends SemanticChronology> {
     *
     * @param memeComponentNid the meme component nid
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the component sematic builder
     */
    SemanticBuilder<C> getComponentSemanticBuilder(int memeComponentNid,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-         int assemblageConceptSequence);
+         int assemblageConceptNid);
 
    /**
     * Gets the component semantic builder.
     *
     * @param semanticNid the meme component nid
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the component semantic builder
     */
    SemanticBuilder<C> getComponentSemanticBuilder(int semanticNid,
          int referencedComponentNid,
-         int assemblageConceptSequence);
+         int assemblageConceptNid);
 
    /**
     * Gets the description semantic builder.
     *
-    * @param caseSignificanceConceptSequence the case significance concept sequence
-    * @param descriptionTypeConceptSequence the description type concept sequence
-    * @param languageConceptSequence the language concept sequence - also used as the assemblage of the semantic
+    * @param caseSignificanceConceptNid the case significance concept nid
+    * @param descriptionTypeConceptNid the description type concept nid
+    * @param languageConceptNid the language concept nid - also used as the assemblage of the semantic
     * @param text the text
     * @param referencedComponent the referenced component
     * @return the description semantic builder
     */
    SemanticBuilder<? extends SemanticChronology> getDescriptionBuilder(
-           int caseSignificanceConceptSequence,
-           int descriptionTypeConceptSequence,
-           int languageConceptSequence,
+           int caseSignificanceConceptNid,
+           int descriptionTypeConceptNid,
+           int languageConceptNid,
            String text,
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent);
 
    /**
     * Gets the description semantic builder.
     *
-    * @param caseSignificanceConceptSequence the case significance concept sequence
-    * @param languageConceptSequence the language concept sequence
-    * @param descriptionTypeConceptSequence the description type concept sequence - also used as the assemblage of the semantic
+    * @param caseSignificanceConceptNid the case significance concept nid
+    * @param languageConceptNid the language concept nid
+    * @param descriptionTypeConceptNid the description type concept nid - also used as the assemblage of the semantic
     * @param text the text
     * @param referencedComponentNid the referenced component nid
     * @return the description semantic builder
     */
    SemanticBuilder<? extends SemanticChronology> getDescriptionBuilder(
-           int caseSignificanceConceptSequence,
-           int languageConceptSequence,
-           int descriptionTypeConceptSequence,
+           int caseSignificanceConceptNid,
+           int languageConceptNid,
+           int descriptionTypeConceptNid,
            String text,
            int referencedComponentNid);
 
@@ -120,48 +120,48 @@ public interface SemanticBuilderService<C extends SemanticChronology> {
     * Gets the dynamic semantic builder.
     *
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the dynamic semantic builder
     */
    SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-           int assemblageConceptSequence);
+           int assemblageConceptNid);
 
    /**
     * Gets the dynamic semantic builder.
     *
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the dynamic semantic builder
     */
    SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            int referencedComponentNid,
-           int assemblageConceptSequence);
+           int assemblageConceptNid);
 
    /**
     * Gets the dynamic semantic builder.
     *
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @param data the data
     * @return the dynamic semantic builder
     */
    SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-           int assemblageConceptSequence,
+           int assemblageConceptNid,
            DynamicData[] data);
 
    /**
     * Gets the dynamic semantic builder.
     *
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @param data the data
     * @return the dynamic semantic builder
     */
    SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            int referencedComponentNid,
-           int assemblageConceptSequence,
+           int assemblageConceptNid,
            DynamicData[] data);
 
    /**
@@ -169,52 +169,52 @@ public interface SemanticBuilderService<C extends SemanticChronology> {
     *
     * @param expression the expression
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the logical expression semantic builder
     */
    SemanticBuilder<C> getLogicalExpressionBuilder(LogicalExpression expression,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-         int assemblageConceptSequence);
+         int assemblageConceptNid);
 
    /**
     * Gets the logical expression semantic builder.
     *
     * @param expression the expression
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the logical expression semantic builder
     */
    SemanticBuilder<C> getLogicalExpressionBuilder(LogicalExpression expression,
          int referencedComponentNid,
-         int assemblageConceptSequence);
+         int assemblageConceptNid);
 
    /**
     * Gets the long semantic builder.
     *
     * @param longValue the long value
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the long semantic builder
     */
    SemanticBuilder<C> getLongSemanticBuilder(long longValue,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-         int assemblageConceptSequence);
+         int assemblageConceptNid);
 
    /**
     * Gets the long semantic builder.
     *
     * @param longValue the long value
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the long semantic builder
     */
-   SemanticBuilder<C> getLongSemanticBuilder(long longValue, int referencedComponentNid, int assemblageConceptSequence);
+   SemanticBuilder<C> getLongSemanticBuilder(long longValue, int referencedComponentNid, int assemblageConceptNid);
 
    /**
     * Gets the membership semantic builder.
     *
     * @param referencedComponent the referenced component
-    * @param assemblageConceptNid the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the membership semantic builder
     */
    SemanticBuilder<C> getMembershipSemanticBuilder(
@@ -225,33 +225,33 @@ public interface SemanticBuilderService<C extends SemanticChronology> {
     * Gets the membership semantic builder.
     *
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the membership semantic builder
     */
-   SemanticBuilder<C> getMembershipSemanticBuilder(int referencedComponentNid, int assemblageConceptSequence);
+   SemanticBuilder<C> getMembershipSemanticBuilder(int referencedComponentNid, int assemblageConceptNid);
 
    /**
     * Gets the string semantic builder.
     *
     * @param semanticString the meme string
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the string semantic builder
     */
    SemanticBuilder<C> getStringSemanticBuilder(String semanticString,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-         int assemblageConceptSequence);
+         int assemblageConceptNid);
 
    /**
     * Gets the string semantic builder.
     *
     * @param semanticString the meme string
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the string semantic builder
     */
    SemanticBuilder<C> getStringSemanticBuilder(String semanticString,
          int referencedComponentNid,
-         int assemblageConceptSequence);
+         int assemblageConceptNid);
 }
 

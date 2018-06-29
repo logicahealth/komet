@@ -173,7 +173,7 @@ public class VersionManagmentPathProvider
    /**
     * Gets the from disk.
     *
-    * @param stampPathNid the stamp path sequence
+    * @param stampPathNid the stamp path nid
     * @return the from disk
     */
    private Optional<StampPath> getFromDisk(int stampPathNid) {
@@ -277,7 +277,7 @@ public class VersionManagmentPathProvider
    /**
     * Gets the stamp path.
     *
-    * @param stampPathNid the stamp path sequence
+    * @param stampPathNid the stamp path nid
     * @return the stamp path
     */
    @Override

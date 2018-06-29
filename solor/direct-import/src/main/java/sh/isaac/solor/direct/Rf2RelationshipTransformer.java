@@ -17,7 +17,6 @@
 package sh.isaac.solor.direct;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import sh.isaac.api.Get;
@@ -28,8 +27,6 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.collections.IntObjectMap;
-import sh.isaac.model.collections.SpinedIntIntArrayMap;
 
 /**
  *

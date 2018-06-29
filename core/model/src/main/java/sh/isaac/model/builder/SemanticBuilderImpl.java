@@ -108,7 +108,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
     * Instantiates a new semantic builder impl.
     *
     * @param referencedComponentBuilder the referenced component builder
-    * @param assemblageConceptId the assemblage concept sequence
+    * @param assemblageConceptId the assemblage concept nid
     * @param semanticType the semantic type
     * @param paramaters the paramaters
     */
@@ -126,7 +126,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
     * Instantiates a new semantic builder impl.
     *
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptId the assemblage concept sequence
+    * @param assemblageConceptId the assemblage concept nid
     * @param semanticType the semantic type
     * @param paramaters the paramaters
     */

@@ -88,10 +88,10 @@ public interface StampService
     * author. Should only be used by developers creating their own commit
     * service.
     *
-    * @param authorSequence the author sequence
+    * @param authorNid the author nid
     * @return the task
     */
-   Task<Void> cancel(int authorSequence);
+   Task<Void> cancel(int authorNid);
 
    /**
     * Describe stamp sequence.
@@ -135,10 +135,10 @@ public interface StampService
    int getActivatedStampSequence(int stampSequence);
 
    /**
-    * Gets the author sequence for stamp.
+    * Gets the author nid for stamp.
     *
     * @param stampSequence the stamp sequence
-    * @return the author sequence for stamp
+    * @return the author nid for stamp
     */
    int getAuthorNidForStamp(int stampSequence);
 
@@ -153,10 +153,10 @@ public interface StampService
    }
 
    /**
-    * Gets the module sequence for stamp.
+    * Gets the module nid for stamp.
     *
     * @param stampSequence the stamp sequence
-    * @return the module sequence for stamp
+    * @return the module nid for stamp
     */
    int getModuleNidForStamp(int stampSequence);
 
@@ -169,10 +169,10 @@ public interface StampService
    boolean isNotCanceled(int stampSequence);
 
    /**
-    * Gets the path sequence for stamp.
+    * Gets the path nid for stamp.
     *
     * @param stampSequence the stamp sequence
-    * @return the path sequence for stamp
+    * @return the path nid for stamp
     */
    int getPathNidForStamp(int stampSequence);
 

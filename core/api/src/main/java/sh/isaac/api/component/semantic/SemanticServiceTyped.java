@@ -77,65 +77,65 @@ public interface SemanticServiceTyped {
    /**
     * Gets the semantic.
     *
-    * @param semanticSequence the semantic sequence
+    * @param semanticNid the semantic nid
     * @return the semantic
     */
-   SemanticChronology getSemanticChronology(int semanticSequence);
+   SemanticChronology getSemanticChronology(int semanticNid);
 
    /**
-    * Gets the semantic sequences for component.
+    * Gets the semantic nids for component.
     *
     * @param componentNid the component nid
-    * @return the semantic sequences for component
+    * @return the semantic nids for component
     */
-   IntSet getSemanticSequencesForComponent(int componentNid);
+   IntSet getSemanticNidsForComponent(int componentNid);
 
    /**
-    * Gets the semantic sequences for component from assemblage.
+    * Gets the semantic nids for component from assemblage.
     *
     * @param componentNid the component nid
-    * @param assemblageSequence the assemblage sequence
-    * @return the semantic sequences for component from assemblage
+    * @param assemblageConceptNid the assemblage nid
+    * @return the semantic nids for component from assemblage
     */
-   IntSet getSemanticSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence);
+   IntSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageConceptNid);
 
    /**
-    * Gets the semantic sequences for components from assemblage.
+    * Gets the semantic nids for components from assemblage.
     *
     * @param componentNidSet the component nid set
-    * @param assemblageSequence the assemblage sequence
-    * @return the semantic sequences for components from assemblage
+    * @param assemblageConceptNid the assemblage concept nid
+    * @return the semantic nids for components from assemblage
     */
-   IntSet getSemanticSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageSequence);
+   IntSet getSemanticNidsForComponentsFromAssemblage(NidSet componentNidSet, int assemblageConceptNid);
 
    /**
-    * Gets the semantic sequences for components from assemblage modified after position.
+    * Gets the semantic nids for components from assemblage modified after position.
     *
     * @param componentNidSet the component nid set
-    * @param assemblageSequence the assemblage sequence
+    * @param assemblageConceptNid the assemblage nid
     * @param position the position
-    * @return the semantic sequences for components from assemblage modified after position
+    * @return the semantic nids for components from assemblage modified after position
     */
-   IntSet getSemanticSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
-         int assemblageSequence,
+   IntSet getSemanticNidsForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
+         int assemblageConceptNid,
          StampPosition position);
 
    /**
-    * Gets the semantic sequences from assemblage.
+    * Gets the semantic nids from assemblage.
     *
-    * @param assemblageSequence the assemblage sequence
-    * @return the semantic sequences from assemblage
+    * @param assemblageConceptNid the assemblage concept nid
+    * @return the semantic nids from assemblage
     */
-   IntSet getSemanticSequencesFromAssemblage(int assemblageSequence);
+   IntSet getSemanticNidsFromAssemblage(int assemblageConceptNid);
 
    /**
-    * Gets the semantic sequences from assemblage modified after position.
+    * Gets the semantic nids from assemblage modified after position.
     *
-    * @param assemblageSequence the assemblage sequence
+    * @param assemblageConceptNid the assemblage nid
     * @param position the position
-    * @return the semantic sequences from assemblage modified after position
+    * @return the semantic nids from assemblage modified after position
     */
-   IntSet getSemanticSequencesFromAssemblageModifiedAfterPosition(int assemblageSequence,
+   IntSet getSemanticNidsFromAssemblageModifiedAfterPosition(int assemblageConceptNid,
          StampPosition position);
 
    /**
@@ -160,18 +160,18 @@ public interface SemanticServiceTyped {
     *
     * @param <V>
     * @param componentNid the component nid
-    * @param assemblageSequence the assemblage sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the SemanticChronologies for component from assemblage
     */
-   <V extends SemanticChronology> Stream<V> getSemanticChronologiesForComponentFromAssemblage(int componentNid, int assemblageSequence);
+   <V extends SemanticChronology> Stream<V> getSemanticChronologiesForComponentFromAssemblage(int componentNid, int assemblageConceptNid);
 
    /**
     * Gets the SemanticChronologies from assemblage.
     *
     * @param <V>
-    * @param assemblageSequence the assemblage sequence
+    * @param assemblageConceptNid the assemblage sequence
     * @return the SemanticChronologies from assemblage
     */
-   <V extends SemanticChronology> Stream<V> getSemanticChronologiesFromAssemblage(int assemblageSequence);
+   <V extends SemanticChronology> Stream<V> getSemanticChronologiesFromAssemblage(int assemblageConceptNid);
 }
 

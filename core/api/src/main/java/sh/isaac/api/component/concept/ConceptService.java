@@ -83,19 +83,19 @@ public interface ConceptService
     * Gets the concept.  Note, this method can only be used for getting concepts that you know exist, if you 
     * ask for a concept that doesn't yet exist, you will get a runtime exception.
     *
-    * @param conceptId either a concept sequence or a concept nid.
+    * @param conceptNid 
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology getConceptChronology(int conceptId);
+   ConceptChronology getConceptChronology(int conceptNid);
    
    /**
     * Gets the list of descriptions for a concept.
     *
-    * @param conceptId either a concept sequence or a concept nid.
+    * @param conceptNid 
     * @return the list of descriptions.
     */
-   default List<SemanticChronology> getConceptDescriptions(int conceptId) {
-      return getConceptChronology(conceptId).getConceptDescriptionList();
+   default List<SemanticChronology> getConceptDescriptions(int conceptNid) {
+      return getConceptChronology(conceptNid).getConceptDescriptionList();
    }
 
    /**
@@ -118,11 +118,11 @@ public interface ConceptService
    /**
     * Checks if concept active.
     *
-    * @param conceptNid the concept sequence
+    * @param conceptNid 
     * @param stampCoordinate the stamp coordinate
     * @return true, if concept active
     */
-   boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
+   boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate);
 
    /**
     * Gets the concept chronology stream.
@@ -143,7 +143,7 @@ public interface ConceptService
    /**
     * Gets the concept chronology stream.
     *
-    * @param conceptNids the concept sequences
+    * @param conceptNids
     * @return the concept chronology stream
     */
    Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids);
@@ -182,10 +182,10 @@ public interface ConceptService
 
    /**
     * Use in circumstances when not all concepts may have been loaded.
-    * @param conceptId Either a nid or concept sequence
+    * @param conceptNid 
     * @return an Optional ConceptChronology.
     */
-   Optional<? extends ConceptChronology> getOptionalConcept(int conceptId);
+   Optional<? extends ConceptChronology> getOptionalConcept(int conceptNid);
 
    /**
     * Use in circumstances when not all concepts may have been loaded.

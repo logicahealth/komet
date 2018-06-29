@@ -59,7 +59,7 @@ public interface ObservableChronologyService {
    /**
     * Gets the observable concept chronology.
     *
-    * @param id either a nid or a concept sequence
+    * @param id either a nid or a concept nid
     * @return the ObservableConceptChronology with the provided id
     */
    ObservableConceptChronology getObservableConceptChronology(int id);

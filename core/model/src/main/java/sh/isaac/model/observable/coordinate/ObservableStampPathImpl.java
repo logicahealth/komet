@@ -73,7 +73,7 @@ public class ObservableStampPathImpl
    /** The stamp path. */
    StampPathImpl stampPath;
 
-   /** The path concept sequence property. */
+   /** The path concept nid property. */
    ReadOnlyIntegerProperty pathConceptSequenceProperty;
 
    /** The path origins property. */
@@ -104,12 +104,12 @@ public class ObservableStampPathImpl
    }
 
    /**
-    * Path concept sequence property.
+    * Path concept nid property.
     *
     * @return the read only integer property
     */
    @Override
-   public ReadOnlyIntegerProperty pathConceptSequenceProperty() {
+   public ReadOnlyIntegerProperty pathConceptNidProperty() {
       if (this.pathConceptSequenceProperty == null) {
          this.pathConceptSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_NID_FOR_STAMP_PATH.toExternalString(),
@@ -150,9 +150,9 @@ public class ObservableStampPathImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the path concept sequence.
+    * Gets the path concept nid.
     *
-    * @return the path concept sequence
+    * @return the path concept nid
     */
    @Override
    public int getPathConceptNid() {

@@ -56,9 +56,7 @@ public interface SemanticComponent
    /**
     * Gets the referenced component nid.
     *
-    * @return nid for the component referenced by this semantic. Since the referenced component can either
-    * be a concept or another semantic, nids are used instead of concept sequences or semantic sequences, since the
-    * concept and semantic namespaces overlap.
+    * @return nid for the component referenced by this semantic. 
     */
    int getReferencedComponentNid();
 

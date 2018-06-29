@@ -214,19 +214,19 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     * Gets the latest semantic versions for component from assemblage.
     *
     * @param componentNid the component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the latest semantic versions for component from assemblage
     */
    @Override
    public List<LatestVersion<V>> getLatestSemanticVersionsForComponentFromAssemblage(int componentNid,
-           int assemblageConceptSequence) {
-      return getLatestSemanticVersions(this.semanticProvider.getSemanticNidsForComponentFromAssemblage(componentNid, assemblageConceptSequence));
+           int assemblageConceptNid) {
+      return getLatestSemanticVersions(this.semanticProvider.getSemanticNidsForComponentFromAssemblage(componentNid, assemblageConceptNid));
    }
 
    /**
     * Gets the latest semantic versions from assemblage.
     *
-    * @param assemblageConceptNid the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @param progressTrackers the progress trackers
     * @return the latest semantic versions from assemblage
     */

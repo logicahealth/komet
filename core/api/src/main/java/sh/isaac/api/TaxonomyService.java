@@ -94,22 +94,22 @@ public interface TaxonomyService
 //    * Method to determine if a concept was ever a kind of another, without
 // knowing a ManifoldCoordinate.
 //    *
-//    * @param childId a concept sequence or nid for the child concept
-//    * @param parentId a concept sequence or nid for the parent concept
+//    * @param childNid a concept  nid for the child concept
+//    * @param parentNid a concept nid for the parent concept
 //    * @return true if child was ever a kind of the parent.
 //    */
-//   boolean wasEverKindOf(int childId, int parentId);
+//   boolean wasEverKindOf(int childNid, int parentNidd);
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the all relationship origin sequences of type.
+    * Gets the all relationship origin concept nids of type.
     *
-    * @param destinationId the destination id
-    * @param typeSequenceSet the type sequence set
-    * @return the all relationship origin sequences of type
+    * @param destinationConceptNid the destination id
+    * @param typeConceptNidSet the type nids set
+    * @return the all relationship origin nids of type
     */
-   IntStream getAllRelationshipOriginNidsOfType(int destinationId, IntSet typeSequenceSet);
+   IntStream getAllRelationshipOriginNidsOfType(int destinationConceptNid, IntSet typeConceptNidSet);
 
    /**
     * Gets the snapshot.

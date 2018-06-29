@@ -59,13 +59,13 @@ import sh.isaac.model.observable.ObservableFields;
 public class ObservableEditCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableEditCoordinate {
-   /** The author sequence property. */
+   /** The author nid property. */
    private IntegerProperty authorSequenceProperty = null;
 
-   /** The module sequence property. */
+   /** The module nid property. */
    private IntegerProperty moduleSequenceProperty = null;
 
-   /** The path sequence property. */
+   /** The path nid property. */
    private IntegerProperty pathSequenceProperty = null;
 
    /** The edit coordinate. */
@@ -85,12 +85,12 @@ public class ObservableEditCoordinateImpl
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Author sequence property.
+    * author nid property.
     *
     * @return the integer property
     */
    @Override
-   public IntegerProperty authorSequenceProperty() {
+   public IntegerProperty authorNidProperty() {
       if (this.authorSequenceProperty == null) {
          this.authorSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE.toExternalString(),
@@ -103,12 +103,12 @@ public class ObservableEditCoordinateImpl
    }
 
    /**
-    * Module sequence property.
+    * module nid property.
     *
     * @return the integer property
     */
    @Override
-   public IntegerProperty moduleSequenceProperty() {
+   public IntegerProperty moduleNidProperty() {
       if (this.moduleSequenceProperty == null) {
          this.moduleSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
@@ -121,17 +121,17 @@ public class ObservableEditCoordinateImpl
    }
 
    /**
-    * Path sequence property.
+    * path nid property.
     *
     * @return the integer property
     */
    @Override
-   public IntegerProperty pathSequenceProperty() {
+   public IntegerProperty pathNidProperty() {
       if (this.pathSequenceProperty == null) {
          this.pathSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_NID_FOR_EDIT_CORDINATE.toExternalString(),
                getPathNid());
-         addListenerReference(this.editCoordinate.setPathNidProperty(pathSequenceProperty()));
+         addListenerReference(this.editCoordinate.setPathNidProperty(pathNidProperty()));
          this.pathSequenceProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
@@ -151,9 +151,9 @@ public class ObservableEditCoordinateImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the author sequence.
+    * Gets the author nid.
     *
-    * @return the author sequence
+    * @return the author nid
     */
    @Override
    public int getAuthorNid() {
@@ -165,9 +165,9 @@ public class ObservableEditCoordinateImpl
    }
 
    /**
-    * Gets the module sequence.
+    * Gets the module nid.
     *
-    * @return the module sequence
+    * @return the module nid
     */
    @Override
    public int getModuleNid() {
@@ -179,9 +179,9 @@ public class ObservableEditCoordinateImpl
    }
 
    /**
-    * Gets the path sequence.
+    * Gets the path nid.
     *
-    * @return the path sequence
+    * @return the path nid
     */
    @Override
    public int getPathNid() {

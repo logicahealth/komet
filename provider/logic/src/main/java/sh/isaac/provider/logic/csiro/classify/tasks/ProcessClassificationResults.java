@@ -205,7 +205,7 @@ public class ProcessClassificationResults
      * Test for proper set size.
      *
      * @param inferredSemanticSequences the inferred semantic sequences
-     * @param conceptNid the concept sequence
+     * @param conceptNid the concept nid
      * @param statedSemanticSequences the stated semantic sequences
      * @param semanticService the semantic service
      * @throws IllegalStateException the illegal state exception

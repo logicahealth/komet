@@ -70,7 +70,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 public interface ObservableVersion
         extends Version {
    /**
-    * Author sequence property.
+    * Author Nid property.
     *
     * @return the integer property
     */
@@ -84,14 +84,14 @@ public interface ObservableVersion
    ObjectProperty<CommitStates> commitStateProperty();
 
    /**
-    * Module sequence property.
+    * Module Nid property.
     *
     * @return the integer property
     */
    IntegerProperty moduleNidProperty();
 
    /**
-    * Path sequence property.
+    * Path Nid property.
     *
     * @return the integer property
     */

@@ -251,7 +251,7 @@ public class HashTreeWithIntArraySets
 
             if (nodeVisitData.getNodeStatus(childNid) == NodeStatus.UNDISCOVERED) {
                nodeVisitData.startNodeVisit(childNid, currentDistance + 1);
-               nodeVisitData.setPredecessorSequence(childNid, currentNid);
+               nodeVisitData.setPredecessorNid(childNid, currentNid);
                bfsQueue.add(childNid);
             }
          }
@@ -378,14 +378,14 @@ public class HashTreeWithIntArraySets
 
       for (final int childNid: childNids) {
          if (nodeVisitData.getNodeStatus(childNid) == NodeStatus.UNDISCOVERED) {
-            nodeVisitData.setPredecessorSequence(childNid, nid);
+            nodeVisitData.setPredecessorNid(childNid, nid);
             dfsVisit(childNid, consumer, nodeVisitData, depth + 1);
          } else {
             // second path to node. Could be multi-parent or cycle...
             OpenIntHashSet userNodeSet = nodeVisitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
 
             // add previous predecessor to node.
-            OptionalInt previousPred = nodeVisitData.getPredecessorSequence(nid); 
+            OptionalInt previousPred = nodeVisitData.getPredecessorNid(nid); 
             if (previousPred.isPresent()) {
                 userNodeSet.add(previousPred.getAsInt());
             }

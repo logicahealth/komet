@@ -60,7 +60,7 @@ public class ConceptSearchResult
     */
    public Set<Integer> nids = new HashSet<>();
 
-   /** The sequence ID of the concept most closely related to the search result (the concept referenced by a description, for example). */
+   /** The Nid of the concept most closely related to the search result (the concept referenced by a description, for example). */
    public int conceptNid;
 
    /**
@@ -73,7 +73,7 @@ public class ConceptSearchResult
    /**
     * Instantiates a new concept search result.
     *
-    * @param conceptNid the concept sequence
+    * @param conceptNid the concept Nid
     * @param componentNid the component nid
     * @param score the score
     */
@@ -127,9 +127,9 @@ public class ConceptSearchResult
    }
 
    /**
-    * Gets the sequence ID of the concept most closely related to the search result (the concept referenced by a description, for example).
+    * Gets the Nid of the concept most closely related to the search result (the concept referenced by a description, for example).
     *
-    * @return the sequence ID of the concept most closely related to the search result (the concept referenced by a description, for example)
+    * @return the Nid of the concept most closely related to the search result (the concept referenced by a description, for example)
     */
    public int getConceptNid() {
       return this.conceptNid;

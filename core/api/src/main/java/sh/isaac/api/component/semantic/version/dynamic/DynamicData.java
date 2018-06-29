@@ -56,10 +56,10 @@ public interface DynamicData {
     * If necessary, the missing information can be set via this method, so that the toString and getDataXXXProperty() methods
     * can have an appropriate name in them.  This method does nothing, if it already had the information necessary to calculate
     *
-    * @param assemblageSequence the assemblage sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @param columnNumber the column number
     */
-   public void configureNameProvider(int assemblageSequence, int columnNumber);
+   public void configureNameProvider(int assemblageConceptNid, int columnNumber);
 
    /**
     * Return a string representation of the data fields.

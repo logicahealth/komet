@@ -209,12 +209,12 @@ public class MockSemanticService
     * Gets the semantic sequences for component from assemblage.
     *
     * @param componentNid the component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the semantic sequences for component from assemblage
     */
    @Override
    public NidSet getSemanticNidsForComponentFromAssemblage(int componentNid,
-         int assemblageConceptSequence) {
+         int assemblageConceptNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -222,11 +222,11 @@ public class MockSemanticService
    /**
     * Gets the semantic sequences from assemblage.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the semantic sequences from assemblage
     */
    @Override
-   public NidSet getSemanticNidsFromAssemblage(int assemblageConceptSequence) {
+   public NidSet getSemanticNidsFromAssemblage(int assemblageConceptNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -245,23 +245,23 @@ public class MockSemanticService
     * Gets the semantics for component from assemblage.
     *
     * @param componentNid the component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the semantics for component from assemblage
     */
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
-         int assemblageConceptSequence) {
+         int assemblageConceptNid) {
       throw new UnsupportedOperationException();
    }
 
    /**
     * Gets the semantics from assemblage.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the semantics from assemblage
     */
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyStream(int assemblageConceptSequence) {
+   public Stream<SemanticChronology> getSemanticChronologyStream(int assemblageConceptNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -334,7 +334,7 @@ public class MockSemanticService
     }
 
     @Override
-    public <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptSequence) {
+    public <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
    

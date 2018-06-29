@@ -46,23 +46,23 @@ package sh.isaac.api.coordinate;
  */
 public interface EditCoordinate extends Coordinate {
    /**
-    * Gets the author sequence.
+    * Gets the author nid.
     *
-    * @return the author sequence
+    * @return the author nid
     */
    int getAuthorNid();
 
    /**
-    * Gets the module sequence.
+    * Gets the module nid.
     *
-    * @return the module sequence
+    * @return the module nid
     */
    int getModuleNid();
 
    /**
-    * Gets the path sequence.
+    * Gets the path nid.
     *
-    * @return the path sequence
+    * @return the path nid
     */
    int getPathNid();
 

@@ -137,7 +137,7 @@ public class LogicalExpressionImpl
 
    //~--- fields --------------------------------------------------------------
    /**
-    * The concept sequence.
+    * The concept nid.
     */
    transient int conceptNid = -1;
 
@@ -507,7 +507,7 @@ public class LogicalExpressionImpl
    /**
     * Concept.
     *
-    * @param conceptNid the concept sequence
+    * @param conceptNid the concept nid
     * @return the concept node with sequences
     */
    public final ConceptNodeWithNids Concept(int conceptNid) {
@@ -1201,7 +1201,7 @@ public class LogicalExpressionImpl
 
       logicNode.addConceptsReferencedByNode(graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, logicNode.getNodeIndex()));
 
-      OptionalInt predecessorNid = graphVisitData.getPredecessorSequence(logicNode.getNodeIndex());
+      OptionalInt predecessorNid = graphVisitData.getPredecessorNid(logicNode.getNodeIndex());
       if (predecessorNid.isPresent()) {
          
          graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorNid.getAsInt()).forEachKey((node) -> {
@@ -1236,7 +1236,7 @@ public class LogicalExpressionImpl
 
          for (final LogicNode child : logicNode.getChildren()) {
             graphVisitData.setSiblingGroupForNid(child.getNodeIndex(), siblingGroupSequence);
-            graphVisitData.setPredecessorSequence(child.getNodeIndex(), logicNode.getNodeIndex());
+            graphVisitData.setPredecessorNid(child.getNodeIndex(), logicNode.getNodeIndex());
             depthFirstVisit(consumer, child, graphVisitData, depth + 1);
          }
       }
@@ -1533,9 +1533,9 @@ public class LogicalExpressionImpl
 
    //~--- get methods ---------------------------------------------------------
    /**
-    * Gets the concept sequence.
+    * Gets the concept nid.
     *
-    * @return the concept sequence
+    * @return the concept nid
     */
    @Override
    public int getConceptNid() {

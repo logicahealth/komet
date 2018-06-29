@@ -133,7 +133,7 @@ public final class TemplateNodeWithNids
    /**
     * Adds the concepts referenced by node.
     *
-    * @param conceptSequenceSet the concept sequence set
+    * @param conceptSequenceSet the concept nid set
     */
    @Override
    public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {

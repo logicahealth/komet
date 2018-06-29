@@ -73,7 +73,7 @@ public class StampPositionImpl
    /** The time. */
    long time;
 
-   /** The stamp path sequence. */
+   /** The stamp path nid. */
    int stampPathNid;
 
    //~--- constructors --------------------------------------------------------
@@ -89,7 +89,7 @@ public class StampPositionImpl
     * Instantiates a new stamp position impl.
     *
     * @param time the time
-    * @param stampPathNid the stamp path sequence
+    * @param stampPathNid the stamp path nid
     */
    public StampPositionImpl(long time, int stampPathNid) {
       this.time              = time;
@@ -200,9 +200,9 @@ public class StampPositionImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set stamp path sequence property.
+    * Set stamp path nid property.
     *
-    * @param stampPathSequenceProperty the stamp path sequence property
+    * @param stampPathSequenceProperty the stamp path nid property
     * @return the change listener
     */
    public ChangeListener<Number> setStampPathSequenceProperty(IntegerProperty stampPathSequenceProperty) {

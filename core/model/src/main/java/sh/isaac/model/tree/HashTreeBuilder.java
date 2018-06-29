@@ -80,7 +80,7 @@ public class HashTreeBuilder
    //~--- fields --------------------------------------------------------------
 
    /**
-    * The concept sequences.
+    * The concept nids.
     */
    String[]     watchUuids = new String[] {};
    IntArrayList watchNids  = new IntArrayList();
