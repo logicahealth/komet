@@ -187,6 +187,7 @@ public class MVStoreMetaContentProvider
       this.LOG.info("MVStoreMetaContent store path: " + dataFile.getAbsolutePath());
       this.store = new MVStore.Builder().fileName(dataFile.getAbsolutePath())
                                         .open();
+      this.store.setVersionsToKeep(0);
       return this;
    }
 
