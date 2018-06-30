@@ -353,7 +353,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 						have.set(true);
 					}
 					// there is a value for specified key, the variable v contains the leftmost value
-					while (!have.get() && cursor.getNextDup())
+					while (v != null && !have.get() && cursor.getNextDup())
 					{
 						// this loop traverses all pairs with the same key, values differ on each iteration
 						v = cursor.getValue();
