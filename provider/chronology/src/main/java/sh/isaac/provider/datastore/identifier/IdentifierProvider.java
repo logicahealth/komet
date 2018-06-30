@@ -155,7 +155,7 @@ public class IdentifierProvider
     * {@inheritDoc}
     */
    @Override
-   public boolean setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) {
+   public void setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) {
       if (versionType == VersionType.UNKNOWN) {
           throw new IllegalStateException("versionType may not be unknown. ");
       }
@@ -171,8 +171,6 @@ public class IdentifierProvider
       if (oldVersionType == VersionType.UNKNOWN) {
          this.store.putAssemblageVersionType(assemblageNid, versionType);
       }
-      
-      return ((oldObjectType == IsaacObjectType.UNKNOWN || oldVersionType == VersionType.UNKNOWN));
    }
    
    //~--- getValueSpliterator methods ---------------------------------------------------------

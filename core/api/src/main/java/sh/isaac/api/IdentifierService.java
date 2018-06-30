@@ -213,10 +213,8 @@ public interface IdentifierService
      * @param assemblageNid the required assemblageNid for this nid.
      * @param objectType 
      * @param versionType
-     * @return true, if this is the first time setupNid was called for this nid.  Returns false if the nid was previously setup, 
-     * and this method call was a no-op.
      * @throws IllegalStateException if the nid was already set up and the previous type(s) don't match, or the nid is unknown.
      */
-    boolean setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) throws IllegalStateException;
+    void setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) throws IllegalStateException;
 }
 

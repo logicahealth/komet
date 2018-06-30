@@ -164,17 +164,14 @@ public class FileSystemDataStore
     public void putChronologyData(ChronologyImpl chronology) {
         try {
             int assemblageNid = chronology.getAssemblageNid();
-            boolean wasNidSetup = ModelGet.identifierService().setupNid(chronology.getNid(), assemblageNid,
-                    chronology.getIsaacObjectType(), chronology.getVersionType());
-
+ 
             if (chronology instanceof SemanticChronologyImpl) {
                 SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) chronology;
                 int referencedComponentNid = semanticChronology.getReferencedComponentNid();
 
-                if (!wasNidSetup || !componentToSemanticNidsMap.containsKey(referencedComponentNid)) {
-                    componentToSemanticNidsMap.add(referencedComponentNid, semanticChronology.getNid());
-                }
-            }
+                //We could optionally check and see if this chronology is already listed for this nid, but its likely cheaper to just let it merge internally
+                componentToSemanticNidsMap.add(referencedComponentNid, semanticChronology.getNid());
+              }
 
             SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
             int elementSequence = getElementSequenceForNid(chronology.getNid(), assemblageNid);
