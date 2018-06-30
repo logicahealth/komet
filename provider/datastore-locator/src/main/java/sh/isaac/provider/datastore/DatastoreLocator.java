@@ -93,6 +93,7 @@ public class DatastoreLocator implements DataStore, SequenceStore
 			{
 				case BDB:
 				case XODUS:
+				case MV:
 				case FILESYSTEM:
 					dataStore = LookupService.get().getService(DataStoreSubService.class, di.name());
 					break;

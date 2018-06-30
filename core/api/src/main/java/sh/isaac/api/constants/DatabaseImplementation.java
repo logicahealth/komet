@@ -21,7 +21,7 @@ package sh.isaac.api.constants;
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
 public enum DatabaseImplementation {
-	FILESYSTEM, XODUS, BDB, DEFAULT;
+	FILESYSTEM, XODUS, BDB, MV, DEFAULT;
 
 	/**
 	 * @param string parse the value from a string that equals the enum name value.
