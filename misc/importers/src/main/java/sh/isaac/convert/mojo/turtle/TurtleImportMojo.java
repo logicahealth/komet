@@ -75,6 +75,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.constants.DatabaseInitialization;
+import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.UuidFactory;
@@ -85,7 +86,6 @@ import sh.isaac.convert.directUtils.LoggingConfig;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.model.DataStore;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
 import sh.isaac.utility.LanguageMap;
 

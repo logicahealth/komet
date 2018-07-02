@@ -64,7 +64,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
@@ -74,8 +73,8 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.model.DataStore;
 
 //~--- classes ----------------------------------------------------------------
 

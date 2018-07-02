@@ -39,24 +39,19 @@
 
 package sh.isaac.provider.stamp;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -68,25 +63,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
-
+import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -100,6 +83,7 @@ import sh.isaac.api.commit.StampService;
 import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.task.TimedTask;
 
 //~--- classes ----------------------------------------------------------------
@@ -128,9 +112,6 @@ public class StampProvider
     */
    public static final String DEFAULT_STAMP_MANAGER_FOLDER = "stamp-manager";
 
-   /**
-    * TODO: persist across restarts.
-    */
    private final AtomicReference<ConcurrentHashMap<UncommittedStamp, Integer>> UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP =
       new AtomicReference<>(
           new ConcurrentHashMap<>());

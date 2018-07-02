@@ -87,11 +87,11 @@ import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.DataStore;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
@@ -254,7 +254,7 @@ public class ChronologyProvider
     }
 
     private Optional<ByteArrayDataBuffer> getChronologyData(int nid) {
-        return this.store.getChronologyData(nid);
+        return this.store.getChronologyVersionData(nid);
     }
 
     @Override
@@ -270,7 +270,7 @@ public class ChronologyProvider
 
     @Override
     public ConceptChronologyImpl getConceptChronology(int conceptId) {
-        Optional<ByteArrayDataBuffer> optionalByteBuffer = store.getChronologyData(conceptId);
+        Optional<ByteArrayDataBuffer> optionalByteBuffer = store.getChronologyVersionData(conceptId);
 
         if (optionalByteBuffer.isPresent()) {
             ByteArrayDataBuffer byteBuffer = optionalByteBuffer.get();
@@ -476,7 +476,7 @@ public class ChronologyProvider
 
     @Override
     public SemanticChronology getSemanticChronology(int semanticId) {
-        Optional<ByteArrayDataBuffer> optionalByteBuffer = store.getChronologyData(semanticId);
+        Optional<ByteArrayDataBuffer> optionalByteBuffer = store.getChronologyVersionData(semanticId);
 
         if (optionalByteBuffer.isPresent()) {
             ByteArrayDataBuffer byteBuffer = optionalByteBuffer.get();

@@ -96,18 +96,15 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.TaxonomyDebugService;
-import sh.isaac.model.collections.SpinedIntIntArrayMap;
-import sh.isaac.model.collections.SpinedIntIntMap;
-import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
-import sh.isaac.model.DataStore;
 import sh.isaac.provider.datastore.identifier.IdentifierProvider;
 
 //~--- classes ----------------------------------------------------------------

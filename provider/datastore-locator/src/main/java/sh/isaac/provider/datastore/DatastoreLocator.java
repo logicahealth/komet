@@ -37,13 +37,13 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.DatabaseImplementation;
+import sh.isaac.api.datastore.ChronologySerializeable;
+import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.datastore.SequenceStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.DataStore;
 import sh.isaac.model.DataStoreSubService;
-import sh.isaac.model.SequenceStore;
 
 /**
  * This class should be the only implementation of a DataStore in the system which carries a RunLevel.
@@ -171,7 +171,7 @@ public class DatastoreLocator implements DataStore, SequenceStore
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void putChronologyData(ChronologyImpl chronology)
+	public void putChronologyData(ChronologySerializeable chronology)
 	{
 		dataStore.putChronologyData(chronology);
 	}
@@ -216,9 +216,9 @@ public class DatastoreLocator implements DataStore, SequenceStore
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Optional<ByteArrayDataBuffer> getChronologyData(int nid)
+	public Optional<ByteArrayDataBuffer> getChronologyVersionData(int nid)
 	{
-		return dataStore.getChronologyData(nid);
+		return dataStore.getChronologyVersionData(nid);
 	}
 
 	/** 

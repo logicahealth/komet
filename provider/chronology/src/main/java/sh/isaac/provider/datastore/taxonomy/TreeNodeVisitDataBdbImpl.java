@@ -46,10 +46,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.datastore.SequenceStore;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.SequenceStore;
 
 //~--- classes ----------------------------------------------------------------
 /**

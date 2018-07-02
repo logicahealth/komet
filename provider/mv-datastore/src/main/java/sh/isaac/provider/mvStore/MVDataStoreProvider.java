@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterator.OfInt;
 import java.util.UUID;
@@ -47,13 +48,15 @@ import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVStore;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.constants.DatabaseImplementation;
+import sh.isaac.api.datastore.ChronologySerializeable;
+import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -72,7 +75,7 @@ import sh.isaac.model.DataStoreSubService;
 @Service (name="MV")
 @Singleton
 @Rank(value=-9)
-public class MVDataStoreProvider implements DataStoreSubService
+public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 {
 	private static final Logger LOG = LogManager.getLogger();
 	private static final String MV_STORE = "mv-store";
@@ -101,6 +104,9 @@ public class MVDataStoreProvider implements DataStoreSubService
 	ConcurrentHashMap<String, MVMap<Integer, byte[]>> chronicleMaps = new ConcurrentHashMap<>(100);
 	ConcurrentHashMap<String, MVMap<Integer, byte[][]>> versionMaps = new ConcurrentHashMap<>(100);
 	ConcurrentHashMap<String, MVMap<Integer, int[]>> taxonomyMaps = new ConcurrentHashMap<>(2);
+	
+	ConcurrentHashMap<String, MVMap<Integer, Integer>> extendedStoreInt = new ConcurrentHashMap<>(5);
+	ConcurrentHashMap<String, MVMap<Integer, byte[]>> extendedStoreByteArray= new ConcurrentHashMap<>(5);
 
 	//TODO still need to fix the APIs to route the StampProvider, CommitProvider and UUIDIntMapMap into this API
 	
@@ -299,7 +305,7 @@ public class MVDataStoreProvider implements DataStoreSubService
 	}
 
 	@Override
-	public void putChronologyData(ChronologyImpl chronology)
+	public void putChronologyData(ChronologySerializeable chronology)
 	{
 		try
 		{
@@ -431,7 +437,7 @@ public class MVDataStoreProvider implements DataStoreSubService
 	}
 
 	@Override
-	public Optional<ByteArrayDataBuffer> getChronologyData(int nid)
+	public Optional<ByteArrayDataBuffer> getChronologyVersionData(int nid)
 	{
 		OptionalInt assemblageNid = getAssemblageOfNid(nid);
 		if (!assemblageNid.isPresent())
@@ -722,9 +728,99 @@ public class MVDataStoreProvider implements DataStoreSubService
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean implementsSequenceStore()
 	{
 		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean implementsExtendedStoreAPI()
+	{
+		return true;
+	}
+	
+	private MVMap<Integer, Integer> getExtendedStoreInt(String storeName)
+	{
+		return extendedStoreInt.computeIfAbsent(storeName,
+				mapNameKey -> store.<Integer, Integer>openMap(mapNameKey));
+	}
+	
+	//Extended Store API implementation below this
+	
+	private MVMap<Integer, byte[]> getExtendedStoreByteArray(String storeName)
+	{
+		return extendedStoreByteArray.computeIfAbsent(storeName,
+				mapNameKey -> store.<Integer, byte[]>openMap(mapNameKey));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OptionalInt getInt(String store, int key)
+	{
+		Integer current = getExtendedStoreInt(store).get(key);
+		return (current == null ? OptionalInt.empty() : OptionalInt.of(current.intValue()));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OptionalInt putInt(String store, int key, int value)
+	{
+		Integer existing = getExtendedStoreInt(store).put(key, value);
+		return (existing== null ? OptionalInt.empty() : OptionalInt.of(existing.intValue()));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public byte[] getByteArray(String store, int key)
+	{
+		return getExtendedStoreByteArray(store).get(key);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public byte[] putByteArray(String store, int key, byte[] value)
+	{
+		return getExtendedStoreByteArray(store).put(key, value);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public byte[] accumulateAndGetByteArray(String store, int key, final byte[] newData, final BinaryOperator<byte[]> accumulatorFunction)
+	{
+		return getExtendedStoreByteArray(store).compute(key, (keyAgain, oldValue) ->
+		{
+			if (oldValue == null)
+			{
+				return newData;
+			}
+			return accumulatorFunction.apply(oldValue, newData);
+		});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * This implementation returns a 'live' view of the data, updates will be reflected immediately.
+	 */
+	@Override
+	public Set<Entry<Integer, byte[]>> byteArrayEntrySet(String store)
+	{
+		return getExtendedStoreByteArray(store).entrySet();
 	}
 }

@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.model;
+package sh.isaac.api.datastore;
 
 
 import java.util.Optional;
@@ -46,6 +46,7 @@ import java.util.function.BinaryOperator;
 import java.util.stream.IntStream;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.DatastoreServices;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -64,7 +65,7 @@ public interface DataStore
     * Store the specified chronology data.  
     * @param chronology The object to write
     */
-   void putChronologyData(ChronologyImpl chronology);
+   void putChronologyData(ChronologySerializeable chronology);
 
    /**
     * @return an array of nids for the concepts that define assemblages. 
@@ -98,7 +99,7 @@ public interface DataStore
     * @param nid
     * @return the data
     */
-   Optional<ByteArrayDataBuffer> getChronologyData(int nid);
+   Optional<ByteArrayDataBuffer> getChronologyVersionData(int nid);
 
    /**
     * Gets the SemanticChronology nids for component.
@@ -166,7 +167,7 @@ public interface DataStore
    
    /**
     * return true if the store has data for this nid, of the expected type, false otherwise.  
-    * This operation will be quicker than {@link #getChronologyData(int)} if you are just testing for existence, 
+    * This operation will be quicker than {@link #getChronologyVersionData(int)} if you are just testing for existence, 
     * as it saves some data copying time.  If you need the data, however, you should use the get with the optional return.
     * @param nid
     * @param ofType The expected type of the nid 
@@ -176,7 +177,7 @@ public interface DataStore
    
    /**
     * Allow the addition of a dataWriteListener, that will get a copy of all data written via the 
-    * {@link #putChronologyData(ChronologyImpl)} method.  The listener will be notified of the write after the 
+    * {@link #putChronologyData(ChronologySerializeable)} method.  The listener will be notified of the write after the 
     * {@link DataStore} implementations finishes writing the data.
     * @param dataWriteListener the listener to notify
     */

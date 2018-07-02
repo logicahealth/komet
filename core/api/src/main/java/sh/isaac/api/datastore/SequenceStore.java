@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.model;
+package sh.isaac.api.datastore;
 
-import sh.isaac.model.collections.SpinedByteArrayArrayMap;
 
 /**
  * If a backend data store maintains sequences per assemblage, it may implement

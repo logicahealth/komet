@@ -69,6 +69,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.DatabaseImplementation;
+import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -328,7 +329,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	}
 
 	@Override
-	public void putChronologyData(ChronologyImpl chronology)
+	public void putChronologyData(ChronologySerializeable chronology)
 	{
 		try
 		{
@@ -484,7 +485,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 
 
 	@Override
-	public Optional<ByteArrayDataBuffer> getChronologyData(int nid)
+	public Optional<ByteArrayDataBuffer> getChronologyVersionData(int nid)
 	{
 		OptionalInt assemblageId = getAssemblageOfNid(nid);
 		if (!assemblageId.isPresent())
