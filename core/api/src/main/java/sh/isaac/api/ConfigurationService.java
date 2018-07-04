@@ -64,6 +64,14 @@ import sh.isaac.api.constants.SystemPropertyConstants;
 @Contract
 public interface ConfigurationService {
 
+	/**
+	 * {@link #DB} build mode is used to disable things like change set writing, commit-based lucene indexing, etc, 
+	 * during a bulk load operation.
+	 * 
+	 * {@link #IBDF} build mode is used when creating IBDF files, and we don't care about the resulting DB.  This disables
+	 * some validations (as things may be processed in the wrong order for the validation to work) and also enables an inverse
+	 * nid-> uuid map in the {@link IdentifierService} so that reverse lookups perform well without the datastore present.
+	 */
    public enum BuildMode{DB, IBDF}
    
    /**
