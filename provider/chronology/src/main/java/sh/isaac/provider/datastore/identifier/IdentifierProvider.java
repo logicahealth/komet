@@ -52,9 +52,7 @@ import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -72,8 +70,11 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.UuidIntMapMap;
+import sh.isaac.api.collections.uuidnidmap.DataStoreUuidToIntMap;
+import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
@@ -96,7 +97,7 @@ public class IdentifierProvider
    uuid -> nid with generation...
    */
    private transient DataStore                         store;
-   private UuidIntMapMap                               uuidIntMapMap;
+   private UuidToIntMap                                uuidIntMapMap;
    
    private File uuidNidMapDirectory;
 
@@ -107,8 +108,8 @@ public class IdentifierProvider
 
    @Override
    public void addUuidForNid(UUID uuid, int nid) {
-      int old = this.uuidIntMapMap.get(uuid);
-      if (old != Integer.MAX_VALUE && old != nid) {
+      OptionalInt old = this.uuidIntMapMap.get(uuid);
+      if (old.isPresent() && old.getAsInt() != nid) {
          throw new RuntimeException("Reassignment of nid for " + uuid + " from " + old + " to " + nid);
       }
       this.uuidIntMapMap.put(uuid, nid);
@@ -123,7 +124,12 @@ public class IdentifierProvider
       this.store      = Get.service(DataStore.class);
       uuidNidMapDirectory = new File(store.getDataStorePath().toAbsolutePath().toFile(), "uuid-nid-map");
 
-      this.uuidIntMapMap = UuidIntMapMap.create(uuidNidMapDirectory);
+      if (this.store.implementsExtendedStoreAPI()) {
+         uuidIntMapMap = new DataStoreUuidToIntMap((ExtendedStore)this.store);
+      }
+      else {
+         this.uuidIntMapMap = UuidIntMapMap.create(uuidNidMapDirectory);
+      }
       
       //bootstrap our nids for core metadata concepts.  
       for (ConceptSpecification cs : TermAux.getAllSpecs()) {
@@ -138,7 +144,6 @@ public class IdentifierProvider
    private void stopMe() {
       try {
          LOG.info("Stopping identifier provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-         this.uuidIntMapMap.setShutdown(true);
          this.sync().get();
          this.store.sync().get();
          this.store = null;
@@ -195,10 +200,10 @@ public class IdentifierProvider
    public int getNidForUuids(UUID... uuids) throws NoSuchElementException {
 
       for (final UUID uuid: uuids) {
-         final int nid = this.uuidIntMapMap.get(uuid);
+         final OptionalInt nid = this.uuidIntMapMap.get(uuid);
 
-         if (nid != Integer.MAX_VALUE) {
-            return nid;
+         if (nid.isPresent()) {
+            return nid.getAsInt();
          }
       }
       throw new NoSuchElementException("No nid found for " + Arrays.toString(uuids));
@@ -209,17 +214,17 @@ public class IdentifierProvider
       int lastFoundNid = Integer.MAX_VALUE;
       ArrayList<UUID> uuidsWithoutNid = new ArrayList<>(uuids.length);
       for (final UUID uuid: uuids) {
-         final int nid =  this.uuidIntMapMap.get(uuid);
+         final OptionalInt nid =  this.uuidIntMapMap.get(uuid);
 
-         if (nid != Integer.MAX_VALUE) {
-            if (lastFoundNid != Integer.MAX_VALUE && lastFoundNid != nid) {
+         if (nid.isPresent()) {
+            if (lastFoundNid != Integer.MAX_VALUE && lastFoundNid != nid.getAsInt()) {
                LOG.trace("Two UUIDs are being merged onto a single nid!  Found " + lastFoundNid + " and " + nid);
                //I don't want to update lastFoundNid in this case, because the uuid -> nid mapping is for the previously checked UUID.
                //This UUID will need to be remaped to a new nid:
                uuidsWithoutNid.add(uuid);
             }
             else {
-               lastFoundNid = nid;
+               lastFoundNid = nid.getAsInt();
             }
          }
          else {
@@ -241,23 +246,31 @@ public class IdentifierProvider
       return nid;
    }
 
-	@Override
+   @Override
    public boolean hasUuid(Collection<UUID> uuids) throws IllegalArgumentException {
       if (uuids == null || uuids.size() == 0) {
          throw new IllegalArgumentException("A UUID must be specified.");
       }
-      return uuids.stream()
-                  .anyMatch((uuid) -> (this.uuidIntMapMap.containsKey(uuid)));
+      for (UUID uuid : uuids) {
+          if (this.uuidIntMapMap.containsKey(uuid)) {
+             return true;
+          }
+       }
+       return false;
    }
 
    @Override
    public boolean hasUuid(UUID... uuids) throws IllegalArgumentException{
-     if (uuids == null || uuids.length == 0) {
+      if (uuids == null || uuids.length == 0) {
          throw new IllegalArgumentException("A UUID must be specified.");
       }
-
-      return Arrays.stream(uuids)
-                   .anyMatch((uuid) -> (this.uuidIntMapMap.containsKey(uuid)));
+     
+      for (UUID uuid : uuids) {
+         if (this.uuidIntMapMap.containsKey(uuid)) {
+            return true;
+         }
+      }
+      return false;
    }
 
    @Override
@@ -335,7 +348,9 @@ public class IdentifierProvider
       return Get.executor().submit(() -> {
          try {
             LOG.info("writing uuid-nid-map.");
-            this.uuidIntMapMap.write();
+            if (!store.implementsExtendedStoreAPI()) {
+               ((UuidIntMapMap)this.uuidIntMapMap).write();
+            }
             this.store.sync().get();
          } catch (IOException | InterruptedException | ExecutionException ex) {
             LOG.error("error syncing identifier provider", ex);

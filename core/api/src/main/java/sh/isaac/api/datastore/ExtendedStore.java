@@ -15,10 +15,8 @@
  */
 package sh.isaac.api.datastore;
 
-import java.util.Map;
-import java.util.OptionalInt;
-import java.util.Set;
-import java.util.function.BinaryOperator;
+import java.util.OptionalLong;
+import java.util.function.Function;
 
 /**
  * If a backend data store wishes to provide all necessary storage for all of the
@@ -26,65 +24,54 @@ import java.util.function.BinaryOperator;
  * 
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
-public interface ExtendedStore
+public interface ExtendedStore extends DataStore
 {
 	/**
-	 * Get an int value from the specified store name
+	 * Get a long value from the shared store.  Make sure you use service-specific keys
+	 * if you make use of the shared store.  This is useful for services that want to store one
+	 * or two data points.
 	 * 
-	 * @param store - the store to read the value from.
-	 * @param key
-	 * @return the value, or an empty optional if not present
+	 * @param key The service-unique key - recommend prefixing your key with your service name.
+	 * @return the value, or empty optional if not present
 	 */
-	public OptionalInt getInt(String store, int key);
+	public OptionalLong getSharedStoreLong(String key);
 
 	/**
-	 * Put an int value into the specified store name
+	 * Put a long value into the shared store.  Make sure you use service-specific keys
+	 * if you make use of the shared store.  This is useful for services that want to store one
+	 * or two data points.
 	 * 
-	 * @param store - the store to write the value to
-	 * @param key
-	 * @param value
+	 * @param key The service-unique key - recommend prefixing your key with your service name.
+	 * @param value the value to store.
 	 * @return the existing value, if any
 	 */
-	public OptionalInt putInt(String store, int key, int value);
-
-	/**
-	 * Get a byte[] value from the specified store name
-	 * 
-	 * @param store - the store to read the value from.
-	 * @param key
-	 * @return the value, or null if not present
-	 */
-	public byte[] getByteArray(String store, int key);
-
-	/**
-	 * Put an byte[] into the specified store name
-	 * 
-	 * @param store - the store to write the value to
-	 * @param key
-	 * @param value
-	 * @return the existing value, if any
-	 */
-	public byte[] putByteArray(String store, int key, byte[] value);
-
-	/**
-	 * Atomically updates the element at index {@code key} with the results of applying the given function
-	 * to the current and given values, returning the updated value. The function should be side-effect-free, since
-	 * it may be re-applied when attempted updates fail due to contention among threads. The function is applied with
-	 * the current value at index {@code key} as its first argument, and the given update as the second argument.
-	 * 
-	 * @param store
-	 * @param key
-	 * @param newData
-	 * @param accumulatorFunction
-	 * @return the updated value
-	 */
-	public byte[] accumulateAndGetByteArray(String store, int key, byte[] newData, BinaryOperator<byte[]> accumulatorFunction);
+	public OptionalLong putSharedStoreLong(String key, long value);
 	
 	/**
-	 * Return a view of all entries in the bytearray store.  It is left up to individual implemenatations, whether this is a 
-	 * 'live' view, or a snapshot of the point in time when the method was called.
-	 * @param store
-	 * @return A set that may be iterated to get all entries
+	 * Remove a long value from the shared store.  Make sure you use service-specific keys
+	 * if you make use of the shared store.  This is useful for services that want to store one
+	 * or two data points.
+	 * 
+	 * @param key The service-unique key - recommend prefixing your key with your service name.
+	 * @return the existing value, if any
 	 */
-	public Set<Map.Entry<Integer,byte[]>> byteArrayEntrySet(String store);
+	public OptionalLong removeSharedStoreLong(String key);
+	
+	/**
+	 * @param storeName
+	 * @return A store that handles the specified types.  This constructor should only be used with simple types, 
+	 * which can be handled by the implementations default serialization mechanism.  
+	 */
+	public <K, V> ExtendedStoreData<K, V> getStore(String storeName);
+	
+	/**
+	 * @param <K> The type of the key.  Should be simple type, like String, UUID, byte[], and the class versions of the primitive types.
+	 * @param <V> The type of the value to write to the datastore.  Should be a simple type, String, UUID, byte[], and the class versions of the primitive types.
+	 * @param <VT> The type of the value that you actually want to store.  You must provide the serializer / deserializer function.
+	 * @param storeName The name of the store
+	 * @param valueSerializer The function that will turn a type <V> into <VT>.  Function must be null safe.
+	 * @param valueDeserializer The function that will turn a type <VT> into <V>.  Function must be null safe.
+	 * @return A store that handles the specified types.
+	 */
+	public <K, V, VT> ExtendedStoreData<K, VT> getStore(String storeName, Function<VT, V> valueSerializer, Function<V, VT> valueDeserializer);
 }

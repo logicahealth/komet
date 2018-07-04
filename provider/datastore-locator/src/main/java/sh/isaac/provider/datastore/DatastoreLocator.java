@@ -21,9 +21,11 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -39,6 +41,8 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.datastore.ExtendedStore;
+import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.datastore.SequenceStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
@@ -56,7 +60,7 @@ import sh.isaac.model.DataStoreSubService;
 @Service
 @RunLevel(value = LookupService.SL_L1)
 @Rank(value=500)
-public class DatastoreLocator implements DataStore, SequenceStore
+public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
 {
 	private static final Logger LOG = LogManager.getLogger();
 	private static final String dbType = "dbType.txt";
@@ -346,7 +350,10 @@ public class DatastoreLocator implements DataStore, SequenceStore
 	{
 		return dataStore.implementsSequenceStore();
 	}
-
+	
+	/** 
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getElementSequenceForNid(int nid)
 	{
@@ -357,6 +364,9 @@ public class DatastoreLocator implements DataStore, SequenceStore
 		throw new UnsupportedOperationException();
 	}
 
+	/** 
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getElementSequenceForNid(int nid, int assemblageNid)
 	{
@@ -378,5 +388,59 @@ public class DatastoreLocator implements DataStore, SequenceStore
 			return ((SequenceStore)dataStore).getNidForElementSequence(assemblageNid, sequence);
 		}
 		throw new UnsupportedOperationException();
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean implementsExtendedStoreAPI()
+	{
+		return dataStore.implementsExtendedStoreAPI();
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OptionalLong getSharedStoreLong(String key)
+	{
+		return ((ExtendedStore)dataStore).getSharedStoreLong(key);
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OptionalLong putSharedStoreLong(String key, long value)
+	{
+		return ((ExtendedStore)dataStore).putSharedStoreLong(key, value);
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OptionalLong removeSharedStoreLong(String key)
+	{
+		return ((ExtendedStore)dataStore).removeSharedStoreLong(key);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <K, V> ExtendedStoreData<K, V> getStore(String storeName)
+	{
+		return ((ExtendedStore)dataStore).getStore(storeName);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <K, V, VT> ExtendedStoreData<K, VT> getStore(String storeName, Function<VT, V> valueSerializer, Function<V, VT> valueDeserializer)
+	{
+		return ((ExtendedStore)dataStore).getStore(storeName, valueSerializer, valueDeserializer);
 	}
 }

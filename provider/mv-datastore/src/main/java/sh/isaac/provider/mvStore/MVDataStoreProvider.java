@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.Set;
+import java.util.OptionalLong;
 import java.util.Spliterator;
 import java.util.Spliterator.OfInt;
 import java.util.UUID;
@@ -36,6 +36,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -57,6 +58,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.datastore.ExtendedStore;
+import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -79,6 +81,7 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 {
 	private static final Logger LOG = LogManager.getLogger();
 	private static final String MV_STORE = "mv-store";
+	private static final String SHARED_STORE = "shared-store";
 	private File mvFolder;
 
 	private MVStore store;
@@ -105,11 +108,9 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	ConcurrentHashMap<String, MVMap<Integer, byte[][]>> versionMaps = new ConcurrentHashMap<>(100);
 	ConcurrentHashMap<String, MVMap<Integer, int[]>> taxonomyMaps = new ConcurrentHashMap<>(2);
 	
-	ConcurrentHashMap<String, MVMap<Integer, Integer>> extendedStoreInt = new ConcurrentHashMap<>(5);
-	ConcurrentHashMap<String, MVMap<Integer, byte[]>> extendedStoreByteArray= new ConcurrentHashMap<>(5);
+	ConcurrentHashMap<String, MVExtendedStore<?, ?, ?>> extendedStores = new ConcurrentHashMap<>(5);
+	MVMap<String, Long> sharedStore;
 
-	//TODO still need to fix the APIs to route the StampProvider, CommitProvider and UUIDIntMapMap into this API
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -152,6 +153,7 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 			nidToAssemblageNidMap = this.store.<Integer, Integer>openMap(NID_TO_ASSEMBLAGE_NID_MAP);
 			assemblageToIsaacObjectTypeMap = this.store.<Integer, Integer>openMap(ASSEMBLAGE_TO_ISAAC_OBJECT_TYPE_MAP);
 			assemblageToVersionTypeMap = this.store.<Integer, Integer>openMap(ASSEMBLAGE_TO_VERSION_TYPE_MAP);
+			sharedStore = this.store.<String, Long>openMap(SHARED_STORE);
 			
 			LOG.info("MV DataStore started");
 		}
@@ -186,6 +188,8 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 			nidToAssemblageNidMap = null;
 			assemblageToIsaacObjectTypeMap = null;
 			assemblageToVersionTypeMap = null;
+			sharedStore = null;
+			extendedStores.clear();
 			taxonomyMaps.clear();
 			chronicleMaps.clear();
 			versionMaps.clear();
@@ -745,82 +749,50 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	{
 		return true;
 	}
-	
-	private MVMap<Integer, Integer> getExtendedStoreInt(String storeName)
-	{
-		return extendedStoreInt.computeIfAbsent(storeName,
-				mapNameKey -> store.<Integer, Integer>openMap(mapNameKey));
-	}
-	
+
 	//Extended Store API implementation below this
 	
-	private MVMap<Integer, byte[]> getExtendedStoreByteArray(String storeName)
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OptionalLong getSharedStoreLong(String key)
 	{
-		return extendedStoreByteArray.computeIfAbsent(storeName,
-				mapNameKey -> store.<Integer, byte[]>openMap(mapNameKey));
+		Long i = sharedStore.get(key);
+		return i == null ? OptionalLong.empty() : OptionalLong.of(i.longValue());
 	}
 
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public OptionalLong putSharedStoreLong(String key, long value)
+	{
+		Long i = sharedStore.put(key, value);
+		return i == null ? OptionalLong.empty() : OptionalLong.of(i.longValue());
+	}
+
+	@Override
+	public OptionalLong removeSharedStoreLong(String key)
+	{
+		Long i = sharedStore.remove(key);
+		return i == null ? OptionalLong.empty() : OptionalLong.of(i.longValue());
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public OptionalInt getInt(String store, int key)
+	public <K, V> ExtendedStoreData<K, V> getStore(String storeName)
 	{
-		Integer current = getExtendedStoreInt(store).get(key);
-		return (current == null ? OptionalInt.empty() : OptionalInt.of(current.intValue()));
+		return getStore(storeName, null, null);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public OptionalInt putInt(String store, int key, int value)
+	public <K, V, VT> ExtendedStoreData<K, VT> getStore(String storeName, Function<VT, V> valueSerializer, Function<V, VT> valueDeserializer)
 	{
-		Integer existing = getExtendedStoreInt(store).put(key, value);
-		return (existing== null ? OptionalInt.empty() : OptionalInt.of(existing.intValue()));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public byte[] getByteArray(String store, int key)
-	{
-		return getExtendedStoreByteArray(store).get(key);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public byte[] putByteArray(String store, int key, byte[] value)
-	{
-		return getExtendedStoreByteArray(store).put(key, value);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public byte[] accumulateAndGetByteArray(String store, int key, final byte[] newData, final BinaryOperator<byte[]> accumulatorFunction)
-	{
-		return getExtendedStoreByteArray(store).compute(key, (keyAgain, oldValue) ->
-		{
-			if (oldValue == null)
-			{
-				return newData;
-			}
-			return accumulatorFunction.apply(oldValue, newData);
-		});
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * This implementation returns a 'live' view of the data, updates will be reflected immediately.
-	 */
-	@Override
-	public Set<Entry<Integer, byte[]>> byteArrayEntrySet(String store)
-	{
-		return getExtendedStoreByteArray(store).entrySet();
+		 return (ExtendedStoreData<K, VT>) extendedStores.computeIfAbsent(storeName, mapNameKey -> 
+		 	new MVExtendedStore<K, V, VT>(this.store.<K, V>openMap(mapNameKey), valueSerializer, valueDeserializer));
 	}
 }

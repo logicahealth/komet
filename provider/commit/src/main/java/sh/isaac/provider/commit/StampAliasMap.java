@@ -54,7 +54,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -65,6 +64,8 @@ import java.util.stream.StreamSupport;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NativeIntIntHashMap;
+import sh.isaac.api.datastore.ExtendedStore;
+import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.externalizable.StampAlias;
 
 //~--- classes ----------------------------------------------------------------
@@ -85,13 +86,35 @@ public class StampAliasMap {
    private final Lock write = this.rwl.writeLock();
 
    /** The stamp alias map. */
-   NativeIntIntHashMap stampAliasMap = new NativeIntIntHashMap();
+   private NativeIntIntHashMap stampAliasMap;
 
    /** The alias stamp map. */
-   NativeIntIntHashMap aliasStampMap = new NativeIntIntHashMap();
+   private NativeIntIntHashMap aliasStampMap;
+   
+   private ExtendedStore dataStore;
+   private ExtendedStoreData<Integer, Integer> stampToAlias; 
+   private ExtendedStoreData<Integer, Integer> aliasToStamp;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Construct a default stamp alias map, which holds the alias's in memory, and must be read / written to the file system.
+    */
+   public StampAliasMap() {
+      stampAliasMap = new NativeIntIntHashMap();
+      aliasStampMap = new NativeIntIntHashMap();
+   }
+   
+   /**
+    * Construct a a StampAliasMap class, that is just a thin wrapper around a datastore.  Does not hold any data in memory.
+    * @param dataStore the datastore to read/write from 
+    */
+   public StampAliasMap(ExtendedStore dataStore) {
+      this.dataStore = dataStore;
+      this.stampToAlias = dataStore.<Integer, Integer>getStore("stampMapStampToAlias");
+      this.aliasToStamp = dataStore.<Integer, Integer>getStore("stampMapAliasToStamp");
+   }
+   
    /**
     * Adds the alias.
     *
@@ -102,28 +125,37 @@ public class StampAliasMap {
       try {
          this.write.lock();
 
-         if (!this.stampAliasMap.containsKey(stamp)) {
-            this.stampAliasMap.put(stamp, alias);
-            this.aliasStampMap.put(alias, stamp);
-         } else if (this.stampAliasMap.get(stamp) == alias) {
-            // already added...
-         } else {
-            // add an additional alias
-            this.aliasStampMap.put(alias, stamp);
+         if (dataStore == null) {
+            if (!this.stampAliasMap.containsKey(stamp)) {
+               this.stampAliasMap.put(stamp, alias);
+               this.aliasStampMap.put(alias, stamp);
+            } else if (this.stampAliasMap.get(stamp) == alias) {
+               // already added...
+            } else {
+               // add an additional alias
+               this.aliasStampMap.put(alias, stamp);
+            }
+         }
+         else {
+            Integer currentAlias = stampToAlias.get(stamp);
+            if (currentAlias != null) {
+               if (currentAlias.intValue() == alias) {
+                  //Nothing to do
+               }
+               else {
+                  aliasToStamp.put(alias, stamp);
+               }
+            }
+            else {
+               stampToAlias.put(stamp, alias);
+               aliasToStamp.put(alias, stamp);
+            }
          }
       } finally {
          if (this.write != null) {
             this.write.unlock();
          }
       }
-   }
-   
-   /**
-    * Empty in-memory map.  Does nothing to the location it was initially read from on disk.
-    */
-   public void clear() {
-      stampAliasMap.clear();
-      aliasStampMap.clear();
    }
 
    /**
@@ -134,6 +166,9 @@ public class StampAliasMap {
     */
    public void read(File mapFile)
             throws IOException {
+      if (dataStore != null) {
+         throw new RuntimeException("Shouldn't be reading from disk if constructed from a datastore");
+      }
       try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
          int size = input.readInt();
 
@@ -160,6 +195,9 @@ public class StampAliasMap {
     */
    public void write(File mapFile)
             throws IOException {
+      if (dataStore != null) {
+         throw new RuntimeException("Shouldn't be writing to disk if constructed from a datastore");
+      }
       try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
          output.writeInt(this.stampAliasMap.size());
          this.stampAliasMap.forEachPair((int stampSequence,
@@ -217,15 +255,24 @@ public class StampAliasMap {
     *
     * @param stamp the stamp
     * @param builder the builder
-    * @return the aliases forward
     */
    private void getAliasesForward(int stamp, IntStream.Builder builder) {
-      if (this.stampAliasMap.containsKey(stamp)) {
-         final int alias = this.stampAliasMap.get(stamp);
-
-         builder.add(alias);
-         getAliasesForward(alias, builder);
+      if (dataStore == null) {
+         if (this.stampAliasMap.containsKey(stamp)) {
+            final int alias = this.stampAliasMap.get(stamp);
+   
+            builder.add(alias);
+            getAliasesForward(alias, builder);
+         }
       }
+      else {
+         Integer currentAlias = stampToAlias.get(stamp);
+         if (currentAlias != null) {
+            builder.add(currentAlias.intValue());
+             getAliasesForward(currentAlias.intValue(), builder);
+         }
+      }
+         
    }
 
    /**
@@ -233,14 +280,23 @@ public class StampAliasMap {
     *
     * @param stamp the stamp
     * @param builder the builder
-    * @return the aliases reverse
     */
    private void getAliasesReverse(int stamp, IntStream.Builder builder) {
-      if (this.aliasStampMap.containsKey(stamp)) {
-         final int alias = this.aliasStampMap.get(stamp);
-
-         builder.add(alias);
-         getAliasesReverse(alias, builder);
+      if (dataStore == null) {
+         if (this.aliasStampMap.containsKey(stamp)) {
+            final int alias = this.aliasStampMap.get(stamp);
+   
+            builder.add(alias);
+            getAliasesReverse(alias, builder);
+         }
+      }
+      else {  //TODO Keith is looking at this, the impl / naming don't make sense to me.
+         Integer currentAlias = aliasToStamp.get(stamp);
+         if (currentAlias != null)
+         {
+            builder.add(currentAlias.intValue());
+            getAliasesReverse(currentAlias.intValue(), builder);
+         }
       }
    }
 
@@ -253,7 +309,7 @@ public class StampAliasMap {
       assert this.stampAliasMap.size() == this.aliasStampMap.size():
              "stampAliasMap.size() = " + this.stampAliasMap.size() + " aliasStampMap.size() = " +
              this.aliasStampMap.size();
-      return this.aliasStampMap.size();
+      return dataStore == null ? this.aliasStampMap.size() : aliasToStamp.size();
    }
 
    /**
@@ -262,7 +318,8 @@ public class StampAliasMap {
     * @return the stamp alias stream
     */
    public Stream<StampAlias> getStampAliasStream() {
-      return StreamSupport.stream(new StampAliasSpliterator(), false);
+      return dataStore == null ? StreamSupport.stream(new StampAliasSpliterator(), false) : 
+         aliasToStamp.getStream().map(entry -> new StampAlias(entry.getValue(), entry.getKey()));
    }
 
    //~--- inner classes -------------------------------------------------------
