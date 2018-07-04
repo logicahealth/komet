@@ -18,17 +18,9 @@ package sh.isaac.model.logic;
 
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -39,7 +31,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
-import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
@@ -49,7 +40,6 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.komet.preferences.UserConfigurationPerOSProvider;
-import sh.isaac.model.logic.TreeNodeVisitDataWithHash.ScoreRecord;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderImpl;
 
 /**
@@ -109,7 +99,7 @@ public class IsomorphicResultsBottomUpNGTest {
     public void tearDownMethod() throws Exception {
     }
     
-    private LogicalExpression makeReferenceExpression() {
+    public static LogicalExpression makeReferenceExpression() {
         LogicalExpressionBuilderImpl leb = new LogicalExpressionBuilderImpl();
 //Root[152]➞[151]
 //    Sufficient[151]➞[150]
@@ -443,7 +433,7 @@ SufficientSet(
 	return  leb.build();
     }
 
-    private LogicalExpression makeComparisonExpression() {
+    public static LogicalExpression makeComparisonExpression() {
         LogicalExpressionBuilderImpl leb = new LogicalExpressionBuilderImpl();
 //Root[152]➞[151]
 //    Sufficient[151]➞[150]
@@ -789,12 +779,13 @@ SufficientSet(
         
         System.out.println("generatePossibleSolutions");
         long start = System.currentTimeMillis();
+        IsomorphicResultsBottomUp results = new IsomorphicResultsBottomUp(referenceExpression, comparisonExpression);  
+        System.out.println(results);
         
         IsomorphicResultsFromPathHash isomorphicResultsFromPathHash = new IsomorphicResultsFromPathHash(referenceExpression, comparisonExpression);
-        isomorphicResultsFromPathHash.call();
+        IsomorphicSolution solution2 = isomorphicResultsFromPathHash.call();
         
         
-        IsomorphicResultsBottomUp results = new IsomorphicResultsBottomUp(referenceExpression, comparisonExpression);  
         LOG.info("Duration: " + (System.currentTimeMillis() - start));
         //LOG.info(results);
         // assertEquals(result, expResult);

@@ -121,8 +121,8 @@ public class ConceptIsDescendentOf
       final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
               .get(this.descendentOfSpecKey);
       final int parentNid = descendentOfSpec.getNid();
-      final int[] descendentOfSequenceSet = Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyChildConceptNids(parentNid);
-      getResultsCache().or(NidSet.of(descendentOfSequenceSet));
+      final int[] descendentOfNidSet = Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyChildConceptNids(parentNid);
+      getResultsCache().or(NidSet.of(descendentOfNidSet));
       return getResultsCache();
    }
 

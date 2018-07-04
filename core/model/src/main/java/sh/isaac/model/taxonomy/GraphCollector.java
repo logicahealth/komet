@@ -68,7 +68,7 @@ public class GraphCollector
          implements ObjIntConsumer<HashTreeBuilder>, BiConsumer<HashTreeBuilder, HashTreeBuilder> {
    
    private static final Logger LOG = LogManager.getLogger();
-   /** The isa concept sequence. */
+   /** The isa concept nid. */
    private final int ISA_CONCEPT_NID = TermAux.IS_A.getNid();
 
    /** The watch list. */

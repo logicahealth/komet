@@ -415,7 +415,7 @@ public class TreeNodeVisitDataBdbImpl
     * {@inheritDoc}
     */
    @Override
-   public OptionalInt getPredecessorSequence(int nodeNid) {
+   public OptionalInt getPredecessorNid(int nodeNid) {
       int nodeSequence = nidToSequence(nodeNid);
       int toReturn = this.predecessorNidList.getQuick(nodeSequence);
       if (toReturn == -1 ) {
@@ -435,7 +435,7 @@ public class TreeNodeVisitDataBdbImpl
     * @param predecessorNid the predecessor sequence
     */
    @Override
-   public void setPredecessorSequence(int nodeNid, int predecessorNid) {
+   public void setPredecessorNid(int nodeNid, int predecessorNid) {
       int nodeSequence = nidToSequence(nodeNid);
       int oldSize = this.predecessorNidList.size();
       if (nodeSequence >= oldSize) {

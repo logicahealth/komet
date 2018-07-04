@@ -67,8 +67,8 @@ import sh.isaac.api.DataSource;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.collections.EclipseIntObjectMap;
 import sh.isaac.model.collections.IntObjectMap;
+import sh.isaac.model.collections.IntObjectMapImpl;
 import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
@@ -109,7 +109,7 @@ public class GraphToAxiomTranslator {
    ConcurrentSkipListSet<Integer> loadedConceptNids = new ConcurrentSkipListSet<>();
 
    public GraphToAxiomTranslator() {
-      nidLogicConceptMap = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntObjectMap<>() : new EclipseIntObjectMap<>();
+      nidLogicConceptMap = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntObjectMap<>() : new IntObjectMapImpl<>();
    }
 
    /**

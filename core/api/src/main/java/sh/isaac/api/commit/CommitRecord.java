@@ -78,7 +78,7 @@ public class CommitRecord {
    /** The concepts in commit. */
    protected NidSet conceptNidsInCommit;
 
-   /** The semantic sequences in a commit. */
+   /** The semantic nids in a commit. */
    protected NidSet semanticNidsInCommit;
 
    //~--- constructors --------------------------------------------------------
@@ -156,9 +156,9 @@ public class CommitRecord {
    }
 
    /**
-    * Gets the semantic sequences in commit.
+    * Gets the semantic nids in commit.
     *
-    * @return the semantic sequences in commit
+    * @return the semantic nids in commit
     */
    public NidSet getSemanticNidsInCommit() {
       return this.semanticNidsInCommit;

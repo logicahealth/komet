@@ -73,7 +73,7 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 //TODO move to CSIRO specific module
 public class AxiomAccumulator
          implements BiConsumer<Set<Axiom>, LogicalExpressionImpl> {
-   /** The concept sequences. */
+   /** The concept nids. */
    BitSet conceptSequences;
 
    /** The concepts. */
@@ -85,7 +85,7 @@ public class AxiomAccumulator
    /** The never group role sequences. */
    OpenIntHashSet neverGroupRoleSequences;
 
-   /** The role group concept sequence. */
+   /** The role group concept nid. */
    int roleGroupConceptSequence;
 
    //~--- constructors --------------------------------------------------------
@@ -94,10 +94,10 @@ public class AxiomAccumulator
     * Instantiates a new axiom accumulator.
     *
     * @param concepts the concepts
-    * @param conceptSequences the concept sequences
+    * @param conceptSequences the concept nids
     * @param roles the roles
     * @param neverGroupRoleSequences the never group role sequences
-    * @param roleGroupConceptSequence the role group concept sequence
+    * @param roleGroupConceptSequence the role group concept nid
     */
    public AxiomAccumulator(Concept[] concepts,
                            BitSet conceptSequences,
@@ -196,7 +196,7 @@ public class AxiomAccumulator
     * @param concepts the concepts
     * @param roles the roles
     * @param neverGroupRoleSequences the never group role sequences
-    * @param roleGroupConceptSequence the role group concept sequence
+    * @param roleGroupConceptSequence the role group concept nid
     * @return the concept
     */
    private Concept processRole(RoleNodeSomeWithNids roleNodeSome,
@@ -231,7 +231,7 @@ public class AxiomAccumulator
     * @param concepts the concepts
     * @param roles the roles
     * @param neverGroupRoleSequences the never group role sequences
-    * @param roleGroupConceptSequence the role group concept sequence
+    * @param roleGroupConceptSequence the role group concept nid
     * @return the concept
     */
    private Concept getConcept(LogicNode logicNode,
@@ -273,7 +273,7 @@ public class AxiomAccumulator
     * @param concepts the concepts
     * @param roles the roles
     * @param neverGroupRoleSequences the never group role sequences
-    * @param roleGroupConceptSequence the role group concept sequence
+    * @param roleGroupConceptSequence the role group concept nid
     * @return the concepts
     */
    private Concept[] getConcepts(LogicNode[] logicNodes,

@@ -59,7 +59,7 @@ import sh.isaac.model.coordinate.LanguageCoordinateImpl;
  */
 public class LanguageCoordinates {
    /**
-    * Case significance to concept sequence.
+    * Case significance to concept nid.
     *
     * @param initialCaseSignificant the initial case significant
     * @return the int

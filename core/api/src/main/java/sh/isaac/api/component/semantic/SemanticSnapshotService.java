@@ -70,7 +70,7 @@ public interface SemanticSnapshotService<V extends SemanticVersion> {
    /**
     * Gets the latest semantic version.
     *
-    * @param semanticNid the semantic sequence or nid
+    * @param semanticNid the semantic nid
     * @return the latest semantic version
     */
    LatestVersion<V> getLatestSemanticVersion(int semanticNid);
@@ -87,16 +87,16 @@ public interface SemanticSnapshotService<V extends SemanticVersion> {
     * Gets the latest semantic versions for component from assemblage.
     *
     * @param componentNid the component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the latest semantic versions for component from assemblage
     */
    List<LatestVersion<V>> getLatestSemanticVersionsForComponentFromAssemblage(int componentNid,
-         int assemblageConceptSequence);
+         int assemblageConceptNid);
 
    /**
     * Gets the latest semantic versions from assemblage.
     *
-    * @param assemblageConceptSequence The sequence identifier of the assemblage to select
+    * @param assemblageConceptNid The nid of the assemblage to select
     * semantics from.
     * @param progressTrackers For each {@code progressTracker}, the addToTotalWork() will be
     * updated with the total number of semantics to be processed, and each time a semantic is
@@ -104,7 +104,7 @@ public interface SemanticSnapshotService<V extends SemanticVersion> {
     * @return {@code Stream} of the {@code LatestVersion<V>} for each semantic according to the
     * criterion of this snapshot service.
     */
-   VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptSequence,
+   VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid,
          ProgressTracker... progressTrackers);
 }
 

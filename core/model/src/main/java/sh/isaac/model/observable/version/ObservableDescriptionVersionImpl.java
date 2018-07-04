@@ -80,12 +80,12 @@ public class ObservableDescriptionVersionImpl
         extends ObservableAbstractSemanticVersionImpl
          implements ObservableDescriptionVersion {
    /**
-    * The case significance concept sequence property.
+    * The case significance concept nid property.
     */
    IntegerProperty caseSignificanceConceptNidProperty;
 
    /**
-    * The language concept sequence property.
+    * The language concept nid property.
     */
    IntegerProperty languageConceptNidProperty;
 
@@ -95,7 +95,7 @@ public class ObservableDescriptionVersionImpl
    StringProperty textProperty;
 
    /**
-    * The description type concept sequence property.
+    * The description type concept nid property.
     */
    IntegerProperty descriptionTypeConceptNidProperty;
 
@@ -143,7 +143,7 @@ public class ObservableDescriptionVersionImpl
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Case significance concept sequence property.
+    * Case significance concept nid property.
     *
     * @return the integer property
     */
@@ -170,7 +170,7 @@ public class ObservableDescriptionVersionImpl
    }
 
    /**
-    * Description type concept sequence property.
+    * Description type concept nid property.
     *
     * @return the integer property
     */
@@ -197,7 +197,7 @@ public class ObservableDescriptionVersionImpl
    }
 
    /**
-    * Language concept sequence property.
+    * Language concept nid property.
     *
     * @return the integer property
     */
@@ -224,9 +224,9 @@ public class ObservableDescriptionVersionImpl
    }
 
    /**
-    * Sets the language concept sequence.
+    * Sets the language concept nid.
     *
-    * @param languageConceptNid the new language concept sequence
+    * @param languageConceptNid the new language concept nid
     */
    @Override
    public final void setLanguageConceptNid(int languageConceptNid) {
@@ -243,9 +243,9 @@ public class ObservableDescriptionVersionImpl
    }
 
    /**
-    * Gets the language concept sequence.
+    * Gets the language concept nid.
     *
-    * @return the language concept sequence
+    * @return the language concept nid
     */
    @Override
    public int getLanguageConceptNid() {
@@ -333,9 +333,9 @@ public class ObservableDescriptionVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the case significance concept sequence.
+    * Gets the case significance concept nid.
     *
-    * @return the case significance concept sequence
+    * @return the case significance concept nid
     */
    @Override
    public int getCaseSignificanceConceptNid() {
@@ -349,9 +349,9 @@ public class ObservableDescriptionVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the case significance concept sequence.
+    * Sets the case significance concept nid.
     *
-    * @param caseSignificanceConceptSequence the new case significance concept sequence
+    * @param caseSignificanceConceptSequence the new case significance concept nid
     */
    @Override
    public final void setCaseSignificanceConceptNid(int caseSignificanceConceptSequence) {
@@ -371,9 +371,9 @@ public class ObservableDescriptionVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the description type concept sequence.
+    * Gets the description type concept nid.
     *
-    * @return the description type concept sequence
+    * @return the description type concept nid
     */
    @Override
    public int getDescriptionTypeConceptNid() {
@@ -387,9 +387,9 @@ public class ObservableDescriptionVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the description type concept sequence.
+    * Sets the description type concept nid.
     *
-    * @param descriptionTypeConceptNid the new description type concept sequence
+    * @param descriptionTypeConceptNid the new description type concept nid
     */
    @Override
    public final void setDescriptionTypeConceptNid(int descriptionTypeConceptNid) {

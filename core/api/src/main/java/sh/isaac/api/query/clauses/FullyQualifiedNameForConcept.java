@@ -105,10 +105,10 @@ public class FullyQualifiedNameForConcept
       for (final Clause childClause: getChildren()) {
          final NidSet             childPossibleComponentNids =
             childClause.computePossibleComponents(incomingComponents);
-         final NidSet conceptSequenceSet         = NidSet.of(childPossibleComponentNids);
+         final NidSet conceptNidSet         = NidSet.of(childPossibleComponentNids);
 
          Get.conceptService()
-            .getConceptChronologyStream(conceptSequenceSet)
+            .getConceptChronologyStream(conceptNidSet)
             .forEach((conceptChronology) -> {
                         final LatestVersion<? extends DescriptionVersion> desc =
                            conceptChronology.getFullyQualifiedNameDescription(languageCoordinate, stampCoordinate);

@@ -145,7 +145,7 @@ public class StampProvider
    private DataStoreStartState databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
 
    /**
-    * The stamp sequence path sequence map.
+    * The stamp sequence path nid map.
     */
    ConcurrentHashMap<Integer, Integer> stampSequence_PathNid_Map = new ConcurrentHashMap<>();
 
@@ -249,7 +249,7 @@ public class StampProvider
    /**
     * Cancel.
     *
-    * @param authorNid the author sequence
+    * @param authorNid the author nid
     * @return the task
     */
    @Override
@@ -723,10 +723,10 @@ public class StampProvider
    }
 
    /**
-    * Gets the path sequence for stamp.
+    * Gets the path nid for stamp.
     *
     * @param stampSequence the stamp sequence
-    * @return the path sequence for stamp
+    * @return the path nid for stamp
     */
    @Override
    public int getPathNidForStamp(int stampSequence) {
@@ -794,9 +794,9 @@ public class StampProvider
     *
     * @param status the status
     * @param time the time
-    * @param authorSequence the author sequence
-    * @param moduleSequence the module sequence
-    * @param pathSequence the path sequence
+    * @param authorSequence the author nid
+    * @param moduleSequence the module nid
+    * @param pathSequence the path nid
     * @return the stamp sequence
     */
    @Override

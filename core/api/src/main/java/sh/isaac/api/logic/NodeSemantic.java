@@ -121,7 +121,7 @@ public enum NodeSemantic {
    SUBSTITUTION_STRING()
    ;
 
-   /** The concept sequence. */
+   /** The concept nid. */
    int conceptNid = Integer.MIN_VALUE;
 
    /** The semantic uuid. */
@@ -152,9 +152,9 @@ public enum NodeSemantic {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concept sequence.
+    * Gets the concept nid.
     *
-    * @return the concept sequence
+    * @return the concept nid
     */
    public int getConceptNid() {
       if (this.conceptNid == Integer.MIN_VALUE) {

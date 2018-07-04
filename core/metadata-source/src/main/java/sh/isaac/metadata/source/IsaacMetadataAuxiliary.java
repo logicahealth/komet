@@ -113,6 +113,9 @@ import static sh.isaac.model.observable.ObservableFields.PRIMORDIAL_UUID_FOR_COM
 import static sh.isaac.model.observable.ObservableFields.ENTRY_SEQUENCE_FOR_COMPONENT;
 import static sh.isaac.model.observable.ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT;
 import static sh.isaac.model.observable.ObservableFields.CONCEPT_VERSION;
+import static sh.isaac.model.observable.ObservableFields.CORELATION_COMPARISON_EXPRESSION;
+import static sh.isaac.model.observable.ObservableFields.CORELATION_EXPRESSION;
+import static sh.isaac.model.observable.ObservableFields.CORELATION_REFERENCE_EXPRESSION;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DESCRIPTION;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DIALECT;
@@ -653,6 +656,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(DESCRIPTION_LIST_FOR_CONCEPT);
                   createConcept(CONCEPT_VERSION);
+                  popParent();
+               createConcept("Corelation properties");
+               pushParent(current());
+                  createConcept(CORELATION_REFERENCE_EXPRESSION);
+                  createConcept(CORELATION_COMPARISON_EXPRESSION);
+                  createConcept(CORELATION_EXPRESSION);
                   popParent();
                createConcept("Semantic properties");
                pushParent(current());

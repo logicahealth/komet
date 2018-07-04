@@ -141,7 +141,7 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	 * will be updated accordingly. Default: The value to use if another value
 	 * is not provided.
 	 *
-	 * @param descriptionTypePreferenceList prioritized preference list of description type sequences
+	 * @param descriptionTypePreferenceList prioritized preference list of description type concept nids
 	 */
 	public default void setDefaultDescriptionTypePreferenceList(int[] descriptionTypePreferenceList)
 	{
@@ -153,7 +153,7 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	 * changed, other default objects that reference this object will be updated
 	 * accordingly. Default: The value to use if another value is not provided.
 	 *
-	 * @param dialectAssemblagePreferenceList prioritized preference list of dialect assemblage sequences
+	 * @param dialectAssemblagePreferenceList prioritized preference list of dialect assemblage concept nids
 	 */
 	public default void setDefaultDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList)
 	{

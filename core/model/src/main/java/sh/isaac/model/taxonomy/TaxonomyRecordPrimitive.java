@@ -101,9 +101,9 @@ public class TaxonomyRecordPrimitive {
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Adds the concept sequence stamp record.
+    * Adds the concept nid stamp record.
     *
-    * @param conceptNidStampRecord the concept sequence stamp record
+    * @param conceptNidStampRecord the concept nid stamp record
     */
    public void addConceptNidStampRecord(int[] conceptNidStampRecord) {
       conceptNidStampRecord[0] = conceptNidStampRecord[0] + (conceptNidStampRecord.length << 24);

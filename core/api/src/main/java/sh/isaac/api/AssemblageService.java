@@ -98,18 +98,18 @@ public interface AssemblageService
    /**
     * Gets the optional semantic chronology.
     *
-    * @param semanticId sequence or nid for a semantic chronology
+    * @param semanticNid  nid for a semantic chronology
     * @return the identified {@code SemanticChronology}
     */
-   Optional<? extends SemanticChronology> getOptionalSemanticChronology(int semanticId);
+   Optional<? extends SemanticChronology> getOptionalSemanticChronology(int semanticNid);
 
    /**
     * Gets the SemanticChronology.
     *
-    * @param semanticId sequence or nid for a SemanticChronology
+    * @param semanticNid  nid for a SemanticChronology
     * @return the identified {@code SemanticChronology}
     */
-   SemanticChronology getSemanticChronology(int semanticId);
+   SemanticChronology getSemanticChronology(int semanticNid);
 
    /**
     * Gets the SemanticChronology stream.
@@ -132,28 +132,28 @@ public interface AssemblageService
    int getSemanticCount();
 
    /**
-    * @param assemblageNid The nid for the assemblage to count elements from
+    * @param assemblageConceptNid The nid for the assemblage to count elements from
     * @return count of all the semantic chronologies in the assemblage, active, or inactive. 
     */
-   int getSemanticCount(int assemblageNid);
+   int getSemanticCount(int assemblageConceptNid);
 
    
    /**
     * 
-    * @param assemblageNid
+    * @param assemblageConceptNid
     * @return the type of object contained within the assemblage. 
     */
-   IsaacObjectType getObjectTypeForAssemblage(int assemblageNid);
+   IsaacObjectType getObjectTypeForAssemblage(int assemblageConceptNid);
    
-   VersionType getVersionTypeForAssemblage(int assemblageNid);
+   VersionType getVersionTypeForAssemblage(int assemblageConceptNid);
 
    /**
     * Gets the SemanticChronology key stream.
     *
-    * @param assemblageNid The nid for the assemblage to select the nids from
+    * @param assemblageConceptNid The nid for the assemblage to select the nids from
     * @return the SemanticChronology key stream
     */
-   IntStream getSemanticNidStream(int assemblageNid);
+   IntStream getSemanticNidStream(int assemblageConceptNid);
 
    /**
     * Gets the SemanticChronology nids for component.
@@ -186,7 +186,7 @@ public interface AssemblageService
     * Gets the SemanticChronology nids from assemblage.
     *
     * @param assemblageConceptNid the assemblage nid
-    * @return the SemanticChronology sequences from assemblage
+    * @return the SemanticChronology nids from assemblage
     */
    NidSet getSemanticNidsFromAssemblage(int assemblageConceptNid);
 
@@ -215,29 +215,29 @@ public interface AssemblageService
     *
     * @param <C>
     * @param componentNid the component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the SemanticChronologies for component from assemblage
     */
    <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
-         int assemblageConceptSequence);
+         int assemblageConceptNid);
 
    /**
     * Gets the SemanticChronologies from assemblage.
     *
     * @param <C>
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the SemanticChronologies from assemblage
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptSequence);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptNid);
 
    /**
     * Gets the SemanticChronologies from assemblage.
     *
     * @param <C>
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nic
     * @return the SemanticChronologies from assemblage
     */
-   <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptSequence);
+   <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid);
 
    /**
     * Gets the referenced component nids from assemblage.
@@ -252,11 +252,11 @@ public interface AssemblageService
    /**
     * Gets the referenced component nids from assemblage.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the referenced component nids as an IntStream
     */
-   default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptSequence) {
-      return getSemanticChronologyStream(assemblageConceptSequence).mapToInt((semantic) -> semantic.getReferencedComponentNid());
+   default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptNid) {
+      return getSemanticChronologyStream(assemblageConceptNid).mapToInt((semantic) -> semantic.getReferencedComponentNid());
    }
    
    /**
@@ -285,15 +285,15 @@ public interface AssemblageService
 
    /**
     * 
-    * @param assemblageNid
+    * @param assemblageConceptNid
     * @return memory used in bytes
     */
-    int getAssemblageMemoryInUse(int assemblageNid);
+    int getAssemblageMemoryInUse(int assemblageConceptNid);
     /**
      * 
-     * @param assemblageNid
+     * @param assemblageConceptNid
      * @return disk space used in bytes
      */
-    int getAssemblageSizeOnDisk(int assemblageNid);
+    int getAssemblageSizeOnDisk(int assemblageConceptNid);
 }
 

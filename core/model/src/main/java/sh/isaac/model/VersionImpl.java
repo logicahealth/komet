@@ -258,9 +258,9 @@ public abstract class VersionImpl
 
    //~--- get methods ---------------------------------------------------------
    /**
-    * Gets the author sequence.
+    * Gets the author nid.
     *
-    * @return the author sequence
+    * @return the author nid
     */
    @Override
    public int getAuthorNid() {
@@ -270,9 +270,9 @@ public abstract class VersionImpl
 
    //~--- set methods ---------------------------------------------------------
    /**
-    * Sets the author sequence.
+    * Sets the author nid.
     *
-    * @param authorSequence the new author sequence
+    * @param authorSequence the new author nid
     */
    @Override
    public void setAuthorNid(int authorSequence) {
@@ -304,9 +304,9 @@ public abstract class VersionImpl
    }
 
    /**
-    * Gets the module sequence.
+    * Gets the module nid.
     *
-    * @return the module sequence
+    * @return the module nid
     */
    @Override
    public int getModuleNid() {
@@ -316,9 +316,9 @@ public abstract class VersionImpl
 
    //~--- set methods ---------------------------------------------------------
    /**
-    * Sets the module sequence.
+    * Sets the module nid.
     *
-    * @param moduleSequence the new module sequence
+    * @param moduleSequence the new module nid
     */
    @Override
    public void setModuleNid(int moduleSequence) {
@@ -365,9 +365,9 @@ public abstract class VersionImpl
    }
 
    /**
-    * Gets the path sequence.
+    * Gets the path nid.
     *
-    * @return the path sequence
+    * @return the path nid
     */
    @Override
    public int getPathNid() {
@@ -377,9 +377,9 @@ public abstract class VersionImpl
 
    //~--- set methods ---------------------------------------------------------
    /**
-    * Sets the path sequence.
+    * Sets the path nid.
     *
-    * @param pathSequence the new path sequence
+    * @param pathSequence the new path nid
     */
    @Override
    public void setPathNid(int pathSequence) {

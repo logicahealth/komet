@@ -76,7 +76,7 @@ public interface ObservableLanguageCoordinate
    ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty();
    
    /**
-    * Language concept sequence property.
+    * Language concept nid property.
     *
     * @return the integer property
     */

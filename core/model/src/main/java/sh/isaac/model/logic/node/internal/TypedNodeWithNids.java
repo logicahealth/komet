@@ -63,7 +63,7 @@ import sh.isaac.model.logic.node.external.TypedNodeWithUuids;
  */
 public abstract class TypedNodeWithNids
         extends ConnectorNode {
-   /** The type concept sequence. */
+   /** The type concept nid. */
    int typeConceptNid;
 
    //~--- constructors --------------------------------------------------------
@@ -110,7 +110,7 @@ public abstract class TypedNodeWithNids
    /**
     * Adds the concepts referenced by node.
     *
-    * @param conceptSequenceSet the concept sequence set
+    * @param conceptSequenceSet the concept nid set
     */
    @Override
    public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
@@ -238,9 +238,9 @@ public abstract class TypedNodeWithNids
    }
 
    /**
-    * Gets the type concept sequence.
+    * Gets the type concept nid.
     *
-    * @return the type concept sequence
+    * @return the type concept nid
     */
    public int getTypeConceptNid() {
       return this.typeConceptNid;

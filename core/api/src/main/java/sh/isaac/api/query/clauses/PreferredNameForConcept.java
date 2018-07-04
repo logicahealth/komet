@@ -104,9 +104,9 @@ public class PreferredNameForConcept
       final StampCoordinate    stampCoordinate       = getEnclosingQuery().getStampCoordinate();
       final NidSet             outgoingPreferredNids = new NidSet();
 
-      getChildren().stream().map((childClause) -> childClause.computePossibleComponents(incomingConcepts)).map((childPossibleComponentNids) -> NidSet.of(childPossibleComponentNids)).forEach((conceptSequenceSet) -> {
+      getChildren().stream().map((childClause) -> childClause.computePossibleComponents(incomingConcepts)).map((childPossibleComponentNids) -> NidSet.of(childPossibleComponentNids)).forEach((conceptNidSet) -> {
                                Get.conceptService()
-                                  .getConceptChronologyStream(conceptSequenceSet)
+                                  .getConceptChronologyStream(conceptNidSet)
                                   .forEach((conceptChronology) -> {
                                               final LatestVersion<? extends DescriptionVersion> desc =
                                                  conceptChronology.getPreferredDescription(

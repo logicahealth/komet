@@ -108,7 +108,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     * for each path reachable antecedent to the destination position of the
     * computer.
     */
-   ConcurrentHashMap<Integer, Segment> pathSequenceSegmentMap;
+   ConcurrentHashMap<Integer, Segment> pathNidSegmentMap;
 
    //~--- constructors --------------------------------------------------------
 
@@ -127,7 +127,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
    private RelativePositionCalculator(StampCoordinate coordinate) {
       //For the internal callback to populate the cache
       this.coordinate             = coordinate;
-      this.pathSequenceSegmentMap = setupPathSequenceSegmentMap(coordinate.getStampPosition());
+      this.pathNidSegmentMap = setupPathNidSegmentMap(coordinate.getStampPosition());
       this.allowedStates          = coordinate.getAllowedStates();
    }
 
@@ -146,22 +146,22 @@ public class RelativePositionCalculator implements StaticIsaacCache {
          StampPrecedence precedencePolicy) {
       final long ss1Time           = getStampService()
                                         .getTimeForStamp(stampSequence1);
-      final int  ss1ModuleSequence = getStampService()
+      final int  ss1ModuleNid = getStampService()
                                         .getModuleNidForStamp(stampSequence1);
-      final int  ss1PathSequence   = getStampService()
+      final int  ss1PathNid   = getStampService()
                                         .getPathNidForStamp(stampSequence1);
       final long ss2Time           = getStampService()
                                         .getTimeForStamp(stampSequence2);
-      final int  ss2ModuleSequence = getStampService()
+      final int  ss2ModuleNid = getStampService()
                                         .getModuleNidForStamp(stampSequence2);
-      final int  ss2PathSequence   = getStampService()
+      final int  ss2PathNid   = getStampService()
                                         .getPathNidForStamp(stampSequence2);
 
-      if (ss1PathSequence == ss2PathSequence) {
-         final Segment seg = this.pathSequenceSegmentMap.get(ss1PathSequence);
+      if (ss1PathNid == ss2PathNid) {
+         final Segment seg = this.pathNidSegmentMap.get(ss1PathNid);
 
-         if (seg.containsPosition(ss1PathSequence, ss1ModuleSequence, ss1Time) &&
-               seg.containsPosition(ss2PathSequence, ss2ModuleSequence, ss2Time)) {
+         if (seg.containsPosition(ss1PathNid, ss1ModuleNid, ss1Time) &&
+               seg.containsPosition(ss2PathNid, ss2ModuleNid, ss2Time)) {
             if (ss1Time < ss2Time) {
                return RelativePosition.BEFORE;
             }
@@ -178,15 +178,15 @@ public class RelativePositionCalculator implements StaticIsaacCache {
          return RelativePosition.UNREACHABLE;
       }
 
-      final Segment seg1 = this.pathSequenceSegmentMap.get(ss1PathSequence);
-      final Segment seg2 = this.pathSequenceSegmentMap.get(ss2PathSequence);
+      final Segment seg1 = this.pathNidSegmentMap.get(ss1PathNid);
+      final Segment seg2 = this.pathNidSegmentMap.get(ss2PathNid);
 
       if ((seg1 == null) || (seg2 == null)) {
          return RelativePosition.UNREACHABLE;
       }
 
-      if (!(seg1.containsPosition(ss1PathSequence, ss1ModuleSequence, ss1Time) &&
-            seg2.containsPosition(ss2PathSequence, ss2ModuleSequence, ss2Time))) {
+      if (!(seg1.containsPosition(ss1PathNid, ss1ModuleNid, ss1Time) &&
+            seg2.containsPosition(ss2PathNid, ss2ModuleNid, ss2Time))) {
          return RelativePosition.UNREACHABLE;
       }
 
@@ -227,7 +227,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
          StampedVersion v2,
          StampPrecedence precedencePolicy) {
       if (v1.getPathNid() == v2.getPathNid()) {
-         final Segment seg = this.pathSequenceSegmentMap.get(v1.getPathNid());
+         final Segment seg = this.pathNidSegmentMap.get(v1.getPathNid());
 
          if (seg == null) {
             final StringBuilder builder = new StringBuilder();
@@ -238,7 +238,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
             builder.append("\nv2: ")
                    .append(v1);
             builder.append("\nno segment in map: ")
-                   .append(this.pathSequenceSegmentMap);
+                   .append(this.pathNidSegmentMap);
             throw new IllegalStateException(builder.toString());
          }
 
@@ -260,8 +260,8 @@ public class RelativePositionCalculator implements StaticIsaacCache {
          return RelativePosition.UNREACHABLE;
       }
 
-      final Segment seg1 = this.pathSequenceSegmentMap.get(v1.getPathNid());
-      final Segment seg2 = this.pathSequenceSegmentMap.get(v2.getPathNid());
+      final Segment seg1 = this.pathNidSegmentMap.get(v1.getPathNid());
+      final Segment seg2 = this.pathNidSegmentMap.get(v2.getPathNid());
 
       if ((seg1 == null) || (seg2 == null)) {
          return RelativePosition.UNREACHABLE;
@@ -306,7 +306,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
       if (stampOnRoute.containsKey(stampSequence)) {
          return stampOnRoute.get(stampSequence);
       }
-      final Segment seg = this.pathSequenceSegmentMap.get(getStampService()
+      final Segment seg = this.pathNidSegmentMap.get(getStampService()
                                                              .getPathNidForStamp(stampSequence));
       boolean returnValue = false;
       if (seg != null) {
@@ -330,7 +330,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     * @return true, if successful
     */
    public <V extends StampedVersion> boolean onRoute(V version) {
-      final Segment seg = this.pathSequenceSegmentMap.get(version.getPathNid());
+      final Segment seg = this.pathNidSegmentMap.get(version.getPathNid());
 
       if (seg != null) {
          return seg.containsPosition(version.getPathNid(), version.getModuleNid(), version.getTime());
@@ -380,7 +380,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
    }
 
    /**
-    * Adds the origins to path sequence segment map.
+    * Adds the origins to path nid segment map.
     *
     * @param destination the destination
     * @param pathNidSegmentMap the path nid segment map
@@ -389,7 +389,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     */
 
    // recursively called method
-   private void addOriginsToPathSequenceSegmentMap(StampPosition destination,
+   private void addOriginsToPathNidSegmentMap(StampPosition destination,
          ConcurrentHashMap<Integer, Segment> pathNidSegmentMap,
          AtomicInteger segmentSequence,
          ConcurrentSkipListSet<Integer> precedingSegments) {
@@ -405,10 +405,9 @@ public class RelativePositionCalculator implements StaticIsaacCache {
       destination.getStampPath()
                  .getPathOrigins()
                  .stream()
-                 .forEach(
-                     (origin) -> {
+                 .forEach((origin) -> {
          // Recursive call
-                        addOriginsToPathSequenceSegmentMap(
+                        addOriginsToPathNidSegmentMap(
                             origin,
                             pathNidSegmentMap,
                             segmentSequence,
@@ -556,13 +555,13 @@ public class RelativePositionCalculator implements StaticIsaacCache {
    }
 
    /**
-    * Setup path sequence segment map.
+    * Setup path nid segment map.
     *
     * @param destination the destination
     * @return the open int object hash map
     */
-   private ConcurrentHashMap<Integer, Segment> setupPathSequenceSegmentMap(StampPosition destination) {
-      final ConcurrentHashMap<Integer, Segment> pathSequenceSegmentMapToSetup = new ConcurrentHashMap<>();
+   private ConcurrentHashMap<Integer, Segment> setupPathNidSegmentMap(StampPosition destination) {
+      final ConcurrentHashMap<Integer, Segment> pathNidSegmentMapToSetup = new ConcurrentHashMap<>();
       final AtomicInteger                 segmentSequence               = new AtomicInteger(0);
 
       // the sequence of the preceding segments is set in the recursive
@@ -570,12 +569,11 @@ public class RelativePositionCalculator implements StaticIsaacCache {
       final ConcurrentSkipListSet<Integer> precedingSegments = new ConcurrentSkipListSet<>();
 
       // call to recursive method...
-      addOriginsToPathSequenceSegmentMap(
-          destination,
-          pathSequenceSegmentMapToSetup,
+      addOriginsToPathNidSegmentMap(destination,
+          pathNidSegmentMapToSetup,
           segmentSequence,
           precedingSegments);
-      return pathSequenceSegmentMapToSetup;
+      return pathNidSegmentMapToSetup;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -845,15 +843,15 @@ public class RelativePositionCalculator implements StaticIsaacCache {
       /**
        * Each segment gets it's own sequence which gets greater the further
        * prior to the position of the relative position computer.
-       * TODO if we have a path sequence, may not need segment sequence.
+       * TODO if we have a path nid, may not need segment sequence.
        */
       int segmentSequence;
 
       /**
-       * The pathConceptSequence of this segment. Each ancestor path to the
+       * The pathConceptNid of this segment. Each ancestor path to the
        * position of the computer gets it's own segment.
        */
-      int pathConceptSequence;
+      int pathConceptNid;
 
       /**
        * The end time of the position of the relative position computer. stamps
@@ -870,13 +868,13 @@ public class RelativePositionCalculator implements StaticIsaacCache {
        * Instantiates a new segment.
        *
        * @param segmentSequence the segment sequence
-       * @param pathConceptSequence the path concept sequence
+       * @param pathConceptNid the path concept nid
        * @param endTime the end time
        * @param precedingSegments the preceding segments
        */
-      private Segment(int segmentSequence, int pathConceptSequence, long endTime, ConcurrentSkipListSet<Integer> precedingSegments) {
+      private Segment(int segmentSequence, int pathConceptNid, long endTime, ConcurrentSkipListSet<Integer> precedingSegments) {
          this.segmentSequence     = segmentSequence;
-         this.pathConceptSequence = pathConceptSequence;
+         this.pathConceptNid = pathConceptNid;
          this.endTime             = endTime;
          this.precedingSegments   = precedingSegments.clone();
       }
@@ -890,23 +888,22 @@ public class RelativePositionCalculator implements StaticIsaacCache {
        */
       @Override
       public String toString() {
-         return "Segment{" + this.segmentSequence + ", pathConcept=" + Get.conceptDescriptionText(
-             this.pathConceptSequence) + "<" + this.pathConceptSequence + ">, endTime=" + Instant.ofEpochMilli(
+         return "Segment{" + this.segmentSequence + ", pathConcept=" + Get.conceptDescriptionText(this.pathConceptNid) + "<" + this.pathConceptNid + ">, endTime=" + Instant.ofEpochMilli(
                  this.endTime) + ", precedingSegments=" + this.precedingSegments + '}';
       }
 
       /**
        * Contains position.
        *
-       * @param pathConceptSequence the path concept sequence
-       * @param moduleConceptSequence the module concept sequence
+       * @param pathConceptNid the path concept nid
+       * @param moduleConceptNid the module concept nid
        * @param time the time
        * @return true, if successful
        */
-      private boolean containsPosition(int pathConceptSequence, int moduleConceptSequence, long time) {
+      private boolean containsPosition(int pathConceptNid, int moduleConceptNid, long time) {
          if (RelativePositionCalculator.this.coordinate.getModuleNids().isEmpty() ||
-               RelativePositionCalculator.this.coordinate.getModuleNids().contains(moduleConceptSequence)) {
-            if ((this.pathConceptSequence == pathConceptSequence) && (time != Long.MIN_VALUE)) {
+               RelativePositionCalculator.this.coordinate.getModuleNids().contains(moduleConceptNid)) {
+            if ((this.pathConceptNid == pathConceptNid) && (time != Long.MIN_VALUE)) {
                return time <= this.endTime;
             }
          }

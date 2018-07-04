@@ -210,7 +210,7 @@ public class ChangeSetWriterHandler
    }
 
    /**
-   * @param conceptNidSet the concept sequence set
+   * @param conceptNidSet the concept nid set
    */
    private void conceptNidSetChange(NidSet conceptNidSet) {
       conceptNidSet.stream().forEach((conceptSequence) -> {

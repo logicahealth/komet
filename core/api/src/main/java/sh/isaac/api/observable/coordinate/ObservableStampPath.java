@@ -56,11 +56,11 @@ import sh.isaac.api.coordinate.StampPath;
 public interface ObservableStampPath
         extends StampPath, ObservableCoordinate {
    /**
-    * Path concept sequence property.
+    * Path concept nid property.
     *
     * @return the read only integer property
     */
-   ReadOnlyIntegerProperty pathConceptSequenceProperty();
+   ReadOnlyIntegerProperty pathConceptNidProperty();
 
    /**
     * Path origins property.

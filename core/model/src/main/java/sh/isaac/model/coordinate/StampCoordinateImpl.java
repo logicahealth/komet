@@ -87,7 +87,7 @@ public class StampCoordinateImpl
    /** The stamp position. */
    StampPosition stampPosition;
 
-   /** The module sequences. */
+   /** The module nids. */
    NidSet moduleNids;
 
    /** The allowed states. */
@@ -345,9 +345,9 @@ public class StampCoordinateImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the module sequences.
+    * Gets the module nids.
     *
-    * @return the module sequences
+    * @return the module nids
     */
    @Override
    public NidSet getModuleNids() {
@@ -357,9 +357,9 @@ public class StampCoordinateImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set module sequences property.
+    * Set module nids property.
     *
-    * @param moduleSequencesProperty the module sequences property
+    * @param moduleSequencesProperty the module nids property
     * @return the array change listener
     */
    public ArrayChangeListener<ObservableIntegerArray> setModuleSequencesProperty(
@@ -458,7 +458,7 @@ public class StampCoordinateImpl
        * Unmarshal.
        *
        * @param v the v
-       * @return the concept sequence set
+       * @return the concept nid set
        * @throws Exception the exception
        */
       @Override

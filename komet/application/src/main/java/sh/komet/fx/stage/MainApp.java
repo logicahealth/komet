@@ -39,12 +39,12 @@ package sh.komet.fx.stage;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.javafx.application.PlatformImpl;
 import de.codecentric.centerdevice.MenuToolkit;
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
+import java.util.Arrays;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -63,7 +63,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -92,12 +91,9 @@ public class MainApp
 // http://dlsc.com/2014/10/13/new-custom-control-taskprogressview/
 // http://fxexperience.com/controlsfx/features/   
 
-    private static final AtomicInteger WINDOW_COUNT = new AtomicInteger(1);
     public static final String SPLASH_IMAGE = "prism-splash.png";
     protected static final Logger LOG = LogManager.getLogger();
     private static Stage primaryStage;
-
-    private static final AtomicInteger WINDOW_SEQUENCE = new AtomicInteger(1);
 
     //~--- methods -------------------------------------------------------------
     /**
@@ -171,28 +167,31 @@ public class MainApp
         MenuBar mb = new MenuBar();
 
         for (AppMenu ap : AppMenu.values()) {
+            if (ap == AppMenu.NEW_WINDOW) {
+                continue;
+            }
             if (!FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                 if (ap == AppMenu.EDIT) {
-                   continue; 
+                    continue;
                 }
                 if (ap == AppMenu.FILE) {
-                   continue; 
-                }            
+                    continue;
+                }
                 if (ap == AppMenu.TOOLS) {
-                   continue; 
-                }            
+                    continue;
+                }
             }
             mb.getMenus().add(ap.getMenu());
 
             for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                 if (mp.getParentMenus().contains(ap)) {
-                    for (MenuItem mi: mp.getMenuItems(ap, primaryStage.getOwner())) {
+                    for (MenuItem mi : mp.getMenuItems(ap, primaryStage.getOwner())) {
                         ap.getMenu().getItems().add(mi);
                     }
                 }
             }
             ap.getMenu().getItems().sort((MenuItem o1, MenuItem o2) -> o1.getText().compareTo(o2.getText()));
-            
+
             switch (ap) {
                 case APP:
                     if (tk != null) {
@@ -212,18 +211,27 @@ public class MainApp
                         MenuItem quitItem = new MenuItem("Quit");
                         quitItem.setOnAction(this::close);
                         ap.getMenu().getItems().add(quitItem);
-                    }   break;
+                    }
+                    break;
                 case WINDOW:
-                    Menu newWindowMenu = new Menu("New");
+                    Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
                     if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                         MenuItem newStatementWindowItem = new MenuItem("Statement window");
                         newStatementWindowItem.setOnAction(this::newStatement);
                         newWindowMenu.getItems().addAll(newStatementWindowItem);
+                        for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
+                            if (mp.getParentMenus().contains(AppMenu.NEW_WINDOW)) {
+                                newWindowMenu.getItems().addAll(Arrays.asList(mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner())));
+                            }
+                        }
                     }
                     MenuItem newKometWindowItem = new MenuItem("Viewer window");
                     newKometWindowItem.setOnAction(this::newViewer);
                     newWindowMenu.getItems().addAll(newKometWindowItem);
                     AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
+                    AppMenu.NEW_WINDOW.getMenu().getItems().sort((o1, o2) -> {
+                        return o1.getText().compareTo(o2.getText()); 
+                    });
                     break;
                 case HELP:
                     if (tk == null) {
@@ -231,13 +239,13 @@ public class MainApp
                         aboutItem.setOnAction(this::handleAbout);
                         ap.getMenu().getItems().add(aboutItem);
                     }
-                    
+
                     break;
                 default:
                     break;
             }
         }
-        
+
         if (tk != null) {
             // this is used on Mac... I don't think its uses anywhere else... 
             // Dan notes, code is rather confusing, and I can't test... it was making both an appMenu and a defaultApplicationMenu
@@ -246,7 +254,7 @@ public class MainApp
             tk.setForceQuitOnCmdQ(false);
             tk.setApplicationMenu(AppMenu.APP.getMenu());
 
-            AppMenu.APP.getMenu().getItems().addAll(tk.createHideMenuItem(AppMenu.APP.getMenu().getText()), tk.createHideOthersMenuItem(), 
+            AppMenu.APP.getMenu().getItems().addAll(tk.createHideMenuItem(AppMenu.APP.getMenu().getText()), tk.createHideOthersMenuItem(),
                     tk.createUnhideAllMenuItem(), new SeparatorMenuItem(), tk.createQuitMenuItem(AppMenu.APP.getMenu().getText()));
 
             AppMenu.WINDOW.getMenu().getItems().addAll(new SeparatorMenuItem(),
@@ -257,13 +265,13 @@ public class MainApp
             tk.autoAddWindowMenuItems(AppMenu.WINDOW.getMenu());
             tk.setGlobalMenuBar(mb);
         } else {
-          //And for everyone else....
-          BorderPane wrappingPane = new BorderPane(root);
-          wrappingPane.setTop(mb);
-          root = wrappingPane;
-          stage.setHeight(stage.getHeight() + 20);
+            //And for everyone else....
+            BorderPane wrappingPane = new BorderPane(root);
+            wrappingPane.setTop(mb);
+            root = wrappingPane;
+            stage.setHeight(stage.getHeight() + 20);
         }
-        
+
         com.sun.glass.ui.Application.GetApplication().setEventHandler(
                 new com.sun.glass.ui.Application.EventHandler() {
             @Override
@@ -290,7 +298,7 @@ public class MainApp
         FxGet.statusMessageService()
                 .addScene(scene, controller::reportStatus);
         stage.show();
-        stage.setOnCloseRequest(this::handleCloseRequest);
+        stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
 
         // SNAPSHOT
         // Chronology
@@ -313,10 +321,10 @@ public class MainApp
     private void newStatement(ActionEvent event) {
         Manifold statementManifold = Manifold.make(ManifoldGroup.CLINICAL_STATEMENT);
         StatementViewController statementController = StatementView.show(statementManifold,
-                "Clinical statement " + WINDOW_SEQUENCE.getAndIncrement(), this::handleCloseRequest);
+                "Clinical statement " + MenuProvider.WINDOW_SEQUENCE.getAndIncrement(), MenuProvider::handleCloseRequest);
         statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
         statementController.getClinicalStatement().setManifold(statementManifold);
-        WINDOW_COUNT.incrementAndGet();
+        MenuProvider.WINDOW_COUNT.incrementAndGet();
     }
 
     private void newViewer(ActionEvent event) {
@@ -330,8 +338,8 @@ public class MainApp
             root.setId(UUID.randomUUID()
                     .toString());
 
-            if (WINDOW_SEQUENCE.get() > 1) {
-                stage.setTitle("Viewer " + WINDOW_SEQUENCE.incrementAndGet());
+            if (MenuProvider.WINDOW_SEQUENCE.get() > 1) {
+                stage.setTitle("Viewer " + MenuProvider.WINDOW_SEQUENCE.incrementAndGet());
             } else {
                 stage.setTitle("Viewer");
             }
@@ -352,18 +360,17 @@ public class MainApp
             stage.show();
             //Dan notes, this seems like a really bad idea on an auxiliary window.
             //KEC: Yes, logic updated to count windows, and only close when just one is left... 
-            stage.setOnCloseRequest(this::handleCloseRequest);
-            WINDOW_COUNT.incrementAndGet();
-            
+            stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
+            MenuProvider.WINDOW_COUNT.incrementAndGet();
+
             //TODO Also, this window has no menus...
-            
         } catch (IOException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
     }
-    
+
     private void handlePrefs(ActionEvent event) {
-       FxGet.kometPreferences().showPreferences("ISAAC's KOMET Preferences" , FxGet.applicationNode(ApplicationPreferences.class));
+        FxGet.kometPreferences().showPreferences("ISAAC's KOMET Preferences", FxGet.applicationNode(ApplicationPreferences.class));
     }
 
     private void handleAbout(ActionEvent event) {
@@ -399,18 +406,6 @@ public class MainApp
                 stage.close();
             }
         });
-    }
-
-    private void handleCloseRequest(WindowEvent e) {
-        if (WINDOW_COUNT.get() == 1) {
-            e.consume();
-            // need shutdown to all happen on a non event thread...
-            Thread shutdownThread = new Thread(() -> shutdown());
-            shutdownThread.start();
-        }
-        
-        WINDOW_COUNT.decrementAndGet();
-        
     }
 
     protected void shutdown() {

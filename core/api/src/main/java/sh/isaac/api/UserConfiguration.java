@@ -157,7 +157,7 @@ public interface UserConfiguration
 	 * Sets the description type preference list for description retrieval. 
 	 * 
 	 * @param store the data store this option should be saved id
-	 * @param descriptionTypePreferenceList prioritized preference list of description type sequences
+	 * @param descriptionTypePreferenceList prioritized preference list of description type nids
 	 */
 	public void setDescriptionTypePreferenceList(ConfigurationStore store, int[] descriptionTypePreferenceList);
 
@@ -165,7 +165,7 @@ public interface UserConfiguration
 	 * Sets the dialect preference list for description retrieval. 
 	 *
 	 * @param store the data store this option should be saved in
-	 * @param dialectAssemblagePreferenceList prioritized preference list of dialect assemblage sequences
+	 * @param dialectAssemblagePreferenceList prioritized preference list of dialect assemblage nids
 	 */
 	public void setDialectAssemblagePreferenceList(ConfigurationStore store, int[] dialectAssemblagePreferenceList);
 

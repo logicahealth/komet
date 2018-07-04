@@ -47,23 +47,23 @@ package sh.isaac.api.component.semantic.version;
 public interface MutableDescriptionVersion
         extends DescriptionVersion {
    /**
-    * Sets the case significance concept sequence.
+    * Sets the case significance concept nid.
     *
-    * @param caseSignificanceConceptNid the new case significance concept sequence
+    * @param caseSignificanceConceptNid the new case significance concept nid
     */
    void setCaseSignificanceConceptNid(int caseSignificanceConceptNid);
 
    /**
-    * Sets the description type concept sequence.
+    * Sets the description type concept nid.
     *
-    * @param descriptionTypeConceptNid the new description type concept sequence
+    * @param descriptionTypeConceptNid the new description type concept nid
     */
    void setDescriptionTypeConceptNid(int descriptionTypeConceptNid);
 
    /**
-    * Sets the language concept sequence.
+    * Sets the language concept nid.
     *
-    * @param languageConceptNid the new language concept sequence
+    * @param languageConceptNid the new language concept nid
     */
    void setLanguageConceptNid(int languageConceptNid);
 

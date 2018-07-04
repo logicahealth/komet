@@ -130,7 +130,7 @@ public class MockConceptService
    /**
     * Checks if concept active.
     *
-    * @param conceptNid the concept sequence
+    * @param conceptNid the concept nid
     * @param stampCoordinate the stamp coordinate
     * @return true, if concept active
     */

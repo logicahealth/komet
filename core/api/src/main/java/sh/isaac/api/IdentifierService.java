@@ -49,6 +49,7 @@ package sh.isaac.api;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -132,7 +133,7 @@ public interface IdentifierService
     * Gets the nid assigned to the uuids.
     *
     * @param uuids the uuids
-    * @return the concept sequence for uuids
+    * @return the concept nid for uuids
     * @throws NoSuchElementException if no nid has been assigned
     */
    int getNidForUuids(Collection<UUID> uuids) throws NoSuchElementException;
@@ -141,7 +142,7 @@ public interface IdentifierService
     * Gets the nid assigned to the uuids.
     *
     * @param uuids the uuids
-    * @return the concept sequence for uuids
+    * @return the concept nid for uuids
     * @throws NoSuchElementException if no nid has been assigned
     */
    int getNidForUuids(UUID... uuids) throws NoSuchElementException;
@@ -183,8 +184,37 @@ public interface IdentifierService
     * @param nid the nid
     * @return the uuid primordial for nid
     * @throws NoSuchElementException if the nid is unknown
+    * @Deprecated use the getOptionalUuidPrimoridalForNid as it does not throw an 
+    * exception. 
     */
+   @Deprecated 
    UUID getUuidPrimordialForNid(int nid) throws NoSuchElementException;
+   
+   /**
+    * Gets the uuid primordial for nid, using an optional rather than throwing a NoSuchElementException.
+    *
+    * @param nid the nid
+    * @return the uuid primordial for nid
+    */
+   default Optional<UUID> getOptionalUuidPrimoridalForNid(int nid) {
+       try {
+           return Optional.of(getUuidPrimordialForNid(nid));
+       } catch (NoSuchElementException ex) {
+           return Optional.empty();
+       }
+   }
+   /**
+     * @param nid the nid
+    * @return A string representation of the uuid, or new UUID(0,0) 
+    * if one has not been assigned. 
+    */
+   default String getUuidPrimoridalStringForNid(int nid) {
+       try {
+           return getUuidPrimordialForNid(nid).toString();
+       } catch (NoSuchElementException ex) {
+           return new UUID(0,0).toString();
+       }
+   }
 
    /**
     * Gets the uuids for nid.

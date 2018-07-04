@@ -82,7 +82,7 @@ public class DescriptionBuilderProvider
     * Gets the description builder.
     *
     * @param descriptionText the description text
-    * @param conceptNid the concept sequence
+    * @param conceptNid the concept nid
     * @param descriptionType the description type
     * @param languageForDescription the language for description
     * @return the description builder

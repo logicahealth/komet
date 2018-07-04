@@ -77,7 +77,7 @@ public final class ObservableLanguageCoordinateImpl
         implements ObservableLanguageCoordinate {
 
     /**
-     * The language concept sequence property.
+     * The language concept nid property.
      */
     IntegerProperty languageConceptSequenceProperty = null;
 
@@ -205,7 +205,7 @@ public final class ObservableLanguageCoordinateImpl
     }
 
     /**
-     * Language concept sequence property.
+     * Language concept nid property.
      *
      * @return the integer property
      */
@@ -292,9 +292,9 @@ public final class ObservableLanguageCoordinateImpl
     }
 
     /**
-     * Gets the language concept sequence.
+     * Gets the language concept nid.
      *
-     * @return the language concept sequence
+     * @return the language concept nid
      */
     @Override
     public int getLanguageConceptNid() {

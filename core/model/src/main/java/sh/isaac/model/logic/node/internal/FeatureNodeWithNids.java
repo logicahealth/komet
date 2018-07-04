@@ -128,7 +128,7 @@ public final class FeatureNodeWithNids
     /**
      * Adds the concepts referenced by node.
      *
-     * @param conceptNidSet the concept sequence set
+     * @param conceptNidSet the concept nid set
      */
     @Override
     public void addConceptsReferencedByNode(OpenIntHashSet conceptNidSet) {

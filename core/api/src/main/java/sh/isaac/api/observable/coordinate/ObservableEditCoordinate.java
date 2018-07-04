@@ -55,25 +55,25 @@ import sh.isaac.api.coordinate.EditCoordinate;
 public interface ObservableEditCoordinate
         extends EditCoordinate, ObservableCoordinate {
    /**
-    * Author sequence property.
+    * Author Nid property.
     *
     * @return the integer property
     */
-   IntegerProperty authorSequenceProperty();
+   IntegerProperty authorNidProperty();
 
    /**
-    * Module sequence property.
+    * Module nid property.
     *
     * @return the integer property
     */
-   IntegerProperty moduleSequenceProperty();
+   IntegerProperty moduleNidProperty();
 
    /**
-    * Path sequence property.
+    * Path nid property.
     *
     * @return the integer property
     */
-   IntegerProperty pathSequenceProperty();
+   IntegerProperty pathNidProperty();
 
    @Override
    public ObservableEditCoordinate deepClone();

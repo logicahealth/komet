@@ -316,6 +316,11 @@ public enum ObservableFields
    LOINC_STATUS("LOINC status"),
    LOINC_SHORT_NAME("LOINC short name"),
    LOINC_LONG_COMMON_NAME("LOINC long common name"),
+   
+   CORELATION_REFERENCE_EXPRESSION("Corelation reference expression"),
+   CORELATION_COMPARISON_EXPRESSION("Corelation comparison expression"),
+   CORELATION_EXPRESSION("Corelation expression"),
+   
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */

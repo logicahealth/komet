@@ -73,11 +73,11 @@ public class TreeNodeVisitDataWithHash extends TreeNodeVisitDataImpl {
             ArrayList<UUID> hashParts = new ArrayList<>(children.length + 1);
             hashParts.add(node.getNodeUuid());
             int nodesForHash = 1;
-            OptionalInt predecessorSequence = getPredecessorSequence(nodeSequence);
+            OptionalInt predecessorSequence = getPredecessorNid(nodeSequence);
             if (predecessorSequence.isPresent()) {
                 hashParts.add(expression.getNode(predecessorSequence.getAsInt()).getNodeUuid());
             }
-            getPredecessorSequence(nodeSequence);
+            getPredecessorNid(nodeSequence);
             for (LogicNode child: children) {
                 hashParts.add(lineageHash[child.getNodeIndex()]);
                 nodesForHash = nodesForHash + nodesInHash[child.getNodeIndex()];
@@ -125,13 +125,13 @@ public class TreeNodeVisitDataWithHash extends TreeNodeVisitDataImpl {
     }
     
     public static class ScoreRecord implements Comparable<ScoreRecord> {
-        final int node;
+        final int nodeIndex;
         final UUID nodeChildHash;
         final int nodesInRecord;
         final UUID nodeSemanticUuid;
 
         public ScoreRecord(int node, UUID nodeChildHash, int nodesInRecord, UUID nodeSemanticUuid) {
-            this.node = node;
+            this.nodeIndex = node;
             this.nodeChildHash = nodeChildHash;
             this.nodesInRecord = nodesInRecord;
             this.nodeSemanticUuid = nodeSemanticUuid;
@@ -153,7 +153,7 @@ public class TreeNodeVisitDataWithHash extends TreeNodeVisitDataImpl {
 
         @Override
         public String toString() {
-            return "ScoreRecord{" + "node=" + node + ", uuid=" + nodeChildHash + 
+            return "ScoreRecord{" + "node=" + nodeIndex + ", uuid=" + nodeChildHash + 
                     ", nodesInRecord=" + nodesInRecord + 
                     ", nodeSemanticUuid=" + nodeSemanticUuid + '}';
         }

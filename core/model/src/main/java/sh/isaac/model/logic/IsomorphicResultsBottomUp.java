@@ -220,7 +220,7 @@ public class IsomorphicResultsBottomUp
         // Add the deletions
         getDeletedRelationshipRoots().forEach((deletionRoot) -> {
             // deleted relationships roots come from the comparison expression.
-            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorSequence(deletionRoot.getNodeIndex());
+            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorNid(deletionRoot.getNodeIndex());
             if (predecessorNid.isPresent()) {
                 int comparisonExpressionToReferenceNodeId = this.comparisonExpressionToReferenceNodeIdMap[predecessorNid.getAsInt()];
                 if (comparisonExpressionToReferenceNodeId >= 0) {
@@ -293,7 +293,7 @@ public class IsomorphicResultsBottomUp
                 .append(Get.conceptDescriptionText(this.referenceExpression.conceptNid))
                 .append("\n     ")
                 .append(Get.identifierService()
-                        .getUuidPrimordialForNid(this.referenceExpression.conceptNid))
+                        .getUuidPrimoridalStringForNid(this.referenceExpression.conceptNid))
                 .append("\n\n");
         builder.append("Reference expression:\n\n ");
         builder.append(this.referenceExpression.toString("r"));
@@ -307,11 +307,46 @@ public class IsomorphicResultsBottomUp
 
         if (referenceExpressionToMergedNodeIdMap != null) {
             builder.append("\nReference Expression To MergedNodeId Map:\n\n ");
-            builder.append(Arrays.stream(referenceExpressionToMergedNodeIdMap).boxed().collect(Collectors.toList()));
+            builder.append("[");
+            for (int i = 0; i < referenceExpressionToMergedNodeIdMap.length; i++) {
+                builder.append(i).append("r:");
+                builder.append(referenceExpressionToMergedNodeIdMap[i]).append("m");
+                if (i < referenceExpressionToMergedNodeIdMap.length - 1) {
+                    builder.append(", ");
+                }
+            }
+            builder.append("]\n");
         }
         if (comparisonExpressionToReferenceNodeIdMap != null) {
+            builder.append("\nReference Expression To ComparisonNodeId Map:\n\n ");
+            int[] referenceExpressionToComparisonNodeIdMap = new int[referenceExpressionToMergedNodeIdMap.length];
+            Arrays.fill(referenceExpressionToComparisonNodeIdMap, -1);
+            for (int i = 0; i < comparisonExpressionToReferenceNodeIdMap.length; i++) {
+                if (comparisonExpressionToReferenceNodeIdMap[i] >= 0) {
+                    referenceExpressionToComparisonNodeIdMap[comparisonExpressionToReferenceNodeIdMap[i]] = i;
+                }
+            }
+            
+            builder.append("[");
+            for (int i = 0; i < referenceExpressionToComparisonNodeIdMap.length; i++) {
+                builder.append(i).append("r:");
+                builder.append(referenceExpressionToComparisonNodeIdMap[i]).append("c");
+                if (i < referenceExpressionToComparisonNodeIdMap.length - 1) {
+                    builder.append(", ");
+                }
+            }
+            builder.append("]\n");
+            
             builder.append("\nComparison Expression To ReferenceNodeId Map:\n\n ");
-            builder.append(Arrays.stream(comparisonExpressionToReferenceNodeIdMap).boxed().collect(Collectors.toList()));
+            builder.append("[");
+            for (int i = 0; i < comparisonExpressionToReferenceNodeIdMap.length; i++) {
+                builder.append(i).append("c:");
+                builder.append(comparisonExpressionToReferenceNodeIdMap[i]).append("r");
+                if (i < comparisonExpressionToReferenceNodeIdMap.length - 1) {
+                    builder.append(", ");
+                }
+            }
+            builder.append("]\n");
         }
 
         if (this.optionalIsomorphicSolution.isPresent()) {
@@ -452,10 +487,10 @@ public class IsomorphicResultsBottomUp
         nodesNotInSolution.stream().forEach((additionNode) -> {
             int additionRoot = additionNode;
 
-            OptionalInt predecessorNid = this.referenceVisitData.getPredecessorSequence(additionRoot);
+            OptionalInt predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
             while (predecessorNid.isPresent() && nodesNotInSolution.contains(predecessorNid.getAsInt())) {
                 additionRoot = predecessorNid.getAsInt();
-                predecessorNid = this.referenceVisitData.getPredecessorSequence(additionRoot);
+                predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
             }
 
             this.referenceAdditionRoots.add(additionRoot);
@@ -487,10 +522,10 @@ public class IsomorphicResultsBottomUp
         comparisonNodesNotInSolution.stream().forEach((deletedNode) -> {
             int deletedRoot = deletedNode;
 
-            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorSequence(deletedRoot);
+            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorNid(deletedRoot);
             while (predecessorNid.isPresent() && comparisonNodesNotInSolution.contains(predecessorNid.getAsInt())) {
                 deletedRoot = predecessorNid.getAsInt();
-                predecessorNid = this.comparisonVisitData.getPredecessorSequence(deletedRoot);
+                predecessorNid = this.comparisonVisitData.getPredecessorNid(deletedRoot);
             }
 
             this.comparisonDeletionRoots.add(deletedRoot);
@@ -617,12 +652,12 @@ public class IsomorphicResultsBottomUp
             final OpenIntHashSet nextSetToTry = new OpenIntHashSet();
 
             nodesToTry.forEachKey((referenceNodeId) -> {
-                final OptionalInt predecessorNid = this.referenceVisitData.getPredecessorSequence(
+                final OptionalInt predecessorNid = this.referenceVisitData.getPredecessorNid(
                         referenceNodeId);  // only add if the node matches. ?
 
                 if (predecessorNid.isPresent()) {
                     if (!nodesProcessed.contains(predecessorNid.getAsInt())) {
-                        this.referenceVisitData.getPredecessorSequence(referenceNodeId).ifPresent(nextSetToTry::add);
+                        this.referenceVisitData.getPredecessorNid(referenceNodeId).ifPresent(nextSetToTry::add);
                         nodesProcessed.add(predecessorNid.getAsInt());
                     }
                 }

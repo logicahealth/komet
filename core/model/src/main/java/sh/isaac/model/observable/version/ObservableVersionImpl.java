@@ -94,17 +94,17 @@ public abstract class ObservableVersionImpl
    LongProperty timeProperty;
 
    /**
-    * The author sequence property.
+    * The author nid property.
     */
    IntegerProperty authorNidProperty;
 
    /**
-    * The module sequence property.
+    * The module nid property.
     */
    IntegerProperty moduleNidProperty;
 
    /**
-    * The path sequence property.
+    * The path nid property.
     */
    IntegerProperty pathNidProperty;
 
@@ -305,7 +305,7 @@ public abstract class ObservableVersionImpl
    }
 
    /**
-    * Module sequence property.
+    * module nid property.
     *
     * @return the integer property
     */
@@ -539,9 +539,9 @@ public abstract class ObservableVersionImpl
 
    //~--- get methods ---------------------------------------------------------
    /**
-    * Gets the author sequence.
+    * Gets the author nid.
     *
-    * @return the author sequence
+    * @return the author nid
     */
    @Override
    public final int getAuthorNid() {
@@ -557,9 +557,9 @@ public abstract class ObservableVersionImpl
 
    //~--- set methods ---------------------------------------------------------
    /**
-    * Sets the author sequence.
+    * Sets the author nid.
     *
-    * @param authorSequence the new author sequence
+    * @param authorSequence the new author nid
     */
    @Override
    public void setAuthorNid(int authorSequence) {
@@ -611,9 +611,9 @@ public abstract class ObservableVersionImpl
    }
 
    /**
-    * Gets the module sequence.
+    * Gets the module nid.
     *
-    * @return the module sequence
+    * @return the module nid
     */
    @Override
    public final int getModuleNid() {
@@ -629,9 +629,9 @@ public abstract class ObservableVersionImpl
 
    //~--- set methods ---------------------------------------------------------
    /**
-    * Sets the module sequence.
+    * Sets the module nid.
     *
-    * @param moduleNid the new module sequence
+    * @param moduleNid the new module nid
     */
    @Override
    public void setModuleNid(int moduleNid) {
@@ -668,9 +668,9 @@ public abstract class ObservableVersionImpl
       return Get.identifierService().assignNid(primordialUuid);
    }
    /**
-    * Gets the path sequence.
+    * Gets the path nid.
     *
-    * @return the path sequence
+    * @return the path nid
     */
    @Override
    public final int getPathNid() {
@@ -685,9 +685,9 @@ public abstract class ObservableVersionImpl
 
    //~--- set methods ---------------------------------------------------------
    /**
-    * Sets the path sequence.
+    * Sets the path nid.
     *
-    * @param pathSequence the new path sequence
+    * @param pathSequence the new path nid
     */
    @Override
    public void setPathNid(int pathSequence) {

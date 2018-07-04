@@ -513,18 +513,17 @@ public class TaxonomyProvider
                             () -> {
                                 Task<Tree> theTask = treeTask;
 
-                                if (theTask != null) {
-                                    if (!theTask.isDone()) {
-                                        theTask.stateProperty()
-                                                .addListener(this::succeeded);
-                                    } else {
-                                        try {
-                                            this.treeSnapshot = treeTask.get();
-                                        } catch (InterruptedException | ExecutionException ex) {
-                                            LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
-                                        }
+                                if (!theTask.isDone()) {
+                                    theTask.stateProperty()
+                                            .addListener(this::succeeded);
+                                } else {
+                                    try {
+                                        this.treeSnapshot = treeTask.get();
+                                    } catch (InterruptedException | ExecutionException ex) {
+                                        LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
                                     }
                                 }
+
                             });
                 }
             }
@@ -597,7 +596,7 @@ public class TaxonomyProvider
 
             return false;
         }
-        
+
         private boolean isKindOf(int childId, int kindofNid, int depth) {
             if (depth > 40) {
                 LOG.warn("Taxonomy depth > 40: " + depth + "; \n" + Get.conceptDescriptionText(childId) + " <? \n" + Get.conceptDescriptionText(kindofNid));

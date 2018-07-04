@@ -17,14 +17,12 @@
 package sh.isaac.solor.direct;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-import org.eclipse.collections.api.tuple.primitive.IntObjectPair;
-import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -55,16 +53,19 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
          setStartTime();
          updateMessage("Computing concept to stated relationship associations...");
          int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
+         int statedRelationshipAssemblageNid = TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid();
 
-         IntObjectHashMap<int[]> conceptNid_StatedRelationshipsNids_Map = setupRelSpinedMap(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid(), conceptAssemblageNid);
          addToTotalWork(4);
          completedUnitOfWork();
 
          List<TransformationGroup> statedTransformList = new ArrayList<>();
-
+         
+         
+         
          updateMessage("Transforming stated logical definitions...");
-         conceptNid_StatedRelationshipsNids_Map.keyValuesView().forEach((IntObjectPair<int[]> pair) -> {
-               statedTransformList.add(new TransformationGroup(pair.getOne(), pair.getTwo(), PremiseType.STATED));
+         Get.conceptService().getConceptNidStream(conceptAssemblageNid).forEach((conceptNid) -> {
+             NidSet relNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, statedRelationshipAssemblageNid);
+               statedTransformList.add(new TransformationGroup(conceptNid, relNids.asArray(), PremiseType.STATED));
                if (statedTransformList.size() == transformSize) {
                   List<TransformationGroup> listForTask = new ArrayList<>(statedTransformList);
                   LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore, this.importType, getStartTime());
@@ -81,12 +82,13 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
 
          updateMessage("Transforming inferred logical definitions...");
          updateMessage("Computing concept to inferred relationship associations...");
-         IntObjectHashMap<int[]> conceptNid_InferredRelationshipsNids_Map = setupRelSpinedMap(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE.getNid(), conceptAssemblageNid);
+         int inferredRelationshipAssemblageNid = TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE.getNid();
          completedUnitOfWork();
          List<TransformationGroup> inferredTransformList = new ArrayList<>();
-
-         conceptNid_InferredRelationshipsNids_Map.keyValuesView().forEach((IntObjectPair<int[]> pair) -> {
-               inferredTransformList.add(new TransformationGroup(pair.getOne(), pair.getTwo(), PremiseType.INFERRED));
+         
+         Get.conceptService().getConceptNidStream(conceptAssemblageNid).forEach((conceptNid) -> {
+             NidSet relNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, inferredRelationshipAssemblageNid);
+               inferredTransformList.add(new TransformationGroup(conceptNid, relNids.asArray(), PremiseType.INFERRED));
                if (inferredTransformList.size() == transformSize) {
                   List<TransformationGroup> listForTask = new ArrayList<>(inferredTransformList);
                   LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore, this.importType, getStartTime());
@@ -108,27 +110,4 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
          Get.activeTasks().remove(this);
       }
    }
-
-   private IntObjectHashMap<int[]> setupRelSpinedMap(int relationshipAssemblageNid, int conceptAssemblageNid) {
-      IntObjectHashMap<int[]> conceptNid_RelationshipsNids_Map = new IntObjectHashMap<>();
-      Get.assemblageService().getSemanticChronologyStream(relationshipAssemblageNid)
-              .forEach((semanticChronology) -> {
-                 int conceptNid = semanticChronology.getReferencedComponentNid();
-                 int conceptAssemblageNidFound = identifierService.getAssemblageNid(conceptNid).getAsInt();
-                 if (conceptAssemblageNidFound != conceptAssemblageNid) {
-                    throw new IllegalStateException("conceptAssemblageNids do not match: " + conceptAssemblageNidFound + " " + conceptAssemblageNid);
-                 }
-                 int referencedComponentNid = semanticChronology.getReferencedComponentNid();
-                 int[] relNids = conceptNid_RelationshipsNids_Map.get(referencedComponentNid);
-                 if (relNids == null) {
-                	 conceptNid_RelationshipsNids_Map.put(referencedComponentNid, new int[]{semanticChronology.getNid()});
-                 } else {
-                    relNids = Arrays.copyOf(relNids, relNids.length + 1);
-                    relNids[relNids.length - 1] = semanticChronology.getNid();
-                    conceptNid_RelationshipsNids_Map.put(referencedComponentNid, relNids);
-                 }
-              });
-      return conceptNid_RelationshipsNids_Map;
-   }
-
 }

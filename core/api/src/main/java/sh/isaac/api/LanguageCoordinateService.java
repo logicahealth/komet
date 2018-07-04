@@ -63,12 +63,12 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 @Contract
 public interface LanguageCoordinateService {
    /**
-    * Case significance to concept sequence.
+    * Case significance to concept nid.
     *
     * @param initialCaseSignificant the initial case significant
     * @return the int
     */
-   int caseSignificanceToConceptSequence(boolean initialCaseSignificant);
+   int caseSignificanceToConceptNid(boolean initialCaseSignificant);
 
    /**
     * Concept id to case significance.
@@ -79,12 +79,12 @@ public interface LanguageCoordinateService {
    boolean conceptIdToCaseSignificance(int id);
 
    /**
-    * Concept id to iso 639.
+    * Concept conceptNid to iso 639.
     *
-    * @param id either a concept nid or concept sequence
+    * @param conceptNid concept nid 
     * @return ISO 639 language code
     */
-   String conceptIdToIso639(int id);
+   String conceptIdToIso639(int conceptNid);
 
    /**
     * Iso 639 to concept nid.
@@ -97,16 +97,16 @@ public interface LanguageCoordinateService {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the acceptable concept sequence.
+    * Gets the acceptable concept nid.
     *
-    * @return the acceptable concept sequence
+    * @return the acceptable concept nid
     */
    int getAcceptableConceptNid();
 
    /**
-    * Gets the fully specified concept sequence.
+    * Gets the fully specified concept nid.
     *
-    * @return the fully specified concept sequence
+    * @return the fully specified concept nid
     */
    int getFullySpecifiedConceptNid();
 
@@ -118,9 +118,9 @@ public interface LanguageCoordinateService {
    LanguageCoordinate getGbEnglishLanguagePreferredTermCoordinate();
 
    /**
-    * Gets the preferred concept sequence.
+    * Gets the preferred concept nid.
     *
-    * @return the preferred concept sequence
+    * @return the preferred concept nid
     */
    int getPreferredConceptNid();
 
@@ -141,19 +141,19 @@ public interface LanguageCoordinateService {
     *
     * @param stampCoordinate used to determine which versions of descriptions and dialect annotations are current.
     * @param descriptionList List of descriptions to consider.
-    * @param typeSequence The specific type to match.
+    * @param typeConceptNid The specific type to match.
     * @param languageCoordinate Used to determine ranking of candidate matches.
     * @return the specified description
     */
    LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
          List<SemanticChronology> descriptionList,
-         int typeSequence,
+         int typeConceptNid,
          LanguageCoordinate languageCoordinate);
 
    /**
-    * Gets the synonym concept sequence.
+    * Gets the synonym concept nid.
     *
-    * @return the synonym concept sequence
+    * @return the synonym concept nid
     */
    int getSynonymConceptNid();
 

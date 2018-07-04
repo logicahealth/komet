@@ -127,7 +127,7 @@ public abstract class AbstractLogicNode
     * Should be overridden by subclasses that need to add concepts.
     * Concepts from connector nodes should not be added.
     *
-    * @param conceptSequenceSet the concept sequence set
+    * @param conceptSequenceSet the concept nid set
     */
    @Override
    public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {

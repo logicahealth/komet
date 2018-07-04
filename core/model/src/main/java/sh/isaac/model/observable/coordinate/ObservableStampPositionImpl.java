@@ -73,7 +73,7 @@ public class ObservableStampPositionImpl
    /** The time property. */
    LongProperty timeProperty;
 
-   /** The stamp path sequence property. */
+   /** The stamp path nid property. */
    IntegerProperty stampPathSequenceProperty;
 
    //~--- constructors --------------------------------------------------------
@@ -94,7 +94,7 @@ public class ObservableStampPositionImpl
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Stamp path sequence property.
+    * Stamp path nid property.
     *
     * @return the integer property
     */
@@ -152,9 +152,9 @@ public class ObservableStampPositionImpl
    }
 
    /**
-    * Gets the stamp path sequence.
+    * Gets the stamp path nid.
     *
-    * @return the stamp path sequence
+    * @return the stamp path nid
     */
    @Override
    public int getStampPathNid() {

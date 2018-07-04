@@ -36,10 +36,12 @@ public interface IntObjectMap<E>
 	 *
 	 * @param key key with which the specified value is to be associated
 	 * @param value value to be associated with the specified key
+         * @return <tt>true</tt> if the receiver did not already contain such a key; <tt>false</tt> if the receiver did
+   *         already contain such a key - the new value has now replaced the formerly associated value.
 	 * @throws NullPointerException if the specified value is null
 	 *             and this map does not permit null keys or values
 	 */
-	public void put(int key, E value);
+	public boolean put(int key, E value);
 
 	/**
 	 * Associates the specified value with the specified key in this map.

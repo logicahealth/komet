@@ -63,19 +63,19 @@ import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 /**
- * For each concept sequence (a key in the map), there is a list of
+ * For each concept nid (a key in the map), there is a list of
  * type-stamp-flags. These type-stamp-flags compact into a primitive long value.
  *
  *
  * A {@code TaxonomyRecord} is the value for a map where the key is the concept
  * sequence for a concept in the taxonomy, and the value is a map to other
- * concept sequences, and the associated stamps and taxonomy flags for these
- * other concept sequences. From the stamp value and the taxonomy flags, all
+ * concept nids, and the associated stamps and taxonomy flags for these
+ * other concept nids. From the stamp value and the taxonomy flags, all
  * historic taxonomic associations (parent, child, stated, and inferred) can be
  * computed.
  *
  *
- * origin concept sequence [1 -> n] {destination concept sequence [1 -> n] stamp
+ * origin concept nid [1 -> n] {destination concept nid [1 -> n] stamp
  * + inferred + stated + parent + child}
  * <p>
  * <p>
@@ -84,7 +84,7 @@ import sh.isaac.model.ModelGet;
 public class TaxonomyRecord {
 
     /**
-     * key = origin concept sequence; value = TypeStampTaxonomyRecords.
+     * key = origin concept nid; value = TypeStampTaxonomyRecords.
      */
     private final OpenIntObjectHashMap<TypeStampTaxonomyRecords> conceptNidRecordMap
             = new OpenIntObjectHashMap<>(11);
@@ -161,7 +161,7 @@ public class TaxonomyRecord {
 
     //~--- methods -------------------------------------------------------------
     /**
-     * Adds the concept sequence stamp records.
+     * Adds the concept nid stamp records.
      *
      * @param conceptNid the concept nid
      * @param newRecord the new record
@@ -200,7 +200,7 @@ public class TaxonomyRecord {
     /**
      * Concept satisfies stamp.
      *
-     * @param conceptNid the concept sequence
+     * @param conceptNid the concept nid
      * @param stampCoordinate the stamp coordinate
      * @return true, if successful
      */
@@ -233,9 +233,9 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Contains concept sequence via type.
+     * Contains concept nid via type.
      *
-     * @param conceptNid the concept sequence
+     * @param conceptNid the concept nid
      * @param typeSequenceSet the type sequence set
      * @param flags the flags
      * @return true, if successful
@@ -250,9 +250,9 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Contains concept sequence via type.
+     * Contains concept nid via type.
      *
-     * @param conceptNid the concept sequence
+     * @param conceptNid the concept nid
      * @param typeSequenceSet the type sequence set
      * @param tc the tc
      * @return true, if successful
@@ -271,9 +271,9 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Contains concept sequence via type.
+     * Contains concept nid via type.
      *
-     * @param conceptNid the concept sequence
+     * @param conceptNid the concept nid
      * @param typeSequence the type sequence
      * @param tc the tc
      * @return true, if successful
@@ -290,9 +290,9 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Contains concept sequence via type.
+     * Contains concept nid via type.
      *
-     * @param conceptNid the concept sequence
+     * @param conceptNid the concept nid
      * @param typeSequenceSet the type sequence set
      * @param tc the tc
      * @param flags the flags
@@ -313,9 +313,9 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Contains concept sequence via type.
+     * Contains concept nid via type.
      *
-     * @param conceptNid the concept sequence
+     * @param conceptNid the concept nid
      * @param typeNid the type sequence
      * @param tc the tc
      * @param flags the flags
@@ -338,7 +338,7 @@ public class TaxonomyRecord {
     /**
      * Contains sequence via type with flags.
      *
-     * @param conceptNid the concept sequence
+     * @param conceptNid the concept nid
      * @param typeNid the type sequence
      * @param flags the flags
      * @return true, if successful
@@ -473,17 +473,17 @@ public class TaxonomyRecord {
 
     //~--- get methods ---------------------------------------------------------
     /**
-     * Gets the concept sequence stamp records.
+     * Gets the concept nid stamp records.
      *
-     * @param conceptNid the concept sequence
-     * @return the concept sequence stamp records
+     * @param conceptNid the concept nid
+     * @return the concept nid stamp records
      */
     public Optional<TypeStampTaxonomyRecords> getConceptNidStampRecords(int conceptNid) {
         return Optional.ofNullable(this.conceptNidRecordMap.get(conceptNid));
     }
 
     /**
-     * Gets the concept sequences for type.
+     * Gets the concept nids for type.
      *
      * @param typeNid typeNid to match, or Integer.MAX_VALUE if a wildcard.
      * @return active concepts identified by their sequence value.
@@ -510,7 +510,7 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Gets the concept sequences for type.
+     * Gets the concept nids for type.
      *
      * @param typeSequence typeNid to match, or Integer.MAX_VALUE if a wildcard.
      * @param tc used to determine if a concept is active.
@@ -547,9 +547,9 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Gets the destination concept sequences.
+     * Gets the destination concept nids.
      *
-     * @return the destination concept sequences
+     * @return the destination concept nids
      */
     public IntStream getDestinationConceptSequences() {
         final IntStream.Builder conceptSequenceIntStream = IntStream.builder();
@@ -563,11 +563,11 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Gets the destination concept sequences not of type.
+     * Gets the destination concept nids not of type.
      *
      * @param typeSet the type set
      * @param tc the tc
-     * @return the destination concept sequences not of type
+     * @return the destination concept nids not of type
      */
     public int[] getDestinationConceptNidsNotOfType(NidSet typeSet, ManifoldCoordinate tc) {
         final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
@@ -602,10 +602,10 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Gets the destination concept sequences of type.
+     * Gets the destination concept nids of type.
      *
      * @param typeSet the type set
-     * @return the destination concept sequences of type
+     * @return the destination concept nids of type
      */
     public IntStream getDestinationConceptNidsOfType(NidSet typeSet) {
         final IntStream.Builder conceptSequenceIntStream = IntStream.builder();
@@ -623,11 +623,11 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Gets the destination concept sequences of type.
+     * Gets the destination concept nids of type.
      *
      * @param typeSet the type set
      * @param tc the tc
-     * @return the destination concept sequences of type
+     * @return the destination concept nids of type
      */
     public int[] getDestinationConceptNidsOfType(NidSet typeSet, ManifoldCoordinate tc) {
         final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
@@ -662,11 +662,11 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Gets the destination concept sequences of type.
+     * Gets the destination concept nids of type.
      *
      * @param typeSet the type set
      * @param tc the tc
-     * @return the destination concept sequences of type
+     * @return the destination concept nids of type
      */
     public boolean hasDestinationConceptNidsOfType(NidSet typeSet, ManifoldCoordinate tc) {
         final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
@@ -700,9 +700,9 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Gets the parent concept sequences.
+     * Gets the parent concept nids.
      *
-     * @return the parent concept sequences
+     * @return the parent concept nids
      */
     public IntStream getParentConceptSequences() {
         final int isaNid = TermAux.IS_A.getNid();
@@ -784,7 +784,7 @@ public class TaxonomyRecord {
         /**
          * Apply.
          *
-         * @param conceptNid the concept sequence
+         * @param conceptNid the concept nid
          * @param stampRecordsUnpacked the stamp records unpacked
          * @return true, if successful
          */

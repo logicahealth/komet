@@ -110,7 +110,7 @@ public class ObservableLongVersionImpl
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Case significance concept sequence property.
+    * Case significance concept nid property.
     *
     * @return the integer property
     */
@@ -165,7 +165,7 @@ public class ObservableLongVersionImpl
    /**
     * Gets the long value.
     *
-    * @return the case significance concept sequence
+    * @return the case significance concept nid
     */
    @Override
    public long getLongValue() {

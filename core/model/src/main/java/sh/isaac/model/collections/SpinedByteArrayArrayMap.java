@@ -217,7 +217,7 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
     }
 
     @Override
-    public void put(int index, byte[][] element) {
+    public boolean put(int index, byte[][] element) {
         if (index < 0) {
            if (ModelGet.sequenceStore() != null) {
                 index = ModelGet.sequenceStore().getElementSequenceForNid(index);
@@ -234,8 +234,12 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
             }
         }
         this.changedSpineIndexes.add(spineIndex);
-
-        this.spines.computeIfAbsent(spineIndex, this::newSpine).accumulateAndGet(indexInSpine, element, this::merge);
+        
+        
+        AtomicReferenceArray<byte[][]> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
+        boolean returnValue = spine.get(indexInSpine) != null;
+        spine.accumulateAndGet(indexInSpine, element, this::merge);
+        return returnValue;
     }
 
     private static int compare(byte[] one, byte[] another) {

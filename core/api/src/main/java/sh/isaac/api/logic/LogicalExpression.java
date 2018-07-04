@@ -117,9 +117,9 @@ public interface LogicalExpression extends CommittableObject {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concept sequence.
+    * Gets the concept nid.
     *
-    * @return the concept sequence this expression is associated with
+    * @return the concept nid this expression is associated with
     */
    int getConceptNid();
 
