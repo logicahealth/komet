@@ -146,7 +146,8 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 			//to perform the interrupt handling.
 			//Its best, however, to prevent the exception by not using Thread.interrupt on threads that interact with the DB.
 			//This also means no calling Task.cancel(), as that fires interrupts.
-			this.store = new MVStore.Builder().fileName(new File(mvFolder, MV_STORE + ".mv").getAbsolutePath()).open();
+			//TODO play with memory / cache size
+			this.store = new MVStore.Builder().cacheSize(2000).fileName(new File(mvFolder, MV_STORE + ".mv").getAbsolutePath()).open();
 			this.store.setVersionsToKeep(0);
 			
 			componentToSemanticNidsMap = this.store.<Integer, int[]>openMap(COMPONENT_TO_SEMANTIC_NIDS_MAP);
