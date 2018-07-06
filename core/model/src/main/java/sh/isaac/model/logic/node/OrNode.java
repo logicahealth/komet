@@ -106,6 +106,14 @@ public class OrNode
    public String toSimpleString() {
       return "Or " +  super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        for (AbstractLogicNode child: getChildren()) {
+            builder.append("\n       Or(");
+            child.addToBuilder(builder);
+            builder.append("\n          )\n");
+        }
+    }
 
 
    /**

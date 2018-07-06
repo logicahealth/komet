@@ -192,6 +192,14 @@ public class FeatureNodeWithUuids
    public String toSimpleString() {
       return toString("");
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        builder.append("\n       Feature(");
+        builder.append("Get.conceptSpecification(").append(this.measureSemanticUuid).append("), ");
+        builder.append(operator);
+        builder.append(")\n");
+    }
+
 
    /**
     * Write node data.

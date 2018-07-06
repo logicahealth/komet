@@ -321,6 +321,10 @@ public class Get
       return conceptService().getConceptChronology(uuid);
    }
 
+   public static ConceptChronology concept(String uuidStr) {
+      return concept(UUID.fromString(uuidStr));
+   }
+
    /**
     * Concept active service.
     *
@@ -448,6 +452,22 @@ public class Get
       return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
    }
 
+   /**
+    * Note, this method may fail during bootstrap, if concept being requested is not already loaded
+    * into the concept service.
+    * @param uuid a concept uuid
+    * @return A concept specification for the corresponding identifier
+    */
+   public static ConceptSpecification conceptSpecification(UUID uuid) {
+       int nid = Get.identifierService().getNidForUuids(uuid);
+      return new ConceptProxy(nid);
+   }
+
+   public static ConceptSpecification conceptSpecification(String uuidString) {
+      return conceptSpecification(UUID.fromString(uuidString));
+   }
+
+   
    /**
     * Configuration service.
     *

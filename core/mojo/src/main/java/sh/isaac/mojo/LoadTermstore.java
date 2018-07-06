@@ -46,7 +46,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,11 +56,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -69,6 +65,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import com.cedarsoftware.util.io.JsonWriter;
+import java.util.concurrent.Future;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -478,9 +475,10 @@ public class LoadTermstore
 
                                byte[][] data;
 
-                               if (mergedParents.size() == 0) {
+                               if (mergedParents.isEmpty()) {
                                   // The logic graph is too complex for our stupid merger - Use the isomorphic one.
                                   IsomorphicResults isomorphicResults = listToMerge.get(0).findIsomorphisms(listToMerge.get(1));
+                                  
                                   getLog().debug("Isomorphic results: " + isomorphicResults);
                                   data = isomorphicResults.getMergedExpression().getData(DataTarget.INTERNAL);
                                } else {

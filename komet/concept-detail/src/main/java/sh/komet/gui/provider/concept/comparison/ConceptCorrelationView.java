@@ -69,8 +69,8 @@ public class ConceptCorrelationView {
             EventHandler<WindowEvent> closeRequestHandler) {
         ConceptCorrelationView correlationView = new ConceptCorrelationView(manifold, title);
         
-        correlationView.controller.setComparisonExpression(CorrelationTestGenerator.makeComparisonExpression());
-        correlationView.controller.setReferenceExpression(CorrelationTestGenerator.makeComparisonExpression());
+        correlationView.controller.setComparisonExpression(CorrelationProblem5.getComparisonExpression());
+        correlationView.controller.setReferenceExpression(CorrelationProblem5.getReferenceExpression());
         
         //show the stage
         //center stage on screen

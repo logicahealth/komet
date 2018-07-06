@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
-import org.apache.mahout.math.list.ShortArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -426,9 +425,13 @@ public abstract class AbstractLogicNode
 
    @Override
    public int getNidForConceptBeingDefined() {
-      return logicalExpression.getConceptNid();
+      return logicalExpression.getConceptBeingDefinedNid();
    }
    
    public abstract void removeChild(short childId);
+   
+   public abstract void addToBuilder(StringBuilder builder);
+   
+   
 }
 

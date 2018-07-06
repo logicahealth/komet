@@ -71,9 +71,9 @@ import sh.isaac.model.collections.MergeIntArray;
 public class HashTreeBuilder
         extends HashTreeWithIntArraySets {
    /**
-    * The Constant builderCount.
+    * The Constant BUILDER_COUNT.
     */
-   private static final AtomicInteger builderCount = new AtomicInteger();
+   private static final AtomicInteger BUILDER_COUNT = new AtomicInteger();
    
    private static final Logger LOG = LogManager.getLogger();
 
@@ -101,7 +101,7 @@ public class HashTreeBuilder
     */
    public HashTreeBuilder(ManifoldCoordinate manifoldCoordinate, int assemblageNid) {
       super(manifoldCoordinate, assemblageNid);
-      this.builderId = builderCount.getAndIncrement();
+      this.builderId = BUILDER_COUNT.getAndIncrement();
 
       for (String uuidStr: watchUuids) {
          watchNids.add(Get.identifierService()
@@ -203,7 +203,7 @@ public class HashTreeBuilder
          }
 
          Alert.publishAddition(
-             new TreeCycleError(cycle, visitData, this, "Cycle found", cycleDescription.toString(), AlertType.ERROR));
+             new TreeCycleError(cycle, visitData, this, manifoldCoordinate.getTaxonomyPremiseType() + " Cycle found", cycleDescription.toString(), AlertType.ERROR));
       }
 
       LOG.debug("Nodes visited: " + visitData.getNodesVisited());

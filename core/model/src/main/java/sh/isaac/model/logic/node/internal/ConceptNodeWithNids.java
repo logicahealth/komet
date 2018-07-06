@@ -201,6 +201,12 @@ public final class ConceptNodeWithNids
       return Get.defaultCoordinate().getPreferredDescriptionText(this.conceptNid) +
              super.toSimpleString();
    }
+   @Override
+    public void addToBuilder(StringBuilder builder) {
+        builder.append("\n       ConceptAssertion(");
+        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimoridalStringForNid(conceptNid)).append("\")");
+        builder.append(", leb)\n");
+    }
 
    /**
     * Write node data.

@@ -215,6 +215,22 @@ public final class TemplateNodeWithNids
              Get.defaultCoordinate().getPreferredDescriptionText(this.templateConceptNid) +
              super.toSimpleString();
    }
+   
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        builder.append("\n       Template(");
+        builder.append("Get.concept(new UUID(\"");
+        builder.append(Get.identifierService().getUuidPrimoridalStringForNid(templateConceptNid));
+        builder.append("\"),");
+        builder.append("Get.concept(new UUID(\"");
+        builder.append(Get.identifierService().getUuidPrimoridalStringForNid(assemblageConceptNid));
+        builder.append("\")");
+        builder.append(", leb");
+        for (AbstractLogicNode child: getChildren()) {
+            child.addToBuilder(builder);
+        }
+        builder.append("),\n");
+    }
 
    /**
     * Write node data.

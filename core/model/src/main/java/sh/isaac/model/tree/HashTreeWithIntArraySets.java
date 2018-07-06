@@ -132,7 +132,7 @@ public class HashTreeWithIntArraySets
     * @param parentId the parent id
     * @param childId the child id
     */
-   private final void addChild(int parentId, int childId) {
+   private void addChild(int parentId, int childId) {
       if (this.parentNid_ChildNidSetArray_Map.containsKey(parentId)) {
          this.parentNid_ChildNidSetArray_Map.put(
              parentId,
@@ -337,7 +337,7 @@ public class HashTreeWithIntArraySets
     * @param toAdd the to add
     * @return the int[]
     */
-   private final static int[] addToArray(int[] array, int toAdd) {
+   private static int[] addToArray(int[] array, int toAdd) {
       int searchResult = Arrays.binarySearch(array, toAdd);
 
       if (searchResult >= 0) {
@@ -361,7 +361,7 @@ public class HashTreeWithIntArraySets
     * @param nodeVisitData the node visit data
     * @param depth the depth
     */
-   private final void dfsVisit(int nid,
+   private void dfsVisit(int nid,
                            ObjIntConsumer<TreeNodeVisitData> consumer,
                            TreeNodeVisitData nodeVisitData,
                            int depth) {
@@ -478,7 +478,7 @@ public class HashTreeWithIntArraySets
     * @param parentNid the parentIndex nid
     * @return the children nids
     */
-   private final int[] getChildNoFilter(int parentNid) {
+   private int[] getChildNoFilter(int parentNid) {
       int[] returnValue = this.parentNid_ChildNidSetArray_Map.get(parentNid);
       if (returnValue != null) {
          return returnValue;
@@ -660,7 +660,7 @@ public class HashTreeWithIntArraySets
                          .append(" ")
                          .append(Get.conceptDescriptionText(nidToTest));
                } else {
-                  builder.append("Cycle found: \n");
+                  builder.append(manifoldCoordinate.getTaxonomyPremiseType()).append(" Cycle found: \n");
 
                   if (cycleArray.length == 1) {
                      builder.append("\n   SELF REFERENCE");
@@ -670,7 +670,7 @@ public class HashTreeWithIntArraySets
                      builder.append("\n   ")
                             .append(nid)
                             .append(" ")
-                            .append(Get.conceptDescriptionText(nid));
+                            .append(Get.conceptSpecification(nid));
                   }
                }
 
@@ -703,7 +703,7 @@ public class HashTreeWithIntArraySets
     *
     * @return the node identifiers
     */
-   private final OpenIntHashSet getNodeIds() {
+   private OpenIntHashSet getNodeIds() {
       return this.conceptNids;
    }
 
@@ -713,7 +713,7 @@ public class HashTreeWithIntArraySets
     * @param childNid the childIndex nid
     * @return the parentIndex nids
     */
-   private final int[] getParentNidsNoFilter(int childNid) {
+   private int[] getParentNidsNoFilter(int childNid) {
       if (this.childNid_ParentNidSetArray_Map.containsKey(childNid)) {
          return this.childNid_ParentNidSetArray_Map.get(childNid);
       }

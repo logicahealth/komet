@@ -130,14 +130,14 @@ public class AxiomView {
 
     private String getConceptBeingDefinedText(String prefix) {
 
-        if (expression.getConceptNid() != -1
-                && expression.getConceptNid() != MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
+        if (expression.getConceptBeingDefinedNid() != -1
+                && expression.getConceptBeingDefinedNid() != MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             StringBuilder builder = new StringBuilder();
             if (prefix != null) {
                 builder.append(prefix);
                 builder.append(": ");
             }
-            builder.append(manifold.getPreferredDescriptionText(expression.getConceptNid()));
+            builder.append(manifold.getPreferredDescriptionText(expression.getConceptBeingDefinedNid()));
             return builder.toString();
         } else if (prefix != null) {
             return prefix + ": Concept being defined";
@@ -187,8 +187,7 @@ public class AxiomView {
                 || conceptNid == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             return Iconography.ALERT_CONFIRM2.getIconographic();
         }
-        int[] parents = Get.taxonomyService().getSnapshot(manifold)
-                .getTaxonomyTree().getParentNids(conceptNid);
+        int[] parents = Get.taxonomyService().getSnapshot(manifold).getTaxonomyParentConceptNids(conceptNid);
         Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
         if (!conceptExpression.isPresent()) {
             return Iconography.ALERT_CONFIRM2.getIconographic();
@@ -323,8 +322,8 @@ public class AxiomView {
     }
 
     private void updateExpression() {
-        if (this.expression.getConceptNid() != -1) {
-            Optional<LogicalExpression> committedExpression = manifold.getStatedLogicalExpression(this.expression.getConceptNid());
+        if (this.expression.getConceptBeingDefinedNid() != -1) {
+            Optional<LogicalExpression> committedExpression = manifold.getStatedLogicalExpression(this.expression.getConceptBeingDefinedNid());
             if (committedExpression.isPresent()) {
                 updateExpressionForAxiomView(committedExpression.get());
             }
@@ -333,7 +332,7 @@ public class AxiomView {
 
     private void commitEdit(Event event) {
 
-        LatestVersion<LogicGraphVersion> latestVersion = manifold.getStatedLogicGraphVersion(this.expression.getConceptNid());
+        LatestVersion<LogicGraphVersion> latestVersion = manifold.getStatedLogicGraphVersion(this.expression.getConceptBeingDefinedNid());
         if (latestVersion.isPresent()) {
             LogicGraphVersion version = latestVersion.get();
             ObservableSemanticChronologyImpl observableSemanticChronology = new ObservableSemanticChronologyImpl(version.getChronology());
@@ -565,7 +564,7 @@ public class AxiomView {
                             .add(StyleClasses.DEF_ROOT.toString());
                     rootPane.setBorder(ROOT_BORDER);
                     titleLabel.setText(getConceptBeingDefinedText(null));
-                    titleLabel.setGraphic(computeGraphic(expression.getConceptNid(), false));
+                    titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false));
                     titleLabel.setContextMenu(getContextMenu());
                     int column = 0;
                     addToToolbarNoGrow(rootToolBar, expandButton, column++);
@@ -1119,7 +1118,15 @@ public class AxiomView {
             mediaObjectSvgItem.setOnAction(this::makeMediaObjectSvg);
             MenuItem glossaryEntryItem = new MenuItem("Make glossary entry");
             glossaryEntryItem.setOnAction(this::makeGlossaryEntry);
-            return new ContextMenu(svgItem, inlineSvgItem, mediaObjectSvgItem, glossaryEntryItem);
+            MenuItem javaExpressionItem = new MenuItem("Make java expression");
+            javaExpressionItem.setOnAction(this::makeJavaExpression);
+            return new ContextMenu(svgItem, inlineSvgItem, mediaObjectSvgItem, 
+                    glossaryEntryItem, javaExpressionItem);
+        }
+        
+        private void makeJavaExpression(Event event) {
+            putOnClipboard(AxiomView.this.expression.toBuilder());
+            
         }
 
         private void makeMediaObjectSvg(Event event) {
@@ -1145,7 +1152,7 @@ public class AxiomView {
             builder.append("\n                </imageobject>");
             builder.append("\n</inlinemediaobject>");
 
-            putOnClipboard(DocBook.getGlossentry(expression.getConceptNid(), manifold, builder.toString()));
+            putOnClipboard(DocBook.getGlossentry(expression.getConceptBeingDefinedNid(), manifold, builder.toString()));
         }
 
         private void makeInlineSvg(Event event) {
