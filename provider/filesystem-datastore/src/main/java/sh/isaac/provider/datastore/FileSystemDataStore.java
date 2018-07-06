@@ -82,6 +82,8 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.DatabaseImplementation;
+import sh.isaac.api.datastore.ChronologySerializeable;
+import sh.isaac.api.datastore.SequenceStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -90,7 +92,6 @@ import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.SequenceStore;
 import sh.isaac.model.collections.SpinedByteArrayArrayMap;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedIntIntMap;
@@ -161,20 +162,17 @@ public class FileSystemDataStore
      * {@inheritDoc}
      */
     @Override
-    public void putChronologyData(ChronologyImpl chronology) {
+    public void putChronologyData(ChronologySerializeable chronology) {
         try {
             int assemblageNid = chronology.getAssemblageNid();
-            boolean wasNidSetup = ModelGet.identifierService().setupNid(chronology.getNid(), assemblageNid,
-                    chronology.getIsaacObjectType(), chronology.getVersionType());
-
+ 
             if (chronology instanceof SemanticChronologyImpl) {
                 SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) chronology;
                 int referencedComponentNid = semanticChronology.getReferencedComponentNid();
 
-                if (!wasNidSetup || !componentToSemanticNidsMap.containsKey(referencedComponentNid)) {
-                    componentToSemanticNidsMap.add(referencedComponentNid, semanticChronology.getNid());
-                }
-            }
+                //We could optionally check and see if this chronology is already listed for this nid, but its likely cheaper to just let it merge internally
+                componentToSemanticNidsMap.add(referencedComponentNid, semanticChronology.getNid());
+              }
 
             SpinedByteArrayArrayMap spinedByteArrayArrayMap = getChronologySpinedMap(assemblageNid);
             int elementSequence = getElementSequenceForNid(chronology.getNid(), assemblageNid);
@@ -208,12 +206,12 @@ public class FileSystemDataStore
      * @param chronology the chronology to turn into a byte[] list...
      * @return a byte[] list
      */
-    private List<byte[]> getDataList(ChronologyImpl chronology) {
+    private List<byte[]> getDataList(ChronologySerializeable chronology) {
 
         List<byte[]> dataArray = new ArrayList<>();
 
-        byte[] dataToSplit = chronology.getDataToWrite();
-        int versionStartPosition = chronology.getVersionStartPosition();
+        byte[] dataToSplit = chronology.getChronologyVersionDataToWrite();
+        int versionStartPosition = ((ChronologyImpl)chronology).getVersionStartPosition();
         if (versionStartPosition < 0) {
             throw new IllegalStateException("versionStartPosition is not set");
         }
@@ -556,7 +554,7 @@ public class FileSystemDataStore
    }
 
    @Override
-    public Optional<ByteArrayDataBuffer> getChronologyData(int nid) {
+    public Optional<ByteArrayDataBuffer> getChronologyVersionData(int nid) {
         OptionalInt assemblageNidOptional = ModelGet.identifierService().getAssemblageNid(nid);
         if (!assemblageNidOptional.isPresent()) {
             return Optional.empty();

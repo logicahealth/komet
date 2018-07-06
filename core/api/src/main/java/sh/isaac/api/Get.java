@@ -75,7 +75,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
+import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
 import sh.isaac.api.externalizable.DataWriterService;
@@ -190,6 +190,8 @@ public class Get
    
    private static IndexDescriptionQueryService descriptionIndexer;
    private static IndexSemanticQueryService semanticIndexer;
+   
+   private static DataStore dataStore;
    
    
    //~--- constructors --------------------------------------------------------
@@ -648,6 +650,13 @@ public class Get
 
       return semanticIndexer;
    }
+   
+   public static DataStore dataStore() {
+      if (dataStore == null) {
+         dataStore = getService(DataStore.class);
+      }
+      return dataStore;
+   }
 
    /**
     * IsaacExternalizable stream.
@@ -720,6 +729,7 @@ public class Get
       serializationService            = null;
       descriptionIndexer              = null;
       semanticIndexer                 = null;
+      dataStore                       = null;
    }
 
    public static ScheduledExecutorService scheduledExecutor() {

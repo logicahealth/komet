@@ -205,7 +205,8 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
 
    @Override
    public IntSet or(IntSet otherSet) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      this.addAll(otherSet.stream());
+      return this;
    }
 
    @Override

@@ -137,7 +137,7 @@ public class DialectWriter
                     continue;
                 }
             }
-           UUID   elementUuid         = UUID.fromString(descriptionRecord[DIALECT_UUID]);
+            UUID   elementUuid         = UUID.fromString(descriptionRecord[DIALECT_UUID]);
             UUID   moduleUuid          = UuidT3Generator.fromSNOMED(descriptionRecord[MODULE_SCTID_INDEX]);
             UUID   assemblageUuid      = UuidT3Generator.fromSNOMED(descriptionRecord[ASSEMBLAGE_SCT_ID_INDEX]);
             UUID   acceptabilityUuid   = UuidT3Generator.fromSNOMED(descriptionRecord[ACCEPTABILITY_SCTID]);

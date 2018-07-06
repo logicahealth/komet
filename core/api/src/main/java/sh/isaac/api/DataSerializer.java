@@ -36,9 +36,6 @@
  */
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.DataInput;
 import java.io.DataOutput;
 
 //~--- interfaces -------------------------------------------------------------
@@ -51,19 +48,11 @@ import java.io.DataOutput;
  */
 public interface DataSerializer<T> {
    /**
-    * Deserialize the content of an object from a DataInput.
-    *
-    * @param in to read serialized data from
-    * @return deserialized object
-    */
-   public T deserialize(DataInput in);
-
-   /**
     * Serialize the content of an object into a DataOutput.
+    * Implementations will need to have a static method to construct from deserialized output
     *
     * @param out DataOutput to save object into
-    * @param value Object to serialize
     */
-   public void serialize(DataOutput out, T value);
+   public void serialize(DataOutput out);
 }
 

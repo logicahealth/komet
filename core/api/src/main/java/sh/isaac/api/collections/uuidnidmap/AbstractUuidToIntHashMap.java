@@ -39,6 +39,8 @@
 
 package sh.isaac.api.collections.uuidnidmap;
 
+import java.util.OptionalInt;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.UUID;
@@ -47,7 +49,6 @@ import java.util.UUID;
 
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.AbstractSet;
-
 import sh.isaac.api.util.UUIDUtil;
 
 //~--- classes ----------------------------------------------------------------
@@ -120,7 +121,7 @@ public abstract class AbstractUuidToIntHashMap
     * otherwise.
     */
    public boolean forEachPair(final UuidIntProcedure procedure) {
-      return forEachKey(key -> procedure.apply(key, get(key)));
+      return forEachKey(key -> procedure.apply(key, get(key).getAsInt()));
    }
 
    /**
@@ -252,7 +253,7 @@ public abstract class AbstractUuidToIntHashMap
       valueList.setSize(keyList.size());
 
       for (int i = keyList.size(); --i >= 0; ) {
-         valueList.setQuick(i, get(keyList.getQuick(i)));
+         valueList.setQuick(i, get(keyList.getQuick(i)).getAsInt());
       }
 
       // System.out.println("collisions="+org.ihtsdo.map.OpenDoubleIntHashMap.hashCollisions);
@@ -350,7 +351,7 @@ public abstract class AbstractUuidToIntHashMap
    public void values(final IntArrayList list) {
       list.clear();
       forEachKey(key -> {
-                    list.add(get(key));
+                    list.add(get(key).getAsInt());
                     return true;
                  });
    }
@@ -359,12 +360,12 @@ public abstract class AbstractUuidToIntHashMap
 
    /**
     * Returns the value associated with the specified key. It is often a good idea to first check with
-    * {@link #containsKey(double)} whether the given key has a value associated or not, i.e. whether there
+    * {@link #containsKey(long[])} whether the given key has a value associated or not, i.e. whether there
     * exists an association for the given key or not.
     *
     * @param key the key to be searched for.
-    * @return the value associated with the specified key; {@code 0} if no such key is present.
+    * @return the value associated with the specified key;
     */
-   public abstract int get(long[] key);
+   public abstract OptionalInt get(long[] key);
 }
 

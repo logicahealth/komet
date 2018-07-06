@@ -87,15 +87,15 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.constants.MemoryConfiguration;
+import sh.isaac.api.datastore.ChronologySerializeable;
+import sh.isaac.api.datastore.SequenceStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.NamedThreadFactory;
-import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.SequenceStore;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedIntIntMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
@@ -184,22 +184,16 @@ public class BdbProvider
     * {@inheritDoc}
     */
    @Override
-   public void putChronologyData(ChronologyImpl chronology) {
+   public void putChronologyData(ChronologySerializeable chronology) {
       int assemblageNid = chronology.getAssemblageNid();
 
       assemblageNids.add(assemblageNid);
-
-      IsaacObjectType objectType       = chronology.getIsaacObjectType();
-      
-      boolean wasNidSetup = ModelGet.identifierService().setupNid(chronology.getNid(), assemblageNid, objectType, chronology.getVersionType());
       
       if (chronology instanceof SemanticChronologyImpl) {
          SemanticChronologyImpl semanticChronology     = (SemanticChronologyImpl) chronology;
          int referencedComponentNid = semanticChronology.getReferencedComponentNid();
-         if (!wasNidSetup || !componentToSemanticMap.containsKey(referencedComponentNid))
-         {
-            componentToSemanticMap.add(referencedComponentNid, semanticChronology.getNid());
-         }
+         //We could optionally check and see if this chronology is already listed for this nid, but its likely cheaper to just let it merge internally
+         componentToSemanticMap.add(referencedComponentNid, semanticChronology.getNid());
       }
 
       DatabaseEntry key = new DatabaseEntry();
@@ -209,7 +203,7 @@ public class BdbProvider
       //TODO [KEC] this probably isn't right, see the changes made in commit 7064a7b50cac9666fd93d252605d2d25ad173d86 to FileSystemDataStore, 
       //specifically, the getDataList method.
       //This could probably be redone with the new methods to get the versions distinct from the chronologies
-      byte[] data = chronology.getDataToWrite();
+      byte[] data = chronology.getChronologyVersionDataToWrite();
       Database     database = getChronologyDatabase(assemblageNid);
 
       DatabaseEntry   value  = new DatabaseEntry(data);
@@ -639,7 +633,7 @@ public class BdbProvider
 
 
    @Override
-   public Optional<ByteArrayDataBuffer> getChronologyData(int nid) {
+   public Optional<ByteArrayDataBuffer> getChronologyVersionData(int nid) {
       int      assemblageNid   = ModelGet.identifierService()
                                          .getAssemblageNid(nid)
                                          .getAsInt();

@@ -103,6 +103,8 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.datastore.ExtendedStore;
+import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
@@ -110,6 +112,7 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.SequentialAggregateTask;
+import sh.isaac.api.util.DataToBytesUtils;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
@@ -198,12 +201,12 @@ public class CommitProvider
     /**
      * Persistent map of a stamp aliases to a nid.
      */
-    private final StampAliasMap stampAliasMap = new StampAliasMap();
+    private StampAliasMap stampAliasMap;
 
     /**
      * Persistent map of comments to a stamp.
      */
-    private final StampCommentMap stampCommentMap = new StampCommentMap();
+    private StampCommentMap stampCommentMap;
 
     /**
      * Persistent nid of database commit actions.
@@ -246,6 +249,13 @@ public class CommitProvider
      * The commit manager folder.
      */
     private Path commitManagerFolder;
+    
+    private ExtendedStore dataStore = null;
+    private ExtendedStoreData<Integer, NidSet> nidStore;
+    private static final int uncommittedConceptsWithChecksNidSetId = 0;
+    private static final int uncommittedConceptsNoChecksNidSetId = 1;
+    private static final int uncommittedSemanticsWithChecksNidSetId = 2;
+    private static final int uncommittedSemanticsNoChecksNidSetId = 3;
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -438,7 +448,7 @@ public class CommitProvider
 
         try {
             this.uncommittedSequenceLock.lock();
-            lastCommit = databaseSequence.incrementAndGet();
+            lastCommit = incrementAndGetSequence();
 
             final Map<UncommittedStamp, Integer> pendingStampsForCommit = Get.stampService()
                     .getPendingStampsForCommit();
@@ -562,7 +572,11 @@ public class CommitProvider
      */
     @Override
     public long incrementAndGetSequence() {
-        return this.databaseSequence.incrementAndGet();
+        long seq = this.databaseSequence.incrementAndGet();
+        if (dataStore != null) {
+            dataStore.putSharedStoreLong(DEFAULT_COMMIT_MANAGER_FOLDER + "databaseSequence", this.databaseSequence.get());
+        }
+        return seq;
     }
 
     /**
@@ -863,30 +877,52 @@ public class CommitProvider
 
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
             Path dataStorePath = configurationService.getDataStoreFolderPath();
-
-            this.dbFolderPath = dataStorePath.resolve("commit-provider");
-
-            Files.createDirectories(this.dbFolderPath);
-            this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);
-
-            if (!Files.isDirectory(this.commitManagerFolder) || !Files.isRegularFile(this.commitManagerFolder.resolve(COMMIT_MANAGER_DATA_FILENAME))) {
-                this.databaseValidity = DataStoreStartState.NO_DATASTORE;
-            } else {
-                this.databaseValidity = DataStoreStartState.EXISTING_DATASTORE;
-                if (this.commitManagerFolder.resolve(DATASTORE_ID_FILE).toFile().isFile()) {
-                    dataStoreId = Optional.of(UUID.fromString(new String(Files.readAllBytes(this.commitManagerFolder.resolve(DATASTORE_ID_FILE)))));
-                } else {
-                    LOG.warn("No datastore ID in the pre-existing commit service {}", this.commitManagerFolder);
-                }
-            }
-
-            Files.createDirectories(this.commitManagerFolder);
             
-            LOG.debug("Commit provider starting in {}", this.commitManagerFolder.toFile().getCanonicalFile().toString());
-
-            if (!this.dataStoreId.isPresent()) {
-                this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
-                Files.write(this.commitManagerFolder.resolve(DATASTORE_ID_FILE), this.dataStoreId.get().toString().getBytes());
+            if (Get.dataStore().implementsExtendedStoreAPI()) {
+                dataStore = (ExtendedStore)Get.dataStore();
+                nidStore = dataStore.<Integer, byte[], NidSet>getStore("CommitProviderNidSetStore", 
+                        (valueToSerialize) -> valueToSerialize == null ? null : DataToBytesUtils.getBytes(valueToSerialize::write), 
+                        (valueToDeserialize) ->
+                        {
+                            try {
+                                NidSet ns = new NidSet();
+                                if (valueToDeserialize != null)
+                                {
+                                    ns.read(DataToBytesUtils.getDataInput(valueToDeserialize));
+                                }
+                                return ns;
+                            }
+                            catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                LOG.info("DataStore implements extended API, will be used for Commit Provider");
+            }
+            else {
+                this.dbFolderPath = dataStorePath.resolve("commit-provider");
+    
+                Files.createDirectories(this.dbFolderPath);
+                this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);
+    
+                if (!Files.isDirectory(this.commitManagerFolder) || !Files.isRegularFile(this.commitManagerFolder.resolve(COMMIT_MANAGER_DATA_FILENAME))) {
+                    this.databaseValidity = DataStoreStartState.NO_DATASTORE;
+                } else {
+                    this.databaseValidity = DataStoreStartState.EXISTING_DATASTORE;
+                    if (this.commitManagerFolder.resolve(DATASTORE_ID_FILE).toFile().isFile()) {
+                        dataStoreId = Optional.of(UUID.fromString(new String(Files.readAllBytes(this.commitManagerFolder.resolve(DATASTORE_ID_FILE)))));
+                    } else {
+                        LOG.warn("No datastore ID in the pre-existing commit service {}", this.commitManagerFolder);
+                    }
+                }
+    
+                Files.createDirectories(this.commitManagerFolder);
+                
+                LOG.debug("Commit provider starting in {} using local storage", this.commitManagerFolder.toFile().getCanonicalFile().toString());
+    
+                if (!this.dataStoreId.isPresent()) {
+                    this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
+                    Files.write(this.commitManagerFolder.resolve(DATASTORE_ID_FILE), this.dataStoreId.get().toString().getBytes());
+                }
             }
 
             this.lastCommitTime.set(Long.MIN_VALUE);
@@ -894,8 +930,6 @@ public class CommitProvider
             this.checkers.clear();
             this.lastCommit = Long.MIN_VALUE;
             this.deferredImportNoCheckNids.get().clear();
-            this.stampAliasMap.clear();
-            this.stampCommentMap.clear();
             this.databaseSequence.set(0);
             this.uncommittedConceptsWithChecksNidSet.clear();
             this.uncommittedConceptsNoChecksNidSet.clear();
@@ -905,24 +939,42 @@ public class CommitProvider
 
             this.writeCompletionService.start();
 
-            if (this.databaseValidity == DataStoreStartState.EXISTING_DATASTORE) {
-                LOG.info("Reading existing commit manager data from {}", this.commitManagerFolder);
-                LOG.info("Reading " + COMMIT_MANAGER_DATA_FILENAME);
 
-                try (DataInputStream in
-                        = new DataInputStream(new FileInputStream(new File(this.commitManagerFolder.toFile(),
-                                COMMIT_MANAGER_DATA_FILENAME)))) {
-                    this.databaseSequence.set(in.readLong());
-                    this.uncommittedConceptsWithChecksNidSet.read(in);
-                    this.uncommittedConceptsNoChecksNidSet.read(in);
-                    this.uncommittedSemanticsWithChecksNidSet.read(in);
-                    this.uncommittedSemanticsNoChecksNidSet.read(in);
+            if (dataStore == null) {
+               stampCommentMap = new StampCommentMap();
+               stampAliasMap = new StampAliasMap();
+               
+               if (getDataStoreStartState() == DataStoreStartState.EXISTING_DATASTORE) {
+                    LOG.info("Reading existing commit manager data from {}", this.commitManagerFolder);
+                    LOG.info("Reading " + COMMIT_MANAGER_DATA_FILENAME);
+    
+                    try (DataInputStream in
+                            = new DataInputStream(new FileInputStream(new File(this.commitManagerFolder.toFile(),
+                                    COMMIT_MANAGER_DATA_FILENAME)))) {
+                        this.databaseSequence.set(in.readLong());
+                        this.uncommittedConceptsWithChecksNidSet.read(in);
+                        this.uncommittedConceptsNoChecksNidSet.read(in);
+                        this.uncommittedSemanticsWithChecksNidSet.read(in);
+                        this.uncommittedSemanticsNoChecksNidSet.read(in);
+                    }
+    
+                    LOG.info("Reading: " + STAMP_ALIAS_MAP_FILENAME);
+                    this.stampAliasMap.read(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
+                    LOG.info("Reading: " + STAMP_COMMENT_MAP_FILENAME);
+                    this.stampCommentMap.read(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
                 }
-
-                LOG.info("Reading: " + STAMP_ALIAS_MAP_FILENAME);
-                this.stampAliasMap.read(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
-                LOG.info("Reading: " + STAMP_COMMENT_MAP_FILENAME);
-                this.stampCommentMap.read(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
+            }
+            else {
+                if (getDataStoreStartState() == DataStoreStartState.EXISTING_DATASTORE) {
+                    this.databaseSequence.set(dataStore.getSharedStoreLong(DEFAULT_COMMIT_MANAGER_FOLDER + "databaseSequence").getAsLong());
+                    this.uncommittedConceptsWithChecksNidSet.addAll(nidStore.get(uncommittedConceptsWithChecksNidSetId));
+                    this.uncommittedConceptsNoChecksNidSet.addAll(nidStore.get(uncommittedConceptsNoChecksNidSetId));
+                    this.uncommittedSemanticsWithChecksNidSet.addAll(nidStore.get(uncommittedSemanticsWithChecksNidSetId));
+                    this.uncommittedSemanticsNoChecksNidSet.addAll(nidStore.get(uncommittedSemanticsNoChecksNidSetId));
+                }
+                stampAliasMap = new StampAliasMap(dataStore);  //doen't need to read, it reads live as necessary
+                stampCommentMap = new StampCommentMap(dataStore); //doen't need to read, it reads live as necessary
+                
             }
 
             //This change checker prevents developers from making a mutable, not committing it, then making another mutable
@@ -987,9 +1039,10 @@ public class CommitProvider
                 }
             });
 
-        } catch (final IOException e) {
+        } catch (final Exception e) {
             LookupService.getService(SystemStatusService.class)
                     .notifyServiceConfigurationFailure("Commit Provider", e);
+            LOG.error("CommitProvider Startup Failure!", e);
             throw new RuntimeException(e);
         }
     }
@@ -1010,8 +1063,8 @@ public class CommitProvider
             this.checkers.clear();
             this.lastCommit = Long.MIN_VALUE;
             this.deferredImportNoCheckNids.get().clear();
-            this.stampAliasMap.clear();
-            this.stampCommentMap.clear();
+            this.stampAliasMap = null;
+            this.stampCommentMap = null;
             this.databaseSequence.set(0);
             this.uncommittedConceptsWithChecksNidSet.clear();
             this.uncommittedConceptsNoChecksNidSet.clear();
@@ -1025,19 +1078,28 @@ public class CommitProvider
     }
 
     private void writeData() throws IOException {
-        this.stampAliasMap.write(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
-        this.stampCommentMap.write(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
-
-        try (DataOutputStream out = new DataOutputStream(
-                new FileOutputStream(
-                        new File(
-                                this.commitManagerFolder.toFile(),
-                                COMMIT_MANAGER_DATA_FILENAME)))) {
-            out.writeLong(this.databaseSequence.get());
-            this.uncommittedConceptsWithChecksNidSet.write(out);
-            this.uncommittedConceptsNoChecksNidSet.write(out);
-            this.uncommittedSemanticsWithChecksNidSet.write(out);
-            this.uncommittedSemanticsNoChecksNidSet.write(out);
+        if (dataStore == null) {
+            this.stampAliasMap.write(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
+            this.stampCommentMap.write(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
+    
+            try (DataOutputStream out = new DataOutputStream(
+                    new FileOutputStream(
+                            new File(
+                                    this.commitManagerFolder.toFile(),
+                                    COMMIT_MANAGER_DATA_FILENAME)))) {
+                out.writeLong(this.databaseSequence.get());
+                this.uncommittedConceptsWithChecksNidSet.write(out);
+                this.uncommittedConceptsNoChecksNidSet.write(out);
+                this.uncommittedSemanticsWithChecksNidSet.write(out);
+                this.uncommittedSemanticsNoChecksNidSet.write(out);
+            }
+        }
+        else {
+            //Just need to write the uncommitted nidset data.   Everything else  is written on change
+            nidStore.put(uncommittedConceptsWithChecksNidSetId, this.uncommittedConceptsWithChecksNidSet);
+            nidStore.put(uncommittedConceptsNoChecksNidSetId, this.uncommittedConceptsNoChecksNidSet);
+            nidStore.put(uncommittedSemanticsWithChecksNidSetId, this.uncommittedSemanticsWithChecksNidSet);
+            nidStore.put(uncommittedSemanticsNoChecksNidSetId, this.uncommittedSemanticsNoChecksNidSet);
         }
     }
 
@@ -1156,12 +1218,12 @@ public class CommitProvider
      */
     @Override
     public Path getDataStorePath() {
-        return this.commitManagerFolder;
+        return dataStore == null ? this.commitManagerFolder : dataStore.getDataStorePath();
     }
 
     @Override
     public Optional<UUID> getDataStoreId() {
-        return this.dataStoreId;
+        return dataStore == null ? this.dataStoreId : dataStore.getDataStoreId();
     }
 
     /**
@@ -1171,7 +1233,7 @@ public class CommitProvider
      */
     @Override
     public DataStoreStartState getDataStoreStartState() {
-        return this.databaseValidity;
+        return dataStore == null ? this.databaseValidity : dataStore.getDataStoreStartState();
     }
 
     /**
@@ -1331,6 +1393,4 @@ public class CommitProvider
     public ConcurrentSkipListSet<ChangeChecker> getCheckers() {
         return checkers;
     }
-    
-    
 }

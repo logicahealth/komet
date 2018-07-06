@@ -30,6 +30,11 @@
 			<artifactId>filesystem-datastore</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>mv-datastore</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>

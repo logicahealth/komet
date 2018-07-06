@@ -23,6 +23,8 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.datastore.SequenceStore;
 
 /**
  * Provides services that are not part of the base API to the model, which makes particular

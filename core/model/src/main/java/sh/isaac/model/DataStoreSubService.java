@@ -17,6 +17,7 @@ package sh.isaac.model;
 
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.constants.DatabaseImplementation;
+import sh.isaac.api.datastore.DataStore;
 
 /**
  * Methods required to make the selectable-backends work for the DataStore.

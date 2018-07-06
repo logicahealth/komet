@@ -71,6 +71,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.dag.Graph;
+import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
@@ -85,7 +86,7 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
  * @author kec
  */
 public abstract class ChronologyImpl
-        implements Chronology {
+        implements Chronology, ChronologySerializeable {
 
     protected static final Logger LOG = LogManager.getLogger();
 
@@ -613,12 +614,10 @@ public abstract class ChronologyImpl
     }
 
     /**
-     * Get data to write to datastore. Set the write sequence to the specified
-     * value
-     *
-     * @return the data to write
+     * {@inheritDoc}
      */
-    public byte[] getDataToWrite() {
+    @Override
+    public byte[] getChronologyVersionDataToWrite() {
 
         if (this.uncommittedVersions == null) {
 
@@ -647,13 +646,9 @@ public abstract class ChronologyImpl
     }
     
     /**
-     * An alternative to the {@link #getDataToWrite} mechanism, where the store is allowed to get the 
-     * chronology info separate from the version info.  See {@link #getVersionDataToWrite()}
-     * 
-     * Backing stores should only store the underlying bytes, and not attempt to serialize the ByteArrayDataBuffer.
-     * 
-     * @return The buffer that contains the chronology bytes to write.
+     * {@inheritDoc}
      */
+    @Override
     public byte[] getChronologyDataToWrite()
     {
         final ByteArrayDataBuffer db = new ByteArrayDataBuffer(40);
@@ -664,18 +659,14 @@ public abstract class ChronologyImpl
     }
     
     /**
-     * An alternative to the {@link #getDataToWrite} mechanism, where the store is allowed to get the 
-     * chronology info separate from the version info.  See {@link #getChronologyDataToWrite()}
-     * 
-     * Backing stores should only store the underlying bytes, and not attempt to serialize the ByteArrayDataBuffer.
+     * {@inheritDoc}
      * 
      * If one were to combine the bytes from {@link #getChronologyDataToWrite()} with the bytes from each buffer returned by 
-     * {@link #getVersionDataToWrite()}, one will have almost (but not quite) the same exact content as {@link #getDataToWrite()} 
+     * {@link #getVersionDataToWrite()}, one will have almost (but not quite) the same exact content as {@link #getChronologyVersionDataToWrite()} 
      * produces - they only differ in that you would be missing the '0' int which normally trails the version list.   
      * {@link #readData(ByteArrayDataBuffer)} will handle the data being passed in with this int missing.
-     * 
-     * @return The versions to be written.  Backing stores may ignore any versions they already have stored.  
      */
+    @Override
     public List<byte[]> getVersionDataToWrite()
     {
         List<Version> versionList = getVersionList();

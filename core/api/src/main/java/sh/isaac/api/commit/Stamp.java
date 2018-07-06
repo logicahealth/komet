@@ -52,7 +52,6 @@ import java.util.Collection;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.set.AbstractIntSet;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.util.Hashcode;
@@ -64,7 +63,7 @@ import sh.isaac.api.util.Hashcode;
  * TODO: add license and copyright nids to the class. . 
  */
 public class Stamp
-         implements Comparable<Stamp> {
+         implements Comparable<Stamp>{
    /** The hash code. */
    public int hashCode = Integer.MAX_VALUE;
 

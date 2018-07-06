@@ -75,7 +75,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.constants.MetadataConceptConstant;
 import sh.isaac.api.constants.ModuleProvidedConstants;
-import sh.isaac.model.DataStore;
+import sh.isaac.api.datastore.DataStore;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -200,7 +200,7 @@ public class ExportTaxonomy
          //Sanity check
          boolean haveError = false;
          for (ConceptSpecification cs : TermAux.getAllSpecs()){
-            if (!LookupService.get().getService(DataStore.class).getChronologyData(cs.getNid()).isPresent()) {
+            if (!LookupService.get().getService(DataStore.class).getChronologyVersionData(cs.getNid()).isPresent()) {
                haveError = true;
                getLog().error("TermAux concept " + cs.getFullyQualifiedName() + " " + cs.getPrimordialUuid() + " was not loaded!");
             }
