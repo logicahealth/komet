@@ -46,7 +46,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,11 +56,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -186,8 +182,8 @@ public class LoadTermstore
    private int duplicatesToPrint = 20;
    
    public void setDuplicatesToPrint(int duplicatesToPrint) {
-         this.duplicatesToPrint = duplicatesToPrint;
-      }
+      this.duplicatesToPrint = duplicatesToPrint;
+   }
    
    /**
     * The preferred mechanism for specifying ibdf files - provide a folder that contains IBDF files, all found IBDF files in this
@@ -211,7 +207,7 @@ public class LoadTermstore
     */
    @Parameter(required = false)
    private File[] ibdfFiles;
-
+   
    /**
     * The optional (old) way to specify ibdf files - requires each file to be listed one by one.
     * @param files the individual ibdf files to process 

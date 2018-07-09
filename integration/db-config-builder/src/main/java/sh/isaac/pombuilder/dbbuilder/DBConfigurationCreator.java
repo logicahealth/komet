@@ -61,6 +61,7 @@ import org.apache.maven.pom._4_0.PluginExecution.Configuration;
 import org.apache.maven.pom._4_0.PluginExecution.Goals;
 import org.apache.maven.pom._4_0.Scm;
 import sh.isaac.api.ConfigurationService.BuildMode;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
 import sh.isaac.pombuilder.FileUtil;
@@ -102,6 +103,7 @@ public class DBConfigurationCreator
 	 * @param classify - True to classify the content with the snorocket classifer as part of the database build, false to skip classification.
 	 * @param ibdfFiles - The set of IBDF files to be included in the DB. Do not include the metadata IBDF file from ISAAC, it is always included.
 	 * @param metadataVersion - The version of the metadata content to include in the DB
+	 * @param dbImplementation - optional - which type of DB should we build.  If not provided, uses system default.
 	 * @param gitRepositoryURL - optional - The URL to publish this built project to.  If not provided, the project is not published.
 	 * @param gitUsername - optional - The username to utilize to publish this project
 	 * @param gitPassword - optional - the git password
@@ -111,7 +113,7 @@ public class DBConfigurationCreator
 	 * @throws Exception the exception
 	 */
 	public static String createDBConfiguration(String name, String version, String description, String resultClassifier, boolean classify, IBDFFile[] ibdfFiles,
-			String metadataVersion, String gitRepositoryURL, String gitUsername, char[] gitPassword, File workingFolder, boolean deleteAfterPublish) throws Exception
+			String metadataVersion, DatabaseImplementation dbImplementation, String gitRepositoryURL, String gitUsername, char[] gitPassword, File workingFolder, boolean deleteAfterPublish) throws Exception
 	{
 		LOG.info("Creating a db configuration name: {} version: {} description: {}, with a classifier: '{}' on '{}' and the classify flag set to {}", name,
 				version, description, resultClassifier, gitRepositoryURL, classify);
@@ -263,6 +265,7 @@ public class DBConfigurationCreator
 			configuration = new Configuration();
 			configuration.setDataStoreLocation("${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/");
 			configuration.setDbBuildMode(BuildMode.DB.name());
+			configuration.setDbImplementation(dbImplementation == null ? DatabaseImplementation.DEFAULT.name() : dbImplementation.name());
 			pe.setConfiguration(configuration);
 			executions.getExecution().add(pe);
 

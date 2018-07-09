@@ -56,6 +56,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.ConfigurationService.BuildMode;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 
@@ -89,6 +90,21 @@ public class Setup
    /** Location of the folder that contains the user profiles. */
    @Parameter(required = false)
    private File userProfileFolderLocation;
+   
+   
+   /**
+    * The (optional) DB type to build.  Should be a constant from {@link DatabaseImplementation}
+    */
+   @Parameter(required = false)
+   private String dbImplementation;
+   
+   /**
+    * Specify which type of database we should build.
+    * @param databaseImplementation the dbtype to use 
+    */
+   public void setDBType(DatabaseImplementation databaseImplementation) {
+      this.dbImplementation = databaseImplementation.name();
+   }
 
    //~--- methods -------------------------------------------------------------
 
@@ -126,8 +142,14 @@ public class Setup
          {
             Get.configurationService().setDataStoreFolderPath(dataStoreLocation.toPath());
          }
+         
+         
+         if (StringUtils.isNotBlank(this.dbImplementation)) {
+            Get.configurationService().setDatabaseImplementation(DatabaseImplementation.parse(this.dbImplementation));
+         }
 
-         getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
+         getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath() + 
+            " DataStore Type " + Get.configurationService().getDatabaseImplementation().name());
          LookupService.startupIsaac();
          getLog().info("Done setting up ISAAC");
       } catch (IllegalStateException | IllegalArgumentException | IOException e) {

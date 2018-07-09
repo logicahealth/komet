@@ -410,6 +410,9 @@ public class ConfigurationServiceProvider
    
    @Override
    public void setDatabaseImplementation(DatabaseImplementation implementation) {
+   if (LookupService.isIsaacStarted()) {
+         throw new IllegalStateException("Can only set the database implementation prior to starting Isaac. Runlevel: " + LookupService.getCurrentRunLevel());
+      }
       dbImplementation = implementation;
    }
 
