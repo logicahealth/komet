@@ -390,6 +390,15 @@ public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void compact()
+	{
+		dataStore.compact();
+	}
+
 	/** 
 	 * {@inheritDoc}
 	 */

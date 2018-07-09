@@ -741,6 +741,13 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	{
 		return false;
 	}
+	
+	@Override
+	public void compact()
+	{
+		LOG.info("Performing full compact on MV Store");
+		store.compactRewriteFully();
+	}
 
 	/**
 	 * {@inheritDoc}

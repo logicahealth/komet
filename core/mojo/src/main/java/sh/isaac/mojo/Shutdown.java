@@ -45,6 +45,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 
 //~--- classes ----------------------------------------------------------------
@@ -70,11 +71,16 @@ public class Shutdown
          getLog().info("Shutdown terminology store");
 
          // ASSUMES setup has run already
+         getLog().info("  Compacting");
+         
+         Get.dataStore().compact();
          getLog().info("  Shutting Down");
+
          LookupService.shutdownSystem();
+         
          getLog().info("Done shutting down terminology store");
       } catch (final Exception e) {
-         throw new MojoExecutionException("Database build failure", e);
+         throw new MojoExecutionException("Database shutdown failure", e);
       }
    }
 }

@@ -431,7 +431,6 @@ public class ConfigurationServiceProvider
          this.currentUser = Optional.empty();
          this.systemPropertyDataStoreFolderPath = null;
          this.systemPropertyIbdfImportPath = null;
-         this.userDataStoreFolderPath = null;
          this.userIbdfImportPath = null;
          this.dbImplementation = null;
       }

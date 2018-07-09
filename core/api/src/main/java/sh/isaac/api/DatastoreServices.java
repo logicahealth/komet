@@ -94,9 +94,17 @@ public interface DatastoreServices {
    
    /**
     * Instruct the datastore to write any pending data to disk. 
-    * @return 
+    * @return A future that tracks the running sync
     */
    public Future<?> sync();
-
+   
+   /**
+    * Some datastores support an operation to rewrite themselves into a smaller footprint.  This method can be used to trigger 
+    * that operation on implementations that choose to support it.  This blocks until completed.  Useful just prior to shutdown 
+    * on a DB build.  The default implementation is a noop.
+    */
+   public default void compact() {
+      //Noop
+   }
 }
 
