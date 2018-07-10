@@ -219,10 +219,25 @@ public class ConceptProxy
    @Override
    public String toString() {
       if (this.uuids != null) {
-         return "ConceptProxy{" + this.fullyQualfiedName + "; " + Arrays.asList(this.uuids) + "}";
+          StringBuilder builder = new StringBuilder();
+          builder.append("ConceptProxy(\"");
+          builder.append(this.fullyQualfiedName);
+          builder.append("\", ");
+          int count = 0;
+          for (UUID uuid: this.uuids) {
+              builder.append("UUID.fromString(\"");
+              builder.append(uuid.toString());
+              builder.append("\")");
+              count++;
+              if (count < this.uuids.length) {
+                  builder.append(", ");
+              }
+          }
+          builder.append(")");
+          return  builder.toString();
       }
 
-      return "ConceptProxy{" + this.fullyQualfiedName + "; null UUIDs}";
+      return "ConceptProxy(\"" + this.fullyQualfiedName + ", null UUIDs)";
    }
 
    //~--- get methods ---------------------------------------------------------

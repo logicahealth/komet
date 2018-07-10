@@ -107,6 +107,12 @@ public class SubstitutionNodeInteger
    public String toString(String nodeIdSuffix) {
       return "Integer substitution[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       IntegerSubstitution(\"");
+            builder.append("not supported yet");
+            builder.append("\", leb)\n");
+    }
 
    /**
     * Inits the node uuid.

@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.model.logic;
+package sh.isaac.api.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -83,7 +83,7 @@ public class IsomorphicSolution
    public IsomorphicSolution(int[] solution,
                              TreeNodeVisitData referenceTreeVisitData,
                              TreeNodeVisitData comparisonTreeVisitData) {
-      this.solution = solution;
+      this.solution = (int[]) solution.clone();
       this.hashcode = Arrays.hashCode(solution);
       score(referenceTreeVisitData, comparisonTreeVisitData);
    }

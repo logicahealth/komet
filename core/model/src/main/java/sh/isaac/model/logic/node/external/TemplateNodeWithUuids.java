@@ -207,6 +207,21 @@ public class TemplateNodeWithUuids
    public String toSimpleString() {
       return toString("");
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        builder.append("\n       Template(");
+        builder.append("Get.concept(UUID.fromString(\"");
+        builder.append(this.templateConceptUuid);
+        builder.append("\"),");
+        builder.append("Get.concept(UUID.fromString(\"");
+        builder.append(this.assemblageConceptUuid);
+        builder.append("\")");
+        builder.append(", leb");
+        for (AbstractLogicNode child: getChildren()) {
+            child.addToBuilder(builder);
+        }
+        builder.append("),\n");
+    }
 
    /**
     * Write node data.

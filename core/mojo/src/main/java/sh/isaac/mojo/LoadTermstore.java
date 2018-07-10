@@ -65,6 +65,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import com.cedarsoftware.util.io.JsonWriter;
+import java.util.concurrent.Future;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -474,9 +475,10 @@ public class LoadTermstore
 
                                byte[][] data;
 
-                               if (mergedParents.size() == 0) {
+                               if (mergedParents.isEmpty()) {
                                   // The logic graph is too complex for our stupid merger - Use the isomorphic one.
                                   IsomorphicResults isomorphicResults = listToMerge.get(0).findIsomorphisms(listToMerge.get(1));
+                                  
                                   getLog().debug("Isomorphic results: " + isomorphicResults);
                                   data = isomorphicResults.getMergedExpression().getData(DataTarget.INTERNAL);
                                } else {

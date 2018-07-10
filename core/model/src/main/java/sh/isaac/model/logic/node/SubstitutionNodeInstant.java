@@ -107,6 +107,13 @@ public class SubstitutionNodeInstant
    public String toSimpleString() {
       return "Instant substitution:" +  super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       InstantSubstitution(\"");
+            builder.append("not supported yet");
+            builder.append("\", leb)\n");
+    }
+
 
    /**
     * Inits the node uuid.

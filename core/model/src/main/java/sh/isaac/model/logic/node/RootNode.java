@@ -91,6 +91,16 @@ public class RootNode
       return toString("");
    }
 
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        
+        for (AbstractLogicNode child: getChildren()) {
+            builder.append("\n");
+            child.addToBuilder(builder);
+            builder.append(";\n");
+        }
+    }
+
    /**
     * To string.
     *

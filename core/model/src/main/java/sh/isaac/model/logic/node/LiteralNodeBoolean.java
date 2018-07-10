@@ -155,6 +155,12 @@ public class LiteralNodeBoolean
       return this.literalValue +  super.toSimpleString();
    }
 
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       BooleanLiteral(");
+            builder.append(this.literalValue);
+            builder.append(")\n");
+    }
    /**
     * Compare fields.
     *

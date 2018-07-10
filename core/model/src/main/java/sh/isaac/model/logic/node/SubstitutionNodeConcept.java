@@ -107,6 +107,12 @@ public class SubstitutionNodeConcept
    public String toSimpleString() {
       return "Concept substitution:" +  super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       ConceptSubstitution(\"");
+            builder.append("not supported yet");
+            builder.append("\", leb)\n");
+    }
 
    /**
     * Inits the node uuid.

@@ -37,30 +37,24 @@
 package sh.isaac.model.logic;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.ArrayList;
+import sh.isaac.api.logic.IsomorphicSolution;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
-import sh.isaac.api.Get;
 import sh.isaac.api.collections.SequenceSet;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.tree.TreeNodeVisitDataImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -69,84 +63,13 @@ import sh.isaac.model.tree.TreeNodeVisitDataImpl;
  *
  * @author kec
  */
-public class IsomorphicResultsBottomUp
-        implements IsomorphicResults {
+public class IsomorphicResultsBottomUp extends IsomorphicResultsAbstract {
 
     private static final String CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE = "ConceptsReferencedAtNodeOrAbove";
-    /**
-     * Nodes that are relationship roots in the referenceExpression.
-     */
-    private final Map<RelationshipKey, Integer> referenceRelationshipNodesMap = new TreeMap<>();
-
-    /**
-     * Nodes that are relationship roots in the comparisonExpression.
-     */
-    private final Map<RelationshipKey, Integer> comparisonRelationshipNodesMap = new TreeMap<>();
-
-    /**
-     * The comparison deletion roots.
-     */
-    SequenceSet<?> comparisonDeletionRoots = new SequenceSet<>();
-
-    /**
-     * The reference addition roots.
-     */
-    SequenceSet<?> referenceAdditionRoots = new SequenceSet<>();
-
-    /**
-     * The comparison expression.
-     */
-    LogicalExpressionImpl comparisonExpression;
-
-    /**
-     * The reference expression.
-     */
-    LogicalExpressionImpl referenceExpression;
-
-    /**
-     * The isomorphic expression.
-     */
-    LogicalExpressionImpl isomorphicExpression;
-
-    /**
-     * The merged expression.
-     */
-    LogicalExpressionImpl mergedExpression;
 
     /**
      * The isomorphic solution.
      */
-
-    /*
-    * localIsomorphicSolution is a mapping from logicNodes in the referenceExpression to logicNodes
-    * in the comparisonExpression. The index of the localIsomorphicSolution is the nodeId
-    * in the referenceExpression, the value of the array at that index is the
-    * nodeId in the comparisonExpression: localIsomorphicSolution[nodeIdInReference] == nodeIdInComparison
-    * If the nodeIdInComparison == -1, then there is no corresponding node in the
-    * comparisonExpression as part of the localIsomorphicSolution.
-     */
-    Optional<IsomorphicSolution> optionalIsomorphicSolution;
-
-    /**
-     * The reference visit data.
-     */
-    TreeNodeVisitData referenceVisitData;
-
-    /**
-     * The comparison visit data.
-     */
-    TreeNodeVisitData comparisonVisitData;
-
-    /**
-     * The reference expression to merged node id map.
-     */
-    int[] referenceExpressionToMergedNodeIdMap;
-
-    /**
-     * The comparison expression to reference node id map.
-     */
-    int[] comparisonExpressionToReferenceNodeIdMap;
-
     //~--- constructors --------------------------------------------------------
     /**
      * Instantiates a new isomorphic results bottom up.
@@ -155,8 +78,11 @@ public class IsomorphicResultsBottomUp
      * @param comparisonExpression the comparison expression
      */
     public IsomorphicResultsBottomUp(LogicalExpression referenceExpression, LogicalExpression comparisonExpression) {
-        this.referenceExpression = (LogicalExpressionImpl) referenceExpression;
-        this.comparisonExpression = (LogicalExpressionImpl) comparisonExpression;
+        super(referenceExpression, comparisonExpression);
+    }
+
+    @Override
+    public IsomorphicResults call() throws Exception {
         this.referenceVisitData = new TreeNodeVisitDataImpl(referenceExpression.getNodeCount());
         this.referenceExpression.depthFirstVisit(null, this.referenceExpression.getRoot(), this.referenceVisitData, 0);
         this.comparisonVisitData = new TreeNodeVisitDataImpl(comparisonExpression.getNodeCount());
@@ -165,20 +91,16 @@ public class IsomorphicResultsBottomUp
         Arrays.fill(this.referenceExpressionToMergedNodeIdMap, -1);
         this.comparisonExpressionToReferenceNodeIdMap = new int[comparisonExpression.getNodeCount()];
         Arrays.fill(this.comparisonExpressionToReferenceNodeIdMap, -1);
-        this.optionalIsomorphicSolution = isomorphicAnalysis();
+        this.isomorphicSolution = isomorphicAnalysis();
 
-        if (optionalIsomorphicSolution.isPresent()) {
-            for (int referenceNodeId = 0; referenceNodeId < this.optionalIsomorphicSolution.get().solution.length; referenceNodeId++) {
-                if (this.optionalIsomorphicSolution.get().solution[referenceNodeId] > -1) {
-                    this.comparisonExpressionToReferenceNodeIdMap[this.optionalIsomorphicSolution.get().solution[referenceNodeId]]
-                            = referenceNodeId;
-                }
+        for (int referenceNodeId = 0; referenceNodeId < this.isomorphicSolution.getSolution().length; referenceNodeId++) {
+            if (this.isomorphicSolution.getSolution()[referenceNodeId] > -1) {
+                this.comparisonExpressionToReferenceNodeIdMap[this.isomorphicSolution.getSolution()[referenceNodeId]]
+                        = referenceNodeId;
             }
-            this.isomorphicExpression = new LogicalExpressionImpl(this.referenceExpression,
-                this.optionalIsomorphicSolution.get().solution);
-        } else {
-            this.isomorphicExpression = this.referenceExpression;
         }
+        this.isomorphicExpression = new LogicalExpressionImpl(this.referenceExpression,
+                this.isomorphicSolution.getSolution());
 
         this.referenceVisitData.getNodeIdsForDepth(3).forEachKey((nodeId) -> {
             this.referenceRelationshipNodesMap.put(
@@ -207,15 +129,11 @@ public class IsomorphicResultsBottomUp
         final int[] comparisonToMergedMap = new int[comparisonExpression.getNodeCount()];
 
         Arrays.fill(comparisonToMergedMap, -1);
-        if (optionalIsomorphicSolution.isPresent()) {
-            for (int referenceNodeId = 0; referenceNodeId < this.optionalIsomorphicSolution.get().solution.length; referenceNodeId++) {
-                if (this.optionalIsomorphicSolution.get().solution[referenceNodeId] >= 0) {
-                    comparisonToMergedMap[this.optionalIsomorphicSolution.get().solution[referenceNodeId]] = referenceNodeId;
-                }
+        for (int referenceNodeId = 0; referenceNodeId < this.isomorphicSolution.getSolution().length; referenceNodeId++) {
+            if (this.isomorphicSolution.getSolution()[referenceNodeId] >= 0) {
+                comparisonToMergedMap[this.isomorphicSolution.getSolution()[referenceNodeId]] = referenceNodeId;
             }
         }
-
-        final boolean debug = true;
 
         // Add the deletions
         getDeletedRelationshipRoots().forEach((deletionRoot) -> {
@@ -230,6 +148,7 @@ public class IsomorphicResultsBottomUp
                 }
             }
         });
+        return this;
     }
 
     //~--- methods -------------------------------------------------------------
@@ -281,161 +200,6 @@ public class IsomorphicResultsBottomUp
     }
 
     /**
-     * To string.
-     *
-     * @return the string
-     */
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append("Isomorphic Analysis for:")
-                .append(Get.conceptDescriptionText(this.referenceExpression.conceptNid))
-                .append("\n     ")
-                .append(Get.identifierService()
-                        .getUuidPrimoridalStringForNid(this.referenceExpression.conceptNid))
-                .append("\n\n");
-        builder.append("Reference expression:\n\n ");
-        builder.append(this.referenceExpression.toString("r"));
-        builder.append("\nComparison expression:\n\n ");
-        builder.append(this.comparisonExpression.toString("c"));
-
-        if (this.isomorphicExpression != null) {
-            builder.append("\nIsomorphic expression:\n\n ");
-            builder.append(this.isomorphicExpression.toString("i"));
-        }
-
-        if (referenceExpressionToMergedNodeIdMap != null) {
-            builder.append("\nReference Expression To MergedNodeId Map:\n\n ");
-            builder.append("[");
-            for (int i = 0; i < referenceExpressionToMergedNodeIdMap.length; i++) {
-                builder.append(i).append("r:");
-                builder.append(referenceExpressionToMergedNodeIdMap[i]).append("m");
-                if (i < referenceExpressionToMergedNodeIdMap.length - 1) {
-                    builder.append(", ");
-                }
-            }
-            builder.append("]\n");
-        }
-        if (comparisonExpressionToReferenceNodeIdMap != null) {
-            builder.append("\nReference Expression To ComparisonNodeId Map:\n\n ");
-            int[] referenceExpressionToComparisonNodeIdMap = new int[referenceExpressionToMergedNodeIdMap.length];
-            Arrays.fill(referenceExpressionToComparisonNodeIdMap, -1);
-            for (int i = 0; i < comparisonExpressionToReferenceNodeIdMap.length; i++) {
-                if (comparisonExpressionToReferenceNodeIdMap[i] >= 0) {
-                    referenceExpressionToComparisonNodeIdMap[comparisonExpressionToReferenceNodeIdMap[i]] = i;
-                }
-            }
-            
-            builder.append("[");
-            for (int i = 0; i < referenceExpressionToComparisonNodeIdMap.length; i++) {
-                builder.append(i).append("r:");
-                builder.append(referenceExpressionToComparisonNodeIdMap[i]).append("c");
-                if (i < referenceExpressionToComparisonNodeIdMap.length - 1) {
-                    builder.append(", ");
-                }
-            }
-            builder.append("]\n");
-            
-            builder.append("\nComparison Expression To ReferenceNodeId Map:\n\n ");
-            builder.append("[");
-            for (int i = 0; i < comparisonExpressionToReferenceNodeIdMap.length; i++) {
-                builder.append(i).append("c:");
-                builder.append(comparisonExpressionToReferenceNodeIdMap[i]).append("r");
-                if (i < comparisonExpressionToReferenceNodeIdMap.length - 1) {
-                    builder.append(", ");
-                }
-            }
-            builder.append("]\n");
-        }
-
-        if (this.optionalIsomorphicSolution.isPresent()) {
-            builder.append("\nIsomorphic solution: \n");
-
-            String formatString = "[%2d";
-            String nullString = " ∅ ";
-
-            if (this.optionalIsomorphicSolution.get().getSolution().length < 10) {
-                formatString = "[%d";
-                nullString = " ∅ ";
-            }
-
-            if (this.optionalIsomorphicSolution.get().getSolution().length > 99) {
-                formatString = "[%3d";
-                nullString = " ∅ ";
-            }
-
-            for (int i = 0; i < this.optionalIsomorphicSolution.get().getSolution().length; i++) {
-                builder.append("  ");
-                builder.append(String.format(formatString, i));
-                builder.append("r] ➞ ");
-
-                if (this.optionalIsomorphicSolution.get().getSolution()[i] == -1) {
-                    builder.append(nullString);
-                } else {
-                    builder.append(String.format(formatString, this.optionalIsomorphicSolution.get().getSolution()[i]));
-                }
-
-                if (this.optionalIsomorphicSolution.get().getSolution()[i] < 0) {
-                    builder.append("\n");
-                } else if (i != this.optionalIsomorphicSolution.get().getSolution()[i]) {
-                    builder.append("c]* ");
-                    builder.append(this.referenceExpression.getNode(i)
-                            .toString("r"));
-                    builder.append("\n");
-                } else {
-                    builder.append("c]  ");
-                    builder.append(this.referenceExpression.getNode(i)
-                            .toString("r"));
-                    builder.append("\n");
-                }
-            }
-
-            builder.append("\nAdditions: \n\n");
-            getAdditionalNodeRoots().forEach((additionRoot) -> {
-                builder.append("  ")
-                        .append(additionRoot.fragmentToString("r"));
-                builder.append("\n");
-            });
-            builder.append("\nDeletions: \n\n");
-            getDeletedNodeRoots().forEach((deletionRoot) -> {
-                builder.append("  ")
-                        .append(deletionRoot.fragmentToString("c"));
-                builder.append("\n");
-            });
-            builder.append("\nShared relationship roots: \n\n");
-            getSharedRelationshipRoots().forEach((sharedRelRoot) -> {
-                builder.append("  ")
-                        .append(sharedRelRoot.fragmentToString());
-                builder.append("\n");
-            });
-            builder.append("\nNew relationship roots: \n\n");
-            getAddedRelationshipRoots().forEach((addedRelRoot) -> {
-                builder.append("  ")
-                        .append(addedRelRoot.fragmentToString());
-                builder.append("\n");
-            });
-            builder.append("\nDeleted relationship roots: \n\n");
-            getDeletedRelationshipRoots().forEach((deletedRelRoot) -> {
-                builder.append("  ")
-                        .append(deletedRelRoot.fragmentToString());
-                builder.append("\n");
-            });
-            builder.append("\nMerged expression: \n\n");
-
-            if (this.mergedExpression != null) {
-                builder.append(this.mergedExpression.toString("m"));
-            } else {
-                builder.append("null");
-            }
-
-            builder.append("\n");
-        }
-
-        return builder.toString();
-    }
-
-    /**
      * Adds the fragment.
      *
      * @param rootToAdd the root to add
@@ -468,71 +232,6 @@ public class IsomorphicResultsBottomUp
     }
 
     /**
-     * Compute additions.
-     */
-    private void computeAdditions() {
-        final SequenceSet<?> nodesInSolution = new SequenceSet<>();
-        final SequenceSet<?> nodesNotInSolution = new SequenceSet<>();
-
-        if (optionalIsomorphicSolution.isPresent()) {
-            for (int i = 0; i < this.optionalIsomorphicSolution.get().getSolution().length; i++) {
-                if (this.optionalIsomorphicSolution.get().getSolution()[i] >= 0) {
-                    nodesInSolution.add(i);
-                } else {
-                    nodesNotInSolution.add(i);
-                }
-            }
-        }
-
-        nodesNotInSolution.stream().forEach((additionNode) -> {
-            int additionRoot = additionNode;
-
-            OptionalInt predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
-            while (predecessorNid.isPresent() && nodesNotInSolution.contains(predecessorNid.getAsInt())) {
-                additionRoot = predecessorNid.getAsInt();
-                predecessorNid = this.referenceVisitData.getPredecessorNid(additionRoot);
-            }
-
-            this.referenceAdditionRoots.add(additionRoot);
-        });
-    }
-
-    /**
-     * Compute deletions.
-     */
-    private void computeDeletions() {
-        final SequenceSet<?> comparisonNodesInSolution = new SequenceSet<>();
-
-        if (optionalIsomorphicSolution.isPresent()) {
-            Arrays.stream(this.optionalIsomorphicSolution.get().getSolution()).forEach((nodeId) -> {
-                if (nodeId >= 0) {
-                    comparisonNodesInSolution.add(nodeId);
-                }
-            });
-        }
-
-        final SequenceSet<?> comparisonNodesNotInSolution = new SequenceSet<>();
-
-        IntStream.range(0, this.comparisonVisitData.getNodesVisited())
-                .forEach((nodeId) -> {
-                    if (!comparisonNodesInSolution.contains(nodeId)) {
-                        comparisonNodesNotInSolution.add(nodeId);
-                    }
-                });
-        comparisonNodesNotInSolution.stream().forEach((deletedNode) -> {
-            int deletedRoot = deletedNode;
-
-            OptionalInt predecessorNid = this.comparisonVisitData.getPredecessorNid(deletedRoot);
-            while (predecessorNid.isPresent() && comparisonNodesNotInSolution.contains(predecessorNid.getAsInt())) {
-                deletedRoot = predecessorNid.getAsInt();
-                predecessorNid = this.comparisonVisitData.getPredecessorNid(deletedRoot);
-            }
-
-            this.comparisonDeletionRoots.add(deletedRoot);
-        });
-    }
-
-    /**
      * Generate possible solutions for node.
      *
      * @param solutionNodeId the solution node id
@@ -545,9 +244,9 @@ public class IsomorphicResultsBottomUp
             Set<IsomorphicSolution> possibleSolutions) {
         // Using a set to eliminate duplicate solutions.
         final Set<IsomorphicSolution> outgoingPossibleNodes = new HashSet<>();
-        
-        for (IsomorphicSolution incomingPossibleSolution: possibleSolutions) {
-            for (IsomorphicSearchBottomUpNode isomorphicSearchNode: incomingPossibleNodes) {
+
+        for (IsomorphicSolution incomingPossibleSolution : possibleSolutions) {
+            for (IsomorphicSearchBottomUpNode isomorphicSearchNode : incomingPossibleNodes) {
                 if (this.comparisonExpression.getNode(isomorphicSearchNode.nodeId)
                         .equals(this.referenceExpression.getNode(solutionNodeId))) {
                     final int[] generatedPossibleSolution = new int[incomingPossibleSolution.getSolution().length];
@@ -563,12 +262,12 @@ public class IsomorphicResultsBottomUp
                             this.referenceVisitData,
                             this.comparisonVisitData);
 
-                    if (localIsomorphicSolution.legal) {
+                    if (localIsomorphicSolution.isLegal()) {
                         outgoingPossibleNodes.add(localIsomorphicSolution);
                     }
-                }            
+                }
             }
-                   
+
         }
 
         if (outgoingPossibleNodes.isEmpty()) {
@@ -583,8 +282,7 @@ public class IsomorphicResultsBottomUp
      *
      * @return the isomorphic solution
      */
-    // ? score based on number or leafs included, with higher score for smaller number of intermediate logicNodes.
-    private Optional<IsomorphicSolution> isomorphicAnalysis() {
+    private IsomorphicSolution isomorphicAnalysis() {
         final TreeSet<IsomorphicSearchBottomUpNode> comparisonSearchNodeSet = new TreeSet<>();
 
         for (int i = 0; i < this.comparisonVisitData.getNodesVisited(); i++) {
@@ -742,173 +440,14 @@ public class IsomorphicResultsBottomUp
             nodesToTry = nextSetToTry;
         }
 
-        return possibleSolutions.stream()
-                .max((IsomorphicSolution o1,
-                        IsomorphicSolution o2) -> Integer.compare(o1.getScore(), o2.getScore()));
-    }
-
-    /**
-     * Scoring algorithm to determine if it is possible that a
-     * localIsomorphicSolution based on the possibleSolution may score >= the
-     * current maximum localIsomorphicSolution. Used to trim the search space of
-     * unnecessary permutations.
-     *
-     * @param solution the solution
-     * @return the int
-     */
-    private int scoreSolution(int[] solution) {
-        int score = 0;
-
-        for (final int solutionArrayValue : solution) {
-            if (solutionArrayValue >= 0) {
-                score++;
+        IsomorphicSolution maxSolution = null;
+        for (IsomorphicSolution possibleSolution: possibleSolutions) {
+            if (maxSolution == null) {
+                maxSolution = possibleSolution;
+            } else if (possibleSolution.getScore() > maxSolution.getScore()) {
+                maxSolution = possibleSolution;
             }
         }
-
-        return score;
-    }
-
-    //~--- get methods ---------------------------------------------------------
-    /**
-     * Gets the added relationship roots.
-     *
-     * @return the added relationship roots
-     */
-    @Override
-    public final List<LogicNode> getAddedRelationshipRoots() {
-        final TreeSet<RelationshipKey> addedRelationshipRoots
-                = new TreeSet<>(this.referenceRelationshipNodesMap.keySet());
-
-        addedRelationshipRoots.removeAll(this.comparisonRelationshipNodesMap.keySet());
-
-        List<LogicNode> results = new ArrayList<>();
-        for (RelationshipKey relationshipKey : addedRelationshipRoots) {
-            results.add(this.referenceExpression.getNode(
-                    this.referenceRelationshipNodesMap.get(relationshipKey)));
-        }
-        return results;
-    }
-
-    /**
-     * Gets the additional node roots.
-     *
-     * @return the additional node roots
-     */
-    @Override
-    public List<LogicNode> getAdditionalNodeRoots() {
-
-        List<LogicNode> results = new ArrayList<>();
-        for (int rootNodeId : this.referenceAdditionRoots.asArray()) {
-            results.add(this.referenceExpression.getNode(rootNodeId));
-        }
-
-        return results;
-    }
-
-    /**
-     * Gets the comparison expression.
-     *
-     * @return the comparison expression
-     */
-    @Override
-    public LogicalExpressionImpl getComparisonExpression() {
-        return this.comparisonExpression;
-    }
-
-    /**
-     * Gets the deleted node roots.
-     *
-     * @return the deleted node roots
-     */
-    @Override
-    public List<LogicNode> getDeletedNodeRoots() {
-        List<LogicNode> results = new ArrayList<>();
-        for (int deletedNodeId : this.comparisonDeletionRoots.asArray()) {
-            results.add(this.comparisonExpression.getNode(deletedNodeId));
-        }
-        return results;
-    }
-
-    /**
-     * Gets the deleted relationship roots.
-     *
-     * @return the deleted relationship roots
-     */
-    @Override
-    public final List<LogicNode> getDeletedRelationshipRoots() {
-        final TreeSet<RelationshipKey> deletedRelationshipRoots
-                = new TreeSet<>(this.comparisonRelationshipNodesMap.keySet());
-
-        deletedRelationshipRoots.removeAll(this.referenceRelationshipNodesMap.keySet());
-
-        List<LogicNode> results = new ArrayList<>();
-        for (RelationshipKey deletedNodeId : deletedRelationshipRoots) {
-            results.add(this.comparisonExpression.getNode(
-                    this.comparisonRelationshipNodesMap.get(deletedNodeId)));
-        }
-        return results;
-    }
-
-    /**
-     * Gets the isomorphic expression.
-     *
-     * @return the isomorphic expression
-     */
-    @Override
-    public LogicalExpression getIsomorphicExpression() {
-        return this.isomorphicExpression;
-    }
-
-    /**
-     * Gets the merged expression.
-     *
-     * @return the merged expression
-     */
-    @Override
-    public LogicalExpression getMergedExpression() {
-        return this.mergedExpression;
-    }
-
-    /**
-     * Gets the reference expression.
-     *
-     * @return the reference expression
-     */
-    @Override
-    public LogicalExpressionImpl getReferenceExpression() {
-        return this.referenceExpression;
-    }
-
-    /**
-     * Gets the shared relationship roots.
-     *
-     * @return the shared relationship roots
-     */
-    @Override
-    public List<LogicNode> getSharedRelationshipRoots() {
-        final TreeSet<RelationshipKey> sharedRelationshipRoots
-                = new TreeSet<>(this.referenceRelationshipNodesMap.keySet());
-
-        sharedRelationshipRoots.retainAll(this.comparisonRelationshipNodesMap.keySet());
-
-        List<LogicNode> results = new ArrayList<>();
-        for (RelationshipKey deletedNodeId : sharedRelationshipRoots) {
-            results.add(this.comparisonExpression.getNode(
-                    this.comparisonRelationshipNodesMap.get(deletedNodeId)));
-        }
-        return results;
-    }
-
-    @Override
-    public boolean equivalent() {
-        if (optionalIsomorphicSolution.isPresent()) {
-            for (int solutionIndex : optionalIsomorphicSolution.get().solution) {
-                if (solutionIndex == -1) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
+        return maxSolution;
     }
 }

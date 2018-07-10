@@ -121,7 +121,7 @@ public class AxiomAccumulator
     */
    @Override
    public void accept(Set<Axiom> axioms, LogicalExpressionImpl logicGraphVersion) {
-      if (this.conceptSequences.get(logicGraphVersion.getConceptNid())) {
+      if (this.conceptSequences.get(logicGraphVersion.getConceptBeingDefinedNid())) {
          axioms.addAll(generateAxioms(logicGraphVersion));
       }
    }
@@ -133,7 +133,7 @@ public class AxiomAccumulator
     * @return the set
     */
    public Set<Axiom> generateAxioms(LogicalExpressionImpl logicGraphVersion) {
-      final Concept    thisConcept = this.concepts[logicGraphVersion.getConceptNid()];
+      final Concept    thisConcept = this.concepts[logicGraphVersion.getConceptBeingDefinedNid()];
       final Set<Axiom> axioms      = new HashSet<>();
 
       for (final LogicNode setLogicNode: logicGraphVersion.getRoot()

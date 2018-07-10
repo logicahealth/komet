@@ -107,6 +107,12 @@ public class SubstitutionNodeBoolean
    public String toSimpleString() {
       return "Boolean substitution:" +  super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       BooleanSubstitution(\"");
+            builder.append("not supported yet");
+            builder.append("\", leb)\n");
+    }
 
 
    /**

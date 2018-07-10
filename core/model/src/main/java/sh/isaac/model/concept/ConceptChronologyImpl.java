@@ -45,6 +45,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -431,9 +435,7 @@ public class ConceptChronologyImpl
             if (previousVersion == null) {
                builder.append(lg);
             } else {
-               final IsomorphicResults solution = lg.findIsomorphisms(previousVersion);
-
-               builder.append(solution);
+                builder.append(lg.findIsomorphisms(previousVersion));
             }
 
             builder.append("_______________________________________________________________________\n");
