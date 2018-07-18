@@ -41,7 +41,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
 
             completedUnitOfWork();
 
-            Map<ReaderSpecification, List<byte[]>> exportObjectsToZip = new HashMap<>();
+            Map<ReaderSpecification, List<String>> exportObjectsToZip = new HashMap<>();
             final ExportLookUpCache exportLookUpCache = new ExportLookUpCache();
 
             ReaderSpecification conceptReaderSpec = new RF2ConceptSpec(this.manifold, exportLookUpCache);
@@ -58,9 +58,9 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
 
                 exportObjectsToZip.put(conceptReaderSpec,
                         Get.executor().submit(
-                                new BatchReader(conceptReaderSpec, 102400), new ArrayList<byte[]>()).get());
+                                new BatchReader(conceptReaderSpec, 102400), new ArrayList<String>()).get());
 
-                System.out.println("~~Total Concept Reading Time: " + Duration.between(conceptStart, LocalDateTime.now()));
+                System.out.println("~~~Total Concept Reading Time: " + Duration.between(conceptStart, LocalDateTime.now()));
             }
 
             completedUnitOfWork();
@@ -73,9 +73,9 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
 
                 exportObjectsToZip.put(descriptionReaderSpec,
                         Get.executor().submit(
-                                new BatchReader(descriptionReaderSpec, 102400), new ArrayList<byte[]>()).get());
+                                new BatchReader(descriptionReaderSpec, 102400), new ArrayList<String>()).get());
 
-                System.out.println("~~Total Description Reading Time: " + Duration.between(descriptionStart, LocalDateTime.now()));
+                System.out.println("~~~Total Description Reading Time: " + Duration.between(descriptionStart, LocalDateTime.now()));
             }
 
             completedUnitOfWork();
@@ -88,9 +88,9 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
 
                 exportObjectsToZip.put(relationshipReaderSpec,
                         Get.executor().submit(
-                                new BatchReader(relationshipReaderSpec, 102400), new ArrayList<byte[]>()).get());
+                                new BatchReader(relationshipReaderSpec, 102400), new ArrayList<String>()).get());
 
-                System.out.println("~~Total Relationship Reading Time: " + Duration.between(relationshipStart, LocalDateTime.now()));
+                System.out.println("~~~Total Relationship Reading Time: " + Duration.between(relationshipStart, LocalDateTime.now()));
             }
 
             completedUnitOfWork();
@@ -106,12 +106,12 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
                         new ZipExportFiles(this.exportFormatType, this.exportDirectory, exportObjectsToZip);
                 Get.executor().submit(zipExportFiles).get();
 
-                System.out.println("~~Total Zipping Time: " + Duration.between(zipStart, LocalDateTime.now()));
+                System.out.println("~~~Total Zipping Time: " + Duration.between(zipStart, LocalDateTime.now()));
             }
 
             completedUnitOfWork();
 
-            System.out.println("~~Total Time: " + Duration.between(totalStart, LocalDateTime.now()));
+            System.out.println("~~~Total Time: " + Duration.between(totalStart, LocalDateTime.now()));
 
 
         }finally {

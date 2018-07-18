@@ -29,23 +29,21 @@ public class RF2ConceptSpec extends RF2ReaderSpecification {
     }
 
     @Override
-    public void addColumnHeaders(List<byte[]> byteList) throws UnsupportedEncodingException{
-        byteList.add(0, "id\teffectiveTime\tactive\tmoduleId\tdefinitionStatusId\r"
-                .getBytes("UTF-8"));
+    public void addColumnHeaders(List<String> lines){
+        lines.add(0, "id\teffectiveTime\tactive\tmoduleId\tdefinitionStatusId\r");
     }
 
     @Override
-    public List<byte[]> readExportData(Chronology chronology) throws UnsupportedEncodingException {
+    public List<String> readExportData(Chronology chronology) {
 
-        List<byte[]> byteList = new ArrayList<>();
+        List<String> returnList = new ArrayList<>();
 
-        byteList.add(getRF2CommonElements(chronology) //id, effectiveTime, active, moduleId
+        returnList.add(getRF2CommonElements(chronology) //id, effectiveTime, active, moduleId
                 .append(getConceptPrimitiveOrSufficientDefinedSCTID(chronology.getNid()))   //definitionStatusId
                 .append("\r")
-                .toString()
-                .getBytes("UTF-8"));
+                .toString());
 
-        return byteList;
+        return returnList;
     }
 
     @Override

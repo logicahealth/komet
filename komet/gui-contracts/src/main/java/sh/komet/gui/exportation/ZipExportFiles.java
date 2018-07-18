@@ -21,10 +21,10 @@ public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implement
 
     private final ExportFormatType exportFormatType;
     private final File exportDirectory;
-    private final Map<ReaderSpecification, List<byte[]>> bytesToZip;
+    private final Map<ReaderSpecification, List<String>> bytesToZip;
 
 
-    public ZipExportFiles(ExportFormatType exportFormatType, File exportDirectory, Map<ReaderSpecification, List<byte[]>> bytesToZip) {
+    public ZipExportFiles(ExportFormatType exportFormatType, File exportDirectory, Map<ReaderSpecification, List<String>> bytesToZip) {
         this.exportFormatType = exportFormatType;
         this.exportDirectory = exportDirectory;
         this.bytesToZip = bytesToZip;
@@ -40,14 +40,17 @@ public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implement
                 new FileOutputStream(this.exportDirectory.getAbsolutePath() + "/" + rootDirName + ".zip"),
                 StandardCharsets.UTF_8);
 
-        for(Map.Entry<ReaderSpecification, List<byte[]>> entry : this.bytesToZip.entrySet()){
+        for(Map.Entry<ReaderSpecification, List<String>> entry : this.bytesToZip.entrySet()){
 
             ZipEntry zipEntry = new ZipEntry(entry.getKey().getFileName(rootDirName));
             try {
                 zipOut.putNextEntry(zipEntry);
 
                 entry.getValue().stream()
-                        .forEach(bytes -> {
+                        .forEach(s -> {
+
+                            byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+
                             try {
                                 zipOut.write(bytes, 0, bytes.length);
                             }catch (IOException ioE){
