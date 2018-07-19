@@ -142,6 +142,7 @@
       <testng.version>6.13.1</testng.version>
       <tilesfx.version>1.5.2</tilesfx.version>
       <wagon-provider-api.version>3.0.0</wagon-provider-api.version>
+      <jackson-databind.version>2.9.6</jackson-databind.version>
    </properties>
 
    <developers>
@@ -423,7 +424,7 @@
          <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.4</version>
+            <version>${jackson-databind.version}</version>
          </dependency>
          <dependency>
             <groupId>com.h2database</groupId>
