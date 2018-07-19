@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface ReaderSpecification {
 
-    List<byte[]> readExportData(Chronology chronology) throws UnsupportedEncodingException;
+    List<String> readExportData(Chronology chronology);
     String getReaderUIText();
     List<Chronology> createChronologyList();
     String getFileName(String rootDirName);
-    void addColumnHeaders(List<byte[]> list) throws UnsupportedEncodingException;
+    void addColumnHeaders(List<String> list);
 }

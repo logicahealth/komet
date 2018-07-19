@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
 /*
  * aks8m - 5/20/18
  */
-public class BatchReader extends TimedTaskWithProgressTracker<List<byte[]>> implements PersistTaskResult {
+public class BatchReader extends TimedTaskWithProgressTracker<List<String>> implements PersistTaskResult {
 
 
     private final ReaderSpecification readerSpecification;
@@ -28,11 +28,11 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<byte[]>> impl
     }
 
     @Override
-    protected List<byte[]> call() throws Exception {
+    protected List<String> call() throws Exception {
 
         final List<Chronology> chronologyBatches = new ArrayList<>();
-        final List<Future<List<byte[]>>> futures = new ArrayList<>();
-        final List<byte[]> byteList = new ArrayList<>();
+        final List<Future<List<String>>> futures = new ArrayList<>();
+        final List<String> returnList = new ArrayList<>();
 
         try {
 
@@ -60,14 +60,14 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<byte[]>> impl
             }
             completedUnitOfWork();
 
-            for (Future<List<byte[]>> future : futures)
-                byteList.addAll(future.get());
+            for (Future<List<String>> future : futures)
+                returnList.addAll(future.get());
 
             completedUnitOfWork();
         } finally {
             Get.activeTasks().remove(this);
 
         }
-        return byteList;
+        return returnList;
     }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 /*
  * aks8m - 5/20/18
  */
-public class ChronologyReader extends TimedTaskWithProgressTracker<List<byte[]>> implements PersistTaskResult {
+public class ChronologyReader extends TimedTaskWithProgressTracker<List<String>> implements PersistTaskResult {
 
     private final ReaderSpecification readerSpecification;
     private List<? extends Chronology> chronologiesToRead;
@@ -29,24 +29,17 @@ public class ChronologyReader extends TimedTaskWithProgressTracker<List<byte[]>>
     }
 
     @Override
-    protected List<byte[]> call() throws Exception {
+    protected List<String> call() throws Exception {
 
-        final List<byte[]> byteList = new ArrayList<>();
+        final List<String> returnList = new ArrayList<>();
 
         try {
             completedUnitOfWork();
 
             this.chronologiesToRead.stream()
-                    .forEach(chronology -> {
+                    .forEach(chronology -> returnList.addAll(this.readerSpecification.readExportData(chronology)));
 
-                        try {
-                            byteList.addAll(this.readerSpecification.readExportData(chronology));
-                        }catch (UnsupportedEncodingException uueE) {
-                            uueE.printStackTrace();
-                        }
-                    });
-
-            this.readerSpecification.addColumnHeaders(byteList);
+            this.readerSpecification.addColumnHeaders(returnList);
 
             completedUnitOfWork();
 
@@ -54,6 +47,6 @@ public class ChronologyReader extends TimedTaskWithProgressTracker<List<byte[]>>
             Get.activeTasks().remove(this);
         }
 
-        return byteList;
+        return returnList;
     }
 }

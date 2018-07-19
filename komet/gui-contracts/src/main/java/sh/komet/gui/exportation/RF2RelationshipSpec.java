@@ -5,10 +5,13 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.observable.semantic.version.ObservableLogicGraphVersion;
+import sh.isaac.api.observable.semantic.version.brittle.ObservableRf2Relationship;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
@@ -19,6 +22,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /*
@@ -27,6 +32,7 @@ import java.util.stream.Collectors;
 public class RF2RelationshipSpec extends RF2ReaderSpecification {
 
     private final Manifold manifold;
+    private String isASCTID = super.getIdString(Get.concept(TermAux.IS_A));
 
     public RF2RelationshipSpec(Manifold manifold, ExportLookUpCache exportLookUpCache) {
         super(manifold, exportLookUpCache);
@@ -34,34 +40,26 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
     }
 
     @Override
-    public void addColumnHeaders(List<byte[]> byteList) throws UnsupportedEncodingException {
-        byteList.add(0, ("id\teffectiveTime\tactive\tmoduleId\tsourceId\tdestinationId" +
-                "\trelationshipGroup\ttypeId\tcharacteristicTypeId\tmodifierId\r").getBytes("UTF-8"));
+    public void addColumnHeaders(List<String> lines) {
+        lines.add(0, ("id\teffectiveTime\tactive\tmoduleId\tsourceId\tdestinationId" +
+                "\trelationshipGroup\ttypeId\tcharacteristicTypeId\tmodifierId\r"));
 
     }
 
     @Override
-    public List<byte[]> readExportData(Chronology chronology) throws UnsupportedEncodingException {
-
-        return getComputedComponents(
-                getRF2CommonElements(chronology).toString(),
-                chronology);
-    }
-
-    private List<byte[]> getComputedComponents(String baseRF2Elements, Chronology chronology){
-
-        List<byte[]> byteList = new ArrayList<>();
-        final String modifierId = "900000000000451002"; //Existential restriction modifier (core metadata concept)
-        final String roleGroup = "0";
+    public List<String> readExportData(Chronology chronology) {
+        List<String> returnList = new ArrayList<>();
         final String characteristicTypeId;
+        final String modifierId = "900000000000451002"; //Existential restriction modifier (core metadata concept)
+        final AtomicInteger roleGroup = new AtomicInteger(0);
 
-        if(chronology.getAssemblageNid() == TermAux. EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid())
+
+        if (chronology.getAssemblageNid() == TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid())
             characteristicTypeId = "900000000000011006";    //Inferred relationship (core metadata concept)
-        else if(chronology.getAssemblageNid() == TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid())
+        else if (chronology.getAssemblageNid() == TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid())
             characteristicTypeId = "900000000000010007";    //Stated relationship (core metadata concept)
         else
             characteristicTypeId = "¯\\_(ツ)_/¯";
-
 
         LogicalExpression logicalExpression = ((LatestVersion<ObservableLogicGraphVersion>)
                 super.getSnapshotService()
@@ -69,82 +67,137 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
 
         logicalExpression.processDepthFirst((logicNode, treeNodeVisitData) -> {
 
-            if(logicNode.getNodeSemantic() == NodeSemantic.CONCEPT){
+            if(logicNode.getNodeSemantic() == NodeSemantic.ROLE_ALL
+                    || logicNode.getNodeSemantic() == NodeSemantic.ROLE_SOME){
+                roleGroup.getAndIncrement();
+            }
+
+            if (logicNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+
+                ConceptChronology conceptChronology = Get.concept(logicNode.getNidForConceptBeingDefined());
 
                 LogicNode parentNode = null;
                 LogicNode tempNode = logicNode;
 
-                do{
-                    if(parentNode != null)
+                do {
+                    if (parentNode != null)
                         tempNode = parentNode;
 
                     int parentIndex = treeNodeVisitData.getPredecessorNid(tempNode.getNodeIndex()).getAsInt();
                     parentNode = logicalExpression.getNode(parentIndex);
 
-                }while(!(parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET ||
+                } while (!(parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET ||
                         parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET ||
                         parentNode.getNodeSemantic() == NodeSemantic.ROLE_ALL |
                                 parentNode.getNodeSemantic() == NodeSemantic.ROLE_SOME));
 
-                if(parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET || parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET){
+                if (parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET || parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET) {
 
-                    StringBuilder sb = new StringBuilder();
-                    byteList.add(convertStringToUTF8Array(
-                            sb.append(baseRF2Elements)
-                                    .append(getIdString(Get.concept(logicNode.getNidForConceptBeingDefined())) + "\t") //source
-                                    .append(getIdString(Get.concept(((ConceptNodeWithNids)logicNode).getConceptNid())) + "\t") //destination
-                                    .append(roleGroup + "\t") //rolegroup
-                                    .append(getIdString(Get.concept(TermAux.IS_A)) + "\t") //type
-                                    .append(characteristicTypeId + "\t") //charType
-                                    .append(modifierId + "\t")  //modifier
-                                    .toString()
-                                    + "\r"));
-                }else if(parentNode instanceof RoleNodeAllWithNids){
+                    returnList.add(compareToRF2RelSemantic(
+                            chronology,
+                            conceptChronology,
+                            super.getIdString(conceptChronology),
+                            super.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())),
+                            String.valueOf(roleGroup.get()),
+                            isASCTID,
+                            characteristicTypeId,
+                            modifierId));
 
-                    StringBuilder sb = new StringBuilder();
-                    byteList.add(convertStringToUTF8Array(
-                            sb.append(baseRF2Elements)
-                                    .append(getIdString(Get.concept(logicNode.getNidForConceptBeingDefined())) + "\t") //source
-                                    .append(getIdString(Get.concept(((ConceptNodeWithNids)logicNode).getConceptNid())) + "\t") //destination
-                                    .append(roleGroup + "\t") //rolegroup
-                                    .append(getIdString(Get.concept (((RoleNodeAllWithNids)parentNode).getTypeConceptNid())) + "\t") //type
-                                    .append(characteristicTypeId + "\t") //charType
-                                    .append(modifierId + "\t")  //modifier
-                                    .toString()
-                                    + "\r"));
-                }else if(parentNode instanceof RoleNodeSomeWithNids){
+                } else if (parentNode instanceof RoleNodeAllWithNids) {
 
-                    StringBuilder sb = new StringBuilder();
-                    byteList.add(convertStringToUTF8Array(
-                            sb.append(baseRF2Elements)
-                                    .append(getIdString(Get.concept(logicNode.getNidForConceptBeingDefined())) + "\t") //source
-                                    .append(getIdString(Get.concept(((ConceptNodeWithNids)logicNode).getConceptNid())) + "\t") //destination
-                                    .append(roleGroup + "\t") //rolegroup
-                                    .append(getIdString(Get.concept (((RoleNodeSomeWithNids)parentNode).getTypeConceptNid())) + "\t") //type
-                                    .append(characteristicTypeId + "\t") //charType
-                                    .append(modifierId + "\t")  //modifier
-                                    .toString()
-                                    + "\r"));
+                    returnList.add(compareToRF2RelSemantic(
+                            chronology,
+                            conceptChronology,
+                            super.getIdString(conceptChronology),
+                            super.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())),
+                            String.valueOf(roleGroup.get()),
+                            super.getIdString(Get.concept(((RoleNodeAllWithNids) parentNode).getTypeConceptNid())),
+                            characteristicTypeId,
+                            modifierId));
+
+                } else if (parentNode instanceof RoleNodeSomeWithNids) {
+
+                    returnList.add(compareToRF2RelSemantic(
+                            chronology,
+                            conceptChronology,
+                            super.getIdString(conceptChronology),
+                            super.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())),
+                            String.valueOf(roleGroup.get()),
+                            super.getIdString(Get.concept(((RoleNodeSomeWithNids) parentNode).getTypeConceptNid())),
+                            characteristicTypeId,
+                            modifierId));
+
                 }
             }
         });
 
-        return byteList;
+        return returnList;
     }
 
-    private byte[] convertStringToUTF8Array(String string){
-        byte[] bytes = new byte[1025];
+    private String compareToRF2RelSemantic(Chronology logicGraphChronology,
+                                           ConceptChronology conceptChronology,
+                                           String solorSourceId,
+                                           String solorDestinationId,
+                                           String solorRelationhsipGroup,
+                                           String solorTypeId,
+                                           String solorCharacteristicTypeId,
+                                           String solorModifierId){
 
-        try {
-            bytes = string.getBytes("UTF-8");
-        }catch (UnsupportedEncodingException uueE){
-            uueE.printStackTrace();
-        }
+        //Build out SOLOR relationship strings regardless...
+        StringBuilder solorString = new StringBuilder()
+                .append(solorSourceId + "\t")
+                .append(solorDestinationId + "\t")
+                .append(solorRelationhsipGroup + "\t")
+                .append(solorTypeId + "\t")
+                .append(solorCharacteristicTypeId + "\t")
+                .append(solorModifierId)
+                .append("\r");
 
-        return bytes;
+//        Optional<SemanticChronology> optionalRF2RelationshipSemantic = conceptChronology.getSemanticChronologyList().stream()
+//                .filter(semanticChronology -> semanticChronology.getVersionType() == VersionType.RF2_RELATIONSHIP)
+//                .filter(semanticChronology -> semanticChronology.getAssemblageNid() ==
+//                        (logicGraphChronology.getAssemblageNid() == TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid()?
+//                                TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE.getNid()
+//                                : TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid() ) )
+//                .findFirst();
+//
+//        if(optionalRF2RelationshipSemantic.isPresent()){
+//
+//            ObservableRf2Relationship observableRf2Relationship = ((LatestVersion<ObservableRf2Relationship>)
+//                    getSnapshotService().getObservableSemanticVersion(optionalRF2RelationshipSemantic
+//                            .get().getNid())).get();
+//
+//            final String rf2SourceId = getIdString(conceptChronology);
+//            final String rf2DestinationId = String.valueOf(super.getIdString(observableRf2Relationship.destinationNidProperty().get()));
+//            final String rf2RelationshipGroup = String.valueOf(observableRf2Relationship.relationshipGroupProperty().get());
+//            final String rf2TypeId = String.valueOf(super.getIdString(observableRf2Relationship.typeNidProperty().get()));
+//            final String rf2CharacteristicTypeId = String.valueOf(super.getIdString(observableRf2Relationship.characteristicNidProperty().get()));
+//            final String rf2ModifierId = String.valueOf(super.getIdString(observableRf2Relationship.modifierNidProperty().get()));
+//
+//            if( solorSourceId.equals(rf2SourceId)
+//                    && solorDestinationId.equals(rf2DestinationId)
+//                    && solorRelationhsipGroup.equals(rf2RelationshipGroup)
+//                    && solorTypeId.equals(rf2TypeId)
+//                    && solorCharacteristicTypeId.equals(rf2CharacteristicTypeId)
+//                    && solorModifierId.equals(rf2ModifierId)){
+//
+//                StringBuilder rf2String = new StringBuilder()
+//                        .append(rf2SourceId + "\t")
+//                        .append(rf2DestinationId + "\t")
+//                        .append(rf2RelationshipGroup + "\t")
+//                        .append(rf2TypeId + "\t")
+//                        .append(rf2CharacteristicTypeId + "\t")
+//                        .append(rf2ModifierId + "\t")
+//                        .append("\r");
+//
+//                return getRF2CommonElements(observableRf2Relationship.getChronology())
+//                        .append(rf2String).toString();
+//            }
+//        }
+
+        return getRF2CommonElements(logicGraphChronology)
+                .append(solorString).toString();
     }
-
-
 
     @Override
     public String getReaderUIText() {
@@ -156,7 +209,6 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
         return Get.conceptService().getConceptChronologyStream()
                 .flatMap(conceptChronology -> conceptChronology.getSemanticChronologyList().stream())
                 .filter(semanticChronology -> semanticChronology.getVersionType() == VersionType.LOGIC_GRAPH)
-                .limit(2000)
                 .collect(Collectors.toList());
     }
 

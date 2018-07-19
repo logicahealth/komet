@@ -28,19 +28,17 @@ public class RF2DescriptionSpec extends RF2ReaderSpecification{
     }
 
     @Override
-    public void addColumnHeaders(List<byte[]> byteList) throws UnsupportedEncodingException {
-
-        byteList.add(0,
-                "id\teffectiveTime\tactive\tmoduleId\tconceptId\tlanguageCode\ttypeId\tterm\tcaseSignificanceId\r"
-                        .getBytes("UTF-8"));
+    public void addColumnHeaders(List<String> lines){
+        lines.add(0,
+                "id\teffectiveTime\tactive\tmoduleId\tconceptId\tlanguageCode\ttypeId\tterm\tcaseSignificanceId\r");
     }
 
     @Override
-    public List<byte[]> readExportData(Chronology chronology) throws UnsupportedEncodingException {
+    public List<String> readExportData(Chronology chronology) {
 
-        List<byte[]> byteList = new ArrayList<>();
+        List<String> returnList = new ArrayList<>();
 
-        byteList.add(
+        returnList.add(
                 getRF2CommonElements(chronology) //id, effectiveTime, active, moduleId
                 .append(getIdString(Get.concept(((SemanticChronology) chronology).getReferencedComponentNid())) + "\t") //conceptId
                 .append(getLanguageCode(chronology) + "\t") //languageCode
@@ -48,10 +46,9 @@ public class RF2DescriptionSpec extends RF2ReaderSpecification{
                 .append(getTerm(chronology) + "\t") //term
                 .append(getCaseSignificanceId(chronology)) //caseSignificanceId
                 .append("\r")
-                .toString()
-                .getBytes("UTF-8"));
+                .toString());
 
-        return byteList;
+        return returnList;
     }
 
     @Override

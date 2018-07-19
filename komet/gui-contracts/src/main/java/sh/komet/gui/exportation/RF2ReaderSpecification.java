@@ -12,6 +12,10 @@ import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.komet.gui.manifold.Manifold;
 
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 /*
  * aks8m - 5/22/18
  */
@@ -52,6 +56,23 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
                 .append(getModuleString(stampNid) + "\t");     //moduleId
     }
 
+    StringBuilder getRF2CommonElements(Chronology chronology, int id){
+
+        int stampNid = 0;
+
+        if(chronology instanceof ConceptChronology)
+            stampNid = getSnapshotService().getObservableConceptVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
+        else if(chronology instanceof SemanticChronology)
+            stampNid = getSnapshotService().getObservableSemanticVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
+
+
+        return new StringBuilder()
+                .append(id + "\t")       //id
+                .append(getTimeString(stampNid) + "\t")        //time
+                .append(getActiveString(stampNid) + "\t")      //active
+                .append(getModuleString(stampNid) + "\t");     //moduleId
+    }
+
     String getIdString(Chronology chronology){
 
         if (this.exportLookUpCache.getSctidNids().contains(chronology.getNid())) {
@@ -66,9 +87,13 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
             return UuidT5Generator.makeSolorIdFromUuid(chronology.getPrimordialUuid());
         }
     }
+    String getIdString(int chronologyNid){
+        return getIdString(Get.concept(chronologyNid));
+    }
+
 
     String getTimeString(int stampNid){
-        return Long.toString(Get.stampService().getTimeForStamp(stampNid));
+        return new SimpleDateFormat("YYYYMMd").format(new Date(Get.stampService().getTimeForStamp(stampNid)));
     }
 
     String getActiveString(int stampNid){
@@ -96,6 +121,5 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
 
         return stringVersion.isPresent() ? stringVersion.get().getString() : "";
     }
-
 
 }
