@@ -187,7 +187,12 @@ public class ConfigurationServiceProvider
                String dataStoreRootFolder = System.getProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY);
 
                if (StringUtils.isNotBlank(dataStoreRootFolder)) {
-                  this.systemPropertyDataStoreFolderPath = Paths.get(dataStoreRootFolder);
+                  if (this.systemPropertyDataStoreFolderPath == null) {
+                     //Due to the way the sync block is set up, we can sometimes enter this twice, and its confusing to log the path twice, hence the extra if check
+                     this.systemPropertyDataStoreFolderPath = Paths.get(dataStoreRootFolder);
+                     LOG.info("Datastore path from " + SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY + " is:" 
+                           + this.systemPropertyDataStoreFolderPath.toAbsolutePath());
+                  }
                   return this.systemPropertyDataStoreFolderPath;
                }
                else if (new File("target").isDirectory()){
@@ -245,6 +250,7 @@ public class ConfigurationServiceProvider
                                     e);
       }
 
+      LOG.info("Specified data store folder path: {}", dataStoreFolderPath.toFile().getAbsolutePath());
       this.userDataStoreFolderPath = dataStoreFolderPath;
    }
    
