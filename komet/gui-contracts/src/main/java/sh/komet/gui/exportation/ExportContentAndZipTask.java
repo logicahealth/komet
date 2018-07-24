@@ -56,9 +56,11 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
 
                 updateMessage("Reading Concepts...");
 
-                exportObjectsToZip.put(conceptReaderSpec,
-                        Get.executor().submit(
-                                new BatchReader(conceptReaderSpec, 102400), new ArrayList<String>()).get());
+                List<String> conceptList = Get.executor().submit(
+                        new BatchReader(conceptReaderSpec, 102400), new ArrayList<String>()).get();
+
+                conceptReaderSpec.addColumnHeaders(conceptList);
+                exportObjectsToZip.put(conceptReaderSpec,conceptList );
 
                 System.out.println("~~~Total Concept Reading Time: " + Duration.between(conceptStart, LocalDateTime.now()));
             }
@@ -71,9 +73,11 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
 
                 updateMessage("Reading Descriptions...");
 
-                exportObjectsToZip.put(descriptionReaderSpec,
-                        Get.executor().submit(
-                                new BatchReader(descriptionReaderSpec, 102400), new ArrayList<String>()).get());
+                List<String> descriptionList = Get.executor().submit(
+                        new BatchReader(descriptionReaderSpec, 102400), new ArrayList<String>()).get();
+
+                descriptionReaderSpec.addColumnHeaders(descriptionList);
+                exportObjectsToZip.put(descriptionReaderSpec, descriptionList);
 
                 System.out.println("~~~Total Description Reading Time: " + Duration.between(descriptionStart, LocalDateTime.now()));
             }
@@ -86,9 +90,11 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
 
                 updateMessage("Reading Relationships...");
 
-                exportObjectsToZip.put(relationshipReaderSpec,
-                        Get.executor().submit(
-                                new BatchReader(relationshipReaderSpec, 102400), new ArrayList<String>()).get());
+                List<String> relationshipList = Get.executor().submit(
+                        new BatchReader(relationshipReaderSpec, 102400), new ArrayList<String>()).get();
+
+                relationshipReaderSpec.addColumnHeaders(relationshipList);
+                exportObjectsToZip.put(relationshipReaderSpec, relationshipList);
 
                 System.out.println("~~~Total Relationship Reading Time: " + Duration.between(relationshipStart, LocalDateTime.now()));
             }

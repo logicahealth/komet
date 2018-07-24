@@ -39,8 +39,6 @@ public class ChronologyReader extends TimedTaskWithProgressTracker<List<String>>
             this.chronologiesToRead.stream()
                     .forEach(chronology -> returnList.addAll(this.readerSpecification.readExportData(chronology)));
 
-            this.readerSpecification.addColumnHeaders(returnList);
-
             completedUnitOfWork();
 
         }finally {
