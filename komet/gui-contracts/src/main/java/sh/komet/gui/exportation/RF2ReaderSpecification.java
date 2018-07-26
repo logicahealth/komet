@@ -86,6 +86,7 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
         } else {
             return UuidT5Generator.makeSolorIdFromUuid(chronology.getPrimordialUuid());
         }
+
     }
     String getIdString(int chronologyNid){
         return getIdString(Get.concept(chronologyNid));

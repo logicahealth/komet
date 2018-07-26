@@ -1,5 +1,6 @@
 package sh.komet.gui.exportation;
 
+import sh.isaac.api.Get;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -22,47 +24,61 @@ public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implement
     private final ExportFormatType exportFormatType;
     private final File exportDirectory;
     private final Map<ReaderSpecification, List<String>> bytesToZip;
+    private final Semaphore readSemaphore;
 
 
-    public ZipExportFiles(ExportFormatType exportFormatType, File exportDirectory, Map<ReaderSpecification, List<String>> bytesToZip) {
+    public ZipExportFiles(ExportFormatType exportFormatType, File exportDirectory, Map<ReaderSpecification, List<String>> stringsToZip, Semaphore readSemaphore) {
         this.exportFormatType = exportFormatType;
         this.exportDirectory = exportDirectory;
-        this.bytesToZip = bytesToZip;
+        this.bytesToZip = stringsToZip;
+        this.readSemaphore = readSemaphore;
+        readSemaphore.acquireUninterruptibly();
+
+        updateTitle("Zipping Export Data");
+        Get.activeTasks().add(this);
+
     }
 
     @Override
     protected Void call() throws Exception {
 
-        final String rootDirName = "SnomedCT_SolorRF2_PRODUCTION_"
-                + DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(LocalDateTime.now());
+        try {
 
-        ZipOutputStream zipOut = new ZipOutputStream(
-                new FileOutputStream(this.exportDirectory.getAbsolutePath() + "/" + rootDirName + ".zip"),
-                StandardCharsets.UTF_8);
+            final String rootDirName = "SnomedCT_SolorRF2_PRODUCTION_"
+                    + DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(LocalDateTime.now());
 
-        for(Map.Entry<ReaderSpecification, List<String>> entry : this.bytesToZip.entrySet()){
+            ZipOutputStream zipOut = new ZipOutputStream(
+                    new FileOutputStream(this.exportDirectory.getAbsolutePath() + "/" + rootDirName + ".zip"),
+                    StandardCharsets.UTF_8);
 
-            ZipEntry zipEntry = new ZipEntry(entry.getKey().getFileName(rootDirName));
-            try {
-                zipOut.putNextEntry(zipEntry);
+            for (Map.Entry<ReaderSpecification, List<String>> entry : this.bytesToZip.entrySet()) {
 
-                entry.getValue().stream()
-                        .forEach(s -> {
+                ZipEntry zipEntry = new ZipEntry(entry.getKey().getFileName(rootDirName));
+                try {
+                    zipOut.putNextEntry(zipEntry);
 
-                            byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+                    entry.getValue().stream()
+                            .forEach(s -> {
 
-                            try {
-                                zipOut.write(bytes, 0, bytes.length);
-                            }catch (IOException ioE){
-                                ioE.printStackTrace();
-                            }
-                        });
-            }catch (IOException ioE){
-                ioE.printStackTrace();
+                                byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+
+                                try {
+                                    zipOut.write(bytes, 0, bytes.length);
+                                } catch (IOException ioE) {
+                                    ioE.printStackTrace();
+                                }
+                            });
+                } catch (IOException ioE) {
+                    ioE.printStackTrace();
+                }
             }
-        }
 
-        zipOut.close();
+            zipOut.close();
+
+        }finally {
+            this.readSemaphore.release();
+            Get.activeTasks().remove(this);
+        }
 
         return null;
     }

@@ -8,6 +8,7 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 
 /*
  * aks8m - 5/20/18
@@ -16,11 +17,14 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
 
 
     private final ReaderSpecification readerSpecification;
-    private final int BATCH_SIZE;
+    private final int batchSize;
+    private final Semaphore readSemaphore;
 
-    public BatchReader(ReaderSpecification readerSpecification, int BATCH_SIZE) {
+    public BatchReader(ReaderSpecification readerSpecification, int batchSize, Semaphore readSemaphore) {
         this.readerSpecification = readerSpecification;
-        this.BATCH_SIZE = BATCH_SIZE;
+        this.batchSize = batchSize;
+        this.readSemaphore = readSemaphore;
+        this.readSemaphore.acquireUninterruptibly();
 
         updateTitle("Managing " + this.readerSpecification.getReaderUIText() + " Readers");
         addToTotalWork(4);
@@ -42,20 +46,20 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
 
             completedUnitOfWork();
             for (int i = 0; i < chronologies.size(); i++) {
-                if (chronologyBatches.size() < this.BATCH_SIZE) {
+                if (chronologyBatches.size() < this.batchSize) {
 
                     chronologyBatches.add(chronologies.get(i));
-                } else if (chronologyBatches.size() == this.BATCH_SIZE) {
+                } else if (chronologyBatches.size() == this.batchSize) {
 
                     futures.add(Get.executor().submit(
-                            new ChronologyReader(this.readerSpecification, new ArrayList<>(chronologyBatches)), new ArrayList<>()));
+                            new ChronologyReader(this.readerSpecification, new ArrayList<>(chronologyBatches), readSemaphore), new ArrayList<>()));
                     chronologyBatches.clear();
                 }
 
                 if (i == chronologies.size() - 1) {
 
                     futures.add(Get.executor().submit(
-                            new ChronologyReader(this.readerSpecification, new ArrayList<>(chronologyBatches)), new ArrayList<>()));
+                            new ChronologyReader(this.readerSpecification, new ArrayList<>(chronologyBatches), readSemaphore), new ArrayList<>()));
                 }
             }
             completedUnitOfWork();
@@ -65,8 +69,8 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
 
             completedUnitOfWork();
         } finally {
+            this.readSemaphore.release();
             Get.activeTasks().remove(this);
-
         }
         return returnList;
     }
