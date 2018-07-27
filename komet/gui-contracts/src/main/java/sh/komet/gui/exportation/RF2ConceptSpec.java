@@ -23,8 +23,8 @@ public class RF2ConceptSpec extends RF2ReaderSpecification {
 
     private final Manifold manifold;
 
-    public RF2ConceptSpec(Manifold manifold, ExportLookUpCache exportLookUpCache) {
-        super(manifold, exportLookUpCache);
+    public RF2ConceptSpec(Manifold manifold) {
+        super(manifold);
         this.manifold = manifold;
     }
 

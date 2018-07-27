@@ -22,8 +22,8 @@ public class RF2DescriptionSpec extends RF2ReaderSpecification{
 
     private final Manifold manifold;
 
-    public RF2DescriptionSpec(Manifold manifold, ExportLookUpCache exportLookUpCache) {
-        super(manifold, exportLookUpCache);
+    public RF2DescriptionSpec(Manifold manifold) {
+        super(manifold);
         this.manifold = manifold;
     }
 

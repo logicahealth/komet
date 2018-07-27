@@ -23,11 +23,9 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
 
     private final Manifold manifold;
     private static ObservableSnapshotService snapshotService;
-    private final ExportLookUpCache exportLookUpCache;
 
-    public RF2ReaderSpecification(Manifold manifold, ExportLookUpCache exportLookUpCache) {
+    public RF2ReaderSpecification(Manifold manifold) {
         this.manifold = manifold;
-        this.exportLookUpCache = exportLookUpCache;
         createSnapshotInstance(this.manifold);
     }
 
@@ -75,12 +73,12 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
 
     String getIdString(Chronology chronology){
 
-        if (this.exportLookUpCache.getSctidNids().contains(chronology.getNid())) {
+        if (ExportLookUpCache.isSCTID(chronology)) {
             return lookUpIdentifierFromSemantic(this.snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), chronology);
-        } else if (this.exportLookUpCache.getLoincNids().contains(chronology.getNid())) {
+        } else if (ExportLookUpCache.isLoinc(chronology)) {
             final String loincId = lookUpIdentifierFromSemantic(this.snapshotService, MetaData.CODE____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeSolorIdFromLoincId(loincId);
-        } else if (this.exportLookUpCache.getRxnormNids().contains(chronology.getNid())) {
+        } else if (ExportLookUpCache.isRxNorm(chronology)) {
             final String rxnormId = lookUpIdentifierFromSemantic(this.snapshotService, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeSolorIdFromRxNormId(rxnormId);
         } else {
@@ -103,7 +101,7 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
 
     String getModuleString(int stampNid){
         ConceptChronology moduleConcept = Get.concept(Get.stampService().getModuleNidForStamp(stampNid));
-        if (this.exportLookUpCache.getSctidNids().contains(moduleConcept.getNid())) {
+        if (ExportLookUpCache.isSCTID(moduleConcept)) {
             return lookUpIdentifierFromSemantic(this.snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), moduleConcept);
         } else {
             return UuidT5Generator.makeSolorIdFromUuid(moduleConcept.getPrimordialUuid());

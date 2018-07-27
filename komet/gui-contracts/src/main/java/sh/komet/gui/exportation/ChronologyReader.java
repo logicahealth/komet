@@ -26,7 +26,7 @@ public class ChronologyReader extends TimedTaskWithProgressTracker<List<String>>
 
         this.readSemaphore.acquireUninterruptibly();
         updateTitle("Reading " + this.chronologiesToRead.size() + " " + this.readerSpecification.getReaderUIText());
-        addToTotalWork(2);
+        addToTotalWork(chronologiesToRead.size() + 2);
         Get.activeTasks().add(this);
     }
 
@@ -39,7 +39,11 @@ public class ChronologyReader extends TimedTaskWithProgressTracker<List<String>>
             completedUnitOfWork();
 
             this.chronologiesToRead.stream()
-                    .forEach(chronology -> returnList.addAll(this.readerSpecification.readExportData(chronology)));
+                    .forEach(chronology -> {
+
+                        returnList.addAll(this.readerSpecification.readExportData(chronology));
+                        completedUnitOfWork();
+                    });
 
             completedUnitOfWork();
 
