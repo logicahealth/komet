@@ -29,7 +29,7 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
         this.readSemaphore = readSemaphore;
         this.readSemaphore.acquireUninterruptibly();
 
-        updateTitle("Batching " + this.readerSpecification.getReaderUIText() + " Readers");
+        updateTitle("Running " + this.readerSpecification.getReaderUIText() + " Readers");
         Get.activeTasks().add(this);
     }
 
@@ -60,9 +60,13 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
                     new ChronologyReader(this.readerSpecification,
                             new ArrayList<>(chronologyBatch), readSemaphore), new ArrayList<>()));
 
+            int futuresCompletedCount = 1;
+            for (Future<List<String>> future : futures) {
 
-            for (Future<List<String>> future : futures)
                 returnList.addAll(future.get());
+                futuresCompletedCount++;
+                updateMessage("Completed "+ futuresCompletedCount + " of " + futures.size());
+            }
 
         } finally {
             this.readSemaphore.release();

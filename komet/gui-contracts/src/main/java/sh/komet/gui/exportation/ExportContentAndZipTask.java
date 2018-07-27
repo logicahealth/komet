@@ -27,11 +27,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
     private final Map<ReaderSpecification, List<String>> exportMap = new HashMap<>();
 
     private final ExportComponentType[] exportComponentTypes = new ExportComponentType[]{
-            ExportComponentType.CONCEPT,
-            ExportComponentType.DESCRIPTION,
-            ExportComponentType.RELATIONSHIP};
-
-
+            ExportComponentType.CONCEPT};
 
     public ExportContentAndZipTask(Manifold manifold, File exportDirectory, ExportFormatType exportFormatType){
         this.manifold = manifold;
