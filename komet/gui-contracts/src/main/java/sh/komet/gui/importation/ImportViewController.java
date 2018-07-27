@@ -479,7 +479,7 @@ public class ImportViewController {
                }
             }
             HashSet<String> matchingSelections = selectionsContain(fileTreeTable.getRoot(), new String[] {
-                  ".*snomedct_internationalrf2_production_20170731t150000z.zip",
+                  ".*snomedct_.*rf2_production_.*z.zip",
                   "rf2-src-data-sct-.*", 
                   ".*loinc_.*_text.zip", 
                   ".*snomedct_loincrf2_production_20170831t120000z.zip"});
@@ -489,7 +489,7 @@ public class ImportViewController {
                
                //TODO Dan notes, this check is not sufficient to determine if snomed is being loaded as they may have unchecked individual snomed files 
                //that will break the loader.  This needs enhancement....
-               if (matchingSelections.contains(".*snomedct_internationalrf2_production_20170731t150000z.zip")
+               if (matchingSelections.contains(".*snomedct_.*rf2_production_.*z.zip")
                      || matchingSelections.contains("rf2-src-data-sct-.*") 
                      || snomedAlreadyLoaded) {
                   //Have snomed, now look for loinc / snomed collab dependencies

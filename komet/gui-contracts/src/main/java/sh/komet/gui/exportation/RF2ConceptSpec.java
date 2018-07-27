@@ -23,8 +23,8 @@ public class RF2ConceptSpec extends RF2ReaderSpecification {
 
     private final Manifold manifold;
 
-    public RF2ConceptSpec(Manifold manifold, ExportLookUpCache exportLookUpCache) {
-        super(manifold, exportLookUpCache);
+    public RF2ConceptSpec(Manifold manifold) {
+        super(manifold);
         this.manifold = manifold;
     }
 
@@ -67,7 +67,7 @@ public class RF2ConceptSpec extends RF2ReaderSpecification {
         Optional<LogicalExpression> conceptExpression = this.manifold.getLogicalExpression(conceptNid, PremiseType.STATED);
 
         if (!conceptExpression.isPresent()) {
-            return "";
+            return "900000000000074008"; //This seems to happen e.g. SOLOR Concept & SOLOR Concept (SOLOR)
         }else{
             if(conceptExpression.get().contains(NodeSemantic.SUFFICIENT_SET)){
                 return "900000000000073002"; //sufficiently defined SCTID
