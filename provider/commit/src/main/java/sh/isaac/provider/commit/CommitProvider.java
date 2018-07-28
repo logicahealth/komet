@@ -966,7 +966,9 @@ public class CommitProvider
             }
             else {
                 if (getDataStoreStartState() == DataStoreStartState.EXISTING_DATASTORE) {
-                    this.databaseSequence.set(dataStore.getSharedStoreLong(DEFAULT_COMMIT_MANAGER_FOLDER + "databaseSequence").getAsLong());
+                    // If a DB is just built by a loader, its possible that the databaseSequence was never incremented, and then, never stored to the data store.
+                    // It needs to stay the default value, startup value, in this case.  
+                    this.databaseSequence.set(dataStore.getSharedStoreLong(DEFAULT_COMMIT_MANAGER_FOLDER + "databaseSequence").orElse(this.databaseSequence.get()));
                     this.uncommittedConceptsWithChecksNidSet.addAll(nidStore.get(uncommittedConceptsWithChecksNidSetId));
                     this.uncommittedConceptsNoChecksNidSet.addAll(nidStore.get(uncommittedConceptsNoChecksNidSetId));
                     this.uncommittedSemanticsWithChecksNidSet.addAll(nidStore.get(uncommittedSemanticsWithChecksNidSetId));

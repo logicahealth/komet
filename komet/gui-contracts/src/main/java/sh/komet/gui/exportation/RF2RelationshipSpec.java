@@ -34,8 +34,8 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
     private final Manifold manifold;
     private String isASCTID = super.getIdString(Get.concept(TermAux.IS_A));
 
-    public RF2RelationshipSpec(Manifold manifold, ExportLookUpCache exportLookUpCache) {
-        super(manifold, exportLookUpCache);
+    public RF2RelationshipSpec(Manifold manifold) {
+        super(manifold);
         this.manifold = manifold;
     }
 
