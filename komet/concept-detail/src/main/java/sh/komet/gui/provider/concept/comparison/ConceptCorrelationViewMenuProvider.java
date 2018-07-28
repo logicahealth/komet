@@ -24,6 +24,7 @@ import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.manifold.Manifold;
@@ -53,6 +54,8 @@ public class ConceptCorrelationViewMenuProvider implements MenuProvider {
     }
     
     private void newCorelationView(ActionEvent event) {
+        MenuItem eventMenu = (MenuItem) event.getSource();
+        IsaacPreferences parentPreferences = (IsaacPreferences) eventMenu.getProperties().get(MenuProvider.PARENT_PREFERENCES);
         Manifold statementManifold = Manifold.make(Manifold.ManifoldGroup.CORRELATION);
         ConceptCorrelationController conceptCorrelationController = ConceptCorrelationView.show(statementManifold,
                 "Correlation " + MenuProvider.WINDOW_SEQUENCE.getAndIncrement(), MenuProvider::handleCloseRequest);

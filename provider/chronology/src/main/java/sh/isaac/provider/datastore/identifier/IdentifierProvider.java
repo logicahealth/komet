@@ -248,7 +248,7 @@ public class IdentifierProvider
 
    @Override
    public boolean hasUuid(Collection<UUID> uuids) throws IllegalArgumentException {
-      if (uuids == null || uuids.size() == 0) {
+      if (uuids == null || uuids.isEmpty()) {
          throw new IllegalArgumentException("A UUID must be specified.");
       }
       for (UUID uuid : uuids) {

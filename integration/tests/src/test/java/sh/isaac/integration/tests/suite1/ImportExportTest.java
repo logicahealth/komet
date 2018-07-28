@@ -321,7 +321,7 @@ public class ImportExportTest {
               (TreeNodeVisitData t,
                       int conceptSequence) -> {
                  taxonomyCount.incrementAndGet();
-              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
+              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getConceptAssemblageNid()));
       Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
       logTree(roots[0], taxonomyTree);
    }
@@ -411,7 +411,7 @@ public class ImportExportTest {
               (TreeNodeVisitData t,
                       int conceptSequence) -> {
                  taxonomyCount.incrementAndGet();
-              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
+              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getConceptAssemblageNid()));
       logTree(roots[0], taxonomyTree);
       Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
    }
@@ -431,7 +431,7 @@ public class ImportExportTest {
 
                                         Arrays.fill(padding, ' ');
                                         LOG.info(new String(padding) + Get.conceptDescriptionText(conceptSequence));
-                                     }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
+                                     }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getConceptAssemblageNid()));
    }
 }
 

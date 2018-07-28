@@ -151,7 +151,7 @@ public class FileSystemDataStore
     private File nidToAssemblageNidMapDirectory;
     private File nidToElementSequenceMapDirectory;
     
-    private ArrayList<DataWriteListener> writeListeners = new ArrayList<>();
+    private final ArrayList<DataWriteListener> writeListeners = new ArrayList<>();
 
     private FileSystemDataStore() {
         //Private for HK2 construction only

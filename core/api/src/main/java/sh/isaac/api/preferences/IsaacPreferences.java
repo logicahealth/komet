@@ -47,6 +47,9 @@ public interface IsaacPreferences  {
      *         removed with the {@link #removeNode()} method.
      */
     void put(String key, String value);
+    default void put(Enum key, String value) {
+        put(enumToGeneralKey(key), value);
+    }
 
     /**
      * Returns the value associated with the specified key in this preference
@@ -101,6 +104,9 @@ public interface IsaacPreferences  {
      *         removed with the {@link #removeNode()} method.
      */
     void remove(String key);
+    default void remove(Enum key) {
+        remove(enumToGeneralKey(key));
+    }
 
     /**
      * Removes all of the preferences (key-value associations) in this
@@ -138,6 +144,9 @@ public interface IsaacPreferences  {
      * @see #getInt(String,int)
      */
     void putInt(String key, int value);
+    default void putInt(Enum key, int value) {
+        putInt(enumToGeneralKey(key), value);
+    }
 
     /**
      * Returns the int value represented by the string associated with the
@@ -196,6 +205,9 @@ public interface IsaacPreferences  {
      * @see #getLong(String,long)
      */
     void putLong(String key, long value);
+    default void putLong(Enum key, long value) {
+        putLong(enumToGeneralKey(key), value);
+    }
 
     /**
      * Returns the long value represented by the string associated with the
@@ -255,6 +267,9 @@ public interface IsaacPreferences  {
      * @see #get(String,String)
      */
     void putBoolean(String key, boolean value);
+    default void putBoolean(Enum key, boolean value) {
+        putBoolean(enumToGeneralKey(key), value);
+    }
 
     /**
      * Returns the boolean value represented by the string associated with the
@@ -292,10 +307,10 @@ public interface IsaacPreferences  {
      */
     boolean getBoolean(String key, boolean defaultValue);
     default boolean getBoolean(Enum key, boolean defaultValue) {
-        return getBoolean(key.toString(), defaultValue);
+        return getBoolean(enumToGeneralKey(key), defaultValue);
     }
     default Optional<Boolean> getBoolean(Enum key) {
-        return getBoolean(key.toString());
+        return getBoolean(enumToGeneralKey(key));
     }
     default Optional<Boolean> getBoolean(String key) {
        Optional<String> optionalValue = get(key);
@@ -325,6 +340,9 @@ public interface IsaacPreferences  {
      * @see #getDouble(String,double)
      */
     void putDouble(String key, double value);
+    default void putDouble(Enum key, double value) {
+        putDouble(enumToGeneralKey(key), value);
+    }
 
     /**
      * Returns the double value represented by the string associated with the
@@ -389,6 +407,9 @@ public interface IsaacPreferences  {
      * @see #get(String,String)
      */
     void putByteArray(String key, byte[] value);
+    default void putByteArray(Enum key, byte[] value) {
+        putByteArray(enumToGeneralKey(key), value);
+    }
 
     /**
      * Returns the byte array value represented by the string associated with
@@ -469,6 +490,19 @@ public interface IsaacPreferences  {
      *         removed with the {@link #removeNode()} method.
      */
     String[] childrenNames() throws BackingStoreException;
+    
+    default IsaacPreferences[] children() throws BackingStoreException {
+        String[] childrenNames = childrenNames();
+        IsaacPreferences[] children = new IsaacPreferences[childrenNames.length];
+        for (int i = 0; i < childrenNames.length; i++) {
+            children[i] = node(childrenNames[i]);
+        }
+        return children;
+    }
+    
+    default boolean hasChildren() throws BackingStoreException {
+        return childrenNames().length != 0;
+    }
 
     /**
      * Returns the parent of this preference node, or <tt>null</tt> if this is

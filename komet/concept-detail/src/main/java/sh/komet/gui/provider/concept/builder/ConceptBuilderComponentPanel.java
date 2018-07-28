@@ -157,6 +157,8 @@ public class ConceptBuilderComponentPanel
             componentType.setText(" FQN");
         } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" NĀM");
+        } else if (descriptionType == TermAux.PLURAL_NAME_DESCRIPTION_TYPE.getNid()) {
+            componentType.setText(" PLU");
         } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" DEF");
         } else if (descriptionType == MetaData.UNKNOWN_DESCRIPTION_TYPE____SOLOR.getNid()) {

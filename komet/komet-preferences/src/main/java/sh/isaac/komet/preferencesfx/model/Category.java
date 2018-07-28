@@ -26,8 +26,8 @@ public class Category {
   private static final Logger LOGGER =
       LogManager.getLogger(Category.class.getName());
 
-  private StringProperty description = new SimpleStringProperty();
-  private StringProperty descriptionKey = new SimpleStringProperty();
+  private final StringProperty description = new SimpleStringProperty();
+  private final StringProperty descriptionKey = new SimpleStringProperty();
   private List<Group> groups;
   private List<Category> children;
   private final StringProperty breadcrumb = new SimpleStringProperty("");
@@ -147,9 +147,10 @@ public class Category {
    * service or its locale changes. Also applies the translation to all
    * contained sections.
    *
+     * @param translationService
    * @see com.dlsc.formsfx.model.structure.Group ::translate
    */
-  public void translate(TranslationService translationService) {
+  public final void translate(TranslationService translationService) {
     if (translationService == null) {
       description.setValue(descriptionKey.getValue());
       return;
@@ -194,7 +195,7 @@ public class Category {
     return breadcrumb;
   }
 
-  public void setBreadcrumb(String breadcrumb) {
+  public final void setBreadcrumb(String breadcrumb) {
     this.breadcrumb.set(breadcrumb);
   }
 

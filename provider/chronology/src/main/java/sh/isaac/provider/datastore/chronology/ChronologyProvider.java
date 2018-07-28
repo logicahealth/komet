@@ -63,6 +63,7 @@ import sh.isaac.api.IdentifiedObjectService;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.MetadataService;
+import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
@@ -771,8 +772,8 @@ public class ChronologyProvider
          * @return true, if concept active
          */
         @Override
-        public boolean isConceptActive(int conceptSequence) {
-            return ChronologyProvider.this.isConceptActive(conceptSequence, this.manifoldCoordinate);
+        public boolean isConceptActive(int conceptNid) {
+            return ChronologyProvider.this.isConceptActive(conceptNid, this.manifoldCoordinate);
         }
 
         @Override
@@ -787,8 +788,8 @@ public class ChronologyProvider
          * @return the concept snapshot
          */
         @Override
-        public ConceptSnapshot getConceptSnapshot(int conceptSequence) {
-            return new ConceptSnapshotImpl(getConceptChronology(conceptSequence), this.manifoldCoordinate);
+        public ConceptSnapshot getConceptSnapshot(int conceptNid) {
+            return new ConceptSnapshotImpl(getConceptChronology(conceptNid), this.manifoldCoordinate);
         }
 
         /**
@@ -854,4 +855,12 @@ public class ChronologyProvider
         }
 
     }
+
+    @Override
+    public <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid, Class<V> versionType, StampCoordinate stampCoordinate) {
+        return (SingleAssemblageSnapshot<V>) new SingleAssemblageSnapshotProvider(assemblageConceptNid, 
+                (SemanticSnapshotService<V>) getSnapshot(versionType, stampCoordinate));
+    }
+    
+    
 }

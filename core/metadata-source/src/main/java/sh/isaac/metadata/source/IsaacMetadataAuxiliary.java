@@ -479,10 +479,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
 
                final ConceptBuilder fsn = createConcept(TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE);
                fsn.addUuids(UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66")); // RF1 FSN
+               
                final ConceptBuilder syn = createConcept(TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
                syn.addDescription("Synonyn", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                createConcept(TermAux.DEFINITION_DESCRIPTION_TYPE);
+               createConcept(TermAux.PLURAL_NAME_DESCRIPTION_TYPE);
                createConcept("Unknown description type");
                createConcept("Abbreviation description type", "Abbreviation");
                popParent();

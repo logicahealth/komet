@@ -276,6 +276,19 @@ public interface AssemblageService
          StampCoordinate stampCoordinate);
 
    /**
+    * Gets the snapshot.
+    *
+    * @param <V> the value type
+    * @param assemblageConceptNid
+    * @param versionType the version type
+    * @param stampCoordinate the stamp coordinate
+    * @return the snapshot
+    */
+   <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid,
+           Class<V> versionType,
+           StampCoordinate stampCoordinate);
+
+   /**
     * Use in circumstances when not all semantics may have been loaded to find out if a semantic is present,
     * without incurring the overhead of reading back the object. 
     * @param semanticId nid or semantic instance

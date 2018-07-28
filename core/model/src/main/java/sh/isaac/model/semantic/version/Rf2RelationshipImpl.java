@@ -204,7 +204,7 @@ public class Rf2RelationshipImpl
     * @param data the data
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
       data.putNid(this.typeNid);
       data.putNid(this.destinationNid);

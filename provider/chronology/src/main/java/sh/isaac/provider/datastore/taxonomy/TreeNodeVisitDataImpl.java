@@ -56,7 +56,7 @@ import sh.isaac.model.ModelGet;
  *
  * @author kec
  */
-public class TreeNodeVisitDataBdbImpl
+public class TreeNodeVisitDataImpl
         implements TreeNodeVisitData {
    private static final Logger LOG = LogManager.getLogger();
 
@@ -159,15 +159,15 @@ public class TreeNodeVisitDataBdbImpl
     */
    protected final IntArrayList siblingGroupNidList;
    
-   private SequenceStore ss;
-   private int conceptAssemblageNid;
+   private final SequenceStore ss;
+   private final int conceptAssemblageNid;
 
    /**
     * Instantiates a new tree node visit data.
     * @param conceptAssemblageNid The assemblage Nid which specifies the assemblage where the concepts in this tree
     * where created within.  
     */
-   public TreeNodeVisitDataBdbImpl(int conceptAssemblageNid) {
+   public TreeNodeVisitDataImpl(int conceptAssemblageNid) {
       this.visitStarted = new OpenIntHashSet();
       this.visitEnded = new OpenIntHashSet();
       this.leafNodes = new OpenIntHashSet();

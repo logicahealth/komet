@@ -65,6 +65,7 @@ public class ConceptCorrelationView {
         }
     }
 
+
     public static ConceptCorrelationController show(Manifold manifold, String title, 
             EventHandler<WindowEvent> closeRequestHandler) {
         ConceptCorrelationView correlationView = new ConceptCorrelationView(manifold, title);

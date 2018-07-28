@@ -60,7 +60,7 @@ public interface Tree {
     * @return the assemblage nid which specifies the assemblage where the concepts in this tree
     * where created within. 
     */
-   int getAssemblageNid();
+   int getConceptAssemblageNid();
    /**
     * Visit the nodes of this tree that are accessible via the startNid in
     * a breadth-first manner, and provide the nid of the visited node, and
@@ -165,5 +165,11 @@ public interface Tree {
     * @return true if the childNid is a descendent of the parentNid by any route. 
     */
    boolean isChildOf(int childNid, int parentNid);
+
+   /**
+    * 
+    * @return a set of all nodes in this tree. 
+    */
+   NidSet getNodeNids();
 }
 

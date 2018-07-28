@@ -96,7 +96,7 @@ public class LoincVersionImpl
     * @param data the data
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
       data.putUTF(this.component);
       data.putUTF(this.loincNum);

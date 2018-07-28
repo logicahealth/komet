@@ -48,6 +48,8 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
                  setText("FQN");
               } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
                  setText("NĀM");
+              } else if (descriptionType == TermAux.PLURAL_NAME_DESCRIPTION_TYPE.getNid()) {
+                 setText("PLU");
               } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                  setText("DEF");
               } else if (descriptionType == MetaData.ABBREVIATION_DESCRIPTION_TYPE____SOLOR.getNid()) {

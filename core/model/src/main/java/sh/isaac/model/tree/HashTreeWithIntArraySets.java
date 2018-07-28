@@ -468,7 +468,7 @@ public class HashTreeWithIntArraySets
     * {@inheritDoc}
     */
    @Override
-   public final int getAssemblageNid() {
+   public final int getConceptAssemblageNid() {
       return assemblageNid;
    }
 
@@ -835,5 +835,17 @@ public class HashTreeWithIntArraySets
                             .toString());
       LOG.debug("");
    }
+
+    @Override
+    public NidSet getNodeNids() {
+        NidSet nodeNids = new NidSet();
+        conceptNids.forEachKey((nid) -> {
+            nodeNids.add(nid);
+            return false; 
+        });
+        return nodeNids;
+    }
+   
+   
 }
 
