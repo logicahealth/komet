@@ -39,6 +39,8 @@
 
 package sh.isaac.api.util;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -379,5 +381,33 @@ public class PasswordHasher {
 
       LOG.debug("Password compute time: {} ms", System.currentTimeMillis() - startTime);
       return result;
+   }
+   
+   public static void main(String[] args) throws Exception {
+      System.out.println("Enter 1 for a one-way hash, or 2 for a bi-directional hash, or 3 to decrypt an encrypted password");
+      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      int mode = Integer.parseInt(br.readLine().trim());
+      if (mode == 1) {
+         System.out.println("Enter the password to be hashed: ");
+         String pw = br.readLine();
+         System.out.println("The hash is as follows.  Utilize this hash in combination with the 'check(...)' method in this class");
+         System.out.println(getSaltedHash(pw.toCharArray()));
+      }
+      else if (mode == 2) {
+         System.out.println("Enter the value to be encrypted: ");
+         String pw = br.readLine();
+         System.out.println("Enter the password to use for the encryption / decryption: ");
+         String decryptionPw = br.readLine();
+         System.out.println("The encrypted password is as follows.  Utilize this in combination with the 'decrypt(...) method in this class'");
+         System.out.println(encrypt(decryptionPw.toCharArray(), pw));
+      }
+      else if (mode == 3) {
+         System.out.println("Enter the value to be decrypted: ");
+         String value = br.readLine();
+         System.out.println("Enter the decryption password: ");
+         String pw = br.readLine();
+         System.out.println("The decrypted value is:");
+         System.out.println(decryptToString(pw.toCharArray(), value));
+      }
    }
 }
