@@ -260,7 +260,7 @@ public class DownloadUnzipTask
     */
    private File download(URL url)
             throws Exception {
-      LOG.debug("Beginning download from " + url);
+      LOG.info("Beginning download from " + url);
       updateMessage("Download from " + url);
 
       final HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
