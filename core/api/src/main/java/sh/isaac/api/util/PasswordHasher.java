@@ -416,26 +416,46 @@ public class PasswordHasher {
          return value.toCharArray();
       }
       else {
-         String decryptionFileLoc = System.getenv("DECRYPTION_FILE");
-         File defaultFileLoc = new File("decryption.password");
-         if (StringUtils.isNotBlank(decryptionFileLoc)) {
-            File temp = new File(decryptionFileLoc);
-            if (temp.isFile()) {
-               return decryptToChars(fileToCharArray(temp), value);
-            }
-            else {
-               throw new Exception("The path specified by the enviornment variable 'DECRYPTION_FILE' is not a readable file");
-            }
-         }
-         else if (defaultFileLoc.isFile()) {
-            return decryptToChars(fileToCharArray(defaultFileLoc), value);
+         char[] master = getMasterPassword();
+         
+         if (master.length > 0) {
+            return decryptToChars(master, value);
          }
          else {
             throw new Exception("The value appears to be encrypted, but no decryption password is available.  Please specify an enviornment variable"
                   + " of DECRYPTION_FILE which has a value that is an absolute path to a file that contains the decryption password, or, create the file "
-                  + " " + defaultFileLoc.getAbsolutePath());
+                  + " " + new File("decryption.password").getAbsolutePath());
          }
       }
+   }
+   
+   /**
+    * Reads the master password from a file specified by the environment variable DECRYPTION_FILE - if this variable exists, it is assumed to contain the full 
+    * path to a file. That file is expected to contain a single line, which is the decryption password.
+    * 
+    * If the variable is not set, then will check for the existence of a file named "decryption.password" in the JVM start location.
+    * If that file exists, it will be expected to contain a single line, which is the decryption password.
+    * If no file can be found, returns an empty char[] 
+    * @return the master password 
+    * @throws IOException if the file can't be read, or isn't a file.
+    */
+   public static char[] getMasterPassword() throws IOException
+   {
+      String decryptionFileLoc = System.getenv("DECRYPTION_FILE");
+      File defaultFileLoc = new File("decryption.password");
+      if (StringUtils.isNotBlank(decryptionFileLoc)) {
+         File temp = new File(decryptionFileLoc);
+         if (temp.isFile()) {
+            return fileToCharArray(temp);
+         }
+         else {
+            throw new IOException("The path specified by the enviornment variable 'DECRYPTION_FILE' is not a readable file");
+         }
+       }
+      else if (defaultFileLoc.isFile()) {
+         return fileToCharArray(defaultFileLoc);
+      }
+      return new char[] {};
    }
 
    /**
