@@ -39,6 +39,11 @@
 
 package sh.isaac.api.util;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -379,5 +384,134 @@ public class PasswordHasher {
 
       LOG.debug("Password compute time: {} ms", System.currentTimeMillis() - startTime);
       return result;
+   }
+   
+   /**
+    * If the value appears to have been encrypted by one of our encrypt methods, decrypt the value using a password read from
+    * one of these locations - in this order:
+    * 
+    * The environment variable DECRYPTION_FILE - if this variable exists, it is assumed to contain the full path to a file. That
+    * file is expected to contain a single line, which is the decryption password.
+    * 
+    * If the variable is not set, then will check for the existence of a file named "decryption.password" in the JVM start location.
+    * If that file exists, it will be expected to contain a single line, which is the decryption password.
+    * 
+    * If no decryption password can be found, and the value appears to be encrypted, an exception will be thrown.
+    * 
+    * If the value does NOT appear to have been encrypted by one of our encrypt methods, it will be returned, unchanged, without
+    * attempting to find a decryption password. This allows clear-text passwords to be specified in config files for debugging.
+    * 
+    * @param value The value to decrypt
+    * @return The decrypted value, if it was encrypted, otherwise, the input value
+    * @throws Exception if it appears to be encrypted, but a decryption password can't be found, or the decryption fails for any reason.
+    */
+   public static char[] decryptPropFileValueIfEncrypted(String value) throws Exception {
+      if (StringUtils.isBlank(value)) {
+         return new char[0];
+      }
+      final String[] saltAndPass = value.split("\\-\\-\\-");
+
+      if (saltAndPass.length != 2) {
+         LOG.debug("prop file value does not appear to be encrypted.  Returning");
+         return value.toCharArray();
+      }
+      else {
+         char[] master = getMasterPassword();
+         
+         if (master.length > 0) {
+            return decryptToChars(master, value);
+         }
+         else {
+            throw new Exception("The value appears to be encrypted, but no decryption password is available.  Please specify an enviornment variable"
+                  + " of DECRYPTION_FILE which has a value that is an absolute path to a file that contains the decryption password, or, create the file "
+                  + " " + new File("decryption.password").getAbsolutePath());
+         }
+      }
+   }
+   
+   /**
+    * Reads the master password from a file specified by the environment variable DECRYPTION_FILE - if this variable exists, it is assumed to contain the full 
+    * path to a file. That file is expected to contain a single line, which is the decryption password.
+    * 
+    * If the variable is not set, then will check for the existence of a file named "decryption.password" in the JVM start location.
+    * If that file exists, it will be expected to contain a single line, which is the decryption password.
+    * If no file can be found, returns an empty char[] 
+    * @return the master password 
+    * @throws IOException if the file can't be read, or isn't a file.
+    */
+   public static char[] getMasterPassword() throws IOException
+   {
+      String decryptionFileLoc = System.getenv("DECRYPTION_FILE");
+      File defaultFileLoc = new File("decryption.password");
+      if (StringUtils.isNotBlank(decryptionFileLoc)) {
+         File temp = new File(decryptionFileLoc);
+         if (temp.isFile()) {
+            return fileToCharArray(temp);
+         }
+         else {
+            throw new IOException("The path specified by the enviornment variable 'DECRYPTION_FILE' is not a readable file");
+         }
+       }
+      else if (defaultFileLoc.isFile()) {
+         return fileToCharArray(defaultFileLoc);
+      }
+      return new char[] {};
+   }
+
+   /**
+    * Read a file into a char[] without putting it into a string - useful for reading a password from a file.
+    * @param file
+    * @return the char[] data
+    * @throws IOException
+    */
+   public static char[] fileToCharArray(File file) throws IOException
+   {
+      CharBuffer cb = CharBuffer.allocate(250);
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"))))  {
+         int c;
+         while ((c = reader.read()) != -1) {
+            cb.append((char) c);
+         }
+      }
+      cb.flip();
+      char[] result = new char[cb.length()];
+      for (int i = 0; i < result.length; i++) {
+         result[i] = cb.get();
+      }
+      cb.clear();
+      return result;
+   }
+   
+   /**
+    * Utility main for encrypting passwords on the command line, for storage in config files
+    * @param args
+    * @throws Exception
+    */
+   public static void main(String[] args) throws Exception {
+      System.out.println("Enter 1 for a one-way hash, or 2 for a bi-directional hash, or 3 to decrypt an encrypted password");
+      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      int mode = Integer.parseInt(br.readLine().trim());
+      if (mode == 1) {
+         System.out.println("Enter the password to be hashed: ");
+         String pw = br.readLine();
+         System.out.println("The hash is as follows.  Utilize this hash in combination with the 'check(...)' method in this class");
+         System.out.println(getSaltedHash(pw.toCharArray()));
+      }
+      else if (mode == 2) {
+         System.out.println("Enter the value to be encrypted: ");
+         String pw = br.readLine();
+         System.out.println("Enter the password to use for the encryption / decryption: ");
+         String decryptionPw = br.readLine();
+         System.out.println("The encrypted password is as follows.  Utilize this in combination with the 'decrypt(...) method in this class'");
+         System.out.println(encrypt(decryptionPw.toCharArray(), pw));
+      }
+      else if (mode == 3) {
+         System.out.println("Enter the value to be decrypted: ");
+         String value = br.readLine();
+         System.out.println("Enter the decryption password: ");
+         String pw = br.readLine();
+         System.out.println("The decrypted value is:");
+         System.out.println(decryptToString(pw.toCharArray(), value));
+      }
    }
 }

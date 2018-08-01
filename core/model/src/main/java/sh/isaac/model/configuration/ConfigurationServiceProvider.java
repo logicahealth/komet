@@ -233,7 +233,7 @@ public class ConfigurationServiceProvider
             throws IllegalStateException, IllegalArgumentException {
       LOG.info("setDataStoreFolderPath called with " + dataStoreFolderPath);
 
-      if (LookupService.isIsaacStarted()) {
+      if (LookupService.getCurrentRunLevel() >= LookupService.SL_L0_METADATA_STORE_STARTED_RUNLEVEL) {
          throw new IllegalStateException("Can only set the dbFolderPath prior to starting Isaac. Runlevel: " + LookupService.getCurrentRunLevel());
       }
 
