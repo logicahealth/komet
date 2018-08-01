@@ -724,6 +724,7 @@ limitations under the License.
       -fx-border-width:2;
       -fx-font-size:12;
       -fx-padding:2 4 2 4;
+      -fx-font-weight: bold;
 }
 
 .component-panel:uncommitted * .commit-button {
@@ -733,6 +734,7 @@ limitations under the License.
       -fx-border-width:2;
       -fx-font-size:12;
       -fx-padding:2 4 2 4;
+      -fx-font-weight: bold;
 }
 
 .alert-pane:alert-info {

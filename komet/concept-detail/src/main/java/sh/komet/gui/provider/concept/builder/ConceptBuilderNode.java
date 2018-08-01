@@ -187,7 +187,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     private void layoutBuilderComponents() {
         componentPanelBox.getChildren().clear();
         final ParallelTransition parallelTransition = new ParallelTransition();
-        ConceptBuilderComponentPanel conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion);
+        ConceptBuilderComponentPanel conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion, false);
         parallelTransition.getChildren().add(addComponent(conceptPanel, new Insets(10, 5, 1, 5)));
         AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
         descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
@@ -195,14 +195,14 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
                 .add(addNode(descriptionHeader));
 
         for (ObservableDescriptionDialect descDialect : descriptions) {
-            ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(manifold, descDialect);
+            ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(manifold, descDialect, false);
             parallelTransition.getChildren().add(addComponent(descPanel));
         }
         AnchorPane definitionHeader = setupHeaderPanel("AXIOMS", null);
         definitionHeader.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
         parallelTransition.getChildren()
                 .add(addNode(definitionHeader));
-        ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, statedDefinition);
+        ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, statedDefinition, false);
         parallelTransition.getChildren()
                 .add(addComponent(logicPanel));
 

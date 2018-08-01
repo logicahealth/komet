@@ -17,15 +17,22 @@
 package sh.komet.gui.provider.concept.builder;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -33,8 +40,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.ObservableVersion;
@@ -49,6 +62,7 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
 import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import sh.komet.gui.style.StyleClasses;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -56,6 +70,7 @@ import sh.komet.gui.style.StyleClasses;
  */
 public class ConceptBuilderComponentPanel 
         extends Pane {
+    private static final Logger LOG = LogManager.getLogger();
 
     public static final int FIRST_COLUMN_WIDTH = 32;
 
@@ -77,6 +92,7 @@ public class ConceptBuilderComponentPanel
     private final ObservableVersion observableVersion;
     private final Manifold manifold;
     protected int rows;
+    protected final boolean independentCommit;
 
     //~--- initializers --------------------------------------------------------
     {
@@ -86,7 +102,9 @@ public class ConceptBuilderComponentPanel
     }
 
     //~--- constructors --------------------------------------------------------
-    public ConceptBuilderComponentPanel(Manifold manifold, ObservableVersion observableVersion) {
+    public ConceptBuilderComponentPanel(Manifold manifold, 
+            ObservableVersion observableVersion, boolean independentCommit) {
+        this.independentCommit = independentCommit;
         this.manifold = manifold;
         this.observableVersion = observableVersion;
         this.getChildren()
@@ -188,6 +206,40 @@ public class ConceptBuilderComponentPanel
             this.pseudoClassStateChanged(PseudoClasses.CONCEPT_PSEUDO_CLASS, newValue);
         }
     }
+    private EventHandler<ActionEvent> commitHandler;
+    private EventHandler<ActionEvent> cancelHandler;
+    
+     public void setCommitHandler(EventHandler<ActionEvent> value) {
+         this.commitHandler = value;
+    }
+    public void setCancelHandler(EventHandler<ActionEvent> value) {
+        this.cancelHandler = value;
+    } 
+    private void cancelEdit(ActionEvent event) {
+        if (this.cancelHandler != null) {
+            this.cancelHandler.handle(event);
+        }
+    }
+    public ObservableVersion[] getVersionsToCommit() throws IllegalStateException {
+        List<ObservableVersion> versionsToCommit = new ArrayList<>();
+        if (this.observableVersion instanceof ObservableDescriptionDialect) {
+            ObservableDescriptionDialect descDialect = (ObservableDescriptionDialect) this.observableVersion;
+            if (descDialect.getDescription().getText() != null
+                    && descDialect.getDescription().getText().length() > 2) {
+                versionsToCommit.add(descDialect.getDescription());
+                versionsToCommit.add(descDialect.getDialect());
+            }
+            return versionsToCommit.toArray(new ObservableVersion[versionsToCommit.size()]);
+        }
+        throw new UnsupportedOperationException("Can't handle getVersionsToCommit for: " + 
+                this.observableVersion.getClass().getName());
+        
+    }
+    private void commitEdit(ActionEvent event) {
+        if (this.commitHandler != null) {
+            this.commitHandler.handle(event);
+        }
+     }
 
     private void redoLayout() {
         if (getParent() != null) {
@@ -229,6 +281,41 @@ public class ConceptBuilderComponentPanel
                         .remove(componentText);
                 gridpane.getChildren()
                         .remove(editorPane);
+                
+                if (this.independentCommit) {
+                    Button cancelButton = new Button("Cancel");
+                    cancelButton.setOnAction(this::cancelEdit);
+                    cancelButton.getStyleClass()
+                        .setAll(StyleClasses.CANCEL_BUTTON.toString());
+                    Button commitButton = new Button("Commit");
+                    commitButton.setOnAction(this::commitEdit);
+                    commitButton.getStyleClass()
+                        .setAll(StyleClasses.COMMIT_BUTTON.toString());
+                GridPane.setConstraints(commitButton,
+                        columns - 3,
+                        gridRow,
+                        3,
+                        1,
+                        HPos.RIGHT,
+                        VPos.TOP,
+                        Priority.NEVER,
+                        Priority.NEVER, 
+                        new Insets(5,1,3,1));
+                gridpane.getChildren()
+                        .add(commitButton);
+                GridPane.setConstraints(cancelButton,
+                        columns - 6,
+                        gridRow++,
+                        3,
+                        1,
+                        HPos.RIGHT,
+                        VPos.TOP,
+                        Priority.NEVER,
+                        Priority.NEVER, 
+                        new Insets(5,1,3,1));
+                gridpane.getChildren()
+                        .add(cancelButton);
+                }
 
                 GridPane.setConstraints(editorPane,
                         3,
