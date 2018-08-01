@@ -58,6 +58,7 @@ import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
+import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import sh.komet.gui.style.StyleClasses;
 import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import sh.komet.gui.util.FxGet;
@@ -139,7 +140,11 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         HBox.setHgrow(textField, Priority.ALWAYS);
         textField.setMinWidth(Region.USE_PREF_SIZE);
         builderToolbar.getItems().addAll(textField, cancelButton, commitButton);
-
+        builderToolbar.getStyleClass().add(StyleClasses.COMPONENT_PANEL.toString());
+        builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
+        builderBorderPane.getStyleClass().add(StyleClasses.COMPONENT_PANEL.toString());
+        builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
+ 
         textField.setText("New concept");
         textField.requestFocus();
         textField.selectAll();
@@ -236,6 +241,11 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     }
 
     private void cancel(Event event) {
+        builderToolbar.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+        builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+        builderBorderPane.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+        builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+
         builderToolbar.getItems().clear();
         builderToolbar.getItems().addAll(newConceptButton);
         componentPanelBox.getChildren().clear();

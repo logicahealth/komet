@@ -710,6 +710,7 @@ limitations under the License.
 
 .component-panel:uncommitted {
    -fx-background-color: -komet-uncommitted-fill;
+   -fx-grid-lines-visible: false;
 }
 
 .component-panel:uncommitted * .property-pane {

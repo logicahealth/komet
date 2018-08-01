@@ -47,6 +47,7 @@ import sh.komet.gui.control.description.dialect.DescriptionDialectEditor;
 import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
+import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import sh.komet.gui.style.StyleClasses;
 
 /**
@@ -115,6 +116,8 @@ public class ConceptBuilderComponentPanel
         // gridpane.gridLinesVisibleProperty().set(true);
         this.getStyleClass()
                 .add(StyleClasses.COMPONENT_PANEL.toString());
+       this.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
+         
     }
     //~--- methods -------------------------------------------------------------
     protected final void setupConcept(ObservableConceptVersionImpl conceptVersion) {
