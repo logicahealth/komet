@@ -58,6 +58,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import javafx.util.Pair;
 
 /**
  * {@link PasswordHasher}
@@ -239,17 +240,29 @@ public class PasswordHasher {
    public static String encrypt(char[] password, byte[] data)
             throws Exception {
       final long   startTime = System.currentTimeMillis();
-      final byte[] salt      = new byte[SALT_LEN];
 
-      SECURE_RANDOM.nextBytes(salt);
-
+      Pair<String, byte[]> salt = generateRandomSalt();
       // store the salt with the password
-      final String result = Base64.getUrlEncoder()
-                                  .encodeToString(salt) + "---" + encrypt(password, salt, data);
+      final String result = salt.getKey() + "---" + encrypt(password, salt.getValue(), data);
 
       LOG.debug("Encrypt Time {} ms", System.currentTimeMillis() - startTime);
       return result;
    }
+   
+   /**
+    * @return Generate URLsafe 64 encoded salt that does not contain the string "---"
+    */
+	private static Pair<String, byte[]> generateRandomSalt() {
+		final byte[] salt = new byte[SALT_LEN];
+		SECURE_RANDOM.nextBytes(salt);
+
+		String result = null;
+		//Make sure the generated salt doesn't contain the '---' that we use to split the salt on readback
+		while (result == null || result.contains("---")) {
+			result = Base64.getUrlEncoder().encodeToString(salt);
+		}
+		return new Pair<>(result, salt);
+	}
 
    /**
     * Calls {@link #encrypt(char[], byte[])} with the bytes encoded as UTF-8
@@ -333,12 +346,11 @@ public class PasswordHasher {
    public static String getSaltedHash(char[] password)
            throws Exception {
      final long   startTime = System.currentTimeMillis();
-     final byte[] salt      = new byte[SALT_LEN];
 
-     SECURE_RANDOM.nextBytes(salt);
-
+     Pair<String, byte[]> salt = generateRandomSalt();
+     
      // store the salt with the password
-     final String result = Base64.getUrlEncoder().encodeToString(salt) + "---" + hash(password, salt);
+     final String result = salt.getKey() + "---" + hash(password, salt.getValue());
 
      LOG.debug("Compute Salted Hash time {} ms", System.currentTimeMillis() - startTime);
      return result;
