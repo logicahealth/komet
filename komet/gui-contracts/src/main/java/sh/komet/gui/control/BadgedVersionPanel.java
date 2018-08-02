@@ -59,6 +59,7 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
@@ -360,11 +361,15 @@ public abstract class BadgedVersionPanel
             if (getManifold().getLogicCoordinate()
                     .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
                 premiseType = PremiseType.INFERRED;
-                badges.add(Iconography.INFERRED.getIconographic());
+                Label formLabel = new Label("", Iconography.INFERRED.getIconographic());
+                formLabel.setTooltip(new Tooltip("Inferred form"));
+                badges.add(formLabel);
             } else if (getManifold().getLogicCoordinate()
                     .getStatedAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
                 premiseType = PremiseType.STATED;
-                badges.add(Iconography.STATED.getIconographic());
+                Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                formLabel.setTooltip(new Tooltip("Stated form"));
+                badges.add(formLabel);
             }
         } else {
             componentType.setText("");

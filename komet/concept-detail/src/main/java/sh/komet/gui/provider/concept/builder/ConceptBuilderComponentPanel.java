@@ -19,9 +19,6 @@ package sh.komet.gui.provider.concept.builder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -34,6 +31,8 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -43,11 +42,7 @@ import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
-import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.ObservableVersion;
@@ -62,7 +57,6 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
 import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import sh.komet.gui.style.StyleClasses;
-import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -150,7 +144,9 @@ public class ConceptBuilderComponentPanel
     }
     protected final void setupEl(ObservableLogicGraphVersionImpl logicGraphVersion) {
         PremiseType premiseType = PremiseType.STATED;
-        badges.add(Iconography.STATED.getIconographic());
+        Label statedLabel = new Label("", Iconography.STATED.getIconographic());
+        statedLabel.setTooltip(new Tooltip("Stated form"));
+        badges.add(statedLabel);
         componentType.setText(" EL++");
       
         this.logicDetailTree = AxiomView.create(logicGraphVersion, premiseType, manifold);
