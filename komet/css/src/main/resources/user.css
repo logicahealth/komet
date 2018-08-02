@@ -671,6 +671,7 @@ limitations under the License.
    -fx-fill: -komet-blue-color;
    -fx-font-size:15;
 }
+
 .semantic-text {
    -fx-fill: black;
    -fx-font-size:15;
@@ -689,6 +690,10 @@ limitations under the License.
 }
 .concept-component-reference {
    -fx-fill: -komet-blue-color;
+   -fx-font-size:12;
+}
+.tree-table-row-cell:selected * .concept-component-reference {
+   -fx-fill: white;
    -fx-font-size:12;
 }
 
