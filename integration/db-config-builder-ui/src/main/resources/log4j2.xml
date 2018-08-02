@@ -9,12 +9,16 @@
 		</Console>
 
 		<!-- Prints everything -->
-		<File name="FILE-DEBUG" fileName="db-config-builder-debug.log">
+		<RollingFile name="FILE-DEBUG" fileName="db-config-builder-debug.log" filePattern="db-config-builder-debug.log-%i.log">
 			<PatternLayout pattern="%d %-5p [%t] %logger (%F:%L) - %msg%n" />
+			<Policies>
+				<OnStartupTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy max="4"/>
 			<Filters>
 				<ThresholdFilter level="ALL" />
 			</Filters>
-		</File>
+		</RollingFile>
 	</Appenders>
 
 	<Loggers>
