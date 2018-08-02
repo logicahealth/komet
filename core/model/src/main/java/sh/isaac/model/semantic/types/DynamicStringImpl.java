@@ -39,6 +39,8 @@
 
 package sh.isaac.model.semantic.types;
 
+import java.nio.charset.StandardCharsets;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ObjectProperty;
@@ -83,7 +85,7 @@ public class DynamicStringImpl
          throw new RuntimeException("The string value cannot be null", null);
       }
 
-      this.data = string.getBytes();
+      this.data = string.getBytes(StandardCharsets.UTF_8);
    }
 
    /**
@@ -120,7 +122,7 @@ public class DynamicStringImpl
     */
    @Override
    public String getDataString() {
-      return new String(this.data);
+      return new String(this.data, StandardCharsets.UTF_8);
    }
    
    /**
