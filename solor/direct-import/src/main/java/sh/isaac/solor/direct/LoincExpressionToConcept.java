@@ -268,11 +268,11 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             index(conceptToWrite);
 
             // add to loinc identifier assemblage
-            UUID loincIdentifierUuid = UuidT5Generator.get(MetaData.CODE____SOLOR.getPrimordialUuid(),
+            UUID loincIdentifierUuid = UuidT5Generator.get(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getPrimordialUuid(),
                     loincCode);
             SemanticChronologyImpl loincIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                     loincIdentifierUuid,
-                    MetaData.CODE____SOLOR.getNid(),
+                    MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
                     conceptToWrite.getNid());
 
             StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);
