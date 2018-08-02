@@ -840,9 +840,18 @@ limitations under the License.
     
 }
 
+.inferred-form:hover{
+   -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,0.0), 0, 0, 0, 0);
+   /* -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 0); */
+}
+
 .stated-form {
    -glyph-name: "CHAT";
    -glyph-size: 18;
+}
+
+.stated-form:hover {
+   -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,0.0), 0, 0, 0, 0);
 }
 
 .link-external {
