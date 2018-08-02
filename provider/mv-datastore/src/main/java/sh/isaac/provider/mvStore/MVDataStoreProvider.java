@@ -17,6 +17,7 @@
 package sh.isaac.provider.mvStore;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -147,8 +148,9 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 			//Its best, however, to prevent the exception by not using Thread.interrupt on threads that interact with the DB.
 			//This also means no calling Task.cancel(), as that fires interrupts.
 			//TODO play with memory / cache size
-			this.store = new MVStore.Builder().cacheSize(2000).fileName(new File(mvFolder, MV_STORE + ".mv").getAbsolutePath()).open();
+			this.store = new MVStore.Builder().cacheSize(2000).compress().fileName(new File(mvFolder, MV_STORE + ".mv").getAbsolutePath()).open();
 			this.store.setVersionsToKeep(0);
+			this.store.setRetentionTime(1000);
 			
 			componentToSemanticNidsMap = this.store.<Integer, int[]>openMap(COMPONENT_TO_SEMANTIC_NIDS_MAP);
 			nidToAssemblageNidMap = this.store.<Integer, Integer>openMap(NID_TO_ASSEMBLAGE_NID_MAP);
@@ -208,6 +210,7 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 						{
 							updateMessage("Compacting Data Store");
 							store.compactMoveChunks();
+							LOG.debug("compact move chunks complete");
 						}
 						finally
 						{
@@ -746,7 +749,18 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	public void compact()
 	{
 		LOG.info("Performing full compact on MV Store");
+		store.commit();
+		try
+		{
+			store.getFileStore().getFile().force(true);  //make sure everything is synced to disk, before we start our compact sequence
+		}
+		catch (IOException e)
+		{
+			LOG.error("Unexpected:", e);
+		}
 		store.compactRewriteFully();
+		store.compactRewriteFully();  //seems to take two rounds, to get a full compaction
+		LOG.info("Full compact complete");
 	}
 
 	/**
