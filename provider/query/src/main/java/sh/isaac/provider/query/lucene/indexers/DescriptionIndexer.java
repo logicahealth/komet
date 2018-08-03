@@ -139,7 +139,7 @@ public class DescriptionIndexer extends LuceneIndexer
       String                      lastDescText     = null;
       String                      lastDescType     = null;
 
-      Boolean isMetadata = null;
+      boolean isMetadata = false;
       //We don't keep track of isMetadata per path (or module), if the user really wants to only get hits from metadata on a particular
       //stamp, they will have to post-filter.  This is meant to be a quick filter - so we error toward marking it metadata if it is metadata 
       //anywhere.
@@ -154,7 +154,7 @@ public class DescriptionIndexer extends LuceneIndexer
             TaxonomySnapshotService tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
                   new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, pathNid), NidSet.EMPTY, new int[0], Status.ACTIVE_ONLY_SET), null));
             return tss.isKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
-            });
+            }).booleanValue();
          }
          catch (Exception e)
          {
