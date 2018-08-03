@@ -14,33 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.preferences;
+package sh.komet.gui.provider.concept.comparison;
 
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.komet.preferences.AbstractPreferences;
 import sh.isaac.komet.preferencesfx.model.Category;
 
 /**
  *
  * @author kec
  */
-public class WindowPreferences extends AbstractPreferences {
-    StringProperty windowNameProperty = new SimpleStringProperty(this, "Window name", "String");
+public class ConceptCorrelationViewPreferences extends AbstractPreferences {
 
-    public WindowPreferences(IsaacPreferences preferencesNode, String preferencesName) {
+    public ConceptCorrelationViewPreferences(IsaacPreferences preferencesNode, String preferencesName) {
         super(preferencesNode, preferencesName);
+        
     }
 
     @Override
     public Property<?>[] getProperties() {
-        return new Property<?>[] { windowNameProperty };
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public Category[] getCategories() {
-        return new Category[] {};
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

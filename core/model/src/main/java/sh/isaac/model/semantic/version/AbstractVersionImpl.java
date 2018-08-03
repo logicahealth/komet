@@ -50,7 +50,7 @@ public abstract class AbstractVersionImpl
     * @param data the data
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
    }
 

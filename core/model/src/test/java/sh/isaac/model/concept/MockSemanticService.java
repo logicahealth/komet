@@ -62,6 +62,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.AssemblageService;
+import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -343,6 +344,11 @@ public class MockSemanticService
       Set<Integer> assemblageConceptNids) {
       throw new UnsupportedOperationException("Not supported yet.");
    }
+
+    @Override
+    public <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid, Class<V> versionType, StampCoordinate stampCoordinate) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 	@Override
 	public boolean hasSemantic(int semanticId) {

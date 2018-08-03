@@ -16,31 +16,12 @@
  */
 package sh.isaac.komet.preferences;
 
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.komet.preferencesfx.model.Category;
-
 /**
  *
  * @author kec
  */
-public class WindowPreferences extends AbstractPreferences {
-    StringProperty windowNameProperty = new SimpleStringProperty(this, "Window name", "String");
-
-    public WindowPreferences(IsaacPreferences preferencesNode, String preferencesName) {
-        super(preferencesNode, preferencesName);
-    }
-
-    @Override
-    public Property<?>[] getProperties() {
-        return new Property<?>[] { windowNameProperty };
-    }
-
-    @Override
-    public Category[] getCategories() {
-        return new Category[] {};
-    }
+public enum ApplicationPreferenceKeys {
+    INITIALIZED,
+    STAGE_TITLE,
     
 }

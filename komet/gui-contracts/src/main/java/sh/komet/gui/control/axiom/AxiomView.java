@@ -35,6 +35,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
@@ -570,11 +571,15 @@ public class AxiomView {
                     addToToolbarNoGrow(rootToolBar, expandButton, column++);
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        addToToolbarNoGrow(rootToolBar, Iconography.STATED.getIconographic(), column++);
+                     Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                     formLabel.setTooltip(new Tooltip("Stated form"));
+                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
                         addToToolbarNoGrow(rootToolBar, editButton, column++);
                     } else {
-                        addToToolbarNoGrow(rootToolBar, Iconography.INFERRED.getIconographic(), column++);
-                    }
+                        Label formLabel = new Label("", Iconography.INFERRED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Inferred form"));
+                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
+              }
                     break;
                 }
                 case LITERAL_FLOAT: {
@@ -586,7 +591,9 @@ public class AxiomView {
                     int column = 0;
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                     Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                     formLabel.setTooltip(new Tooltip("Stated form"));
+                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
                     }
                     break;
                 }
@@ -600,7 +607,9 @@ public class AxiomView {
                     int column = 0;
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                     Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                     formLabel.setTooltip(new Tooltip("Stated form"));
+                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
                     }
                     break;
                 }
@@ -613,8 +622,10 @@ public class AxiomView {
                     int column = 0;
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        addToToolbarNoGrow(rootToolBar, editButton, column++);
-                    }
+                       Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                     formLabel.setTooltip(new Tooltip("Stated form"));
+                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
+                  }
                     break;
                 }
                 case LITERAL_INTEGER: {
@@ -626,7 +637,9 @@ public class AxiomView {
                     int column = 0;
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                     Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                     formLabel.setTooltip(new Tooltip("Stated form"));
+                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
                     }
                     break;
                 }
@@ -639,7 +652,9 @@ public class AxiomView {
                     int column = 0;
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                     Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                     formLabel.setTooltip(new Tooltip("Stated form"));
+                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
                     }
                     break;
                 }

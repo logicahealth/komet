@@ -1,7 +1,6 @@
 package sh.isaac.komet.preferencesfx;
 
 import com.dlsc.formsfx.model.util.TranslationService;
-import java.util.prefs.Preferences;
 import sh.isaac.komet.preferencesfx.history.History;
 import sh.isaac.komet.preferencesfx.model.Category;
 import sh.isaac.komet.preferencesfx.model.PreferencesFxModel;
@@ -30,7 +29,7 @@ import sh.komet.gui.util.FxGet;
  * @author Marco Sanfratello
  */
 public class PreferencesFx {
-  private static final Logger LOGGER =
+  private static final Logger LOG =
       LogManager.getLogger(PreferencesFx.class.getName());
 
   private PreferencesFxModel preferencesFxModel;
@@ -113,7 +112,6 @@ public class PreferencesFx {
   /**
    * Shows the PreferencesFX dialog.
      * @param title
-     * @param preferences
    */
   public void show(String title) {
     new PreferencesFxDialog(title, preferencesFxModel, preferencesFxView);

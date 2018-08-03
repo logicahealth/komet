@@ -33,6 +33,7 @@ public class ApplicationPreferences extends AbstractPreferences {
 
     private final BooleanProperty enableEdit = new SimpleBooleanProperty(this, "Enable edit");
     private final List<ManifoldGroupPreferences> manifoldGroups = new ArrayList<>();
+    private final List<WindowPreferences> windows = new ArrayList<>();
 
     // HashMap for manifolds?
     // HashMap for Windows?
@@ -48,7 +49,16 @@ public class ApplicationPreferences extends AbstractPreferences {
     public Property<?>[] getProperties() {
         return new Property<?>[]{enableEdit};
     }
-
+    private List<Category> getWindowCategories() {
+        List<Category> windowCategorys = new ArrayList<>();
+        for (WindowPreferences windowPreferences : windows) {
+            for (Category category : windowPreferences.getCategories()) {
+                windowCategorys.add(category);
+            }
+        }
+        return windowCategorys;
+    }
+    
     private List<Category> getManifoldCategories() {
         List<Category> manifoldCategorys = new ArrayList<>();
         for (ManifoldGroupPreferences manifoldGroupPreferences : manifoldGroups) {
@@ -61,12 +71,14 @@ public class ApplicationPreferences extends AbstractPreferences {
 
     @Override
     public Category[] getCategories() {
-        List<Category> manifoldCategorys = new ArrayList<>();
-        manifoldCategorys.add(Category.of("General",
+        List<Category> applicationCategorys = new ArrayList<>();
+        applicationCategorys.add(Category.of("General",
                 Setting.of("Enable editing", enableEdit)
         ));
-        manifoldCategorys.add(Category.of("Manifolds")
+        applicationCategorys.add(Category.of("Manifolds")
             .subCategories(getManifoldCategories().toArray(new Category[0])));
-        return manifoldCategorys.toArray(new Category[manifoldCategorys.size()]);
+        applicationCategorys.add(Category.of("Windows")
+            .subCategories(getWindowCategories().toArray(new Category[0])));
+        return applicationCategorys.toArray(new Category[applicationCategorys.size()]);
     }
 }

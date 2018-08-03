@@ -95,7 +95,7 @@ public class ObservableDescriptionDialect implements ObservableVersion {
 
     @Override
     public ObjectProperty<CommitStates> commitStateProperty() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return descriptionProperty.get().commitStateProperty();
     }
 
     @Override
@@ -240,7 +240,7 @@ public class ObservableDescriptionDialect implements ObservableVersion {
 
     @Override
     public CommitStates getCommitState() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return descriptionProperty.get().getCommitState();
     }
 
 }

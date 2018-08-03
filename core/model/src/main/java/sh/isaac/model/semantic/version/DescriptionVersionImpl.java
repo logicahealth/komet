@@ -165,7 +165,7 @@ public class DescriptionVersionImpl
     * @param data the data
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
       data.putNid(this.caseSignificanceConceptNid);
       data.putNid(this.languageConceptNid);

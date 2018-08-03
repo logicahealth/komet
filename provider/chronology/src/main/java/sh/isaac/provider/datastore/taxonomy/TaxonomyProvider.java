@@ -471,7 +471,7 @@ public class TaxonomyProvider
 
     @Override
     public Supplier<TreeNodeVisitData> getTreeNodeVisitDataSupplier(int conceptAssemblageNid) {
-        return () -> new TreeNodeVisitDataBdbImpl(conceptAssemblageNid);
+        return () -> new TreeNodeVisitDataImpl(conceptAssemblageNid);
     }
 
     //~--- inner classes -------------------------------------------------------

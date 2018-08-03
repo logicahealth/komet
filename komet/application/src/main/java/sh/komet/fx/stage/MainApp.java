@@ -45,6 +45,8 @@ import com.sun.javafx.application.PlatformImpl;
 import de.codecentric.centerdevice.MenuToolkit;
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.prefs.BackingStoreException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -63,6 +65,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.glassfish.hk2.api.MultiException;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -73,8 +76,11 @@ import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
+import static sh.isaac.komet.preferences.ApplicationPreferenceKeys.INITIALIZED;
 import sh.isaac.komet.preferences.ApplicationPreferences;
+import sh.isaac.komet.preferences.KometStageGroupPreferences;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
@@ -94,6 +100,8 @@ public class MainApp
     public static final String SPLASH_IMAGE = "prism-splash.png";
     protected static final Logger LOG = LogManager.getLogger();
     private static Stage primaryStage;
+    public IsaacPreferences applicationPreferences;
+    public boolean firstRun = true;
 
     //~--- methods -------------------------------------------------------------
     /**
@@ -123,6 +131,11 @@ public class MainApp
 
         SvgImageLoaderFactory.install();
         LookupService.startupPreferenceProvider();
+        applicationPreferences = FxGet.applicationNode(ApplicationPreferences.class);
+
+        if (applicationPreferences.getBoolean(INITIALIZED, false)) {
+            firstRun = false;
+        }
 
         Get.configurationService().setSingleUserMode(true);  //TODO eventually, this needs to be replaced with a proper user identifier
         Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
@@ -153,15 +166,59 @@ public class MainApp
             final ClassifierResults classifierResults = classifyTask.get();
         }
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-        Parent root = loader.load();
-        KometStageController controller = loader.getController();
+        IsaacPreferences stageGroupPreferences = applicationPreferences.node(KometStageGroupPreferences.class);
+        if (stageGroupPreferences.hasChildren()) {
+            // create the existing stages
+            for (IsaacPreferences stageNode : stageGroupPreferences.children()) {
 
-        root.setId(UUID.randomUUID()
-                .toString());
+            }
+        } else {
+            // open one new stage with defaults
+            // Create a node for stage preferences
+            UUID stageUuid = UUID.randomUUID();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
+            Parent root = loader.load();
+            KometStageController controller = loader.getController();
 
-        stage.setTitle("Viewer");
+            root.setId(stageUuid.toString());
 
+            stage.setTitle("Viewer");
+
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
+            stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
+
+            // GraphController.setSceneForControllers(scene);
+            scene.getStylesheets()
+                    .add(FxGet.fxConfiguration().getUserCSSURL().toString());
+            scene.getStylesheets()
+                    .add(Iconography.getStyleSheetStringUrl());
+            FxGet.statusMessageService()
+                    .addScene(scene, controller::reportStatus);
+            stage.show();
+            stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
+            setupStageMenus(stage, root);
+        }
+
+        
+
+        // SNAPSHOT
+        // Chronology
+        // Reflector
+        //
+        // Logic, Language, Dialect, Chronology,
+        // LILAC Reflector (LOGIC,
+        // COLLD Reflector: Chronology of Logic, Language, and Dialect : COLLAD
+        // COLLDAE Chronology of Logic, Langugage, Dialect, and Extension
+        // CHILLDE
+        // Knowledge, Language, Dialect, Chronology
+        // KOLDAC
+        applicationPreferences.putBoolean(INITIALIZED, true);
+        applicationPreferences.sync();
+    }
+
+    protected void setupStageMenus(Stage stage, Parent root) throws MultiException {
         // Get the toolkit
         MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
         MenuBar mb = new MenuBar();
@@ -221,7 +278,10 @@ public class MainApp
                         newWindowMenu.getItems().addAll(newStatementWindowItem);
                         for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                             if (mp.getParentMenus().contains(AppMenu.NEW_WINDOW)) {
-                                newWindowMenu.getItems().addAll(Arrays.asList(mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner())));
+                                for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner())) {
+                                    menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.applicationNode(ApplicationPreferences.class));
+                                    newWindowMenu.getItems().add(menuItem);
+                                }
                             }
                         }
                     }
@@ -230,7 +290,7 @@ public class MainApp
                     newWindowMenu.getItems().addAll(newKometWindowItem);
                     AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
                     AppMenu.NEW_WINDOW.getMenu().getItems().sort((o1, o2) -> {
-                        return o1.getText().compareTo(o2.getText()); 
+                        return o1.getText().compareTo(o2.getText());
                     });
                     break;
                 case HELP:
@@ -274,43 +334,16 @@ public class MainApp
 
         com.sun.glass.ui.Application.GetApplication().setEventHandler(
                 new com.sun.glass.ui.Application.EventHandler() {
-            @Override
-            public void handleQuitAction(com.sun.glass.ui.Application app, long time) {
-                shutdown();
-            }
-
-            @Override
-            public boolean handleThemeChanged(String themeName) {
-                return PlatformImpl.setAccessibilityTheme(themeName);
-            }
-        });
-
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
-        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
-
-        // GraphController.setSceneForControllers(scene);
-        scene.getStylesheets()
-                .add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        scene.getStylesheets()
-                .add(Iconography.getStyleSheetStringUrl());
-        FxGet.statusMessageService()
-                .addScene(scene, controller::reportStatus);
-        stage.show();
-        stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
-
-        // SNAPSHOT
-        // Chronology
-        // Reflector
-        //
-        // Logic, Language, Dialect, Chronology,
-        // LILAC Reflector (LOGIC,
-        // COLLD Reflector: Chronology of Logic, Language, and Dialect : COLLAD
-        // COLLDAE Chronology of Logic, Langugage, Dialect, and Extension
-        // CHILLDE
-        // Knowledge, Language, Dialect, Chronology
-        // KOLDAC
+                    @Override
+                    public void handleQuitAction(com.sun.glass.ui.Application app, long time) {
+                        shutdown();
+                    }
+                    
+                    @Override
+                    public boolean handleThemeChanged(String themeName) {
+                        return PlatformImpl.setAccessibilityTheme(themeName);
+                    }
+                });
     }
 
     private void close(ActionEvent event) {
@@ -363,14 +396,14 @@ public class MainApp
             stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
             MenuProvider.WINDOW_COUNT.incrementAndGet();
 
-            //TODO Also, this window has no menus...
+            setupStageMenus(stage, root);
         } catch (IOException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
     }
 
     private void handlePrefs(ActionEvent event) {
-        FxGet.kometPreferences().showPreferences("ISAAC's KOMET Preferences", FxGet.applicationNode(ApplicationPreferences.class));
+        FxGet.kometPreferences().showPreferences("KOMET Preferences", applicationPreferences);
     }
 
     private void handleAbout(ActionEvent event) {
@@ -411,11 +444,17 @@ public class MainApp
     protected void shutdown() {
         Get.applicationStates().remove(ApplicationStates.RUNNING);
         Get.applicationStates().add(ApplicationStates.STOPPING);
+        try {
+            applicationPreferences.flush();
+        } catch (BackingStoreException ex) {
+            LOG.error(ex.getLocalizedMessage(), ex);
+        }
         Thread shutdownThread = new Thread(() -> {  //Can't use the thread poool for this, because shutdown 
             //system stops the thread pool, which messes up the shutdown sequence.
             LookupService.shutdownSystem();
             Platform.runLater(() -> {
                 try {
+                    applicationPreferences.flush();
                     Platform.exit();
                     System.exit(0);
                 } catch (Throwable ex) {

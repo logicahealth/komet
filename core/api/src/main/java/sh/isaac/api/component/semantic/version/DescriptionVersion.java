@@ -87,7 +87,9 @@ public interface DescriptionVersion
       else if (nid == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
           return "Regular Name";
       }
-      else if (nid == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+      else if (nid == TermAux.PLURAL_NAME_DESCRIPTION_TYPE.getNid()) {
+          return "Plural Name";
+      }else if (nid == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
           return "Definition";
       }
       else {

@@ -91,7 +91,7 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
     * @param data the data
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
       data.putInt(this.int1);
       data.putInt(this.int2);

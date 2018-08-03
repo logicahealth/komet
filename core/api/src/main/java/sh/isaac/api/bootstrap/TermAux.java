@@ -140,6 +140,7 @@ public class TermAux implements StaticIsaacCache {
    /** ConceptProxy for: "Synonym description type". SCT ID: 900000000000013009 */
    public static ConceptSpecification REGULAR_NAME_DESCRIPTION_TYPE = new ConceptProxy("Regular name description type", "Regular name", UUID.fromString("8bfba944-3965-3946-9bcb-1e80a5da63a2"));
 
+   public static ConceptSpecification PLURAL_NAME_DESCRIPTION_TYPE = new ConceptProxy("Plural name description type", "Plural name", UUID.fromString("d3c5bfa4-ede5-540d-8d97-90544bbb4075"));
    /** ConceptProxy for: "Fully qualified description type. */
    public static ConceptSpecification FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE = new ConceptProxy("Fully qualified name description type", "Fully qualified name",
          UUID.fromString("00791270-77c9-32b6-b34f-d932569bd2bf"));

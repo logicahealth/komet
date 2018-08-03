@@ -45,10 +45,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -68,7 +64,6 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;

@@ -136,7 +136,7 @@ public class TreeCycleResolver
          TreeNodeVisitData visitData = treeCycleError.tree.breadthFirstProcess(treeCycleError.tree.getRootNids()[0],
                                                  (TreeNodeVisitData t,
                                                        int thisSequence) -> {},
-         Get.taxonomyService().getTreeNodeVisitDataSupplier(treeCycleError.tree.getAssemblageNid()));
+         Get.taxonomyService().getTreeNodeVisitDataSupplier(treeCycleError.tree.getConceptAssemblageNid()));
 
          if (!visitData.getCycleSet()
                        .isEmpty()) {
