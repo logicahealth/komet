@@ -147,12 +147,19 @@ public class DescriptionIndexer extends LuceneIndexer
       {
          //Because we are only indexing descriptions, we will assume the referencedComponentNid is a concept.
          String key = pathNid + ":" + semanticChronology.getReferencedComponentNid();
-         isMetadata = isMetadataCache.get(key, pathAndRefComp -> {
-           //cache doesn't have the answer, needs to calculate.  We construct a snapshot of latest time, the path, and any module, active only.
+         try
+         {
+            isMetadata = isMetadataCache.get(key, pathAndRefComp -> {
+            //cache doesn't have the answer, needs to calculate.  We construct a snapshot of latest time, the path, and any module, active only.
             TaxonomySnapshotService tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
                   new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, pathNid), NidSet.EMPTY, new int[0], Status.ACTIVE_ONLY_SET), null));
             return tss.isKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
-         });
+            });
+         }
+         catch (Exception e)
+         {
+            LOG.error("Unexpected error calculating isKindOf for " + semanticChronology, e);
+         }
          
          // Add a metadata marker for concepts that are metadata, to vastly improve performance of various prefix / filtering searches we want to
          // support in the isaac-rest API
