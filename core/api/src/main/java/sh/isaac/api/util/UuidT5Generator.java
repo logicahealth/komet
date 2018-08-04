@@ -258,6 +258,13 @@ public class UuidT5Generator {
            for (int i = 0; i < longBytes.length; i++) {
                longBytes[i] = sha1digest[i];
            }
+
+           //Zero out bytes for big endian 0,1 index
+           //9223372036854775807 max long value
+           //562,949,953,421,310 combinations - Mask 2 byte
+           //144,115,188,075,855,870 combinations - Mask 1 bytes
+           longBytes[0] = (byte)0;
+           longBytes[1] = (byte)0;
            
            BigInteger bigResult = new BigInteger(1, longBytes);
            String resultAsString = bigResult.toString();
