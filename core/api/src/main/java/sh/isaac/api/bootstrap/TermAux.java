@@ -442,8 +442,6 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification SRF_STATED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("SRF stated relationship assemblage", "SRF stated relationships",
             UUID.fromString("c2b97bad-d5e0-5eb5-ba13-b9e6824411e0"));
 
-    public static ConceptSpecification SOLOR_RF2_ID = new ConceptProxy("SOLOR RF2 Identifier", "SOLOR RF2 ID", UUID.fromString("64319749-f422-58fe-8fba-48bcfa9cfb2c"));
-
 
 
 

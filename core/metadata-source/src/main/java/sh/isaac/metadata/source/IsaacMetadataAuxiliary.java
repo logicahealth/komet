@@ -288,7 +288,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
                loincBuilder.addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
-               createConcept("SRF2ID").mergeFromSpec(TermAux.SOLOR_RF2_ID).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("SRF2ID", "SOLOR RF2 Identifier").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
 
                popParent();
             createConcept("Language");
