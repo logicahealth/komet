@@ -288,7 +288,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
                loincBuilder.addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
-               
+               createConcept("SRF2ID", "SOLOR RF2 Identifier").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+
                popParent();
             createConcept("Language");
             pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 

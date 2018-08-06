@@ -443,6 +443,9 @@ public class TermAux implements StaticIsaacCache {
             UUID.fromString("c2b97bad-d5e0-5eb5-ba13-b9e6824411e0"));
 
 
+
+
+
     /*
     public static ConceptSpecification SPEC28 = new ConceptProxy("", "", UUID.fromString("3daac6c4-78c5-5271-9c63-6e28f80e0c52"));
     public static ConceptSpecification SPEC29 = new ConceptProxy("", "", UUID.fromString("4fa29287-a80e-5f83-abab-4b587973e7b7"));

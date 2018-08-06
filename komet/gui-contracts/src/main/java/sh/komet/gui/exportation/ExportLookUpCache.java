@@ -13,25 +13,18 @@ import java.util.stream.Collectors;
  */
 public class ExportLookUpCache {
 
-    private static List<Integer> sctidNids;
-    private static List<Integer> rxnormNids;
-    private static List<Integer> loincNids;
-
-    static{
-        sctidNids = Get.assemblageService()
-                .getReferencedComponentNidStreamFromAssemblage(TermAux.SNOMED_IDENTIFIER)
-                .boxed()
-                .collect(Collectors.toList());
-        rxnormNids = Get.assemblageService()
-                .getReferencedComponentNidStreamFromAssemblage(MetaData.RXNORM_CUI____SOLOR)
-                .boxed()
-                .collect(Collectors.toList());
-        loincNids = Get.assemblageService()
-                .getReferencedComponentNidStreamFromAssemblage(MetaData.CODE____SOLOR)
-                .boxed()
-                .collect(Collectors.toList());
-    }
-
+    private static List<Integer> sctidNids = Get.assemblageService()
+            .getReferencedComponentNidStreamFromAssemblage(TermAux.SNOMED_IDENTIFIER)
+            .boxed()
+            .collect(Collectors.toList());
+    private static List<Integer> rxnormNids = Get.assemblageService()
+            .getReferencedComponentNidStreamFromAssemblage(MetaData.RXNORM_CUI____SOLOR)
+            .boxed()
+            .collect(Collectors.toList());
+    private static List<Integer> loincNids = Get.assemblageService()
+            .getReferencedComponentNidStreamFromAssemblage(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR)
+            .boxed()
+            .collect(Collectors.toList());
 
     public static boolean isSCTID(Chronology chronology){
         return sctidNids.contains(chronology.getNid());

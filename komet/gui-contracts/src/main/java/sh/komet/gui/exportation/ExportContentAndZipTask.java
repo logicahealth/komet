@@ -27,7 +27,9 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
     private final Map<ReaderSpecification, List<String>> exportMap = new HashMap<>();
 
     private final ExportComponentType[] exportComponentTypes = new ExportComponentType[]{
-            ExportComponentType.CONCEPT};
+            ExportComponentType.CONCEPT,
+            ExportComponentType.DESCRIPTION,
+            ExportComponentType.RELATIONSHIP};
 
     public ExportContentAndZipTask(Manifold manifold, File exportDirectory, ExportFormatType exportFormatType){
         this.manifold = manifold;
@@ -56,9 +58,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
             }
 
             completedUnitOfWork();
-
             runZipTask();
-
             completedUnitOfWork();
 
             System.out.println("¯\\_(ツ)_/¯ : Total Time: " + Duration.between(totalStart, LocalDateTime.now()));
@@ -91,7 +91,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
                 readerSpecification = null;
         }
 
-        updateMessage("Reading"+ readerSpecification.getReaderUIText() + "...");
+        updateMessage("Reading "+ readerSpecification.getReaderUIText() + "...");
 
         List<String> conceptList = Get.executor().submit(
                 new BatchReader(readerSpecification, BATCH_SIZE, readSemaphore), new ArrayList<String>()).get();
@@ -99,7 +99,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
         readerSpecification.addColumnHeaders(conceptList);
         exportMap.put(readerSpecification,conceptList );
 
-        System.out.println("¯\\_(ツ)_/¯ : Total " + readerSpecification.getReaderUIText() + "Reading Time: " + Duration.between(runStart, LocalDateTime.now()));
+        System.out.println("¯\\_(ツ)_/¯ : Total " + readerSpecification.getReaderUIText() + " Reading Time - " + Duration.between(runStart, LocalDateTime.now()));
     }
 
     private void runZipTask() throws InterruptedException, ExecutionException{
@@ -112,7 +112,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
                 new ZipExportFiles(this.exportFormatType, this.exportDirectory, this.exportMap, this.readSemaphore);
         Get.executor().submit(zipExportFiles).get();
 
-        System.out.println("¯\\_(ツ)_/¯ : Total Zipping Time: " + Duration.between(zipStart, LocalDateTime.now()));
+        System.out.println("¯\\_(ツ)_/¯ : Total Zipping Time - " + Duration.between(zipStart, LocalDateTime.now()));
 
     }
 

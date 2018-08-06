@@ -1,5 +1,6 @@
 package sh.komet.gui.exportation;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.progress.PersistTaskResult;
@@ -19,7 +20,9 @@ public class ChronologyReader extends TimedTaskWithProgressTracker<List<String>>
     private List<? extends Chronology> chronologiesToRead;
     private final Semaphore readSemaphore;
 
-    public ChronologyReader(ReaderSpecification readerSpecification, List<? extends Chronology> chronologiesToRead, Semaphore readSemaphore) {
+    public ChronologyReader(ReaderSpecification readerSpecification,
+                            List<? extends Chronology> chronologiesToRead,
+                            Semaphore readSemaphore) {
         this.readerSpecification = readerSpecification;
         this.chronologiesToRead = chronologiesToRead;
         this.readSemaphore = readSemaphore;
@@ -49,6 +52,7 @@ public class ChronologyReader extends TimedTaskWithProgressTracker<List<String>>
 
         }finally {
             this.readSemaphore.release();
+
             Get.activeTasks().remove(this);
         }
 
