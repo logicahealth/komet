@@ -18,6 +18,7 @@ package sh.komet.gui.contract;
 
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
@@ -25,5 +26,5 @@ import sh.isaac.api.preferences.IsaacPreferences;
  */
 @Contract
 public interface KometPreferences {
-    void showPreferences(String title, IsaacPreferences preferences);
+    void showPreferences(String title, IsaacPreferences preferences, Manifold manifold);
 }

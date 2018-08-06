@@ -321,6 +321,12 @@ public enum ObservableFields
    CORELATION_COMPARISON_EXPRESSION("Corelation comparison expression"),
    CORELATION_EXPRESSION("Corelation expression"),
    
+   GIT_USER_NAME("Git user name"),
+   GIT_PASSWORD("Git password"),
+   GIT_URL("Git url"),
+   GIT_LOCAL_FOLDER("Git local folder"),
+   ENABLE_EDIT("Enable editing"),
+   
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */

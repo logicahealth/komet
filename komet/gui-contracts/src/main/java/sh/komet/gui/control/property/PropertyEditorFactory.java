@@ -24,21 +24,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
+import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
+import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.isaac.model.statement.ResultImpl;
+import sh.komet.gui.control.PropertySheetBooleanWrapper;
+import sh.komet.gui.control.PropertySheetPasswordWrapper;
 import sh.komet.gui.control.PropertySheetStatusWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.circumstance.CircumstanceEditor;
@@ -88,9 +95,43 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             listEditor.setValue((ObservableList) listWrapper.getValue());
             return listEditor;
         } else if (propertySheetItem instanceof PropertySheetItem) {
-             return setupPropertySheetItem((PropertySheetItem) propertySheetItem);
+            return setupPropertySheetItem((PropertySheetItem) propertySheetItem);
+        } else if (propertySheetItem instanceof PropertySheetBooleanWrapper) {
+            return Editors.createCheckEditor(propertySheetItem);
+        } else if (propertySheetItem instanceof PropertySheetPasswordWrapper) {
+            return createPasswordEditor(propertySheetItem);
         }
         throw new UnsupportedOperationException("Not supported yet: " + propertySheetItem.getClass().getName());
+    }
+
+    private static PropertyEditor<?> createPasswordEditor(PropertySheet.Item property) {
+
+        return new AbstractPropertyEditor<String, PasswordField>(property, new PasswordField()) {
+
+            {
+                enableAutoSelectAll(getEditor());
+            }
+
+            @Override
+            protected StringProperty getObservableValue() {
+                return getEditor().textProperty();
+            }
+
+            @Override
+            public void setValue(String value) {
+                getEditor().setText(value);
+            }
+        };
+    }
+
+    private static void enableAutoSelectAll(final TextInputControl control) {
+        control.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean oldValue, Boolean newValue) -> {
+            if (newValue) {
+                Platform.runLater(() -> {
+                    control.selectAll();
+                });
+            }
+        });
     }
 
     private PropertyEditor<?> setupPropertySheetItem(PropertySheetItem item) throws UnsupportedOperationException, NoSuchElementException {
@@ -109,7 +150,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                 if (currentValue == null) {
                     editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, defaultConcept.getNid()));
                 } else {
-                    
+
                     editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, currentValue.getNid()));
                 }
                 return editor;
@@ -121,11 +162,11 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                 if (item.getValue() == null) {
                     editor.setValue(item.getDefaultValue());
                 } else {
-                     editor.setValue(item.getValue());
+                    editor.setValue(item.getValue());
                 }
                 return editor;
             }
-            
+
             case TEXT: {
                 PropertyEditor editor = Editors.createTextEditor(item);
                 TextField editorControl = (TextField) editor.getEditor();
@@ -135,11 +176,11 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             }
             case UNSPECIFIED:
             default:
-               PropertyEditor editor = Editors.createTextEditor(item);
-               TextField editorControl = (TextField) editor.getEditor();
+                PropertyEditor editor = Editors.createTextEditor(item);
+                TextField editorControl = (TextField) editor.getEditor();
                 editorControl.setText(item.getValue().toString());
-               editorControl.setMaxWidth(Double.MAX_VALUE);
-               return editor;
+                editorControl.setMaxWidth(Double.MAX_VALUE);
+                return editor;
         }
     }
 

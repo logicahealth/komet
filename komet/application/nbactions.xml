@@ -20,7 +20,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-DSHOW_BETA_FEATURES=true -Xmx10g -Xms10g -classpath %classpath sh.komet.fx.stage.MainApp -e</exec.args>
+                <exec.args>-DSHOW_BETA_FEATURES=true -DSHOW_KOMET_ONLY_PROPERTY=true -Xmx10g -Xms10g -classpath %classpath sh.komet.fx.stage.MainApp -e</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>

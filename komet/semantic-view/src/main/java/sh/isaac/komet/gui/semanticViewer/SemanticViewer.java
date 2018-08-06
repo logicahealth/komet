@@ -709,7 +709,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		else {
 			manifoldConcept_ = manifold;
 			titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
-			titleLabel.setGraphic(Iconography.PAPERCLIP.getIconographic());
+			titleLabel.setGraphic(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
 		}
 		titleProperty.set(manifoldConcept_.getRegularName(assemblageConceptNid).orElse(manifoldConcept_.getFullySpecifiedDescriptionText(assemblageConceptNid)));
 		viewFocus_ = ViewFocus.ASSEMBLAGE;
@@ -1745,7 +1745,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	@Override
 	public Node getMenuIcon()
 	{
-		return Iconography.PAPERCLIP.getIconographic();
+		return Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic();
 	}
 	/** 
 	 * {@inheritDoc}
@@ -1773,7 +1773,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	{
 		manifoldConcept_= manifold;
 		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
-		titleLabel.setGraphic(Iconography.PAPERCLIP.getIconographic());
+		titleLabel.setGraphic(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
 
 		if (manifold.getFocusedConcept().isPresent())
 		{
@@ -1805,7 +1805,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	@Override
 	public Node getMenuIcon()
 	{
-		return Iconography.PAPERCLIP.getIconographic();
+		return Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic();
 	}
 			@Override
 			public boolean selectInTabOnChange()
@@ -1865,6 +1865,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	@Override
 	public PanelPlacement getPanelPlacement()
 	{
-		return FxGet.fxConfiguration().isShowBetaFeaturesEnabled() ? PanelPlacement.CENTER : null;
+		return (FxGet.fxConfiguration().isShowBetaFeaturesEnabled() && 
+                        !FxGet.fxConfiguration().showKometFeaturesOnly())? PanelPlacement.CENTER : null;
 	}
 }

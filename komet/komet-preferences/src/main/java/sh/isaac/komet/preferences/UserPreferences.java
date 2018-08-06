@@ -16,19 +16,37 @@
  */
 package sh.isaac.komet.preferences;
 
-import javafx.beans.property.SimpleStringProperty;
+import java.util.prefs.BackingStoreException;
 import sh.isaac.api.preferences.IsaacPreferences;
+import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
-public class KometStagePreferences {
-    SimpleStringProperty stageName = new SimpleStringProperty(this, "Window Title");
+public class UserPreferences extends AbstractPreferences {
 
-    public KometStagePreferences(IsaacPreferences stagePreferences) {
-        
+    //PropertySheetItem moduleProperty = createPropertyItem(MetaData.MODULE____SOLOR.);
+    //PropertySheetItem pathProperty = createPropertyItem(concept.pathNidProperty());
+
+    public UserPreferences(IsaacPreferences preferencesNode, Manifold manifold) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "User"), manifold);
+        //getItemList().add(moduleProperty);
+        //getItemList().add(pathProperty);
+        save();
     }
-    
-    
+
+    @Override
+    void saveFields() throws BackingStoreException {
+        // Nothing to do. 
+    }
+
+    @Override
+    void revertFields() {
+        // Nothing to do. 
+    }
+
 }
+    
+

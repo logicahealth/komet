@@ -44,8 +44,6 @@ import org.apache.logging.log4j.Logger;
 import com.sun.javafx.application.PlatformImpl;
 import de.codecentric.centerdevice.MenuToolkit;
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
-import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -78,9 +76,9 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-import static sh.isaac.komet.preferences.ApplicationPreferenceKeys.INITIALIZED;
-import sh.isaac.komet.preferences.ApplicationPreferences;
-import sh.isaac.komet.preferences.KometStageGroupPreferences;
+import sh.isaac.komet.preferences.GeneralPreferences;
+import sh.isaac.komet.preferences.PreferenceGroup;
+import sh.isaac.komet.preferences.RootPreferences;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
@@ -131,9 +129,9 @@ public class MainApp
 
         SvgImageLoaderFactory.install();
         LookupService.startupPreferenceProvider();
-        applicationPreferences = FxGet.applicationNode(ApplicationPreferences.class);
+        applicationPreferences = FxGet.applicationNode(GeneralPreferences.class);
 
-        if (applicationPreferences.getBoolean(INITIALIZED, false)) {
+        if (applicationPreferences.getBoolean(PreferenceGroup.Keys.INITIALIZED, false)) {
             firstRun = false;
         }
 
@@ -166,13 +164,6 @@ public class MainApp
             final ClassifierResults classifierResults = classifyTask.get();
         }
 
-        IsaacPreferences stageGroupPreferences = applicationPreferences.node(KometStageGroupPreferences.class);
-        if (stageGroupPreferences.hasChildren()) {
-            // create the existing stages
-            for (IsaacPreferences stageNode : stageGroupPreferences.children()) {
-
-            }
-        } else {
             // open one new stage with defaults
             // Create a node for stage preferences
             UUID stageUuid = UUID.randomUUID();
@@ -199,7 +190,7 @@ public class MainApp
             stage.show();
             stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
             setupStageMenus(stage, root);
-        }
+        
 
         
 
@@ -214,7 +205,6 @@ public class MainApp
         // CHILLDE
         // Knowledge, Language, Dialect, Chronology
         // KOLDAC
-        applicationPreferences.putBoolean(INITIALIZED, true);
         applicationPreferences.sync();
     }
 
@@ -279,7 +269,7 @@ public class MainApp
                         for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                             if (mp.getParentMenus().contains(AppMenu.NEW_WINDOW)) {
                                 for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner())) {
-                                    menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.applicationNode(ApplicationPreferences.class));
+                                    menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.applicationNode(RootPreferences.class));
                                     newWindowMenu.getItems().add(menuItem);
                                 }
                             }
@@ -403,7 +393,8 @@ public class MainApp
     }
 
     private void handlePrefs(ActionEvent event) {
-        FxGet.kometPreferences().showPreferences("KOMET Preferences", applicationPreferences);
+        FxGet.kometPreferences().showPreferences("KOMET Preferences", 
+                applicationPreferences, Manifold.make(ManifoldGroup.TAXONOMY));
     }
 
     private void handleAbout(ActionEvent event) {

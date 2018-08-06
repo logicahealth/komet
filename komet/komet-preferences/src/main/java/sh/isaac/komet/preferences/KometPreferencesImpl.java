@@ -16,11 +16,20 @@
  */
 package sh.isaac.komet.preferences;
 
-import sh.isaac.komet.preferencesfx.PreferencesFx;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.UUID;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import javax.inject.Singleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.KometPreferences;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
@@ -28,23 +37,44 @@ import sh.komet.gui.contract.KometPreferences;
  */
 @Service
 @Singleton
-
 public class KometPreferencesImpl implements KometPreferences {
+   private static final Logger LOG = LogManager.getLogger();
 
-    PreferencesFx preferencesFx;
+    private KometPreferencesController kpc; 
+    private Stage preferencesStage;
     
-    ApplicationPreferences applicationPreferences;
-
     public KometPreferencesImpl() {
+        
     }
 
     @Override
-    public void showPreferences(String title, IsaacPreferences preferences) {
-        if (this.preferencesFx == null) {
-            this.applicationPreferences = new ApplicationPreferences(preferences);
-            this.preferencesFx
-                    = PreferencesFx.of(preferences, applicationPreferences.getCategories());
-        }
-        preferencesFx.show(title);
+    public void showPreferences(String title, IsaacPreferences preferences, 
+            Manifold manifold) {
+        if (kpc == null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/preferences/KometPreferences.fxml"));
+                Parent root = loader.load();
+                this.kpc = loader.getController();
+                this.kpc.setManifold(manifold);
+                Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold);
+                if (treeRoot.isPresent()) {
+                    this.kpc.setRoot(treeRoot.get());
+                }
+                
+                root.setId(UUID.randomUUID()
+                        .toString());
+                
+                this.preferencesStage = new Stage();
+                this.preferencesStage.setTitle("KOMET Preferences");
+                Scene scene = new Scene(root);
+                
+                this.preferencesStage.setScene(scene);
+            } catch (IOException ex) {
+                LOG.error(ex.getLocalizedMessage(), ex);
+                throw new RuntimeException(ex);
+            }
+       }
+       preferencesStage.show();
+       preferencesStage.setAlwaysOnTop(true);
     }
 }

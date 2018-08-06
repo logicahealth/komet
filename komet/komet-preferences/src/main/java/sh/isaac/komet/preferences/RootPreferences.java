@@ -16,31 +16,36 @@
  */
 package sh.isaac.komet.preferences;
 
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import java.util.prefs.BackingStoreException;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.komet.preferencesfx.model.Category;
+import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
-public class WindowPreferences extends AbstractPreferences {
-    StringProperty windowNameProperty = new SimpleStringProperty(this, "Window name", "String");
+public class RootPreferences extends AbstractPreferences {
 
-    public WindowPreferences(IsaacPreferences preferencesNode, String preferencesName) {
-        super(preferencesNode, preferencesName);
+    public RootPreferences(IsaacPreferences preferencesNode, Manifold manifold) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Root"), manifold);
+        if (!initialized()) {
+            // Add children nodes and reflection classes for children
+            addChild("General", GeneralPreferences.class);
+            addChild("Change sets", ChangeSetPreferences.class);
+            addChild("User", UserPreferences.class);
+        }
+        save();
+
     }
 
     @Override
-    public Property<?>[] getProperties() {
-        return new Property<?>[] { windowNameProperty };
+    void saveFields() throws BackingStoreException {
+        // No additional fields. Nothing to do. 
     }
 
     @Override
-    public Category[] getCategories() {
-        return new Category[] {};
+    void revertFields() {
+        // No additional fields. Nothing to do. 
     }
-    
 }
