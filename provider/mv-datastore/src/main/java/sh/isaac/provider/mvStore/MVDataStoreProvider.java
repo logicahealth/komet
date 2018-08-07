@@ -147,10 +147,11 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 			//to perform the interrupt handling.
 			//Its best, however, to prevent the exception by not using Thread.interrupt on threads that interact with the DB.
 			//This also means no calling Task.cancel(), as that fires interrupts.
-			//TODO play with memory / cache size
 			this.store = new MVStore.Builder().cacheSize(2000).compress().fileName(new File(mvFolder, MV_STORE + ".mv").getAbsolutePath()).open();
 			this.store.setVersionsToKeep(0);
-			this.store.setRetentionTime(1000);
+			this.store.setRetentionTime(5000);  //1 second is too little, and it corrupts itself at times.  so far, 5 seems ok on my hardware.
+			//If we start seeing "missing chunk" errors, we need to increase this further.  the downside of higher values, is that the datastore
+			//doesn't shrink as quickly as it should.
 			
 			componentToSemanticNidsMap = this.store.<Integer, int[]>openMap(COMPONENT_TO_SEMANTIC_NIDS_MAP);
 			nidToAssemblageNidMap = this.store.<Integer, Integer>openMap(NID_TO_ASSEMBLAGE_NID_MAP);
