@@ -122,19 +122,26 @@ public class MavenArtifactUtils
 			{
 				File temp = new File(storedPrefs.getLocalM2FolderPath());
 				HashSet<IBDFFile> foundFiles = new HashSet<>();
-				if (temp.isDirectory())
+				try
 				{
-					log.debug("Reading local m2 folder");
-					updateMessage("Reading the local m2 folder");
-
-					for (IBDFFile i : readLocalIBDFArtifacts(temp, deltaArtifacts))
+					if (temp.isDirectory())
 					{
-						if (i.getArtifactId().equals("metadata"))
+						log.debug("Reading local m2 folder");
+						updateMessage("Reading the local m2 folder");
+
+						for (IBDFFile i : readLocalIBDFArtifacts(temp, deltaArtifacts))
 						{
-							continue;
+							if (i.getArtifactId().equals("metadata"))
+							{
+								continue;
+							}
+							foundFiles.add(i);
 						}
-						foundFiles.add(i);
 					}
+				}
+				catch (Exception e1)
+				{
+					log.error("Error reading local M2 folder", e1);
 				}
 
 				try
@@ -333,36 +340,39 @@ public class MavenArtifactUtils
 		{
 			File browseFolder = new File(mavenRepositoryFolder, deltaArtifacts ? "sh/isaac/terminology/diffs" : "sh/isaac/terminology/converted");
 
-			for (File artifactId : browseFolder.listFiles())
+			if (browseFolder.isDirectory())
 			{
-				if (artifactId.isDirectory())
+				for (File artifactId : browseFolder.listFiles())
 				{
-					for (File versionFolder : artifactId.listFiles())
+					if (artifactId.isDirectory())
 					{
-						if (versionFolder.isDirectory())
+						for (File versionFolder : artifactId.listFiles())
 						{
-							ArrayList<String> ibdfClassifiers = new ArrayList<>();
-							for (File content : versionFolder.listFiles())
+							if (versionFolder.isDirectory())
 							{
-								if (content.getName().toLowerCase().endsWith("ibdf.zip"))
+								ArrayList<String> ibdfClassifiers = new ArrayList<>();
+								for (File content : versionFolder.listFiles())
 								{
-									// cpt-ibdf-2017-loader-4.48-SNAPSHOT.ibdf.zip
-									String temp = content.getName().substring(artifactId.getName().length() + versionFolder.getName().length() + 1,
-											content.getName().length());
-									// should now have .ibdf.zip (or maybe with a classifier like -all.ibdf.zip)
-									if (temp.startsWith("-"))
+									if (content.getName().toLowerCase().endsWith("ibdf.zip"))
 									{
-										ibdfClassifiers.add(temp.substring(1, temp.indexOf(".")));
-									}
-									else
-									{
-										ibdfClassifiers.add("");  // no classifier
+										// cpt-ibdf-2017-loader-4.48-SNAPSHOT.ibdf.zip
+										String temp = content.getName().substring(artifactId.getName().length() + versionFolder.getName().length() + 1,
+												content.getName().length());
+										// should now have .ibdf.zip (or maybe with a classifier like -all.ibdf.zip)
+										if (temp.startsWith("-"))
+										{
+											ibdfClassifiers.add(temp.substring(1, temp.indexOf(".")));
+										}
+										else
+										{
+											ibdfClassifiers.add("");  // no classifier
+										}
 									}
 								}
-							}
-							for (String classifier : ibdfClassifiers)
-							{
-								files.add(new IBDFFile(deltaArtifacts ? "sh.isaac.terminology.diffs" : "sh.isaac.terminology.converted", artifactId.getName(), versionFolder.getName(), classifier));
+								for (String classifier : ibdfClassifiers)
+								{
+									files.add(new IBDFFile(deltaArtifacts ? "sh.isaac.terminology.diffs" : "sh.isaac.terminology.converted", artifactId.getName(), versionFolder.getName(), classifier));
+								}
 							}
 						}
 					}

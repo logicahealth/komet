@@ -55,14 +55,17 @@ public interface ArtifactSearch
 	/**
 	 * If the file name has a classifier, returns just the classifier portion
 	 * @param value the file name - something like 20170731T150000Z-loader-4.48-SNAPSHOT/rf2-ibdf-sct-20170731T150000Z-loader-4.48-20180301.213413-1-Delta.ibdf.zip
+	 * @param artifactVersion the version of this artifact (used to help find the classifier)
 	 * @return the classifier
 	 */
-	public default Optional<String> findClassifier(String value)
+	public default Optional<String> findClassifier(String value, String artifactVersion)
 	{
 		//Take in something like this: 
 		//"..../rf2-ibdf-sct/20170731T150000Z-loader-4.48-SNAPSHOT/rf2-ibdf-sct-20170731T150000Z-loader-4.48-20180301.213413-1-Delta.ibdf.zip"
 		//and parse the classifier (Delta) out of it.
-		Pattern r = Pattern.compile(".*-([a-zA-Z]{1}[a-zA-Z0-9]*)\\.ibdf\\.zip");
+		//Or sh/isaac/terminology/converted/rf2-ibdf-sct/20180131T120000Z-loader-4.52-differ-6/rf2-ibdf-sct-20180131T120000Z-loader-4.52-differ-6-Snapshot-Active-Only.ibdf.zip
+		//and parse 'Snapshot-Active-Only' out of it.
+		Pattern r = Pattern.compile(".*" + artifactVersion + "-([a-zA-Z]{1}[-a-zA-Z0-9]*)\\.ibdf\\.zip");
 
 		// Now create matcher object.
 		Matcher m = r.matcher(value);

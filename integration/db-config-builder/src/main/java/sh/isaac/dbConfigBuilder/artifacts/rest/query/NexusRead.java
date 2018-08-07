@@ -172,7 +172,7 @@ public class NexusRead implements ArtifactSearch
 							String path = (String)castAsset.get("path");
 							if (path.endsWith(".zip"))
 							{
-								Optional<String> classifier = findClassifier(path);
+								Optional<String> classifier = findClassifier(path, version);
 								results.add(new SDOSourceContent(group, artifactId, version, classifier.orElse("")));
 							}
 						}
@@ -230,7 +230,7 @@ public class NexusRead implements ArtifactSearch
 							String path = (String)castAsset.get("path");
 							if (path.endsWith(".ibdf.zip"))
 							{
-								Optional<String> classifier = findClassifier(path);
+								Optional<String> classifier = findClassifier(path, version);
 								results.add(new IBDFFile(group, artifactId, version, classifier.orElse("")));
 							}
 						}
