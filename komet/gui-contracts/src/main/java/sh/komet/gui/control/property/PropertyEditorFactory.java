@@ -188,7 +188,6 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
         if (!propertySheetItem.getAllowedValues().isEmpty()) {
             Collection<ConceptForControlWrapper> collection = new ArrayList<>();
             propertySheetItem.getAllowedValues().stream().forEach((nid) -> collection.add(new ConceptForControlWrapper(manifoldForDisplay, nid)));
-
             return Editors.createChoiceEditor(propertySheetItem, collection);
         } else {
             ConceptLabel conceptLabel = new ConceptLabel(manifoldForDisplay, ConceptLabel::setPreferredText, (label) -> {
@@ -200,7 +199,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                     Collection<HistoryRecord> groupHistory = Manifold.getGroupHistory(manifoldGroup);
                     for (HistoryRecord record : groupHistory) {
                         MenuItem conceptItem = new MenuItem(
-                                manifoldForDisplay.getPreferredDescriptionText(record.getComponentId())
+                            manifoldForDisplay.getPreferredDescriptionText(record.getComponentId())
                         );
                         conceptItem.setOnAction((ActionEvent event) -> {
                             label.setValue(record.getComponentId());

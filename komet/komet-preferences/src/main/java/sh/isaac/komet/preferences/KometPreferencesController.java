@@ -65,6 +65,9 @@ public class KometPreferencesController implements Initializable {
     
     public void setRoot(PreferencesTreeItem root) {
         preferenceTree.setRoot(root);
+        if (!root.getChildren().isEmpty()) {
+            preferenceTree.getSelectionModel().select(root.getChildren().get(0));
+        }
     }
     
     private void selectionChanged(ObservableValue<? extends TreeItem<PreferenceGroup>> observable,

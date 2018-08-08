@@ -488,6 +488,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.PLURAL_NAME_DESCRIPTION_TYPE);
                createConcept("Unknown description type");
                createConcept("Abbreviation description type", "Abbreviation");
+               createConcept("Misspelled description type", "Misspelling");
                popParent();
             createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // LOINC and RxNorm description types are created under this node
             createConcept(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY); // RxNorm relationship types are created under this node
@@ -673,6 +674,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.GIT_URL);
                   createConcept(ObservableFields.GIT_LOCAL_FOLDER);
                   createConcept(ObservableFields.ENABLE_EDIT);
+                  createConcept(ObservableFields.KOMET_USER);
                   popParent();
                createConcept("Semantic properties");
                pushParent(current());

@@ -115,13 +115,13 @@ public class ConceptProxy
 
       this.fullyQualfiedName = parts[partIndex++];
 
-      if (UUIDUtil.isUUID(parts[partIndex])) {
+      if (!UUIDUtil.isUUID(parts[partIndex])) {
          this.regularName = Optional.of(parts[partIndex++]);
       }
 
       final List<UUID> uuidList = new ArrayList<>(parts.length - partIndex);
 
-      for (int i = 1; i < parts.length; i++) {
+      for (int i = partIndex; i < parts.length; i++) {
          uuidList.add(UUID.fromString(parts[i]));
       }
 

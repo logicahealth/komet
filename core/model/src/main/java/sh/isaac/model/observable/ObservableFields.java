@@ -327,6 +327,8 @@ public enum ObservableFields
    GIT_LOCAL_FOLDER("Git local folder"),
    ENABLE_EDIT("Enable editing"),
    
+   KOMET_USER("KOMET user"),
+   
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */
