@@ -168,18 +168,13 @@ public class MainApp
         // Create a node for stage preferences
         UUID stageUuid = UUID.randomUUID();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-        Parent root = loader.load();
+        BorderPane root = loader.load();
         KometStageController controller = loader.getController();
 
         root.setId(stageUuid.toString());
 
         stage.setTitle("Viewer");
         
-        //Menu hackery
-        //TODO - no idea why this isn't just done properly in the KometStageScene.fxml in the first place
-        BorderPane wrappingPane = new BorderPane(root);
-        root = wrappingPane;
-
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
@@ -194,7 +189,7 @@ public class MainApp
                 .addScene(scene, controller::reportStatus);
         stage.show();
         stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
-        setupStageMenus(stage, wrappingPane);
+        setupStageMenus(stage, root);
 
         // SNAPSHOT
         // Chronology
@@ -356,7 +351,7 @@ public class MainApp
         try {
             Stage stage = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-            Parent root = loader.load();
+            BorderPane root = loader.load();
             KometStageController controller = loader.getController();
 
             root.setId(UUID.randomUUID()
@@ -369,9 +364,6 @@ public class MainApp
             }
 
             //Menu hackery
-            //TODO - no idea why this isn't just done properly in the KometStageScene.fxml in the first place
-            BorderPane wrappingPane = new BorderPane(root);
-            root = wrappingPane;
             
             Scene scene = new Scene(root);
 
@@ -392,7 +384,7 @@ public class MainApp
             stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
             MenuProvider.WINDOW_COUNT.incrementAndGet();
 
-            setupStageMenus(stage, wrappingPane);
+            setupStageMenus(stage, root);
         } catch (IOException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
