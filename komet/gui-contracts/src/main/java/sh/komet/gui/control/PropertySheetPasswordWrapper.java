@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+ * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,17 +27,17 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-public class PropertySheetTextWrapper  implements PropertySheet.Item {
+public class PropertySheetPasswordWrapper implements PropertySheet.Item {
 
    private final String name;
    private final StringProperty textProperty;
 
-   public PropertySheetTextWrapper(String name, StringProperty textProperty) {
+   public PropertySheetPasswordWrapper(String name, StringProperty textProperty) {
       this.name = name;
       this.textProperty = textProperty;
    }
 
-   public PropertySheetTextWrapper(Manifold manifold,
+   public PropertySheetPasswordWrapper(Manifold manifold,
            StringProperty textProperty) {
       this(manifold.getPreferredDescriptionText(new ConceptProxy(textProperty.getName())), 
               textProperty);

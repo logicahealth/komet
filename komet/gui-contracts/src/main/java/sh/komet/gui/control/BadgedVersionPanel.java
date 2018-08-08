@@ -390,6 +390,8 @@ public abstract class BadgedVersionPanel
             componentType.setText(" DEF");
         } else if (descriptionType == MetaData.ABBREVIATION_DESCRIPTION_TYPE____SOLOR.getNid()) {
             componentType.setText(" ABR");
+        } else if (descriptionType == MetaData.MISSPELLED_DESCRIPTION_TYPE____SOLOR.getNid()) {
+            componentType.setText(" SP!");
         } else if (descriptionType == MetaData.UNKNOWN_DESCRIPTION_TYPE____SOLOR.getNid()) {
             componentType.setText(" UNK");
         } else {

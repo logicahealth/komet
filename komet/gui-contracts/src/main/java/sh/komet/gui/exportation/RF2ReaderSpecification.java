@@ -76,7 +76,7 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
         if (ExportLookUpCache.isSCTID(chronology)) {
             return lookUpIdentifierFromSemantic(this.snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), chronology);
         } else if (ExportLookUpCache.isLoinc(chronology)) {
-            final String loincId = lookUpIdentifierFromSemantic(this.snapshotService, MetaData.CODE____SOLOR.getNid(), chronology);
+            final String loincId = lookUpIdentifierFromSemantic(this.snapshotService, MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeSolorIdFromLoincId(loincId);
         } else if (ExportLookUpCache.isRxNorm(chronology)) {
             final String rxnormId = lookUpIdentifierFromSemantic(this.snapshotService, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);

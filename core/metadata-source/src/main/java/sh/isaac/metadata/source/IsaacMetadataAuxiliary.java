@@ -288,7 +288,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
                loincBuilder.addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
-               
+               createConcept("SRF2ID", "SOLOR RF2 Identifier").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+
                popParent();
             createConcept("Language");
             pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 
@@ -487,6 +488,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.PLURAL_NAME_DESCRIPTION_TYPE);
                createConcept("Unknown description type");
                createConcept("Abbreviation description type", "Abbreviation");
+               createConcept("Misspelled description type", "Misspelling");
                popParent();
             createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // LOINC and RxNorm description types are created under this node
             createConcept(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY); // RxNorm relationship types are created under this node
@@ -664,6 +666,15 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(CORELATION_REFERENCE_EXPRESSION);
                   createConcept(CORELATION_COMPARISON_EXPRESSION);
                   createConcept(CORELATION_EXPRESSION);
+                  popParent();
+               createConcept("KOMET preference properties");
+               pushParent(current());
+                  createConcept(ObservableFields.GIT_USER_NAME);
+                  createConcept(ObservableFields.GIT_PASSWORD);
+                  createConcept(ObservableFields.GIT_URL);
+                  createConcept(ObservableFields.GIT_LOCAL_FOLDER);
+                  createConcept(ObservableFields.ENABLE_EDIT);
+                  createConcept(ObservableFields.KOMET_USER);
                   popParent();
                createConcept("Semantic properties");
                pushParent(current());

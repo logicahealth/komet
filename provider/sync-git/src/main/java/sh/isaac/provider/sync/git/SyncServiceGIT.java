@@ -112,6 +112,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jgit.api.InitCommand;
 
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
@@ -162,7 +163,7 @@ public class SyncServiceGIT
 
    /**
     * If you are in an HK2 environment, you would be better served getting this from HK2 (by asking for it by interface and name)
-    * but in other enviornments, when HK2 may not be up, you may construct it directly.
+    * but in other environments, when HK2 may not be up, you may construct it directly.
     */
    public SyncServiceGIT() {
       synchronized (jschConfigured) {
@@ -1406,6 +1407,17 @@ public class SyncServiceGIT
    @Override
    public boolean isRootLocationConfiguredForSCM() {
       return new File(this.localFolder, ".git").isDirectory();
+   }
+   
+   public Git initialize() throws IOException {
+       try {
+           InitCommand initCommand = Git.init();
+           initCommand.setDirectory(localFolder);
+           makeInitialFilesAsNecessary(localFolder);
+           return initCommand.call();
+       } catch (GitAPIException ex) {
+            throw new IOException("Internal error", ex);
+       }
    }
 }
 

@@ -1,5 +1,8 @@
 package sh.komet.gui.exportation;
 
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleListProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.progress.PersistTaskResult;
@@ -40,6 +43,7 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
         final List<Future<List<String>>> futures = new ArrayList<>();
         final List<String> returnList = new ArrayList<>();
 
+
         try {
 
             this.readerSpecification.createChronologyList().stream()
@@ -60,12 +64,8 @@ public class BatchReader extends TimedTaskWithProgressTracker<List<String>> impl
                     new ChronologyReader(this.readerSpecification,
                             new ArrayList<>(chronologyBatch), readSemaphore), new ArrayList<>()));
 
-            int futuresCompletedCount = 1;
             for (Future<List<String>> future : futures) {
-
                 returnList.addAll(future.get());
-                futuresCompletedCount++;
-                updateMessage("Completed "+ futuresCompletedCount + " of " + futures.size());
             }
 
         } finally {
