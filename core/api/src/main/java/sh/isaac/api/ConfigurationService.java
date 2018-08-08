@@ -123,7 +123,7 @@ public interface ConfigurationService {
    /**
     * When building a DB, we don't want to index per commit, or write changeset files, among other things.
     *
-    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off 
+    * Note that this mode can be enabled-only.  If you enable dbBuildMode, the mode cannot be turned off 
     * without a complete system shutdown / restart.
     * 
     * 
