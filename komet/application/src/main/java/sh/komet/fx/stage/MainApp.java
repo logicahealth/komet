@@ -183,6 +183,11 @@ public class MainApp
             root.setId(stageUuid.toString());
 
             stage.setTitle("Viewer");
+            
+            //Menu hackery
+            //TODO - no idea why this isn't just done properly in the KometStageScene.fxml in the first place
+            BorderPane wrappingPane = new BorderPane(root);
+            root = wrappingPane;
 
             Scene scene = new Scene(root);
             stage.setScene(scene);
@@ -198,7 +203,7 @@ public class MainApp
                     .addScene(scene, controller::reportStatus);
             stage.show();
             stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
-            setupStageMenus(stage, root);
+            setupStageMenus(stage, wrappingPane);
         }
 
         
@@ -218,7 +223,7 @@ public class MainApp
         applicationPreferences.sync();
     }
 
-    protected void setupStageMenus(Stage stage, Parent root) throws MultiException {
+    protected void setupStageMenus(Stage stage, BorderPane root) throws MultiException {
         // Get the toolkit
         MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
         MenuBar mb = new MenuBar();
@@ -326,9 +331,8 @@ public class MainApp
             tk.setGlobalMenuBar(mb);
         } else {
             //And for everyone else....
-            BorderPane wrappingPane = new BorderPane(root);
-            wrappingPane.setTop(mb);
-            root = wrappingPane;
+            root.setTop(mb);
+            //TODO this is now broken.... as it doesn't seem to work after the stage is visible
             stage.setHeight(stage.getHeight() + 20);
         }
 
@@ -377,6 +381,11 @@ public class MainApp
                 stage.setTitle("Viewer");
             }
 
+            //Menu hackery
+            //TODO - no idea why this isn't just done properly in the KometStageScene.fxml in the first place
+            BorderPane wrappingPane = new BorderPane(root);
+            root = wrappingPane;
+            
             Scene scene = new Scene(root);
 
             stage.setScene(scene);
@@ -396,7 +405,7 @@ public class MainApp
             stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
             MenuProvider.WINDOW_COUNT.incrementAndGet();
 
-            setupStageMenus(stage, root);
+            setupStageMenus(stage, wrappingPane);
         } catch (IOException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
