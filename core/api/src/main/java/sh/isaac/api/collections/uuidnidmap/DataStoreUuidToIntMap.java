@@ -18,14 +18,15 @@ package sh.isaac.api.collections.uuidnidmap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import sh.isaac.api.Get;
 import sh.isaac.api.ConfigurationService.BuildMode;
+import sh.isaac.api.Get;
 import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.datastore.ExtendedStoreData;
 
@@ -44,11 +45,18 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 
 	// inverse, in memory cache only used for certain loader patterns.
 	private Cache<Integer, UUID[]> nidToPrimoridialCache = null;
+	private final String MAX_NID_STORE_LOC = "-max-nid-assigned-"; 
 
 	public DataStoreUuidToIntMap(ExtendedStore datastore)
 	{
 		this.dataStore = datastore;
 		data = this.dataStore.<UUID, Integer> getStore("UUIDToIntMap");
+		
+		OptionalLong ol = this.dataStore.getSharedStoreLong(MAX_NID_STORE_LOC);
+		if (ol.isPresent())
+		{
+			NEXT_NID_PROVIDER.set((int)ol.getAsLong());
+		}
 		
 		// Loader utility enables this when doing IBDF file creation to to get from nid back to UUID - this prevents it from doing table scans.
 		if (Get.configurationService().isInDBBuildMode(BuildMode.IBDF))
@@ -123,7 +131,23 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 	@Override
 	public int getWithGeneration(UUID uuidKey)
 	{
-		Integer nid = data.computeIfAbsent(uuidKey, (keyAgain) -> NEXT_NID_PROVIDER.incrementAndGet());
+		Integer nid = data.computeIfAbsent(uuidKey, (keyAgain) -> 
+		{
+			final int newNid = NEXT_NID_PROVIDER.incrementAndGet();
+			OptionalLong ol = dataStore.putSharedStoreLong(MAX_NID_STORE_LOC, newNid);
+			if (ol.isPresent() && ol.getAsLong() > newNid)
+			{
+				//If the old one was bigger than the new one, we have a thread race that we lost, don't want to overwrite the bigger value, so put it back.
+				long inputNid = newNid;
+				while (ol.getAsLong() > inputNid)
+				{
+					inputNid = ol.getAsLong();
+					ol = dataStore.putSharedStoreLong(MAX_NID_STORE_LOC, inputNid);
+					//Loop, to make sure we didn't lose another race...
+				}
+			}
+			return newNid;
+		});
 		updateCache(nid, uuidKey);
 		return nid;
 	}
