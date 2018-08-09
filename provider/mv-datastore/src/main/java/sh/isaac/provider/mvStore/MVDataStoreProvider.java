@@ -48,6 +48,7 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.Rank;
 import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVStore;
+import org.h2.mvstore.MVStoreTool;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.ConfigurationService.BuildMode;
@@ -149,7 +150,7 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 			//This also means no calling Task.cancel(), as that fires interrupts.
 			this.store = new MVStore.Builder().cacheSize(2000).compress().fileName(new File(mvFolder, MV_STORE + ".mv").getAbsolutePath()).open();
 			this.store.setVersionsToKeep(0);
-			this.store.setRetentionTime(5000);  //1 second is too little, and it corrupts itself at times.  so far, 5 seems ok on my hardware.
+			this.store.setRetentionTime(7000);  //1 second is too little, and it corrupts itself at times.  so far, 7 seems ok on my hardware.
 			//If we start seeing "missing chunk" errors, we need to increase this further.  the downside of higher values, is that the datastore
 			//doesn't shrink as quickly as it should.
 			
@@ -198,10 +199,10 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 			chronicleMaps.clear();
 			versionMaps.clear();
 
-			//If we are in IBDF build mode, we don't care about DB size
-			if (Get.configurationService().getDBBuildMode().get() != BuildMode.IBDF)
+			//If we are in IBDF build mode, we don't care about DB size.  In DB Build mode, we do an offline compaction
+			if (Get.configurationService().getDBBuildMode().get() != BuildMode.IBDF && Get.configurationService().getDBBuildMode().get() != BuildMode.DB)
 			{
-				LOG.info("Running MVStore compact");
+				LOG.info("Running MVStore compaction");
 				TimedTask<Void> tt = new TimedTask<Void>()
 				{
 					@Override
@@ -209,9 +210,44 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 					{
 						try
 						{
-							updateMessage("Compacting Data Store");
-							store.compactMoveChunks();
-							LOG.debug("compact move chunks complete");
+							if (store.getCurrentFillRate() < 90)
+							{
+								updateMessage("Compacting Data Store");
+								
+								//Need all maps open for effective compacting
+								for (String s : store.getMapNames())
+								{
+									store.openMap(s);
+								}
+								
+								store.setAutoCommitDelay(0);
+								store.commit();
+								try
+								{
+									store.getFileStore().getFile().force(true);  //make sure everything is synced to disk, before we start our compact sequence
+								}
+								catch (IOException e)
+								{
+									LOG.error("Unexpected:", e);
+								}
+								LOG.debug("Fill rate prior to rewrite: {}", store.getCurrentFillRate());
+								store.compactRewriteFully();
+								LOG.debug("Fill rate after to rewrite: {}", store.getCurrentFillRate());
+								int iterationLimit = 3;
+								while (store.getCurrentFillRate() < 90 && iterationLimit >= 0)
+								{
+									iterationLimit--;
+									store.compactMoveChunks();
+									LOG.debug("Fill rate after compact: {}", store.getCurrentFillRate());
+								}
+								LOG.debug("compact move chunks complete");
+								store.setAutoCommitDelay(1000);
+								LOG.info("compact complete");
+							}
+							else
+							{
+								LOG.debug("No compaction required");
+							}
 						}
 						finally
 						{
@@ -225,6 +261,13 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 			
 			this.store.close();
 			this.store = null;
+			
+			if (Get.configurationService().getDBBuildMode().get() == BuildMode.DB)  //In DB build mode, the above compacts aren't nearly as good as this offline compact..
+			{
+				LOG.info("Peforming an offline compact of the store for full compression");
+				MVStoreTool.compact(new File(mvFolder, MV_STORE + ".mv").getAbsolutePath(), true);
+				LOG.info("Full compact complete");
+			}
 			
 			datastoreStartState = DataStoreStartState.NOT_YET_CHECKED;
 			dataStoreId = Optional.empty();
@@ -631,7 +674,8 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 		Integer oldValue = nidToAssemblageNidMap.putIfAbsent(nid, assemblage);
 		if (oldValue != null && oldValue != assemblage)
 		{
-			throw new IllegalArgumentException("Not allowed to change the assemblage type of a nid");
+			throw new IllegalArgumentException("Not allowed to change the assemblage type of a nid.  Was " + oldValue + " " + Get.conceptDescriptionText(oldValue) 
+			+ " attempted " + assemblage + " " + Get.conceptDescriptionText(assemblage));
 		}
 	}
 
@@ -744,24 +788,6 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	public boolean implementsSequenceStore()
 	{
 		return false;
-	}
-	
-	@Override
-	public void compact()
-	{
-		LOG.info("Performing full compact on MV Store");
-		store.commit();
-		try
-		{
-			store.getFileStore().getFile().force(true);  //make sure everything is synced to disk, before we start our compact sequence
-		}
-		catch (IOException e)
-		{
-			LOG.error("Unexpected:", e);
-		}
-		store.compactRewriteFully();
-		store.compactRewriteFully();  //seems to take two rounds, to get a full compaction
-		LOG.info("Full compact complete");
 	}
 
 	/**
