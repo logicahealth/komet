@@ -398,6 +398,8 @@ public class MainApp
                     .addScene(scene, controller::reportStatus);
             stage.setOnCloseRequest(MenuProvider::handleCloseRequest);            
             stage.show();
+            MenuProvider.WINDOW_COUNT.incrementAndGet();
+
         } catch (IOException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
