@@ -1,6 +1,7 @@
 .settings
 .classpath
 .project
+*.log
 /target/
 /*/target/
 /*/*/target/
