@@ -388,7 +388,7 @@
          <id>external-plugins</id>
          <activation>
             <property>
-               <name>plugins</name>
+               <name>komet-plugins</name>
                <value>true</value>
             </property>
          </activation>

@@ -63,6 +63,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.eclipse.fx.core.SystemUtils;
 import org.glassfish.hk2.api.MultiException;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
@@ -168,19 +169,14 @@ public class MainApp
         // Create a node for stage preferences
         UUID stageUuid = UUID.randomUUID();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-        Parent root = loader.load();
+        BorderPane root = loader.load();
         KometStageController controller = loader.getController();
 
         root.setId(stageUuid.toString());
 
         stage.setTitle("Viewer");
         
-        //Menu hackery
-        //TODO - no idea why this isn't just done properly in the KometStageScene.fxml in the first place
-        BorderPane wrappingPane = new BorderPane(root);
-        root = wrappingPane;
-
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(setupStageMenus(stage, root));
         stage.setScene(scene);
         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
@@ -192,9 +188,8 @@ public class MainApp
                 .add(Iconography.getStyleSheetStringUrl());
         FxGet.statusMessageService()
                 .addScene(scene, controller::reportStatus);
-        stage.show();
         stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
-        setupStageMenus(stage, wrappingPane);
+        stage.show();
 
         // SNAPSHOT
         // Chronology
@@ -210,8 +205,9 @@ public class MainApp
         applicationPreferences.sync();
     }
 
-    protected void setupStageMenus(Stage stage, BorderPane root) throws MultiException {
-        // Get the toolkit
+    protected Parent setupStageMenus(Stage stage, BorderPane root) throws MultiException {
+        BorderPane stageRoot = root;
+         // Get the toolkit
         MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
         MenuBar mb = new MenuBar();
 
@@ -239,7 +235,18 @@ public class MainApp
                     }
                 }
             }
-            ap.getMenu().getItems().sort((MenuItem o1, MenuItem o2) -> o1.getText().compareTo(o2.getText()));
+            ap.getMenu().getItems().sort((MenuItem o1, MenuItem o2) -> {
+                // Separator menu items have null text. 
+                String o1Text = o1.getText();
+                if (o1Text == null) {
+                    o1Text = "";
+                }
+                String o2Text = o2.getText();
+                if (o2Text == null) {
+                    o2Text = "";
+                }
+                return o1Text.compareTo(o2Text);
+            });
 
             switch (ap) {
                 case APP:
@@ -318,8 +325,8 @@ public class MainApp
             tk.setGlobalMenuBar(mb);
         } else {
             //And for everyone else....
-            root.setTop(mb);
-            //TODO this is now broken.... as it doesn't seem to work after the stage is visible
+            stageRoot = new BorderPane(stageRoot);
+            stageRoot.setTop(mb);
             stage.setHeight(stage.getHeight() + 20);
         }
 
@@ -335,6 +342,7 @@ public class MainApp
                         return PlatformImpl.setAccessibilityTheme(themeName);
                     }
                 });
+        return stageRoot;
     }
 
     private void close(ActionEvent event) {
@@ -356,25 +364,27 @@ public class MainApp
         try {
             Stage stage = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-            Parent root = loader.load();
+            BorderPane root = loader.load();
             KometStageController controller = loader.getController();
 
             root.setId(UUID.randomUUID()
                     .toString());
 
-            if (MenuProvider.WINDOW_SEQUENCE.get() > 1) {
+            if (MenuProvider.WINDOW_SEQUENCE.get() >= 1) {
                 stage.setTitle("Viewer " + MenuProvider.WINDOW_SEQUENCE.incrementAndGet());
             } else {
                 stage.setTitle("Viewer");
+                MenuProvider.WINDOW_SEQUENCE.incrementAndGet();
             }
 
             //Menu hackery
-            //TODO - no idea why this isn't just done properly in the KometStageScene.fxml in the first place
-            BorderPane wrappingPane = new BorderPane(root);
-            root = wrappingPane;
-            
-            Scene scene = new Scene(root);
-
+            Scene scene;
+            if (SystemUtils.isMacOS()) {
+                scene = new Scene(root);
+            } else {
+                scene = new Scene(setupStageMenus(stage, root));
+            }
+ 
             stage.setScene(scene);
             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
@@ -386,13 +396,10 @@ public class MainApp
                     .add(Iconography.getStyleSheetStringUrl());
             FxGet.statusMessageService()
                     .addScene(scene, controller::reportStatus);
+            stage.setOnCloseRequest(MenuProvider::handleCloseRequest);            
             stage.show();
-            //Dan notes, this seems like a really bad idea on an auxiliary window.
-            //KEC: Yes, logic updated to count windows, and only close when just one is left... 
-            stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
             MenuProvider.WINDOW_COUNT.incrementAndGet();
 
-            setupStageMenus(stage, wrappingPane);
         } catch (IOException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
