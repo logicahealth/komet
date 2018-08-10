@@ -1,13 +1,13 @@
-package sh.komet.gui.exportation;
+package sh.komet.gui.exportation.batching.specification;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.komet.gui.exportation.batching.specification.RF2ExportBatchSpec;
 import sh.komet.gui.manifold.Manifold;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,14 +18,32 @@ import java.util.stream.Collectors;
 /*
  * aks8m - 5/22/18
  */
-public class RF2ConceptSpec extends RF2ReaderSpecification {
+public class RF2ExportConceptBatchSpec extends RF2ExportBatchSpec {
 
 
     private final Manifold manifold;
 
-    public RF2ConceptSpec(Manifold manifold) {
+    public RF2ExportConceptBatchSpec(Manifold manifold) {
         super(manifold);
         this.manifold = manifold;
+    }
+
+    @Override
+    public List<String> performProcessOnItem(Chronology item) {
+
+        List<String> returnList = new ArrayList<>();
+
+        returnList.add(getRF2CommonElements(item) //id, effectiveTime, active, moduleId
+                .append(getConceptPrimitiveOrSufficientDefinedSCTID(item.getNid()))   //definitionStatusId
+                .append("\r")
+                .toString());
+
+        return returnList;
+    }
+
+    @Override
+    public List<Chronology> createItemListToBatch() {
+        return Get.conceptService().getConceptChronologyStream().collect(Collectors.toList());
     }
 
     @Override
@@ -34,26 +52,8 @@ public class RF2ConceptSpec extends RF2ReaderSpecification {
     }
 
     @Override
-    public List<String> readExportData(Chronology chronology) {
-
-        List<String> returnList = new ArrayList<>();
-
-        returnList.add(getRF2CommonElements(chronology) //id, effectiveTime, active, moduleId
-                .append(getConceptPrimitiveOrSufficientDefinedSCTID(chronology.getNid()))   //definitionStatusId
-                .append("\r")
-                .toString());
-
-        return returnList;
-    }
-
-    @Override
     public String getReaderUIText() {
         return "Concepts";
-    }
-
-    @Override
-    public List<Chronology> createChronologyList() {
-        return Get.conceptService().getConceptChronologyStream().collect(Collectors.toList());
     }
 
     @Override

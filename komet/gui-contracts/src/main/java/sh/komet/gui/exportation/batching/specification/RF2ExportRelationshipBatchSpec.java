@@ -1,4 +1,4 @@
-package sh.komet.gui.exportation;
+package sh.komet.gui.exportation.batching.specification;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -6,64 +6,54 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.observable.semantic.version.ObservableLogicGraphVersion;
-import sh.isaac.api.observable.semantic.version.brittle.ObservableRf2Relationship;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
+import sh.komet.gui.exportation.batching.specification.RF2ExportBatchSpec;
 import sh.komet.gui.manifold.Manifold;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /*
  * aks8m - 5/22/18
  */
-public class RF2RelationshipSpec extends RF2ReaderSpecification {
+public class RF2ExportRelationshipBatchSpec extends RF2ExportBatchSpec {
 
     private final Manifold manifold;
     private String isASCTID = super.getIdString(Get.concept(TermAux.IS_A));
 
-    public RF2RelationshipSpec(Manifold manifold) {
+    public RF2ExportRelationshipBatchSpec(Manifold manifold) {
         super(manifold);
         this.manifold = manifold;
     }
 
     @Override
-    public void addColumnHeaders(List<String> lines) {
-        lines.add(0, ("id\teffectiveTime\tactive\tmoduleId\tsourceId\tdestinationId" +
-                "\trelationshipGroup\ttypeId\tcharacteristicTypeId\tmodifierId\r"));
-
-    }
-
-    @Override
-    public List<String> readExportData(Chronology chronology) {
+    public List<String> performProcessOnItem(Chronology item) {
         List<String> returnList = new ArrayList<>();
         final String characteristicTypeId;
         final String modifierId = "900000000000451002"; //Existential restriction modifier (core metadata concept)
         final AtomicInteger roleGroup = new AtomicInteger(0);
 
 
-        if (chronology.getAssemblageNid() == TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid())
+        if (item.getAssemblageNid() == TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid())
             characteristicTypeId = "900000000000011006";    //Inferred relationship (core metadata concept)
-        else if (chronology.getAssemblageNid() == TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid())
+        else if (item.getAssemblageNid() == TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid())
             characteristicTypeId = "900000000000010007";    //Stated relationship (core metadata concept)
         else
             characteristicTypeId = "¯\\_(ツ)_/¯";
 
         LogicalExpression logicalExpression = ((LatestVersion<ObservableLogicGraphVersion>)
                 super.getSnapshotService()
-                        .getObservableSemanticVersion(chronology.getNid())).get().getLogicalExpression();
+                        .getObservableSemanticVersion(item.getNid())).get().getLogicalExpression();
 
         logicalExpression.processDepthFirst((logicNode, treeNodeVisitData) -> {
 
@@ -94,7 +84,7 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
                 if (parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET || parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET) {
 
                     returnList.add(compareToRF2RelSemantic(
-                            chronology,
+                            item,
                             conceptChronology,
                             super.getIdString(conceptChronology),
                             super.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())),
@@ -106,7 +96,7 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
                 } else if (parentNode instanceof RoleNodeAllWithNids) {
 
                     returnList.add(compareToRF2RelSemantic(
-                            chronology,
+                            item,
                             conceptChronology,
                             super.getIdString(conceptChronology),
                             super.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())),
@@ -118,7 +108,7 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
                 } else if (parentNode instanceof RoleNodeSomeWithNids) {
 
                     returnList.add(compareToRF2RelSemantic(
-                            chronology,
+                            item,
                             conceptChronology,
                             super.getIdString(conceptChronology),
                             super.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())),
@@ -132,6 +122,21 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
         });
 
         return returnList;
+    }
+
+    @Override
+    public List<Chronology> createItemListToBatch() {
+        return Get.conceptService().getConceptChronologyStream()
+                .flatMap(conceptChronology -> conceptChronology.getSemanticChronologyList().stream())
+                .filter(semanticChronology -> semanticChronology.getVersionType() == VersionType.LOGIC_GRAPH)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void addColumnHeaders(List<String> lines) {
+        lines.add(0, ("id\teffectiveTime\tactive\tmoduleId\tsourceId\tdestinationId" +
+                "\trelationshipGroup\ttypeId\tcharacteristicTypeId\tmodifierId\r"));
+
     }
 
     private String compareToRF2RelSemantic(Chronology logicGraphChronology,
@@ -202,14 +207,6 @@ public class RF2RelationshipSpec extends RF2ReaderSpecification {
     @Override
     public String getReaderUIText() {
         return "Relationships";
-    }
-
-    @Override
-    public List<Chronology> createChronologyList() {
-        return Get.conceptService().getConceptChronologyStream()
-                .flatMap(conceptChronology -> conceptChronology.getSemanticChronologyList().stream())
-                .filter(semanticChronology -> semanticChronology.getVersionType() == VersionType.LOGIC_GRAPH)
-                .collect(Collectors.toList());
     }
 
     @Override

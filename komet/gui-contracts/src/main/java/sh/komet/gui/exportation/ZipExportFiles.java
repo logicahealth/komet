@@ -3,6 +3,7 @@ package sh.komet.gui.exportation;
 import sh.isaac.api.Get;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.komet.gui.exportation.batching.specification.BatchSpecification;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,11 +24,11 @@ public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implement
 
     private final ExportFormatType exportFormatType;
     private final File exportDirectory;
-    private final Map<ReaderSpecification, List<String>> bytesToZip;
+    private final Map<BatchSpecification, List<String>> bytesToZip;
     private final Semaphore readSemaphore;
 
 
-    public ZipExportFiles(ExportFormatType exportFormatType, File exportDirectory, Map<ReaderSpecification, List<String>> stringsToZip, Semaphore readSemaphore) {
+    public ZipExportFiles(ExportFormatType exportFormatType, File exportDirectory, Map<BatchSpecification, List<String>> stringsToZip, Semaphore readSemaphore) {
         this.exportFormatType = exportFormatType;
         this.exportDirectory = exportDirectory;
         this.bytesToZip = stringsToZip;
@@ -51,7 +52,7 @@ public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implement
                     new FileOutputStream(this.exportDirectory.getAbsolutePath() + "/" + rootDirName + ".zip"),
                     StandardCharsets.UTF_8);
 
-            for (Map.Entry<ReaderSpecification, List<String>> entry : this.bytesToZip.entrySet()) {
+            for (Map.Entry<BatchSpecification, List<String>> entry : this.bytesToZip.entrySet()) {
 
                 ZipEntry zipEntry = new ZipEntry(entry.getKey().getFileName(rootDirName));
                 try {

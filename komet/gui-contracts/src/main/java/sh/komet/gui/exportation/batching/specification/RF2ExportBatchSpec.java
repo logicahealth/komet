@@ -1,4 +1,4 @@
-package sh.komet.gui.exportation;
+package sh.komet.gui.exportation.batching.specification;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
@@ -10,24 +10,27 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.api.util.UuidT5Generator;
+import sh.komet.gui.exportation.ExportLookUpCache;
 import sh.komet.gui.manifold.Manifold;
 
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 
 /*
  * aks8m - 5/22/18
  */
-public abstract class RF2ReaderSpecification implements ReaderSpecification {
+public abstract class RF2ExportBatchSpec implements BatchSpecification<Chronology, String> {
 
     private final Manifold manifold;
     private static ObservableSnapshotService snapshotService;
 
-    public RF2ReaderSpecification(Manifold manifold) {
+    public RF2ExportBatchSpec(Manifold manifold) {
         this.manifold = manifold;
         createSnapshotInstance(this.manifold);
     }
+
+    abstract void addColumnHeaders(List<String> batchResultList);
 
     private static void createSnapshotInstance(Manifold manifold){
         snapshotService = Get.observableSnapshotService(manifold);
@@ -49,23 +52,6 @@ public abstract class RF2ReaderSpecification implements ReaderSpecification {
 
         return new StringBuilder()
                 .append(getIdString(chronology) + "\t")       //id
-                .append(getTimeString(stampNid) + "\t")        //time
-                .append(getActiveString(stampNid) + "\t")      //active
-                .append(getModuleString(stampNid) + "\t");     //moduleId
-    }
-
-    StringBuilder getRF2CommonElements(Chronology chronology, int id){
-
-        int stampNid = 0;
-
-        if(chronology instanceof ConceptChronology)
-            stampNid = getSnapshotService().getObservableConceptVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
-        else if(chronology instanceof SemanticChronology)
-            stampNid = getSnapshotService().getObservableSemanticVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
-
-
-        return new StringBuilder()
-                .append(id + "\t")       //id
                 .append(getTimeString(stampNid) + "\t")        //time
                 .append(getActiveString(stampNid) + "\t")      //active
                 .append(getModuleString(stampNid) + "\t");     //moduleId

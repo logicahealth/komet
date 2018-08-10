@@ -1,4 +1,4 @@
-package sh.komet.gui.exportation;
+package sh.komet.gui.exportation.batching.specification;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -6,6 +6,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.komet.gui.exportation.batching.specification.RF2ExportBatchSpec;
 import sh.komet.gui.manifold.Manifold;
 
 import java.time.LocalDateTime;
@@ -17,13 +18,37 @@ import java.util.stream.Collectors;
 /*
  * aks8m - 5/22/18
  */
-public class RF2DescriptionSpec extends RF2ReaderSpecification{
+public class RF2ExportDescriptionBatchSpec extends RF2ExportBatchSpec {
 
     private final Manifold manifold;
 
-    public RF2DescriptionSpec(Manifold manifold) {
+    public RF2ExportDescriptionBatchSpec(Manifold manifold) {
         super(manifold);
         this.manifold = manifold;
+    }
+
+    @Override
+    public List<String> performProcessOnItem(Chronology item) {
+        List<String> returnList = new ArrayList<>();
+
+        returnList.add(
+                getRF2CommonElements(item) //id, effectiveTime, active, moduleId
+                        .append(getIdString(Get.concept(((SemanticChronology) item).getReferencedComponentNid())) + "\t") //conceptId
+                        .append(getLanguageCode(item) + "\t") //languageCode
+                        .append(getTypeId(item) + "\t") //typeId
+                        .append(getTerm(item) + "\t") //term
+                        .append(getCaseSignificanceId(item)) //caseSignificanceId
+                        .append("\r")
+                        .toString());
+
+        return returnList;
+    }
+
+    @Override
+    public List<Chronology> createItemListToBatch() {
+        return Get.conceptService().getConceptChronologyStream()
+                .flatMap(conceptChronology -> conceptChronology.getConceptDescriptionList().stream())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -33,33 +58,8 @@ public class RF2DescriptionSpec extends RF2ReaderSpecification{
     }
 
     @Override
-    public List<String> readExportData(Chronology chronology) {
-
-        List<String> returnList = new ArrayList<>();
-
-        returnList.add(
-                getRF2CommonElements(chronology) //id, effectiveTime, active, moduleId
-                .append(getIdString(Get.concept(((SemanticChronology) chronology).getReferencedComponentNid())) + "\t") //conceptId
-                .append(getLanguageCode(chronology) + "\t") //languageCode
-                .append(getTypeId(chronology) + "\t") //typeId
-                .append(getTerm(chronology) + "\t") //term
-                .append(getCaseSignificanceId(chronology)) //caseSignificanceId
-                .append("\r")
-                .toString());
-
-        return returnList;
-    }
-
-    @Override
     public String getReaderUIText() {
         return "Descriptions";
-    }
-
-    @Override
-    public List<Chronology> createChronologyList() {
-        return Get.conceptService().getConceptChronologyStream()
-                .flatMap(conceptChronology -> conceptChronology.getConceptDescriptionList().stream())
-                .collect(Collectors.toList());
     }
 
     @Override

@@ -1,8 +1,11 @@
 package sh.komet.gui.exportation;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.komet.gui.exportation.batching.Batcher;
+import sh.komet.gui.exportation.batching.specification.*;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
@@ -24,7 +27,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
             .availableProcessors() * 2;
     private final Semaphore readSemaphore = new Semaphore(WRITE_PERMITS);
     private final int BATCH_SIZE = 10240;
-    private final Map<ReaderSpecification, List<String>> exportMap = new HashMap<>();
+    private final Map<BatchSpecification, List<String>> mapOfArtifactsToExport = new HashMap<>();
 
     private final ExportComponentType[] exportComponentTypes = new ExportComponentType[]{
             ExportComponentType.CONCEPT,
@@ -74,32 +77,37 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
 
     private void runBatchReader(ExportComponentType exportComponentType) throws InterruptedException, ExecutionException {
 
-        ReaderSpecification readerSpecification;
+        RF2ExportBatchSpec rf2ExportBatchSpec;
+        List<String> listOfBatchResults = new ArrayList<>();
         LocalDateTime runStart = LocalDateTime.now();
 
         switch (exportComponentType){
             case CONCEPT:
-                readerSpecification = new RF2ConceptSpec(this.manifold);
+                rf2ExportBatchSpec = new RF2ExportConceptBatchSpec(this.manifold);
+                ((RF2ExportConceptBatchSpec)rf2ExportBatchSpec).addColumnHeaders(listOfBatchResults);
                 break;
             case DESCRIPTION:
-                readerSpecification = new RF2DescriptionSpec(this.manifold);
+                rf2ExportBatchSpec = new RF2ExportDescriptionBatchSpec(this.manifold);
+                ((RF2ExportDescriptionBatchSpec)rf2ExportBatchSpec).addColumnHeaders(listOfBatchResults);
                 break;
             case RELATIONSHIP:
-                readerSpecification = new RF2RelationshipSpec(this.manifold);
+                rf2ExportBatchSpec = new RF2ExportRelationshipBatchSpec(this.manifold);
+                ((RF2ExportRelationshipBatchSpec)rf2ExportBatchSpec).addColumnHeaders(listOfBatchResults);
                 break;
             default:
-                readerSpecification = null;
+                rf2ExportBatchSpec = null;
         }
 
-        updateMessage("Reading "+ readerSpecification.getReaderUIText() + "...");
+        updateMessage("Reading "+ rf2ExportBatchSpec.getReaderUIText() + "...");
 
-        List<String> conceptList = Get.executor().submit(
-                new BatchReader(readerSpecification, BATCH_SIZE, readSemaphore), new ArrayList<String>()).get();
+        listOfBatchResults.addAll(Get.executor().submit(
+                new Batcher<>(rf2ExportBatchSpec, this.readSemaphore, this.BATCH_SIZE),
+                new ArrayList<String>())
+                .get());
 
-        readerSpecification.addColumnHeaders(conceptList);
-        exportMap.put(readerSpecification,conceptList );
+        mapOfArtifactsToExport.put(rf2ExportBatchSpec,listOfBatchResults);
 
-        System.out.println("¯\\_(ツ)_/¯ : Total " + readerSpecification.getReaderUIText() + " Reading Time - " + Duration.between(runStart, LocalDateTime.now()));
+        System.out.println("¯\\_(ツ)_/¯ : Total " + rf2ExportBatchSpec.getReaderUIText() + " Reading Time - " + Duration.between(runStart, LocalDateTime.now()));
     }
 
     private void runZipTask() throws InterruptedException, ExecutionException{
@@ -109,7 +117,7 @@ public class ExportContentAndZipTask extends TimedTaskWithProgressTracker<Void> 
         updateMessage("Zipping SOLOR Export...");
 
         ZipExportFiles zipExportFiles =
-                new ZipExportFiles(this.exportFormatType, this.exportDirectory, this.exportMap, this.readSemaphore);
+                new ZipExportFiles(this.exportFormatType, this.exportDirectory, this.mapOfArtifactsToExport, this.readSemaphore);
         Get.executor().submit(zipExportFiles).get();
 
         System.out.println("¯\\_(ツ)_/¯ : Total Zipping Time - " + Duration.between(zipStart, LocalDateTime.now()));
