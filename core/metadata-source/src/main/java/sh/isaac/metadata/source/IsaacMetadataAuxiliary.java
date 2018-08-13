@@ -675,6 +675,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.GIT_LOCAL_FOLDER);
                   createConcept(ObservableFields.ENABLE_EDIT);
                   createConcept(ObservableFields.KOMET_USER);
+                  createConcept(ObservableFields.KOMET_USER_LIST);
                   popParent();
                createConcept("Semantic properties");
                pushParent(current());

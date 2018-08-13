@@ -21,17 +21,21 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.UserPreferences.Keys.USER_CONCEPT;
 import static sh.isaac.komet.preferences.UserPreferences.Keys.USER_CONCEPT_OPTIONS;
 import sh.isaac.model.observable.ObservableFields;
+import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
+import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -45,7 +49,7 @@ public final class UserPreferences extends AbstractPreferences {
     }
 
     IntegerProperty userConceptNidProperty = new SimpleIntegerProperty(this, ObservableFields.KOMET_USER.toExternalString());
-    ObservableList<Integer> userConceptOptions = FXCollections.observableArrayList();
+    SimpleListProperty<ConceptSpecification> userConceptOptions = new SimpleListProperty(this, ObservableFields.KOMET_USER_LIST.toExternalString(), FXCollections.observableArrayList());
     
     public UserPreferences(IsaacPreferences preferencesNode, Manifold manifold) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "User"), manifold);
@@ -53,18 +57,28 @@ public final class UserPreferences extends AbstractPreferences {
         save();
         int[] userConceptOptionNids = new int[userConceptOptions.size()];
         for (int i = 0; i < userConceptOptionNids.length; i++) {
-            userConceptOptionNids[i] = userConceptOptions.get(i);
+            userConceptOptionNids[i] = userConceptOptions.get(i).getNid();
         }
         getItemList().add(new PropertySheetItemConceptNidWrapper(manifold,
            userConceptNidProperty, userConceptOptionNids));
+        getItemList().add(new PropertySheetConceptListWrapper(manifold, userConceptOptions));
+
+    }
+    
+    Integer newConcept() {
+        return MetaData.ACCEPTABLE____SOLOR.getNid();
+    }
+    
+    PropertyEditor<Integer> newPropertyEditor(Manifold manifold) {
+        return null;
     }
 
     @Override
     void saveFields() throws BackingStoreException {
         preferencesNode.put(USER_CONCEPT, Get.concept(userConceptNidProperty.get()).toExternalString());
         List<String> userConceptOptionExternalStrings = new ArrayList<>();
-        for (Integer nid: userConceptOptions) {
-            userConceptOptionExternalStrings.add(Get.concept(nid).toExternalString());
+        for (ConceptSpecification spec: userConceptOptions) {
+            userConceptOptionExternalStrings.add(spec.toExternalString());
         }
         preferencesNode.putList(USER_CONCEPT_OPTIONS, userConceptOptionExternalStrings);
     }
@@ -80,7 +94,7 @@ public final class UserPreferences extends AbstractPreferences {
         }
         userConceptOptions.clear();
         for (String externalString: userConceptOptionExternalStrings) {
-            userConceptOptions.add(new ConceptProxy(externalString).getNid());
+            userConceptOptions.add(new ConceptProxy(externalString));
         }
     }
 }

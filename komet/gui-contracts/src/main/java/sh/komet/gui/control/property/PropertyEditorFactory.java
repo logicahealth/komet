@@ -50,6 +50,8 @@ import sh.komet.gui.control.PropertySheetStatusWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.circumstance.CircumstanceEditor;
 import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
+import sh.komet.gui.control.concept.ConceptListEditor;
+import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.control.list.ListEditor;
 import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.control.measure.MeasureEditor;
@@ -100,6 +102,8 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return Editors.createCheckEditor(propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetPasswordWrapper) {
             return createPasswordEditor(propertySheetItem);
+        } else if (propertySheetItem instanceof PropertySheetConceptListWrapper) {
+            return createConceptListEditor((PropertySheetConceptListWrapper) propertySheetItem);
         }
         throw new UnsupportedOperationException("Not supported yet: " + propertySheetItem.getClass().getName());
     }
@@ -212,6 +216,10 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
 
             return conceptLabel;
         }
+    }
+
+    private PropertyEditor<?> createConceptListEditor(PropertySheetConceptListWrapper propertySheetConceptListWrapper) {
+        return new ConceptListEditor(manifoldForDisplay, propertySheetConceptListWrapper.getValue());
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the 
+ * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,14 +17,13 @@
 package sh.komet.gui.contract;
 
 import org.jvnet.hk2.annotations.Contract;
-import sh.komet.gui.interfaces.ExplorationNode;
+import sh.komet.gui.interfaces.ConceptExplorationNode;
 
 /**
  *
  * @author kec
- * @param <T>
  */
 @Contract
-public interface ExplorationNodeFactory<T extends ExplorationNode>  extends NodeFactory<T> {
+public interface ConceptSearchNodeFactory extends ExplorationNodeFactory<ConceptExplorationNode> {
 
 }

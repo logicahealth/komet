@@ -30,6 +30,7 @@ import javafx.util.Callback;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -54,6 +55,11 @@ public class ListEditor<T extends Object>
         this.newObjectSupplier = newObjectSupplier;
         this.newEditorSupplier = newEditorSupplier;
         this.manifold = manifold;
+        editorPane.getStylesheets()
+                .remove(FxGet.fxConfiguration().getUserCSSURL().toString());
+        editorPane.getStylesheets()
+                .add(FxGet.fxConfiguration().getUserCSSURL().toString());
+ 
         listView.setCellFactory(new Callback<ListView<T>, ListCell<T>>() {
             @Override
             public ListEditorCell<T> call(ListView<T> listView) {

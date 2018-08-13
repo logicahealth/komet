@@ -28,8 +28,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.KometPreferences;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -38,17 +40,18 @@ import sh.komet.gui.manifold.Manifold;
 @Service
 @Singleton
 public class KometPreferencesImpl implements KometPreferences {
-   private static final Logger LOG = LogManager.getLogger();
 
-    private KometPreferencesController kpc; 
+    private static final Logger LOG = LogManager.getLogger();
+
+    private KometPreferencesController kpc;
     private Stage preferencesStage;
-    
+
     public KometPreferencesImpl() {
-        
+
     }
 
     @Override
-    public void showPreferences(String title, IsaacPreferences preferences, 
+    public void showPreferences(String title, IsaacPreferences preferences,
             Manifold manifold) {
         if (kpc == null) {
             try {
@@ -60,21 +63,25 @@ public class KometPreferencesImpl implements KometPreferences {
                 if (treeRoot.isPresent()) {
                     this.kpc.setRoot(treeRoot.get());
                 }
-                
+
                 root.setId(UUID.randomUUID()
                         .toString());
-                
+
                 this.preferencesStage = new Stage();
                 this.preferencesStage.setTitle("KOMET Preferences");
                 Scene scene = new Scene(root);
-                
+
                 this.preferencesStage.setScene(scene);
+                scene.getStylesheets()
+                        .add(FxGet.fxConfiguration().getUserCSSURL().toString());
+                scene.getStylesheets()
+                        .add(Iconography.getStyleSheetStringUrl());
             } catch (IOException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
                 throw new RuntimeException(ex);
             }
-       }
-       preferencesStage.show();
-       preferencesStage.setAlwaysOnTop(true);
+        }
+        preferencesStage.show();
+        preferencesStage.setAlwaysOnTop(true);
     }
 }

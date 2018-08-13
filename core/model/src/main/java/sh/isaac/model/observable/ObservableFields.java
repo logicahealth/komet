@@ -328,6 +328,7 @@ public enum ObservableFields
    ENABLE_EDIT("Enable editing"),
    
    KOMET_USER("KOMET user"),
+   KOMET_USER_LIST("KOMET user list"),
    
 ;
    // this, ObservableFields..toExternalString()
