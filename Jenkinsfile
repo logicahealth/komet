@@ -1,3 +1,21 @@
+// This jenkins pipeline config file allows isaac to be built in jenkins, assuming your jenkins installation
+// contains the necessary plugins.
+// The suggested set of plugins to utilize this file is:
+//
+// git:3.9.1
+// git-client:2.7.3
+// workflow-aggregator:2.5
+// pipeline-maven:3.5.11
+// maven-plugin:3.1.2
+// durable-task:1.25
+// tasks:4.52
+// junit-attachments:1.5
+// ws-cleanup:0.34
+//
+// By default this will execute 'mvn clean install' - if you wish to have this run a deploy instead, you need to specify 
+// a parameter named DEPLOY in jenkins -> configure system -> env variables.
+// You would specify the value as something like 'deploy -DaltDeploymentRepository=snapshotRepo::default::http://52.61.165.55:9092/nexus/content/repositories/snapshots/'
+
 pipeline {
 	agent any
 	options {
@@ -13,9 +31,6 @@ pipeline {
 	stages {
 		stage('Build') {
 			steps {
-				//DEPLOY should be specified in jenkins -> configure system -> env variables - if you don't want it to deploy, leave the value blank.
-				//Or, set it to something like 'deploy -DaltDeploymentRepository=snapshotRepo::default::http://52.61.165.55:9092/nexus/content/repositories/snapshots/'
-				//If you leave it blank, it will execute 'mvn clean install'
 				sh "mvn clean $MVN_TASK"
 				openTasks high: 'FIXME', normal: 'TODO', pattern: '**/*.java'
 			}
