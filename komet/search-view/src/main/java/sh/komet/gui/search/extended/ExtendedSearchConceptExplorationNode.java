@@ -90,5 +90,19 @@ public class ExtendedSearchConceptExplorationNode implements ConceptExplorationN
     public ReadOnlyObjectProperty<ConceptSpecification> selectedConceptSpecification() {
         return conceptSpecification;
     }
+
+    @Override
+    public void focusOnInput() {
+        controller.getSearchText().requestFocus();
+        controller.getSearchText().selectAll();
+    }
+
+    @Override
+    public void focusOnResults() {
+        controller.getSearchResults().requestFocus();
+        controller.getSearchResults().getSelectionModel().selectFirst();
+    }
+    
+    
 }
 

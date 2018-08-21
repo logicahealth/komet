@@ -550,6 +550,15 @@ public class Get
 
       return identifierService;
    }
+   
+   /**
+    * Convenience method to get nids from the identifier service. 
+    * @param uuids
+    * @return a nid
+    */
+   public static int nidForUuids(UUID... uuids) {
+       return identifierService().getNidForUuids(uuids);
+   }
 
    /**
     * Inferred definition chronology.

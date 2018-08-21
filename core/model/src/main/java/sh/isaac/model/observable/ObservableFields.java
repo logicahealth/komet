@@ -329,7 +329,9 @@ public enum ObservableFields
    
    KOMET_USER("KOMET user"),
    KOMET_USER_LIST("KOMET user list"),
+   CONCEPT_IS_ASSEMBLAGE("Concept is assemblage"),
    
+   SEMANTIC_FIELD_NAME("Semantic field name", "Field name"),
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */

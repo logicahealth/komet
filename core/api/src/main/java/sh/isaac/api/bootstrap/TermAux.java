@@ -140,7 +140,6 @@ public class TermAux implements StaticIsaacCache {
    /** ConceptProxy for: "Synonym description type". SCT ID: 900000000000013009 */
    public static ConceptSpecification REGULAR_NAME_DESCRIPTION_TYPE = new ConceptProxy("Regular name description type", "Regular name", UUID.fromString("8bfba944-3965-3946-9bcb-1e80a5da63a2"));
 
-   public static ConceptSpecification PLURAL_NAME_DESCRIPTION_TYPE = new ConceptProxy("Plural name description type", "Plural name", UUID.fromString("d3c5bfa4-ede5-540d-8d97-90544bbb4075"));
    /** ConceptProxy for: "Fully qualified description type. */
    public static ConceptSpecification FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE = new ConceptProxy("Fully qualified name description type", "Fully qualified name",
          UUID.fromString("00791270-77c9-32b6-b34f-d932569bd2bf"));
@@ -442,37 +441,35 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification SRF_STATED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("SRF stated relationship assemblage", "SRF stated relationships",
             UUID.fromString("c2b97bad-d5e0-5eb5-ba13-b9e6824411e0"));
 
-
+    public static ConceptSpecification SEMANTIC_TYPE = new ConceptProxy("Semantic type", UUID.fromString("3daac6c4-78c5-5271-9c63-6e28f80e0c52"));
+    public static ConceptSpecification MEMBERSHIP_SEMANTIC = new ConceptProxy("Membership semantic", UUID.fromString("4fa29287-a80e-5f83-abab-4b587973e7b7"));
+    public static ConceptSpecification DYNAMIC_SEMANTIC = new ConceptProxy("Dynamic semantic", UUID.fromString("8ed01f85-4ecc-5a40-8061-d537106d9c9e"));
+    public static ConceptSpecification CONCEPT_SEMANTIC = new ConceptProxy("Concept semantic", UUID.fromString("fbf054fb-ceaf-5ab8-b946-bbcc4835ce07"));
+    public static ConceptSpecification COMPONENT_SEMANTIC = new ConceptProxy("Component semantic", UUID.fromString("127e7274-0b88-5519-a9db-85d4b9ce6a4a"));
+    public static ConceptSpecification LOGICAL_EXPRESSION_SEMANTIC = new ConceptProxy("Logical expression semantic", UUID.fromString("d19306b1-4744-5028-a715-17ca4a4d657f"));
+    public static ConceptSpecification INTEGER_SEMANTIC = new ConceptProxy("Integer semantic", UUID.fromString("a248fe51-70db-5a3f-9d23-9cf20afa2b4d"));
+    public static ConceptSpecification STRING_SEMANTIC = new ConceptProxy("String semantic", UUID.fromString("e196e48a-760b-5cd3-b5f0-8e5b3bb49627"));
+    public static ConceptSpecification DESCRIPTION_SEMANTIC = new ConceptProxy("Description semantic", UUID.fromString("81487d5f-6115-51e2-a3b3-93d783888eb8"));
+    public static ConceptSpecification SEMANTIC_FIELD_TYPE = new ConceptProxy("Semantic field type", UUID.fromString("9c3dfc88-51e4-5e51-a59a-88dd580162b7"));
+    public static ConceptSpecification ARRAY_FIELD = new ConceptProxy("Array field", UUID.fromString("b168ad04-f814-5036-b886-fd4913de88c8"));
+    public static ConceptSpecification BOOLEAN_FIELD = new ConceptProxy("Boolean field", UUID.fromString("d6b9e2cc-31c6-5e80-91b7-7537690aae32"));
+    public static ConceptSpecification BYTE_ARRAY_FIELD = new ConceptProxy("Byte array field", UUID.fromString("dbdd8df2-aec3-596b-88fc-7b83b5594a45"));
+    public static ConceptSpecification DOUBLE_FIELD = new ConceptProxy("Double field", UUID.fromString("85ff6e8f-9151-5428-a5f0-e07844b69260"));
+    public static ConceptSpecification FLOAT_FIELD = new ConceptProxy("Float field", UUID.fromString("6efe7087-3e3c-5b45-8109-90d7652b1506"));
+    public static ConceptSpecification INTEGER_FIELD = new ConceptProxy("Integer field", UUID.fromString("ff59c300-9c4e-5e77-a35d-6a133eb3440f"));
+    public static ConceptSpecification LOGICAL_EXPRESSION_FIELD = new ConceptProxy("Logical expression field", UUID.fromString("c16eb414-8840-54f8-9bd2-e2f1ab37e19d"));
+    public static ConceptSpecification LONG_FIELD = new ConceptProxy("Long field", UUID.fromString("9574952e-6507-589f-b789-9e9c5d81e50b"));
+    public static ConceptSpecification COMPONENT_FIELD = new ConceptProxy("Component field", UUID.fromString("fb00d132-fcc3-5cbf-881d-4bcc4b4c91b3"));
+    public static ConceptSpecification CONCEPT_FIELD = new ConceptProxy("Concept field", UUID.fromString("ac8f1f54-c7c6-5fc7-b1a8-ebb04b918557"));
+    public static ConceptSpecification STRING_FIELD = new ConceptProxy("String field", UUID.fromString("8d0fdf86-9c18-50b4-b59f-fb83db9cbcaf"));
+    public static ConceptSpecification POLYMORPHIC_FIELD = new ConceptProxy("Polymorphic field", UUID.fromString("9c3e4a52-bfa8-5f42-8fb1-3681f5a58ecb"));
+    public static ConceptSpecification UUID_FIELD = new ConceptProxy("UUID field", UUID.fromString("dea8cb0f-9bb5-56bb-af27-a14943cb24ba"));
+    public static ConceptSpecification ASSEMBLAGE_SEMANTIC_FIELDS = new ConceptProxy("Semantic fields assemblage", "Semantic fields", UUID.fromString("ac6d947d-384e-5293-a3b8-5f0c318ee0f7"));
+    public static ConceptSpecification SEMANTIC_FIELD_CONCEPTS = new ConceptProxy("Semantic field concepts", "Semantic field concepts", UUID.fromString("b4316cb8-14fe-5b32-b03b-f5f966c87819"));
 
 
 
     /*
-    public static ConceptSpecification SPEC28 = new ConceptProxy("", "", UUID.fromString("3daac6c4-78c5-5271-9c63-6e28f80e0c52"));
-    public static ConceptSpecification SPEC29 = new ConceptProxy("", "", UUID.fromString("4fa29287-a80e-5f83-abab-4b587973e7b7"));
-    public static ConceptSpecification SPEC30 = new ConceptProxy("", "", UUID.fromString("8ed01f85-4ecc-5a40-8061-d537106d9c9e"));
-    public static ConceptSpecification SPEC31 = new ConceptProxy("", "", UUID.fromString("fbf054fb-ceaf-5ab8-b946-bbcc4835ce07"));
-    public static ConceptSpecification SPEC32 = new ConceptProxy("", "", UUID.fromString("127e7274-0b88-5519-a9db-85d4b9ce6a4a"));
-    public static ConceptSpecification SPEC33 = new ConceptProxy("", "", UUID.fromString("d19306b1-4744-5028-a715-17ca4a4d657f"));
-    public static ConceptSpecification SPEC34 = new ConceptProxy("", "", UUID.fromString("a248fe51-70db-5a3f-9d23-9cf20afa2b4d"));
-    public static ConceptSpecification SPEC35 = new ConceptProxy("", "", UUID.fromString("e196e48a-760b-5cd3-b5f0-8e5b3bb49627"));
-    public static ConceptSpecification SPEC36 = new ConceptProxy("", "", UUID.fromString("81487d5f-6115-51e2-a3b3-93d783888eb8"));
-    public static ConceptSpecification SPEC37 = new ConceptProxy("", "", UUID.fromString("9c3dfc88-51e4-5e51-a59a-88dd580162b7"));
-    public static ConceptSpecification SPEC38 = new ConceptProxy("", "", UUID.fromString("b168ad04-f814-5036-b886-fd4913de88c8"));
-    public static ConceptSpecification SPEC39 = new ConceptProxy("", "", UUID.fromString("d6b9e2cc-31c6-5e80-91b7-7537690aae32"));
-    public static ConceptSpecification SPEC40 = new ConceptProxy("", "", UUID.fromString("dbdd8df2-aec3-596b-88fc-7b83b5594a45"));
-    public static ConceptSpecification SPEC41 = new ConceptProxy("", "", UUID.fromString("85ff6e8f-9151-5428-a5f0-e07844b69260"));
-    public static ConceptSpecification SPEC42 = new ConceptProxy("", "", UUID.fromString("6efe7087-3e3c-5b45-8109-90d7652b1506"));
-    public static ConceptSpecification SPEC43 = new ConceptProxy("", "", UUID.fromString("ff59c300-9c4e-5e77-a35d-6a133eb3440f"));
-    public static ConceptSpecification SPEC44 = new ConceptProxy("", "", UUID.fromString("c16eb414-8840-54f8-9bd2-e2f1ab37e19d"));
-    public static ConceptSpecification SPEC45 = new ConceptProxy("", "", UUID.fromString("9574952e-6507-589f-b789-9e9c5d81e50b"));
-    public static ConceptSpecification SPEC46 = new ConceptProxy("", "", UUID.fromString("fb00d132-fcc3-5cbf-881d-4bcc4b4c91b3"));
-    public static ConceptSpecification SPEC47 = new ConceptProxy("", "", UUID.fromString("ac8f1f54-c7c6-5fc7-b1a8-ebb04b918557"));
-    public static ConceptSpecification SPEC48 = new ConceptProxy("", "", UUID.fromString("8d0fdf86-9c18-50b4-b59f-fb83db9cbcaf"));
-    public static ConceptSpecification SPEC49 = new ConceptProxy("", "", UUID.fromString("9c3e4a52-bfa8-5f42-8fb1-3681f5a58ecb"));
-    public static ConceptSpecification SPEC50 = new ConceptProxy("", "", UUID.fromString("dea8cb0f-9bb5-56bb-af27-a14943cb24ba"));
-    public static ConceptSpecification SPEC51 = new ConceptProxy("", "", UUID.fromString("ac6d947d-384e-5293-a3b8-5f0c318ee0f7"));
-    public static ConceptSpecification SPEC52 = new ConceptProxy("", "", UUID.fromString("b4316cb8-14fe-5b32-b03b-f5f966c87819"));
-    public static ConceptSpecification SPEC53 = new ConceptProxy("", "", UUID.fromString("d05c535e-1990-5f38-a3c8-f71c6569f687"));
     public static ConceptSpecification SPEC54 = new ConceptProxy("", "", UUID.fromString("2fc4663f-c389-590e-9445-df02e277ddb1"));
     public static ConceptSpecification SPEC55 = new ConceptProxy("", "", UUID.fromString("34a6dae3-e5e9-50db-a9ee-69c1067911d8"));
     public static ConceptSpecification SPEC56 = new ConceptProxy("", "", UUID.fromString("0608e233-d79d-5076-985b-9b1ea4e14b4c"));

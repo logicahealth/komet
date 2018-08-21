@@ -335,7 +335,7 @@ public class ImportExportTest {
    )
    public void testGetAssemblageConceptNids() {
       int[] assemblageNids = ModelGet.dataStore().getAssemblageConceptNids();
-      Assert.assertEquals(assemblageNids.length, 11);
+      Assert.assertEquals(assemblageNids.length, 12);
       Assert.assertTrue(Arrays.toString(assemblageNids).contains(MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() + ""));
    }
 

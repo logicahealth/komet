@@ -51,7 +51,9 @@ import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
 /**
  *
  * @author kec
+ * @deprecated use ConceptSpecificationEditor
  */
+@Deprecated
 public class ConceptLabel
         extends Label implements PropertyEditor<Object> {
 

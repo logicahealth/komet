@@ -25,4 +25,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  */
 public interface ConceptExplorationNode extends ExplorationNode {
     ReadOnlyObjectProperty<ConceptSpecification> selectedConceptSpecification();
+    void focusOnInput();
+    void focusOnResults();
+    
 }

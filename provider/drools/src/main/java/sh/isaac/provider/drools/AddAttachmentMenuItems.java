@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import javafx.scene.control.MenuItem;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.CategorizedVersions;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -60,6 +61,15 @@ public class AddAttachmentMenuItems {
    public List<MenuItem> getMenuItems() {
       return menuItems;
    }
+   
+   public VersionType getVersionType() {
+       return this.categorizedVersion.getSemanticType();
+   }
+   
+   public ConceptSpecification getAssemblageSpec() {
+       return Get.conceptSpecification(this.categorizedVersion.getAssemblageNid());
+   }
+   
    public PropertySheetMenuItem makePropertySheetMenuItem(String menuText, ConceptSpecification assemblageSpecification) {
       PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion, false);
       MenuItem menuItem = new MenuItem(menuText);

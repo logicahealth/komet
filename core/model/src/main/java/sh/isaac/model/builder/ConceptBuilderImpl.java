@@ -522,4 +522,12 @@ public class ConceptBuilderImpl
    public VersionType getVersionType() {
       return VersionType.CONCEPT;
    }
+
+    @Override
+    public ConceptBuilder addComponentIntSemantic(UUID componentUuid, int fieldIndex, UUID assemblageUuid) {
+        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(componentUuid), fieldIndex, this, Get.nidForUuids(assemblageUuid)));
+        return this;
+    }
+   
+   
 }

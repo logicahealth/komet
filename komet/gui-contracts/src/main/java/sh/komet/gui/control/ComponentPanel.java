@@ -149,6 +149,7 @@ public final class ComponentPanel
             case MEMBER:
             case CONCEPT:
             case DESCRIPTION:
+            case Nid1_Int2:
                 return true;
 
             case RF2_RELATIONSHIP:

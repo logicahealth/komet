@@ -157,7 +157,7 @@ public class ConceptDetailPanelNode
     private final OpenIntIntHashMap stampOrderHashMap = new OpenIntIntHashMap();
     private final Button addDescriptionButton = new Button("+ Add");
     private final ToggleButton versionGraphToggle = new ToggleButton("", Iconography.SOURCE_BRANCH_1.getIconographic());
-    private ArrayList<Integer> sortedStampSequences = new ArrayList<>();
+    private final ArrayList<Integer> sortedStampSequences = new ArrayList<>();
     private final List<ComponentPanel> componentPanels = new ArrayList<>();
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final Manifold conceptDetailManifold;
@@ -174,33 +174,33 @@ public class ConceptDetailPanelNode
     //~--- constructors --------------------------------------------------------
     public ConceptDetailPanelNode(Manifold conceptDetailManifold) {
         this.conceptDetailManifold = conceptDetailManifold;
-        historySwitch.setSelected(false);
+        this.historySwitch.setSelected(false);
         updateManifoldHistoryStates();
         conceptDetailManifold.focusedConceptProperty()
                 .addListener(this::setConcept);
         this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(true));
-        conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
-        conceptDetailPane.getStyleClass()
+        this.conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
+        this.conceptDetailPane.getStyleClass()
                 .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         this.scrollPane = new ScrollPane(componentPanelBox);
         this.scrollPane.setFitToWidth(true);
         this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        conceptDetailPane.setCenter(this.scrollPane);
-        versionBrancheGrid.add(versionGraphToggle, 0, 0);
-        versionGraphToggle.getStyleClass()
+        this.conceptDetailPane.setCenter(this.scrollPane);
+        this.versionBrancheGrid.add(versionGraphToggle, 0, 0);
+        this.versionGraphToggle.getStyleClass()
                 .setAll(StyleClasses.VERSION_GRAPH_TOGGLE.toString());
-        versionGraphToggle.selectedProperty()
+        this.versionGraphToggle.selectedProperty()
                 .addListener(this::toggleVersionGraph);
-        conceptDetailPane.setLeft(versionBrancheGrid);
-        componentPanelBox.getStyleClass()
+        this.conceptDetailPane.setLeft(versionBrancheGrid);
+        this.componentPanelBox.getStyleClass()
                 .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
-        componentPanelBox.setFillWidth(true);
+        this.componentPanelBox.setFillWidth(true);
         setupToolGrid();
-        historySwitch.selectedProperty()
+        this.historySwitch.selectedProperty()
                 .addListener(this::setShowHistory);
 
-        expandControl.expandActionProperty()
+        this.expandControl.expandActionProperty()
                 .addListener(this::expandAllAction);
 
         // commit service uses weak change listener references, so this method call is not a leak.
@@ -210,7 +210,6 @@ public class ConceptDetailPanelNode
 
     @Override
     public Node getMenuIcon() {
-        //return Iconography.CONCEPT_DETAILS.getImageView();
         return Iconography.CONCEPT_DETAILS.getIconographic();
     }
 
@@ -391,7 +390,7 @@ public class ConceptDetailPanelNode
             while (iter.hasNext()) {
                 ObservableDescriptionDialect descDialect = iter.next();
                 if (descDialect.getCommitState() == CommitStates.UNCOMMITTED) {
-                    ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(conceptDetailManifold, descDialect, true);
+                    ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(conceptDetailManifold, descDialect, true, null);
                     parallelTransition.getChildren().add(addComponent(descPanel));
                     descPanel.setCommitHandler((event) -> {
                         newDescriptions.remove(descDialect);
@@ -662,8 +661,8 @@ public class ConceptDetailPanelNode
         componentPanels.clear();
 
         IntArrayList stampSequences = stampOrderHashMap.keys();
-
-        sortedStampSequences = new ArrayList<>(stampSequences.toList());
+        sortedStampSequences.clear();
+        sortedStampSequences.addAll(stampSequences.toList());
 
         StampService stampService = Get.stampService();
 

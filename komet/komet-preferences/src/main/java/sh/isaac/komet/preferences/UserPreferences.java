@@ -35,7 +35,6 @@ import static sh.isaac.komet.preferences.UserPreferences.Keys.USER_CONCEPT_OPTIO
 import sh.isaac.model.observable.ObservableFields;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
-import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 /**

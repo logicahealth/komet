@@ -70,38 +70,54 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    /**
     * Gets the component semantic builder.
     *
-    * @param memeComponentNid the meme component nid
+    * @param componentNid the component nid
     * @param referencedComponent the referenced component
     * @param assemblageConceptNid the assemblage concept nid
     * @return the component semantic builder
     */
    @Override
-   public SemanticBuilder<C> getComponentSemanticBuilder(int memeComponentNid,
+   public SemanticBuilder<C> getComponentSemanticBuilder(int componentNid,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
          int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponent,
                                    assemblageConceptNid,
                                    VersionType.COMPONENT_NID,
-                                   new Object[] { memeComponentNid });
+                                   new Object[] { componentNid });
    }
-
    /**
     * Gets the component semantic builder.
     *
-    * @param memeComponentNid the meme component nid
+    * @param componentNid the component nid
     * @param referencedComponentNid the referenced component nid
     * @param assemblageConceptNid the assemblage concept nid
     * @return the component semantic builder
     */
    @Override
-   public SemanticBuilder<C> getComponentSemanticBuilder(int memeComponentNid,
+   public SemanticBuilder<C> getComponentSemanticBuilder(int componentNid,
          int referencedComponentNid,
          int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponentNid,
                                    assemblageConceptNid,
                                    VersionType.COMPONENT_NID,
-                                   new Object[] { memeComponentNid });
+                                   new Object[] { componentNid });
    }
+
+    @Override
+    public SemanticBuilder<C> getComponentIntSemanticBuilder(int componentNid, int intValue, IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent, int assemblageConceptNid) {
+       return new SemanticBuilderImpl(referencedComponent,
+                                   assemblageConceptNid,
+                                   VersionType.Nid1_Int2,
+                                   new Object[] { componentNid, intValue });
+   }
+
+    @Override
+    public SemanticBuilder<C> getComponentIntSemanticBuilder(int componentNid, int intValue, int referencedComponent, int assemblageConceptNid) {
+       return new SemanticBuilderImpl(referencedComponent,
+                                   assemblageConceptNid,
+                                   VersionType.Nid1_Int2,
+                                   new Object[] { componentNid, intValue });
+    }
+
 
    /**
     * {@inheritDoc}

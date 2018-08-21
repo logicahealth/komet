@@ -598,6 +598,9 @@ public abstract class ObservableVersionImpl
       if (this.commitStateProperty != null) {
          return this.commitStateProperty.get();
       }
+      if (getStampSequence() == -1) {
+          return CommitStates.CANCELED;
+      }
 
       if (getTime() == Long.MAX_VALUE) {
          return CommitStates.UNCOMMITTED;

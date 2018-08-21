@@ -38,14 +38,12 @@ package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 //~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
@@ -67,6 +65,9 @@ import sh.komet.gui.interfaces.EditInFlight;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.model.observable.CommitAwareConceptSpecificationProperty;
+import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -162,13 +163,20 @@ public class PropertySheetMenuItem
    }
 
    //~--- get methods ---------------------------------------------------------
-   private PropertySheetItemConceptNidWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
+   private PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
            String nameForProperty) {
-      IntegerProperty conceptProperty = (IntegerProperty) getPropertyMap().get(propertyConceptSpecification);
+      Object property = getPropertyMap().get(propertyConceptSpecification);
+      ObjectProperty<ConceptSpecification> conceptProperty = null;
+      if (property instanceof ObjectProperty) {
+          conceptProperty = (ObjectProperty<ConceptSpecification>) property;
+      } else if (property instanceof CommitAwareIntegerProperty) {
+          CommitAwareIntegerProperty intProperty = (CommitAwareIntegerProperty) property;
+          conceptProperty = new CommitAwareConceptSpecificationProperty(intProperty);
+      }
       if (conceptProperty == null) {
          throw new IllegalStateException("No property for: " + propertyConceptSpecification);
       }
-      return new PropertySheetItemConceptNidWrapper(
+      return new PropertySheetItemConceptWrapper(
               manifold,
               nameForProperty,
               conceptProperty);

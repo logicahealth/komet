@@ -151,3 +151,17 @@ then
    $propertySheetItem.getAllowedValues().add(MetaData.PREFERRED____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.ACCEPTABLE____SOLOR);
 end
+
+rule "Setup assemblage semantic"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == TermAux.SEMANTIC_TYPE.getNid()); 
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(TermAux.MEMBERSHIP_SEMANTIC);
+   $propertySheetItem.getAllowedValues().add(TermAux.MEMBERSHIP_SEMANTIC);
+   $propertySheetItem.getAllowedValues().add(TermAux.CONCEPT_SEMANTIC);
+   $propertySheetItem.getAllowedValues().add(TermAux.COMPONENT_SEMANTIC);
+   $propertySheetItem.getAllowedValues().add(TermAux.INTEGER_SEMANTIC);
+   $propertySheetItem.getAllowedValues().add(TermAux.STRING_SEMANTIC);
+end

@@ -102,6 +102,7 @@ import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
 import sh.komet.gui.util.FxGet;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
@@ -384,16 +385,8 @@ public abstract class BadgedVersionPanel
             componentType.setText(" FQN");
         } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" NĀM");
-        } else if (descriptionType == TermAux.PLURAL_NAME_DESCRIPTION_TYPE.getNid()) {
-            componentType.setText(" PLU");
         } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" DEF");
-        } else if (descriptionType == MetaData.ABBREVIATION_DESCRIPTION_TYPE____SOLOR.getNid()) {
-            componentType.setText(" ABR");
-        } else if (descriptionType == MetaData.MISSPELLED_DESCRIPTION_TYPE____SOLOR.getNid()) {
-            componentType.setText(" SP!");
-        } else if (descriptionType == MetaData.UNKNOWN_DESCRIPTION_TYPE____SOLOR.getNid()) {
-            componentType.setText(" UNK");
         } else {
             componentType.setText(getManifold().getPreferredDescriptionText(descriptionType));
         }
@@ -474,7 +467,7 @@ public abstract class BadgedVersionPanel
                     componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + ((StringVersion) semanticVersion).getString());
                     break;
 
-                case COMPONENT_NID:
+                case COMPONENT_NID: {
                     if (isLatestPanel()) {
                         componentType.setText("REF");
                     } else {
@@ -498,6 +491,41 @@ public abstract class BadgedVersionPanel
                         case UNKNOWN:
                         default:
                             componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences:"
+                                    + Get.identifierService().getObjectTypeForComponent(
+                                            nid).toString());
+                    }
+
+                    break;
+                }
+
+                case Nid1_Int2:
+                    if (isLatestPanel()) {
+                        componentType.setText("INT-REF");
+                    } else {
+                        componentType.setText("");
+                    }
+
+                    int nid = ((Nid1_Int2_Version) semanticVersion).getNid1();
+                    int intValue = ((Nid1_Int2_Version) semanticVersion).getInt2();
+
+                    switch (Get.identifierService().getObjectTypeForComponent(nid)) {
+                        case CONCEPT:
+                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) 
+                                    + "\n" + intValue + ": " + getManifold().getPreferredDescriptionText(nid));
+                            break;
+
+                        case SEMANTIC:
+                            SemanticChronology sc = Get.assemblageService()
+                                    .getSemanticChronology(nid);
+
+                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) 
+                                    + "\n" + intValue + ": References: " + sc.getVersionType().toString());
+                            break;
+
+                        case UNKNOWN:
+                        default:
+                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) 
+                                    + "\n" + intValue + ": References:"
                                     + Get.identifierService().getObjectTypeForComponent(
                                             nid).toString());
                     }

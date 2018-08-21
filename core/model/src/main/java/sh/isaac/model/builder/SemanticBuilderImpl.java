@@ -77,6 +77,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticBuildListenerI;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 
 //~--- classes ----------------------------------------------------------------
@@ -203,6 +204,15 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             (ComponentNidVersionImpl) semanticChronicle.createMutableVersion(stampSequence);
 
          cnsi.setComponentNid((Integer) this.parameters[0]);
+         break;
+         
+      case Nid1_Int2:
+         final Nid1_Int2_Version nid1int2 =
+            (Nid1_Int2_Version) semanticChronicle.createMutableVersion(stampSequence);
+
+         nid1int2.setNid1((Integer) this.parameters[0]);
+         nid1int2.setInt2((Integer) this.parameters[1]);
+         
          break;
 
       case LONG:

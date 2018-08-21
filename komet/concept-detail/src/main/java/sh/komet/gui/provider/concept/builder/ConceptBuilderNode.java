@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
@@ -17,6 +17,7 @@
 package sh.komet.gui.provider.concept.builder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -93,6 +94,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     private final ObservableList<ObservableDescriptionDialect> descriptions = FXCollections.observableArrayList();
 
     private ObservableLogicGraphVersionImpl statedDefinition;
+    protected ConceptBuilderComponentPanel conceptPanel;
 
     public ConceptBuilderNode(Manifold manifold) {
         this.manifold = manifold;
@@ -187,7 +189,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     private void layoutBuilderComponents() {
         componentPanelBox.getChildren().clear();
         final ParallelTransition parallelTransition = new ParallelTransition();
-        ConceptBuilderComponentPanel conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion, false);
+        this.conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion, false, textField.textProperty());
         parallelTransition.getChildren().add(addComponent(conceptPanel, new Insets(10, 5, 1, 5)));
         AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
         descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
@@ -195,14 +197,14 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
                 .add(addNode(descriptionHeader));
 
         for (ObservableDescriptionDialect descDialect : descriptions) {
-            ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(manifold, descDialect, false);
+            ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(manifold, descDialect, false, textField.textProperty());
             parallelTransition.getChildren().add(addComponent(descPanel));
         }
         AnchorPane definitionHeader = setupHeaderPanel("AXIOMS", null);
         definitionHeader.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
         parallelTransition.getChildren()
                 .add(addNode(definitionHeader));
-        ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, statedDefinition, false);
+        ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, statedDefinition, false, textField.textProperty());
         parallelTransition.getChildren()
                 .add(addComponent(logicPanel));
 
@@ -306,6 +308,9 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         List<ObservableVersion> versionsToCommit = new ArrayList<>();
         // Concept
         versionsToCommit.add(this.conceptVersion);
+        
+        // Assemblage
+        versionsToCommit.addAll(Arrays.asList(this.conceptPanel.getVersionsToCommit()));
 
         // descriptions
         for (ObservableDescriptionDialect descDialect : descriptions) {

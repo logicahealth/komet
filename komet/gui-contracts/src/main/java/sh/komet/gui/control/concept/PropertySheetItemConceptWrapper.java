@@ -16,6 +16,8 @@
  */
 package sh.komet.gui.control.concept;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,7 +27,6 @@ import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
@@ -38,9 +39,11 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
 
    private final Manifold manifoldForDisplay;
    private final String name;
-   private final SimpleObjectProperty<ConceptForControlWrapper> observableWrapper;
+   private final SimpleObjectProperty<ConceptSpecificationForControlWrapper> observableWrapper;
    private final SimpleObjectProperty<ConceptSpecification> conceptProperty;
-   private final NidSet allowedValues = new NidSet();
+   private final List<ConceptSpecification> allowedValues = new ArrayList();
+   private boolean allowSearch = true;
+   private boolean allowHistory = true;
    
    public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay,
            ObjectProperty<? extends ConceptSpecification> conceptProperty, int... allowedValues) {
@@ -56,9 +59,44 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
       if (allowedValues.length > 0) {
           this.conceptProperty.set(Get.concept(allowedValues[0]));
       }
-      this.allowedValues.addAll(allowedValues);
-      this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifoldForDisplay, conceptProperty.get().getNid()));
+      for (int allowedNid: allowedValues) {
+          this.allowedValues.add(Get.conceptSpecification(allowedNid));
+      }
+      this.observableWrapper = new SimpleObjectProperty<>(new ConceptSpecificationForControlWrapper(conceptProperty.get(), manifoldForDisplay));
    }
+   
+      public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
+           ObjectProperty<? extends ConceptSpecification> conceptProperty) {
+          this(manifoldForDisplay, name, conceptProperty, (ConceptSpecification[]) new ConceptSpecification[0]);
+      }
+
+   public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
+           ObjectProperty<? extends ConceptSpecification> conceptProperty, ConceptSpecification... allowedValues) {
+      this.manifoldForDisplay = manifoldForDisplay;
+      this.name = name;
+      this.conceptProperty = (SimpleObjectProperty<ConceptSpecification>) conceptProperty;
+      if (allowedValues.length > 0) {
+          this.conceptProperty.set(Get.concept(allowedValues[0]));
+      }
+      this.allowedValues.addAll(Arrays.asList(allowedValues));
+      this.observableWrapper = new SimpleObjectProperty<>(new ConceptSpecificationForControlWrapper(conceptProperty.get(), manifoldForDisplay));
+   }
+
+    public boolean allowSearch() {
+        return allowSearch;
+    }
+
+    public void setAllowSearch(boolean allowSearch) {
+        this.allowSearch = allowSearch;
+    }
+
+    public boolean allowHistory() {
+        return allowHistory;
+    }
+
+    public void setAllowHistory(boolean allowHistory) {
+        this.allowHistory = allowHistory;
+    }
 
    @Override
    public String getFullyQualifiedName() {
@@ -77,7 +115,7 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
 
    @Override
    public Class<?> getType() {
-      return ConceptForControlWrapper.class;
+      return ConceptSpecificationForControlWrapper.class;
    }
 
    @Override
@@ -85,7 +123,7 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
       return null;
    }
 
-   public NidSet getAllowedValues() {
+   public List<ConceptSpecification> getAllowedValues() {
       return allowedValues;
    }
 
@@ -100,7 +138,7 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
    }
 
    @Override
-   public ConceptForControlWrapper getValue() {
+   public ConceptSpecificationForControlWrapper getValue() {
       return this.observableWrapper.get();
    }
 
@@ -108,12 +146,12 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
    public void setValue(Object value) {
       try {
          // Concept sequence property may throw a runtime exception if it cannot be changed
-         this.conceptProperty.setValue(((ConceptForControlWrapper) value));
+         this.conceptProperty.setValue(((ConceptSpecificationForControlWrapper) value));
          // only change the observableWrapper if no exception is thrown. 
-         this.observableWrapper.setValue((ConceptForControlWrapper) value);
+         this.observableWrapper.setValue((ConceptSpecificationForControlWrapper) value);
       } catch (RuntimeException ex) {
          FxGet.statusMessageService().reportStatus(ex.getMessage());
-         this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, this.conceptProperty.get().getNid()));
+         this.observableWrapper.setValue(new ConceptSpecificationForControlWrapper(this.conceptProperty.get(), manifoldForDisplay));
       }
    }
 

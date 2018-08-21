@@ -21,5 +21,5 @@ package sh.komet.gui.control.property;
  * @author kec
  */
 public enum EditorType {
-    CONCEPT_SPEC_CHOICE_BOX, OBJECT_CHOICE_BOX, TEXT, UNSPECIFIED
+    CONCEPT_SPEC_CHOICE_BOX, OBJECT_CHOICE_BOX, TEXT, BOOLEAN, UNSPECIFIED
 }

@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
@@ -31,6 +33,10 @@ import javafx.scene.layout.Priority;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
@@ -43,7 +49,7 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public class ConceptVersionEditor implements PropertyEditor<ObservableConceptVersionImpl> {
+public class NewConceptVersionEditor implements PropertyEditor<ObservableConceptVersionImpl> {
     private final GridPane editorGridPane = new GridPane();
     private final BorderPane editorNode = new BorderPane(editorGridPane);
     private final SimpleObjectProperty<ObservableConceptVersionImpl> conceptVersionProperty
@@ -51,23 +57,68 @@ public class ConceptVersionEditor implements PropertyEditor<ObservableConceptVer
                     this,
                     ObservableFields.CONCEPT_VERSION.toExternalString(),
                     null);
+    private final SimpleBooleanProperty conceptIsAssemblageProperty 
+            = new SimpleBooleanProperty(this, ObservableFields.CONCEPT_IS_ASSEMBLAGE.toExternalString(), false);
+    
+    private final CommitAwareIntegerProperty semanticTypeForAssemblageProperty 
+            = new CommitAwareIntegerProperty(this, TermAux.SEMANTIC_TYPE.toExternalString(), TermAux.MEMBERSHIP_SEMANTIC.getNid());
+    private final SimpleStringProperty nameForAssemblageFieldProperty 
+            = new SimpleStringProperty(this, ObservableFields.SEMANTIC_FIELD_NAME.toExternalString());
+            
     private UUID conceptUuid = null;
+    
     private final Manifold manifold;
     
     private final PropertyEditorFactory propertyEditorFactory;
     private final List<PropertySheet.Item> wrappedProperties = new ArrayList<>();
     
-    public ConceptVersionEditor(Manifold manifold) {
+    private final SimpleBooleanProperty showSemanticFieldName 
+            = new SimpleBooleanProperty(false);
+
+    
+    public NewConceptVersionEditor(Manifold manifold) {
         this(null, manifold);
     }
     
-    public ConceptVersionEditor(UUID conceptUuid, Manifold manifold) {
+    public NewConceptVersionEditor(UUID conceptUuid, Manifold manifold) {
         this.manifold = manifold;
         this.conceptUuid = conceptUuid;
         this.propertyEditorFactory = new PropertyEditorFactory(manifold);
         if (conceptUuid != null) {
             setupWithConceptUuid();
         }
+        semanticTypeForAssemblageProperty.addListener((observable, oldValue, newValue) -> {
+            if (conceptIsAssemblageProperty.get() && newValue.intValue() == TermAux.MEMBERSHIP_SEMANTIC.getNid()) {
+                showSemanticFieldName.set(false);
+            } else {
+                showSemanticFieldName.set(true);
+            }
+        });
+        
+        conceptIsAssemblageProperty.addListener((observable, oldValue, newValue) -> {
+            if (newValue && semanticTypeForAssemblageProperty.get() != TermAux.MEMBERSHIP_SEMANTIC.getNid()) {
+                showSemanticFieldName.set(true);
+            } else {
+                showSemanticFieldName.set(false);
+            }
+        });
+        
+    }
+
+    public boolean conceptIsAssemblage() {
+        return conceptIsAssemblageProperty.get();
+    }
+
+    public int getSemanticTypeForAssemblageNid() {
+        return semanticTypeForAssemblageProperty.get();
+    }
+
+    public ConceptSpecification getSemanticTypeForAssemblage() {
+        return Get.conceptSpecification(semanticTypeForAssemblageProperty.get());
+    }
+    
+    public String getFieldNameForSemantic() {
+        return nameForAssemblageFieldProperty.get();
     }
 
     @Override
@@ -103,12 +154,18 @@ public class ConceptVersionEditor implements PropertyEditor<ObservableConceptVer
             
             PropertySheetItem moduleProperty = createPropertyItem(concept.moduleNidProperty());
             PropertySheetItem pathProperty = createPropertyItem(concept.pathNidProperty());
+            PropertySheetItem assemblageProperty = createPropertyItem(conceptIsAssemblageProperty);
+            PropertySheetItem semanticTypeProperty = createPropertyItem(semanticTypeForAssemblageProperty);
+            PropertySheetItem nameForFieldProperty = createPropertyItem(nameForAssemblageFieldProperty);
             
             
             FxGet.rulesDrivenKometService().populateWrappedProperties(wrappedProperties);
 
             PropertyEditor<?> modulePropEditor = propertyEditorFactory.call(moduleProperty);
             PropertyEditor<?> pathPropertyEditor = propertyEditorFactory.call(pathProperty);
+            PropertyEditor<?> conceptIsAssemblageEditor = propertyEditorFactory.call(assemblageProperty);
+            PropertyEditor<?> semanticTypeEditor = propertyEditorFactory.call(semanticTypeProperty);
+            PropertyEditor<?> nameForFieldEditor = propertyEditorFactory.call(nameForFieldProperty);
             
             Node editor = modulePropEditor.getEditor();
             GridPane.setConstraints(editor, 
@@ -128,11 +185,39 @@ public class ConceptVersionEditor implements PropertyEditor<ObservableConceptVer
                     new Insets(1, 1, 1, 1)); //t,r,b,l
             editorGridPane.getChildren().add(editor);
 
+            editor = conceptIsAssemblageEditor.getEditor();
+            GridPane.setConstraints(editor, 
+                    0, 2, // column, row
+                    2, 1, 
+                    HPos.LEFT, VPos.TOP, 
+                    Priority.ALWAYS, Priority.NEVER, // hgrow, vgrow
+                    new Insets(5, 1, 1, 25)); //t,r,b,l
+            editorGridPane.getChildren().add(editor);
+
+            editor = semanticTypeEditor.getEditor();
+            editor.visibleProperty().bind(conceptIsAssemblageProperty);
+            GridPane.setConstraints(editor, 
+                    2, 2, // column, row
+                    2, 1, 
+                    HPos.LEFT, VPos.TOP, 
+                    Priority.ALWAYS, Priority.NEVER, // hgrow, vgrow
+                    new Insets(1, 1, 1, 1)); //t,r,b,l
+            editorGridPane.getChildren().add(editor);
+
+            editor = nameForFieldEditor.getEditor();
+            editor.visibleProperty().bind(showSemanticFieldName);
+            GridPane.setConstraints(editor, 
+                    2, 3, // column, row
+                    2, 1, 
+                    HPos.LEFT, VPos.TOP, 
+                    Priority.ALWAYS, Priority.NEVER, // hgrow, vgrow
+                    new Insets(1, 1, 1, 1)); //t,r,b,l
+            editorGridPane.getChildren().add(editor);
         }
     }
 
     private PropertySheetItem createPropertyItem(Property<?> property) {
-        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifold, PropertySheetPurpose.DESCRIPTION_DIALECT);
+        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifold, PropertySheetPurpose.UNSPECIFIED);
         wrappedProperties.add(wrappedProperty);
         return wrappedProperty;
     }

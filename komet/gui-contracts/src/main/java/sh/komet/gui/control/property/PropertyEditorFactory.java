@@ -29,6 +29,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -51,7 +52,9 @@ import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.circumstance.CircumstanceEditor;
 import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
 import sh.komet.gui.control.concept.ConceptListEditor;
+import sh.komet.gui.control.concept.ConceptSpecificationEditor;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
+import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.list.ListEditor;
 import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.control.measure.MeasureEditor;
@@ -76,6 +79,8 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
     public PropertyEditor<?> call(PropertySheet.Item propertySheetItem) {
         if (propertySheetItem instanceof PropertySheetItemConceptNidWrapper) {
             return createCustomChoiceEditor((PropertySheetItemConceptNidWrapper) propertySheetItem);
+        } else if (propertySheetItem instanceof PropertySheetItemConceptWrapper) {
+            return new ConceptSpecificationEditor((PropertySheetItemConceptWrapper) propertySheetItem, manifoldForDisplay);
         } else if (propertySheetItem instanceof PropertySheetStatusWrapper) {
             return Editors.createChoiceEditor(propertySheetItem, Status.makeActiveAndInactiveSet());
         } else if (propertySheetItem instanceof PropertySheetTextWrapper) {
@@ -176,6 +181,12 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                 TextField editorControl = (TextField) editor.getEditor();
                 editorControl.setText((String) item.getValue());
                 editorControl.setMaxWidth(Double.MAX_VALUE);
+                return editor;
+            }
+            case BOOLEAN: {
+                PropertyEditor editor = Editors.createCheckEditor(item);
+                CheckBox checkBox = (CheckBox) editor.getEditor();
+                checkBox.setText(item.getName());
                 return editor;
             }
             case UNSPECIFIED:

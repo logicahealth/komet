@@ -14,6 +14,12 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.collections.NidSet;
 import sh.komet.gui.util.FxGet;
 
+/**
+ * 
+ * @author kec
+ * @deprecated Use PropertySheetItemConceptWrapper
+ */
+@Deprecated
 public class PropertySheetItemConceptNidWrapper implements ConceptSpecification, PropertySheet.Item {
 
    private final Manifold manifoldForDisplay;

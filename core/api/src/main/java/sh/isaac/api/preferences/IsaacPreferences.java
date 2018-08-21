@@ -32,6 +32,8 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeListener;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.util.PasswordHasher;
 
 /**
@@ -971,4 +973,37 @@ public interface IsaacPreferences {
         }
         return defaultPassword;
     }
+    
+    default Optional<ConceptSpecification> getConceptSpecification(Enum key) {
+        return getConceptSpecification(enumToGeneralKey(key));
+    }
+
+    default Optional<ConceptSpecification> getConceptSpecification(String key) {
+        Optional<String> spec = get(key);
+        if (spec.isPresent()) {
+            return Optional.of(new ConceptProxy(spec.get()));
+        }
+        return Optional.empty();
+    }
+    
+    default ConceptSpecification getConceptSpecification(Enum key, ConceptSpecification defaultValue) {
+        return getConceptSpecification(enumToGeneralKey(key), defaultValue);
+    }
+    
+    default ConceptSpecification getConceptSpecification(String key, ConceptSpecification defaultValue) {
+        Optional<String> spec = get(key);
+        if (spec.isPresent()) {
+            return new ConceptProxy(spec.get());
+        }
+        return defaultValue;
+    }
+        
+    default void putConceptSpecification(String key, ConceptSpecification defaultValue) {
+        put(key, defaultValue.toExternalString());
+    }
+    
+    default void putConceptSpecification(Enum key, ConceptSpecification defaultValue) {
+        put(enumToGeneralKey(key), defaultValue.toExternalString());
+    }
+
 }

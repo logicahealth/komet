@@ -34,6 +34,7 @@ public class RootPreferences extends AbstractPreferences {
             addChild("General", GeneralPreferences.class);
             addChild("Change sets", ChangeSetPreferences.class);
             addChild("User", UserPreferences.class);
+            addChild("Custom actions", AttachmentActionPreferences.class);
         }
         save();
 

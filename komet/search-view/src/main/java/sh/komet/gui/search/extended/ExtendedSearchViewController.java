@@ -86,6 +86,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import org.apache.lucene.search.RegexpQuery;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -1005,5 +1006,14 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
     @Override
     public void reindexCompleted(IndexQueryService index) {
         //noop
+    }
+
+    public TextField getSearchText() {
+        return searchText;
+    }
+    
+    private void regexSearch() {
+        //RegexpQuery regexQuery = new RegexpQuery(searchText.getText());
+                
     }
 }
