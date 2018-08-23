@@ -334,9 +334,8 @@ public class LookupService {
       //Read initial values from the Identifier service, which should be happy...  Reading the IdentifierService, since it happened
       //to be implemented by the BDB datastore, which is a level 0 (earliest started) service.
       final DataStoreStartState discoveredValidityValue = get().getService(IdentifierService.class).getDataStoreStartState();
-      final UUID discoveredDBId = get().getService(IdentifierService.class).getDataStoreId().get();
       
-      LOG.info("System starting with datastore in {} state, with an ID of {}", discoveredValidityValue, discoveredDBId);
+      LOG.info("System starting with datastore in {} state, with an ID of {}", discoveredValidityValue, get().getService(IdentifierService.class).getDataStoreId());
       if (discoveredValidityValue == DataStoreStartState.NOT_YET_CHECKED)
       {
          throw new RuntimeException("validateDatabaseFolderStatus should not be called prior to starting all DataStore services");
