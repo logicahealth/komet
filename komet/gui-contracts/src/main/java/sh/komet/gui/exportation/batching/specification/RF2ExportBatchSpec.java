@@ -78,7 +78,7 @@ public abstract class RF2ExportBatchSpec implements BatchSpecification<Chronolog
 
 
     String getTimeString(int stampNid){
-        return new SimpleDateFormat("YYYYMMd").format(new Date(Get.stampService().getTimeForStamp(stampNid)));
+        return new SimpleDateFormat("YYYYMMdd").format(new Date(Get.stampService().getTimeForStamp(stampNid)));
     }
 
     String getActiveString(int stampNid){
