@@ -29,24 +29,22 @@ public class Batcher<T, U> extends TimedTaskWithProgressTracker<List<U>> impleme
     @Override
     protected List<U> call() throws Exception {
 
-        final List<T> batch = new ArrayList<>();
+        List<T> batch = new ArrayList<>(this.batchSize);
         final List<Future<List<U>>> futures = new ArrayList<>();
         final List<U> returnList = new ArrayList<>();
 
         try {
-            this.batchSpecification.createItemListToBatch().stream()
-                    .forEach(t -> {
+            for (T t : this.batchSpecification.createItemListToBatch()) {
+                batch.add(t);
 
-                        batch.add(t);
+                if (batch.size() % this.batchSize == 0) {
 
-                        if( batch.size() % this.batchSize == 0){
-
-                            futures.add(Get.executor().submit(new BatchProcess<T, U>(
-                                    this.batchSpecification,
-                                    batch, batchSemaphore), new ArrayList<>()));
-                            batch.clear();
-                        }
-                    });
+                    futures.add(Get.executor().submit(new BatchProcess<T, U>(
+                            this.batchSpecification,
+                            batch, batchSemaphore), new ArrayList<>()));
+                    batch = new ArrayList<>(this.batchSize);
+                }
+            }
 
             futures.add(Get.executor().submit(new BatchProcess<T, U>(
                     this.batchSpecification,

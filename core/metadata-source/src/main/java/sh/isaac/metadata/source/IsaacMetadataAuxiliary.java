@@ -236,6 +236,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Generated administration of module");
                createConcept("SOLOR quality assurance rule module");
                createConcept("SOLOR automation rule module");
+               createConcept("SOLOR genomic module").addDescription("Collection of Variant and Gene", TermAux.DEFINITION_DESCRIPTION_TYPE);
 
                //The second UUID here was the old value from the TermAux - but this was an orphan.  to best fix the bug that resulted, 
                // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
@@ -323,7 +324,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
                loincBuilder.addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
-               createConcept("SRF2ID", "SOLOR RF2 Identifier").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("Retro ID", "SOLOR Retro Identifier").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("CLINVAR Variant Name").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("NCIB Gene ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("CLINVAR Allele ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("MIM Number").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
 
                popParent();
             createConcept("Language");

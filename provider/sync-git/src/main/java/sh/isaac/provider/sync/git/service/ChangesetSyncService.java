@@ -130,7 +130,7 @@ public class ChangesetSyncService {
 
             LOG.debug("Read {} repositories", remoteRepos.size());
 
-            final String changeSetRepo = "db-changesets-" + Get.conceptService().getDataStoreId().toString() + ".git";
+            final String changeSetRepo = "db-changesets-" + Get.conceptService().getDataStoreId().get().toString() + ".git";
 
             if (!remoteRepos.contains(changeSetRepo)) {
                LOG.debug("Creating remote repository {}", changeSetRepo);

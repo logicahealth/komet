@@ -8,4 +8,5 @@ public interface BatchSpecification<T, U> {
     String getReaderUIText();
     List<T> createItemListToBatch();
     String getFileName(String rootDirName);
+
 }

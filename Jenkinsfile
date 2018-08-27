@@ -11,10 +11,6 @@
 // tasks:4.52
 // junit-attachments:1.5
 // ws-cleanup:0.34
-//
-// By default this will execute 'mvn clean install' - if you wish to have this run a deploy instead, you need to specify 
-// a parameter named DEPLOY in jenkins -> configure system -> env variables.
-// You would specify the value as something like 'deploy -DaltDeploymentRepository=snapshotRepo::default::http://52.61.165.55:9092/nexus/content/repositories/snapshots/'
 
 pipeline {
 	agent any
@@ -30,7 +26,15 @@ pipeline {
 	}
 	stages {
 		stage('Build') {
+			//with a gitflow pattern, we can't build master multiple times, as you can't overwrite non-snapshot builds on nexus.
+			when { 
+				not { 
+					branch 'master' 
+				}
+			}
 			steps {
+				//by default, this runs mvn clean install.  If you want it to deploy, DEPLOY should be specified in jenkins -> configure system -> env variables
+				//Set it to something like 'deploy -DaltDeploymentRepository=snapshotRepo::default::http://52.61.165.55:9092/nexus/content/repositories/snapshots/'
 				sh "mvn clean $MVN_TASK"
 				openTasks high: 'FIXME', normal: 'TODO', pattern: '**/*.java'
 			}

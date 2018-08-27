@@ -51,6 +51,7 @@ import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.ContentStreamProvider;
 
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -243,6 +244,7 @@ public class DirectImporter
 
         HashMap<String, UUID> createdColumnConcepts = new HashMap<>();
         ConcurrentHashMap<Integer, Boolean> configuredDynamicSemantics = new ConcurrentHashMap<>();
+        HashMap<String, Set<String>> genomicGeneDescriptionsMap = new HashMap<>();
 
         LOG.info(builder.toString());
 
@@ -340,6 +342,18 @@ public class DirectImporter
 
                         case LOINC:
                             readLOINC(br, importSpecification);
+                            break;
+
+                        case VARIANT_SUMMARY:
+                            readVariantSummary(br,importSpecification, genomicGeneDescriptionsMap);
+                            break;
+
+                        case GENE_SPECIFIC_SUMMARY:
+                            genomicGeneDescriptionsMap = readGeneSpecificSummary(br,importSpecification);
+                            break;
+
+                        case GENE_CONDITION_SOURCE:
+                            readGeneConditionSource(br,importSpecification);
                             break;
 
                         default:
@@ -470,6 +484,21 @@ public class DirectImporter
             entriesToImport1.add(new ImportSpecification(
                     contentProvider,
                     ImportStreamType.LOINC,
+                    isSOLORReleaseFormat));
+        } else if(entryName.endsWith("variant_summary.txt")){
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.VARIANT_SUMMARY,
+                    isSOLORReleaseFormat));
+        } else if(entryName.endsWith("gene_specific_summary.txt")){
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.GENE_SPECIFIC_SUMMARY,
+                    isSOLORReleaseFormat));
+        }else if(entryName.endsWith("gene_condition_source_id.txt")){
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.GENE_CONDITION_SOURCE,
                     isSOLORReleaseFormat));
         }
 
@@ -1856,6 +1885,350 @@ public class DirectImporter
         updateMessage("Synchronizing relationship database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
+    }
+
+    private void readVariantSummary(BufferedReader br, ImportSpecification importSpecification,
+                                    HashMap<String, Set<String>> geneDescriptionMap)
+            throws IOException  {
+        ConceptService conceptService = Get.conceptService();
+        AssemblageService assemblageService = Get.assemblageService();
+
+        String rowString;
+        br.readLine();  // discard header row
+        HashSet<String> variantConceptSet = new HashSet<>();
+        HashMap<String, Set<String>> variantDescriptionMap = new HashMap<>();
+        HashMap<String, Set<String>> variantGeneRelationshipMap = new HashMap<>();
+        HashSet<String> geneConceptSet = new HashSet<>();
+
+
+        //Normalizing very repetitive CLINVAR data, seems to be designed for ease of research
+        while ((rowString = br.readLine()) != null) {
+            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+            //Apparently you can have a variant summary on an unknown, not yet created variant (e.g. ""/null)
+            if(!columns[1].equals("undetermined variant")) {
+                if(!columns[1].isEmpty() && !columns[2].isEmpty() && !columns[3].isEmpty()){
+
+                    variantConceptSet.add(columns[2]);
+                    geneConceptSet.add(columns[3]);
+
+                    if(!variantDescriptionMap.keySet().contains(columns[2])){
+                        Set<String> valueSet = new HashSet<>();
+                        valueSet.add("Clinvar Variant "+ columns[2]);
+                        variantDescriptionMap.put(columns[2], valueSet);
+                    }else{
+                        Set<String> value = variantDescriptionMap.get(columns[2]);
+                        value.add("Clinvar Variant "+ columns[2]);
+                    }
+
+                    if(!variantGeneRelationshipMap.keySet().contains(columns[2])){
+                        Set<String> valueSet = new HashSet<>();
+                        valueSet.add(columns[3]);
+                        variantGeneRelationshipMap.put(columns[2], valueSet);
+                    }else{
+                        Set<String> value = variantGeneRelationshipMap.get(columns[2]);
+                        value.add(columns[3]);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Writing variant and gene concepts
+         */
+        writeGenomicComponent(variantConceptSet, importSpecification, GenomicConceptType.VARIANT, 10240);
+
+        updateMessage("Waiting for Variant concepts file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing concept database...");
+        conceptService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+        writeGenomicComponent(geneConceptSet, importSpecification, GenomicConceptType.GENE, 10240);
+
+        updateMessage("Waiting for Genomic concepts file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing concept database...");
+        conceptService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+
+        /**
+         * Writing variant descriptions
+         */
+        writeGenomicDescriptions(variantDescriptionMap, importSpecification, GenomicConceptType.VARIANT, 10240);
+
+        updateMessage("Waiting for Variant description file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing description database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+        /**
+         * Writing gene descriptions
+         */
+        writeGenomicDescriptions(geneDescriptionMap, importSpecification, GenomicConceptType.GENE, 10240);
+
+        updateMessage("Waiting for Gene description file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing description database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+        /**
+         * Writing variant -> gene relationships
+         */
+        writeGenomicRelationships(variantGeneRelationshipMap, importSpecification, GenomicConceptType.VARIANT, 10240);
+
+        updateMessage("Waiting for Genomic relationship file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing relationship database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+    }
+
+    private void writeGenomicComponent(Set<String> genomicConcepts,
+                                       ImportSpecification importSpecification,
+                                       GenomicConceptType genomicConceptType,
+                                       int writeSize){
+
+        List<String> conceptsToWriteBatch = new ArrayList<>(writeSize);
+
+        for (String genomicConceptString : genomicConcepts) {
+            conceptsToWriteBatch.add(genomicConceptString);
+
+            if (conceptsToWriteBatch.size() % writeSize == 0) {
+
+                GenomicConceptWriter genomicConceptWriter = new GenomicConceptWriter(
+                        conceptsToWriteBatch,
+                        this.writeSemaphore,
+                        "Processing " + genomicConceptType.toString() + " concepts from: " + trimZipName(
+                                importSpecification.contentProvider.getStreamSourceName()),
+                        genomicConceptType);
+
+                Get.executor().submit(genomicConceptWriter);
+                conceptsToWriteBatch = new ArrayList<>(writeSize);
+            }
+        }
+
+        if(!conceptsToWriteBatch.isEmpty()){
+            GenomicConceptWriter genomicConceptWriter = new GenomicConceptWriter(
+                    conceptsToWriteBatch,
+                    this.writeSemaphore,
+                    "Processing " + genomicConceptType.toString() + " concepts from: " + trimZipName(
+                            importSpecification.contentProvider.getStreamSourceName()),
+                    genomicConceptType);
+
+            Get.executor().submit(genomicConceptWriter);
+        }
+    }
+
+
+    private void writeGenomicDescriptions(Map<String, Set<String>> genomicDescriptions,
+                                          ImportSpecification importSpecification,
+                                          GenomicConceptType genomicConceptType,
+                                          int writeSize){
+
+        Map<String, Set<String>> drescriptionMapsToWrite = new HashMap<>(writeSize);
+
+        for(Entry<String, Set<String>> entry : genomicDescriptions.entrySet()){
+            drescriptionMapsToWrite.put(entry.getKey(), entry.getValue());
+
+            if(drescriptionMapsToWrite.size() % writeSize == 0){
+                GenomicDescriptionWriter genomicDescriptionWriter = new GenomicDescriptionWriter(
+                        drescriptionMapsToWrite,
+                        this.writeSemaphore,
+                        "Processing " + genomicConceptType.toString() + " descriptions from: " + trimZipName(
+                                importSpecification.contentProvider.getStreamSourceName()),
+                        genomicConceptType);
+
+                Get.executor().submit(genomicDescriptionWriter);
+                drescriptionMapsToWrite = new HashMap<>(writeSize);
+            }
+        }
+
+        if(!drescriptionMapsToWrite.isEmpty()){
+            GenomicDescriptionWriter genomicDescriptionWriter = new GenomicDescriptionWriter(
+                    drescriptionMapsToWrite,
+                    this.writeSemaphore,
+                    "Processing " + genomicConceptType.toString() + " descriptions from: " + trimZipName(
+                            importSpecification.contentProvider.getStreamSourceName()),
+                    genomicConceptType);
+            Get.executor().submit(genomicDescriptionWriter);
+        }
+    }
+
+    private void writeGenomicRelationships(Map<String, Set<String>> genomicRelationships,
+                                          ImportSpecification importSpecification,
+                                          GenomicConceptType genomicConceptType,
+                                          int writeSize){
+
+        Map<String, Set<String>> relationshipMapsToWrite = new HashMap<>(writeSize);
+
+        for(Entry<String, Set<String>> entry : genomicRelationships.entrySet()){
+            relationshipMapsToWrite.put(entry.getKey(), entry.getValue());
+
+            if(relationshipMapsToWrite.size() % writeSize == 0){
+                GenomicRelationshipWriter genomicDescriptionWriter = new GenomicRelationshipWriter(
+                        relationshipMapsToWrite,
+                        this.writeSemaphore,
+                        "Processing " + genomicConceptType.toString() + " relationships from: " + trimZipName(
+                                importSpecification.contentProvider.getStreamSourceName()),
+                        genomicConceptType);
+
+                Get.executor().submit(genomicDescriptionWriter);
+                relationshipMapsToWrite = new HashMap<>(writeSize);
+            }
+        }
+
+        if(!relationshipMapsToWrite.isEmpty()){
+            GenomicRelationshipWriter genomicDescriptionWriter = new GenomicRelationshipWriter(
+                    relationshipMapsToWrite,
+                    this.writeSemaphore,
+                    "Processing " + genomicConceptType.toString() + " relationships from: " + trimZipName(
+                            importSpecification.contentProvider.getStreamSourceName()),
+                    genomicConceptType);
+            Get.executor().submit(genomicDescriptionWriter);
+        }
+    }
+
+    private HashMap<String, Set<String>> readGeneSpecificSummary(BufferedReader br, ImportSpecification importSpecification)
+            throws IOException {
+
+        AssemblageService assemblageService = Get.assemblageService();
+        ConceptService conceptService = Get.conceptService();
+
+
+        String rowString;
+        br.readLine();  // discard header row
+        HashMap<String, Set<String>> geneDescriptionMap = new HashMap<>();
+        HashSet<String> geneConceptSet = new HashSet<>();
+
+
+        while ((rowString = br.readLine()) != null) {
+            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+
+            if(!columns[0].isEmpty() && !columns[1].isEmpty()){
+
+                geneConceptSet.add(columns[1]);
+
+                if(!geneDescriptionMap.keySet().contains(columns[1])){
+                    Set<String> valueSet = new HashSet<>();
+                    valueSet.add(columns[0]);
+                    geneDescriptionMap.put(columns[1], valueSet);
+                }else{
+                    Set<String> value = geneDescriptionMap.get(columns[1]);
+                    value.add(columns[0]);
+                }
+            }
+        }
+
+        /**
+         * Writing remainder of gene concepts not found in variant_summary.txt
+         */
+        writeGenomicComponent(geneConceptSet, importSpecification, GenomicConceptType.GENE, 1024);
+
+        updateMessage("Waiting for Genomic concepts file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing concept database...");
+        conceptService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+        return geneDescriptionMap;
+    }
+
+    private void readGeneConditionSource(BufferedReader br, ImportSpecification importSpecification)
+            throws IOException {
+
+        String rowString;
+        br.readLine();  // discard header row
+        AssemblageService assemblageService = Get.assemblageService();
+        HashMap<String, Set<String>> geneSNOMEDRelationshipMap = new HashMap<>();
+
+        //Normalizing very repetitive CLINVAR data, seems to be designed for ease of research
+        while ((rowString = br.readLine()) != null) {
+            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+            //Apparently you can have a variant summary on an unknown, not yet created variant (e.g. ""/null)
+            if(!columns[0].isEmpty() && !columns[5].isEmpty() && !columns[6].isEmpty()){
+
+                if(columns[5].equals("SNOMED CT")) {
+                    if (!geneSNOMEDRelationshipMap.keySet().contains(columns[0])) {
+                        Set<String> valueSet = new HashSet<>();
+                        valueSet.add(columns[6]);
+                        geneSNOMEDRelationshipMap.put(columns[0], valueSet);
+                    } else {
+                        Set<String> value = geneSNOMEDRelationshipMap.get(columns[0]);
+                        value.add(columns[6]);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Writing gene -> snomed relationships
+         */
+        writeGenomicRelationships(geneSNOMEDRelationshipMap, importSpecification, GenomicConceptType.GENE_SNOMED, 1024);
+
+        updateMessage("Waiting for Genomic relationship file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing relationship database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+
+
     }
 
     public static String trimZipName(String zipName) {
