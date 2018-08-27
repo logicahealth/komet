@@ -636,6 +636,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("Action name");
                   createConcept(ObservableFields.ASSEMBLAGE_FOR_ACTION);
                   createConcept(ObservableFields.CONCEPT_CONSTRAINTS);
+                  createConcept(ObservableFields.VERSION_TYPE_FOR_ACTION);
                   popParent();
                createConcept("Coordinate properties");
                pushParent(current());

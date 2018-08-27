@@ -28,11 +28,14 @@ import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.model.observable.ObservableFields;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
+import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -44,8 +47,10 @@ public class ActionPanel extends AbstractPreferences {
 
     public enum Keys {
         ACTION_NAME,
+        VERSION_TYPE,
         ASSEMBLAGE,
-        SEMANTIC_FIELD_CONCEPTS
+        SEMANTIC_FIELD_CONCEPTS,
+        VERSION_TYPE_FOR_ACTION
     };
 
     private final HashMap<ConceptSpecification, PropertySheet.Item> propertySheetItemMap = new HashMap<>();
@@ -57,12 +62,16 @@ public class ActionPanel extends AbstractPreferences {
     private final SimpleObjectProperty<ConceptSpecification> assemblageForAction
             = new SimpleObjectProperty(this, MetaData.ASSEMBLAGE_FOR_ACTION____SOLOR.toExternalString());
 
+    private final SimpleObjectProperty<VersionType> versionTypeForAction
+            = new SimpleObjectProperty(this, ObservableFields.VERSION_TYPE_FOR_ACTION.toExternalString());
+
     private final SimpleObjectProperty<List<PropertySheet.Item>> itemListProperty = new SimpleObjectProperty<>(this, "item list property");
     {
         itemListProperty.addListener((observable, oldValue, newValue) -> {
             System.out.println("Item list changed: " + newValue);
         });
     }
+    
     public ActionPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(preferencesNode,
@@ -71,6 +80,7 @@ public class ActionPanel extends AbstractPreferences {
         revertFields();
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, actionName));
+        getItemList().add(new PropertySheetItemVersionTypeWrapper("Version type", VersionType.CONCEPT));
         PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(manifold, assemblageForAction);
         getItemList().add(conceptWrapper);
 
@@ -95,6 +105,7 @@ public class ActionPanel extends AbstractPreferences {
     @Override
     final void saveFields() throws BackingStoreException {
         getPreferencesNode().put(Keys.ACTION_NAME, actionName.get());
+        getPreferencesNode().put(Keys.VERSION_TYPE_FOR_ACTION, versionTypeForAction.get().name());
         getPreferencesNode().putConceptSpecification(Keys.ASSEMBLAGE, assemblageForAction.get());
         // For each field, save a list: default value first, then allowed values. 
         for (PropertySheet.Item item : itemListProperty.get()) {
@@ -120,6 +131,7 @@ public class ActionPanel extends AbstractPreferences {
     @Override
     final void revertFields() {
         this.actionName.set(getPreferencesNode().get(Keys.ACTION_NAME, getGroupName()));
+        this.versionTypeForAction.set(VersionType.valueOf(getPreferencesNode().get(Keys.VERSION_TYPE_FOR_ACTION, VersionType.CONCEPT.name())));
         this.assemblageForAction.set(getPreferencesNode().getConceptSpecification(Keys.ASSEMBLAGE, TermAux.ASSEMBLAGE));
         this.fieldConcepts.clear();
         for (String externalString : getPreferencesNode().getList(Keys.SEMANTIC_FIELD_CONCEPTS)) {

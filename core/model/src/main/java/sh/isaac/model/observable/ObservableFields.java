@@ -333,6 +333,7 @@ public enum ObservableFields
    
    SEMANTIC_FIELD_NAME("Semantic field name", "Field name"),
    ASSEMBLAGE_FOR_ACTION("Assemblage for action", "Assemblage for action"),
+   VERSION_TYPE_FOR_ACTION("Version type for action", "Version for action"),
    
    CONCEPT_CONSTRAINTS("Concept constraints"),
 ;

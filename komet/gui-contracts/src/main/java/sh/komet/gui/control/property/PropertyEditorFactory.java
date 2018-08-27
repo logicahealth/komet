@@ -21,6 +21,7 @@ import sh.komet.gui.control.concept.ConceptLabel;
 import sh.komet.gui.control.concept.ConceptForControlWrapper;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -42,6 +43,7 @@ import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.Status;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.isaac.model.statement.ResultImpl;
@@ -62,6 +64,7 @@ import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.control.measure.MeasureEditor;
 import sh.komet.gui.control.result.PropertySheetResultWrapper;
 import sh.komet.gui.control.result.ResultEditor;
+import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 
@@ -89,6 +92,8 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return Editors.createChoiceEditor(propertySheetItem, Status.makeActiveAndInactiveSet());
         } else if (propertySheetItem instanceof PropertySheetTextWrapper) {
             return Editors.createTextEditor(propertySheetItem);
+        } else if (propertySheetItem instanceof PropertySheetItemVersionTypeWrapper) {
+            return Editors.createChoiceEditor(propertySheetItem, Arrays.asList(VersionType.values()));
         } else if (propertySheetItem instanceof PropertySheetMeasureWrapper) {
             PropertySheetMeasureWrapper measureWrapper = (PropertySheetMeasureWrapper) propertySheetItem;
             MeasureEditor measureEditor = new MeasureEditor(manifoldForDisplay);
