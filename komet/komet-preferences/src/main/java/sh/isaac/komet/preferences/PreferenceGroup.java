@@ -18,7 +18,6 @@ package sh.isaac.komet.preferences;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
-import org.controlsfx.control.PropertySheet;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -36,7 +35,7 @@ public interface PreferenceGroup {
      * @param manifold
      * @return property sheet for editing properties in this group.
      */
-    PropertySheet getPropertySheet(Manifold manifold);
+    Node getCenterPanel(Manifold manifold);
 
     /**
      * 

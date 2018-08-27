@@ -83,7 +83,7 @@ public class KometPreferencesController implements Initializable {
             detailBorderPane.setRight(null);
         } else {
             TreeItem<PreferenceGroup> selectedItem = selectedItems.get(0);
-            detailBorderPane.setCenter(selectedItem.getValue().getPropertySheet(this.manifold));
+            detailBorderPane.setCenter(selectedItem.getValue().getCenterPanel(this.manifold));
             detailBorderPane.setTop(selectedItem.getValue().getTopPanel(this.manifold));
             detailBorderPane.setBottom(selectedItem.getValue().getBottomPanel(this.manifold));
             detailBorderPane.setLeft(selectedItem.getValue().getLeftPanel(this.manifold));
@@ -101,7 +101,7 @@ public class KometPreferencesController implements Initializable {
             detailBorderPane.setRight(null);
         } else {
             TreeItem<PreferenceGroup> selectedItem = selectedItems.get(0);
-            detailBorderPane.setCenter(selectedItem.getValue().getPropertySheet(this.manifold));
+            detailBorderPane.setCenter(selectedItem.getValue().getCenterPanel(this.manifold));
             detailBorderPane.setTop(selectedItem.getValue().getTopPanel(this.manifold));
             detailBorderPane.setBottom(selectedItem.getValue().getBottomPanel(this.manifold));
             detailBorderPane.setLeft(selectedItem.getValue().getLeftPanel(this.manifold));

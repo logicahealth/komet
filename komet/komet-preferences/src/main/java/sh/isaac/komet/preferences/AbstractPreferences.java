@@ -30,6 +30,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
+import javafx.scene.layout.BorderPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
@@ -53,12 +54,18 @@ public abstract class AbstractPreferences implements PreferenceGroup  {
     private final BooleanProperty initialized = new SimpleBooleanProperty(this, INITIALIZED.toString());
     private final BooleanProperty changed = new SimpleBooleanProperty(this, "changed", false);
     private final SimpleStringProperty groupNameProperty = new SimpleStringProperty(this, "group name");
-    private final List<PropertySheet.Item> itemList = FXCollections.observableArrayList();
+    private final ObservableList<PropertySheet.Item> itemList = FXCollections.observableArrayList(); 
+    {
+        itemList.addListener((ListChangeListener.Change<? extends PropertySheet.Item> c) -> {
+            makePropertySheet();
+        });
+    }
     private final Manifold manifold;
     protected final KometPreferencesController kpc;
     protected PreferencesTreeItem treeItem;
     private final Button revertButton = new Button("Revert");
     private final Button saveButton = new Button("Save");
+    private final BorderPane propertySheetBorderPane = new BorderPane();
     private PropertySheet propertySheet;
     {
         revertButton.setOnAction((event) -> {
@@ -173,7 +180,7 @@ public abstract class AbstractPreferences implements PreferenceGroup  {
         return itemList;
     }
     
-    private PropertySheet makePropertySheet() {
+    protected void makePropertySheet() {
         PropertySheet sheet = new PropertySheet();
         sheet.setMode(PropertySheet.Mode.NAME);
         sheet.setSearchBoxVisible(false);
@@ -188,16 +195,16 @@ public abstract class AbstractPreferences implements PreferenceGroup  {
                 });
             }
         }
-        return sheet;
+        this.propertySheetBorderPane.setCenter(sheet);
     }
     
     
     @Override
-    public final PropertySheet getPropertySheet(Manifold manifold) {
+    public final Node getCenterPanel(Manifold manifold) {
         if (this.propertySheet == null) {
-            this.propertySheet =  makePropertySheet();
+            makePropertySheet();
         }
-        return this.propertySheet;
+        return this.propertySheetBorderPane;
     }
     
     protected final void addProperty(ObservableValue<?> observableValue) {
