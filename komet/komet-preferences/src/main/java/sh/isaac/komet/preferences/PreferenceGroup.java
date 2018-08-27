@@ -16,6 +16,7 @@
  */
 package sh.isaac.komet.preferences;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import org.controlsfx.control.PropertySheet;
 import sh.komet.gui.manifold.Manifold;
@@ -39,24 +40,28 @@ public interface PreferenceGroup {
 
     /**
      * 
+     * @param manifold
      * @return possibly null panel
      */
     Node getRightPanel(Manifold manifold);
     
     /**
      * 
+     * @param manifold
      * @return possibly null panel
      */
     Node getTopPanel(Manifold manifold);
     
     /**
      * 
+     * @param manifold
      * @return possibly null panel
      */
     Node getBottomPanel(Manifold manifold);
     
     /**
      * 
+     * @param manifold
      * @return possibly null panel
      */
     Node getLeftPanel(Manifold manifold);
@@ -67,6 +72,8 @@ public interface PreferenceGroup {
      * preferences.
      */
     String getGroupName();
+    
+    SimpleStringProperty groupNameProperty();
     /**
      * Save preferences in group to preferences store
      */
@@ -82,4 +89,8 @@ public interface PreferenceGroup {
      * with default values. 
      */
     boolean initialized();
+    
+    PreferencesTreeItem getTreeItem();
+    
+    void setTreeItem(PreferencesTreeItem item);
 }

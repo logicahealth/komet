@@ -332,6 +332,9 @@ public enum ObservableFields
    CONCEPT_IS_ASSEMBLAGE("Concept is assemblage"),
    
    SEMANTIC_FIELD_NAME("Semantic field name", "Field name"),
+   ASSEMBLAGE_FOR_ACTION("Assemblage for action", "Assemblage for action"),
+   
+   CONCEPT_CONSTRAINTS("Concept constraints"),
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */

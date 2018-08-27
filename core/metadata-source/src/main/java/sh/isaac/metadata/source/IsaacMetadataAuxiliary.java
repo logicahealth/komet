@@ -197,16 +197,16 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                 createConcept(TermAux.MEMBERSHIP_SEMANTIC);
                 createConcept(TermAux.DYNAMIC_SEMANTIC);
-                createConcept(TermAux.CONCEPT_SEMANTIC).addComponentIntSemantic(TermAux.CONCEPT_FIELD, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
-                createConcept(TermAux.COMPONENT_SEMANTIC).addComponentIntSemantic(TermAux.COMPONENT_FIELD, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
-                createConcept(TermAux.LOGICAL_EXPRESSION_SEMANTIC).addComponentIntSemantic(TermAux.LOGICAL_EXPRESSION_FIELD, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
-                createConcept(TermAux.INTEGER_SEMANTIC).addComponentIntSemantic(TermAux.INTEGER_FIELD, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
-                createConcept(TermAux.STRING_SEMANTIC).addComponentIntSemantic(TermAux.STRING_FIELD, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
+                createConcept(TermAux.CONCEPT_SEMANTIC).addComponentIntSemantic(TermAux.CONCEPT_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
+                createConcept(TermAux.COMPONENT_SEMANTIC).addComponentIntSemantic(TermAux.COMPONENT_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
+                createConcept(TermAux.LOGICAL_EXPRESSION_SEMANTIC).addComponentIntSemantic(TermAux.LOGICAL_EXPRESSION_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
+                createConcept(TermAux.INTEGER_SEMANTIC).addComponentIntSemantic(TermAux.INTEGER_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
+                createConcept(TermAux.STRING_SEMANTIC).addComponentIntSemantic(TermAux.STRING_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.DESCRIPTION_SEMANTIC)
-                        .addComponentIntSemantic(TermAux.CONCEPT_FIELD, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
-                        .addComponentIntSemantic(TermAux.CONCEPT_FIELD, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
-                        .addComponentIntSemantic(TermAux.CONCEPT_FIELD, 3, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
-                        .addComponentIntSemantic(TermAux.STRING_FIELD, 4, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
+                        .addComponentIntSemantic(TermAux.CONCEPT_FIELD, 1, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
+                        .addComponentIntSemantic(TermAux.CONCEPT_FIELD, 2, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
+                        .addComponentIntSemantic(TermAux.CONCEPT_FIELD, 3, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
+                        .addComponentIntSemantic(TermAux.STRING_FIELD, 4, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 popParent();
             createConcept(TermAux.SEMANTIC_FIELD_TYPE);
             pushParent(current());
@@ -385,6 +385,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(TermAux.SEMANTIC_FIELD_CONCEPTS);
             createConcept(TermAux.ASSEMBLAGE);
             pushParent(current());
+               createConcept(TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                createConcept(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
                createConcept("Issue managment assemblage");
                pushParent(current());
@@ -503,9 +504,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept(TermAux.UNICODE_OPERATION_EVAL);
                 popParent();
             popParent();
-                
-                
-                
                 
             createConcept("Axiom origin");
             pushParent(current());
@@ -628,6 +626,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                popParent();
             createConcept("Object properties");
             pushParent(current());
+               createConcept("Action properties");
+               pushParent(current());
+                  createConcept("Action name");
+                  createConcept(ObservableFields.ASSEMBLAGE_FOR_ACTION);
+                  createConcept(ObservableFields.CONCEPT_CONSTRAINTS);
+                  popParent();
                createConcept("Coordinate properties");
                pushParent(current());
                   createConcept(AUTHOR_NID_FOR_EDIT_COORDINATE);

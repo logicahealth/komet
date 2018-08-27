@@ -62,7 +62,12 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         this.manifold = manifold;
         this.conceptSpecificationValue = (SimpleObjectProperty<ConceptSpecification>) wrapper.getObservableValue().get();
         this.conceptSpecificationValue.addListener(this::setButtonText);
-        this.menuButton.setText(manifold.getPreferredDescriptionText(wrapper.getValue()));
+        if (wrapper.getValue() != null) {
+            this.menuButton.setText(manifold.getPreferredDescriptionText(wrapper.getValue()));
+        } else {
+            this.menuButton.setText("Empty");
+        }
+        
         
         this.menuButton.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -155,7 +160,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);
-        Button addSelection = new Button("add");
+        Button addSelection = new Button("set");
         addSelection.setOnAction(this::setToFindSelection);
         ToolBar popOverToolbar = new ToolBar(addSelection);
         searchBorder.setTop(popOverToolbar);

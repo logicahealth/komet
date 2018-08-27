@@ -174,7 +174,10 @@ public interface ManifoldCoordinate
     * See {@link #getRegularName(ConceptSpecification)} for a method without this behavior.
     */
    default String getPreferredDescriptionText(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getPreferredDescriptionText(conceptSpec.getNid(), 
+       if (conceptSpec == null) {
+           return "empty";
+       }
+       return getLanguageCoordinate().getPreferredDescriptionText(conceptSpec.getNid(), 
               getStampCoordinate());
    }
    

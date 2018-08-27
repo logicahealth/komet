@@ -466,6 +466,7 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification UUID_FIELD = new ConceptProxy("UUID field", UUID.fromString("dea8cb0f-9bb5-56bb-af27-a14943cb24ba"));
     public static ConceptSpecification ASSEMBLAGE_SEMANTIC_FIELDS = new ConceptProxy("Semantic fields assemblage", "Semantic fields", UUID.fromString("ac6d947d-384e-5293-a3b8-5f0c318ee0f7"));
     public static ConceptSpecification SEMANTIC_FIELD_CONCEPTS = new ConceptProxy("Semantic field concepts", "Semantic field concepts", UUID.fromString("b4316cb8-14fe-5b32-b03b-f5f966c87819"));
+    public static ConceptSpecification SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE = new ConceptProxy("Semantic field data types assemblage", "Semantic data type", UUID.fromString("2fc4663f-c389-590e-9445-df02e277ddb1"));
 
 
 

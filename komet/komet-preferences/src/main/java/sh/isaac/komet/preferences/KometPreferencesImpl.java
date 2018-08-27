@@ -59,7 +59,7 @@ public class KometPreferencesImpl implements KometPreferences {
                 Parent root = loader.load();
                 this.kpc = loader.getController();
                 this.kpc.setManifold(manifold);
-                Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold);
+                Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold, kpc);
                 if (treeRoot.isPresent()) {
                     this.kpc.setRoot(treeRoot.get());
                 }

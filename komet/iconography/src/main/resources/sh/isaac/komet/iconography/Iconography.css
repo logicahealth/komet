@@ -919,3 +919,19 @@ limitations under the License.
    -glyph-size: 12; 
 }
 
+.arrow-up {
+   -glyph-name: "ARROW_UP";
+   -glyph-size: 22; 
+   -fx-label-padding: 0 0 0 15; 
+}
+
+.arrow-down {
+   -glyph-name: "ARROW_DOWN";
+   -glyph-size: 22; 
+   -fx-label-padding: 0 0 0 15;
+}
+
+.delete-trashcan {
+   -glyph-name: "DELETE_FOREVER";
+   -glyph-size: 22; 
+}

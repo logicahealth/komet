@@ -16,85 +16,110 @@
  */
 package sh.isaac.komet.preferences;
 
+import java.util.Optional;
+import java.util.Stack;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import sh.isaac.MetaData;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.component.concept.ConceptSpecification;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ToolBar;
+import javafx.scene.layout.VBox;
 import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
-import sh.isaac.model.observable.ObservableFields;
-import sh.komet.gui.control.PropertySheetTextWrapper;
-import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 /**
  * Attachment actions are provided by rules
- * 
- * Rules are stored in assemblages
- * 
- * One string semantic == 1 rule?
- * One membership semantic = 1 rule?
- * 
- * Attachments action rules may need to know: 
- *      Version type to show within
- * 
- *      Assemblage concept
- * 
- *      Does versioned component already have member in assemblage?
- *      Within assemblage semantic referencing component exists, and if so it's value
- * 
- *      Properties to edit (active, text, ...) (not for membership and string)
- * 
- *      if a concept property, provide a list with a default? A search? A create?
+ 
+ Rules are stored in assemblages
+ 
+ One string semantic == 1 rule?
+ One membership semantic = 1 rule?
+ 
+ Attachments action rules may need to know: 
+      Version type to show within
+ 
+      Assemblage concept
+ 
+      Does versioned component already have member in assemblageForAction?
+      Within assemblageForAction semantic referencing component exists, and if so it's value
+ 
+      Properties to edit (active, text, ...) (not for membership and string)
+ 
+      if a concept property, provide a list with a default? A search? A create?
  * 
  * @author kec
  */
 public class AttachmentActionPreferences extends AbstractPreferences {
+
     public enum Keys {
-        ACTION_NAME,
-        ASSEMBLAGE,
-        MODULE,
-        PATH
+        ACTION_ID_LIST
     };
-
-    private final SimpleStringProperty actionName
-            = new SimpleStringProperty(this, MetaData.ASSEMBLAGE_MEMBERSHIP_TYPE____SOLOR.toExternalString());
-
-    private final SimpleObjectProperty<ConceptSpecification> assemblage
-            = new SimpleObjectProperty(this, MetaData.ASSEMBLAGE_MEMBERSHIP_TYPE____SOLOR.toExternalString());
-
-    private final SimpleObjectProperty<ConceptSpecification> module
-            = new SimpleObjectProperty(this, MetaData.MODULE____SOLOR.toExternalString());
-
-    private final SimpleObjectProperty<ConceptSpecification> path
-            = new SimpleObjectProperty(this, MetaData.PATH____SOLOR.toExternalString());
-
-    public AttachmentActionPreferences(IsaacPreferences preferencesNode, Manifold manifold) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Custom actions"), manifold);
+    ObservableList<String> actionUuidList = FXCollections.observableArrayList();
+    Stack<PreferencesTreeItem> childrenToAdd = new Stack<>();
+    
+    
+    public AttachmentActionPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
+            KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Custom actions"), 
+                manifold, kpc);
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(manifold, actionName));
-        getItemList().add(new PropertySheetItemConceptWrapper(manifold, assemblage));
-        getItemList().add(new PropertySheetItemConceptWrapper(manifold, module));
-        getItemList().add(new PropertySheetItemConceptWrapper(manifold, path));
     }
-    
+     
     @Override
     void saveFields() throws BackingStoreException {
-        getPreferencesNode().put(Keys.ACTION_NAME, actionName.get());
-        getPreferencesNode().putConceptSpecification(Keys.ASSEMBLAGE, assemblage.get());
-        getPreferencesNode().putConceptSpecification(Keys.MODULE, module.get());
-        getPreferencesNode().putConceptSpecification(Keys.PATH, path.get());
+        getPreferencesNode().putList(Keys.ACTION_ID_LIST, actionUuidList);
     }
 
     @Override
     final void revertFields() {
-        actionName.set(getPreferencesNode().get(Keys.ACTION_NAME, "Action name"));
-        assemblage.set(getPreferencesNode().getConceptSpecification(Keys.ASSEMBLAGE, TermAux.ASSEMBLAGE));
-        module.set(getPreferencesNode().getConceptSpecification(Keys.MODULE, TermAux.SOLOR_OVERLAY_MODULE));
-        path.set(getPreferencesNode().getConceptSpecification(Keys.PATH, TermAux.DEVELOPMENT_PATH));
+        actionUuidList.clear();
+        actionUuidList.addAll(getPreferencesNode().getList(Keys.ACTION_ID_LIST));
+    }
+
+    @Override
+    public Node getTopPanel(Manifold manifold) {
+        Button addButton = new Button("Add");
+        addButton.setOnAction(this::newAction);
+        return  new ToolBar(addButton);
+    }
+    
+    private void newAction(ActionEvent action) {
+        UUID newUuid = UUID.randomUUID();
+        actionUuidList.add(newUuid.toString());
+        addActionPanel(newUuid);
+    }
+    
+    @Override
+    protected void addChildren() {
+        while (!childrenToAdd.empty()) {
+            getTreeItem().getChildren().add(childrenToAdd.pop());
+        }
+    }
+    
+    private void addActionPanel(UUID actionUuid) {
+        try {
+            IsaacPreferences actionPreferencesNode = getPreferencesNode().node(actionUuid.toString());
+            addChild(actionUuid.toString(), ActionPanel.class);
+            Optional<PreferencesTreeItem> optionalActionItem = PreferencesTreeItem.from(actionPreferencesNode,
+                    getManifold(), kpc);
+            if (getTreeItem() == null) {
+                childrenToAdd.push(optionalActionItem.get());
+            } else {
+                getTreeItem().getChildren().add(optionalActionItem.get());
+            }
+            
+            saveFields();
+        } catch (BackingStoreException ex) {
+            throw new RuntimeException(ex);
+        }
+       
     }
     
 }

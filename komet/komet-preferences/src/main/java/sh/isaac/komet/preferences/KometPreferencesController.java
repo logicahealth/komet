@@ -19,6 +19,7 @@ package sh.isaac.komet.preferences;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
@@ -73,11 +74,39 @@ public class KometPreferencesController implements Initializable {
     private void selectionChanged(ObservableValue<? extends TreeItem<PreferenceGroup>> observable,
              TreeItem<PreferenceGroup> oldValue,
              TreeItem<PreferenceGroup> newValue) {
-        detailBorderPane.setCenter(newValue.getValue().getPropertySheet(this.manifold));
-        detailBorderPane.setTop(newValue.getValue().getTopPanel(this.manifold));
-        detailBorderPane.setBottom(newValue.getValue().getBottomPanel(this.manifold));
-        detailBorderPane.setLeft(newValue.getValue().getLeftPanel(this.manifold));
-        detailBorderPane.setRight(newValue.getValue().getRightPanel(this.manifold));
+        ObservableList<TreeItem<PreferenceGroup>> selectedItems = preferenceTree.getSelectionModel().getSelectedItems();
+        if (selectedItems.isEmpty()) {
+            detailBorderPane.setCenter(null);
+            detailBorderPane.setTop(null);
+            detailBorderPane.setBottom(null);
+            detailBorderPane.setLeft(null);
+            detailBorderPane.setRight(null);
+        } else {
+            TreeItem<PreferenceGroup> selectedItem = selectedItems.get(0);
+            detailBorderPane.setCenter(selectedItem.getValue().getPropertySheet(this.manifold));
+            detailBorderPane.setTop(selectedItem.getValue().getTopPanel(this.manifold));
+            detailBorderPane.setBottom(selectedItem.getValue().getBottomPanel(this.manifold));
+            detailBorderPane.setLeft(selectedItem.getValue().getLeftPanel(this.manifold));
+            detailBorderPane.setRight(selectedItem.getValue().getRightPanel(this.manifold));
+        }
+    }
+
+    protected void updateDetail() {
+        ObservableList<TreeItem<PreferenceGroup>> selectedItems = preferenceTree.getSelectionModel().getSelectedItems();
+        if (selectedItems.isEmpty()) {
+            detailBorderPane.setCenter(null);
+            detailBorderPane.setTop(null);
+            detailBorderPane.setBottom(null);
+            detailBorderPane.setLeft(null);
+            detailBorderPane.setRight(null);
+        } else {
+            TreeItem<PreferenceGroup> selectedItem = selectedItems.get(0);
+            detailBorderPane.setCenter(selectedItem.getValue().getPropertySheet(this.manifold));
+            detailBorderPane.setTop(selectedItem.getValue().getTopPanel(this.manifold));
+            detailBorderPane.setBottom(selectedItem.getValue().getBottomPanel(this.manifold));
+            detailBorderPane.setLeft(selectedItem.getValue().getLeftPanel(this.manifold));
+            detailBorderPane.setRight(selectedItem.getValue().getRightPanel(this.manifold));
+        }
     }
 
     void setManifold(Manifold manifold) {

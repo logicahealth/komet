@@ -50,8 +50,10 @@ public final class UserPreferences extends AbstractPreferences {
     IntegerProperty userConceptNidProperty = new SimpleIntegerProperty(this, ObservableFields.KOMET_USER.toExternalString());
     SimpleListProperty<ConceptSpecification> userConceptOptions = new SimpleListProperty(this, ObservableFields.KOMET_USER_LIST.toExternalString(), FXCollections.observableArrayList());
     
-    public UserPreferences(IsaacPreferences preferencesNode, Manifold manifold) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "User"), manifold);
+    public UserPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
+            KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "User"), manifold, 
+                kpc);
         revertFields();
         save();
         int[] userConceptOptionNids = new int[userConceptOptions.size()];

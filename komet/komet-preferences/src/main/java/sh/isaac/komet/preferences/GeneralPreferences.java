@@ -38,8 +38,10 @@ public class GeneralPreferences extends AbstractPreferences {
     }
     private final BooleanProperty enableEdit = new SimpleBooleanProperty(this, ObservableFields.ENABLE_EDIT.toExternalString());
 
-    public GeneralPreferences(IsaacPreferences preferencesNode, Manifold manifold) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "General"), manifold);
+    public GeneralPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
+            KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "General"), manifold, 
+                kpc);
         this.enableEdit.setValue(preferencesNode.getBoolean(enableEdit.getName(), true));
         revertFields();
         save();

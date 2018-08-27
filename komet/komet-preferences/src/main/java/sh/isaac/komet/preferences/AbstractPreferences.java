@@ -22,8 +22,11 @@ import java.util.prefs.BackingStoreException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
@@ -48,23 +51,66 @@ public abstract class AbstractPreferences implements PreferenceGroup  {
    
     protected final IsaacPreferences preferencesNode;
     private final BooleanProperty initialized = new SimpleBooleanProperty(this, INITIALIZED.toString());
-    private final BooleanProperty changed = new SimpleBooleanProperty(this, INITIALIZED.toString(), false);
-    private final String groupName;
+    private final BooleanProperty changed = new SimpleBooleanProperty(this, "changed", false);
+    private final SimpleStringProperty groupNameProperty = new SimpleStringProperty(this, "group name");
     private final List<PropertySheet.Item> itemList = FXCollections.observableArrayList();
     private final Manifold manifold;
-    
+    protected final KometPreferencesController kpc;
+    protected PreferencesTreeItem treeItem;
+    private final Button revertButton = new Button("Revert");
+    private final Button saveButton = new Button("Save");
+    private PropertySheet propertySheet;
+    {
+        revertButton.setOnAction((event) -> {
+            revert();
+            changed.setValue(Boolean.FALSE);
+        });
+        revertButton.setDisable(changed.get());
+        saveButton.setOnAction((event) -> {
+            save();
+            changed.setValue(Boolean.FALSE);
+        });
+        saveButton.setDisable(changed.get());
+        changed.addListener((observable, oldValue, newValue) -> {
+            if (newValue == true) {
+                revertButton.setDisable(false);
+                saveButton.setDisable(false);
+            } else {
+                revertButton.setDisable(true);
+                saveButton.setDisable(true);
+            }
+        });
+    } 
+    ToolBar bottomBar = new ToolBar(revertButton, saveButton);
 
-    public AbstractPreferences(IsaacPreferences preferencesNode, String groupName, Manifold manifold) {
+    public AbstractPreferences(IsaacPreferences preferencesNode, String groupName, Manifold manifold, 
+            KometPreferencesController kpc) {
         this.preferencesNode = preferencesNode;
         this.initialized.setValue(preferencesNode.getBoolean(INITIALIZED, false));
-        this.groupName = groupName;
+        this.groupNameProperty.set(groupName);
         this.manifold = manifold;
-        
+        this.kpc = kpc;
+    }
+
+    @Override
+    public PreferencesTreeItem getTreeItem() {
+        return treeItem;
+    }
+
+    @Override
+    public void setTreeItem(PreferencesTreeItem treeItem) {
+        this.treeItem = treeItem;
+        addChildren();
+    }
+    
+    protected void addChildren() {
+        // Override if node adds children to tree. 
     }
 
     public IsaacPreferences getPreferencesNode() {
         return preferencesNode;
     }
+    
     @Override
     public final void save() {
         try {
@@ -81,14 +127,27 @@ public abstract class AbstractPreferences implements PreferenceGroup  {
         IsaacPreferences childNode = this.preferencesNode.node(childName);
         childNode.put(PROPERTY_SHEET_CLASS, childPreferencesClass.getName());
         List<String> childPreferences = this.preferencesNode.getList(CHILDREN_NODES);
-        childPreferences.add(childName);
+        if (!childPreferences.contains(childName)) {
+            childPreferences.add(childName);
+        }
+        
         this.preferencesNode.putList(CHILDREN_NODES, childPreferences);
     }
 
 
     @Override
     public final String getGroupName() {
-        return groupName;
+        return groupNameProperty.get();
+    }
+    
+    @Override
+    public final SimpleStringProperty groupNameProperty() {
+        return groupNameProperty;
+    }
+    
+
+    public final void setGroupName(String groupName) {
+        this.groupNameProperty.set(groupName);
     }
 
     @Override
@@ -114,15 +173,13 @@ public abstract class AbstractPreferences implements PreferenceGroup  {
         return itemList;
     }
     
-
-    @Override
-    public final PropertySheet getPropertySheet(Manifold manifold) {
-        PropertySheet propertySheet = new PropertySheet();
-        propertySheet.setMode(PropertySheet.Mode.NAME);
-        propertySheet.setSearchBoxVisible(false);
-        propertySheet.setModeSwitcherVisible(false);
-        propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
-        propertySheet.getItems().addAll(itemList);
+    private PropertySheet makePropertySheet() {
+        PropertySheet sheet = new PropertySheet();
+        sheet.setMode(PropertySheet.Mode.NAME);
+        sheet.setSearchBoxVisible(false);
+        sheet.setModeSwitcherVisible(false);
+        sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        sheet.getItems().addAll(itemList);
         for (PropertySheet.Item item: itemList) {
             Optional<ObservableValue<? extends Object>> observable = item.getObservableValue();
             if (observable.isPresent()) {
@@ -131,8 +188,32 @@ public abstract class AbstractPreferences implements PreferenceGroup  {
                 });
             }
         }
-        return propertySheet;
+        return sheet;
     }
+    
+    
+    @Override
+    public final PropertySheet getPropertySheet(Manifold manifold) {
+        if (this.propertySheet == null) {
+            this.propertySheet =  makePropertySheet();
+        }
+        return this.propertySheet;
+    }
+    
+    protected final void addProperty(ObservableValue<?> observableValue) {
+        changed.set(true);
+        observableValue.addListener((observable, oldValue, newValue) -> {
+            changed.set(true);
+        });      
+    }
+    protected final void addProperty(ObservableList observableList) {
+        changed.set(true);
+        observableList.addListener((ListChangeListener.Change c) -> {
+            changed.set(true);
+        });      
+    }
+    
+    
     protected PropertySheetItem createPropertyItem(Property<?> property) {
         PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifold, PropertySheetPurpose.DESCRIPTION_DIALECT);
         return wrappedProperty;
@@ -151,34 +232,16 @@ public abstract class AbstractPreferences implements PreferenceGroup  {
    
     @Override
     public final Node getBottomPanel(Manifold manifold) {
-        Button revertButton = new Button("Revert");
-        revertButton.setOnAction((event) -> {
-            revert();
-            changed.setValue(Boolean.FALSE);
-        });
-        revertButton.setDisable(true);
-        Button saveButton = new Button("Save");
-        saveButton.setOnAction((event) -> {
-            save();
-            changed.setValue(Boolean.FALSE);
-        });
-        saveButton.setDisable(true);
-        changed.addListener((observable, oldValue, newValue) -> {
-            if (newValue == true) {
-                revertButton.setDisable(false);
-                saveButton.setDisable(false);
-            } else {
-                revertButton.setDisable(true);
-                saveButton.setDisable(true);
-            }
-        });
-        ToolBar bottomBar = new ToolBar(revertButton, saveButton);
-        return bottomBar;
+        return this.bottomBar;
     }
 
     @Override
     public Node getRightPanel(Manifold manifold) {
         return null;
+    }
+
+    public Manifold getManifold() {
+        return manifold;
     }
  
 }

@@ -292,7 +292,7 @@ public class ConceptBuilderComponentPanel
                                 this.observableVersion.getPrimordialUuid(),
                                 TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid());
                         fieldAssociation.setNid1(fieldConcept.getNid());
-                        fieldAssociation.setInt2(1);
+                        fieldAssociation.setInt2(0);
                         fieldAssociation.setStatus(Status.ACTIVE);
                         fieldAssociation.setAuthorNid(this.observableVersion.getAuthorNid());
                         fieldAssociation.setModuleNid(this.observableVersion.getModuleNid());

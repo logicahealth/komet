@@ -65,6 +65,7 @@ import sh.isaac.api.AssemblageService;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;

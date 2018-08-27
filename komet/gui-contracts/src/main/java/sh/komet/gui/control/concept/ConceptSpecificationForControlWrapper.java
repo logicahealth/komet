@@ -34,6 +34,9 @@ public class ConceptSpecificationForControlWrapper
 
     //~--- constructors --------------------------------------------------------
     public ConceptSpecificationForControlWrapper(ConceptSpecification spec, Manifold manifold) {
+        if (spec == null) {
+            throw new NullPointerException("Spec cannot be null");
+        }
         this.manifold = manifold;
         this.spec = spec;
     }
@@ -60,6 +63,9 @@ public class ConceptSpecificationForControlWrapper
 
     @Override
     public int getNid() {
+        if (this.spec == null) {
+            System.out.println("Opps. This.spec is null...");
+        }
         return this.spec.getNid();
     }
 

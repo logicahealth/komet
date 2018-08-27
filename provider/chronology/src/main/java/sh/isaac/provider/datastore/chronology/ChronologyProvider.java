@@ -712,7 +712,7 @@ public class ChronologyProvider
     public int getAssemblageSizeOnDisk(int assemblageNid) {
         return store.getAssemblageSizeOnDisk(assemblageNid);
     }
-    
+
     //~--- inner classes -------------------------------------------------------
     /**
      * The Class ConceptSnapshotProvider.

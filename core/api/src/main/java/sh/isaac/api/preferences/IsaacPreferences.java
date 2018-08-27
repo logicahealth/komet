@@ -27,8 +27,6 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeListener;
@@ -911,7 +909,7 @@ public interface IsaacPreferences {
         for (int i = 0; i < list.size(); i++) {
             builder.append(list.get(i));
             if (i < list.size() - 1) {
-                builder.append("^");
+                builder.append("|!%|");
             }
         }
         put(key, builder.toString());
@@ -921,12 +919,32 @@ public interface IsaacPreferences {
         return getList(enumToGeneralKey(key));
     }
 
+    default List<String> getList(Enum key, List<String> defaultList) {
+        List<String> list = getList(enumToGeneralKey(key));
+        if (list.isEmpty()) {
+            return defaultList;
+        }
+        return list;
+    }
+
+    default List<String> getList(String key, List<String> defaultList) {
+        List<String> list = getList(key);
+        if (list.isEmpty()) {
+            return defaultList;
+        }
+        return list;
+    }
+
     default List<String> getList(String key) {
         Optional<String> value = get(key);
         if (value.isPresent()) {
             String strValue = value.get();
-            String[] elements = strValue.split("\\^");
-            return new ArrayList(Arrays.asList(elements));
+            if (strValue.equals("")) {
+               // nothing to do. 
+            } else {
+                String[] elements = strValue.split("\\|!%\\|");
+                return new ArrayList(Arrays.asList(elements));
+            }
         }
         return new ArrayList<>();
     }

@@ -59,8 +59,10 @@ public class ChangeSetPreferences extends AbstractPreferences {
     private final StringProperty gitUrl = new SimpleStringProperty(this, ObservableFields.GIT_URL.toExternalString());
     private final StringProperty localFolder = new SimpleStringProperty(this, ObservableFields.GIT_LOCAL_FOLDER.toExternalString());
 
-    public ChangeSetPreferences(IsaacPreferences preferencesNode, Manifold manifold) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Change sets"), manifold);
+    public ChangeSetPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
+            KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Change sets"), 
+                manifold, kpc);
         revertFields();
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, gitUserName));

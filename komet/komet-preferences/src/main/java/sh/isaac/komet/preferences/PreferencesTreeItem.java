@@ -20,8 +20,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.scene.control.TreeItem;
 import org.apache.logging.log4j.LogManager;
 import sh.isaac.api.preferences.IsaacPreferences;
@@ -41,32 +39,41 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup> {
     final IsaacPreferences preferences;
     
     private PreferencesTreeItem(PreferenceGroup value,
-            IsaacPreferences preferences, Manifold manifold) {
+            IsaacPreferences preferences, Manifold manifold, KometPreferencesController controller) {
         super(value);
         this.preferences = preferences;
         List<String> propertySheetChildren = preferences.getList(Properties.CHILDREN_NODES);
         for (String child: propertySheetChildren) {
-            Optional<PreferencesTreeItem> childTreeItem = from(preferences.node(child), manifold);
+            Optional<PreferencesTreeItem> childTreeItem = from(preferences.node(child), manifold, controller);
             if (childTreeItem.isPresent()) {
                 getChildren().add(childTreeItem.get());
+                childTreeItem.get().getValue().setTreeItem(childTreeItem.get());
             }
         }
+//        value.groupNameProperty().addListener((observable, oldValue, newValue) -> {
+//            
+//        });
     }
     
-    public static Optional<PreferencesTreeItem> from(IsaacPreferences preferences, Manifold manifold)  {
+    public static Optional<PreferencesTreeItem> from(IsaacPreferences preferences, 
+            Manifold manifold, KometPreferencesController controller)  {
         Optional<String> propertySheetClass = preferences.get(Properties.PROPERTY_SHEET_CLASS);
         if (propertySheetClass.isPresent()) {
             try {
                 Class preferencesSheetClass = Class.forName(propertySheetClass.get());
-                Constructor<PreferenceGroup> c = preferencesSheetClass.getConstructor(IsaacPreferences.class, Manifold.class);
-                PreferenceGroup preferencesSheet = c.newInstance(preferences, manifold); 
-                return Optional.of(new PreferencesTreeItem(preferencesSheet, preferences, manifold));
+                Constructor<PreferenceGroup> c = preferencesSheetClass.getConstructor(
+                        IsaacPreferences.class, 
+                        Manifold.class, 
+                        KometPreferencesController.class);
+                PreferenceGroup preferencesSheet = c.newInstance(preferences, manifold, controller); 
+                return Optional.of(new PreferencesTreeItem(preferencesSheet, preferences, 
+                        manifold, controller));
             } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
             }
         } else {
             preferences.put(Properties.PROPERTY_SHEET_CLASS, RootPreferences.class.getName());
-            return from(preferences, manifold);
+            return from(preferences, manifold, controller);
         }
         return Optional.empty();
     }
