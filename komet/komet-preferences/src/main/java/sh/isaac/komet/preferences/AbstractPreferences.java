@@ -23,10 +23,13 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.WeakListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
@@ -209,15 +212,15 @@ public abstract class AbstractPreferences implements PreferenceGroup  {
     
     protected final void addProperty(ObservableValue<?> observableValue) {
         changed.set(true);
-        observableValue.addListener((observable, oldValue, newValue) -> {
+        observableValue.addListener(new WeakChangeListener<>((observable, oldValue, newValue) -> {
             changed.set(true);
-        });      
+        }));      
     }
     protected final void addProperty(ObservableList observableList) {
         changed.set(true);
-        observableList.addListener((ListChangeListener.Change c) -> {
+        observableList.addListener(new WeakListChangeListener((ListChangeListener.Change c) -> {
             changed.set(true);
-        });      
+        }));      
     }
     
     
