@@ -22,7 +22,7 @@
                 <goal>-e</goal>
             </goals>
             <properties>
-                <Env.MAVEN_OPTS>-Xmx8g -Xms8g</Env.MAVEN_OPTS>
+                <Env.MAVEN_OPTS>-Xmx8g -Xms8g -ea</Env.MAVEN_OPTS>
             </properties>
         </action>
         <action>

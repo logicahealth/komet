@@ -129,7 +129,7 @@
       <plexus-utils.version>3.1.0</plexus-utils.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-      <drools.version>7.9.0.Final</drools.version>
+      <drools.version>7.10.0.Final</drools.version>
       <org.apache.lucene.version>7.2.1</org.apache.lucene.version>
       <xodus.version>1.1.0</xodus.version>
       <fontawesome.version>4.7.0-5</fontawesome.version>
