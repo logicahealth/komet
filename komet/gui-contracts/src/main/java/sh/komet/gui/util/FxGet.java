@@ -18,6 +18,7 @@ package sh.komet.gui.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.TreeMap;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -61,124 +62,119 @@ import sh.komet.gui.provider.StatusMessageProvider;
  */
 @Service
 @Singleton
-public class FxGet implements StaticIsaacCache
-{
-   private static DialogService DIALOG_SERVICE = null;
-   private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
-   private static StatusMessageProvider STATUS_MESSAGE_PROVIDER = null;
-   private static FxConfiguration FX_CONFIGURATION = null;
-   // TODO make SEARCHER_LIST behave like a normal lookup service. 
-   private static final List<GuiSearcher> SEARCHER_LIST = new ArrayList<>();
-   // TODO make SEARCHER_LIST behave like a normal lookup service. 
-   private static final List<GuiConceptBuilder> BUILDER_LIST = new ArrayList<>();
+public class FxGet implements StaticIsaacCache {
 
-   public static List<GuiSearcher> searchers() {
-       return SEARCHER_LIST;
-   }
-   public static List<GuiConceptBuilder> builders() {
-       return BUILDER_LIST;
-   }
-   public static DialogService dialogs() {
-      if (DIALOG_SERVICE == null) {
-         DIALOG_SERVICE = Get.service(DialogService.class);
-      }
-      return DIALOG_SERVICE;
-   }
+    private static DialogService DIALOG_SERVICE = null;
+    private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
+    private static StatusMessageProvider STATUS_MESSAGE_PROVIDER = null;
+    private static FxConfiguration FX_CONFIGURATION = null;
+    // TODO make SEARCHER_LIST behave like a normal lookup service. 
+    private static final List<GuiSearcher> SEARCHER_LIST = new ArrayList<>();
+    // TODO make SEARCHER_LIST behave like a normal lookup service. 
+    private static final List<GuiConceptBuilder> BUILDER_LIST = new ArrayList<>();
 
-   public static StatusMessageService statusMessageService() {
-      if (STATUS_MESSAGE_PROVIDER == null) {
-         STATUS_MESSAGE_PROVIDER = new StatusMessageProvider();
-      }
-      return STATUS_MESSAGE_PROVIDER;
-   }
+    public static List<GuiSearcher> searchers() {
+        return SEARCHER_LIST;
+    }
 
-   public static RulesDrivenKometService rulesDrivenKometService() {
-      if (RULES_DRIVEN_KOMET_SERVICE == null) {
-         RULES_DRIVEN_KOMET_SERVICE = Get.service(RulesDrivenKometService.class);
-      }
-      return RULES_DRIVEN_KOMET_SERVICE;
-   }
-   
-   public static FxConfiguration fxConfiguration() {
-         if (FX_CONFIGURATION == null) {
+    public static List<GuiConceptBuilder> builders() {
+        return BUILDER_LIST;
+    }
+
+    public static DialogService dialogs() {
+        if (DIALOG_SERVICE == null) {
+            DIALOG_SERVICE = Get.service(DialogService.class);
+        }
+        return DIALOG_SERVICE;
+    }
+
+    public static StatusMessageService statusMessageService() {
+        if (STATUS_MESSAGE_PROVIDER == null) {
+            STATUS_MESSAGE_PROVIDER = new StatusMessageProvider();
+        }
+        return STATUS_MESSAGE_PROVIDER;
+    }
+
+    public static RulesDrivenKometService rulesDrivenKometService() {
+        if (RULES_DRIVEN_KOMET_SERVICE == null) {
+            RULES_DRIVEN_KOMET_SERVICE = Get.service(RulesDrivenKometService.class);
+        }
+        return RULES_DRIVEN_KOMET_SERVICE;
+    }
+
+    public static FxConfiguration fxConfiguration() {
+        if (FX_CONFIGURATION == null) {
             FX_CONFIGURATION = new FxConfiguration();
-         }
-         return FX_CONFIGURATION;
-      }
+        }
+        return FX_CONFIGURATION;
+    }
 
-      public static KometPreferences kometPreferences() {
-         return Get.service(KometPreferences.class);
-      }
+    public static KometPreferences kometPreferences() {
+        return Get.service(KometPreferences.class);
+    }
 
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public void reset() {
-      DIALOG_SERVICE = null;
-      RULES_DRIVEN_KOMET_SERVICE = null;
-      STATUS_MESSAGE_PROVIDER = null;
-      FX_CONFIGURATION = null;
-   }
-   
-   public static PreferencesService preferenceService() {
-       return Get.service(PreferencesService.class);
-   }
-   
-   public static IsaacPreferences systemNode(Class<?> c) {
-       return preferenceService().getApplicationPreferences().node(c);
-   }
-   
-   public static IsaacPreferences userNode(Class<?> c) {
-       return preferenceService().getUserPreferences().node(c);
-   }
-   
-   public static IsaacPreferences applicationNode(Class<?> c) {
-       return preferenceService().getApplicationPreferences().node(c);
-   }
-   public static List<PropertySheet.Item> constraintPropertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, Manifold manifold) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reset() {
+        DIALOG_SERVICE = null;
+        RULES_DRIVEN_KOMET_SERVICE = null;
+        STATUS_MESSAGE_PROVIDER = null;
+        FX_CONFIGURATION = null;
+    }
+
+    public static PreferencesService preferenceService() {
+        return Get.service(PreferencesService.class);
+    }
+
+    public static IsaacPreferences systemNode(Class<?> c) {
+        return preferenceService().getApplicationPreferences().node(c);
+    }
+
+    public static IsaacPreferences userNode(Class<?> c) {
+        return preferenceService().getUserPreferences().node(c);
+    }
+
+    public static IsaacPreferences applicationNode(Class<?> c) {
+        return preferenceService().getApplicationPreferences().node(c);
+    }
+
+    public static List<PropertySheet.Item> constraintPropertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, Manifold manifold) {
         return propertyItemsForAssemblageSemantic(assemblageConcept, manifold, true);
-   }
+    }
+
     public static List<PropertySheet.Item> propertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, Manifold manifold) {
         return propertyItemsForAssemblageSemantic(assemblageConcept, manifold, false);
     }
+
     private static List<PropertySheet.Item> propertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, Manifold manifold, boolean forConstraints) {
         TreeMap<Integer, ConceptSpecification> fieldIndexToFieldConcept = new TreeMap<>();
         TreeMap<Integer, ConceptSpecification> fieldIndexToFieldDataType = new TreeMap<>();
         List<PropertySheet.Item> items = new ArrayList();
-        
-        NidSet assemblageSemanticType = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(assemblageConcept.getNid(), MetaData.SEMANTIC_TYPE____SOLOR.getNid());
-        if (!assemblageSemanticType.isEmpty()) {
-            int semanticTypeNid = assemblageSemanticType.asArray()[0];
-            // The semantic that points to the concept that defines the semantics of this assemblage
-            // TODO make this simpler by updating the API for snapshots?...
-            SemanticChronology  semanticTypePointer = Get.assemblageService().getSemanticChronology(semanticTypeNid);
-            LatestVersion<Version> latest = semanticTypePointer.getLatestVersion(manifold);
-            if (latest.isPresent()) { // eg "Concept Semantic (SOLOR)
-                ComponentNidVersion latestVersion = (ComponentNidVersion) latest.get();
-                int semanticConceptNid = latestVersion.getComponentNid();
-                NidSet semanticTypeOfFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(semanticConceptNid, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE.getNid());
-                for (int nid: semanticTypeOfFields.asArray()) { // one member, "Concept field": 1
-                    SemanticChronology  semanticTypeField = Get.assemblageService().getSemanticChronology(nid);
-                    LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(manifold);
-                    Nid1_Int2_Version latestSemanticTypeFieldVersion = (Nid1_Int2_Version) latestSemanticTypeField.get();
-                    fieldIndexToFieldDataType.put(latestSemanticTypeFieldVersion.getInt2(), Get.concept(latestSemanticTypeFieldVersion.getNid1()));
-                }
-                
-                NidSet assemblageSemanticFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(assemblageConcept.getNid(), MetaData.SEMANTIC_FIELDS_ASSEMBLAGE____SOLOR.getNid());
-                for (int nid: assemblageSemanticFields.asArray()) {
-                    SemanticChronology  semanticField = Get.assemblageService().getSemanticChronology(nid);
-                    LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(manifold);
-                    Nid1_Int2_Version latestSemanticFieldVersion = (Nid1_Int2_Version) latestSemanticField.get();
-                    fieldIndexToFieldConcept.put(latestSemanticFieldVersion.getInt2(), Get.concept(latestSemanticFieldVersion.getNid1()));
-                }
-            } else {
-                FxGet.statusMessageService().reportStatus("[2] Cannot find semantic type for " + Get.conceptDescriptionText(assemblageConcept.getNid()));
+        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageConcept, manifold);
+
+        if (optionalSemanticConceptNid.isPresent()) {
+            int semanticConceptNid = optionalSemanticConceptNid.getAsInt();
+            NidSet semanticTypeOfFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(semanticConceptNid, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE.getNid());
+            for (int nid : semanticTypeOfFields.asArray()) { // one member, "Concept field": 1
+                SemanticChronology semanticTypeField = Get.assemblageService().getSemanticChronology(nid);
+                LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(manifold);
+                Nid1_Int2_Version latestSemanticTypeFieldVersion = (Nid1_Int2_Version) latestSemanticTypeField.get();
+                fieldIndexToFieldDataType.put(latestSemanticTypeFieldVersion.getInt2(), Get.concept(latestSemanticTypeFieldVersion.getNid1()));
+            }
+
+            NidSet assemblageSemanticFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(assemblageConcept.getNid(), MetaData.SEMANTIC_FIELDS_ASSEMBLAGE____SOLOR.getNid());
+            for (int nid : assemblageSemanticFields.asArray()) {
+                SemanticChronology semanticField = Get.assemblageService().getSemanticChronology(nid);
+                LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(manifold);
+                Nid1_Int2_Version latestSemanticFieldVersion = (Nid1_Int2_Version) latestSemanticField.get();
+                fieldIndexToFieldConcept.put(latestSemanticFieldVersion.getInt2(), Get.concept(latestSemanticFieldVersion.getNid1()));
             }
         } else {
             FxGet.statusMessageService().reportStatus("Cannot find semantic type for " + Get.conceptDescriptionText(assemblageConcept.getNid()));
-        }       
-        
+        }
+
         for (int i = 0; i < fieldIndexToFieldConcept.size(); i++) {
             ConceptSpecification fieldConcept = fieldIndexToFieldConcept.get(i);
             ConceptSpecification fieldDataType = fieldIndexToFieldDataType.get(i);
@@ -186,56 +182,56 @@ public class FxGet implements StaticIsaacCache
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
                 if (forConstraints) {
                     items.add(new PropertySheetItemConceptConstraintWrapper(
-                            new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), manifold, manifold.getPreferredDescriptionText(fieldConcept))); 
+                            new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), manifold, manifold.getPreferredDescriptionText(fieldConcept)));
                 } else {
-                    items.add(new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid())); 
+                    items.add(new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()));
                 }
-                               
+
             } else if (fieldDataType.getNid() == MetaData.CONCEPT_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
                 if (forConstraints) {
                     items.add(new PropertySheetItemConceptConstraintWrapper(
-                            new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), manifold, manifold.getPreferredDescriptionText(fieldConcept))); 
+                            new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), manifold, manifold.getPreferredDescriptionText(fieldConcept)));
                 } else {
-                    items.add(new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid())); 
+                    items.add(new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()));
                 }
             } else if (fieldDataType.getNid() == MetaData.BOOLEAN_FIELD____SOLOR.getNid()) {
                 SimpleBooleanProperty property = new SimpleBooleanProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));  
+                items.add(new PropertySheetItem(property, manifold));
             } else if (fieldDataType.getNid() == MetaData.ARRAY_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));  
+                items.add(new PropertySheetItem(property, manifold));
             } else if (fieldDataType.getNid() == MetaData.BYTE_ARRAY_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));  
+                items.add(new PropertySheetItem(property, manifold));
             } else if (fieldDataType.getNid() == MetaData.DOUBLE_FIELD____SOLOR.getNid()) {
                 SimpleDoubleProperty property = new SimpleDoubleProperty(null, fieldConcept.toExternalString());
             } else if (fieldDataType.getNid() == MetaData.FLOAT_FIELD____SOLOR.getNid()) {
                 SimpleFloatProperty property = new SimpleFloatProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));  
+                items.add(new PropertySheetItem(property, manifold));
             } else if (fieldDataType.getNid() == MetaData.INTEGER_FIELD____SOLOR.getNid()) {
                 SimpleIntegerProperty property = new SimpleIntegerProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));  
+                items.add(new PropertySheetItem(property, manifold));
             } else if (fieldDataType.getNid() == MetaData.LOGICAL_EXPRESSION_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));                  
+                items.add(new PropertySheetItem(property, manifold));
             } else if (fieldDataType.getNid() == MetaData.LONG_FIELD____SOLOR.getNid()) {
                 SimpleLongProperty property = new SimpleLongProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));                  
+                items.add(new PropertySheetItem(property, manifold));
             } else if (fieldDataType.getNid() == MetaData.STRING_FIELD____SOLOR.getNid()) {
                 SimpleStringProperty property = new SimpleStringProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));                 
+                items.add(new PropertySheetItem(property, manifold));
             } else if (fieldDataType.getNid() == MetaData.POLYMORPHIC_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));                  
+                items.add(new PropertySheetItem(property, manifold));
             } else if (fieldDataType.getNid() == MetaData.UUID_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));  
+                items.add(new PropertySheetItem(property, manifold));
             }
         }
         return items;
-   }
-   
-   // GetProperties for assemblage... Add to general API?
-   // Leave property sheet in gui api. 
+    }
+
+    // GetProperties for assemblage... Add to general API?
+    // Leave property sheet in gui api. 
 }

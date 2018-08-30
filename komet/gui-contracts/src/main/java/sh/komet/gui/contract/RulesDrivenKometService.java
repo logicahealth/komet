@@ -23,6 +23,7 @@ import javafx.scene.control.MenuItem;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.action.Action;
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.BusinessRulesService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
@@ -35,7 +36,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Contract
-public interface RulesDrivenKometService {
+public interface RulesDrivenKometService extends BusinessRulesService {
    List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold, 
            LogicNode nodeToEdit, 
            LogicalExpression expressionContiningNode,

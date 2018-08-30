@@ -97,7 +97,7 @@ public final class ComponentPanel
             if (propertySheetMenuItem.isPresent()) {
                 this.addEditingPropertySheet(propertySheetMenuItem.get());
             } else {
-                System.err.println("Error: No property sheet editor for this uncommitted version...\n" + uncommittedVersion);
+                System.err.println("Error: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion);
             }
         }
 

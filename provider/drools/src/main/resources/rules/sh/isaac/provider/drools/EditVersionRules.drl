@@ -40,6 +40,7 @@ import sh.komet.gui.control.PropertyEditorType;
  *
  * @author kec
  */
+ 
 rule "Given a AddEditVersionMenuItems, with VersionType.CONCEPT, add editing options"
    lock-on-active true
 when
@@ -79,7 +80,7 @@ end
 rule "if property specification is PATH_NID_FOR_VERSION____SOLOR then"
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.PATH_NID_FOR_VERSION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.PATH_NID_FOR_VERSION____SOLOR)
 then
    $property.getAllowedValues().add(MetaData.MASTER_PATH____SOLOR);
    $property.getAllowedValues().add(MetaData.DEVELOPMENT_PATH____SOLOR);
@@ -89,7 +90,7 @@ end
 rule "if property specification is STATUS_FOR_VERSION____SOLOR then"
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.STATUS_FOR_VERSION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.STATUS_FOR_VERSION____SOLOR)
 then
    System.out.println("Add status capability");
 end
@@ -97,7 +98,7 @@ end
 rule "if property specification is MODULE_NID_FOR_VERSION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.MODULE_NID_FOR_VERSION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.MODULE_NID_FOR_VERSION____SOLOR)
 then
    $property.getAllowedValues().add(MetaData.SOLOR_MODULE____SOLOR);
    $property.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____SOLOR);
@@ -108,7 +109,7 @@ end
 rule "if property specification is DESCRIPTION_TYPE____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR)
 then
    $property.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
    $property.getAllowedValues().add(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR);
@@ -118,7 +119,7 @@ end
 rule "if property specification is CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR)
 then
    $property.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR);
    $property.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
@@ -128,7 +129,7 @@ end
 rule "if property specification is LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR)
 then
    $property.getAllowedValues().add(MetaData.ENGLISH_LANGUAGE____SOLOR);
    $property.getAllowedValues().add(MetaData.SPANISH_LANGUAGE____SOLOR);

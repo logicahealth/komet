@@ -16,9 +16,11 @@
  */
 package sh.isaac.provider.drools;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -38,6 +40,7 @@ import org.kie.api.builder.KieRepository;
 import org.kie.api.builder.Message.Level;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.StatelessKieSession;
+import sh.isaac.api.BusinessRulesResource;
 import sh.isaac.api.BusinessRulesService;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.LookupService;
@@ -66,7 +69,7 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     private StatelessKieSession kSession;
     private KieRepository kRepo;
     private KieFileSystem kfs;
-
+    private Path droolsPath;
     /**
      * Start me.
      */
@@ -77,18 +80,18 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
 
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
             Path folderPath = configurationService.getDataStoreFolderPath();
-            Path droolsPath = folderPath.resolve("drools");
+            this.droolsPath = folderPath.resolve("drools");
             Files.createDirectories(droolsPath);
             Files.copy(getClass().getResourceAsStream("/rules/sh/isaac/provider/drools/AddAttachmentRules.drl"),
-                    droolsPath.resolve("AddAttachmentRules.drl"));
+                    droolsPath.resolve("AddAttachmentRules.drl"), StandardCopyOption.REPLACE_EXISTING);
             Files.copy(getClass().getResourceAsStream("/rules/sh/isaac/provider/drools/EditLogicalExpressionRules.drl"),
-                    droolsPath.resolve("EditLogicalExpressionRules.drl"));
+                    droolsPath.resolve("EditLogicalExpressionRules.drl"), StandardCopyOption.REPLACE_EXISTING);
             Files.copy(getClass().getResourceAsStream("/rules/sh/isaac/provider/drools/EditVersionRules.drl"),
-                    droolsPath.resolve("EditVersionRules.drl"));
+                    droolsPath.resolve("EditVersionRules.drl"), StandardCopyOption.REPLACE_EXISTING);
             Files.copy(getClass().getResourceAsStream("/rules/sh/isaac/provider/drools/PopulateProperties.drl"),
-                    droolsPath.resolve("PopulateProperties.drl"));
+                    droolsPath.resolve("PopulateProperties.drl"), StandardCopyOption.REPLACE_EXISTING);
             Files.copy(getClass().getResourceAsStream("/META-INF/kmodule.xml"),
-                    droolsPath.resolve("kmodule.xml"));
+                    droolsPath.resolve("kmodule.xml"), StandardCopyOption.REPLACE_EXISTING);
             
             this.kieServices = KieServices.Factory.get();
             this.kRepo = this.kieServices.getRepository();
@@ -105,21 +108,41 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
             this.kfs.write("src/main/resources/rules/sh/isaac/provider/drools/PopulateProperties.drl", 
                     Files.readAllBytes(droolsPath.resolve("PopulateProperties.drl")));
             
-            KieBuilder kb = this.kieServices.newKieBuilder(kfs);
-            
-            kb.buildAll(); // kieModule is automatically deployed to KieRepository if successfully built.
-            if (kb.getResults().hasMessages(Level.ERROR)) {
-                throw new RuntimeException("Build Errors:\n" + kb.getResults().toString());
-            }
-            
-            this.kContainer = this.kieServices.newKieContainer(kRepo.getDefaultReleaseId());
-            
-            this.kSession = this.kContainer.newStatelessKieSession();
+            updateRules();
             
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
         
+    }
+
+    protected void updateRules() throws RuntimeException {
+        KieBuilder kb = this.kieServices.newKieBuilder(kfs);
+        
+        kb.buildAll(); // kieModule is automatically deployed to KieRepository if successfully built.
+        if (kb.getResults().hasMessages(Level.ERROR)) {
+            throw new RuntimeException("Build Errors:\n" + kb.getResults().toString());
+        }
+        
+        this.kContainer = this.kieServices.newKieContainer(kRepo.getDefaultReleaseId());
+        this.kSession = this.kContainer.newStatelessKieSession();
+    }
+
+    @Override
+    public void addResourcesAndUpdate(BusinessRulesResource... ruleResources) {
+        for (BusinessRulesResource resource: ruleResources) {
+            try {
+                int index = resource.getResourceLocation().lastIndexOf("/");
+                Files.copy(new ByteArrayInputStream(resource.getResourceBytes()),
+                        droolsPath.resolve(resource.getResourceLocation().substring(index + 1)), StandardCopyOption.REPLACE_EXISTING);
+                
+                this.kfs.write(resource.getResourceLocation(),
+                        resource.getResourceBytes());
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        updateRules();
     }
 
     /**

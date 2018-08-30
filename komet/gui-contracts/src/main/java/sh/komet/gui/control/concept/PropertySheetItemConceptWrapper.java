@@ -46,6 +46,7 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
     private final ObservableList<ConceptSpecification> allowedValues = FXCollections.observableArrayList();
     private final SimpleBooleanProperty allowSearchProperty = new SimpleBooleanProperty(this, "allow search", true);
     private final SimpleBooleanProperty allowHistoryProperty = new SimpleBooleanProperty(this, "allow history", true);
+    private ConceptSpecification propertySpecification = null;
 
     public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay,
             ObjectProperty<? extends ConceptSpecification> conceptProperty, int... allowedValues) {
@@ -162,6 +163,10 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
     public ConceptSpecificationForControlWrapper getValue() {
         return this.observableWrapper.get();
     }
+    
+    public void setDefaultValue(Object value) {
+        setValue(value);
+    }
 
     @Override
     public void setValue(Object value) {
@@ -187,13 +192,20 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
         return Optional.of(this.conceptProperty);
     }
 
-    public ConceptSpecification getPropertySpecification() {
+    public ConceptSpecification getSpecification() {
+        if (this.propertySpecification != null) {
+            return this.propertySpecification;
+        }
         return new ConceptProxy(this.conceptProperty.getName());
+    }
+
+    public void setSpecification(ConceptSpecification propertySpecification) {
+        this.propertySpecification = propertySpecification;
     }
 
     @Override
     public String toString() {
         return "Property sheet item for "
-                + manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptProperty.getName()));
+                + manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(getSpecification().toExternalString()));
     }
 }

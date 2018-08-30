@@ -43,6 +43,7 @@ package sh.isaac.api;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.Set;
@@ -50,7 +51,9 @@ import java.util.Set;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 
@@ -58,8 +61,11 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.observable.ObservableVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -308,5 +314,49 @@ public interface AssemblageService
      * @return disk space used in bytes
      */
     int getAssemblageSizeOnDisk(int assemblageConceptNid);
+    
+    /**
+     * 
+     * @param assemblageConcept
+     * @param stampCoordinate
+     * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage. 
+     */
+    default OptionalInt getSemanticTypeConceptForAssemblage(ConceptSpecification assemblageConcept, StampCoordinate stampCoordinate) {
+        return getSemanticTypeConceptForAssemblage(assemblageConcept.getNid(), stampCoordinate);
+    }
+    
+    /**
+     * 
+     * @param assemblageConceptNid
+     * @param stampCoordiante
+    * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage. 
+     */
+    default OptionalInt getSemanticTypeConceptForAssemblage(int assemblageConceptNid, StampCoordinate stampCoordiante) {
+        NidSet assemblageSemanticType = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.SEMANTIC_TYPE.getNid());
+        if (assemblageSemanticType.isEmpty()) {
+            return OptionalInt.empty();
+        }
+        SemanticChronology typeSemantic = getSemanticChronology(assemblageSemanticType.asArray()[0]);
+        LatestVersion<ComponentNidVersion> latestVersion = typeSemantic.getLatestVersion(stampCoordiante);
+        if (latestVersion.isPresent()) {
+            return OptionalInt.of(latestVersion.get().getComponentNid());
+        }
+        return OptionalInt.empty();
+    }
+    
+    default OptionalInt getPropertyIndexForSemanticField(int semanticFieldConceptNid, int assemblageConceptNid, StampCoordinate stampCoordiante) {
+        NidSet propertyIndexes = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid());
+        if (propertyIndexes.isEmpty()) {
+            return OptionalInt.empty();
+        }
+        for (int semanticNid: propertyIndexes.asArray()) {
+            SemanticChronology typeSemanticChronology = getSemanticChronology(semanticNid);
+            LatestVersion<Nid1_Int2_Version> latestVersion = typeSemanticChronology.getLatestVersion(stampCoordiante);
+            if (latestVersion.isPresent() && latestVersion.get().getNid1() == semanticFieldConceptNid) {
+                return OptionalInt.of(latestVersion.get().getInt2() + ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex());
+            }
+        }
+        return OptionalInt.empty();
+    }
 }
 

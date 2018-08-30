@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.OptionalInt;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ObjectProperty;
@@ -165,7 +166,16 @@ public class PropertySheetMenuItem
    //~--- get methods ---------------------------------------------------------
    private PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
            String nameForProperty) {
-      Object property = getPropertyMap().get(propertyConceptSpecification);
+      ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
+      if (property == null) {
+          int assemblageNid = observableVersion.getAssemblageNid();
+          OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
+                  propertyConceptSpecification.getNid(), 
+                  assemblageNid, manifold);
+          if (propertyIndex.isPresent()) {
+              property = observableVersion.getProperties().get(propertyIndex.getAsInt());
+          }
+      }
       ObjectProperty<ConceptSpecification> conceptProperty = null;
       if (property instanceof ObjectProperty) {
           conceptProperty = (ObjectProperty<ConceptSpecification>) property;
@@ -176,10 +186,12 @@ public class PropertySheetMenuItem
       if (conceptProperty == null) {
          throw new IllegalStateException("No property for: " + propertyConceptSpecification);
       }
-      return new PropertySheetItemConceptWrapper(
+      PropertySheetItemConceptWrapper item = new PropertySheetItemConceptWrapper(
               manifold,
               nameForProperty,
               conceptProperty);
+      item.setSpecification(propertyConceptSpecification);
+      return item;
    }
 
    private PropertySheetStatusWrapper getStatusProperty(ConceptSpecification propertyConceptSpecification,

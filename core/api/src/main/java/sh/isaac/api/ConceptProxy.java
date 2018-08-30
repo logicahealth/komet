@@ -86,6 +86,9 @@ public class ConceptProxy
     */
    public ConceptProxy() {
    }
+   public ConceptProxy(ConceptSpecification spec) {
+       this(spec.toExternalString());
+   }
 
    /**
     * Instantiates a new concept proxy.
