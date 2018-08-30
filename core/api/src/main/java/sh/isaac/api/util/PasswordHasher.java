@@ -136,14 +136,14 @@ public class PasswordHasher {
     */
    public static byte[] decrypt(char[] password, String encryptedData)
             throws Exception {
-      final long     startTime   = System.currentTimeMillis();
-      final String[] saltAndPass = encryptedData.split("\\-\\-\\-");
-
-      if (saltAndPass.length != 2) {
-         throw new Exception("Invalid encrypted data, can't find salt");
+      final long startTime   = System.currentTimeMillis();
+      final int splitPoint = encryptedData.indexOf("---");
+      if (splitPoint < 0) {
+         throw new Exception("Invalid encrypted data, can't find salt.  Data was " + encryptedData);
       }
 
-      final byte[] result = decrypt(password, Base64.getUrlDecoder().decode(saltAndPass[0]), saltAndPass[1]);
+      final byte[] result = decrypt(password, Base64.getUrlDecoder().decode(encryptedData.substring(0, splitPoint)), 
+            encryptedData.substring((splitPoint + 3), encryptedData.length()));
 
       LOG.debug("Decrypt Time {} ms", System.currentTimeMillis() - startTime);
       return result;
