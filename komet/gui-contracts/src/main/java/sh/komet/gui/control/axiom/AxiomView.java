@@ -797,7 +797,8 @@ public class AxiomView {
                     = FxGet.rulesDrivenKometService().getEditLogicalExpressionNodeMenuItems(
                             manifold,
                             logicNode,
-                            AxiomView.this.expression, this::updateExpressionForClauseView);
+                            AxiomView.this.expression, this::updateExpressionForClauseView,
+                            mouseEvent);
 
             if (!actionItems.isEmpty()) {
                 contextMenu.getItems().add(new SeparatorMenuItem());

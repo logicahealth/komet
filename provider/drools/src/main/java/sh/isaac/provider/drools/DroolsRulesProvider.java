@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseEvent;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
@@ -160,10 +161,11 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     public List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold,
             LogicNode nodeToEdit,
             LogicalExpression expressionContiningNode,
-            Consumer<LogicalExpression> expressionUpdater) {
+            Consumer<LogicalExpression> expressionUpdater, 
+            MouseEvent mouseEvent) {
         AddEditLogicalExpressionNodeMenuItems executionItem
                 = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit,
-                        expressionContiningNode, expressionUpdater);
+                        expressionContiningNode, expressionUpdater, mouseEvent);
         this.kSession.execute(executionItem);
         executionItem.sortActionItems();
         return executionItem.getActionItems();        
