@@ -20,15 +20,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ToolBar;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.util.Duration;
+import org.controlsfx.control.PopOver;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.ConcreteDomainOperators;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
@@ -38,14 +48,18 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.logic.node.internal.TypedNodeWithNids;
+import sh.komet.gui.contract.ConceptSearchNodeFactory;
+import sh.komet.gui.interfaces.ConceptExplorationNode;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
  * @author kec
  */
 public class AddEditLogicalExpressionNodeMenuItems {
+
     private static final String DELETE = "Delete";
 
     final List<Action> actionItems = new ArrayList<>();
@@ -53,15 +67,20 @@ public class AddEditLogicalExpressionNodeMenuItems {
     final LogicNode nodeToEdit;
     final LogicalExpressionImpl expressionContiningNode;
     final Consumer<LogicalExpression> expressionUpdater;
+    private PopOver popOver;
+    private ReadOnlyObjectProperty<ConceptSpecification> findSelectedConceptSpecification;
+    private MouseEvent mouseEvent;
 
     public AddEditLogicalExpressionNodeMenuItems(Manifold manifold,
             LogicNode nodeToEdit,
             LogicalExpression expressionContiningNode,
-            Consumer<LogicalExpression> expressionUpdater) {
+            Consumer<LogicalExpression> expressionUpdater,
+            MouseEvent mouseEvent) {
         this.manifold = manifold;
         this.nodeToEdit = nodeToEdit;
         this.expressionContiningNode = (LogicalExpressionImpl) expressionContiningNode;
         this.expressionUpdater = expressionUpdater;
+        this.mouseEvent = mouseEvent;
     }
 
     public void sortActionItems() {
@@ -75,10 +94,10 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 deleteFound.set(true);
                 return -1;
             }
-            
-            return o1.getText().toLowerCase().compareTo(o2.getText().toLowerCase()); 
+
+            return o1.getText().toLowerCase().compareTo(o2.getText().toLowerCase());
         });
-        
+
         if (deleteFound.get()) {
             for (int i = 0; i < actionItems.size(); i++) {
                 if (actionItems.get(i).getText().equalsIgnoreCase(DELETE)) {
@@ -87,12 +106,13 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 }
             }
         }
-        
+
     }
 
     public void addGenericRoleAction() {
         addRoleAction(MetaData.ROLE____SOLOR, MetaData.HEALTH_CONCEPT____SOLOR);
     }
+
     public List<Action> getActionItems() {
         return actionItems;
     }
@@ -161,11 +181,11 @@ public class AddEditLogicalExpressionNodeMenuItems {
             AndNode andNode = new AndNode(expressionContiningNode);
             RoleNodeSomeWithNids newRoleGroup = expressionContiningNode.SomeRole(MetaData.ROLE_GROUP____SOLOR.getNid(), andNode);
             this.nodeToEdit.addChildren(newRoleGroup);
-            
-            RoleNodeSomeWithNids newRole = expressionContiningNode.SomeRole(MetaData.ROLE____SOLOR.getNid(), expressionContiningNode.Concept(MetaData.HEALTH_CONCEPT____SOLOR.getNid()));          
-            
+
+            RoleNodeSomeWithNids newRole = expressionContiningNode.SomeRole(MetaData.ROLE____SOLOR.getNid(), expressionContiningNode.Concept(MetaData.HEALTH_CONCEPT____SOLOR.getNid()));
+
             andNode.addChildren(newRole);
-            
+
             this.expressionUpdater.accept(expressionContiningNode);
         });
         actionItems.add(addSufficientSetAction);
@@ -225,6 +245,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
             throw new IllegalStateException(this.nodeToEdit + " getNodeSemantic() == NodeSemantic.ROLE_SOME");
         }
     }
+
     public void changeFeatureTypeToRecentSelection() {
         if (this.nodeToEdit.getNodeSemantic() == NodeSemantic.FEATURE) {
 
@@ -268,6 +289,53 @@ public class AddEditLogicalExpressionNodeMenuItems {
             }
         } else {
             throw new IllegalStateException(this.nodeToEdit + " getNodeSemantic() == NodeSemantic.CONCEPT");
+        }
+    }
+
+    public void addSearchIsa() {
+        Action addIsaUsingSearch = new Action("Add is-a using new search selection...", (ActionEvent event) -> {
+            showFindIsaPopup();
+        });
+        actionItems.add(addIsaUsingSearch);
+    }
+
+    private void showFindIsaPopup() {
+        this.popOver = new PopOver();
+        this.popOver.getRoot().getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
+        this.popOver.getRoot().getStylesheets().add(Iconography.getStyleSheetStringUrl());
+        this.popOver.setCloseButtonEnabled(true);
+        this.popOver.setHeaderAlwaysVisible(false);
+        this.popOver.setTitle("");
+        this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
+        ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifold);
+        Node searchNode = searchExplorationNode.getNode();
+        this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
+        BorderPane searchBorder = new BorderPane(searchNode);
+        Button addSelection = new Button("set");
+        addSelection.setOnAction(this::setToFindSelection);
+        ToolBar popOverToolbar = new ToolBar(addSelection);
+        searchBorder.setTop(popOverToolbar);
+        searchBorder.setPrefSize(500, 400);
+        searchBorder.setMinSize(500, 400);
+        this.popOver.setContentNode(searchBorder);
+        this.popOver.show(mouseEvent.getPickResult().getIntersectedNode());
+        searchExplorationNode.focusOnInput();
+    }
+
+    private void setToFindSelection(ActionEvent event) {
+        if (this.popOver != null) {
+            this.popOver.hide(Duration.ZERO);
+        }
+        if (this.findSelectedConceptSpecification.get() != null) {
+            ConceptNodeWithNids newIsa = expressionContiningNode.Concept(this.findSelectedConceptSpecification.get());
+            for (LogicNode node : nodeToEdit.getChildren()) {
+                if (node.getNodeSemantic() == NodeSemantic.AND) {
+                    node.addChildren(newIsa);
+                    break;
+                }
+            }
+            this.expressionUpdater.accept(expressionContiningNode);
         }
     }
 
@@ -347,7 +415,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
         builder.append(" 0.0 ");
         builder.append(manifold.getPreferredDescriptionText(measureSemanticNid));
         Action addFeatureAction = new Action(builder.toString(), (ActionEvent event) -> {
-            FeatureNodeWithNids newRole = expressionContiningNode.Feature(typeNid, 
+            FeatureNodeWithNids newRole = expressionContiningNode.Feature(typeNid,
                     measureSemanticNid, operator, expressionContiningNode.FloatLiteral(0.0));
             for (LogicNode node : nodeToEdit.getChildren()) {
                 if (node.getNodeSemantic() == NodeSemantic.AND) {

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -35,6 +36,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.model.observable.ObservableFields;
 import sh.komet.gui.control.PropertyEditorType;
+import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
@@ -46,14 +48,19 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public class ActionPanel extends AbstractPreferences {
+public class AttachmentActionPanel extends AbstractPreferences {
 
     public enum Keys {
         ACTION_NAME,
         VERSION_TYPE,
         ASSEMBLAGE,
         SEMANTIC_FIELD_CONCEPTS,
-        VERSION_TYPE_FOR_ACTION
+        VERSION_TYPE_FOR_ACTION,
+        SHOW_STATUS,
+        SHOW_MODULE,
+        SHOW_PATH, 
+        SHOW_SEARCH,
+        SHOW_HISTORY
     };
 
     private final HashMap<ConceptSpecification, PropertySheet.Item> propertySheetItemMap = new HashMap<>();
@@ -69,15 +76,33 @@ public class ActionPanel extends AbstractPreferences {
             = new SimpleObjectProperty(this, ObservableFields.VERSION_TYPE_FOR_ACTION.toExternalString());
 
     private final SimpleObjectProperty<List<PropertySheet.Item>> itemListProperty = new SimpleObjectProperty<>(this, "item list property");
+    
+    private final SimpleBooleanProperty showStatusProperty = new SimpleBooleanProperty(this, "edit status", true);
+    
+    private final SimpleBooleanProperty showModuleProperty = new SimpleBooleanProperty(this, "edit module", true);
+    
+    private final SimpleBooleanProperty showPathProperty = new SimpleBooleanProperty(this, "edit path", true);
+    
+    private final SimpleBooleanProperty showSearchProperty = new SimpleBooleanProperty(this, "allow search", true);
+    
+    private final SimpleBooleanProperty showHistoryProperty = new SimpleBooleanProperty(this, "allow history", true);
+    
+    
 
-    public ActionPanel(IsaacPreferences preferencesNode, Manifold manifold,
+    public AttachmentActionPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(preferencesNode,
-                preferencesNode.get(Keys.ACTION_NAME, "action " + preferencesNode.name()),
+                preferencesNode.get(Keys.ACTION_NAME, "attachment action " + preferencesNode.name()),
                 manifold, kpc);
         revertFields();
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, actionNameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper("edit status", showStatusProperty));
+        getItemList().add(new PropertySheetBooleanWrapper("edit module", showModuleProperty));
+        getItemList().add(new PropertySheetBooleanWrapper("edit path", showPathProperty));
+        getItemList().add(new PropertySheetBooleanWrapper("allow search", showSearchProperty));
+        getItemList().add(new PropertySheetBooleanWrapper("allow history", showHistoryProperty));
+        
         getItemList().add(new PropertySheetItemVersionTypeWrapper("Version type", VersionType.CONCEPT));
         PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(manifold, assemblageForActionProperty);
         getItemList().add(conceptWrapper);
@@ -122,6 +147,12 @@ public class ActionPanel extends AbstractPreferences {
             semanticFieldConcepts.add(spec.toExternalString());
         }
         getPreferencesNode().putList(Keys.SEMANTIC_FIELD_CONCEPTS, semanticFieldConcepts);
+        getPreferencesNode().putBoolean(Keys.SHOW_HISTORY, this.showHistoryProperty.get());
+        getPreferencesNode().putBoolean(Keys.SHOW_MODULE, this.showModuleProperty.get());
+        getPreferencesNode().putBoolean(Keys.SHOW_PATH, this.showPathProperty.get());
+        getPreferencesNode().putBoolean(Keys.SHOW_SEARCH, this.showSearchProperty.get());
+        getPreferencesNode().putBoolean(Keys.SHOW_STATUS, this.showStatusProperty.get());
+
         // For each semantic field, read/write constraints 
         FxGet.rulesDrivenKometService().addResourcesAndUpdate(getBusinessRulesResources());
     }
@@ -146,6 +177,12 @@ public class ActionPanel extends AbstractPreferences {
                 throw new UnsupportedOperationException("Can't handle : " + item);
             }
         }
+        
+        this.showHistoryProperty.set(getPreferencesNode().getBoolean(Keys.SHOW_HISTORY, true));
+        this.showModuleProperty.set(getPreferencesNode().getBoolean(Keys.SHOW_MODULE, true));
+        this.showPathProperty.set(getPreferencesNode().getBoolean(Keys.SHOW_PATH, true));
+        this.showSearchProperty.set(getPreferencesNode().getBoolean(Keys.SHOW_SEARCH, true));
+        this.showStatusProperty.set(getPreferencesNode().getBoolean(Keys.SHOW_STATUS, true));
     }
 
     protected void readPropertySheetItemConceptContstraintWrapper(PropertySheet.Item item) {
@@ -221,7 +258,16 @@ public class ActionPanel extends AbstractPreferences {
                     .append(type.name())
                     .append(");\n");
         }
-
+        
+        if (showModuleProperty.get()) {
+            b.append("   propertySheetMenuItem.addPropertyToEdit(\"module\", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
+        }
+        if (showStatusProperty.get()) {
+            b.append("   propertySheetMenuItem.addPropertyToEdit(\"status\", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);\n");
+        }
+        if (showPathProperty .get()) {
+            b.append("   propertySheetMenuItem.addPropertyToEdit(\"path\", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
+        }
         b.append("end\n\n");
 
         for (ConceptSpecification fieldConcept : fieldConcepts) {
@@ -239,6 +285,9 @@ public class ActionPanel extends AbstractPreferences {
                 for (ConceptSpecification conceptSpec: conceptItem.getAllowedValues()) {
                     b.append("   $propertySheetItem.getAllowedValues().add(new ").append(new ConceptProxy(conceptSpec).toString()).append(");\n");
                 }
+                b.append("   $propertySheetItem.setAllowSearch(").append(Boolean.toString(showSearchProperty.get())).append(");\n");
+                b.append("   $propertySheetItem.setAllowHistory(").append(Boolean.toString(showHistoryProperty.get())).append(");\n");
+
                 b.append("end\n\n");
             }
 

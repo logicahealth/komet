@@ -332,6 +332,9 @@ public enum ObservableFields
    CONCEPT_IS_ASSEMBLAGE("Concept is assemblage"),
    
    SEMANTIC_FIELD_NAME("Semantic field name", "Field name"),
+   ASSEMBLAGE_FOR_CONSTRAINT("Assemblage for constraint", "Assemblage for constraint"),
+   ROLE_TYPE_TO_ADD("Role type to add", "Role type to add"),
+   
    ASSEMBLAGE_FOR_ACTION("Assemblage for action", "Assemblage for action"),
    VERSION_TYPE_FOR_ACTION("Version type for action", "Version for action"),
    

@@ -81,8 +81,8 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
             }
         });
         this.menuButton.widthProperty().addListener((observable, oldValue, newValue) -> {
-            fixedWidthFindSeperator.setWidth(newValue.doubleValue() - 18);
-            fixedWidthManifoldSeperator.setWidth(newValue.doubleValue() - 18);
+            fixedWidthFindSeperator.setWidth(newValue.doubleValue() - 16);
+            fixedWidthManifoldSeperator.setWidth(newValue.doubleValue() - 16);
         });
         this.menuButton.armedProperty().addListener((observable, oldValue, armed) -> {
             if (armed) {
@@ -93,12 +93,18 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
 
     protected final void addMenuItems(PropertySheetItemConceptWrapper wrapper, Manifold manifold1) {
         this.menuButton.getItems().clear();
+        for (ConceptSpecification allowedValue : wrapper.getAllowedValues()) {
+            ConceptMenuItem menuItem = new ConceptMenuItem(allowedValue, manifold1);
+            menuItem.setOnAction(this::handleAction);
+            this.menuButton.getItems().add(menuItem);
+        }
+        this.menuButton.getItems().add(fixedWidthFindSeperator);
         if (wrapper.allowSearch()) {
             findItem.setOnAction(this::showFindPopup);
             this.menuButton.getItems().add(findItem);
-            this.menuButton.getItems().add(fixedWidthFindSeperator);
         }
         if (wrapper.allowHistory()) {
+            this.menuButton.getItems().add(fixedWidthManifoldSeperator);
             for (String manifoldGroup : Manifold.getGroupNames()) {
                 Collection<HistoryRecord> groupHistory = Manifold.getGroupHistory(manifoldGroup);
                 if (!groupHistory.isEmpty()) {
@@ -112,12 +118,6 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
                     }
                 }
             }
-            this.menuButton.getItems().add(fixedWidthManifoldSeperator);
-        }
-        for (ConceptSpecification allowedValue : wrapper.getAllowedValues()) {
-            ConceptMenuItem menuItem = new ConceptMenuItem(allowedValue, manifold1);
-            menuItem.setOnAction(this::handleAction);
-            this.menuButton.getItems().add(menuItem);
         }
     }
     

@@ -117,7 +117,7 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
     }
 
     public void setAllowHistory(boolean allowHistory) {
-        this.allowHistoryProperty.get();
+        this.allowHistoryProperty.set(allowHistory);
     }
 
     @Override
