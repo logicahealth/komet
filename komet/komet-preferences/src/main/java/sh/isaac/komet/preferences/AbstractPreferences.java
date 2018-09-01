@@ -215,11 +215,11 @@ public abstract class AbstractPreferences implements PreferenceGroup  {
             changed.set(true);
         }));      
     }
-    protected final void addProperty(ObservableList observableList) {
+    protected final void addProperty(ObservableList<? extends Object> observableList) {
         changed.set(true);
-        observableList.addListener(new WeakListChangeListener((ListChangeListener.Change c) -> {
+        observableList.addListener(new WeakListChangeListener<Object>((ListChangeListener.Change<? extends Object> c) -> {
             changed.set(true);
-        }));      
+        }));
     }
     
     
