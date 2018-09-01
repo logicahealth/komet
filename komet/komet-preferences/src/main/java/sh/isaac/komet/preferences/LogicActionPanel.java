@@ -147,12 +147,12 @@ public class LogicActionPanel extends AbstractPreferences {
         b.append("\n");
         b.append("rule \"").append(actionNameProperty.get()).append("\"\n");
         b.append("when\n");
-        b.append("   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.").append("CONCEPT").append(")\n");
+        b.append("   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.NECESSARY_SET);\n");
         b.append("then\n");
-        b.append("   System.out.println(\"AddAttachmentMenuItems: \" + $addAttachmentToVersion);\n");
-        b.append("   PropertySheetMenuItem propertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem(\"")
-                .append(actionNameProperty.get())
-                .append("\", new ").append(new ConceptProxy(this.assemblageForConstraintProperty.get().toExternalString()).toString())
+        b.append("   $addEditLogicalNode.addRoleWithRestrictionsAction(new ")
+                .append(new ConceptProxy(roleTypeProperty.get()).toString())
+                .append(", new ")
+                .append(new ConceptProxy(this.assemblageForConstraintProperty.get()).toString())
                 .append(");\n");
 
         b.append("end\n\n");
