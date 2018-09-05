@@ -95,11 +95,17 @@ public class VersionFinder {
 
          final XPath xPath = XPathFactory.newInstance()
                                          .newXPath();
-         final String temp = ((Node) xPath.evaluate("/project/parent/version",
-                                                    dDoc,
-                                                    XPathConstants.NODE)).getTextContent();
-
-         LOG.debug("VersionFinder finds {} (for the version of this release of the converter library)", temp);
+         
+         String temp;
+         boolean fromParent = false;
+         try {
+            temp = ((Node) xPath.evaluate("/project/version", dDoc, XPathConstants.NODE)).getTextContent();
+         }
+         catch (Exception e) {
+            temp = ((Node) xPath.evaluate("/project/parent/version", dDoc, XPathConstants.NODE)).getTextContent();
+            fromParent = true;
+         }
+         LOG.debug("VersionFinder finds {} from {}", temp, (fromParent ? "parent pom" : "project pom"));
 
          // Parse 3.42-SNAPSHOT and turn it into '3.41', so we don't write content converters or db builders with SNAPSHOT
          // refs that won't be resolvable in AITC
