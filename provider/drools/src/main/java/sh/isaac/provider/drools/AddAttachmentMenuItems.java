@@ -22,16 +22,14 @@ import java.util.NoSuchElementException;
 import java.util.OptionalInt;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.scene.control.MenuItem;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -42,13 +40,14 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
  * @author kec
  */
 public class AddAttachmentMenuItems {
-    private static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
     final List<MenuItem> menuItems = new ArrayList<>();
     final Manifold manifold;
@@ -94,13 +93,13 @@ public class AddAttachmentMenuItems {
                 propertySheetMenuItem.prepareToExecute();
                 newAttachmentConsumer.accept(propertySheetMenuItem, assemblageSpecification);
             } catch (InterruptedException | ExecutionException ex) {
-                Logger.getLogger(AddAttachmentMenuItems.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.error(ex.getLocalizedMessage(), ex);
             }
         });
         menuItems.add(menuItem);
         return propertySheetMenuItem;
     }
-
+       
     protected SemanticChronology makeNewChronology(ConceptSpecification assemblageSpecification) throws NoSuchElementException, InterruptedException, IllegalStateException, ExecutionException {
         OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageSpecification, manifold);
         if (optionalSemanticConceptNid.isPresent()) {
@@ -111,7 +110,7 @@ public class AddAttachmentMenuItems {
                 SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getComponentSemanticBuilder(TermAux.UNINITIALIZED_COMPONENT_ID.getNid(),
                         this.categorizedVersion.getNid(),
                         assemblageSpecification.getNid());
-                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(manifold.getEditCoordinate(), ChangeCheckerMode.INACTIVE);
+                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(FxGet.editCoordinate(), ChangeCheckerMode.INACTIVE);
                 // this step does an add uncommitted...
                 SemanticChronology newChronology = buildTask.get();
                 return newChronology;
@@ -119,7 +118,7 @@ public class AddAttachmentMenuItems {
                 SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getLongSemanticBuilder(-1,
                         this.categorizedVersion.getNid(),
                         assemblageSpecification.getNid());
-                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(manifold.getEditCoordinate(), ChangeCheckerMode.INACTIVE);
+                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(FxGet.editCoordinate(), ChangeCheckerMode.INACTIVE);
                 // this step does an add uncommitted...
                 SemanticChronology newChronology = buildTask.get();
                 return newChronology;
@@ -127,7 +126,7 @@ public class AddAttachmentMenuItems {
                 SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getMembershipSemanticBuilder(
                         this.categorizedVersion.getNid(),
                         assemblageSpecification.getNid());
-                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(manifold.getEditCoordinate(), ChangeCheckerMode.INACTIVE);
+                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(FxGet.editCoordinate(), ChangeCheckerMode.INACTIVE);
                 // this step does an add uncommitted...
                 SemanticChronology newChronology = buildTask.get();
                 return newChronology;
@@ -135,7 +134,7 @@ public class AddAttachmentMenuItems {
                 SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getStringSemanticBuilder("",
                         this.categorizedVersion.getNid(),
                         assemblageSpecification.getNid());
-                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(manifold.getEditCoordinate(), ChangeCheckerMode.INACTIVE);
+                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(FxGet.editCoordinate(), ChangeCheckerMode.INACTIVE);
                 // this step does an add uncommitted...
                 SemanticChronology newChronology = buildTask.get();
                 return newChronology;
@@ -148,7 +147,7 @@ public class AddAttachmentMenuItems {
         SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getStringSemanticBuilder("",
                 this.categorizedVersion.getNid(),
                 assemblageSpecification.getNid());
-        OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(manifold.getEditCoordinate(), ChangeCheckerMode.INACTIVE);
+        OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(FxGet.editCoordinate(), ChangeCheckerMode.INACTIVE);
         // this step does an add uncommitted...
         SemanticChronology newChronology = buildTask.get();
         return newChronology;

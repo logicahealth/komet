@@ -486,6 +486,9 @@ public abstract class ObservableChronologyImpl
                } else if (finalAlignmentMap.containsKey(version)) {
                   VersionImpl updateVersion = finalAlignmentMap.get(version).iterator().next().getVersion();
                   observableVersion.updateVersion(updateVersion);
+               } else if (oldVersionNewVersionMap.containsKey(version)) {
+                   VersionImpl updateVersion = oldVersionNewVersionMap.get(version);
+                   observableVersion.updateVersion(updateVersion);
                } else {
                    if (observableVersion.getCommitState() == CommitStates.CANCELED) {
                        // OK, canceled content 

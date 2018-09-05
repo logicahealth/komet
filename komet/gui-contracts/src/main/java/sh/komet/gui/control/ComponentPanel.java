@@ -97,6 +97,9 @@ public final class ComponentPanel
             if (propertySheetMenuItem.isPresent()) {
                 this.addEditingPropertySheet(propertySheetMenuItem.get());
             } else {
+//                if (uncommittedVersion.getAuthorNid() == ) {
+//                    
+//                }
                 System.err.println("Error: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion);
             }
         }

@@ -295,7 +295,7 @@ public class TreeTableGeneralCell
 
     private void commitEdit(ActionEvent event) {
         CommitTask commitTask = Get.commitService().commit(
-                this.manifold.getEditCoordinate(),
+                FxGet.editCoordinate(),
                 "No comment",
                 this.mutableVersion);
         Get.executor().execute(() -> {
@@ -323,7 +323,7 @@ public class TreeTableGeneralCell
             if (this.semanticVersion != null) {
                 if (this.semanticVersion instanceof ObservableVersion) {
                     ObservableVersion currentVersion = (ObservableVersion) this.semanticVersion;
-                    mutableVersion = currentVersion.makeAutonomousAnalog(this.manifold.getEditCoordinate());
+                    mutableVersion = currentVersion.makeAutonomousAnalog(FxGet.editCoordinate());
 
                     List<Property<?>> propertiesToEdit = mutableVersion.getEditableProperties();
                     PropertySheet propertySheet = new PropertySheet();

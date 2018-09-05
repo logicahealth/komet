@@ -380,6 +380,10 @@ public class Get
 
       return "No desc for: " + conceptNid;
    }
+   
+   public static String conceptDescriptionText(ConceptSpecification conceptSpec) {
+       return conceptDescriptionText(conceptSpec.getNid());
+   }
 
    /**
     * Concept description text list.

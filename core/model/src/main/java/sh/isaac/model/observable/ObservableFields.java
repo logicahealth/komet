@@ -66,8 +66,17 @@ public enum ObservableFields
    /** The module nid for edit coordinate. */
    MODULE_NID_FOR_EDIT_COORDINATE("Module nid for edit coordinate", "Module nid for edit coordinate"),
 
+   /** The module nid for edit coordinate. */
+   MODULE_OPTIONS_FOR_EDIT_COORDINATE("Module options for edit coordinate", "Module options for edit coordinate"),
+
+   MODULE_FOR_USER("Module for user", "Module for user"),
+
    /** The path nid for edit coordinate. */
    PATH_NID_FOR_EDIT_CORDINATE("Path nid for edit cordinate", "Path nid for edit cordinate"),
+
+   PATH_OPTIONS_FOR_EDIT_COORDINATE("Path options for edit cordinate", "Path options for edit cordinate"),
+   
+   PATH_FOR_USER("Path for user", "Path for user"),
 
    /** The language nid for language coordinate. */
    LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("Language nid for language coordinate", "Language nid for language coordinate"),

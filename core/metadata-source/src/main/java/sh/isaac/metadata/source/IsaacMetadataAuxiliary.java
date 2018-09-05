@@ -120,7 +120,9 @@ import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DESCRIPTION;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DIALECT;
 import static sh.isaac.model.observable.ObservableFields.MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.MODULE_OPTIONS_FOR_EDIT_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.NATIVE_ID_FOR_COMPONENT;
+import static sh.isaac.model.observable.ObservableFields.PATH_OPTIONS_FOR_EDIT_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.UUID_LIST_FOR_COMPONENT;
 
 //~--- classes ----------------------------------------------------------------
@@ -263,6 +265,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                createConcept(TermAux.KEITH_CAMPBELL);
                createConcept(TermAux.DELOITTE_USER);
+               createConcept("Bootstrap administrator", "admin");
                popParent();
             createConcept(TermAux.PATH);
             pushParent(current());
@@ -644,7 +647,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(AUTHOR_NID_FOR_EDIT_COORDINATE);
                   createConcept(MODULE_NID_FOR_EDIT_COORDINATE);
+                  createConcept(MODULE_OPTIONS_FOR_EDIT_COORDINATE);
                   createConcept(PATH_NID_FOR_EDIT_CORDINATE);
+                  createConcept(PATH_OPTIONS_FOR_EDIT_COORDINATE);
                   createConcept(LANGUAGE_NID_FOR_LANGUAGE_COORDINATE);
                   createConcept(DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE);
                   createConcept(MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE);
@@ -722,6 +727,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.ENABLE_EDIT);
                   createConcept(ObservableFields.KOMET_USER);
                   createConcept(ObservableFields.KOMET_USER_LIST);
+                  createConcept(ObservableFields.MODULE_FOR_USER);
+                  createConcept(ObservableFields.PATH_FOR_USER);
                   popParent();
                createConcept("Semantic properties");
                pushParent(current());

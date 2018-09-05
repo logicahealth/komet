@@ -242,17 +242,6 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         return ft;
     }
 
-    private void cancel(Event event) {
-        builderToolbar.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
-        builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
-        builderBorderPane.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
-        builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
-
-        builderToolbar.getItems().clear();
-        builderToolbar.getItems().addAll(newConceptButton);
-        componentPanelBox.getChildren().clear();
-    }
-
     private void commit(Event event) {
         ObservableVersion[] versionsToCommit;
         try {
@@ -261,8 +250,8 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
             // TODO alert user that content is not sufficiently formed to submit for commit. 
             FxGet.dialogs().showErrorDialog("Error during commit", ex);
             return;
-        }
-        CommitTask commitTask = Get.commitService().commit(manifold.getEditCoordinate(), "", versionsToCommit);
+        } 
+        CommitTask commitTask = Get.commitService().commit(FxGet.editCoordinate(), "", versionsToCommit);
         Get.executor().execute(() -> {
             try {
                 Optional<CommitRecord> commitRecord = commitTask.get();
@@ -273,9 +262,25 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         });
     }
 
+
+    private void cancel(Event event) {
+        builderToolbar.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+        builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+        builderBorderPane.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+        builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+
+        builderToolbar.getItems().clear();
+        builderToolbar.getItems().addAll(newConceptButton);
+        componentPanelBox.getChildren().clear();
+    }
     private void completeCommit(CommitTask commitTask, Optional<CommitRecord> commitRecord) {
         if (commitRecord.isPresent()) {
             Platform.runLater(() -> {
+                builderToolbar.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+                builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+                builderBorderPane.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+                builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+
                 builderToolbar.getItems().clear();
                 builderToolbar.getItems().addAll(newConceptButton);
                 componentPanelBox.getChildren().clear();

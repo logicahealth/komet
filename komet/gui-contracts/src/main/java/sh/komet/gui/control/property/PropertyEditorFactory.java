@@ -42,6 +42,7 @@ import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -163,13 +164,25 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                 PropertyEditor editor = Editors.createChoiceEditor(item, collection);
                 ComboBox editorControl = (ComboBox) editor.getEditor();
                 editorControl.setMaxWidth(Double.MAX_VALUE);
-                ConceptSpecification defaultConcept = (ConceptSpecification) item.getDefaultValue();
-                ConceptSpecification currentValue = (ConceptSpecification) item.getValue();
+                Object defaultValue = item.getDefaultValue();
+                ConceptSpecification defaultConcept;
+                if (defaultValue instanceof ConceptSpecification) {
+                    defaultConcept = (ConceptSpecification) defaultValue;
+                } else {
+                    defaultConcept = Get.conceptSpecification((Integer) defaultValue);
+                }
+                Object currentValue = item.getValue();
+
                 if (currentValue == null) {
                     editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, defaultConcept.getNid()));
                 } else {
-
-                    editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, currentValue.getNid()));
+                    ConceptSpecification currentConcept;
+                    if (currentValue instanceof ConceptSpecification) {
+                        currentConcept = (ConceptSpecification) currentValue;
+                    } else {
+                        currentConcept = Get.conceptSpecification((Integer) currentValue);
+                    }
+                    editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, currentConcept.getNid()));
                 }
                 return editor;
             }
@@ -223,7 +236,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                     Collection<HistoryRecord> groupHistory = Manifold.getGroupHistory(manifoldGroup);
                     for (HistoryRecord record : groupHistory) {
                         MenuItem conceptItem = new MenuItem(
-                            manifoldForDisplay.getPreferredDescriptionText(record.getComponentId())
+                                manifoldForDisplay.getPreferredDescriptionText(record.getComponentId())
                         );
                         conceptItem.setOnAction((ActionEvent event) -> {
                             label.setValue(record.getComponentId());

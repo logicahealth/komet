@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.TreeMap;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
@@ -29,6 +28,8 @@ import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javax.inject.Singleton;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
@@ -40,8 +41,8 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
+import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.komet.gui.contract.DialogService;
@@ -53,6 +54,7 @@ import sh.komet.gui.contract.StatusMessageService;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.PropertySheetItem;
+import sh.komet.gui.control.property.SessionProperty;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.provider.StatusMessageProvider;
 
@@ -234,4 +236,16 @@ public class FxGet implements StaticIsaacCache {
 
     // GetProperties for assemblage... Add to general API?
     // Leave property sheet in gui api. 
+    
+    public static Subject subject() {
+        return SecurityUtils.getSubject();
+    }
+    
+    public static ConceptSpecification currentUser() {
+        return (ConceptSpecification) SecurityUtils.getSubject().getSession().getAttribute(SessionProperty.USER_SESSION_CONCEPT);
+    }
+    
+    public static ObservableEditCoordinate editCoordinate() {
+        return (ObservableEditCoordinate) SecurityUtils.getSubject().getSession().getAttribute(SessionProperty.EDIT_COORDINATE);
+    }
 }

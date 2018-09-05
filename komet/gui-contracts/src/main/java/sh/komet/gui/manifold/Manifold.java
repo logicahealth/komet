@@ -318,6 +318,14 @@ public class Manifold
       return conceptSnapshotProperty.get();
    }
 
+   /**
+    * 
+    * @return
+    * @deprecated we need to associate the edit coordinate with an authenticated 
+    * session. For the FX gui, it is associated with the FxGet as a means to access the 
+    * session. 
+    */
+   @Deprecated
    public ObservableEditCoordinate getEditCoordinate() {
       return observableEditCoordinate;
    }

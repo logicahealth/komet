@@ -147,7 +147,8 @@ public class LogicActionPanel extends AbstractPreferences {
         b.append("\n");
         b.append("rule \"").append(actionNameProperty.get()).append("\"\n");
         b.append("when\n");
-        b.append("   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.NECESSARY_SET);\n");
+        b.append("   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.NECESSARY_SET || "
+                + "getNodeSemantic() == NodeSemantic.SUFFICIENT_SET);\n");
         b.append("then\n");
         b.append("   $addEditLogicalNode.addRoleWithRestrictionsAction(new ")
                 .append(new ConceptProxy(roleTypeProperty.get()).toString())

@@ -33,9 +33,9 @@ public class RootPreferences extends AbstractPreferences {
                 kpc);
         if (!initialized()) {
             // Add children nodes and reflection classes for children
+            addChild("User", UserPreferences.class);
             addChild("General", GeneralPreferences.class);
             addChild("Change sets", ChangeSetPreferences.class);
-            addChild("User", UserPreferences.class);
             addChild("Attachment actions", AttachmentActionPreferences.class);
             addChild("Logic actions", LogicActionPreferences.class);
         }

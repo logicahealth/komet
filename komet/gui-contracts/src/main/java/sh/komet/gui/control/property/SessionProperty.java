@@ -14,18 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.contract;
-
-import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.preferences.IsaacPreferences;
-import sh.komet.gui.manifold.Manifold;
+package sh.komet.gui.control.property;
 
 /**
  *
  * @author kec
  */
-@Contract
-public interface KometPreferences {
-    void showPreferences(IsaacPreferences preferences, Manifold manifold);
-    void loadPreferences(IsaacPreferences preferences, Manifold manifold);
+public enum SessionProperty {
+    USER_SESSION_CONCEPT, EDIT_COORDINATE
 }

@@ -340,7 +340,7 @@ public class ConceptDetailPanelNode
     private void handleCommit(ObservableDescriptionDialect observableDescriptionDialect, 
             ObservableVersion[] versionsToCommit) {
        
-        CommitTask commitTask = Get.commitService().commit(getManifold().getEditCoordinate(), "", versionsToCommit);
+        CommitTask commitTask = Get.commitService().commit(FxGet.editCoordinate(), "", versionsToCommit);
         Get.executor().execute(() -> {
             try {
                 Optional<CommitRecord> commitRecord = commitTask.get();
