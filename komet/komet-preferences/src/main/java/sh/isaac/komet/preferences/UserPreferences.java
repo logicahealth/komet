@@ -221,12 +221,13 @@ public final class UserPreferences extends AbstractPreferences {
         b.append("sha256Matcher = org.apache.shiro.authc.credential.Sha256CredentialsMatcher\n");
         b.append("sha256Matcher.storedCredentialsHexEncoded = false\n");
         b.append("iniRealm.credentialsMatcher = $sha256Matcher\n");
-        b.append("[users]\n");
+        b.append("securityManager.sessionManager.globalSessionTimeout = -1\n");
+        b.append("\n[users]\n");
         UsernamePasswordToken token = new UsernamePasswordToken("admin", "mtn.dog");
         SimpleHash hash = new SimpleHash(Sha256Hash.ALGORITHM_NAME, token.getCredentials());
         
         b.append("admin = ").append(hash.toBase64()).append(", admin\n");
-        b.append("[roles]\n");
+        b.append("\n[roles]\n");
         b.append("admin = *\n");
         
         

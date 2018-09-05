@@ -165,7 +165,7 @@ public class ChangesetSyncService {
             final Set<String> changedFiles = this.ssg.updateCommitAndPush("Synchronizing changesets", gitConfig.get().getUsername(), gitConfig.get().getPassword(),
                   MergeFailOption.FAIL, (String[]) null);
 
-            if (changedFiles.size() != 0) {
+            if (!changedFiles.isEmpty()) {
                LOG.debug("Commit pulled {} more files - reading newly arrived files", changedFiles.size());
                loaded = LookupService.get().getService(ChangeSetLoadService.class).readChangesetFiles();
                LOG.debug("Read {} files", loaded);
