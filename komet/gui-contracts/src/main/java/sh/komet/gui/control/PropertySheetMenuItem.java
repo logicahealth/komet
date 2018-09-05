@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
+import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ObjectProperty;
@@ -122,7 +123,7 @@ public class PropertySheetMenuItem
    @Override
    public void cancel() {
       Get.commitService()
-              .cancel(observableVersion.getChronology(), manifold.getEditCoordinate());
+              .cancel(observableVersion.getChronology(), FxGet.editCoordinate());
       completionListeners.forEach((listener) -> {
          listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.CANCELED);
       });
@@ -131,7 +132,7 @@ public class PropertySheetMenuItem
 
    public void commit() {
       Get.commitService()
-              .commit(observableVersion.getChronology(), manifold.getEditCoordinate(), "temporary comment");
+              .commit(observableVersion.getChronology(), FxGet.editCoordinate(), "temporary comment");
       completionListeners.forEach((listener) -> {
          listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.COMMITTED);
       });
@@ -140,7 +141,7 @@ public class PropertySheetMenuItem
 
    public void prepareToExecute() {
       if (makeAnalogOnExecute) {
-         this.observableVersion = this.observableVersion.makeAnalog(manifold.getEditCoordinate());
+         this.observableVersion = this.observableVersion.makeAnalog(FxGet.editCoordinate());
 
          if (this.observableVersion.getChronology()
                  .getVersionType() == VersionType.CONCEPT) {
@@ -152,8 +153,10 @@ public class PropertySheetMenuItem
          }
       }
 
-      FxGet.rulesDrivenKometService()
+      Platform.runLater(() -> {
+        FxGet.rulesDrivenKometService()
               .populatePropertySheetEditors(this);
+      });
       this.manifold.addEditInFlight(this);
    }
 

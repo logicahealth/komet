@@ -30,6 +30,7 @@ import sh.isaac.solor.direct.LoincExpressionToConcept;
 import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -81,7 +82,7 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
          completedUnitOfWork();
 
          updateMessage("Classifying new content...");
-         ClassifierService classifierService = Get.logicService().getClassifierService(manifold, manifold.getEditCoordinate());
+         ClassifierService classifierService = Get.logicService().getClassifierService(manifold, FxGet.editCoordinate());
          Future<?> classifyTask = classifierService.classify();
          classifyTask.get();
          completedUnitOfWork();

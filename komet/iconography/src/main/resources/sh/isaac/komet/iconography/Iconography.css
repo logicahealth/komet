@@ -248,7 +248,6 @@ limitations under the License.
 .simple-search {
    -glyph-name: "MAGNIFY";
    -glyph-size: 16pt;
-   -icons-color: #4CB709;
 }
 
 .target {
@@ -920,15 +919,13 @@ limitations under the License.
 }
 
 .arrow-up {
-   -glyph-name: "ARROW_UP";
+   -glyph-name: "ARROW_UP_BOLD";
    -glyph-size: 22; 
-   -fx-label-padding: 0 0 0 15; 
 }
 
 .arrow-down {
-   -glyph-name: "ARROW_DOWN";
+   -glyph-name: "ARROW_DOWN_BOLD";
    -glyph-size: 22; 
-   -fx-label-padding: 0 0 0 15;
 }
 
 .delete-trashcan {

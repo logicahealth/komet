@@ -100,6 +100,10 @@ public interface StampedVersion {
     * @return the state of this version.
     */
    Status getStatus();
+   
+   default boolean isActive() {
+       return getStatus() == Status.ACTIVE;
+   }
 
    /**
     * Long.MIN_VALUE indicates a canceled transaction. Long.MAX_VALUE indicates an

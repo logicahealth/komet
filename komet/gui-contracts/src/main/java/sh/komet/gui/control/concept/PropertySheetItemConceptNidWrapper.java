@@ -105,13 +105,22 @@ public class PropertySheetItemConceptNidWrapper implements ConceptSpecification,
          this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, this.conceptNidProperty.get()));
       }
    }
+   public void setDefaultValue(ConceptSpecification value) {
+      try {
+         // Concept sequence property may throw a runtime exception if it cannot be changed
+         this.conceptNidProperty.setValue(value.getNid());         
+      } catch (RuntimeException ex) {
+         FxGet.statusMessageService().reportStatus(ex.getMessage());
+         this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, this.conceptNidProperty.get()));
+      }
+   }
 
    @Override
    public Optional<ObservableValue<? extends Object>> getObservableValue() {
       return Optional.of(this.conceptNidProperty);
    }
   
-   public ConceptSpecification getPropertySpecification() {
+   public ConceptSpecification getSpecification() {
       return new ConceptProxy(this.conceptNidProperty.getName());
    }
 

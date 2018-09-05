@@ -41,8 +41,13 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
@@ -60,16 +65,22 @@ public class ObservableEditCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableEditCoordinate {
    /** The author nid property. */
-   private IntegerProperty authorSequenceProperty = null;
+   private IntegerProperty authorNidProperty = null;
 
    /** The module nid property. */
-   private IntegerProperty moduleSequenceProperty = null;
+   private IntegerProperty moduleNidProperty = null;
 
    /** The path nid property. */
-   private IntegerProperty pathSequenceProperty = null;
+   private IntegerProperty pathNidProperty = null;
 
    /** The edit coordinate. */
    private final EditCoordinateImpl editCoordinate;
+   
+   private final SimpleListProperty<ConceptSpecification> moduleOptionsList = new SimpleListProperty<>(this, 
+           ObservableFields.MODULE_OPTIONS_FOR_EDIT_COORDINATE.toExternalString(), FXCollections.observableArrayList());
+
+   private final SimpleListProperty<ConceptSpecification> pathOptionsList = new SimpleListProperty<>(this, 
+           ObservableFields.PATH_OPTIONS_FOR_EDIT_COORDINATE.toExternalString(), FXCollections.observableArrayList());
 
    //~--- constructors --------------------------------------------------------
 
@@ -80,27 +91,50 @@ public class ObservableEditCoordinateImpl
     */
    public ObservableEditCoordinateImpl(EditCoordinate editCoordinate) {
       this.editCoordinate = (EditCoordinateImpl) editCoordinate;
+      this.moduleOptionsList.addAll(editCoordinate.getModuleOptions());
+      this.editCoordinate.setModuleOptions(this.moduleOptionsList);
+      this.pathOptionsList.addAll(editCoordinate.getPathOptions());
+      this.editCoordinate.setPathOptions(pathOptionsList);
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * author nid property.
-    *
-    * @return the integer property
-    */
    @Override
-   public IntegerProperty authorNidProperty() {
-      if (this.authorSequenceProperty == null) {
-         this.authorSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE.toExternalString(),
-               getAuthorNid());
-         addListenerReference(this.editCoordinate.setAuthorNidProperty(this.authorSequenceProperty));
-         this.authorSequenceProperty.addListener((invalidation) -> fireValueChangedEvent());
-      }
-
-      return this.authorSequenceProperty;
+   public ObservableList<ConceptSpecification> getModuleOptions() {
+        return this.moduleOptionsList;
    }
+
+    @Override
+    public void setModuleOptions(List<ConceptSpecification> options) {
+        this.moduleOptionsList.setAll(options);
+    }
+
+    @Override
+    public ObservableList<ConceptSpecification> getPathOptions() {
+        return this.pathOptionsList;
+    }
+
+    //~--- methods -------------------------------------------------------------
+    @Override
+    public void setPathOptions(List<ConceptSpecification> options) {
+        this.pathOptionsList.setAll(options);
+    }
+
+    /**
+     * author nid property.
+     *
+     * @return the integer property
+     */
+    @Override
+    public IntegerProperty authorNidProperty() {
+        if (this.authorNidProperty == null) {
+            this.authorNidProperty = new SimpleIntegerProperty(this,
+                    ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE.toExternalString(),
+                    getAuthorNid());
+            addListenerReference(this.editCoordinate.setAuthorNidProperty(this.authorNidProperty));
+            this.authorNidProperty.addListener((invalidation) -> fireValueChangedEvent());
+        }
+        
+        return this.authorNidProperty;
+    }
 
    /**
     * module nid property.
@@ -109,15 +143,15 @@ public class ObservableEditCoordinateImpl
     */
    @Override
    public IntegerProperty moduleNidProperty() {
-      if (this.moduleSequenceProperty == null) {
-         this.moduleSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.moduleNidProperty == null) {
+         this.moduleNidProperty = new SimpleIntegerProperty(this,
                ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
                getModuleNid());
-         addListenerReference(this.editCoordinate.setModuleNidProperty(this.moduleSequenceProperty));
-         this.moduleSequenceProperty.addListener((invalidation) -> fireValueChangedEvent());
+         addListenerReference(this.editCoordinate.setModuleNidProperty(this.moduleNidProperty));
+         this.moduleNidProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
-      return this.moduleSequenceProperty;
+      return this.moduleNidProperty;
    }
 
    /**
@@ -127,15 +161,15 @@ public class ObservableEditCoordinateImpl
     */
    @Override
    public IntegerProperty pathNidProperty() {
-      if (this.pathSequenceProperty == null) {
-         this.pathSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.pathNidProperty == null) {
+         this.pathNidProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_NID_FOR_EDIT_CORDINATE.toExternalString(),
                getPathNid());
          addListenerReference(this.editCoordinate.setPathNidProperty(pathNidProperty()));
-         this.pathSequenceProperty.addListener((invalidation) -> fireValueChangedEvent());
+         this.pathNidProperty.addListener((invalidation) -> fireValueChangedEvent());
       }
 
-      return this.pathSequenceProperty;
+      return this.pathNidProperty;
    }
 
    /**
@@ -157,8 +191,8 @@ public class ObservableEditCoordinateImpl
     */
    @Override
    public int getAuthorNid() {
-      if (this.authorSequenceProperty != null) {
-         return this.authorSequenceProperty.get();
+      if (this.authorNidProperty != null) {
+         return this.authorNidProperty.get();
       }
 
       return this.editCoordinate.getAuthorNid();
@@ -171,8 +205,8 @@ public class ObservableEditCoordinateImpl
     */
    @Override
    public int getModuleNid() {
-      if (this.moduleSequenceProperty != null) {
-         return this.moduleSequenceProperty.get();
+      if (this.moduleNidProperty != null) {
+         return this.moduleNidProperty.get();
       }
 
       return this.editCoordinate.getModuleNid();
@@ -185,8 +219,8 @@ public class ObservableEditCoordinateImpl
     */
    @Override
    public int getPathNid() {
-      if (this.pathSequenceProperty != null) {
-         return this.pathSequenceProperty.get();
+      if (this.pathNidProperty != null) {
+         return this.pathNidProperty.get();
       }
 
       return this.editCoordinate.getPathNid();
@@ -196,5 +230,7 @@ public class ObservableEditCoordinateImpl
    public ObservableEditCoordinate deepClone() {
       return new ObservableEditCoordinateImpl(editCoordinate.deepClone());
    }
+   
+   
 }
 

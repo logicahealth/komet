@@ -53,6 +53,7 @@ import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -122,9 +123,9 @@ public class LogicDetailNode
             LogicGraphVersion version = latestVersion.get();
             ObservableSemanticChronologyImpl observableSemanticChronology = new ObservableSemanticChronologyImpl(version.getChronology());
             ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
-            ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(conceptDetailManifold.getEditCoordinate());
+            ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
             mutableVersion.setGraphData(editInFlight.getData(DataTarget.INTERNAL));
-            Get.commitService().commit(conceptDetailManifold.getEditCoordinate(), "Lambda graph edit", mutableVersion);
+            Get.commitService().commit(FxGet.editCoordinate(), "Lambda graph edit", mutableVersion);
         }
         setConcept(conceptDetailManifold.getFocusedConcept().get());
     }

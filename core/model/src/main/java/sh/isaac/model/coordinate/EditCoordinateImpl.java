@@ -41,12 +41,15 @@ package sh.isaac.model.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -66,6 +69,9 @@ public class EditCoordinateImpl
 
    /** The path nid. */
    int pathNid;
+   
+    List<ConceptSpecification> pathOptions = new ArrayList<>();
+    List<ConceptSpecification> moduleOptions = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 
@@ -265,8 +271,30 @@ public class EditCoordinateImpl
    }
 
    @Override
+    public List<ConceptSpecification> getPathOptions() {
+        return pathOptions;
+    }
+
+   @Override
+    public List<ConceptSpecification> getModuleOptions() {
+        return moduleOptions;
+    }
+
+    @Override
+    public void setModuleOptions(List<ConceptSpecification> options) {
+        this.moduleOptions = options;
+    }
+
+    @Override
+    public void setPathOptions(List<ConceptSpecification> options) {
+        this.pathOptions = options;
+    }
+
+   @Override
    public EditCoordinate deepClone() {
       EditCoordinateImpl newCoordinate = new EditCoordinateImpl(authorNid, moduleNid, pathNid);
+      newCoordinate.moduleOptions.addAll(moduleOptions);
+      newCoordinate.pathOptions.addAll(pathOptions);
       return newCoordinate;
    }
 }

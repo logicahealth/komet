@@ -43,7 +43,7 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
     private final String name;
     private final SimpleObjectProperty<ConceptSpecificationForControlWrapper> observableWrapper;
     private final SimpleObjectProperty<ConceptSpecification> conceptProperty;
-    private final ObservableList<ConceptSpecification> allowedValues = FXCollections.observableArrayList();
+    private ObservableList<ConceptSpecification> allowedValues = FXCollections.observableArrayList();
     private final SimpleBooleanProperty allowSearchProperty = new SimpleBooleanProperty(this, "allow search", true);
     private final SimpleBooleanProperty allowHistoryProperty = new SimpleBooleanProperty(this, "allow history", true);
     private ConceptSpecification propertySpecification = null;
@@ -147,6 +147,10 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
 
     public ObservableList<ConceptSpecification> getAllowedValues() {
         return allowedValues;
+    }
+    
+    public void setAllowedValues(ObservableList<ConceptSpecification> allowedValues) {
+        this.allowedValues = allowedValues;
     }
 
     @Override

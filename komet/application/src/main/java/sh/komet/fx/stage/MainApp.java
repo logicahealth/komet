@@ -135,7 +135,6 @@ public class MainApp
         if (applicationPreferences.getBoolean(PreferenceGroup.Keys.INITIALIZED, false)) {
             firstRun = false;
         }
-
         Get.configurationService().setSingleUserMode(true);  //TODO eventually, this needs to be replaced with a proper user identifier
         Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
         Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
@@ -147,6 +146,8 @@ public class MainApp
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             System.out.println("Beta features enabled");
         }
+        FxGet.kometPreferences().loadPreferences( 
+                applicationPreferences, Manifold.make(ManifoldGroup.TAXONOMY));
 
         if (Get.metadataService()
                 .wasMetadataImported()) {
@@ -406,7 +407,7 @@ public class MainApp
     }
 
     private void handlePrefs(ActionEvent event) {
-        FxGet.kometPreferences().showPreferences("KOMET Preferences", 
+        FxGet.kometPreferences().showPreferences( 
                 applicationPreferences, Manifold.make(ManifoldGroup.TAXONOMY));
     }
 

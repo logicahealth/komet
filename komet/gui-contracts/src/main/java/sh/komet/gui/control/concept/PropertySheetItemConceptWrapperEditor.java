@@ -55,12 +55,17 @@ public class PropertySheetItemConceptWrapperEditor implements PropertyEditor<Pro
     ComboBox defaultConcept = new ComboBox();
     ListView<ConceptSpecification> conceptListView = new ListView<>();
     {
+        conceptListView.setPrefHeight(152);
+        conceptListView.setMinHeight(152);
+        conceptListView.setMaxHeight(152);
         conceptListView.setCellFactory(c-> new ListCell<ConceptSpecification>() {
             @Override
             protected void updateItem(ConceptSpecification item, boolean empty) {
                 super.updateItem(item, empty); 
                 if (!empty) {
                     this.setText(manifold.getPreferredDescriptionText(item));
+                } else {
+                    this.setText("");
                 }
             }
             
@@ -112,8 +117,8 @@ public class PropertySheetItemConceptWrapperEditor implements PropertyEditor<Pro
     Button downButton = new Button("", Iconography.ARROW_DOWN.getIconographic());
     {
         findButton.setOnAction(this::showFindPopup);
-        upButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        downButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        upButton.setContentDisplay(ContentDisplay.RIGHT);
+        downButton.setContentDisplay(ContentDisplay.RIGHT);
         upButton.setOnAction(this::moveUpSelection);
         downButton.setOnAction(this::moveDownSelection);
     }

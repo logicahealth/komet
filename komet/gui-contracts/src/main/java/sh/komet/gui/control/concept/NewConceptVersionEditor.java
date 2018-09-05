@@ -19,6 +19,7 @@ package sh.komet.gui.control.concept;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -39,6 +40,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
+import sh.komet.gui.control.property.EditorType;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.PropertySheetPurpose;
@@ -152,8 +154,8 @@ public class NewConceptVersionEditor implements PropertyEditor<ObservableConcept
             ObservableConceptVersionImpl concept = conceptVersionProperty.get();
             
             
-            PropertySheetItem moduleProperty = createPropertyItem(concept.moduleNidProperty());
-            PropertySheetItem pathProperty = createPropertyItem(concept.pathNidProperty());
+            PropertySheetItem moduleProperty = createConceptPropertyItem(concept.moduleNidProperty());
+            PropertySheetItem pathProperty = createConceptPropertyItem(concept.pathNidProperty());
             PropertySheetItem assemblageProperty = createPropertyItem(conceptIsAssemblageProperty);
             PropertySheetItem semanticTypeProperty = createPropertyItem(semanticTypeForAssemblageProperty);
             PropertySheetItem nameForFieldProperty = createPropertyItem(nameForAssemblageFieldProperty);
@@ -216,6 +218,14 @@ public class NewConceptVersionEditor implements PropertyEditor<ObservableConcept
         }
     }
 
+    private PropertySheetItem createConceptPropertyItem(IntegerProperty property) {
+        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifold, PropertySheetPurpose.UNSPECIFIED);
+        wrappedProperty.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+        wrappedProperties.add(wrappedProperty);
+        return wrappedProperty;
+    }
+    
+            
     private PropertySheetItem createPropertyItem(Property<?> property) {
         PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifold, PropertySheetPurpose.UNSPECIFIED);
         wrappedProperties.add(wrappedProperty);

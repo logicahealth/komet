@@ -49,9 +49,44 @@ public class KometPreferencesImpl implements KometPreferences {
     public KometPreferencesImpl() {
 
     }
+    
 
     @Override
-    public void showPreferences(String title, IsaacPreferences preferences,
+    public void loadPreferences(IsaacPreferences preferences,
+            Manifold manifold) {
+        if (kpc == null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/preferences/KometPreferences.fxml"));
+                Parent root = loader.load();
+                this.kpc = loader.getController();
+                this.kpc.setManifold(manifold);
+                Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold, kpc);
+                if (treeRoot.isPresent()) {
+                    this.kpc.setRoot(treeRoot.get());
+                }
+
+                root.setId(UUID.randomUUID()
+                        .toString());
+
+                this.preferencesStage = new Stage();
+                this.preferencesStage.setTitle("KOMET Preferences");
+                Scene scene = new Scene(root);
+
+                this.preferencesStage.setScene(scene);
+                scene.getStylesheets()
+                        .add(FxGet.fxConfiguration().getUserCSSURL().toString());
+                scene.getStylesheets()
+                        .add(Iconography.getStyleSheetStringUrl());
+            } catch (IOException ex) {
+                LOG.error(ex.getLocalizedMessage(), ex);
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+    
+
+    @Override
+    public void showPreferences(IsaacPreferences preferences,
             Manifold manifold) {
         if (kpc == null) {
             try {

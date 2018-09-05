@@ -34,7 +34,11 @@ import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
@@ -193,6 +197,30 @@ public class AddEditLogicalExpressionNodeMenuItems {
 
     public void addIsaNodeAction(ConceptSpecification spec) {
         addIsaNodeAction(spec.getNid());
+    }
+
+    public void addRoleWithRestrictionsAction(ConceptSpecification roleType, ConceptSpecification assemblageWithRestrictions) {
+        ActionGroup newRoleGroup = new ActionGroup("Add " + manifold.getPreferredDescriptionText(roleType) + "...");
+        NidSet semanticNids = Get.assemblageService().getSemanticNidsFromAssemblage(assemblageWithRestrictions.getNid());
+        SemanticSnapshotService<SemanticVersion> snapshot = Get.assemblageService().getSnapshot(SemanticVersion.class, manifold);
+        for (int semanticNid : semanticNids.asArray()) {
+            LatestVersion<SemanticVersion> latestMembership = snapshot.getLatestSemanticVersion(semanticNid);
+            if (latestMembership.isPresent() && latestMembership.get().isActive()) {
+                int restrictionNid = latestMembership.get().getReferencedComponentNid();
+                Action newRoleAction = new Action(manifold.getPreferredDescriptionText(restrictionNid), (ActionEvent event) -> {
+                    RoleNodeSomeWithNids newRole = expressionContiningNode.SomeRole(roleType.getNid(), expressionContiningNode.Concept(restrictionNid));
+                    for (LogicNode node : nodeToEdit.getChildren()) {
+                        if (node.getNodeSemantic() == NodeSemantic.AND) {
+                            node.addChildren(newRole);
+                            break;
+                        }
+                    }
+                    this.expressionUpdater.accept(expressionContiningNode);
+                });
+                newRoleGroup.getActions().add(newRoleAction);
+            }
+        }
+        actionItems.add(newRoleGroup);
     }
 
     public void changeRoleRestrictionToRecentSelection() {
@@ -389,7 +417,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
         builder.append(")➞[");
         builder.append(manifold.getPreferredDescriptionText(restrictionNid));
         builder.append("]");
-        Action addIsaAction = new Action(builder.toString(), (ActionEvent event) -> {
+        Action addNewRoleAction = new Action(builder.toString(), (ActionEvent event) -> {
             RoleNodeSomeWithNids newRole = expressionContiningNode.SomeRole(typeNid, expressionContiningNode.Concept(restrictionNid));
             for (LogicNode node : nodeToEdit.getChildren()) {
                 if (node.getNodeSemantic() == NodeSemantic.AND) {
@@ -399,7 +427,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
             }
             this.expressionUpdater.accept(expressionContiningNode);
         });
-        actionItems.add(addIsaAction);
+        actionItems.add(addNewRoleAction);
     }
 
     public void addFloatFeatureAction(ConceptSpecification typeSpec, ConceptSpecification measureSemanticNid, ConcreteDomainOperators operator) {

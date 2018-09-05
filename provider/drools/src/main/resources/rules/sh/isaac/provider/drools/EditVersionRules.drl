@@ -77,16 +77,6 @@ then
    }
 end
 
-rule "if property specification is PATH_NID_FOR_VERSION____SOLOR then"
-
-when
-   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.PATH_NID_FOR_VERSION____SOLOR)
-then
-   $property.getAllowedValues().add(MetaData.MASTER_PATH____SOLOR);
-   $property.getAllowedValues().add(MetaData.DEVELOPMENT_PATH____SOLOR);
-end
-
-
 rule "if property specification is STATUS_FOR_VERSION____SOLOR then"
 
 when
@@ -94,17 +84,6 @@ when
 then
    System.out.println("Add status capability");
 end
-
-rule "if property specification is MODULE_NID_FOR_VERSION____SOLOR then "
-
-when
-   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.MODULE_NID_FOR_VERSION____SOLOR)
-then
-   $property.getAllowedValues().add(MetaData.SOLOR_MODULE____SOLOR);
-   $property.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____SOLOR);
-   
-end
-
 
 rule "if property specification is DESCRIPTION_TYPE____SOLOR then "
 
