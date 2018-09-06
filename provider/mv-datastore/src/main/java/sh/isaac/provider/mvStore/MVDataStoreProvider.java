@@ -150,7 +150,8 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 			//This also means no calling Task.cancel(), as that fires interrupts.
 			this.store = new MVStore.Builder().cacheSize(2000).compress().fileName(new File(mvFolder, MV_STORE + ".mv").getAbsolutePath()).open();
 			this.store.setVersionsToKeep(0);
-			this.store.setRetentionTime(7000);  //1 second is too little, and it corrupts itself at times.  so far, 7 seems ok on my hardware.
+			this.store.setRetentionTime(15000);  //1 second is too little, and it corrupts itself at times.  so far, 7 seems ok on my hardware.
+			//Trying 15, to see if it stabalizes the builds on the build server
 			//If we start seeing "missing chunk" errors, we need to increase this further.  the downside of higher values, is that the datastore
 			//doesn't shrink as quickly as it should.
 			
