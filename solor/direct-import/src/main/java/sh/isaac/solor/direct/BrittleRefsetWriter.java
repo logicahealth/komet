@@ -37,6 +37,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
@@ -124,11 +125,11 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       refsetsToIgnore.add("711112009"); //711112009 | ICNP diagnoses simple map reference set (foundation metadata concept)
       refsetsToIgnore.add("712505008"); //712505008 | ICNP interventions simple map reference set (foundation metadata concept) 
       refsetsToIgnore.add("900000000000498005"); //900000000000498005 | SNOMED RT identifier simple map (foundation metadata concept)
-      refsetsToIgnore.add("733900009"); //733900009 | UCUM simple map reference set (foundation metadata concept)
+//      refsetsToIgnore.add("733900009"); //733900009 | UCUM simple map reference set (foundation metadata concept)
       
       refsetsToIgnore.add("900000000000490003");  // 900000000000490003 | Description inactivation indicator attribute value reference set (foundation metadata concept) |
       refsetsToIgnore.add("900000000000489007");  // 900000000000489007 | Concept inactivation indicator attribute value reference set (foundation metadata concept)
-      refsetsToIgnore.add("900000000000527005");  // 900000000000527005 | SAME AS association reference set (foundation metadata concept)
+//      refsetsToIgnore.add("900000000000527005");  // 900000000000527005 | SAME AS association reference set (foundation metadata concept)
 //      refsetsToIgnore.add("");  
 //      refsetsToIgnore.add("");  
 //      refsetsToIgnore.add("");  
@@ -160,7 +161,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       try {
          return identifierService.getNidForUuids(UuidT3Generator.fromSNOMED(sctid));
       } catch (NoSuchElementException e) {
-         LOG.error("The SCTID {} was mapped to UUID {} but that UUID has not been loaded into the system", sctid, UuidT3Generator.fromSNOMED(sctid));
+         LOG.error("The SCTID {} was mapped to UUID {} but that UUID has not been loaded into the system", sctid, UuidT3Generator.fromSNOMED(sctid), e);
          throw e;
       }
    }
@@ -223,12 +224,18 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                      pathNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_PATH_INDEX]));
                      elementUuid = UUID.fromString(refsetRecord[SRF_ID_INDEX]);
                      moduleNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_MODULE_INDEX]));
+                     
                      assemblageNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_ASSEMBLAGE_ID_INDEX]));
                      referencedComponentNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_REFERENCED_COMPONENT_ID_INDEX]));
                      accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(refsetRecord[SRF_TIME_INDEX]));
                  } else {
                      elementUuid = UUID.fromString(refsetRecord[RF2_REFSET_MEMBER_UUID]);
-                     moduleNid = nidFromSctid(refsetRecord[RF2_MODULE_SCTID_INDEX]);
+                     if (UUIDUtil.isUUID(refsetRecord[RF2_MODULE_SCTID_INDEX])) {
+                         moduleNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[RF2_MODULE_SCTID_INDEX]));
+                     } else {
+                         moduleNid = nidFromSctid(refsetRecord[RF2_MODULE_SCTID_INDEX]);
+                     }
+                     
                      assemblageNid = nidFromSctid(refsetRecord[RF2_ASSEMBLAGE_SCT_ID_INDEX]);
                      referencedComponentNid = nidFromSctid(refsetRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
                      accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(refsetRecord[RF2_EFFECTIVE_TIME_INDEX]));

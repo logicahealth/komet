@@ -67,6 +67,7 @@ import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -254,6 +255,9 @@ public class DirectImporter
             String message = "Importing " + trimZipName(importSpecification.contentProvider.getStreamSourceName());
             updateMessage(message);
             LOG.info("\n\n" + message + "\n");
+            if (message.toLowerCase().contains("loinc.csv")) {
+                System.out.println("About to import loinc...");
+            }
 
             try (ContentStreamProvider csp = importSpecification.contentProvider.get()) {
                 try (BufferedReader br = csp.get()) {
@@ -1209,6 +1213,20 @@ public class DirectImporter
             String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
 
             columnsToWrite.add(columns);
+            if (columns[4].equals("705112009") && (columns[7].equals("712561002") || columns[7].equals("704318007"))) {
+                String[] newColumns = new String[columns.length];
+                newColumns[0] = columns[0]; // id, a uuid
+                newColumns[1] = "20180131"; // effective time
+                newColumns[2] = columns[2]; // active
+                newColumns[3] = TermAux.SOLOR_OVERLAY_MODULE.getPrimordialUuid().toString(); // moduleId
+                newColumns[4] = columns[4]; // refsetId
+                newColumns[5] = columns[5]; // referenced component id
+                newColumns[6] = columns[6]; // mapTarget
+                newColumns[7] = columns[7].replaceAll("704318007", "370130000").replaceAll("712561002", "739029001"); // attributeId
+                newColumns[8] = columns[8]; // correlationId
+                newColumns[9] = columns[9]; // contentOriginId
+                columnsToWrite.add(newColumns);
+            }
 
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
@@ -1391,6 +1409,21 @@ public class DirectImporter
             String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
 
             columnsToWrite.add(columns);
+            if (columns[4].equals("705110001") && (columns[7].contains("712561002") || columns[7].contains("704318007"))) {
+                String[] newColumns = new String[columns.length];
+                newColumns[0] = columns[0]; // id, a uuid
+                newColumns[1] = "20180131"; // effective time
+                newColumns[2] = columns[2]; // active
+                newColumns[3] = TermAux.SOLOR_OVERLAY_MODULE.getPrimordialUuid().toString(); // moduleId
+                newColumns[4] = columns[4]; // refsetId
+                newColumns[5] = columns[5]; // referenced component id
+                newColumns[6] = columns[6]; // mapTarget
+                newColumns[7] = columns[7].replaceAll("704318007", "370130000").replaceAll("712561002", "739029001"); // expression
+                newColumns[8] = columns[8]; // definitionStatusId
+                newColumns[9] = columns[9]; // correlationId
+                newColumns[10] = columns[10]; // contentOriginId
+                columnsToWrite.add(newColumns);
+            }
 
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,

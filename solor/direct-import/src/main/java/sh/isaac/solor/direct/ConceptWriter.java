@@ -19,6 +19,7 @@ package sh.isaac.solor.direct;
 import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.temporal.TemporalAccessor;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
@@ -56,6 +57,13 @@ id	effectiveTime	active	moduleId	definitionStatusId
 101009	20020131	1	900000000000207008	900000000000074008
 102002	20020131	1	900000000000207008	900000000000074008
     */
+    
+    public static final HashSet<String>  CONCEPT_STRING_WHITELIST = new HashSet<>();
+    static {
+        // Concepts needed for loinc expressions, but where retired by SNOMED without updating the LOINC refset. 
+        CONCEPT_STRING_WHITELIST.add("704318007"); // Property type (attribute)
+        CONCEPT_STRING_WHITELIST.add("712561002"); // Four hours specimen (specimen)
+    }
 
    private static final int RF2_CONCEPT_SCT_ID_INDEX = 0;
    private static final int RF2_EFFECTIVE_TIME_INDEX = 1;
@@ -125,7 +133,9 @@ id	effectiveTime	active	moduleId	definitionStatusId
                     ? Status.fromZeroOneToken(conceptRecord[SRF_STATUS_INDEX])
                     : Status.fromZeroOneToken(conceptRecord[RF2_ACTIVE_INDEX]);
             if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
-                continue;
+                if (!CONCEPT_STRING_WHITELIST.contains(conceptRecord[RF2_CONCEPT_SCT_ID_INDEX])) {
+                    continue;
+                }
             }
 
             UUID conceptUuid, moduleUuid, legacyDefStatus;
