@@ -63,6 +63,8 @@ id	effectiveTime	active	moduleId	definitionStatusId
         // Concepts needed for loinc expressions, but where retired by SNOMED without updating the LOINC refset. 
         CONCEPT_STRING_WHITELIST.add("704318007"); // Property type (attribute)
         CONCEPT_STRING_WHITELIST.add("712561002"); // Four hours specimen (specimen)
+        CONCEPT_STRING_WHITELIST.add("82052005"); // Pseudohypha (organism)
+        CONCEPT_STRING_WHITELIST.add("418882002"); // Xanthine or xanthine derivative (substance)
     }
 
    private static final int RF2_CONCEPT_SCT_ID_INDEX = 0;
