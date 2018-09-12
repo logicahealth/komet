@@ -239,7 +239,7 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultModule(int conceptId) {
       setupDefaults();
-      this.observableEditCoordinate.moduleSequenceProperty()
+      this.observableEditCoordinate.moduleNidProperty()
                                    .set(conceptId);
    }
 
@@ -252,7 +252,7 @@ public class DefaultCoordinateProvider {
       setupDefaults();
       this.observableStampPosition.stampPathNidProperty()
                                   .set(conceptId);
-      this.observableEditCoordinate.pathSequenceProperty()
+      this.observableEditCoordinate.pathNidProperty()
                                    .set(conceptId);
    }
 
@@ -315,7 +315,7 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultUser(int conceptId) {
       setupDefaults();
-      this.observableEditCoordinate.authorSequenceProperty()
+      this.observableEditCoordinate.authorNidProperty()
                                    .set(conceptId);
    }
 }

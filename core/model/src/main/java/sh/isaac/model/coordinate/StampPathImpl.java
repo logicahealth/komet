@@ -58,7 +58,7 @@ import sh.isaac.api.coordinate.StampPosition;
  */
 public class StampPathImpl
          implements StampPath {
-   /** The path concept sequence. */
+   /** The path concept nid. */
    private final int pathConceptNid;
 
    //~--- constructors --------------------------------------------------------
@@ -88,9 +88,9 @@ public class StampPathImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the path concept sequence.
+    * Gets the path concept nid.
     *
-    * @return the path concept sequence
+    * @return the path concept nid
     */
    @Override
    public int getPathConceptNid() {

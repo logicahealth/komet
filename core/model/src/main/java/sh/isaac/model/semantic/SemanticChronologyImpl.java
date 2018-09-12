@@ -318,9 +318,7 @@ public class SemanticChronologyImpl
               
               builder.append("SEMANTIC: ")
                       .append(semanticChronicle.getVersionType())
-                      .append(" <")
-                      .append(semanticChronicle.getElementSequence())
-                      .append(">\n from assemblage:")
+                      .append("\n from assemblage:")
                       .append(Get.conceptDescriptionText(semanticChronicle.getAssemblageNid()))
                       .append(" <")
                       .append(semanticChronicle.getAssemblageNid())

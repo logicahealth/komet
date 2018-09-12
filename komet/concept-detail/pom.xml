@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>komet</artifactId>
-        <version>4.51</version>
+        <version>4.52</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>concept-detail</artifactId>
@@ -33,8 +33,19 @@
          <version>${project.parent.version}</version>
       </dependency>
       <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>komet-preferences</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
          <groupId>org.controlsfx</groupId>
          <artifactId>controlsfx</artifactId>
-      </dependency>      
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>model</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
    </dependencies>  
 </project>

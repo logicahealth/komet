@@ -77,6 +77,7 @@ import javafx.util.Pair;
 import javafx.util.StringConverter;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.util.DeployFile;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
@@ -169,6 +170,8 @@ public class ContentManagerController
 	private CheckBox opClassify;
 	@FXML
 	private ComboBox<String> databaseMetadataVersion;
+	@FXML
+	private ComboBox<String> databaseType;
 	@FXML
 	private TextArea databaseDescription;
 	@FXML
@@ -279,6 +282,7 @@ public class ContentManagerController
 		assert databaseClassifier != null : "fx:id=\"databaseClassifier\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert opClassify != null : "fx:id=\"databaseClassify\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert databaseMetadataVersion != null : "fx:id=\"databaseMetadataVersion\" was not injected: check your FXML file 'ContentManager.fxml'.";
+		assert databaseType != null : "fx:id=\"databaseType\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert databaseDescription != null : "fx:id=\"databaseDescription\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert databaseIbdfList != null : "fx:id=\"databaseIbdfList\" was not injected: check your FXML file 'ContentManager.fxml'.";
 		assert databaseAdd != null : "fx:id=\"databaseAdd\" was not injected: check your FXML file 'ContentManager.fxml'.";
@@ -430,6 +434,12 @@ public class ContentManagerController
 				}
 			}
 		};
+		
+		for (DatabaseImplementation di : DatabaseImplementation.values())
+		{
+			databaseType.getItems().add(di.name());
+		}
+		databaseType.getSelectionModel().select(DatabaseImplementation.DEFAULT.name());
 
 		ErrorMarkerUtils.setupErrorMarker(databaseIbdfList, databaseIbdfListPopulated, true);
 
@@ -1789,7 +1799,8 @@ public class ContentManagerController
 				return DBConfigurationCreator.createDBConfiguration(databaseName.getText(), databaseVersion.getText(), databaseDescription.getText(),
 						databaseClassifier.getText(), opClassify.isSelected(),
 						databaseIbdfList.getItems().toArray(new IBDFFile[databaseIbdfList.getItems().size()]),
-						databaseMetadataVersion.getSelectionModel().getSelectedItem(), opTag.isSelected() ? sp_.getGitURL() : null, sp_.getGitUsername(),
+						databaseMetadataVersion.getSelectionModel().getSelectedItem(), DatabaseImplementation.parse(databaseType.getSelectionModel().getSelectedItem()),
+						opTag.isSelected() ? sp_.getGitURL() : null, sp_.getGitUsername(),
 						sp_.getGitPassword(), new File(workingFolder.getText()), false);
 			}
 			catch (Exception e)

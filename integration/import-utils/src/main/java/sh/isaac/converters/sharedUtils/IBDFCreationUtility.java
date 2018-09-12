@@ -59,11 +59,11 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -252,12 +252,12 @@ public class IBDFCreationUtility
    {
       converterUUID = Get.service(ConverterUUID.class);
       converterUUID.clearCache();
-      UuidIntMapMap.NID_TO_UUID_CACHE_ENABLED = true;
       File file = new File(outputDirectory, "isaac-db");
       //make sure this is empty
       FileUtils.deleteDirectory(file);
       
       Get.configurationService().setDataStoreFolderPath(file.toPath());
+      Get.configurationService().setDBBuildMode(BuildMode.IBDF);
 
       LookupService.startupIsaac();
       

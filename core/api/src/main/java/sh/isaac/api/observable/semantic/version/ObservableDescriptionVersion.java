@@ -56,21 +56,21 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 public interface ObservableDescriptionVersion
         extends ObservableSemanticVersion, DescriptionVersion {
    /**
-    * Case significance concept sequence property.
+    * Case significance concept Nid property.
     *
     * @return the integer property
     */
    IntegerProperty caseSignificanceConceptNidProperty();
 
    /**
-    * Description type concept sequence property.
+    * Description type concept Nid property.
     *
     * @return the integer property
     */
    IntegerProperty descriptionTypeConceptNidProperty();
 
    /**
-    * Language concept sequence property.
+    * Language concept Nid property.
     *
     * @return the integer property
     */
@@ -86,32 +86,32 @@ public interface ObservableDescriptionVersion
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the case significance concept sequence.
+    * Sets the case significance concept Nid.
     *
-    * @param caseSignificanceConceptSequence the new case significance concept sequence
+    * @param caseSignificanceConceptNid the new case significance concept nid
     */
-   void setCaseSignificanceConceptNid(int caseSignificanceConceptSequence);
+   void setCaseSignificanceConceptNid(int caseSignificanceConceptNid);
 
    //~--- get methods ---------------------------------------------------------
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the description type concept sequence.
+    * Sets the description type concept nid.
     *
-    * @param descriptionTypeConceptSequence the new description type concept sequence
+    * @param descriptionTypeConceptNid the new description type concept nid
     */
-   void setDescriptionTypeConceptNid(int descriptionTypeConceptSequence);
+   void setDescriptionTypeConceptNid(int descriptionTypeConceptNid);
 
    //~--- get methods ---------------------------------------------------------
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the language concept sequence.
+    * Sets the language concept nid.
     *
-    * @param languageConceptSequence the new language concept sequence
+    * @param languageConceptNid the new language concept nid
     */
-   void setLanguageConceptNid(int languageConceptSequence);
+   void setLanguageConceptNid(int languageConceptNid);
 
 
    //~--- set methods ---------------------------------------------------------

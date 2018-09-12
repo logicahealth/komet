@@ -22,8 +22,9 @@ import sh.komet.gui.interfaces.ExplorationNode;
 /**
  *
  * @author kec
+ * @param <T>
  */
 @Contract
-public interface ExplorationNodeFactory extends NodeFactory<ExplorationNode> {
+public interface ExplorationNodeFactory<T extends ExplorationNode>  extends NodeFactory<T> {
 
 }

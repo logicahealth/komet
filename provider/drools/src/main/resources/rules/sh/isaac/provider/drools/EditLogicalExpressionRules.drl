@@ -78,6 +78,7 @@ rule "NECESSARY_SET items"
 when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.NECESSARY_SET);
 then
+   $addEditLogicalNode.addSearchIsa();
    $addEditLogicalNode.addRecentSelectionIsa();
    $addEditLogicalNode.addIsaNodeAction(MetaData.PROCEDURE____SOLOR);
    $addEditLogicalNode.addGenericRoleAction();
@@ -96,6 +97,7 @@ rule "SUFFICIENT_SET items"
 when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.SUFFICIENT_SET);
 then
+   $addEditLogicalNode.addSearchIsa();
    $addEditLogicalNode.addRecentSelectionIsa();
    $addEditLogicalNode.addIsaNodeAction(MetaData.PROCEDURE____SOLOR);
    $addEditLogicalNode.addGenericRoleAction();

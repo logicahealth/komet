@@ -75,7 +75,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
+import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
 import sh.isaac.api.externalizable.DataWriterService;
@@ -191,6 +191,8 @@ public class Get
    private static IndexDescriptionQueryService descriptionIndexer;
    private static IndexSemanticQueryService semanticIndexer;
    
+   private static DataStore dataStore;
+   
    
    //~--- constructors --------------------------------------------------------
 
@@ -249,18 +251,6 @@ public class Get
       }
 
       return assemblageService != null;
-   }
-
-   /**
-    * Binary data queue reader.
-    *
-    * @param dataPath the data path
-    * @return the binary data reader queue service
-    * @throws FileNotFoundException the file not found exception
-    */
-   public static BinaryDataReaderQueueService binaryDataQueueReader(Path dataPath)
-            throws FileNotFoundException {
-      return getService(BinaryDataServiceFactory.class).getQueueReader(dataPath);
    }
 
    /**
@@ -333,6 +323,10 @@ public class Get
       return conceptService().getConceptChronology(uuid);
    }
 
+   public static ConceptChronology concept(String uuidStr) {
+      return concept(UUID.fromString(uuidStr));
+   }
+
    /**
     * Concept active service.
     *
@@ -365,27 +359,30 @@ public class Get
     * preferred description, as specified in the default
     * {@code StampCoordinate} and the default {@code LanguageCoordinate}.
     *
-    * @param conceptId nid or sequence of the concept to get the description
+    * @param conceptNid nid of the concept to get the description
     * for
     * @return a description for this concept. If no description can be found,
-    * {@code "No desc for: " + conceptId;} will be returned.
+    * {@code "No desc for: " + conceptNid;} will be returned.
     *  TODO: make getDescriptionOptional return a LatestVersion, which has optional value, rather than returning an
     *  Optional&gt;LatestVersion>&lt;
     */
-   public static String conceptDescriptionText(int conceptId) {
-     if (conceptId >= 0) {
-         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptId);
+   public static String conceptDescriptionText(int conceptNid) {
+     if (conceptNid >= 0) {
+         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
       final LatestVersion<DescriptionVersion> descriptionOptional =
-         defaultConceptSnapshotService().getDescriptionOptional(
-             conceptId);
+         defaultConceptSnapshotService().getDescriptionOptional(conceptNid);
 
       if (descriptionOptional.isPresent()) {
          return descriptionOptional.get()
                                    .getText();
       }
 
-      return "No desc for: " + conceptId;
+      return "No desc for: " + conceptNid;
+   }
+   
+   public static String conceptDescriptionText(ConceptSpecification conceptSpec) {
+       return conceptDescriptionText(conceptSpec.getNid());
    }
 
    /**
@@ -461,6 +458,22 @@ public class Get
       return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
    }
 
+   /**
+    * Note, this method may fail during bootstrap, if concept being requested is not already loaded
+    * into the concept service.
+    * @param uuid a concept uuid
+    * @return A concept specification for the corresponding identifier
+    */
+   public static ConceptSpecification conceptSpecification(UUID uuid) {
+       int nid = Get.identifierService().getNidForUuids(uuid);
+      return new ConceptProxy(nid);
+   }
+
+   public static ConceptSpecification conceptSpecification(String uuidString) {
+      return conceptSpecification(UUID.fromString(uuidString));
+   }
+
+   
    /**
     * Configuration service.
     *
@@ -540,6 +553,15 @@ public class Get
       }
 
       return identifierService;
+   }
+   
+   /**
+    * Convenience method to get nids from the identifier service. 
+    * @param uuids
+    * @return a nid
+    */
+   public static int nidForUuids(UUID... uuids) {
+       return identifierService().getNidForUuids(uuids);
    }
 
    /**
@@ -641,6 +663,13 @@ public class Get
 
       return semanticIndexer;
    }
+   
+   public static DataStore dataStore() {
+      if (dataStore == null) {
+         dataStore = getService(DataStore.class);
+      }
+      return dataStore;
+   }
 
    /**
     * IsaacExternalizable stream.
@@ -713,6 +742,7 @@ public class Get
       serializationService            = null;
       descriptionIndexer              = null;
       semanticIndexer                 = null;
+      dataStore                       = null;
    }
 
    public static ScheduledExecutorService scheduledExecutor() {

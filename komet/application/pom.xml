@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.51</version>
+      <version>4.52</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>application</artifactId>
@@ -16,7 +16,7 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <mainClass>sh.komet.fx.stage.MainApp</mainClass>
       <log4j.version>2.8.1</log4j.version>
-      <solor.db.version>1.14-SNAPSHOT</solor.db.version>
+      <solor.db.version>1.17</solor.db.version>
    </properties>
 
    <organization>
@@ -94,7 +94,7 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>filesystem-datastore</artifactId>
+         <artifactId>datastore-locator</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -388,7 +388,7 @@
          <id>external-plugins</id>
          <activation>
             <property>
-               <name>plugins</name>
+               <name>komet-plugins</name>
                <value>true</value>
             </property>
          </activation>

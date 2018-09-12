@@ -190,7 +190,7 @@ public class AssociationType
     * @param referencedComponentSubRestriction - (optional) - may be null - subtype restriction for {@link IsaacObjectType#SEMANTIC} restrictions
     * @param stampCoord - optional - used during the readback to create the return object.  See {@link #read(int, StampCoordinate, LanguageCoordinate)}
     * @param editCoord - optional - the edit coordinate to use when creating the association.  Uses the system default if not provided.
-    * @return the concept sequence of the created concept that carries the association definition
+    * @return the concept nid of the created concept that carries the association definition
     */
       public static AssociationType createAssociation(String associationName, String associationInverseName, String description, 
             IsaacObjectType referencedComponentRestriction, VersionType referencedComponentSubRestriction, StampCoordinate stampCoord, EditCoordinate editCoord) 

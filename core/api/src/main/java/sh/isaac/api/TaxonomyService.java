@@ -40,6 +40,7 @@
 package sh.isaac.api;
 
 import java.util.EnumSet;
+import java.util.function.BinaryOperator;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -72,6 +73,13 @@ import sh.isaac.api.tree.TreeNodeVisitData;
 public interface TaxonomyService
         extends DatastoreServices {
    /**
+    * Return the stored taxonomy data for the specified concept in the given assemblage.
+    * @param assemblageNid The assemblage to read the data from
+    * @param conceptNid The concept within the assemblage to read the data from
+    * @return The taxonomy data
+    */
+   int[] getTaxonomyData(int assemblageNid, int conceptNid);
+   /**
     * Update the taxonomy by extracting relationships from the logical
     * definitions in the {@code logicGraphChronology}. This method will be
     * called by a commit listener, so developers do not have to update the
@@ -86,22 +94,22 @@ public interface TaxonomyService
 //    * Method to determine if a concept was ever a kind of another, without
 // knowing a ManifoldCoordinate.
 //    *
-//    * @param childId a concept sequence or nid for the child concept
-//    * @param parentId a concept sequence or nid for the parent concept
+//    * @param childNid a concept  nid for the child concept
+//    * @param parentNid a concept nid for the parent concept
 //    * @return true if child was ever a kind of the parent.
 //    */
-//   boolean wasEverKindOf(int childId, int parentId);
+//   boolean wasEverKindOf(int childNid, int parentNidd);
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the all relationship origin sequences of type.
+    * Gets the all relationship origin concept nids of type.
     *
-    * @param destinationId the destination id
-    * @param typeSequenceSet the type sequence set
-    * @return the all relationship origin sequences of type
+    * @param destinationConceptNid the destination id
+    * @param typeConceptNidSet the type nids set
+    * @return the all relationship origin nids of type
     */
-   IntStream getAllRelationshipOriginNidsOfType(int destinationId, IntSet typeSequenceSet);
+   IntStream getAllRelationshipOriginNidsOfType(int destinationConceptNid, IntSet typeConceptNidSet);
 
    /**
     * Gets the snapshot.
@@ -152,5 +160,17 @@ public interface TaxonomyService
     */
    void notifyTaxonomyListenersToRefresh();
    
+   /**
+    * Atomically updates the element at index {@code conceptNid} with the  results of applying the given function 
+    * to the current and given values, returning the updated value. The function should  be side-effect-free, since 
+    * it may be re-applied when attempted updates fail due to contention among threads.  The function is applied with 
+    * the current value at index {@code conceptNid} as its first  argument, and the given update as the second argument.
+    * @param assemblageNid The assemblage to read the data from
+    * @param conceptNid The concept within the assemblage to read the data from, and to store the new data on
+    * @param newData The new value
+    * @param accumulatorFunction The function to merge the old and new values
+    * @return The new, merged value.
+    */
+   int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction);
 }
 

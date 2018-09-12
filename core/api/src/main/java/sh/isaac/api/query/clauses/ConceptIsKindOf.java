@@ -127,8 +127,8 @@ public class ConceptIsKindOf
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       final int                parentNid         = this.kindOfSpecification.getNid();
-      final NidSet kindOfSequenceSet = Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getKindOfConceptNidSet(parentNid);
-      getResultsCache().or(kindOfSequenceSet);
+      final NidSet kindOfNidSet = Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getKindOfConceptNidSet(parentNid);
+      getResultsCache().or(kindOfNidSet);
       return getResultsCache();
    }
 

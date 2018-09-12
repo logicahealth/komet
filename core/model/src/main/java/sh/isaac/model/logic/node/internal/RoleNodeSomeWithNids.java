@@ -47,6 +47,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
@@ -123,6 +124,16 @@ public final class RoleNodeSomeWithNids
       return "Some " +
              super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        builder.append("\n       SomeRole(");
+        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimoridalStringForNid(typeConceptNid)).append("\")");
+        builder.append(", ");
+        for (AbstractLogicNode child: getChildren()) {
+            child.addToBuilder(builder);
+        }
+        builder.append(")\n");
+    }
 
    /**
     * Write node data.

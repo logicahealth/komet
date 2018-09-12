@@ -59,7 +59,7 @@ import sh.isaac.model.coordinate.LanguageCoordinateImpl;
  */
 public class LanguageCoordinates {
    /**
-    * Case significance to concept sequence.
+    * Case significance to concept nid.
     *
     * @param initialCaseSignificant the initial case significant
     * @return the int
@@ -254,7 +254,7 @@ public class LanguageCoordinates {
                                                                 TermAux.US_DIALECT_ASSEMBLAGE.getNid() };
       final int[] descriptionTypePreferenceList = new int[] {
                                                      TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
-                                                           TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid() };
+                                                           TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()};
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
       return new LanguageCoordinateImpl(languageSequence,

@@ -302,9 +302,9 @@ public class ClassifierData
 
     //~--- get methods ---------------------------------------------------------
     /**
-     * Gets the affected concept sequence set.
+     * Gets the affected concept nid set.
      *
-     * @return the affected concept sequence set
+     * @return the affected concept nid set
      */
     public Set<Integer> getAffectedConceptNidSet() {
 
@@ -318,9 +318,7 @@ public class ClassifierData
             if (node != null) {
                 // TODO why does the classifier include null in the affected node set.
                 for (String equivalent : node.getEquivalentConcepts()) {
-                    int nid = ModelGet.identifierService()
-                            .getNidForElementSequence(Integer.parseInt(equivalent), conceptAssemblageNid);
-                    affectedConceptNids.add(nid);
+                    affectedConceptNids.add(Integer.parseInt(equivalent));
                 }
             }
         }

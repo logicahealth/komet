@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
@@ -17,6 +17,7 @@
 package sh.komet.gui.provider.concept.builder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,6 +59,7 @@ import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
+import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import sh.komet.gui.style.StyleClasses;
 import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import sh.komet.gui.util.FxGet;
@@ -92,6 +94,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     private final ObservableList<ObservableDescriptionDialect> descriptions = FXCollections.observableArrayList();
 
     private ObservableLogicGraphVersionImpl statedDefinition;
+    protected ConceptBuilderComponentPanel conceptPanel;
 
     public ConceptBuilderNode(Manifold manifold) {
         this.manifold = manifold;
@@ -139,7 +142,11 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         HBox.setHgrow(textField, Priority.ALWAYS);
         textField.setMinWidth(Region.USE_PREF_SIZE);
         builderToolbar.getItems().addAll(textField, cancelButton, commitButton);
-
+        builderToolbar.getStyleClass().add(StyleClasses.COMPONENT_PANEL.toString());
+        builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
+        builderBorderPane.getStyleClass().add(StyleClasses.COMPONENT_PANEL.toString());
+        builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
+ 
         textField.setText("New concept");
         textField.requestFocus();
         textField.selectAll();
@@ -182,7 +189,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     private void layoutBuilderComponents() {
         componentPanelBox.getChildren().clear();
         final ParallelTransition parallelTransition = new ParallelTransition();
-        ConceptBuilderComponentPanel conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion);
+        this.conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion, false, textField.textProperty());
         parallelTransition.getChildren().add(addComponent(conceptPanel, new Insets(10, 5, 1, 5)));
         AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
         descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
@@ -190,14 +197,14 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
                 .add(addNode(descriptionHeader));
 
         for (ObservableDescriptionDialect descDialect : descriptions) {
-            ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(manifold, descDialect);
+            ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(manifold, descDialect, false, textField.textProperty());
             parallelTransition.getChildren().add(addComponent(descPanel));
         }
         AnchorPane definitionHeader = setupHeaderPanel("AXIOMS", null);
         definitionHeader.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
         parallelTransition.getChildren()
                 .add(addNode(definitionHeader));
-        ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, statedDefinition);
+        ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, statedDefinition, false, textField.textProperty());
         parallelTransition.getChildren()
                 .add(addComponent(logicPanel));
 
@@ -235,12 +242,6 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         return ft;
     }
 
-    private void cancel(Event event) {
-        builderToolbar.getItems().clear();
-        builderToolbar.getItems().addAll(newConceptButton);
-        componentPanelBox.getChildren().clear();
-    }
-
     private void commit(Event event) {
         ObservableVersion[] versionsToCommit;
         try {
@@ -249,8 +250,8 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
             // TODO alert user that content is not sufficiently formed to submit for commit. 
             FxGet.dialogs().showErrorDialog("Error during commit", ex);
             return;
-        }
-        CommitTask commitTask = Get.commitService().commit(manifold.getEditCoordinate(), "", versionsToCommit);
+        } 
+        CommitTask commitTask = Get.commitService().commit(FxGet.editCoordinate(), "", versionsToCommit);
         Get.executor().execute(() -> {
             try {
                 Optional<CommitRecord> commitRecord = commitTask.get();
@@ -261,9 +262,25 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         });
     }
 
+
+    private void cancel(Event event) {
+        builderToolbar.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+        builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+        builderBorderPane.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+        builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+
+        builderToolbar.getItems().clear();
+        builderToolbar.getItems().addAll(newConceptButton);
+        componentPanelBox.getChildren().clear();
+    }
     private void completeCommit(CommitTask commitTask, Optional<CommitRecord> commitRecord) {
         if (commitRecord.isPresent()) {
             Platform.runLater(() -> {
+                builderToolbar.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+                builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+                builderBorderPane.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+                builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+
                 builderToolbar.getItems().clear();
                 builderToolbar.getItems().addAll(newConceptButton);
                 componentPanelBox.getChildren().clear();
@@ -296,6 +313,9 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         List<ObservableVersion> versionsToCommit = new ArrayList<>();
         // Concept
         versionsToCommit.add(this.conceptVersion);
+        
+        // Assemblage
+        versionsToCommit.addAll(Arrays.asList(this.conceptPanel.getVersionsToCommit()));
 
         // descriptions
         for (ObservableDescriptionDialect descDialect : descriptions) {

@@ -43,11 +43,8 @@ package sh.isaac.api.collections.uuidnidmap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.mahout.math.function.DoubleProcedure;
 import org.apache.mahout.math.list.ByteArrayList;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.HashFunctions;
@@ -139,8 +136,6 @@ public class UuidToIntHashMap
    public UuidToIntHashMap(int initialCapacity, double minLoadFactor, double maxLoadFactor) {
       setUp(initialCapacity, minLoadFactor, maxLoadFactor);
    }
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Removes all (key,value) associations from the receiver. Implicitly calls {@code trimToSize()}.
@@ -250,7 +245,7 @@ public class UuidToIntHashMap
 
    /**
     * Applies a procedure to each (key,value) pair of the receiver, if any. Iteration order is guaranteed to
-    * be <i>identical</i> to the order used by method {@link #forEachKey(DoubleProcedure)}.
+    * be <i>identical</i> to the order used by method {@link #forEachKey(UuidProcedure)}.
     *
     * @param procedure the procedure to be applied. Stops iteration if the procedure returns {@code false},
     * otherwise continues.
@@ -278,7 +273,7 @@ public class UuidToIntHashMap
    /**
     * Returns the first key the given value is associated with. It is often a good idea to first check with
     * {@link #containsValue(int)} whether there exists an association from a key to this value. Search order
-    * is guaranteed to be <i>identical</i> to the order used by method {@link #forEachKey(DoubleProcedure)}.
+    * is guaranteed to be <i>identical</i> to the order used by method {@link #forEachKey(UuidProcedure)}.
     *
     * @param value the value to search for.
     * @return the first key for which holds {@code get(key) == value}; returns {@code Double.NaN} if no
@@ -307,7 +302,7 @@ public class UuidToIntHashMap
     * Fills all keys contained in the receiver into the specified list. Fills the list, starting at index 0.
     * After this call returns the specified list has a new size that equals {@code this.size()}. Iteration
     * order is guaranteed to be <i>identical</i> to the order used by method
-    * {@link #forEachKey(DoubleProcedure)}. <p> This method can be used to iterate over the keys of the
+    * {@link #forEachKey(UuidProcedure)}. <p> This method can be used to iterate over the keys of the
     * receiver.
     *
     * @param list the list to be filled, can have any size.
@@ -761,8 +756,6 @@ public class UuidToIntHashMap
       this.freeEntries   = newCapacity - this.distinct;  // delta
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the number of table entries in state==FREE.
     *
@@ -771,8 +764,6 @@ public class UuidToIntHashMap
    public int getFreeEntries() {
       return this.freeEntries;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Set number of table entries in state==FREE.
@@ -783,8 +774,6 @@ public class UuidToIntHashMap
       this.freeEntries = freeEntries;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Returns the value associated with the specified key. It is often a good idea to first check with
     * {@link #containsKey(long[])} whether the given key has a value associated or not, i.e. whether there
@@ -794,14 +783,14 @@ public class UuidToIntHashMap
     * @return the value associated with the specified key; {@code 0} if no such key is present.
     */
    @Override
-   public int get(long[] key) {
+   public OptionalInt get(long[] key) {
       final int i = indexOfKey(key);
 
       if (i < 0) {
-         return Integer.MAX_VALUE;  // not contained
+         return OptionalInt.empty();  // not contained
       }
 
-      return this.values[i];
+      return OptionalInt.of(this.values[i]);
    }
 
    /**
@@ -811,14 +800,14 @@ public class UuidToIntHashMap
     * @return the int
     */
    @Override
-   public int get(UUID key) {
+   public OptionalInt get(UUID key) {
       final int i = indexOfKey(key);
 
       if (i < 0) {
-         return Integer.MAX_VALUE;  // not contained
+         return OptionalInt.empty();  // not contained
       }
 
-      return this.values[i];
+      return OptionalInt.of(this.values[i]);
    }
 
    /**
@@ -838,8 +827,6 @@ public class UuidToIntHashMap
    public long[] getTable() {
       return this.table;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Initializes the receiver.
@@ -890,8 +877,6 @@ public class UuidToIntHashMap
       this.highWaterMark = chooseHighWaterMark(capacity, this.maxLoadFactor);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the hash table values.
     *
@@ -899,6 +884,69 @@ public class UuidToIntHashMap
     */
    public int[] getValues() {
       return this.values;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public boolean inverseCacheEnabled()
+   {
+      return false;
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public int getMaxNid()
+   {
+      throw new UnsupportedOperationException();
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public int getWithGeneration(UUID uuidKey)
+   {
+      throw new UnsupportedOperationException();
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public UUID[] getKeysForValue(int nid)
+   {
+      throw new UnsupportedOperationException();
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public boolean cacheContainsNid(int nid)
+   {
+      return false;
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public int getDiskSpaceUsed()
+   {
+      throw new UnsupportedOperationException();
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public int getMemoryInUse()
+   {
+      throw new UnsupportedOperationException();
    }
 }
 

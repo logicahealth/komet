@@ -259,15 +259,15 @@ public class SemanticIndexerConfiguration implements IsaacCache {
     *
     * Note that this causes a full DB reindex, on this thread.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @throws RuntimeException the runtime exception
     */
    @SuppressWarnings("unchecked")
-   public static void disableIndex(int assemblageConceptSequence)
+   public static void disableIndex(int assemblageConceptNid)
            throws RuntimeException {
-      LOG.info("Disabling index for dynamic assemblage concept '" + assemblageConceptSequence + "'");
+      LOG.info("Disabling index for dynamic assemblage concept '" + assemblageConceptNid + "'");
 
-      final DynamicVersion<?> rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
+      final DynamicVersion<?> rdv = findCurrentIndexConfigRefex(assemblageConceptNid);
 
       if ((rdv != null) && (rdv.getStatus() == Status.ACTIVE)) {
          LookupService.get()
@@ -288,11 +288,11 @@ public class SemanticIndexerConfiguration implements IsaacCache {
                  .addUncommitted(rdv.getChronology());
          Get.commitService()
                  .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "Index Config Change");
-         LOG.info("Index disabled for dynamic assemblage concept '" + assemblageConceptSequence + "'");
+         LOG.info("Index disabled for dynamic assemblage concept '" + assemblageConceptNid + "'");
          Get.startIndexTask(new Class[]{IndexSemanticQueryService.class});
       } else {
          LOG.info("No index configuration was found to disable for dynamic assemblage concept '"
-                 + assemblageConceptSequence + "'");
+                 + assemblageConceptNid + "'");
       }
    }
 
@@ -316,23 +316,23 @@ public class SemanticIndexerConfiguration implements IsaacCache {
    /**
     * Needs indexing.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return true, if successful
     */
-   protected boolean needsIndexing(int assemblageConceptSequence) {
+   protected boolean needsIndexing(int assemblageConceptNid) {
       initCheck();
-      return this.whatToIndexSequenceToCol.containsKey(assemblageConceptSequence);
+      return this.whatToIndexSequenceToCol.containsKey(assemblageConceptNid);
    }
 
    /**
     * What columns to index.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the integer[]
     */
-   public Integer[] whatColumnsToIndex(int assemblageConceptSequence) {
+   public Integer[] whatColumnsToIndex(int assemblageConceptNid) {
       initCheck();
-      return this.whatToIndexSequenceToCol.get(assemblageConceptSequence);
+      return this.whatToIndexSequenceToCol.get(assemblageConceptNid);
    }
 
    /**
@@ -431,13 +431,13 @@ public class SemanticIndexerConfiguration implements IsaacCache {
    /**
     * Checks if assemblage indexed.
     *
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return true, if assemblage indexed
     */
-   public static boolean isAssemblageIndexed(int assemblageConceptSequence) {
+   public static boolean isAssemblageIndexed(int assemblageConceptNid) {
       return LookupService.get()
               .getService(SemanticIndexerConfiguration.class)
-              .needsIndexing(assemblageConceptSequence);
+              .needsIndexing(assemblageConceptNid);
    }
 
    /**

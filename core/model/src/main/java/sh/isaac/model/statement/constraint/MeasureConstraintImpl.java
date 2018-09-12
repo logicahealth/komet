@@ -78,7 +78,7 @@ public class MeasureConstraintImpl
     * @param data the data
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
       data.putUTF(this.constraintDescription);
       data.putFloat(this.initialLowerBound);

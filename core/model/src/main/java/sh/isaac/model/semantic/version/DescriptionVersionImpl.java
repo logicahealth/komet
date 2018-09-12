@@ -60,16 +60,16 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 public class DescriptionVersionImpl
         extends AbstractVersionImpl
          implements MutableDescriptionVersion {
-   /** The case significance concept sequence. */
+   /** The case significance concept nid. */
    protected int caseSignificanceConceptNid;
 
-   /** The language concept sequence. */
+   /** The language concept nid. */
    protected int languageConceptNid;
 
    /** The text. */
    protected String text;
 
-   /** The description type concept sequence. */
+   /** The description type concept nid. */
    protected int descriptionTypeConceptNid;
 
    //~--- constructors --------------------------------------------------------
@@ -165,7 +165,7 @@ public class DescriptionVersionImpl
     * @param data the data
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
       data.putNid(this.caseSignificanceConceptNid);
       data.putNid(this.languageConceptNid);
@@ -176,9 +176,9 @@ public class DescriptionVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the case significance concept sequence.
+    * Gets the case significance concept nid.
     *
-    * @return the case significance concept sequence
+    * @return the case significance concept nid
     */
    @Override
    public int getCaseSignificanceConceptNid() {
@@ -188,9 +188,9 @@ public class DescriptionVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the case significance concept sequence.
+    * Sets the case significance concept nid.
     *
-    * @param caseSignificanceConceptNid the new case significance concept sequence
+    * @param caseSignificanceConceptNid the new case significance concept nid
     */
    @Override
    public void setCaseSignificanceConceptNid(int caseSignificanceConceptNid) {
@@ -200,9 +200,9 @@ public class DescriptionVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the description type concept sequence.
+    * Gets the description type concept nid.
     *
-    * @return the description type concept sequence
+    * @return the description type concept nid
     */
    @Override
    public int getDescriptionTypeConceptNid() {
@@ -212,9 +212,9 @@ public class DescriptionVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the description type concept sequence.
+    * Sets the description type concept nid.
     *
-    * @param descriptionTypeConceptNid the new description type concept sequence
+    * @param descriptionTypeConceptNid the new description type concept nid
     */
    @Override
    public void setDescriptionTypeConceptNid(int descriptionTypeConceptNid) {
@@ -224,9 +224,9 @@ public class DescriptionVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the language concept sequence.
+    * Gets the language concept nid.
     *
-    * @return the language concept sequence
+    * @return the language concept nid
     */
    @Override
    public int getLanguageConceptNid() {
@@ -236,9 +236,9 @@ public class DescriptionVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the language concept sequence.
+    * Sets the language concept nid.
     *
-    * @param languageConceptNid the new language concept sequence
+    * @param languageConceptNid the new language concept nid
     */
    @Override
    public void setLanguageConceptNid(int languageConceptNid) {

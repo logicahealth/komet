@@ -85,7 +85,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
     
     private final HashMap<ConceptSpecification, SemanticBuilder<?>> acceptableInDialectAssemblages = new HashMap<>();
 
-   /** The concept sequence. */
+   /** The concept nid. */
    private int conceptNid = Integer.MAX_VALUE;
 
    /** The description text. */
@@ -125,7 +125,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
     * Instantiates a new description builder.
     *
     * @param descriptionText the description text
-    * @param conceptNid the concept sequence
+    * @param conceptNid the concept nid
     * @param descriptionType the description type
     * @param languageForDescription the language for description - also used as the assemblage
     */
@@ -223,7 +223,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       final SemanticBuilderService semanticBuilder = LookupService.getService(SemanticBuilderService.class);
       final SemanticBuilder<? extends SemanticChronology> descBuilder =
          semanticBuilder.getDescriptionBuilder(Get.languageCoordinateService()
-                                                      .caseSignificanceToConceptSequence(false),
+                                                      .caseSignificanceToConceptNid(false),
                                                    this.languageForDescription.getNid(),
                                                    this.descriptionType.getNid(),
                                                    this.descriptionText,this.conceptNid);
@@ -262,7 +262,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       }
 
       if (!isPrimordialUuidSet()) {
-         int caseSigNid = Get.languageCoordinateService().caseSignificanceToConceptSequence(false);
+         int caseSigNid = Get.languageCoordinateService().caseSignificanceToConceptNid(false);
 
          setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace,
                  conceptBuilder == null ? Get.identifierService().getUuidPrimordialForNid(conceptNid) : conceptBuilder.getPrimordialUuid(), 

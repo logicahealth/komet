@@ -74,10 +74,10 @@ public interface VersionManagmentPathService {
    /**
     * Gets the origins.
     *
-    * @param stampPathSequence the stamp path sequence
+    * @param stampPathNid the stamp path nid
     * @return the origins
     */
-   Collection<? extends StampPosition> getOrigins(int stampPathSequence);
+   Collection<? extends StampPosition> getOrigins(int stampPathNid);
 
    /**
     * Gets the paths.
@@ -107,7 +107,7 @@ public interface VersionManagmentPathService {
    /**
     * Gets the stamp path.
     *
-    * @param stampPathSequence the stamp path sequence
+    * @param stampPathSequence the stamp path nid
     * @return the stamp path
     */
    StampPath getStampPath(int stampPathSequence);

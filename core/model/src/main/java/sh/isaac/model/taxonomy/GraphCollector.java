@@ -41,6 +41,7 @@ package sh.isaac.model.taxonomy;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.IntFunction;
 import java.util.function.ObjIntConsumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,7 +52,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.tree.HashTreeBuilder;
 
 //~--- classes ----------------------------------------------------------------
@@ -68,14 +68,14 @@ public class GraphCollector
          implements ObjIntConsumer<HashTreeBuilder>, BiConsumer<HashTreeBuilder, HashTreeBuilder> {
    
    private static final Logger LOG = LogManager.getLogger();
-   /** The isa concept sequence. */
+   /** The isa concept nid. */
    private final int ISA_CONCEPT_NID = TermAux.IS_A.getNid();
 
    /** The watch list. */
    NidSet watchList = new NidSet();
 
    /** The taxonomy map. */
-   final SpinedIntIntArrayMap taxonomyMap;
+   final IntFunction<int[]> taxonomyDataProvider;
 
    /** The taxonomy coordinate. */
    final ManifoldCoordinate manifoldCoordinate;
@@ -88,14 +88,14 @@ public class GraphCollector
    /**
     * Instantiates a new graph collector.
     *
-    * @param taxonomyMap the taxonomy map
+    * @param taxonomyDataProvider the taxonomy map
     * @param manifoldCoordinate the view coordinate
     */
-   public GraphCollector(SpinedIntIntArrayMap taxonomyMap, ManifoldCoordinate manifoldCoordinate) {
-      if (taxonomyMap == null) {
-         throw new IllegalStateException("taxonomyMap cannot be null");
+   public GraphCollector(IntFunction<int[]> taxonomyDataProvider, ManifoldCoordinate manifoldCoordinate) {
+      if (taxonomyDataProvider == null) {
+         throw new IllegalStateException("taxonomyDataProvider cannot be null");
       }
-      this.taxonomyMap        = taxonomyMap;
+      this.taxonomyDataProvider = taxonomyDataProvider;
       this.manifoldCoordinate = manifoldCoordinate;
       this.taxonomyFlags      = TaxonomyFlag.getFlagsFromManifoldCoordinate(manifoldCoordinate);
 
@@ -125,7 +125,7 @@ public class GraphCollector
     */
    @Override
    public void accept(HashTreeBuilder graphBuilder, int originNid) {
-      final int[] taxonomyData = this.taxonomyMap.get(originNid);
+      final int[] taxonomyData = this.taxonomyDataProvider.apply(originNid);
       
       if (taxonomyData == null) {
          LOG.warn("No taxonomy data for: {} with NID: {}", Get.conceptDescriptionText(originNid), originNid);

@@ -109,7 +109,7 @@ public class ConceptSuite {
       final String                uuidString   = "bd4d197d-0d88-4543-83dc-09deb2321ee7";
       final long                  time         = System.currentTimeMillis();
       final ConceptChronologyImpl testConcept  = (ConceptChronologyImpl) createConcept(conceptName, uuidString, time);
-      final byte[]                data         = testConcept.getDataToWrite(); 
+      final byte[]                data         = testConcept.getChronologyVersionDataToWrite(); 
       final ByteArrayDataBuffer   buffer       = new ByteArrayDataBuffer(data);
       final ConceptChronologyImpl testConcept2 = ConceptChronologyImpl.make(buffer);
 
@@ -153,7 +153,7 @@ public class ConceptSuite {
 
       conceptChronology.createMutableVersion(stampSequence);
 
-      final byte[]                data               = conceptChronology.getDataToWrite();
+      final byte[]                data               = conceptChronology.getChronologyVersionDataToWrite();
       final ByteArrayDataBuffer   buffer             = new ByteArrayDataBuffer(data);
       final ConceptChronologyImpl conceptChronology2 = ConceptChronologyImpl.make(buffer);
 

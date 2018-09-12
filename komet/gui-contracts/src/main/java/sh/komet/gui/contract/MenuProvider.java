@@ -16,9 +16,15 @@
 package sh.komet.gui.contract;
 
 import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicInteger;
+import javafx.application.Platform;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
+import sh.isaac.api.ApplicationStates;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 
 /**
  * An interface various modules can implement to provide menus that will be
@@ -28,16 +34,45 @@ import javafx.stage.Window;
  */
 @Contract
 public interface MenuProvider {
+    public static final String PARENT_PREFERENCES = MenuProvider.class.getName() + ".PARENT_PREFERENCES";
+    AtomicInteger WINDOW_COUNT = new AtomicInteger(1);
+    AtomicInteger WINDOW_SEQUENCE = new AtomicInteger(1);
 
     /**
      * @return the parent menus this provider creates items for
      */
-    public EnumSet<AppMenu> getParentMenus();
+    EnumSet<AppMenu> getParentMenus();
 
     /**
      * @param parentMenu
      * @param window the window this menu will be part of
      * @return the menu item to add to the app level menu
      */
-    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window);
+    MenuItem[] getMenuItems(AppMenu parentMenu, Window window);
+
+    static void handleCloseRequest(WindowEvent e) {
+        if (MenuProvider.WINDOW_COUNT.get() == 1) {
+            e.consume();
+            Get.applicationStates().remove(ApplicationStates.RUNNING);
+            Get.applicationStates().add(ApplicationStates.STOPPING);
+            // need shutdown to all happen on a non event thread...
+            Thread shutdownThread = new Thread(() -> {  //Can't use the thread poool for this, because shutdown 
+                //system stops the thread pool, which messes up the shutdown sequence.
+                LookupService.shutdownSystem();
+                Platform.runLater(() -> {
+                    try {
+                        Platform.exit();
+                        System.exit(0);
+                    } catch (Throwable ex) {
+                        ex.printStackTrace();
+                    }
+                });
+            }, "shutdown-thread");
+            shutdownThread.setDaemon(true);
+            shutdownThread.start();
+        }
+
+        MenuProvider.WINDOW_COUNT.decrementAndGet();
+
+    }
 }

@@ -36,7 +36,6 @@ import sh.komet.gui.control.PropertyEditorType;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
-
 /**
  *
  * @author kec
@@ -47,18 +46,22 @@ when
 then
    PropertySheetMenuItem contentIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add content issue", MetaData.CONTENT_ISSUE_ASSEMBLAGE____SOLOR);
    contentIssuePropertySheetMenuItem.addPropertyToEdit("content issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
    /* */
    PropertySheetMenuItem kometIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add KOMET issue", MetaData.KOMET_ISSUE_ASSEMBLAGE____SOLOR);
    kometIssuePropertySheetMenuItem.addPropertyToEdit("KOMET issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
    /* */
-   PropertySheetMenuItem qaRuleIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add QA rule issue", MetaData.QUALITY_ASSURANCE_RULE_ISSUE_ASSEMBLAGE____SOLOR);
-   qaRuleIssuePropertySheetMenuItem.addPropertyToEdit("QA rule issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
-   /* */
-   PropertySheetMenuItem automationPropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add automation issue", MetaData.AUTOMATION_ISSUE_ASSEMBLAGE____SOLOR);
-   automationPropertySheetMenuItem.addPropertyToEdit("automation issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
-   /* */
    PropertySheetMenuItem clinicalStatementIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add clinical statement issue", MetaData.CLINICAL_STATEMENT_ISSUE_ASSEMBLAGE____SOLOR);
    clinicalStatementIssuePropertySheetMenuItem.addPropertyToEdit("clinical statement issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   /* */
+end
+
+rule "add concept comment attachment" 
+when
+   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.CONCEPT)
+then
    /* */
    PropertySheetMenuItem snomedIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add SNOMED issue", MetaData.SNOMED_ISSUE_ASSEMBLAGE____SOLOR);
    snomedIssuePropertySheetMenuItem.addPropertyToEdit("SNOMED issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
@@ -71,5 +74,25 @@ then
    /* */
    PropertySheetMenuItem solorIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add SOLOR issue", MetaData.SOLOR_ISSUE_ASSEMBLAGE____SOLOR);
    solorIssuePropertySheetMenuItem.addPropertyToEdit("SOLOR issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+
+end
+
+rule "add description comment attachment" 
+when
+   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.DESCRIPTION)
+then
    /* */
+   PropertySheetMenuItem automationPropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add automation issue", MetaData.AUTOMATION_ISSUE_ASSEMBLAGE____SOLOR);
+   automationPropertySheetMenuItem.addPropertyToEdit("automation issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+
+end
+
+rule "add EL++ comment attachment" 
+when
+   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.LOGIC_GRAPH)
+then
+   /* */
+   PropertySheetMenuItem qaRuleIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add QA rule issue", MetaData.QUALITY_ASSURANCE_RULE_ISSUE_ASSEMBLAGE____SOLOR);
+   qaRuleIssuePropertySheetMenuItem.addPropertyToEdit("QA rule issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+
 end

@@ -106,6 +106,14 @@ public class SufficientSetNode
    public String toSimpleString() {
       return "Sufficient " +  super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        for (AbstractLogicNode child: getChildren()) {
+            builder.append("\n       SufficientSet(");
+            child.addToBuilder(builder);
+            builder.append("\n          )\n");
+        }
+    }
 
    /**
     * Compare node fields.

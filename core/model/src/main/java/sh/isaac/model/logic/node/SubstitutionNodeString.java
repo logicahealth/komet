@@ -107,6 +107,12 @@ public class SubstitutionNodeString
    public String toSimpleString() {
       return "String substitution:" +  super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       StringSubstitution(\"");
+            builder.append("not supported yet");
+            builder.append("\", leb)\n");
+    }
 
    /**
     * Inits the node uuid.

@@ -88,7 +88,7 @@ public class Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl
     * @param data the data
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
       data.putNid(this.nid1);
       data.putInt(this.int2);

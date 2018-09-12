@@ -70,38 +70,54 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    /**
     * Gets the component semantic builder.
     *
-    * @param memeComponentNid the meme component nid
+    * @param componentNid the component nid
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the component semantic builder
     */
    @Override
-   public SemanticBuilder<C> getComponentSemanticBuilder(int memeComponentNid,
+   public SemanticBuilder<C> getComponentSemanticBuilder(int componentNid,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-         int assemblageConceptSequence) {
+         int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponent,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.COMPONENT_NID,
-                                   new Object[] { memeComponentNid });
+                                   new Object[] { componentNid });
    }
-
    /**
     * Gets the component semantic builder.
     *
-    * @param memeComponentNid the meme component nid
+    * @param componentNid the component nid
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the component semantic builder
     */
    @Override
-   public SemanticBuilder<C> getComponentSemanticBuilder(int memeComponentNid,
+   public SemanticBuilder<C> getComponentSemanticBuilder(int componentNid,
          int referencedComponentNid,
-         int assemblageConceptSequence) {
+         int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponentNid,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.COMPONENT_NID,
-                                   new Object[] { memeComponentNid });
+                                   new Object[] { componentNid });
    }
+
+    @Override
+    public SemanticBuilder<C> getComponentIntSemanticBuilder(int componentNid, int intValue, IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent, int assemblageConceptNid) {
+       return new SemanticBuilderImpl(referencedComponent,
+                                   assemblageConceptNid,
+                                   VersionType.Nid1_Int2,
+                                   new Object[] { componentNid, intValue });
+   }
+
+    @Override
+    public SemanticBuilder<C> getComponentIntSemanticBuilder(int componentNid, int intValue, int referencedComponent, int assemblageConceptNid) {
+       return new SemanticBuilderImpl(referencedComponent,
+                                   assemblageConceptNid,
+                                   VersionType.Nid1_Int2,
+                                   new Object[] { componentNid, intValue });
+    }
+
 
    /**
     * {@inheritDoc}
@@ -141,48 +157,48 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
     * Gets the dynamic builder.
     *
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the dynamic builder
     */
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-           int assemblageConceptSequence) {
-      return new SemanticBuilderImpl(referencedComponent, assemblageConceptSequence, VersionType.DYNAMIC);
+           int assemblageConceptNid) {
+      return new SemanticBuilderImpl(referencedComponent, assemblageConceptNid, VersionType.DYNAMIC);
    }
 
    /**
     * Gets the dynamic builder.
     *
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the dynamic builder
     */
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            int referencedComponentNid,
-           int assemblageConceptSequence) {
-      return new SemanticBuilderImpl(referencedComponentNid, assemblageConceptSequence, VersionType.DYNAMIC);
+           int assemblageConceptNid) {
+      return new SemanticBuilderImpl(referencedComponentNid, assemblageConceptNid, VersionType.DYNAMIC);
    }
 
    /**
     * Gets the dynamic builder.
     *
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @param data the data
     * @return the dynamic builder
     */
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-           int assemblageConceptSequence,
+           int assemblageConceptNid,
            DynamicData[] data) {
       // Java makes a mess out of passing an array of data into a method that takes the array ... syntax.  If you pass one, it unwraps your array, and passes in the
       // parts individually.  If you pass more than one, it doens't unwrap the parts.  In the first case, it also makes it impossible to cast back from Object[] to
       // the array type we want... so just wrap it in something to stop java from being stupid.
       return new SemanticBuilderImpl(referencedComponent,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.DYNAMIC,
                                    new AtomicReference<>(data));
    }
@@ -191,20 +207,20 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
     * Gets the dynamic builder.
     *
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @param data the data
     * @return the dynamic builder
     */
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            int referencedComponentNid,
-           int assemblageConceptSequence,
+           int assemblageConceptNid,
            DynamicData[] data) {
       // Java makes a mess out of passing an array of data into a method that takes the array ... syntax.  If you pass one, it unwraps your array, and passes in the
       // parts individually.  If you pass more than one, it doens't unwrap the parts.  In the first case, it also makes it impossible to cast back from Object[] to
       // the array type we want... so just wrap it in something to stop java from being stupid.
       return new SemanticBuilderImpl(referencedComponentNid,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.DYNAMIC,
                                    new AtomicReference<>(data));
    }
@@ -214,15 +230,15 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
     *
     * @param expression the expression
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the logical expression semantic builder
     */
    @Override
    public SemanticBuilder<C> getLogicalExpressionBuilder(LogicalExpression expression,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-         int assemblageConceptSequence) {
+         int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponent,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.LOGIC_GRAPH,
                                    new Object[] { expression });
    }
@@ -232,15 +248,15 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
     *
     * @param expression the expression
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the logical expression semantic builder
     */
    @Override
    public SemanticBuilder<C> getLogicalExpressionBuilder(LogicalExpression expression,
          int referencedComponentNid,
-         int assemblageConceptSequence) {
+         int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponentNid,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.LOGIC_GRAPH,
                                    new Object[] { expression });
    }
@@ -250,15 +266,15 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
     *
     * @param longValue the long value
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the long semantic builder
     */
    @Override
    public SemanticBuilder<C> getLongSemanticBuilder(long longValue,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-         int assemblageConceptSequence) {
+         int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponent,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.LONG,
                                    new Object[] { longValue });
    }
@@ -268,15 +284,15 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
     *
     * @param longValue the long value
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the long semantic builder
     */
    @Override
    public SemanticBuilder<C> getLongSemanticBuilder(long longValue,
          int referencedComponentNid,
-         int assemblageConceptSequence) {
+         int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponentNid,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.LONG,
                                    new Object[] { longValue });
    }
@@ -285,27 +301,27 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
     * Gets the membership semantic builder.
     *
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the membership semantic builder
     */
    @Override
    public SemanticBuilder<C> getMembershipSemanticBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-           int assemblageConceptSequence) {
-      return new SemanticBuilderImpl(referencedComponent, assemblageConceptSequence, VersionType.MEMBER, new Object[] {});
+           int assemblageConceptNid) {
+      return new SemanticBuilderImpl(referencedComponent, assemblageConceptNid, VersionType.MEMBER, new Object[] {});
    }
 
    /**
     * Gets the membership semantic builder.
     *
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the membership semantic builder
     */
    @Override
-   public SemanticBuilder<C> getMembershipSemanticBuilder(int referencedComponentNid, int assemblageConceptSequence) {
+   public SemanticBuilder<C> getMembershipSemanticBuilder(int referencedComponentNid, int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponentNid,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.MEMBER,
                                    new Object[] {});
    }
@@ -315,15 +331,15 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
     *
     * @param memeString the meme string
     * @param referencedComponent the referenced component
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the string semantic builder
     */
    @Override
    public SemanticBuilder<C> getStringSemanticBuilder(String memeString,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
-         int assemblageConceptSequence) {
+         int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponent,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.STRING,
                                    new Object[] { memeString });
    }
@@ -333,15 +349,15 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
     *
     * @param memeString the meme string
     * @param referencedComponentNid the referenced component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param assemblageConceptNid the assemblage concept nid
     * @return the string semantic builder
     */
    @Override
    public SemanticBuilder<C> getStringSemanticBuilder(String memeString,
          int referencedComponentNid,
-         int assemblageConceptSequence) {
+         int assemblageConceptNid) {
       return new SemanticBuilderImpl(referencedComponentNid,
-                                   assemblageConceptSequence,
+                                   assemblageConceptNid,
                                    VersionType.STRING,
                                    new Object[] { memeString });
    }

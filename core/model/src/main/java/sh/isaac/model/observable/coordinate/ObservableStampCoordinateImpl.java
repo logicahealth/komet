@@ -156,7 +156,7 @@ public class ObservableStampCoordinateImpl
    }
 
    /**
-    * Module sequences property.
+    * module nids property.
     *
     * @return the object property
     */

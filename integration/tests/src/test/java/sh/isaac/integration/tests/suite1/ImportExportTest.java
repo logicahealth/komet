@@ -321,9 +321,22 @@ public class ImportExportTest {
               (TreeNodeVisitData t,
                       int conceptSequence) -> {
                  taxonomyCount.incrementAndGet();
-              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
+              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getConceptAssemblageNid()));
       Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
       logTree(roots[0], taxonomyTree);
+   }
+   
+   /**
+    * Sanity check for a data store method that isn't well tested
+    */
+   @Test(
+      groups           = { "load" },
+      dependsOnMethods = { "testClassify" }
+   )
+   public void testGetAssemblageConceptNids() {
+      int[] assemblageNids = ModelGet.dataStore().getAssemblageConceptNids();
+      Assert.assertEquals(assemblageNids.length, 12);
+      Assert.assertTrue(Arrays.toString(assemblageNids).contains(MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() + ""));
    }
 
    /**
@@ -398,7 +411,7 @@ public class ImportExportTest {
               (TreeNodeVisitData t,
                       int conceptSequence) -> {
                  taxonomyCount.incrementAndGet();
-              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
+              }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getConceptAssemblageNid()));
       logTree(roots[0], taxonomyTree);
       Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
    }
@@ -418,7 +431,7 @@ public class ImportExportTest {
 
                                         Arrays.fill(padding, ' ');
                                         LOG.info(new String(padding) + Get.conceptDescriptionText(conceptSequence));
-                                     }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getAssemblageNid()));
+                                     }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getConceptAssemblageNid()));
    }
 }
 

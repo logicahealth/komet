@@ -49,6 +49,7 @@ public class DataWriteListenerImpl implements DataWriteListener
 	public void close() throws IOException
 	{
 		writer.close();
+		writer = null;
 		log.info("IBDF writer closed");
 		if (ignored > 0)
 		{

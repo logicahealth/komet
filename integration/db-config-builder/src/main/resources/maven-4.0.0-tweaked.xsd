@@ -1226,6 +1226,7 @@
             <xs:element name="dbBuildMode" minOccurs="0" type="xs:string"/>
             <xs:element name="quasiMojoName" minOccurs="0" type="xs:string"/>
             <xs:element name="ibdfFileFolder" minOccurs="0" type="xs:string"/>
+            <xs:element name="dbImplementation" minOccurs="0" type="xs:string"/>
             <xs:element name="ibdfFiles" minOccurs="0">
               <xs:complexType>
                 <xs:sequence>

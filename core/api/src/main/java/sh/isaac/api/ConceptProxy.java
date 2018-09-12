@@ -86,20 +86,23 @@ public class ConceptProxy
     */
    public ConceptProxy() {
    }
+   public ConceptProxy(ConceptSpecification spec) {
+       this(spec.toExternalString());
+   }
 
    /**
     * Instantiates a new concept proxy.
     *
-    * @param conceptSequenceOrNid the concept sequence or nid
+    * @param conceptNid the concept nid
     */
-   public ConceptProxy(int conceptSequenceOrNid) {
+   public ConceptProxy(int conceptNid) {
       final ConceptChronology cc = Get.conceptService()
-              .getConceptChronology(conceptSequenceOrNid);
+              .getConceptChronology(conceptNid);
 
       this.uuids = cc.getUuidList()
               .toArray(new UUID[0]);
-      this.fullyQualfiedName = Get.defaultCoordinate().getFullySpecifiedDescriptionText(conceptSequenceOrNid);
-      this.regularName = Get.defaultCoordinate().getRegularName(conceptSequenceOrNid);
+      this.fullyQualfiedName = Get.defaultCoordinate().getFullySpecifiedDescriptionText(conceptNid);
+      this.regularName = Get.defaultCoordinate().getRegularName(conceptNid);
    }
 
    /**
@@ -115,13 +118,13 @@ public class ConceptProxy
 
       this.fullyQualfiedName = parts[partIndex++];
 
-      if (UUIDUtil.isUUID(parts[partIndex])) {
+      if (!UUIDUtil.isUUID(parts[partIndex])) {
          this.regularName = Optional.of(parts[partIndex++]);
       }
 
       final List<UUID> uuidList = new ArrayList<>(parts.length - partIndex);
 
-      for (int i = 1; i < parts.length; i++) {
+      for (int i = partIndex; i < parts.length; i++) {
          uuidList.add(UUID.fromString(parts[i]));
       }
 
@@ -219,10 +222,25 @@ public class ConceptProxy
    @Override
    public String toString() {
       if (this.uuids != null) {
-         return "ConceptProxy{" + this.fullyQualfiedName + "; " + Arrays.asList(this.uuids) + "}";
+          StringBuilder builder = new StringBuilder();
+          builder.append("ConceptProxy(\"");
+          builder.append(this.fullyQualfiedName);
+          builder.append("\", ");
+          int count = 0;
+          for (UUID uuid: this.uuids) {
+              builder.append("UUID.fromString(\"");
+              builder.append(uuid.toString());
+              builder.append("\")");
+              count++;
+              if (count < this.uuids.length) {
+                  builder.append(", ");
+              }
+          }
+          builder.append(")");
+          return  builder.toString();
       }
 
-      return "ConceptProxy{" + this.fullyQualfiedName + "; null UUIDs}";
+      return "ConceptProxy(\"" + this.fullyQualfiedName + ", null UUIDs)";
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -353,7 +371,7 @@ public class ConceptProxy
     * name will be set to the fully qualified name, minus the semantic tag.
     * @param fullyQualfiedName the fullyQualfiedName to set
     */
-   public void setFullyQualfiedName(String fullyQualfiedName) {
+   public final void setFullyQualfiedName(String fullyQualfiedName) {
       this.fullyQualfiedName = SemanticTags.addSemanticTagIfAbsent(fullyQualfiedName, METADATA_SEMANTIC_TAG);
       if (this.regularName == null) {
          this.regularName = Optional.of(SemanticTags.stripSemanticTagIfPresent(this.fullyQualfiedName));
@@ -364,7 +382,7 @@ public class ConceptProxy
     * @param regularName the regularName to set
     * If the passed regular name contains a semantic tag, it will be stripped.
     */
-   public void setRegularName(String regularName) {
+   public final void setRegularName(String regularName) {
       this.regularName = Optional.ofNullable(SemanticTags.stripSemanticTagIfPresent(regularName));
    }
 

@@ -345,7 +345,6 @@ public class TreeNodeVisitDataImpl implements TreeNodeVisitData {
     *
     * @return the graph size
     */
-   @Override
    public int getGraphSize() {
       return this.graphSize;
    }
@@ -465,7 +464,7 @@ public class TreeNodeVisitDataImpl implements TreeNodeVisitData {
     * {@inheritDoc}
     */
    @Override
-   public OptionalInt getPredecessorSequence(int sequence) {
+   public OptionalInt getPredecessorNid(int sequence) {
       int temp = this.predecessorSequenceList.getQuick(sequence);
       if (temp == -1) {
          return OptionalInt.empty();
@@ -482,7 +481,7 @@ public class TreeNodeVisitDataImpl implements TreeNodeVisitData {
     * @param predecessorSequence the predecessor sequence
     */
    @Override
-   public void setPredecessorSequence(int sequence, int predecessorSequence) {
+   public void setPredecessorNid(int sequence, int predecessorSequence) {
       if (sequence >= this.predecessorSequenceList.size()) {
          this.predecessorSequenceList.setSize(sequence + 1);
       }

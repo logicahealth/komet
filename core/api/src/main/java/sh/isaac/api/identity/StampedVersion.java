@@ -64,9 +64,9 @@ public interface StampedVersion {
    static final long UNCOMMITTED_TIME = Long.MAX_VALUE;
    static final long CANCELED_TIME = Long.MIN_VALUE;
    /**
-    * Gets the author sequence.
+    * Gets the author Nid.
     *
-    * @return the sequence of the concept that represents the author who committed this version.
+    * @return the Nid of the concept that represents the author who committed this version.
     */
    int getAuthorNid();
 
@@ -74,14 +74,14 @@ public interface StampedVersion {
     * Modules are analogous to OSGI modules, where they represent a collection of components
     * sufficient to accomplish a task, when taken together with the transitive module dependencies.
     *
-    * @return the sequence of the concept that represents the module this version is part of.
+    * @return the Nid of the concept that represents the module this version is part of.
     */
    int getModuleNid();
 
    /**
-    * Gets the path sequence.
+    * Gets the path Nid.
     *
-    * @return the sequence of the concept that represents the path on which this version is committed.
+    * @return the Nid of the concept that represents the path on which this version is committed.
     */
    int getPathNid();
 
@@ -100,6 +100,10 @@ public interface StampedVersion {
     * @return the state of this version.
     */
    Status getStatus();
+   
+   default boolean isActive() {
+       return getStatus() == Status.ACTIVE;
+   }
 
    /**
     * Long.MIN_VALUE indicates a canceled transaction. Long.MAX_VALUE indicates an

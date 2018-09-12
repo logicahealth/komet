@@ -69,8 +69,29 @@ import sh.isaac.api.coordinate.EditCoordinate;
  */
 public interface ObservableVersion
         extends Version {
+    public enum PROPERTY_INDEX {
+        STATUS(0),
+        TIME(1),
+        AUTHOR(2),
+        MODULE(3),
+        PATH(4),
+        COMMITTED_STATE(5),
+        ASSEMBLAGE(6),
+        REFERENCED_COMPONENT(7),
+        SEMANTIC_FIELD_START(8);
+        //
+        final int index;
+        private PROPERTY_INDEX(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+        
+    }
    /**
-    * Author sequence property.
+    * Author Nid property.
     *
     * @return the integer property
     */
@@ -84,14 +105,14 @@ public interface ObservableVersion
    ObjectProperty<CommitStates> commitStateProperty();
 
    /**
-    * Module sequence property.
+    * Module Nid property.
     *
     * @return the integer property
     */
    IntegerProperty moduleNidProperty();
 
    /**
-    * Path sequence property.
+    * Path Nid property.
     *
     * @return the integer property
     */

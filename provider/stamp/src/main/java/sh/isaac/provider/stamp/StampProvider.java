@@ -39,28 +39,25 @@
 
 package sh.isaac.provider.stamp;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -68,25 +65,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
-
+import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -100,7 +85,10 @@ import sh.isaac.api.commit.StampService;
 import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.datastore.ExtendedStore;
+import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.util.DataToBytesUtils;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -128,9 +116,6 @@ public class StampProvider
     */
    public static final String DEFAULT_STAMP_MANAGER_FOLDER = "stamp-manager";
 
-   /**
-    * TODO: persist across restarts.
-    */
    private final AtomicReference<ConcurrentHashMap<UncommittedStamp, Integer>> UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP =
       new AtomicReference<>(
           new ConcurrentHashMap<>());
@@ -160,7 +145,7 @@ public class StampProvider
    private DataStoreStartState databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
 
    /**
-    * The stamp sequence path sequence map.
+    * The stamp sequence path nid map.
     */
    ConcurrentHashMap<Integer, Integer> stampSequence_PathNid_Map = new ConcurrentHashMap<>();
 
@@ -172,30 +157,63 @@ public class StampProvider
    /**
     * The stamp manager folder.
     */
-   private final Path stampManagerFolder;
+   private Path stampManagerFolder;
 
    /**
     * Persistent as a result of reading and writing the stampMap.
     */
    private final ConcurrentHashMap<Integer, Stamp> inverseStampMap;
+   
+   private ExtendedStore dataStore = null;
+   private ExtendedStoreData<Integer, Stamp> sequenceToStamp; 
+   private ExtendedStoreData<Integer, UncommittedStamp> sequenceToUncommittedStamp;
 
    //~--- constructors --------------------------------------------------------
 
-   /**
-    * Instantiates a new stamp provider.
+   /*
+    * Instantiates a new stamp provider.  For HK2 only
     *
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public StampProvider()
+   private StampProvider()
             throws IOException {
       ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
       Path       dataStorePath        = configurationService.getDataStoreFolderPath();
 
       this.dbFolderPath = dataStorePath.resolve("stamp-provider");
-
-      Files.createDirectories(this.dbFolderPath);
       this.inverseStampMap    = new ConcurrentHashMap<>();
-      this.stampManagerFolder = this.dbFolderPath.resolve(DEFAULT_STAMP_MANAGER_FOLDER);
+      
+      if (Get.dataStore().implementsExtendedStoreAPI()) {
+         dataStore = (ExtendedStore)Get.dataStore();
+         sequenceToStamp = dataStore.<Integer, byte[], Stamp>getStore("stampProviderSequenceToStamp", 
+               (toSerialize) -> toSerialize == null ? null : DataToBytesUtils.getBytes(toSerialize::write), 
+               (toDeserialize) ->  {
+                  try {
+                     return toDeserialize == null ? null : new Stamp(DataToBytesUtils.getDataInput(toDeserialize));
+                  }
+                  catch (IOException e) {
+                     throw new RuntimeException(e);
+                  }
+               });
+         
+         sequenceToUncommittedStamp = dataStore.<Integer, byte[], UncommittedStamp>getStore("stampProviderSequenceToUncommittedStamp", 
+               (toSerialize) -> toSerialize == null ? null : DataToBytesUtils.getBytes(toSerialize::write), 
+               (toDeserialize) ->  {
+                  try {
+                     return toDeserialize == null ? null : new UncommittedStamp(DataToBytesUtils.getDataInput(toDeserialize));
+                  }
+                  catch (IOException e) {
+                     throw new RuntimeException(e);
+                  }
+               });
+
+         LOG.info("DataStore implements extended API, will be used for Stamp Manager");
+      }
+      else {
+         Files.createDirectories(this.dbFolderPath);
+         this.stampManagerFolder = this.dbFolderPath.resolve(DEFAULT_STAMP_MANAGER_FOLDER);
+         LOG.info("DataStore does not implement extended API, local file store will be used for Stamp Manager");
+      }
    }
 
    //~--- methods -------------------------------------------------------------
@@ -222,13 +240,16 @@ public class StampProvider
    public void addStamp(Stamp stamp, int stampSequence) {
       this.stampMap.put(stamp, stampSequence);
       this.inverseStampMap.put(stampSequence, stamp);
+      if (dataStore != null) {
+         sequenceToStamp.put(stampSequence, stamp);
+      }
       LOG.trace("Added stamp {}", stamp);
    }
 
    /**
     * Cancel.
     *
-    * @param authorNid the author sequence
+    * @param authorNid the author nid
     * @return the task
     */
    @Override
@@ -425,65 +446,93 @@ public class StampProvider
     */
    @PostConstruct
    private void startMe() {
+      LOG.info("Starting StampProvider post-construct");
       try {
-         LOG.info("Starting StampProvider post-construct");
-         
-         if (!Files.exists(this.stampManagerFolder) || !Files.isRegularFile(this.stampManagerFolder.resolve(DATASTORE_ID_FILE))) {
-            this.databaseValidity = DataStoreStartState.NO_DATASTORE;
-         }
-         else {
-            LOG.info("Reading existing commit manager data. ");
-            LOG.info("Reading " + STAMP_MANAGER_DATA_FILENAME);
+         if (dataStore == null) {
+            LOG.debug("Looking for file-based stamp data");
+            if (!Files.exists(this.stampManagerFolder) || !Files.isRegularFile(this.stampManagerFolder.resolve(DATASTORE_ID_FILE))) {
+               this.databaseValidity = DataStoreStartState.NO_DATASTORE;
+            }
+            else {
+               LOG.info("Reading existing commit manager data. ");
+               LOG.info("Reading " + STAMP_MANAGER_DATA_FILENAME);
+               
+               this.databaseValidity = DataStoreStartState.EXISTING_DATASTORE;
+               if (this.stampManagerFolder.resolve(DATASTORE_ID_FILE).toFile().isFile())
+               {
+                  dataStoreId = Optional.of(UUID.fromString(new String(Files.readAllBytes(this.stampManagerFolder.resolve(DATASTORE_ID_FILE)))));
+               }
+               else
+               {
+                  LOG.warn("No datastore ID in the pre-existing commit service {}", this.stampManagerFolder);
+               }
+            }
             
-            this.databaseValidity = DataStoreStartState.EXISTING_DATASTORE;
-            if (this.stampManagerFolder.resolve(DATASTORE_ID_FILE).toFile().isFile())
+            Files.createDirectories(this.stampManagerFolder);
+   
+            if (!this.dataStoreId.isPresent())
             {
-               dataStoreId = Optional.of(UUID.fromString(new String(Files.readAllBytes(this.stampManagerFolder.resolve(DATASTORE_ID_FILE)))));
+               this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
+               Files.write(this.stampManagerFolder.resolve(DATASTORE_ID_FILE), this.dataStoreId.get().toString().getBytes());
             }
-            else
-            {
-               LOG.warn("No datastore ID in the pre-existing commit service {}", this.stampManagerFolder);
+            
+            UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().clear();
+            this.nextStampSequence.set(FIRST_STAMP_SEQUENCE);
+            this.stampMap.clear();
+            this.stampSequence_PathNid_Map.clear();
+            this.inverseStampMap.clear();
+            
+            if (this.databaseValidity == DataStoreStartState.EXISTING_DATASTORE) {
+               try (DataInputStream in = new DataInputStream(
+                                             new FileInputStream(
+                                                 new File(
+                                                     this.stampManagerFolder.toFile(),
+                                                     STAMP_MANAGER_DATA_FILENAME)))) {
+                  this.nextStampSequence.set(in.readInt());
+   
+                  final int stampMapSize = in.readInt();
+   
+                  for (int i = 0; i < stampMapSize; i++) {
+                     final int   stampSequence = in.readInt();
+                     final Stamp stamp         = new Stamp(in);
+   
+                     this.stampMap.put(stamp, stampSequence);
+                     this.inverseStampMap.put(stampSequence, stamp);
+                  }
+   
+                  final int uncommittedSize = in.readInt();
+   
+                  for (int i = 0; i < uncommittedSize; i++) {
+                     UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get()
+                           .put(new UncommittedStamp(in), in.readInt());
+                  }
+               }
             }
          }
-         
-         Files.createDirectories(this.stampManagerFolder);
-
-         if (!this.dataStoreId.isPresent())
+         else
          {
-            this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
-            Files.write(this.stampManagerFolder.resolve(DATASTORE_ID_FILE), this.dataStoreId.get().toString().getBytes());
-         }
-         
-         UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().clear();
-         this.nextStampSequence.set(FIRST_STAMP_SEQUENCE);
-         this.stampMap.clear();
-         this.stampSequence_PathNid_Map.clear();
-         this.inverseStampMap.clear();
-         
-         if (this.databaseValidity == DataStoreStartState.EXISTING_DATASTORE) {
-            try (DataInputStream in = new DataInputStream(
-                                          new FileInputStream(
-                                              new File(
-                                                  this.stampManagerFolder.toFile(),
-                                                  STAMP_MANAGER_DATA_FILENAME)))) {
-               this.nextStampSequence.set(in.readInt());
-
-               final int stampMapSize = in.readInt();
-
-               for (int i = 0; i < stampMapSize; i++) {
-                  final int   stampSequence = in.readInt();
-                  final Stamp stamp         = new Stamp(in);
-
-                  this.stampMap.put(stamp, stampSequence);
-                  this.inverseStampMap.put(stampSequence, stamp);
-               }
-
-               final int uncommittedSize = in.readInt();
-
-               for (int i = 0; i < uncommittedSize; i++) {
-                  UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get()
-                        .put(new UncommittedStamp(in), in.readInt());
-               }
+            LOG.debug("Looking for data store based stamp data");
+            this.databaseValidity = null;
+            this.dataStoreId = null;
+            UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().clear();
+            this.nextStampSequence.set(FIRST_STAMP_SEQUENCE);
+            this.stampMap.clear();
+            this.stampSequence_PathNid_Map.clear();
+            this.inverseStampMap.clear();
+            //We put the nextStampSequence here in the MAX_VALUE slot.
+            OptionalLong oi = dataStore.getSharedStoreLong(DEFAULT_STAMP_MANAGER_FOLDER + "-nextStampSequence");
+            if (oi.isPresent()) {
+               this.nextStampSequence.set((int)oi.getAsLong());
+               sequenceToStamp.getStream().forEach(stampPair ->
+               {
+                   this.stampMap.put(stampPair.getValue(), stampPair.getKey());
+                   this.inverseStampMap.put(stampPair.getKey(), stampPair.getValue());
+               });
+               
+               sequenceToUncommittedStamp.getStream().forEach(stampPair ->
+               {
+                  this.UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().put(stampPair.getValue(), stampPair.getKey());
+               });
             }
          }
       } catch (final IOException e) {
@@ -507,40 +556,57 @@ public class StampProvider
       this.stampMap.clear();
       this.stampSequence_PathNid_Map.clear();
       this.inverseStampMap.clear();
+      this.dataStoreId = Optional.empty();
    }
 
    private void writeData() throws RuntimeException {
-      try (DataOutputStream out = new DataOutputStream(
-              new FileOutputStream(
-                      new File(this.stampManagerFolder.toFile(), STAMP_MANAGER_DATA_FILENAME)))) {
-         out.writeInt(this.nextStampSequence.get());
-         out.writeInt(this.stampMap.size());
-         this.stampMap.forEach(
-                 (Stamp stamp,
-                         Integer stampSequence) -> {
-                    try {
-                       out.writeInt(stampSequence);
-                       stamp.write(out);
-                    } catch (final IOException ex) {
-                       throw new RuntimeException(ex);
-                    }
-                 });
-         
-         final int size = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get()
-                 .size();
-         
-         out.writeInt(size);
+      if (dataStore == null) {
+         //write to the file store
+         try (DataOutputStream out = new DataOutputStream(
+                 new FileOutputStream(
+                         new File(this.stampManagerFolder.toFile(), STAMP_MANAGER_DATA_FILENAME)))) {
+            out.writeInt(this.nextStampSequence.get());
+            out.writeInt(this.stampMap.size());
+            this.stampMap.forEach(
+                    (Stamp stamp,
+                            Integer stampSequence) -> {
+                       try {
+                          out.writeInt(stampSequence);
+                          stamp.write(out);
+                       } catch (final IOException ex) {
+                          throw new RuntimeException(ex);
+                       }
+                    });
+            
+            final int size = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get()
+                    .size();
+            
+            out.writeInt(size);
+   
+            for (final Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get()
+                    .entrySet()) {
+               entry.getKey()
+                       .write(out);
+               out.writeInt(entry.getValue());
+            }
 
-         for (final Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get()
-                 .entrySet()) {
-            entry.getKey()
-                    .write(out);
-            out.writeInt(entry.getValue());
+         } catch (final IOException e) {
+            throw new RuntimeException(e);
          }
-         this.dataStoreId = Optional.empty();
-         this.databaseValidity = DataStoreStartState.NOT_YET_CHECKED;
-      } catch (final IOException e) {
-         throw new RuntimeException(e);
+      }
+      else
+      {
+         //Just write the unwritten bits to the data store
+         //Should be there already, but make sure we have the latest
+         dataStore.putSharedStoreLong(DEFAULT_STAMP_MANAGER_FOLDER + "-nextStampSequence", nextStampSequence.get());
+         //stamps are written as they are created
+         
+         //Write the uncommitted data
+         sequenceToUncommittedStamp.clearStore();
+         for (Entry<UncommittedStamp, Integer> uc : UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet())
+         {
+            sequenceToUncommittedStamp.put(uc.getValue().intValue(), uc.getKey());
+         }
       }
    }
 
@@ -591,7 +657,7 @@ public class StampProvider
 
    @Override
    public Optional<UUID> getDataStoreId() {
-      return dataStoreId;
+      return dataStore == null ? dataStoreId : dataStore.getDataStoreId();
    }
 
    /**
@@ -601,7 +667,7 @@ public class StampProvider
     */
    @Override
    public Path getDataStorePath() {
-      return this.stampManagerFolder;
+      return dataStore == null ? this.stampManagerFolder : dataStore.getDataStorePath();
    }
 
    /**
@@ -611,7 +677,7 @@ public class StampProvider
     */
    @Override
    public DataStoreStartState getDataStoreStartState() {
-      return this.databaseValidity;
+      return dataStore == null ? this.databaseValidity : dataStore.getDataStoreStartState();
    }
 
    /**
@@ -657,10 +723,10 @@ public class StampProvider
    }
 
    /**
-    * Gets the path sequence for stamp.
+    * Gets the path nid for stamp.
     *
     * @param stampSequence the stamp sequence
-    * @return the path sequence for stamp
+    * @return the path nid for stamp
     */
    @Override
    public int getPathNidForStamp(int stampSequence) {
@@ -728,9 +794,9 @@ public class StampProvider
     *
     * @param status the status
     * @param time the time
-    * @param authorSequence the author sequence
-    * @param moduleSequence the module sequence
-    * @param pathSequence the path sequence
+    * @param authorSequence the author nid
+    * @param moduleSequence the module nid
+    * @param pathSequence the path nid
     * @return the stamp sequence
     */
    @Override
@@ -763,6 +829,9 @@ public class StampProvider
                UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get()
                      .put(usp, stampSequence);
                this.inverseStampMap.put(stampSequence, stampKey);
+               if (dataStore != null) {
+                  dataStore.putSharedStoreLong(DEFAULT_STAMP_MANAGER_FOLDER + "-nextStampSequence", nextStampSequence.get());
+               }
                return stampSequence;
             } finally {
                this.stampLock.unlock();
@@ -783,6 +852,10 @@ public class StampProvider
 
                this.inverseStampMap.put(stampValue.getAsInt(), stampKey);
                this.stampMap.put(stampKey, stampValue.getAsInt());
+               if (dataStore != null) {
+                  dataStore.putSharedStoreLong(DEFAULT_STAMP_MANAGER_FOLDER + "-nextStampSequence", nextStampSequence.get());
+                  sequenceToStamp.put(stampValue.getAsInt(), stampKey);
+               }
             }
          } finally {
             this.stampLock.unlock();

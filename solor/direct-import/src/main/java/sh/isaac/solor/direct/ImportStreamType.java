@@ -75,7 +75,10 @@ public enum ImportStreamType {
    STR1_STR2_NID3_NID4_NID5_REFSET,
    DYNAMIC,
    RXNORM_CONSO,
-   LOINC
+   LOINC,
+    GENE_SPECIFIC_SUMMARY,
+   VARIANT_SUMMARY,
+   GENE_CONDITION_SOURCE
    ;
 
    public VersionType getSemanticVersionType() {

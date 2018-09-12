@@ -28,26 +28,6 @@ import sh.komet.gui.control.property.EditorType;
 import sh.isaac.api.logic.NodeSemantic;
 
 
-rule "Setup modules"
-   lock-on-active true
-when
-   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.MODULE_NID_FOR_VERSION____SOLOR.getNid());
-then
-   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
-   $propertySheetItem.setDefaultValue(MetaData.SOLOR_OVERLAY_MODULE____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.US_EXTENSION_MODULES____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.VHAT_MODULES____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.CVX_MODULES____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.HL7_V3_MODULES____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.ICD10_MODULES____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.LOINC_MODULES____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.MVX_MODULES____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.NUCC_MODULES____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.RXNORM_MODULES____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.SNOMED_CT_CORE_MODULES____SOLOR);
-end
-
 rule "Setup language"
    lock-on-active true
 when
@@ -90,19 +70,6 @@ then
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR);
-end
-
-
-rule "Setup path"
-   lock-on-active true
-when
-   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.PATH_NID_FOR_VERSION____SOLOR.getNid());
-then
-   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
-   $propertySheetItem.setDefaultValue(MetaData.DEVELOPMENT_PATH____SOLOR);
-   $propertySheetItem.getAllowedValues().add(MetaData.DEVELOPMENT_PATH____SOLOR);
-   
-   $propertySheetItem.getAllowedValues().add(MetaData.MASTER_PATH____SOLOR);
 end
 
 
@@ -150,4 +117,18 @@ then
    $propertySheetItem.setDefaultValue(MetaData.PREFERRED____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.PREFERRED____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.ACCEPTABLE____SOLOR);
+end
+
+rule "Setup assemblage semantic"
+   lock-on-active true
+when
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == TermAux.SEMANTIC_TYPE.getNid()); 
+then
+   $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
+   $propertySheetItem.setDefaultValue(TermAux.MEMBERSHIP_SEMANTIC);
+   $propertySheetItem.getAllowedValues().add(TermAux.MEMBERSHIP_SEMANTIC);
+   $propertySheetItem.getAllowedValues().add(TermAux.CONCEPT_SEMANTIC);
+   $propertySheetItem.getAllowedValues().add(TermAux.COMPONENT_SEMANTIC);
+   $propertySheetItem.getAllowedValues().add(TermAux.INTEGER_SEMANTIC);
+   $propertySheetItem.getAllowedValues().add(TermAux.STRING_SEMANTIC);
 end

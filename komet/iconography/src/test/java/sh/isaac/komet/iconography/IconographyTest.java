@@ -18,13 +18,11 @@ package sh.isaac.komet.iconography;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import java.awt.Font;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
-import org.apache.batik.svggen.SVGFont;
 
 /**
  *
@@ -179,6 +177,10 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.TARGET.getIconographic());
       iconsPane.getChildren().add(Iconography.EXCLAMATION.getIconographic());
       iconsPane.getChildren().add(Iconography.INFORMATION.getIconographic());
+      iconsPane.getChildren().add(Iconography.ADD.getIconographic());
+      iconsPane.getChildren().add(Iconography.ARROW_UP.getIconographic());
+      iconsPane.getChildren().add(Iconography.ARROW_DOWN.getIconographic());
+      iconsPane.getChildren().add(Iconography.DELETE_TRASHCAN.getIconographic());
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);
 

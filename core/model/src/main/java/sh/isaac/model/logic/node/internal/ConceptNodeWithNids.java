@@ -64,7 +64,7 @@ import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
  */
 public final class ConceptNodeWithNids
         extends AbstractLogicNode {
-   /** The concept sequence. */
+   /** The concept nid. */
    int conceptNid;
 
    //~--- constructors --------------------------------------------------------
@@ -127,7 +127,7 @@ public final class ConceptNodeWithNids
    /**
     * Adds the concepts referenced by node.
     *
-    * @param conceptSequenceSet the concept sequence set
+    * @param conceptSequenceSet the concept nid set
     */
    @Override
    public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
@@ -201,6 +201,12 @@ public final class ConceptNodeWithNids
       return Get.defaultCoordinate().getPreferredDescriptionText(this.conceptNid) +
              super.toSimpleString();
    }
+   @Override
+    public void addToBuilder(StringBuilder builder) {
+        builder.append("\n       ConceptAssertion(");
+        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimoridalStringForNid(conceptNid)).append("\")");
+        builder.append(", leb)\n");
+    }
 
    /**
     * Write node data.
@@ -267,9 +273,9 @@ public final class ConceptNodeWithNids
 
 
    /**
-    * Gets the concept sequence.
+    * Gets the concept nid.
     *
-    * @return the concept sequence
+    * @return the concept nid
     */
    public int getConceptNid() {
       return this.conceptNid;

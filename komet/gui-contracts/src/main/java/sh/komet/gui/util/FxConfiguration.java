@@ -43,7 +43,7 @@ public class FxConfiguration
 {
 	private static final String USER_CSS_LOCATION = "USER_CSS_LOCATION";
 	private static final String SHOW_BETA_PROPERTY = "SHOW_BETA_FEATURES";
-	
+	private static final String SHOW_KOMET_ONLY_PROPERTY = "SHOW_KOMET_ONLY_PROPERTY";
 	private Logger LOG = LogManager.getLogger();
 	
 	UserConfiguration ucStore;
@@ -72,8 +72,19 @@ public class FxConfiguration
 		}
 		Boolean enabled = ucStore.getObject(SHOW_BETA_PROPERTY);
 		
-		return enabled == null ? false : enabled.booleanValue();
+		return enabled == null ? false : enabled;
 	}
+        
+        public boolean showKometFeaturesOnly() {
+		String temp = System.getProperty(SHOW_KOMET_ONLY_PROPERTY);
+		if (StringUtils.isNotBlank(temp))
+		{
+			return Boolean.parseBoolean(temp);
+		}
+		Boolean enabled = ucStore.getObject(SHOW_KOMET_ONLY_PROPERTY);
+		
+		return enabled == null ? false : enabled;
+        }
 	
 	/**
 	 * Toggle the beta features on/off

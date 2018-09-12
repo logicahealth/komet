@@ -38,9 +38,11 @@ package sh.komet.gui.provider.concept.detail.panel;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -80,6 +82,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import javafx.util.Duration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
@@ -94,6 +98,8 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -119,8 +125,10 @@ import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.komet.gui.provider.concept.builder.ConceptBuilderComponentPanel;
+import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -129,6 +137,8 @@ import sh.komet.gui.provider.concept.builder.ConceptBuilderComponentPanel;
  */
 public class ConceptDetailPanelNode
         implements DetailNode, ChronologyChangeListener, Supplier<List<MenuItem>> {
+
+    private static final Logger LOG = LogManager.getLogger();
 
     private static final int TRANSITION_OFF_TIME = 250;
     private static final int TRANSITION_ON_TIME = 750;
@@ -147,7 +157,7 @@ public class ConceptDetailPanelNode
     private final OpenIntIntHashMap stampOrderHashMap = new OpenIntIntHashMap();
     private final Button addDescriptionButton = new Button("+ Add");
     private final ToggleButton versionGraphToggle = new ToggleButton("", Iconography.SOURCE_BRANCH_1.getIconographic());
-    private ArrayList<Integer> sortedStampSequences = new ArrayList<>();
+    private final ArrayList<Integer> sortedStampSequences = new ArrayList<>();
     private final List<ComponentPanel> componentPanels = new ArrayList<>();
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final Manifold conceptDetailManifold;
@@ -164,33 +174,33 @@ public class ConceptDetailPanelNode
     //~--- constructors --------------------------------------------------------
     public ConceptDetailPanelNode(Manifold conceptDetailManifold) {
         this.conceptDetailManifold = conceptDetailManifold;
-        historySwitch.setSelected(false);
+        this.historySwitch.setSelected(false);
         updateManifoldHistoryStates();
         conceptDetailManifold.focusedConceptProperty()
                 .addListener(this::setConcept);
         this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(true));
-        conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
-        conceptDetailPane.getStyleClass()
+        this.conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
+        this.conceptDetailPane.getStyleClass()
                 .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         this.scrollPane = new ScrollPane(componentPanelBox);
         this.scrollPane.setFitToWidth(true);
         this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        conceptDetailPane.setCenter(this.scrollPane);
-        versionBrancheGrid.add(versionGraphToggle, 0, 0);
-        versionGraphToggle.getStyleClass()
+        this.conceptDetailPane.setCenter(this.scrollPane);
+        this.versionBrancheGrid.add(versionGraphToggle, 0, 0);
+        this.versionGraphToggle.getStyleClass()
                 .setAll(StyleClasses.VERSION_GRAPH_TOGGLE.toString());
-        versionGraphToggle.selectedProperty()
+        this.versionGraphToggle.selectedProperty()
                 .addListener(this::toggleVersionGraph);
-        conceptDetailPane.setLeft(versionBrancheGrid);
-        componentPanelBox.getStyleClass()
+        this.conceptDetailPane.setLeft(versionBrancheGrid);
+        this.componentPanelBox.getStyleClass()
                 .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
-        componentPanelBox.setFillWidth(true);
+        this.componentPanelBox.setFillWidth(true);
         setupToolGrid();
-        historySwitch.selectedProperty()
+        this.historySwitch.selectedProperty()
                 .addListener(this::setShowHistory);
 
-        expandControl.expandActionProperty()
+        this.expandControl.expandActionProperty()
                 .addListener(this::expandAllAction);
 
         // commit service uses weak change listener references, so this method call is not a leak.
@@ -200,7 +210,6 @@ public class ConceptDetailPanelNode
 
     @Override
     public Node getMenuIcon() {
-        //return Iconography.CONCEPT_DETAILS.getImageView();
         return Iconography.CONCEPT_DETAILS.getIconographic();
     }
 
@@ -265,10 +274,11 @@ public class ConceptDetailPanelNode
             }
         }
     }
-    
+
     private Animation addComponent(ConceptBuilderComponentPanel panel) {
         return this.addComponent(panel, new Insets(1, 5, 1, 5));
     }
+
     private Animation addComponent(ConceptBuilderComponentPanel panel, Insets insets) {
 
         panel.setOpacity(0);
@@ -282,7 +292,6 @@ public class ConceptDetailPanelNode
         ft.setToValue(1);
         return ft;
     }
-
 
     private Animation addComponent(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
         ObservableCategorizedVersion categorizedVersion;
@@ -327,7 +336,20 @@ public class ConceptDetailPanelNode
         ft.setToValue(1);
         return ft;
     }
-
+    
+    private void handleCommit(ObservableDescriptionDialect observableDescriptionDialect, 
+            ObservableVersion[] versionsToCommit) {
+       
+        CommitTask commitTask = Get.commitService().commit(FxGet.editCoordinate(), "", versionsToCommit);
+        Get.executor().execute(() -> {
+            try {
+                Optional<CommitRecord> commitRecord = commitTask.get();
+                //completeCommit(commitTask, commitRecord);
+            } catch (InterruptedException | ExecutionException ex) {
+                FxGet.dialogs().showErrorDialog("Error during commit", ex);
+            }
+        });
+    }
     private void clearAnimationComplete(ActionEvent completeEvent) {
         AtomicBoolean axiomHeaderAdded = new AtomicBoolean(false);
         populateVersionBranchGrid();
@@ -364,11 +386,26 @@ public class ConceptDetailPanelNode
             parallelTransition.getChildren()
                     .add(addNode(descriptionHeader));
 
-            for (ObservableDescriptionDialect descDialect : newDescriptions) {
-                ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(conceptDetailManifold, descDialect);
-                parallelTransition.getChildren().add(addComponent(descPanel));
+            Iterator<ObservableDescriptionDialect> iter = newDescriptions.iterator();
+            while (iter.hasNext()) {
+                ObservableDescriptionDialect descDialect = iter.next();
+                if (descDialect.getCommitState() == CommitStates.UNCOMMITTED) {
+                    ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(conceptDetailManifold, descDialect, true, null);
+                    parallelTransition.getChildren().add(addComponent(descPanel));
+                    descPanel.setCommitHandler((event) -> {
+                        newDescriptions.remove(descDialect);
+                        this.handleCommit(descDialect, descPanel.getVersionsToCommit());
+                        clearComponents();
+                    });
+                    descPanel.setCancelHandler((event) -> {
+                        newDescriptions.remove(descDialect);
+                        clearComponents();
+                    });
+                    
+                } else {
+                    iter.remove();
+                }
             }
-
             // Sort them...
             observableConceptChronology.getObservableSemanticList()
                     .filtered((semanticChronology) -> {
@@ -459,7 +496,7 @@ public class ConceptDetailPanelNode
             newDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
             newDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
             clearComponents();
-         }
+        }
     }
 
     private void clearComponents() {
@@ -624,8 +661,8 @@ public class ConceptDetailPanelNode
         componentPanels.clear();
 
         IntArrayList stampSequences = stampOrderHashMap.keys();
-
-        sortedStampSequences = new ArrayList<>(stampSequences.toList());
+        sortedStampSequences.clear();
+        sortedStampSequences.addAll(stampSequences.toList());
 
         StampService stampService = Get.stampService();
 

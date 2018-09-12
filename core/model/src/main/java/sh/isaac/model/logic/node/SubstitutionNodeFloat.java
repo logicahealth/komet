@@ -107,6 +107,12 @@ public class SubstitutionNodeFloat
    public String toSimpleString() {
       return "Float substitution:" +  super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       FloatSubstitution(\"");
+            builder.append("not supported yet");
+            builder.append("\", leb)\n");
+    }
 
    /**
     * Inits the node uuid.

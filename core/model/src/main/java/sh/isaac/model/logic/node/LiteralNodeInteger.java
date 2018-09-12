@@ -155,6 +155,12 @@ public class LiteralNodeInteger
       return this.literalValue +  super.toSimpleString();
    }
 
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       IntegerLiteral(");
+            builder.append(this.literalValue);
+            builder.append(")\n");
+    }
 
    /**
     * Compare fields.

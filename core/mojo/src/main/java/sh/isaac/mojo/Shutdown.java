@@ -71,10 +71,12 @@ public class Shutdown
 
          // ASSUMES setup has run already
          getLog().info("  Shutting Down");
+
          LookupService.shutdownSystem();
+         
          getLog().info("Done shutting down terminology store");
       } catch (final Exception e) {
-         throw new MojoExecutionException("Database build failure", e);
+         throw new MojoExecutionException("Database shutdown failure", e);
       }
    }
 }

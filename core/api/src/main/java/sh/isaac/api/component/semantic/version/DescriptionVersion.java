@@ -54,21 +54,21 @@ import sh.isaac.api.chronicle.VersionType;
 public interface DescriptionVersion
         extends SemanticVersion {
    /**
-    * Gets the case significance concept sequence.
+    * Gets the case significance concept nid.
     *
-    * @return the case significance concept sequence
+    * @return the case significance concept nid
     */
    int getCaseSignificanceConceptNid();
 
    /**
-    * Gets the description type concept sequence.
+    * Gets the description type concept nid.
     *
-    * @return the description type concept sequence
+    * @return the description type concept nid
     */
    int getDescriptionTypeConceptNid();
    
    /**
-    * A convenience method to get a end-user reasonble label for the description type.
+    * A convenience method to get a end-user reasonable label for the description type.
     * 
     * Calls {@link #getDescriptionType()} and returns one of "Fully Qualified Name", "Regular Name" or "Definition",
     * as it matches the type.  If there is an error, and the nid doesn't align to one of these, it falls through to 
@@ -83,23 +83,20 @@ public interface DescriptionVersion
       //"Regular name description type (SOLOR)" in a GUI dropdown of description types
       if (nid == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
          return "Fully Qualified Name";
-      }
-      else if (nid == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
+      } else if (nid == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
           return "Regular Name";
-      }
-      else if (nid == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+      } else if (nid == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
           return "Definition";
-      }
-      else {
+      } else {
          LogManager.getLogger().warn("Unexpected description type {}!", nid);
          return Get.conceptDescriptionText(nid);
       }
    }
 
    /**
-    * Gets the language concept sequence.
+    * Gets the language concept nid.
     *
-    * @return the language concept sequence
+    * @return the language concept nid
     */
    int getLanguageConceptNid();
 

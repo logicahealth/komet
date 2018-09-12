@@ -16,8 +16,6 @@
  */
 package sh.isaac.solor.direct;
 
-import sh.isaac.solor.direct.ImportType;
-
 /**
  *
  * @author kec

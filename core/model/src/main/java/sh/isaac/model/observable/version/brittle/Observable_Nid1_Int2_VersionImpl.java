@@ -43,11 +43,13 @@ package sh.isaac.model.observable.version.brittle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -84,6 +86,9 @@ public class Observable_Nid1_Int2_VersionImpl
       setNid1(versionToClone.getNid1());
       setInt2(versionToClone.getInt2());
    }
+    public Observable_Nid1_Int2_VersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
+        super(VersionType.Nid1_Int2, primordialUuid, referencedComponentUuid, assemblageNid);
+    }
 
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {

@@ -123,10 +123,10 @@ public class UserConfigurationImpl implements UserConfiguration
 		
 		//Configure our cached objects
 		editCoordinate = globalConfig.getDefaultEditCoordinate().deepClone();
-		editCoordinate.authorSequenceProperty().set(userConcept.isPresent() ? Get.identifierService().getNidForUuids(userConcept.get()) 
+		editCoordinate.authorNidProperty().set(userConcept.isPresent() ? Get.identifierService().getNidForUuids(userConcept.get()) 
 				: globalConfig.getDefaultEditCoordinate().getAuthorNid());
-		editCoordinate.moduleSequenceProperty().set(getOption(ConfigurationOption.EDIT_MODULE));
-		editCoordinate.pathSequenceProperty().set(getOption(ConfigurationOption.EDIT_PATH));
+		editCoordinate.moduleNidProperty().set(getOption(ConfigurationOption.EDIT_MODULE));
+		editCoordinate.pathNidProperty().set(getOption(ConfigurationOption.EDIT_PATH));
 		
 		//TODO add setters / options for things below that aren't yet being set?
 		languageCoordinate = globalConfig.getDefaultLanguageCoordinate().deepClone();
@@ -364,10 +364,10 @@ public class UserConfigurationImpl implements UserConfiguration
 						languageCoordinate.dialectAssemblagePreferenceListProperty().get().setAll((int[])getOption(ConfigurationOption.DIALECT_ASSEMBLAGE_PREFERENCE_LIST));
 						break;
 					case EDIT_MODULE:
-						editCoordinate.moduleSequenceProperty().set(getOption(ConfigurationOption.EDIT_MODULE));
+						editCoordinate.moduleNidProperty().set(getOption(ConfigurationOption.EDIT_MODULE));
 						break;
 					case EDIT_PATH:
-						editCoordinate.pathSequenceProperty().set(getOption(ConfigurationOption.EDIT_PATH));
+						editCoordinate.pathNidProperty().set(getOption(ConfigurationOption.EDIT_PATH));
 						break;
 					case INFERRED_ASSEMBLAGE:
 						logicCoordinate.inferredAssemblageNidProperty().set(getOption(ConfigurationOption.INFERRED_ASSEMBLAGE));
@@ -413,10 +413,10 @@ public class UserConfigurationImpl implements UserConfiguration
 						languageCoordinate.dialectAssemblagePreferenceListProperty().get().setAll((int[])objectValue);
 						break;
 					case EDIT_MODULE:
-						editCoordinate.moduleSequenceProperty().set((Integer)objectValue);
+						editCoordinate.moduleNidProperty().set((Integer)objectValue);
 						break;
 					case EDIT_PATH:
-						editCoordinate.pathSequenceProperty().set((Integer)objectValue);
+						editCoordinate.pathNidProperty().set((Integer)objectValue);
 						break;
 					case INFERRED_ASSEMBLAGE:
 						logicCoordinate.inferredAssemblageNidProperty().set((Integer)objectValue);

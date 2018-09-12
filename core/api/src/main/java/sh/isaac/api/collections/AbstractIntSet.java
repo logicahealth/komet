@@ -205,7 +205,8 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
 
    @Override
    public IntSet or(IntSet otherSet) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      this.addAll(otherSet.stream());
+      return this;
    }
 
    @Override
@@ -246,7 +247,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
    public OpenIntHashSet asOpenIntHashSet() {
       final OpenIntHashSet set = new OpenIntHashSet();
 
-      stream().forEach((sequence) -> set.add(sequence));
+      stream().forEach((value) -> set.add(value));
       return set;
    }
 

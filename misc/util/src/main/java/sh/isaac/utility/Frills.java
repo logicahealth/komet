@@ -37,7 +37,6 @@
 
 package sh.isaac.utility;
 
-import sh.isaac.api.util.SctId;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
@@ -51,9 +50,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.PrimitiveIterator;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -128,12 +127,12 @@ import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.util.NumericUtils;
+import sh.isaac.api.util.SctId;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.mapping.constants.IsaacMappingConstants;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.concept.ConceptVersionImpl;
-import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
@@ -401,7 +400,7 @@ public class Frills
    /**
     * Defines association.
     *
-    * @param conceptNid the concept sequence
+    * @param conceptNid the concept nid
     * @return true, if the concept is properly defined as a semantic which represents an association.  See {@link DynamicConstants#DYNAMIC_ASSOCIATION}
     */
    public static boolean definesAssociation(int conceptNid) {
@@ -454,7 +453,7 @@ public class Frills
    /**
     * Checks if the concept is specified in such a way that it defines a mapping assemblage.  See {@link IsaacMappingConstants#DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE}
     *
-    * @param conceptNid the concept sequence
+    * @param conceptNid the concept nid
     * @return true, if successful
     */
    public static boolean definesMapping(int conceptNid) {
@@ -467,7 +466,7 @@ public class Frills
    }
    
    /**
-    * Walk up the module tree, looking for the module concept sequence directly under {@link MetaData#MODULE____SOLOR} - return it if found, otherwise, return null.
+    * Walk up the module tree, looking for the module concept nid directly under {@link MetaData#MODULE____SOLOR} - return it if found, otherwise, return null.
     */
    private static Integer findTermTypeConcept(int conceptModuleNid, StampCoordinate stamp)
    {
@@ -682,8 +681,8 @@ public class Frills
     * Make stamp coordinate analog varying by modules only.
     *
     * @param existingStampCoordinate the existing stamp coordinate
-    * @param requiredModuleSequence the required module sequence
-    * @param optionalModuleSequences the optional module sequences
+    * @param requiredModuleSequence the required module nid
+    * @param optionalModuleSequences the optional module nids
     * @return the stamp coordinate
     */
    public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate,
@@ -1029,7 +1028,7 @@ public class Frills
     * @param recursive recurse down from the concept
     * @param leafOnly only return leaf nodes
     * @param stamp - optional - defaults to system default if not provided.
-    * @return the set of concept sequence ids that represent the children
+    * @return the set of concept nid ids that represent the children
     */
    public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
       
@@ -1149,12 +1148,12 @@ public class Frills
 
          final int               componentNid = componentId;
          final ArrayList<String> values       = new ArrayList<>(1);
-         final int assemblageConceptSequence = Get.identifierService().getNidForUuids(assemblageConceptUuid);
+         final int assemblageConceptNid = Get.identifierService().getNidForUuids(assemblageConceptUuid);
 
          Get.assemblageService()
             .getSnapshot(SemanticVersion.class,
                 (stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
-            .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, assemblageConceptSequence)
+            .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, assemblageConceptNid)
             .forEach(latestSemantic -> {
                    if (latestSemantic.get()
                                    .getChronology()
@@ -1302,9 +1301,9 @@ public class Frills
       }
 
       // if it is a negative integer, assume nid
-      Optional<Integer> nid = NumericUtils.getNID(localIdentifier);
+      OptionalInt nid = NumericUtils.getNID(localIdentifier);
       if (nid.isPresent()) {
-         return Get.conceptService().getOptionalConcept(nid.get());
+         return Get.conceptService().getOptionalConcept(nid.getAsInt());
       }
 
       if (SctId.isValidSctId(localIdentifier)) {
@@ -1546,11 +1545,11 @@ public class Frills
       }
 
       try {
-         Optional<Integer> intId = NumericUtils.getInt(id);
+         OptionalInt intId = NumericUtils.getInt(id);
          if (intId.isPresent())
          {
-            if (intId.get() < 0) {
-               nid = intId.get();
+            if (intId.getAsInt() < 0) {
+               nid = intId.getAsInt();
             }
 
             if (nid != null) {
@@ -1717,7 +1716,7 @@ public class Frills
    /**
     * Convenience method to find the nearest concept related to a semantic.  Recursively walks referenced components until it finds a concept.
     * @param nid 
-    * @return the nearest concept sequence, or -1, if no concept can be found.
+    * @return the nearest concept nid, or -1, if no concept can be found.
     */
    public static Optional<Integer> getNearestConcept(int nid)
    {
@@ -1895,7 +1894,7 @@ public class Frills
     * @param componentNid
     *           - referenced component nid of requested semantics
     * @param allowedAssemblageNids
-    *           - set of concept sequences of allowed assemblages
+    *           - set of concept nids of allowed assemblages
     * @param typesToExclude
     *           - set of VersionType restrictions
     * @return the filtered stream of semantics
@@ -2049,7 +2048,7 @@ public class Frills
    
    /**
     * Returns the set of terminology types (which are concepts directly under {@link MetaData#MODULE____SOLOR} for any concept in the system as a 
-    * set of concept sequences.
+    * set of concept nids.
     * 
     * Also, if the concept is a child of {@link MetaData#METADATA____SOLOR}, then it will also be marked with the terminology type of 
     * {@link MetaData#SOLOR_MODULE____SOLOR} -even if there is no concept version that exists using the MetaData#SOLOR_MODULE____SOLOR} module - this gives 

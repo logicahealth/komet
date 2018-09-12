@@ -18,7 +18,6 @@ package sh.komet.gui.importation;
 
 import java.util.List;
 import java.util.concurrent.Future;
-import javafx.concurrent.Task;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.progress.PersistTaskResult;
@@ -30,6 +29,7 @@ import sh.isaac.solor.direct.LoincExpressionToConcept;
 import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -61,27 +61,27 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
          Future<?> importTask = Get.executor().submit(importer);
          importTask.get();
          completedUnitOfWork();
-         
+
          updateMessage("Transforming to SOLOR...");
          Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(importType);
          Future<?> transformTask = Get.executor().submit(transformer);
          transformTask.get();
          completedUnitOfWork();
-         
-        updateMessage("Convert LOINC expressions...");
+
+         updateMessage("Convert LOINC expressions...");
          LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
          Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
          convertLoincTask.get();
          completedUnitOfWork();
-         
+
          updateMessage("Adding navigation concepts...");
          LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(manifold);
          Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
          addNavigationConceptsTask.get();
          completedUnitOfWork();
-         
+
          updateMessage("Classifying new content...");
-         ClassifierService classifierService = Get.logicService().getClassifierService(manifold, manifold.getEditCoordinate());
+         ClassifierService classifierService = Get.logicService().getClassifierService(manifold, FxGet.editCoordinate());
          Future<?> classifyTask = classifierService.classify();
          classifyTask.get();
          completedUnitOfWork();

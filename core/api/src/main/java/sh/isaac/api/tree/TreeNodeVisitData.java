@@ -70,7 +70,6 @@ public interface TreeNodeVisitData {
        return getDistance(node.getNodeIndex());
    }
 
-   //~--- get methods ---------------------------------------------------------
    /**
     * Gets the finish time.
     *
@@ -79,15 +78,6 @@ public interface TreeNodeVisitData {
    */
    int getFinishTime(int nodeId);
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the graph size.
-    *
-    * @return the graph size
-    */
-   int getGraphSize();
-
-   //~--- get methods ---------------------------------------------------------
    /**
     * Gets the leaf nodes.
     *
@@ -132,7 +122,7 @@ public interface TreeNodeVisitData {
     * @param nodeId the node id
     * @return the predecessor nid
     */
-   OptionalInt getPredecessorSequence(int nodeId);
+   OptionalInt getPredecessorNid(int nodeId);
 
    //~--- get methods ---------------------------------------------------------
    /**
@@ -201,7 +191,7 @@ public interface TreeNodeVisitData {
     * @param nodeId the node id
     * @param predecessorNodeId the predecessor node id
     */
-   void setPredecessorSequence(int nodeId, int predecessorNodeId);
+   void setPredecessorNid(int nodeId, int predecessorNodeId);
 
    //~--- set methods ---------------------------------------------------------
    /**

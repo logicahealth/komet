@@ -63,7 +63,7 @@ public class ConceptBuilderProvider
          implements ConceptBuilderService {
    /** The default language for descriptions. */
    private ConceptSpecification defaultLanguageForDescriptions =
-      TermAux.getConceptSpecificationForLanguageSequence(Get.configurationService().getGlobalDatastoreConfiguration()
+      TermAux.getConceptSpecificationForLanguageNid(Get.configurationService().getGlobalDatastoreConfiguration()
                                                             .getDefaultLanguageCoordinate()
                                                             .getLanguageConceptNid());
 

@@ -87,13 +87,13 @@ public class CoordinateFactoryProvider
         implements CoordinateFactory {
 
     /**
-     * Case significance to concept sequence.
+     * Case significance to concept nid.
      *
      * @param initialCaseSignificant the initial case significant
      * @return the int
      */
     @Override
-    public int caseSignificanceToConceptSequence(boolean initialCaseSignificant) {
+    public int caseSignificanceToConceptNid(boolean initialCaseSignificant) {
         return LanguageCoordinates.caseSignificanceToConceptSequence(initialCaseSignificant);
     }
 
@@ -367,9 +367,9 @@ public class CoordinateFactoryProvider
 
     //~--- get methods ---------------------------------------------------------
     /**
-     * Gets the acceptable concept sequence.
+     * Gets the acceptable concept nid.
      *
-     * @return the acceptable concept sequence
+     * @return the acceptable concept nid
      */
     @Override
     public int getAcceptableConceptNid() {
@@ -377,9 +377,9 @@ public class CoordinateFactoryProvider
     }
 
     /**
-     * Gets the fully specified concept sequence.
+     * Gets the fully specified concept nid.
      *
-     * @return the fully specified concept sequence
+     * @return the fully specified concept nid
      */
     @Override
     public int getFullySpecifiedConceptNid() {
@@ -406,9 +406,9 @@ public class CoordinateFactoryProvider
     }
 
     /**
-     * Gets the preferred concept sequence.
+     * Gets the preferred concept nid.
      *
-     * @return the preferred concept sequence
+     * @return the preferred concept nid
      */
     @Override
     public int getPreferredConceptNid() {
@@ -548,9 +548,9 @@ public class CoordinateFactoryProvider
     }
 
     /**
-     * Gets the synonym concept sequence.
+     * Gets the synonym concept nid.
      *
-     * @return the synonym concept sequence
+     * @return the synonym concept nid
      */
     @Override
     public int getSynonymConceptNid() {

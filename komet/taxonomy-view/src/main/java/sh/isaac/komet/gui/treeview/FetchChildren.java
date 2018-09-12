@@ -54,7 +54,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
         FetchChildren oldFetcher = FETCHER_MAP.put(treeItemImpl.getValue().getNid(), this);
         
         if (oldFetcher != null) {
-            oldFetcher.cancel();
+            oldFetcher.cancel(false);  //Interrupts are bad for code that uses NIO.  
             Get.activeTasks().remove(oldFetcher);
         }
     }

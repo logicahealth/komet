@@ -70,13 +70,13 @@ public interface LogicNode
    void addChildren(LogicNode... children);
 
    /**
-    * Adds the sequences of the concepts referenced by this node, including the
+    * Adds the Nids of the concepts referenced by this node, including the
     * node semantic. Used by isomorphic algorithms to score potential matches.
     * Concepts reference by children of connector nodes should not be included, just
     * concepts associated with the node itself (node semantic concept + type concept, etc).
-    * @param conceptSequenceSet The set to add the concept sequences to.
+    * @param conceptNidSet The set to add the concept nids to.
     */
-   void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet);
+   void addConceptsReferencedByNode(OpenIntHashSet conceptNidSet);
 
    /**
     * Fragment to string.
@@ -191,8 +191,8 @@ public interface LogicNode
    }
    
    /**
-    * Get the concept sequence for the concept being defined by the logical expression for which this node is a part. 
-    * @return the concept sequence. 
+    * Get the concept nid for the concept being defined by the logical expression for which this node is a part. 
+    * @return the concept nid. 
     */
    int getNidForConceptBeingDefined();
 

@@ -671,6 +671,7 @@ limitations under the License.
    -fx-fill: -komet-blue-color;
    -fx-font-size:15;
 }
+
 .semantic-text {
    -fx-fill: black;
    -fx-font-size:15;
@@ -689,6 +690,10 @@ limitations under the License.
 }
 .concept-component-reference {
    -fx-fill: -komet-blue-color;
+   -fx-font-size:12;
+}
+.tree-table-row-cell:selected * .concept-component-reference {
+   -fx-fill: white;
    -fx-font-size:12;
 }
 
@@ -710,6 +715,7 @@ limitations under the License.
 
 .component-panel:uncommitted {
    -fx-background-color: -komet-uncommitted-fill;
+   -fx-grid-lines-visible: false;
 }
 
 .component-panel:uncommitted * .property-pane {
@@ -723,6 +729,7 @@ limitations under the License.
       -fx-border-width:2;
       -fx-font-size:12;
       -fx-padding:2 4 2 4;
+      -fx-font-weight: bold;
 }
 
 .component-panel:uncommitted * .commit-button {
@@ -732,6 +739,7 @@ limitations under the License.
       -fx-border-width:2;
       -fx-font-size:12;
       -fx-padding:2 4 2 4;
+      -fx-font-weight: bold;
 }
 
 .alert-pane:alert-info {

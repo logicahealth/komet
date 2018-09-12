@@ -34,13 +34,9 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model.tree;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,7 +44,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
@@ -62,7 +57,6 @@ import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.collections.MergeIntArray;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class HashTreeBuilder.
  *
@@ -70,151 +64,149 @@ import sh.isaac.model.collections.MergeIntArray;
  */
 public class HashTreeBuilder
         extends HashTreeWithIntArraySets {
-   /**
-    * The Constant builderCount.
-    */
-   private static final AtomicInteger builderCount = new AtomicInteger();
-   
-   private static final Logger LOG = LogManager.getLogger();
 
-   //~--- fields --------------------------------------------------------------
+    /**
+     * The Constant BUILDER_COUNT.
+     */
+    private static final AtomicInteger BUILDER_COUNT = new AtomicInteger();
 
-   /**
-    * The concept sequences.
-    */
-   String[]     watchUuids = new String[] {};
-   IntArrayList watchNids  = new IntArrayList();
+    private static final Logger LOG = LogManager.getLogger();
 
-   /**
-    * The builder id.
-    */
-   final int builderId;
+    //~--- fields --------------------------------------------------------------
+    /**
+     * The concept nids.
+     */
+    String[] watchUuids = new String[]{};
+    IntArrayList watchNids = new IntArrayList();
 
-   //~--- constructors --------------------------------------------------------
+    /**
+     * The builder id.
+     */
+    final int builderId;
 
-   /**
-    * Instantiates a new hash tree builder.
-    *
-    * @param manifoldCoordinate
-    * @param assemblageNid the assemblage nid which specifies the assemblage where the concepts in this tree
-    * where created within.
-    */
-   public HashTreeBuilder(ManifoldCoordinate manifoldCoordinate, int assemblageNid) {
-      super(manifoldCoordinate, assemblageNid);
-      this.builderId = builderCount.getAndIncrement();
+    //~--- constructors --------------------------------------------------------
+    /**
+     * Instantiates a new hash tree builder.
+     *
+     * @param manifoldCoordinate
+     * @param assemblageNid the assemblage nid which specifies the assemblage
+     * where the concepts in this tree where created within.
+     */
+    public HashTreeBuilder(ManifoldCoordinate manifoldCoordinate, int assemblageNid) {
+        super(manifoldCoordinate, assemblageNid);
+        this.builderId = BUILDER_COUNT.getAndIncrement();
 
-      for (String uuidStr: watchUuids) {
-         watchNids.add(Get.identifierService()
-                          .getNidForUuids(UUID.fromString(uuidStr)));
-      }
-   }
+        for (String uuidStr : watchUuids) {
+            watchNids.add(Get.identifierService()
+                    .getNidForUuids(UUID.fromString(uuidStr)));
+        }
+    }
 
-   //~--- methods -------------------------------------------------------------
+    //~--- methods -------------------------------------------------------------
+    /**
+     * Combine.
+     *
+     * @param another the another
+     */
+    public void combine(HashTreeBuilder another) {
+        addToOne(this.conceptNids, another.conceptNids);
+        addToOne(this.conceptNidsWithChildren, another.conceptNidsWithChildren);
+        addToOne(this.conceptNidsWithParents, another.conceptNidsWithParents);
+        another.childNid_ParentNidSetArray_Map.forEach(
+                (int childSequence,
+                        int[] parentsFromAnother) -> {
+                    if (this.childNid_ParentNidSetArray_Map.containsKey(childSequence)) {
+                        int[] parentsFromThis = this.childNid_ParentNidSetArray_Map.get(childSequence);
 
-   /**
-    * Combine.
-    *
-    * @param another the another
-    */
-   public void combine(HashTreeBuilder another) {
-      addToOne(this.conceptNids, another.conceptNids);
-      addToOne(this.conceptNidsWithChildren, another.conceptNidsWithChildren);
-      addToOne(this.conceptNidsWithParents, another.conceptNidsWithParents);
-      another.childNid_ParentNidSetArray_Map.forEach(
-          (int childSequence,
-           int[] parentsFromAnother) -> {
-             if (this.childNid_ParentNidSetArray_Map.containsKey(childSequence)) {
-                int[] parentsFromThis = this.childNid_ParentNidSetArray_Map.get(childSequence);
+                        this.childNid_ParentNidSetArray_Map.put(
+                                childSequence,
+                                MergeIntArray.merge(parentsFromThis, parentsFromAnother));
+                    } else {
+                        this.childNid_ParentNidSetArray_Map.put(childSequence, parentsFromAnother);
+                    }
+                });
+        another.parentNid_ChildNidSetArray_Map.forEach(
+                (int parentSequence,
+                        int[] childrenFromAnother) -> {
+                    if (this.parentNid_ChildNidSetArray_Map.containsKey(parentSequence)) {
+                        int[] childrenFromThis = this.parentNid_ChildNidSetArray_Map.get(parentSequence);
 
-                this.childNid_ParentNidSetArray_Map.put(
-                    childSequence,
-                    MergeIntArray.merge(parentsFromThis, parentsFromAnother));
-             } else {
-                this.childNid_ParentNidSetArray_Map.put(childSequence, parentsFromAnother);
-             }
-          });
-      another.parentNid_ChildNidSetArray_Map.forEach(
-          (int parentSequence,
-           int[] childrenFromAnother) -> {
-             if (this.parentNid_ChildNidSetArray_Map.containsKey(parentSequence)) {
-                int[] childrenFromThis = this.parentNid_ChildNidSetArray_Map.get(parentSequence);
+                        this.childNid_ParentNidSetArray_Map.put(
+                                parentSequence,
+                                MergeIntArray.merge(childrenFromThis, childrenFromAnother));
+                    } else {
+                        this.parentNid_ChildNidSetArray_Map.put(parentSequence, childrenFromAnother);
+                    }
+                });
+    }
 
-                this.childNid_ParentNidSetArray_Map.put(
-                    parentSequence,
-                    MergeIntArray.merge(childrenFromThis, childrenFromAnother));
-             } else {
-                this.parentNid_ChildNidSetArray_Map.put(parentSequence, childrenFromAnother);
-             }
-          });
-   }
+    private void addToOne(OpenIntHashSet one, OpenIntHashSet another) {
+        another.forEachKey(
+                (sequence) -> {
+                    one.add(sequence);
+                    return true;
+                });
+    }
 
-   private void addToOne(OpenIntHashSet one, OpenIntHashSet another) {
-      another.forEachKey(
-          (sequence) -> {
-             one.add(sequence);
-             return true;
-          });
-   }
+    //~--- get methods ---------------------------------------------------------
+    public HashTreeWithIntArraySets getSimpleDirectedGraph() {
+        return getSimpleDirectedGraph(null);
+    }
 
-   //~--- get methods ---------------------------------------------------------
-   public HashTreeWithIntArraySets getSimpleDirectedGraph() {
-      return getSimpleDirectedGraph(null);
-   }
-   /**
-    * Gets the simple directed graph graph.
-    *
-    * @param tracker
-    * @return the simple directed graph graph
-    */
-   public HashTreeWithIntArraySets getSimpleDirectedGraph(ProgressTracker tracker) {
+    /**
+     * Gets the simple directed graph graph.
+     *
+     * @param tracker
+     * @return the simple directed graph graph
+     */
+    public HashTreeWithIntArraySets getSimpleDirectedGraph(ProgressTracker tracker) {
 
-      if (Get.configurationService().isVerboseDebugEnabled()) {
-         LOG.debug("SOLOR root sequence: " + TermAux.SOLOR_ROOT.getNid());
-         LOG.debug("SOLOR root in concepts: " + conceptNids.contains(TermAux.SOLOR_ROOT.getNid()));
-         LOG.debug(
-             "SOLOR root in concepts with parents: " + conceptNidsWithParents.contains(TermAux.SOLOR_ROOT.getNid()));
-      }
+        if (Get.configurationService().isVerboseDebugEnabled()) {
+            LOG.debug("SOLOR root sequence: " + TermAux.SOLOR_ROOT.getNid());
+            LOG.debug("SOLOR root in concepts: " + conceptNids.contains(TermAux.SOLOR_ROOT.getNid()));
+            LOG.debug(
+                    "SOLOR root in concepts with parents: " + conceptNidsWithParents.contains(TermAux.SOLOR_ROOT.getNid()));
+        }
 
-      computeRoots();
+        computeRoots();
 
-      int               rootNid   = TermAux.SOLOR_ROOT.getNid();
-      
-      TreeNodeVisitData visitData = depthFirstProcess(
-                                        rootNid,
-                                              (TreeNodeVisitData t,
-                                                    int thisNid) -> {
-               if (watchNids.contains(thisNid)) {
-                  printWatch(thisNid, "dfs: ");
-               }
-               if (tracker != null) {
-                  tracker.completedUnitOfWork();
-               }
-            },
-                                        Get.taxonomyService()
-                                              .getTreeNodeVisitDataSupplier(getAssemblageNid()));
+        int rootNid = TermAux.SOLOR_ROOT.getNid();
 
-      for (int[] cycle: visitData.getCycleSet()) {
-         StringBuilder cycleDescription = new StringBuilder("Members: \n");
+        TreeNodeVisitData visitData = depthFirstProcess(
+                rootNid,
+                (TreeNodeVisitData t,
+                        int thisNid) -> {
+                    if (watchNids.contains(thisNid)) {
+                        printWatch(thisNid, "dfs: ");
+                    }
+                    if (tracker != null) {
+                        tracker.completedUnitOfWork();
+                    }
+                },
+                Get.taxonomyService()
+                        .getTreeNodeVisitDataSupplier(getConceptAssemblageNid()));
 
-         for (int conceptSequence: cycle) {
-            cycleDescription.append("   ")
-                            .append(manifoldCoordinate.getPreferredDescriptionText(conceptSequence))
-                            .append("\n");
-         }
+        for (int[] cycle : visitData.getCycleSet()) {
+            StringBuilder cycleDescription = new StringBuilder("Members: \n");
 
-         Alert.publishAddition(
-             new TreeCycleError(cycle, visitData, this, "Cycle found", cycleDescription.toString(), AlertType.ERROR));
-      }
+            for (int conceptSequence : cycle) {
+                cycleDescription.append("   ")
+                        .append(manifoldCoordinate.getPreferredDescriptionText(conceptSequence))
+                        .append("\n");
+            }
 
-      LOG.debug("Nodes visited: " + visitData.getNodesVisited());
+            Alert.publishAddition(
+                    new TreeCycleError(cycle, visitData, this, manifoldCoordinate.getTaxonomyPremiseType() + " Cycle found", cycleDescription.toString(), AlertType.ERROR));
+        }
 
-      for (int nid: watchNids.toList()) {
-         OpenIntHashSet multiParents = visitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
+        LOG.debug("Nodes visited: " + visitData.getNodesVisited());
 
-         LOG.debug(Get.conceptDescriptionText(nid) + " multiParentSet: " + multiParents);
-      }
+        for (int nid : watchNids.toList()) {
+            OpenIntHashSet multiParents = visitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
 
-      return this;
-   }
+            LOG.debug(Get.conceptDescriptionText(nid) + " multiParentSet: " + multiParents);
+        }
+
+        return this;
+    }
 }
-

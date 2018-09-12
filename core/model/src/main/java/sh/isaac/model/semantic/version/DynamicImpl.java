@@ -199,7 +199,7 @@ public class DynamicImpl
     * {@inheritDoc}
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
 
       // Write with the following format -

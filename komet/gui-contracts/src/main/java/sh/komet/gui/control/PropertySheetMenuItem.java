@@ -38,14 +38,14 @@ package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.OptionalInt;
+import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
@@ -67,6 +67,9 @@ import sh.komet.gui.interfaces.EditInFlight;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.model.observable.CommitAwareConceptSpecificationProperty;
+import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -120,7 +123,7 @@ public class PropertySheetMenuItem
    @Override
    public void cancel() {
       Get.commitService()
-              .cancel(observableVersion.getChronology(), manifold.getEditCoordinate());
+              .cancel(observableVersion.getChronology(), FxGet.editCoordinate());
       completionListeners.forEach((listener) -> {
          listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.CANCELED);
       });
@@ -129,7 +132,7 @@ public class PropertySheetMenuItem
 
    public void commit() {
       Get.commitService()
-              .commit(observableVersion.getChronology(), manifold.getEditCoordinate(), "temporary comment");
+              .commit(observableVersion.getChronology(), FxGet.editCoordinate(), "temporary comment");
       completionListeners.forEach((listener) -> {
          listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.COMMITTED);
       });
@@ -138,7 +141,7 @@ public class PropertySheetMenuItem
 
    public void prepareToExecute() {
       if (makeAnalogOnExecute) {
-         this.observableVersion = this.observableVersion.makeAnalog(manifold.getEditCoordinate());
+         this.observableVersion = this.observableVersion.makeAnalog(FxGet.editCoordinate());
 
          if (this.observableVersion.getChronology()
                  .getVersionType() == VersionType.CONCEPT) {
@@ -150,8 +153,10 @@ public class PropertySheetMenuItem
          }
       }
 
-      FxGet.rulesDrivenKometService()
+      Platform.runLater(() -> {
+        FxGet.rulesDrivenKometService()
               .populatePropertySheetEditors(this);
+      });
       this.manifold.addEditInFlight(this);
    }
 
@@ -162,16 +167,34 @@ public class PropertySheetMenuItem
    }
 
    //~--- get methods ---------------------------------------------------------
-   private PropertySheetItemConceptNidWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
+   private PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
            String nameForProperty) {
-      IntegerProperty conceptProperty = (IntegerProperty) getPropertyMap().get(propertyConceptSpecification);
+      ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
+      if (property == null) {
+          int assemblageNid = observableVersion.getAssemblageNid();
+          OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
+                  propertyConceptSpecification.getNid(), 
+                  assemblageNid, manifold);
+          if (propertyIndex.isPresent()) {
+              property = observableVersion.getProperties().get(propertyIndex.getAsInt());
+          }
+      }
+      ObjectProperty<ConceptSpecification> conceptProperty = null;
+      if (property instanceof ObjectProperty) {
+          conceptProperty = (ObjectProperty<ConceptSpecification>) property;
+      } else if (property instanceof CommitAwareIntegerProperty) {
+          CommitAwareIntegerProperty intProperty = (CommitAwareIntegerProperty) property;
+          conceptProperty = new CommitAwareConceptSpecificationProperty(intProperty);
+      }
       if (conceptProperty == null) {
          throw new IllegalStateException("No property for: " + propertyConceptSpecification);
       }
-      return new PropertySheetItemConceptNidWrapper(
+      PropertySheetItemConceptWrapper item = new PropertySheetItemConceptWrapper(
               manifold,
               nameForProperty,
               conceptProperty);
+      item.setSpecification(propertyConceptSpecification);
+      return item;
    }
 
    private PropertySheetStatusWrapper getStatusProperty(ConceptSpecification propertyConceptSpecification,

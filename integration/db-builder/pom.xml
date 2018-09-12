@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>integration</artifactId>
-        <version>4.51</version>
+        <version>4.52</version>
     </parent>
 
     <groupId>sh.isaac.integration</groupId>
@@ -36,7 +36,7 @@
                         </dependency>
                         <dependency>
                             <groupId>sh.isaac.provider</groupId>
-                            <artifactId>filesystem-datastore</artifactId>
+                            <artifactId>datastore-locator</artifactId>
                             <version>${project.parent.version}</version>
                         </dependency>
                         <dependency>
@@ -67,11 +67,6 @@
                         <dependency>
                             <groupId>sh.isaac.provider</groupId>
                             <artifactId>chronology</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.provider</groupId>
-                            <artifactId>filesystem-datastore</artifactId>
                             <version>${project.parent.version}</version>
                         </dependency>
                         <dependency>

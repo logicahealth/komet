@@ -107,6 +107,14 @@ public class DisjointWithNode
    public String toSimpleString() {
       return "Disjoint with " + super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        for (AbstractLogicNode child: getChildren()) {
+            builder.append("\n       DisjointWith(");
+            child.addToBuilder(builder);
+            builder.append("\n          )\n");
+        }
+    }
 
 
    /**

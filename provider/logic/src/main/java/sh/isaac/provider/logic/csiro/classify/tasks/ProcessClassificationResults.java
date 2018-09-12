@@ -163,11 +163,10 @@ public class ProcessClassificationResults
             if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
                 LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
             }
-            int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
-            final Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
+            final Node node = classifiedResult.getNode(Integer.toString(conceptNid));
 
             if (node == null) {
-                throw new RuntimeException("Null node for: " + conceptSequence);
+                throw new RuntimeException("Null node for: " + conceptNid);
             }
 
             final Set<String> equivalentConcepts = node.getEquivalentConcepts();
@@ -175,8 +174,7 @@ public class ProcessClassificationResults
             if (equivalentConcepts.size() > 1) {
                 IntArrayList equivalentNids = new IntArrayList(equivalentConcepts.size());
                 for (String equivalentConcept : equivalentConcepts) {
-                    int equivalentNid = ModelGet.identifierService()
-                            .getNidForElementSequence(Integer.parseInt(equivalentConcept), assemblageNid);
+                    int equivalentNid = Integer.parseInt(equivalentConcept);
                     equivalentNids.add(equivalentNid);
                     affectedConcepts.add(equivalentNid);
                 }
@@ -185,8 +183,7 @@ public class ProcessClassificationResults
             } else {
                 for (String equivalentConceptCsiroId : equivalentConcepts) {
                     try {
-                        int equivalentNid = ModelGet.identifierService()
-                                .getNidForElementSequence(Integer.parseInt(equivalentConceptCsiroId), assemblageNid);
+                        int equivalentNid = Integer.parseInt(equivalentConceptCsiroId);
                         affectedConcepts.add(equivalentNid);
                     } catch (final NumberFormatException numberFormatException) {
                         if (equivalentConceptCsiroId.equals("_BOTTOM_")
@@ -208,7 +205,7 @@ public class ProcessClassificationResults
      * Test for proper set size.
      *
      * @param inferredSemanticSequences the inferred semantic sequences
-     * @param conceptNid the concept sequence
+     * @param conceptNid the concept nid
      * @param statedSemanticSequences the stated semantic sequences
      * @param semanticService the semantic service
      * @throws IllegalStateException the illegal state exception
@@ -275,7 +272,6 @@ public class ProcessClassificationResults
         // work is occurring on a single thread.  Need to figure out why...
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             try {
-                int conceptSequence = ModelGet.identifierService().getElementSequenceForNid(conceptNid);
                 if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
                     LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
                 }
@@ -323,15 +319,13 @@ public class ProcessClassificationResults
 
                         // Need to construct the necessary set from classifier results.
                         final Node inferredNode
-                                = inferredAxioms.getNode(Integer.toString(conceptSequence));
+                                = inferredAxioms.getNode(Integer.toString(conceptNid));
                         final List<ConceptAssertion> parentList = new ArrayList<>();
 
                         inferredNode.getParents().forEach((parent) -> {
                             parent.getEquivalentConcepts().forEach((parentString) -> {
                                 try {
-                                    int parentNid
-                                            = ModelGet.identifierService()
-                                                    .getNidForElementSequence(Integer.parseInt(parentString), assemblageNid);
+                                    int parentNid = Integer.parseInt(parentString);
 
                                     parentList.add(
                                             inferredBuilder.conceptAssertion(parentNid));

@@ -97,7 +97,10 @@ public final class ComponentPanel
             if (propertySheetMenuItem.isPresent()) {
                 this.addEditingPropertySheet(propertySheetMenuItem.get());
             } else {
-                System.err.println("Error: No property sheet editor for this uncommitted version...\n" + uncommittedVersion);
+//                if (uncommittedVersion.getAuthorNid() == ) {
+//                    
+//                }
+                System.err.println("Error: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion);
             }
         }
 
@@ -149,6 +152,7 @@ public final class ComponentPanel
             case MEMBER:
             case CONCEPT:
             case DESCRIPTION:
+            case Nid1_Int2:
                 return true;
 
             case RF2_RELATIONSHIP:

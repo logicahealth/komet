@@ -144,6 +144,10 @@ public abstract class TimedTask<T>
         LOG.info(getClass().getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
 
         Platform.runLater(() -> {
+            if (exceptionProperty().get() != null) {
+                Throwable ex = exceptionProperty().get();
+                LOG.error(ex.getLocalizedMessage(), ex);
+            }
             this.completeMessageGenerator.accept(this);
         });
     }

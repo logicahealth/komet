@@ -67,7 +67,7 @@ public interface ObservableStampCoordinate
    SetProperty<Status> allowedStatesProperty();
 
    /**
-    * Module sequences property.
+    * Module nids property.
     *
     * @return the object property
     */

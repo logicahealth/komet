@@ -193,9 +193,9 @@ public interface LanguageCoordinate extends Coordinate {
    }
 
    /**
-    * Gets the language concept sequence.
+    * Gets the language concept nid.
     *
-    * @return the language concept sequence
+    * @return the language concept nid
     */
    int getLanguageConceptNid();
 
@@ -254,17 +254,22 @@ public interface LanguageCoordinate extends Coordinate {
            int conceptId,
            StampCoordinate stampCoordinate) {
       if (conceptId < 0) {
-         switch (Get.identifierService().getObjectTypeForComponent(conceptId)) {
-            case CONCEPT:
-               // returned below
-               break;
-            case SEMANTIC:
-               return Optional.of(Get.assemblageService().getSemanticChronology(conceptId).getVersionType().toString());
-            case UNKNOWN:
-               return Optional.empty();
-            default:
-               return Optional.empty();
-         }
+          try {
+              switch (Get.identifierService().getObjectTypeForComponent(conceptId)) {
+                  case CONCEPT:
+                      // returned below
+                      break;
+                  case SEMANTIC:
+                      return Optional.of(Get.assemblageService().getSemanticChronology(conceptId).getVersionType().toString());
+                  case UNKNOWN:
+                      return Optional.empty();
+                  default:
+                      return Optional.empty();
+              }
+          } catch (NoSuchElementException e) {
+            LOG.warn("Error getting regular name for: {}",  Get.identifierService().getUuidsForNid(conceptId));
+            return Optional.empty();
+          }
       }
       try {
          LatestVersion<DescriptionVersion> latestDescription

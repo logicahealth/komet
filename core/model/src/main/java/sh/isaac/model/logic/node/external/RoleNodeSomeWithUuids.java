@@ -130,6 +130,18 @@ public class RoleNodeSomeWithUuids
    public String toSimpleString() {
       return toString("");
    }
+   
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        builder.append("\n       SomeRole(");
+        builder.append("Get.concept(\"").append(this.typeConceptUuid).append("\")");
+        builder.append(", ");
+        for (AbstractLogicNode child: getChildren()) {
+            child.addToBuilder(builder);
+        }
+        builder.append(")\n");
+    }
+
 
    /**
     * Write node data.

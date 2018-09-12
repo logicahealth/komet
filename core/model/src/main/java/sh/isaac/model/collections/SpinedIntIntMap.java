@@ -151,7 +151,12 @@ public class SpinedIntIntMap {
 
     public void put(int index, int element) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+            if (ModelGet.sequenceStore() != null) {
+               index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+               index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
@@ -164,7 +169,12 @@ public class SpinedIntIntMap {
 
     public int get(int index) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+            if (ModelGet.sequenceStore() != null) {
+               index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+               index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
@@ -173,7 +183,12 @@ public class SpinedIntIntMap {
 
     public int getAndUpdate(int index, IntUnaryOperator generator) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+            if (ModelGet.sequenceStore() != null) {
+               index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+               index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
@@ -183,7 +198,12 @@ public class SpinedIntIntMap {
 
     public boolean containsKey(int index) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+            if (ModelGet.sequenceStore() != null) {
+               index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+               index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;

@@ -72,7 +72,7 @@ public interface DatastoreServices {
    public static final String DATASTORE_ID_FILE = "dataStoreId.txt";
 
    /**
-    * The path where the data store provider stores its on-disk data.
+    * @return The path where the data store provider stores its on-disk data.
     */
    public Path getDataStorePath();
 
@@ -94,9 +94,8 @@ public interface DatastoreServices {
    
    /**
     * Instruct the datastore to write any pending data to disk. 
-    * @return 
+    * @return A future that tracks the running sync
     */
    public Future<?> sync();
-
 }
 

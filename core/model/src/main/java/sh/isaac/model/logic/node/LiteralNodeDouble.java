@@ -153,6 +153,12 @@ public class LiteralNodeDouble
    public String toSimpleString() {
       return this.literalValue +  super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       FloatLiteral(");
+            builder.append(this.literalValue);
+            builder.append(")\n");
+    }
 
 
    /**

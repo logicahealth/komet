@@ -1,6 +1,5 @@
 package sh.komet.gui.control.concept;
 
-import sh.komet.gui.control.concept.ConceptForControlWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
@@ -15,6 +14,12 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.collections.NidSet;
 import sh.komet.gui.util.FxGet;
 
+/**
+ * 
+ * @author kec
+ * @deprecated Use PropertySheetItemConceptWrapper
+ */
+@Deprecated
 public class PropertySheetItemConceptNidWrapper implements ConceptSpecification, PropertySheet.Item {
 
    private final Manifold manifoldForDisplay;
@@ -34,12 +39,17 @@ public class PropertySheetItemConceptNidWrapper implements ConceptSpecification,
       this.manifoldForDisplay = manifoldForDisplay;
       this.name = name;
       this.conceptNidProperty = conceptNidProperty;
-      if (allowedValues.length > 0) {
+      if (allowedValues.length > 0 && conceptNidProperty.get() == 0) {
           this.conceptNidProperty.set(allowedValues[0]);
       }
       this.allowedValues.addAll(allowedValues);
       this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifoldForDisplay, conceptNidProperty.get()));
+      this.conceptNidProperty.addListener((observable, oldValue, newValue) -> {
+          this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, newValue.intValue()));
+      });
    }
+   
+   
 
    @Override
    public String getFullyQualifiedName() {
@@ -89,9 +99,16 @@ public class PropertySheetItemConceptNidWrapper implements ConceptSpecification,
    public void setValue(Object value) {
       try {
          // Concept sequence property may throw a runtime exception if it cannot be changed
-         this.conceptNidProperty.setValue(((ConceptForControlWrapper) value).getNid());
-         // only change the observableWrapper if no exception is thrown. 
-         this.observableWrapper.setValue((ConceptForControlWrapper) value);
+         this.conceptNidProperty.setValue(((ConceptForControlWrapper) value).getNid());         
+      } catch (RuntimeException ex) {
+         FxGet.statusMessageService().reportStatus(ex.getMessage());
+         this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, this.conceptNidProperty.get()));
+      }
+   }
+   public void setDefaultValue(ConceptSpecification value) {
+      try {
+         // Concept sequence property may throw a runtime exception if it cannot be changed
+         this.conceptNidProperty.setValue(value.getNid());         
       } catch (RuntimeException ex) {
          FxGet.statusMessageService().reportStatus(ex.getMessage());
          this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, this.conceptNidProperty.get()));
@@ -103,7 +120,7 @@ public class PropertySheetItemConceptNidWrapper implements ConceptSpecification,
       return Optional.of(this.conceptNidProperty);
    }
   
-   public ConceptSpecification getPropertySpecification() {
+   public ConceptSpecification getSpecification() {
       return new ConceptProxy(this.conceptNidProperty.getName());
    }
 

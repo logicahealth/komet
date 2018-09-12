@@ -17,7 +17,9 @@
 package sh.isaac.model.datastream;
 
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
@@ -42,6 +44,7 @@ public class BinaryDatastreamReader
 
     private final BiConsumer<? super IsaacExternalizable, byte[]> action;
     private final Path path;
+    private final InputStream inputStream;
     private final int permits;
     private final Semaphore processingSemaphore;
     private final long bytesToProcess;
@@ -58,6 +61,7 @@ public class BinaryDatastreamReader
     public BinaryDatastreamReader(BiConsumer<? super IsaacExternalizable, byte[]> action, Path path, boolean processInOrder) {
         this.action = action;
         this.path = path;
+        this.inputStream = null;
         this.bytesToProcess = path.toFile().length();
         permits = Runtime.getRuntime().availableProcessors() * 2;
         processingSemaphore = new Semaphore(permits);
@@ -66,6 +70,23 @@ public class BinaryDatastreamReader
               : Get.executor();
         addToTotalWork(this.bytesToProcess);
         updateTitle("Importing from " + path.toFile().getName());
+        Get.activeTasks().add(this);
+    }
+    
+    /**
+     * Read an IBDF stream, parse each object, and call the provided consumer with each parsed object.
+     * @param action where to send the parsed objects from the file
+     * @param is - the input stream to read
+     */
+    public BinaryDatastreamReader(BiConsumer<? super IsaacExternalizable, byte[]> action, InputStream is) {
+        this.action = action;
+        this.path = null;
+        this.inputStream = is;
+        this.bytesToProcess = -1;
+        permits = Runtime.getRuntime().availableProcessors() * 2;
+        processingSemaphore = new Semaphore(permits);
+        parsingExecutor = Get.executor();
+        updateTitle("Importing from input stream" + is.toString());
         Get.activeTasks().add(this);
     }
     
@@ -81,31 +102,51 @@ public class BinaryDatastreamReader
     public BinaryDatastreamReader(Consumer<? super IsaacExternalizable> action, Path path) {
         this((externalizable, data) -> {action.accept(externalizable);}, path);
     }
+    
+    public BinaryDatastreamReader(Consumer<? super IsaacExternalizable> action, InputStream is) {
+        this((externalizable, data) -> {action.accept(externalizable);}, is);
+    }
 
     @Override
     protected Integer call() throws Exception {
-        try (DataInputStream input = new DataInputStream(new FileInputStream(path.toFile()))) {
+        try (DataInputStream input = new DataInputStream(path == null ? inputStream : new FileInputStream(path.toFile()))) {
             long bytesProcessed = 0;
             int objectCount = 0;
-            while (this.bytesToProcess > bytesProcessed) {
+            while (true) {
                 throwIfException();
-                objectCount++;
-                final int recordSizeInBytes = input.readInt();
-                bytesProcessed += 4;
-                final byte[] objectData = new byte[recordSizeInBytes];
-                input.readFully(objectData);
-                bytesProcessed += recordSizeInBytes;
- 
-                ByteArrayDataBuffer byteArrayDataBuffer = new ByteArrayDataBuffer(objectData);
-                byteArrayDataBuffer.setExternalData(true);
-                IsaacExternalizableUnparsed unparsedObject
-                        = new IsaacExternalizableUnparsed(byteArrayDataBuffer);
-                completedUnitsOfWork(recordSizeInBytes);
-
-                this.processingSemaphore.acquireUninterruptibly();
-                
-                Processor processor = new Processor(unparsedObject);
-                parsingExecutor.execute(processor);
+                try
+                {
+                    if (this.bytesToProcess > 0 && bytesProcessed >= this.bytesToProcess) {
+                        //if we are processing a file, we know the byte count, so we can exit without an EOF exception.
+                        break;
+                    }
+                    final int recordSizeInBytes = input.readInt();
+                    objectCount++;
+                    bytesProcessed += 4;
+                    final byte[] objectData = new byte[recordSizeInBytes];
+                    input.readFully(objectData);
+                    bytesProcessed += recordSizeInBytes;
+     
+                    ByteArrayDataBuffer byteArrayDataBuffer = new ByteArrayDataBuffer(objectData);
+                    byteArrayDataBuffer.setExternalData(true);
+                    IsaacExternalizableUnparsed unparsedObject
+                            = new IsaacExternalizableUnparsed(byteArrayDataBuffer);
+                    completedUnitsOfWork(recordSizeInBytes);
+    
+                    this.processingSemaphore.acquireUninterruptibly();
+                    
+                    Processor processor = new Processor(unparsedObject);
+                    parsingExecutor.execute(processor);
+                }
+                catch (EOFException e) {
+                    if (path == null) {
+                        //Normal escape route, if we are processing a passed in stream
+                        break;
+                    }
+                    else {
+                        throw e;
+                    }
+                }
             }
             this.processingSemaphore.acquireUninterruptibly(permits);
             throwIfException();

@@ -83,10 +83,10 @@ public interface TaxonomySnapshotService {
    boolean isKindOf(int childConceptNid, int parentConceptNid);
 
    /**
-    * Gets the kind of sequence set.
+    * Gets the kind of nid set.
     *
     * @param rootConceptNid the root id
-    * @return the kind of sequence set
+    * @return the kind of nid set
     */
    NidSet getKindOfConceptNidSet(int rootConceptNid);
 
@@ -109,7 +109,7 @@ public interface TaxonomySnapshotService {
     * Gets the taxonomy parent nids.
     *
     * @param childConceptNids the child id
-    * @return the taxonomy parent sequences
+    * @return the taxonomy parent nids
     */
    int[] getTaxonomyParentConceptNids(int childConceptNids);
 

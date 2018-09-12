@@ -183,7 +183,8 @@ public class ConcurrentSkipListIntegerSet
     */
    @Override
    public IntSet or(IntSet otherSet) {
-      throw new UnsupportedOperationException("Not supported yet.");
+      this.addAll(otherSet.stream());
+      return this;
    }
 
    /**

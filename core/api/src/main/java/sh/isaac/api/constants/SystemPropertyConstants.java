@@ -79,6 +79,12 @@ public class SystemPropertyConstants {
     * This will override {@link ConfigurationService#getDatabaseInitializationMode()}
     */
    public static final String DATA_STORE_INIT = "DATA_STORE_INIT";
+   
+   /** 
+    * Used to specify which datastore impelementation should be used.
+    * This will override {@link ConfigurationService#getDatabaseImplementation()}
+    */
+   public static final String DATA_STORE_TYPE = "DATA_STORE_TYPE";
 
    /**
     * May be optionally used to enable console-level, extremely verbose debug output by providing a value of 'true'

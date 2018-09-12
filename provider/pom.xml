@@ -4,22 +4,22 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.51</version>
+        <version>4.52</version>
     </parent>
     <artifactId>provider</artifactId>
     <packaging>pom</packaging>
     <name>ISAAC provider: (MMP)</name>
     <description>Aggregator project for provider ISAAC provider modules</description>
     <profiles>
-    <profile>
-         <id>bdb</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <modules>
-            <module>bdb-datastore</module>
-         </modules>
-      </profile>
+        <profile>
+            <id>bdb</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>bdb-datastore</module>
+            </modules>
+        </profile>
     </profiles>
     <modules>
         <module>commit</module>
@@ -40,6 +40,8 @@
         <module>filesystem-datastore</module>
         <module>chronology</module>
         <module>xodus-datastore</module>
+        <module>mv-datastore</module>
         <module>memory-managment</module>
+        <module>datastore-locator</module>
     </modules>
 </project>

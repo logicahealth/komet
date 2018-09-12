@@ -80,7 +80,7 @@ public class Nid1_Int2_VersionImpl
     * @param data the data
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
       data.putNid(this.nid1);
       data.putInt(this.int2);
@@ -150,5 +150,23 @@ public class Nid1_Int2_VersionImpl
    public void setNid1(int nid1) {
       this.nid1 = nid1;
    }
+   
+   /**
+    * To string.
+    *
+    * @param builder the builder
+    * @return the string builder
+    */
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{Concept: ").append(Get.conceptDescriptionText(nid1))
+              .append(", Int: ").append(int2).append(" ")
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
+   
+   
 }
 

@@ -1,8 +1,11 @@
 .settings
 .classpath
 .project
+*.log
 /target/
 /*/target/
 /*/*/target/
 /provider/bdb-chronology/nbproject/
 komet/application/data/*
+\.idea/
+/komet/application/target-full/

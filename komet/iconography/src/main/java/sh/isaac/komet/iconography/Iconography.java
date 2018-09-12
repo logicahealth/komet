@@ -202,6 +202,9 @@ public enum Iconography {
    FEATURE_RULER(MATERIAL_DESIGNS_WEBFONT, "feature-ruler"),
    LITERAL_STRING(MATERIAL_DESIGNS_ICON, "literal-string"),
    LITERAL_NUMERIC(FONT_AWSOME, "literal-numeric"),
+   ARROW_UP(MATERIAL_DESIGNS_WEBFONT, "arrow-up"),
+   ARROW_DOWN(MATERIAL_DESIGNS_WEBFONT, "arrow-down"),
+   DELETE_TRASHCAN(MATERIAL_DESIGNS_ICON, "delete-trashcan"),
    
    // MaterialDesignIcon.MENU_DOWN
    // MaterialDesignIcon.MENU_RIGHT

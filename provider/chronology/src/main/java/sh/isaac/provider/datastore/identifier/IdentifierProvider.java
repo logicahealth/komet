@@ -52,9 +52,7 @@ import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -64,7 +62,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
@@ -73,12 +70,12 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.UuidIntMapMap;
+import sh.isaac.api.collections.uuidnidmap.DataStoreUuidToIntMap;
+import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.model.ContainerSequenceService;
-import sh.isaac.model.DataStore;
-import sh.isaac.model.collections.SpinedIntIntMap;
-import sh.isaac.model.collections.SpinedNidIntMap;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -89,7 +86,7 @@ import sh.isaac.model.collections.SpinedNidIntMap;
 @Service
 @RunLevel(value = LookupService.SL_L2)
 public class IdentifierProvider
-         implements IdentifierService, ContainerSequenceService {
+         implements IdentifierService {
    private static final Logger LOG = LogManager.getLogger();
    //~--- fields --------------------------------------------------------------
 /*
@@ -100,7 +97,7 @@ public class IdentifierProvider
    uuid -> nid with generation...
    */
    private transient DataStore                         store;
-   private UuidIntMapMap                               uuidIntMapMap;
+   private UuidToIntMap                                uuidIntMapMap;
    
    private File uuidNidMapDirectory;
 
@@ -111,8 +108,8 @@ public class IdentifierProvider
 
    @Override
    public void addUuidForNid(UUID uuid, int nid) {
-      int old = this.uuidIntMapMap.get(uuid);
-      if (old != Integer.MAX_VALUE && old != nid) {
+      OptionalInt old = this.uuidIntMapMap.get(uuid);
+      if (old.isPresent() && old.getAsInt() != nid) {
          throw new RuntimeException("Reassignment of nid for " + uuid + " from " + old + " to " + nid);
       }
       this.uuidIntMapMap.put(uuid, nid);
@@ -127,7 +124,12 @@ public class IdentifierProvider
       this.store      = Get.service(DataStore.class);
       uuidNidMapDirectory = new File(store.getDataStorePath().toAbsolutePath().toFile(), "uuid-nid-map");
 
-      this.uuidIntMapMap = UuidIntMapMap.create(uuidNidMapDirectory);
+      if (this.store.implementsExtendedStoreAPI()) {
+         uuidIntMapMap = new DataStoreUuidToIntMap((ExtendedStore)this.store);
+      }
+      else {
+         this.uuidIntMapMap = UuidIntMapMap.create(uuidNidMapDirectory);
+      }
       
       //bootstrap our nids for core metadata concepts.  
       for (ConceptSpecification cs : TermAux.getAllSpecs()) {
@@ -142,7 +144,6 @@ public class IdentifierProvider
    private void stopMe() {
       try {
          LOG.info("Stopping identifier provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-         this.uuidIntMapMap.setShutdown(true);
          this.sync().get();
          this.store.sync().get();
          this.store = null;
@@ -158,44 +159,28 @@ public class IdentifierProvider
     * {@inheritDoc}
     */
    @Override
-   public boolean setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) {
+   public void setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) {
       if (versionType == VersionType.UNKNOWN) {
           throw new IllegalStateException("versionType may not be unknown. ");
       }
-      int existingAssemblageNid = this.store.getNidToAssemblageNidMap().get(nid);
-      if (existingAssemblageNid == Integer.MAX_VALUE) {
-          this.store.getNidToAssemblageNidMap().put(nid, assemblageNid);
-      }
-      else if (existingAssemblageNid != assemblageNid) {
-         throw new IllegalArgumentException("The nid " + nid + " is already assigned to assemblage " 
-               + existingAssemblageNid + " and cannot be reassigned to " + assemblageNid);
-      }
+      this.store.setAssemblageForNid(nid, assemblageNid);
        
-      IsaacObjectType oldObjectType = this.store.getAssemblageObjectTypeMap().computeIfAbsent(assemblageNid, (Integer t) -> objectType);
-      if (oldObjectType != null && oldObjectType != objectType) {
-         throw new IllegalStateException("Object types don't match: " +
-                this.store.getAssemblageObjectTypeMap().get(assemblageNid) + " " +
-                objectType
-        );
+      IsaacObjectType oldObjectType = this.store.getIsaacObjectTypeForAssemblageNid(assemblageNid);
+      if (oldObjectType == IsaacObjectType.UNKNOWN) 
+      {
+         this.store.putAssemblageIsaacObjectType(assemblageNid, objectType);
       }
 
-      VersionType oldVersionType = this.store.getAssemblageVersionTypeMap().computeIfAbsent(assemblageNid, (Integer t) -> versionType);
-      if (oldVersionType != null && oldVersionType != versionType) {
-         throw new IllegalStateException("Version types don't match. Original: '" +
-               this.store.getAssemblageVersionTypeMap().get(assemblageNid) + "' vs new: '" + versionType + "'");
+      VersionType oldVersionType = this.store.getVersionTypeForAssemblageNid(assemblageNid);
+      if (oldVersionType == VersionType.UNKNOWN) {
+         this.store.putAssemblageVersionType(assemblageNid, versionType);
       }
-      
-      return ((oldObjectType == null && oldVersionType == null));
    }
    
-  private IsaacObjectType getObjectTypeForAssemblage(int assemblageNid) {
-      return this.store.getAssemblageObjectTypeMap().getOrDefault(assemblageNid, IsaacObjectType.UNKNOWN);
-   }
-
    //~--- getValueSpliterator methods ---------------------------------------------------------
    @Override
    public IsaacObjectType getObjectTypeForComponent(int componentNid) {
-      IsaacObjectType temp = getObjectTypeForAssemblage(getAssemblageNid(componentNid).getAsInt());
+      IsaacObjectType temp = this.store.getIsaacObjectTypeForAssemblageNid(getAssemblageNid(componentNid).getAsInt());
       if (temp == IsaacObjectType.UNKNOWN) {
          Optional<? extends Chronology> temp2 = Get.identifiedObjectService().getChronology(componentNid);
          if (temp2.isPresent()) {
@@ -207,38 +192,18 @@ public class IdentifierProvider
    }
 
    @Override
-   public int getElementSequenceForNid(int nid) {
-      int elementSequence = this.store.getNidToElementSequenceMap().get(nid);
-      if (elementSequence != Integer.MAX_VALUE) {
-         return elementSequence;
-      }
-      return getElementSequenceForNid(nid, getAssemblageNid(nid).orElseThrow(() -> new RuntimeException("No assemblage nid available for " + nid 
-            + " " + Get.identifierService().getUuidPrimordialForNid(nid))));
-   }
-
-   @Override
-   public int getNidForElementSequence(int elementSequence, int assemblageNid) {
-      return getElementSequenceToNidMap(assemblageNid).get(elementSequence);
-   }
-
-   @Override
    public int getNidForUuids(Collection<UUID> uuids) throws NoSuchElementException {
      return getNidForUuids(uuids.toArray(new UUID[uuids.size()]));
-   }
-
-   @Override
-   public int[] getSemanticNidsForComponent(int componentNid) {
-      return this.store.getComponentToSemanticNidsMap().get(componentNid);
    }
 
    @Override
    public int getNidForUuids(UUID... uuids) throws NoSuchElementException {
 
       for (final UUID uuid: uuids) {
-         final int nid = this.uuidIntMapMap.get(uuid);
+         final OptionalInt nid = this.uuidIntMapMap.get(uuid);
 
-         if (nid != Integer.MAX_VALUE) {
-            return nid;
+         if (nid.isPresent()) {
+            return nid.getAsInt();
          }
       }
       throw new NoSuchElementException("No nid found for " + Arrays.toString(uuids));
@@ -249,17 +214,17 @@ public class IdentifierProvider
       int lastFoundNid = Integer.MAX_VALUE;
       ArrayList<UUID> uuidsWithoutNid = new ArrayList<>(uuids.length);
       for (final UUID uuid: uuids) {
-         final int nid =  this.uuidIntMapMap.get(uuid);
+         final OptionalInt nid =  this.uuidIntMapMap.get(uuid);
 
-         if (nid != Integer.MAX_VALUE) {
-            if (lastFoundNid != Integer.MAX_VALUE && lastFoundNid != nid) {
+         if (nid.isPresent()) {
+            if (lastFoundNid != Integer.MAX_VALUE && lastFoundNid != nid.getAsInt()) {
                LOG.trace("Two UUIDs are being merged onto a single nid!  Found " + lastFoundNid + " and " + nid);
                //I don't want to update lastFoundNid in this case, because the uuid -> nid mapping is for the previously checked UUID.
                //This UUID will need to be remaped to a new nid:
                uuidsWithoutNid.add(uuid);
             }
             else {
-               lastFoundNid = nid;
+               lastFoundNid = nid.getAsInt();
             }
          }
          else {
@@ -282,65 +247,30 @@ public class IdentifierProvider
    }
 
    @Override
-   public int getElementSequenceForNid(int nid, int assemblageNid) {
-      if (nid >= 0) {
-         throw new IllegalStateException("Nids must be negative. Found: " + nid);
-      }
-      if (assemblageNid >= 0) {
-         throw new IllegalStateException("assemblageNid must be negative. Found: " + assemblageNid);
-      }
-
-      int assemblageForNid = this.store.getNidToAssemblageNidMap().get(nid);
-      if (assemblageForNid == Integer.MAX_VALUE) {
-         this.store.getNidToAssemblageNidMap().put(nid, assemblageNid);
-      } else if (assemblageNid != assemblageForNid) {
-          throw new IllegalStateException("Assemblage nids do not match: \n" +
-                  Get.conceptDescriptionText(assemblageNid) + "(" + assemblageNid + ") and\n" +
-                  Get.conceptDescriptionText(assemblageForNid) + "(" + assemblageForNid + ")");
-      }
-
-      AtomicInteger sequenceGenerator = this.store.getSequenceGeneratorMap().computeIfAbsent(
-                                            assemblageNid,
-                                                  (key) -> new AtomicInteger(1));
-      int elementSequence = this.store.getNidToElementSequenceMap().getAndUpdate(
-          nid,
-              (currentValue) -> {
-                 if (currentValue == Integer.MAX_VALUE) {
-                    return sequenceGenerator.getAndIncrement();
-                 }
-                 return currentValue;
-              });
-      
-      SpinedIntIntMap elementSequenceToNidMap = getElementSequenceToNidMap(assemblageNid);
-      elementSequenceToNidMap.put(elementSequence, nid);
-      return elementSequence;
-   }
-
-   public SpinedNidIntMap getNid_ElementSequence_Map() {
-      return this.store.getNidToElementSequenceMap();
-   }
-
-   public SpinedIntIntMap getElementSequenceToNidMap(int assemblageNid) {
-      return store.getAssemblageNid_ElementSequenceToNid_Map(assemblageNid);
-   }
-
-	@Override
    public boolean hasUuid(Collection<UUID> uuids) throws IllegalArgumentException {
-      if (uuids == null || uuids.size() == 0) {
+      if (uuids == null || uuids.isEmpty()) {
          throw new IllegalArgumentException("A UUID must be specified.");
       }
-      return uuids.stream()
-                  .anyMatch((uuid) -> (this.uuidIntMapMap.containsKey(uuid)));
+      for (UUID uuid : uuids) {
+          if (this.uuidIntMapMap.containsKey(uuid)) {
+             return true;
+          }
+       }
+       return false;
    }
 
    @Override
    public boolean hasUuid(UUID... uuids) throws IllegalArgumentException{
-     if (uuids == null || uuids.length == 0) {
+      if (uuids == null || uuids.length == 0) {
          throw new IllegalArgumentException("A UUID must be specified.");
       }
-
-      return Arrays.stream(uuids)
-                   .anyMatch((uuid) -> (this.uuidIntMapMap.containsKey(uuid)));
+     
+      for (UUID uuid : uuids) {
+         if (this.uuidIntMapMap.containsKey(uuid)) {
+            return true;
+         }
+      }
+      return false;
    }
 
    @Override
@@ -374,11 +304,7 @@ public class IdentifierProvider
 
    @Override
    public OptionalInt getAssemblageNid(int componentNid) {
-      int value = this.store.getNidToAssemblageNidMap().get(componentNid);
-      if (value != Integer.MAX_VALUE) {
-         return OptionalInt.of(value);
-      }
-      return OptionalInt.empty();
+      return this.store.getAssemblageOfNid(componentNid);
    }
 
    @Override
@@ -388,7 +314,7 @@ public class IdentifierProvider
 
    @Override
    public IntStream getNidsForAssemblage(int assemblageNid) {
-      return getElementSequenceToNidMap(assemblageNid).valueStream();
+      return store.getNidsForAssemblage(assemblageNid);
    }
 
    @Override
@@ -409,30 +335,22 @@ public class IdentifierProvider
    @Override
    public IntStream getNidStreamOfType(IsaacObjectType objectType) {
       int maxNid = this.uuidIntMapMap.getMaxNid();
-      NidSet allowedAssemblages = new NidSet();
-      this.store.getAssemblageObjectTypeMap().forEach((nid, type) -> {
-         if (type == objectType) {
-            allowedAssemblages.add(nid);
-         }
-      });
+      NidSet allowedAssemblages = this.store.getAssemblageNidsForType(objectType);
 
       return IntStream.rangeClosed(Integer.MIN_VALUE + 1, maxNid)
               .filter((value) -> {
-                 return allowedAssemblages.contains(this.store.getNidToAssemblageNidMap().get(value)); 
+                 return allowedAssemblages.contains(this.store.getAssemblageOfNid(value).orElseGet(() -> Integer.MAX_VALUE)); 
               });
    }
-
-   @Override
-   public int getMaxSequenceForAssemblage(int assemblageNid) {
-      return store.getSequenceGeneratorMap().get(assemblageNid).get() - 1;
-   }   
 
    @Override
    public Future<?> sync() {
       return Get.executor().submit(() -> {
          try {
             LOG.info("writing uuid-nid-map.");
-            this.uuidIntMapMap.write();
+            if (!store.implementsExtendedStoreAPI()) {
+               ((UuidIntMapMap)this.uuidIntMapMap).write();
+            }
             this.store.sync().get();
          } catch (IOException | InterruptedException | ExecutionException ex) {
             LOG.error("error syncing identifier provider", ex);
@@ -440,20 +358,15 @@ public class IdentifierProvider
       });
    }
 
+   //TODO [refactor] need to see if I'm reporting this as part of the datastore
     @Override
     public long getMemoryInUse() {
-        long sizeInBytes = this.store.getNidToAssemblageNidMap().sizeInBytes();
-        sizeInBytes += this.store.getNidToElementSequenceMap().sizeInBytes();
-        sizeInBytes += uuidIntMapMap.getMemoryInUse();
-        return sizeInBytes;
+        return uuidIntMapMap.getMemoryInUse();
     }
 
     @Override
     public long getSizeOnDisk() {
-        long sizeInBytes = this.store.getNidToAssemblageNidMap().sizeInBytes();
-        sizeInBytes += this.store.getNidToElementSequenceMap().sizeInBytes();
-        sizeInBytes += uuidIntMapMap.getDiskSpaceUsed();
-        return sizeInBytes;
+        return uuidIntMapMap.getDiskSpaceUsed();
     }
 }
 

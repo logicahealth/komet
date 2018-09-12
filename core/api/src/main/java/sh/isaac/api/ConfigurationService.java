@@ -44,6 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
 
@@ -63,6 +64,14 @@ import sh.isaac.api.constants.SystemPropertyConstants;
 @Contract
 public interface ConfigurationService {
 
+	/**
+	 * {@link #DB} build mode is used to disable things like change set writing, commit-based lucene indexing, etc, 
+	 * during a bulk load operation.
+	 * 
+	 * {@link #IBDF} build mode is used when creating IBDF files, and we don't care about the resulting DB.  This disables
+	 * some validations (as things may be processed in the wrong order for the validation to work) and also enables an inverse
+	 * nid-> uuid map in the {@link IdentifierService} so that reverse lookups perform well without the datastore present.
+	 */
    public enum BuildMode{DB, IBDF}
    
    /**
@@ -114,7 +123,7 @@ public interface ConfigurationService {
    /**
     * When building a DB, we don't want to index per commit, or write changeset files, among other things.
     *
-    * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off 
+    * Note that this mode can be enabled-only.  If you enable dbBuildMode, the mode cannot be turned off 
     * without a complete system shutdown / restart.
     * 
     * 
@@ -241,4 +250,26 @@ public interface ConfigurationService {
     * @param initMode the new mode
     */
    public void setDatabaseInitializationMode(DatabaseInitialization initMode);
+   
+   /**
+    * @return The DatabaseImplementation instruction, when creating a new datastore.
+    * 
+    * This defaults to {@link DatabaseImplementation#DEFAULT}, which will leave the 
+    * choice up to the DatastoreLocator implementation.
+    * 
+    * Note that this value can be overridden by specifying a system property of 
+    * {@link SystemPropertyConstants#DATA_STORE_TYPE} with a value from 
+    * {@link DatabaseImplementation}
+    * 
+    * If the system property is specified, it takes priority over any set or default value.
+    */
+   public DatabaseImplementation getDatabaseImplementation();
+   
+   /**
+    * Set the database implementation.  This must be set prior to starting ISAAC.  This is 
+    * only useful when creating a new database - if opening an existing database, it selects
+    * the proper implementation based on the contents of the DB folder.
+    * @param implementation the new implementation
+    */
+   public void setDatabaseImplementation(DatabaseImplementation implementation);
 }

@@ -30,11 +30,11 @@ public interface SharedConceptSnapshotService {
     * the
     * {@code StampCoordinate} and the default
     * {@code LanguageCoordinate}.
-    * @param conceptId nid or sequence of the concept to get the description for
+    * @param conceptNid of the concept to get the description for
     * @return a description for this concept. If no description can be found,
-    * {@code "No desc for: " + conceptId;} will be returned.
+    * {@code "No desc for: " + conceptNid;} will be returned.
     */
-   String conceptDescriptionText(int conceptId);
+   String conceptDescriptionText(int conceptNid);
 
    /**
     * Gets the manifold coordinate.
@@ -47,10 +47,10 @@ public interface SharedConceptSnapshotService {
    /**
     * Checks if concept active.
     *
-    * @param conceptId nid or sequence of the concept to determine if it is active
+    * @param conceptNid of the concept to determine if it is active
     * according to the {@code StampCoordinate} of this snapshot service
     * @return true, if concept active
     */
-   boolean isConceptActive(int conceptId);
+   boolean isConceptActive(int conceptNid);
    
 }

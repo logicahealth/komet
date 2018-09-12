@@ -119,10 +119,10 @@ public class ConceptIsChildOf
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       final int parentNid = this.childOfSpecification.getNid();
-      final NidSet childrenOfSequenceSet =
+      final NidSet childrenOfNidSet =
               NidSet.of(
                       Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getTaxonomyChildConceptNids(parentNid));
-      getResultsCache().or(childrenOfSequenceSet);
+      getResultsCache().or(childrenOfNidSet);
       return getResultsCache();
    }
 

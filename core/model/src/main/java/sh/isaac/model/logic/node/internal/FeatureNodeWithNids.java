@@ -128,7 +128,7 @@ public final class FeatureNodeWithNids
     /**
      * Adds the concepts referenced by node.
      *
-     * @param conceptNidSet the concept sequence set
+     * @param conceptNidSet the concept nid set
      */
     @Override
     public void addConceptsReferencedByNode(OpenIntHashSet conceptNidSet) {
@@ -207,6 +207,13 @@ public final class FeatureNodeWithNids
       return this.operator +
              super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        builder.append("\n       Feature(");
+        builder.append("Get.conceptSpecification(").append(Get.identifierService().getUuidPrimoridalStringForNid(measureSemanticNid)).append("), ");
+        builder.append(operator);
+        builder.append(")\n");
+    }
 
    /**
     * Write node data.

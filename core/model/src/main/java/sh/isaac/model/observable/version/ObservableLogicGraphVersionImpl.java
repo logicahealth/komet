@@ -123,7 +123,7 @@ public class ObservableLogicGraphVersionImpl
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Case significance concept sequence property.
+    * Case significance concept nid property.
     *
     * @return the integer property
     */
@@ -202,9 +202,9 @@ public class ObservableLogicGraphVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the case significance concept sequence.
+    * Sets the case significance concept nid.
     *
-    * @param graphData the new case significance concept sequence
+    * @param graphData the new case significance concept nid
     */
    @Override
    public final void setGraphData(byte[][] graphData) {

@@ -133,9 +133,9 @@ public class ConceptSnapshotImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the author sequence.
+    * Gets the author nid.
     *
-    * @return the author sequence
+    * @return the author nid
     */
    @Override
    public int getAuthorNid() {
@@ -223,9 +223,9 @@ public class ConceptSnapshotImpl
    }
 
    /**
-    * Gets the module sequence.
+    * Gets the module nid.
     *
-    * @return the module sequence
+    * @return the module nid
     */
    @Override
    public int getModuleNid() {
@@ -245,9 +245,9 @@ public class ConceptSnapshotImpl
    }
 
    /**
-    * Gets the path sequence.
+    * Gets the path nid.
     *
-    * @return the path sequence
+    * @return the path nid
     */
    @Override
    public int getPathNid() {

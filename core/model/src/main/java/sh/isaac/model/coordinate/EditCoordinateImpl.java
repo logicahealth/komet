@@ -41,12 +41,15 @@ package sh.isaac.model.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -58,14 +61,17 @@ import sh.isaac.api.coordinate.EditCoordinate;
  */
 public class EditCoordinateImpl
          implements EditCoordinate {
-   /** The author sequence. */
+   /** The author nid. */
    int authorNid;
 
-   /** The module sequence. */
+   /** The module nid. */
    int moduleNid;
 
-   /** The path sequence. */
+   /** The path nid. */
    int pathNid;
+   
+    List<ConceptSpecification> pathOptions = new ArrayList<>();
+    List<ConceptSpecification> moduleOptions = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 
@@ -147,9 +153,9 @@ public class EditCoordinateImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the author sequence.
+    * Gets the author nid.
     *
-    * @return the author sequence
+    * @return the author nid
     */
    @Override
    public int getAuthorNid() {
@@ -159,18 +165,18 @@ public class EditCoordinateImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the author sequence.
+    * Sets the author nid.
     *
-    * @param authorId the new author sequence
+    * @param authorId the new author nid
     */
    public void setAuthorNid(int authorId) {
       this.authorNid = authorId;
    }
 
    /**
-    * Set author sequence property.
+    * Set author nid property.
     *
-    * @param authorSequenceProperty the author sequence property
+    * @param authorSequenceProperty the author nid property
     * @return the change listener
     */
    public ChangeListener<Number> setAuthorNidProperty(IntegerProperty authorSequenceProperty) {
@@ -187,9 +193,9 @@ public class EditCoordinateImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the module sequence.
+    * Gets the module nid.
     *
-    * @return the module sequence
+    * @return the module nid
     */
    @Override
    public int getModuleNid() {
@@ -199,18 +205,18 @@ public class EditCoordinateImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the module sequence.
+    * Sets the module nid.
     *
-    * @param moduleId the new module sequence
+    * @param moduleId the new module nid
     */
    public void setModuleNid(int moduleId) {
       this.moduleNid = moduleId;
    }
 
    /**
-    * Set module sequence property.
+    * Set module nid property.
     *
-    * @param moduleSequenceProperty the module sequence property
+    * @param moduleSequenceProperty the module nid property
     * @return the change listener
     */
    public ChangeListener<Number> setModuleNidProperty(IntegerProperty moduleSequenceProperty) {
@@ -227,9 +233,9 @@ public class EditCoordinateImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the path sequence.
+    * Gets the path nid.
     *
-    * @return the path sequence
+    * @return the path nid
     */
    @Override
    public int getPathNid() {
@@ -239,18 +245,18 @@ public class EditCoordinateImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the path sequence.
+    * Sets the path nid.
     *
-    * @param pathId the new path sequence
+    * @param pathId the new path nid
     */
    public void setPathNid(int pathId) {
       this.pathNid = pathId;
    }
 
    /**
-    * Set path sequence property.
+    * Set path nid property.
     *
-    * @param pathSequenceProperty the path sequence property
+    * @param pathSequenceProperty the path nid property
     * @return the change listener
     */
    public ChangeListener<Number> setPathNidProperty(IntegerProperty pathSequenceProperty) {
@@ -265,8 +271,30 @@ public class EditCoordinateImpl
    }
 
    @Override
+    public List<ConceptSpecification> getPathOptions() {
+        return pathOptions;
+    }
+
+   @Override
+    public List<ConceptSpecification> getModuleOptions() {
+        return moduleOptions;
+    }
+
+    @Override
+    public void setModuleOptions(List<ConceptSpecification> options) {
+        this.moduleOptions = options;
+    }
+
+    @Override
+    public void setPathOptions(List<ConceptSpecification> options) {
+        this.pathOptions = options;
+    }
+
+   @Override
    public EditCoordinate deepClone() {
       EditCoordinateImpl newCoordinate = new EditCoordinateImpl(authorNid, moduleNid, pathNid);
+      newCoordinate.moduleOptions.addAll(moduleOptions);
+      newCoordinate.pathOptions.addAll(pathOptions);
       return newCoordinate;
    }
 }

@@ -46,31 +46,31 @@ package sh.isaac.api.coordinate;
  */
 public interface LogicCoordinate extends Coordinate {
    /**
-    * Gets the classifier sequence.
+    * Gets the classifier nid.
     *
-    * @return concept sequence for the classifier for this coordinate.
+    * @return concept nid for the classifier for this coordinate.
     */
    int getClassifierNid();
 
    /**
-    * Gets the description logic profile sequence.
+    * Gets the description logic profile nid.
     *
-    * @return concept sequence for the description-logic profile for this coordinate.
+    * @return concept nid for the description-logic profile for this coordinate.
     */
    int getDescriptionLogicProfileNid();
 
    /**
-    * Gets the inferred assemblage sequence.
+    * Gets the inferred assemblage nid.
     *
-    * @return concept sequence for the assemblage where the inferred logical form
+    * @return concept nid for the assemblage where the inferred logical form
     * of concept definition graphs are stored.
     */
    int getInferredAssemblageNid();
 
    /**
-    * Gets the stated assemblage sequence.
+    * Gets the stated assemblage nid.
     *
-    * @return concept sequence for the assemblage where the stated logical form
+    * @return concept nid for the assemblage where the stated logical form
     * of concept definition graphs are stored.
     */
    int getStatedAssemblageNid();

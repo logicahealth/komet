@@ -125,8 +125,10 @@ public class ComponentNidVersionImpl
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
-
-      sb.append("{Component Nid≤");
+      sb.append("{rc: ");
+      
+      sb.append(Get.conceptDescriptionText(this.getReferencedComponentNid()));
+      sb.append(" Component Nid: ");
 
       switch (Get.identifierService().getObjectTypeForComponent(this.componentNid)) {
       case CONCEPT:
@@ -167,7 +169,7 @@ public class ComponentNidVersionImpl
     * @param data the data
     */
    @Override
-   protected void writeVersionData(ByteArrayDataBuffer data) {
+   public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
       data.putNid(this.componentNid);
    }

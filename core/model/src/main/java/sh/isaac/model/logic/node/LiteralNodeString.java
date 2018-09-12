@@ -141,6 +141,12 @@ public class LiteralNodeString
    public String toSimpleString() {
       return this.literalValue +  super.toSimpleString();
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       StringLiteral(\"");
+            builder.append(this.literalValue);
+            builder.append("\")\n");
+    }
 
 
    /**

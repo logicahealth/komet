@@ -143,8 +143,7 @@ public abstract class ObservableChronologyImpl
     * The chronicled object local.
     */
    protected Chronology chronicledObjectLocal;
-   /** The entry sequence property. */
-   protected IntegerProperty entrySequenceProperty;
+
     /**
      * The assemblage nid property.
      */
@@ -487,8 +486,15 @@ public abstract class ObservableChronologyImpl
                } else if (finalAlignmentMap.containsKey(version)) {
                   VersionImpl updateVersion = finalAlignmentMap.get(version).iterator().next().getVersion();
                   observableVersion.updateVersion(updateVersion);
+               } else if (oldVersionNewVersionMap.containsKey(version)) {
+                   VersionImpl updateVersion = oldVersionNewVersionMap.get(version);
+                   observableVersion.updateVersion(updateVersion);
                } else {
-                  throw new IllegalStateException("No match for: " + observableVersion);
+                   if (observableVersion.getCommitState() == CommitStates.CANCELED) {
+                       // OK, canceled content 
+                   } else {
+                       throw new IllegalStateException("No match for: " + observableVersion);
+                   }
                }
             }
             // then add... 
@@ -722,31 +728,7 @@ public abstract class ObservableChronologyImpl
       return chronicledObjectLocal;
    }
 
-   //~--- methods -------------------------------------------------------------
-   /**
-    * Concept sequence property.
-    *
-    * @return the integer property
-    */
-   public final IntegerProperty entrySequenceProperty() {
-      if (this.entrySequenceProperty == null) {
-         this.entrySequenceProperty = new CommitAwareIntegerProperty(this, ObservableFields.ENTRY_SEQUENCE_FOR_COMPONENT.toExternalString(), getEntrySequence());
-      }
-      return this.entrySequenceProperty;
-   }
-
    //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the concept sequence.
-    *
-    * @return the concept sequence
-    */
-   public final int getEntrySequence() {
-      if (this.entrySequenceProperty != null) {
-         return this.entrySequenceProperty.get();
-      }
-      return ((ChronologyImpl) chronicledObjectLocal).getElementSequence();
-   }
 
     /**
      * Assemblage sequence property.

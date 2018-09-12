@@ -21,5 +21,5 @@ package sh.isaac.api;
  * @author kec
  */
 public interface BusinessRulesService {
-   
+   void addResourcesAndUpdate(BusinessRulesResource... resource);
 }

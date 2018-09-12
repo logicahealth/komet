@@ -66,8 +66,17 @@ public enum ObservableFields
    /** The module nid for edit coordinate. */
    MODULE_NID_FOR_EDIT_COORDINATE("Module nid for edit coordinate", "Module nid for edit coordinate"),
 
+   /** The module nid for edit coordinate. */
+   MODULE_OPTIONS_FOR_EDIT_COORDINATE("Module options for edit coordinate", "Module options for edit coordinate"),
+
+   MODULE_FOR_USER("Module for user", "Module for user"),
+
    /** The path nid for edit coordinate. */
    PATH_NID_FOR_EDIT_CORDINATE("Path nid for edit cordinate", "Path nid for edit cordinate"),
+
+   PATH_OPTIONS_FOR_EDIT_COORDINATE("Path options for edit cordinate", "Path options for edit cordinate"),
+   
+   PATH_FOR_USER("Path for user", "Path for user"),
 
    /** The language nid for language coordinate. */
    LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("Language nid for language coordinate", "Language nid for language coordinate"),
@@ -316,6 +325,29 @@ public enum ObservableFields
    LOINC_STATUS("LOINC status"),
    LOINC_SHORT_NAME("LOINC short name"),
    LOINC_LONG_COMMON_NAME("LOINC long common name"),
+   
+   CORELATION_REFERENCE_EXPRESSION("Corelation reference expression"),
+   CORELATION_COMPARISON_EXPRESSION("Corelation comparison expression"),
+   CORELATION_EXPRESSION("Corelation expression"),
+   
+   GIT_USER_NAME("Git user name"),
+   GIT_PASSWORD("Git password"),
+   GIT_URL("Git url"),
+   GIT_LOCAL_FOLDER("Git local folder"),
+   ENABLE_EDIT("Enable editing"),
+   
+   KOMET_USER("KOMET user"),
+   KOMET_USER_LIST("KOMET user list"),
+   CONCEPT_IS_ASSEMBLAGE("Concept is assemblage"),
+   
+   SEMANTIC_FIELD_NAME("Semantic field name", "Field name"),
+   ASSEMBLAGE_FOR_CONSTRAINT("Assemblage for constraint", "Assemblage for constraint"),
+   ROLE_TYPE_TO_ADD("Role type to add", "Role type to add"),
+   
+   ASSEMBLAGE_FOR_ACTION("Assemblage for action", "Assemblage for action"),
+   VERSION_TYPE_FOR_ACTION("Version type for action", "Version for action"),
+   
+   CONCEPT_CONSTRAINTS("Concept constraints"),
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */

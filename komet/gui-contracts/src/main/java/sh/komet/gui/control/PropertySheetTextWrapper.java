@@ -16,14 +16,11 @@
  */
 package sh.komet.gui.control;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.komet.gui.manifold.Manifold;
 
 /**

@@ -70,9 +70,9 @@ import sh.isaac.api.DataSerializer;
  *
  * @param <T> the generic type
  */
-public class MemoryManagedReference<T extends Object>
+public class MemoryManagedReference<T extends DataSerializer<T>>
         extends SoftReference<T>
-         implements Comparable<MemoryManagedReference> {
+         implements Comparable<MemoryManagedReference<T>> {
    /** The Constant objectIdSupplier. */
    private static final AtomicInteger OBJECT_ID_SUPPLIER = new AtomicInteger();
 
@@ -114,9 +114,6 @@ public class MemoryManagedReference<T extends Object>
    /** The disk location. */
    private final File diskLocation;
 
-   /** The serializer. */
-   private final DataSerializer<T> serializer;
-
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -124,12 +121,10 @@ public class MemoryManagedReference<T extends Object>
     *
     * @param referent the referent
     * @param diskLocation the disk location
-    * @param serializer the serializer
     */
-   public MemoryManagedReference(T referent, File diskLocation, DataSerializer<T> serializer) {
+   public MemoryManagedReference(T referent, File diskLocation) {
       super(referent);
       this.diskLocation = diskLocation;
-      this.serializer   = serializer;
    }
 
    /**
@@ -138,15 +133,12 @@ public class MemoryManagedReference<T extends Object>
     * @param referent the referent
     * @param q the q
     * @param diskLocation the disk location
-    * @param serializer the serializer
     */
    public MemoryManagedReference(T referent,
                                  ReferenceQueue<? super T> q,
-                                 File diskLocation,
-                                 DataSerializer<T> serializer) {
+                                 File diskLocation) {
       super(referent, q);
       this.diskLocation = diskLocation;
-      this.serializer   = serializer;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -180,7 +172,7 @@ public class MemoryManagedReference<T extends Object>
     * @return the int
     */
    @Override
-   public int compareTo(MemoryManagedReference o) {
+   public int compareTo(MemoryManagedReference<T> o) {
       return this.objectId - o.objectId;
    }
 
@@ -266,7 +258,7 @@ public class MemoryManagedReference<T extends Object>
 
          try (DataOutputStream out =
                new DataOutputStream(new BufferedOutputStream(new FileOutputStream(this.diskLocation)))) {
-            this.serializer.serialize(out, objectToWrite);
+            objectToWrite.serialize(out);
          } catch (final FileNotFoundException e) {
             throw new RuntimeException(e);
          } catch (final IOException e) {

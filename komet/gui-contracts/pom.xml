@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>komet</artifactId>
-        <version>4.51</version>
+        <version>4.52</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>gui-contracts</artifactId>
@@ -32,6 +32,11 @@
             <artifactId>api</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>1.3.2</version>
         </dependency>
         <dependency>
             <groupId>sh.isaac.komet</groupId>

@@ -64,7 +64,7 @@ import org.jvnet.hk2.annotations.Contract;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@Contract
+ @Contract
 public interface SyncFiles {
    /** The Constant DEFAULT_README_CONTENT. */
    public static final String DEFAULT_README_CONTENT =

@@ -36,8 +36,9 @@
  */
 package sh.isaac.model;
 
-//~--- JDK imports ------------------------------------------------------------
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,10 +56,7 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.set.OpenIntHashSet;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
@@ -69,16 +67,17 @@ import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.dag.Graph;
+import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -87,7 +86,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  * @author kec
  */
 public abstract class ChronologyImpl
-        implements Chronology {
+        implements Chronology, ChronologySerializeable {
 
     protected static final Logger LOG = LogManager.getLogger();
 
@@ -122,11 +121,6 @@ public abstract class ChronologyImpl
      */
     private int assemblageNid;
 
-    /**
-     * Sequence of this chronology within the assemblage that defines it.
-     */
-    private int elementSequence;
-    
     protected VersionType versionType;
 
     /**
@@ -154,10 +148,6 @@ public abstract class ChronologyImpl
         return assemblageNid;
     }
 
-    public final int getElementSequence() {
-        return elementSequence;
-    }
-
     /**
      * For constructing an object for the first time.
      *
@@ -173,7 +163,6 @@ public abstract class ChronologyImpl
         this.assemblageNid = assemblageNid;
         this.versionType = versionType;
         ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), versionType);
-        this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, this.assemblageNid);
     }
 
     //~--- methods -------------------------------------------------------------
@@ -261,9 +250,10 @@ public abstract class ChronologyImpl
         // add versions...
         getVersionList().forEach(
                 (version) -> {
-                    final int stampSequenceForVersion = version.getStampSequence();
-
-                    writeIfNotCanceled(out, version, stampSequenceForVersion);
+                    if (Get.stampService()
+                            .isNotCanceled(version.getStampSequence())) {
+                        writeVersion(out, version);
+                    }
                 });
         out.putInt(0);  // last data is a zero length version record
     }
@@ -290,8 +280,6 @@ public abstract class ChronologyImpl
                 .append(" uuid: ").append(uuid).append("\n"));
         builder.append(" nid: ")
                 .append(this.nid)
-                .append("\n container: ")
-                .append(this.elementSequence)
                 .append(",\n versions[");
         getVersionList().forEach(
                 (version) -> {
@@ -406,12 +394,10 @@ public abstract class ChronologyImpl
                     }
                 }
             }
-            this.elementSequence = ModelGet.identifierService().getElementSequenceForNid(this.nid, getAssemblageNid());
             setAdditionalChronicleFieldsFromBuffer(data);
 
         } else {
             this.nid = data.getNid();
-            this.elementSequence = data.getInt();
             setAdditionalChronicleFieldsFromBuffer(data);
             constructorEnd(data);
         }
@@ -474,7 +460,6 @@ public abstract class ChronologyImpl
 
         if (!data.isExternalData()) {
             data.putInt(this.nid);
-            data.putInt(this.elementSequence);
         }
 
         putAdditionalChronicleFields(data);
@@ -553,22 +538,18 @@ public abstract class ChronologyImpl
      * @param version the version
      * @param stampSequenceForVersion the stamp sequence for version
      */
-    private <V extends StampedVersion> void writeIfNotCanceled(ByteArrayDataBuffer db,
-            V version,
-            int stampSequenceForVersion) {
-        if (Get.stampService()
-                .isNotCanceled(stampSequenceForVersion)) {
-            final int startWritePosition = db.getPosition();
+    private <V extends StampedVersion> void writeVersion(ByteArrayDataBuffer db,
+            V version) {
+        final int startWritePosition = db.getPosition();
 
-            db.putInt(0);  // placeholder for length
-            ((VersionImpl) version).writeVersionData(db);
+        db.putInt(0);  // placeholder for length
+        ((VersionImpl) version).writeVersionData(db);
 
-            final int versionLength = db.getPosition() - startWritePosition;
+        final int versionLength = db.getPosition() - startWritePosition;
 
-            db.setPosition(startWritePosition);
-            db.putInt(versionLength);
-            db.setPosition(db.getLimit());
-        }
+        db.setPosition(startWritePosition);
+        db.putInt(versionLength);
+        db.setPosition(db.getLimit());
     }
 
     //~--- set methods ---------------------------------------------------------
@@ -633,17 +614,15 @@ public abstract class ChronologyImpl
     }
 
     /**
-     * Get data to write to datastore. Set the write sequence to the specified
-     * value
-     *
-     * @return the data to write
+     * {@inheritDoc}
      */
-    public byte[] getDataToWrite() {
+    @Override
+    public byte[] getChronologyVersionDataToWrite() {
 
         if (this.uncommittedVersions == null) {
 
             // creating a brand new object
-            final ByteArrayDataBuffer db = new ByteArrayDataBuffer(10);
+            final ByteArrayDataBuffer db = new ByteArrayDataBuffer(40);
 
             writeChronicleData(db);
             db.putInt(0);  // zero length version record.
@@ -656,12 +635,154 @@ public abstract class ChronologyImpl
 
         this.versionStartPosition = db.getPosition();
         for (Version version : getVersionList()) {
-            final int stampSequenceForVersion = version.getStampSequence();
-            writeIfNotCanceled(db, version, stampSequenceForVersion);
+            if (Get.stampService()
+                    .isNotCanceled(version.getStampSequence())) {
+                writeVersion(db, version);
+            }
         }
         db.putInt(0);  // last data is a zero length version record
         db.trimToSize();
         return db.getData();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public byte[] getChronologyDataToWrite()
+    {
+        final ByteArrayDataBuffer db = new ByteArrayDataBuffer(40);
+        writeChronicleData(db);
+        db.flip();
+        db.trimToSize();
+        return db.getData();
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * If one were to combine the bytes from {@link #getChronologyDataToWrite()} with the bytes from each buffer returned by 
+     * {@link #getVersionDataToWrite()}, one will have almost (but not quite) the same exact content as {@link #getChronologyVersionDataToWrite()} 
+     * produces - they only differ in that you would be missing the '0' int which normally trails the version list.   
+     * {@link #readData(ByteArrayDataBuffer)} will handle the data being passed in with this int missing.
+     */
+    @Override
+    public List<byte[]> getVersionDataToWrite()
+    {
+        List<Version> versionList = getVersionList();
+        ArrayList<byte[]> result = new ArrayList<>(versionList.size());
+        for (Version version : versionList)
+        {
+            if (Get.stampService().isNotCanceled(version.getStampSequence())) {
+                final ByteArrayDataBuffer db = new ByteArrayDataBuffer(64);
+                writeVersion(db, version);
+                db.flip();
+                db.trimToSize();
+                result.add(db.getData());
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * When a store is utilizing {@link #getChronologyDataToWrite()}, it may find that it needs to 
+     * merge two different copies of the ChronologyData.  Use this method to properly merge the 
+     * Chronology data into a new data array that contains the information from both.  Note, this only 
+     * merges if necessary, if the inputs are identical, it returns copyOne wrapped in a ByteArrayDataBuffer.
+     * 
+     * Note that, data stores using this mechanism do NOT need to merge version data from 
+     * {@link #getVersionDataToWrite()}, as they simply need to store any versions from the 
+     * returned list that they do not yet have stored.
+     * 
+     * This method should only be passed bytes that came from {@link #getChronologyDataToWrite()}
+     * @param copyOne 
+     * @param copyTwo 
+     * @return The result of merging the two byte arrays
+     */
+    public static byte[] mergeChronologyData(byte[] copyOne, byte[] copyTwo)
+    {
+        final ByteArrayDataBuffer db = new ByteArrayDataBuffer(Math.max(copyOne.length, copyTwo.length));
+        ByteBuffer copyOnebb = ByteBuffer.wrap(copyOne);
+        ByteBuffer copyTwobb = ByteBuffer.wrap(copyTwo);
+        if (copyOnebb.equals(copyTwobb))
+        {
+            //Nothing to merge
+            db.put(copyOne);
+        }
+        else
+        {
+            //sanity check leading and trailing bytes for equality, merge the UUID list bytes.
+            //1 byte for object type token, 1 byte for the version type token, 1 byte for the data source type token
+            for (int i = 0; i < 3; i++)
+            {
+                byte aByte = copyOnebb.get();
+                if (aByte != copyTwobb.get())
+                {
+                    throw new RuntimeException("Unmergeable! Bytes differ at " + i);
+                }
+                else
+                {
+                    db.putByte(aByte);
+                }
+            }
+            //The UUID list(s) in these chronologies must be different, need to merge.
+            ArrayList<UUID> uuidsFromOne = readUUIDs(copyOnebb);
+            ArrayList<UUID> uuidsFromTwo = readUUIDs(copyTwobb);
+            
+            db.putLong(uuidsFromOne.get(0).getMostSignificantBits());  //write the primordial
+            db.putLong(uuidsFromOne.get(0).getLeastSignificantBits());
+            
+            Set<UUID> mergedExtraUUIDs = new HashSet<>();  //merge the other UUIDs
+            mergedExtraUUIDs.addAll(uuidsFromOne);
+            mergedExtraUUIDs.addAll(uuidsFromTwo);
+            mergedExtraUUIDs.remove(uuidsFromOne.get(0));  //remove the primoridial we wrote from the extra list
+            
+            db.putInt(mergedExtraUUIDs.size() * 2);  //Write the number of UUIDs
+            for (UUID uuid : mergedExtraUUIDs)
+            {
+                db.putLong(uuid.getMostSignificantBits());
+                db.putLong(uuid.getLeastSignificantBits());
+            }
+            
+            //All remaining bytes should be identical.
+            if (copyOnebb.remaining() != copyTwobb.remaining())
+            {
+                throw new RuntimeException("Unmergeable! Different number of bytes remaining - " + copyOnebb.remaining() + ", " + copyTwobb.remaining());
+            }
+            while (copyOnebb.hasRemaining())
+            {
+                byte aByte = copyOnebb.get();
+                if (aByte != copyTwobb.get())
+                {
+                    throw new RuntimeException("Unmergeable! Bytes differ where they should be the same!.  1) " + Arrays.toString(copyOne)
+                    + " 2) " + Arrays.toString(copyTwo));
+                }
+                db.putByte(aByte);
+            }
+        }
+        db.flip();
+        db.trimToSize();
+        return db.getData();
+    }
+    
+
+    /**
+     * Read the UUID list portion out of the ByteBuffer
+     * @param byteBuffer
+     * @return
+     */
+    private static ArrayList<UUID> readUUIDs(ByteBuffer byteBuffer)
+    {
+        ArrayList<UUID> result = new ArrayList<>();
+        //Read the promordial
+        result.add(new UUID(byteBuffer.getLong(), byteBuffer.getLong()));
+        
+        int remaining = byteBuffer.getInt() / 2;
+        for (int i = 0; i < remaining; i++)
+        {
+            result.add(new UUID(byteBuffer.getLong(), byteBuffer.getLong()));
+        }
+        return result;
     }
 
     public int getVersionStartPosition() {
@@ -1011,5 +1132,4 @@ public abstract class ChronologyImpl
         });
 
     }
-
 }

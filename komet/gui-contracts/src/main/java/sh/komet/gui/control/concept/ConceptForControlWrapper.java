@@ -58,7 +58,9 @@ import sh.komet.gui.manifold.Manifold;
 /**
  *
  * @author kec
+ * @deprecated use ConceptSpecificationForControlWrapper
  */
+@Deprecated
 public class ConceptForControlWrapper
          implements ConceptSpecification {
    private final Manifold manifold;

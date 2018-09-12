@@ -37,7 +37,7 @@ import sh.isaac.model.ModelGet;
  * @author kec
  * @param <E> the generic type for the spined list.
  */
-public class SpinedIntObjectMap<E> {
+public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
 
     private static final int SEMAPHORE_COUNT = Runtime.getRuntime().availableProcessors() * 2;
     private final Semaphore readWriteSemaphore = new Semaphore(SEMAPHORE_COUNT);
@@ -53,6 +53,10 @@ public class SpinedIntObjectMap<E> {
         this.elementStringConverter = elementStringConverter;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void clear() {
         spines.clear();
     }
@@ -93,30 +97,48 @@ public class SpinedIntObjectMap<E> {
     }
 
     protected AtomicReferenceArray<E> makeNewSpine(Integer spineKey) {
-        AtomicReferenceArray<E> spine = new AtomicReferenceArray(spineSize);
+        AtomicReferenceArray<E> spine = new AtomicReferenceArray<>(spineSize);
         this.spineCount.set(Math.max(this.spineCount.get(), spineKey + 1));
         return spine;
     }
 
-    public void put(int index, E element) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean put(int index, E element) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+            if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+                index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
         this.changedSpineIndexes.add(spineIndex);
         readWriteSemaphore.acquireUninterruptibly();
         try {
-            this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
+            return this.spines.computeIfAbsent(spineIndex, this::newSpine).getAndSet(indexInSpine, element) == null;
         } finally {
             readWriteSemaphore.release();
         }
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public E get(int index) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+            if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+                index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
@@ -128,9 +150,39 @@ public class SpinedIntObjectMap<E> {
         }
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public E getAndSet(int index, E element)
+    {
+        if (index < 0) {
+             if (ModelGet.sequenceStore() != null) {
+                 index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+             }
+             else {
+                 index = Integer.MAX_VALUE + index;
+             }
+         } 
+        int spineIndex = index/spineSize;
+        int indexInSpine = index % spineSize;
+        this.changedSpineIndexes.add(spineIndex);
+        return this.spines.computeIfAbsent(spineIndex, this::newSpine).getAndSet(indexInSpine, element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Optional<E> getOptional(int index) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+            if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+                index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
@@ -142,9 +194,18 @@ public class SpinedIntObjectMap<E> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean containsKey(int index) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+            if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+                index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
@@ -156,6 +217,10 @@ public class SpinedIntObjectMap<E> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int size() {
         int size = 0;
         int currentSpineCount = this.spineCount.get();
@@ -176,7 +241,7 @@ public class SpinedIntObjectMap<E> {
         }
     }
 
-    public void forEach(Processor<E> processor) {
+    public void forEach(IntBiConsumer<E> consumer) {
         int currentSpineCount = this.spineCount.get();
         int key = 0;
         readWriteSemaphore.acquireUninterruptibly();
@@ -186,7 +251,7 @@ public class SpinedIntObjectMap<E> {
                 for (int indexInSpine = 0; indexInSpine < spineSize; indexInSpine++) {
                     E element = spine.get(indexInSpine);
                     if (element != null) {
-                        processor.process(key, (E) element);
+                        consumer.accept(key, (E) element);
                     }
                     key++;
                 }
@@ -197,9 +262,18 @@ public class SpinedIntObjectMap<E> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public E accumulateAndGet(int index, E x, BinaryOperator<E> accumulatorFunction) {
         if (index < 0) {
-            index = ModelGet.identifierService().getElementSequenceForNid(index);
+            if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+            }
+            else {
+                index = Integer.MAX_VALUE + index;
+            }
         }
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
@@ -212,11 +286,6 @@ public class SpinedIntObjectMap<E> {
             readWriteSemaphore.release();
         }
 
-    }
-
-    public interface Processor<E> {
-
-        public void process(int key, E value);
     }
 
     public Stream<E> stream() {

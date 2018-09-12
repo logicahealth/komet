@@ -64,7 +64,6 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
@@ -431,9 +430,7 @@ public class ConceptChronologyImpl
             if (previousVersion == null) {
                builder.append(lg);
             } else {
-               final IsomorphicResults solution = lg.findIsomorphisms(previousVersion);
-
-               builder.append(solution);
+                builder.append(lg.findIsomorphisms(previousVersion));
             }
 
             builder.append("_______________________________________________________________________\n");

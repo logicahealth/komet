@@ -40,6 +40,7 @@ import sh.komet.gui.control.PropertyEditorType;
  *
  * @author kec
  */
+ 
 rule "Given a AddEditVersionMenuItems, with VersionType.CONCEPT, add editing options"
    lock-on-active true
 when
@@ -76,70 +77,48 @@ then
    }
 end
 
-rule "if property specification is PATH_NID_FOR_VERSION____SOLOR then"
-
-when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.PATH_NID_FOR_VERSION____SOLOR)
-then
-   $property.getAllowedValues().addAll(
-      Get.assemblageService().getReferencedComponentNidStreamFromAssemblage(MetaData.PATHS_ASSEMBLAGE____SOLOR)
-   );
-end
-
-
 rule "if property specification is STATUS_FOR_VERSION____SOLOR then"
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.STATUS_FOR_VERSION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.STATUS_FOR_VERSION____SOLOR)
 then
    System.out.println("Add status capability");
 end
 
-rule "if property specification is MODULE_NID_FOR_VERSION____SOLOR then "
-
-when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.MODULE_NID_FOR_VERSION____SOLOR)
-then
-   $property.getAllowedValues().add(MetaData.SOLOR_MODULE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____SOLOR.getNid());
-   
-end
-
-
 rule "if property specification is DESCRIPTION_TYPE____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
+   $property.getAllowedValues().add(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR);
+   $property.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR);
    
 end
 rule "if property specification is CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR);
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR);
    
 end
 rule "if property specification is LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR)
+   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.SPANISH_LANGUAGE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.FRENCH_LANGUAGE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.DANISH_LANGUAGE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.POLISH_LANGUAGE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.DUTCH_LANGUAGE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.LITHUANIAN_LANGUAGE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.CHINESE_LANGUAGE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.JAPANESE_LANGUAGE____SOLOR.getNid());
-   $property.getAllowedValues().add(MetaData.SWEDISH_LANGUAGE____SOLOR.getNid());
+   $property.getAllowedValues().add(MetaData.ENGLISH_LANGUAGE____SOLOR);
+   $property.getAllowedValues().add(MetaData.SPANISH_LANGUAGE____SOLOR);
+   $property.getAllowedValues().add(MetaData.FRENCH_LANGUAGE____SOLOR);
+   $property.getAllowedValues().add(MetaData.DANISH_LANGUAGE____SOLOR);
+   $property.getAllowedValues().add(MetaData.POLISH_LANGUAGE____SOLOR);
+   $property.getAllowedValues().add(MetaData.DUTCH_LANGUAGE____SOLOR);
+   $property.getAllowedValues().add(MetaData.LITHUANIAN_LANGUAGE____SOLOR);
+   $property.getAllowedValues().add(MetaData.CHINESE_LANGUAGE____SOLOR);
+   $property.getAllowedValues().add(MetaData.JAPANESE_LANGUAGE____SOLOR);
+   $property.getAllowedValues().add(MetaData.SWEDISH_LANGUAGE____SOLOR);
    
 end

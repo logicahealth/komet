@@ -122,8 +122,8 @@ public class CategorizedVersion
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setAuthorNid(int authorSequence) {
-      delegate.setAuthorNid(authorSequence);
+   public void setAuthorNid(int authorNid) {
+      delegate.setAuthorNid(authorNid);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -146,8 +146,8 @@ public class CategorizedVersion
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setModuleNid(int moduleSequence) {
-      delegate.setModuleNid(moduleSequence);
+   public void setModuleNid(int moduleNid) {
+      delegate.setModuleNid(moduleNid);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -165,8 +165,8 @@ public class CategorizedVersion
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setPathNid(int pathSequence) {
-      delegate.setPathNid(pathSequence);
+   public void setPathNid(int pathNid) {
+      delegate.setPathNid(pathNid);
    }
 
    //~--- get methods ---------------------------------------------------------

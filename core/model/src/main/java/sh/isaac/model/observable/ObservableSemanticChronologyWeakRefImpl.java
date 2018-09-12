@@ -87,11 +87,6 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    }
 
    @Override
-   public IntegerProperty entrySequenceProperty() {
-      return getChronology().entrySequenceProperty();
-   }
-
-   @Override
    public ObjectProperty<CommitStates> commitStateProperty() {
       return getChronology().commitStateProperty();
    }

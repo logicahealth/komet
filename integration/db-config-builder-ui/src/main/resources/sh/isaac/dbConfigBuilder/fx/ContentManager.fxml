@@ -154,6 +154,7 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
@@ -185,24 +186,26 @@
                               <Tooltip text="Specify the version number of the metadata to include in the database" />
                            </tooltip>
                         </ComboBox>
-                        <TextArea fx:id="databaseDescription" maxHeight="1.7976931348623157E308" prefHeight="20.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" GridPane.rowSpan="3" GridPane.vgrow="ALWAYS">
+                        <TextArea fx:id="databaseDescription" maxHeight="1.7976931348623157E308" prefHeight="20.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" GridPane.rowSpan="4" GridPane.vgrow="ALWAYS">
                            <tooltip>
                               <Tooltip text="A user-friendly description that details the general contents and purpose of the resulting database" />
                            </tooltip>
                         </TextArea>
-                        <Label text="Converted Source files to build into database" GridPane.columnSpan="2147483647" GridPane.rowIndex="5" />
-                        <ListView fx:id="databaseIbdfList" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" />
-                        <Button fx:id="databaseAdd" mnemonicParsing="false" text="Add" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
+                        <Label text="Converted Source files to build into database" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" />
+                        <ListView fx:id="databaseIbdfList" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" />
+                        <Button fx:id="databaseAdd" mnemonicParsing="false" text="Add" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
                            <GridPane.margin>
                               <Insets right="5.0" />
                            </GridPane.margin>
                         </Button>
-                        <Button fx:id="databaseRemove" mnemonicParsing="false" text="Remove" GridPane.columnIndex="2" GridPane.rowIndex="7">
+                        <Button fx:id="databaseRemove" mnemonicParsing="false" text="Remove" GridPane.columnIndex="2" GridPane.rowIndex="8">
                            <GridPane.margin>
                               <Insets left="5.0" />
                            </GridPane.margin>
                         </Button>
-                        <Separator maxWidth="1.7976931348623157E308" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="4" />
+                        <Separator maxWidth="1.7976931348623157E308" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="5" />
+                        <Label text="Database Type" GridPane.rowIndex="4" />
+                        <ComboBox fx:id="databaseType" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                      </children>
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

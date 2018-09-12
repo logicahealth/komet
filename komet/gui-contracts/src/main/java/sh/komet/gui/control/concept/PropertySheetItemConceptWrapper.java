@@ -16,17 +16,19 @@
  */
 package sh.komet.gui.control.concept;
 
-import sh.komet.gui.control.concept.ConceptForControlWrapper;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
@@ -37,99 +39,177 @@ import sh.komet.gui.util.FxGet;
  */
 public class PropertySheetItemConceptWrapper implements ConceptSpecification, PropertySheet.Item {
 
-   private final Manifold manifoldForDisplay;
-   private final String name;
-   private final SimpleObjectProperty<ConceptForControlWrapper> observableWrapper;
-   private final SimpleObjectProperty<ConceptSpecification> conceptProperty;
-   private final NidSet allowedValues = new NidSet();
-   
-   public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay,
-           ObjectProperty<? extends ConceptSpecification> conceptProperty, int... allowedValues) {
-      this(manifoldForDisplay, manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptProperty.getName())), conceptProperty, allowedValues);
-   }
+    private final Manifold manifoldForDisplay;
+    private final String name;
+    private final SimpleObjectProperty<ConceptSpecificationForControlWrapper> observableWrapper;
+    private final SimpleObjectProperty<ConceptSpecification> conceptProperty;
+    private ObservableList<ConceptSpecification> allowedValues = FXCollections.observableArrayList();
+    private final SimpleBooleanProperty allowSearchProperty = new SimpleBooleanProperty(this, "allow search", true);
+    private final SimpleBooleanProperty allowHistoryProperty = new SimpleBooleanProperty(this, "allow history", true);
+    private ConceptSpecification propertySpecification = null;
 
+    public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay,
+            ObjectProperty<? extends ConceptSpecification> conceptProperty, int... allowedValues) {
+        this(manifoldForDisplay, manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptProperty.getName())), conceptProperty, allowedValues);
+    }
 
-   public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
-           ObjectProperty<? extends ConceptSpecification> conceptProperty, int... allowedValues) {
-      this.manifoldForDisplay = manifoldForDisplay;
-      this.name = name;
-      this.conceptProperty = (SimpleObjectProperty<ConceptSpecification>) conceptProperty;
-      if (allowedValues.length > 0) {
-          this.conceptProperty.set(Get.concept(allowedValues[0]));
-      }
-      this.allowedValues.addAll(allowedValues);
-      this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifoldForDisplay, conceptProperty.get().getNid()));
-   }
+    public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
+            ObjectProperty<? extends ConceptSpecification> conceptProperty, int... allowedValues) {
+        this.manifoldForDisplay = manifoldForDisplay;
+        this.name = name;
+        this.conceptProperty = (SimpleObjectProperty<ConceptSpecification>) conceptProperty;
+        if (allowedValues.length > 0) {
+            this.conceptProperty.set(Get.concept(allowedValues[0]));
+        }
+        for (int allowedNid : allowedValues) {
+            this.allowedValues.add(Get.conceptSpecification(allowedNid));
+        }
+        this.observableWrapper = new SimpleObjectProperty<>(new ConceptSpecificationForControlWrapper(conceptProperty.get(), manifoldForDisplay));
+        bindProperties();
 
-   @Override
-   public String getFullyQualifiedName() {
-      return this.manifoldForDisplay.getFullySpecifiedDescriptionText(conceptProperty.get());
-   }
+    }
 
-   @Override
-   public Optional<String> getRegularName() {
-      return Optional.of(manifoldForDisplay.getPreferredDescriptionText(conceptProperty.get()));
-   }
+    public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
+            ObjectProperty<? extends ConceptSpecification> conceptProperty) {
+        this(manifoldForDisplay, name, conceptProperty, (ConceptSpecification[]) new ConceptSpecification[0]);
+    }
 
-   @Override
-   public List<UUID> getUuidList() {
-      return new ConceptProxy(conceptProperty.getName()).getUuidList();
-   }
+    public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
+            ObjectProperty<? extends ConceptSpecification> conceptProperty, ConceptSpecification... allowedValues) {
+        this.manifoldForDisplay = manifoldForDisplay;
+        this.name = name;
+        this.conceptProperty = (SimpleObjectProperty<ConceptSpecification>) conceptProperty;
+        if (allowedValues.length > 0) {
+            this.conceptProperty.set(Get.concept(allowedValues[0]));
+        }
+        this.allowedValues.addAll(Arrays.asList(allowedValues));
+        this.observableWrapper = new SimpleObjectProperty<>(new ConceptSpecificationForControlWrapper(conceptProperty.get(), manifoldForDisplay));
+        bindProperties();
+    }
 
-   @Override
-   public Class<?> getType() {
-      return ConceptForControlWrapper.class;
-   }
+    private void bindProperties() {
+        this.observableWrapper.addListener((observable, oldValue, newValue) -> {
+            setValue(newValue);
+        });
+        this.conceptProperty.addListener((observable, oldValue, newValue) -> {
+            setValue(newValue);
+        });
+    }
 
-   @Override
-   public String getCategory() {
-      return null;
-   }
+    public boolean allowSearch() {
+        return allowSearchProperty.get();
+    }
 
-   public NidSet getAllowedValues() {
-      return allowedValues;
-   }
+    public void setAllowSearch(boolean allowSearch) {
+        this.allowSearchProperty.set(allowSearch);
+    }
 
-   @Override
-   public String getName() {
-      return this.name;
-   }
+    public SimpleBooleanProperty allowSearchProperty() {
+        return allowSearchProperty;
+    }
 
-   @Override
-   public String getDescription() {
-      return "Select the proper concept value for the version you wish to create. ";
-   }
+    public SimpleBooleanProperty allowHistoryProperty() {
+        return allowHistoryProperty;
+    }
 
-   @Override
-   public ConceptForControlWrapper getValue() {
-      return this.observableWrapper.get();
-   }
+    public boolean allowHistory() {
+        return allowHistoryProperty.get();
+    }
 
-   @Override
-   public void setValue(Object value) {
-      try {
-         // Concept sequence property may throw a runtime exception if it cannot be changed
-         this.conceptProperty.setValue(((ConceptForControlWrapper) value));
-         // only change the observableWrapper if no exception is thrown. 
-         this.observableWrapper.setValue((ConceptForControlWrapper) value);
-      } catch (RuntimeException ex) {
-         FxGet.statusMessageService().reportStatus(ex.getMessage());
-         this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, this.conceptProperty.get().getNid()));
-      }
-   }
+    public void setAllowHistory(boolean allowHistory) {
+        this.allowHistoryProperty.set(allowHistory);
+    }
 
-   @Override
-   public Optional<ObservableValue<? extends Object>> getObservableValue() {
-      return Optional.of(this.conceptProperty);
-   }
-  
-   public ConceptSpecification getPropertySpecification() {
-      return new ConceptProxy(this.conceptProperty.getName());
-   }
+    @Override
+    public String getFullyQualifiedName() {
+        return this.manifoldForDisplay.getFullySpecifiedDescriptionText(conceptProperty.get());
+    }
 
-   @Override
-   public String toString() {
-      return "Property sheet item for "
-              + manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptProperty.getName()));
-   }
+    @Override
+    public Optional<String> getRegularName() {
+        return Optional.of(manifoldForDisplay.getPreferredDescriptionText(conceptProperty.get()));
+    }
+
+    @Override
+    public List<UUID> getUuidList() {
+        return new ConceptProxy(conceptProperty.getName()).getUuidList();
+    }
+
+    @Override
+    public Class<?> getType() {
+        return ConceptSpecificationForControlWrapper.class;
+    }
+
+    @Override
+    public String getCategory() {
+        return null;
+    }
+
+    public ObservableList<ConceptSpecification> getAllowedValues() {
+        return allowedValues;
+    }
+    
+    public void setAllowedValues(ObservableList<ConceptSpecification> allowedValues) {
+        this.allowedValues = allowedValues;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Select the proper concept value for the version you wish to create. ";
+    }
+
+    @Override
+    public ConceptSpecificationForControlWrapper getValue() {
+        return this.observableWrapper.get();
+    }
+    
+    public void setDefaultValue(Object value) {
+        setValue(value);
+    }
+
+    @Override
+    public void setValue(Object value) {
+        ConceptSpecificationForControlWrapper specValue;
+        if (value instanceof ConceptSpecificationForControlWrapper) {
+            specValue = (ConceptSpecificationForControlWrapper) value;
+        } else {
+            specValue = new ConceptSpecificationForControlWrapper((ConceptSpecification) value, manifoldForDisplay);
+        }
+        try {
+            // Concept sequence property may throw a runtime exception if it cannot be changed
+            this.conceptProperty.setValue(specValue);
+            // only change the observableWrapper if no exception is thrown. 
+            this.observableWrapper.setValue(specValue);
+        } catch (RuntimeException ex) {
+            FxGet.statusMessageService().reportStatus(ex.getMessage());
+            this.observableWrapper.setValue(new ConceptSpecificationForControlWrapper(this.conceptProperty.get(), manifoldForDisplay));
+        }
+    }
+
+    @Override
+    public Optional<ObservableValue<? extends Object>> getObservableValue() {
+        return Optional.of(this.conceptProperty);
+    }
+
+    public ConceptSpecification getSpecification() {
+        if (this.propertySpecification != null) {
+            return this.propertySpecification;
+        }
+        return new ConceptProxy(this.conceptProperty.getName());
+    }
+
+    public void setSpecification(ConceptSpecification propertySpecification) {
+        this.propertySpecification = propertySpecification;
+    }
+
+    @Override
+    public String toString() {
+        return "Property sheet item for "
+                + manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(getSpecification().toExternalString()));
+    }
 }

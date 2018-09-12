@@ -17,7 +17,9 @@
 package sh.komet.gui.control.property;
 
 import java.util.Optional;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -78,6 +80,13 @@ public class PropertySheetItem implements PropertySheet.Item {
         this.manifold = manifold;
         this.specificationForProperty = new ConceptProxy(theProperty.getName());
         this.name = manifold.getPreferredDescriptionText(this.specificationForProperty);
+        if (defaultValue instanceof Boolean) {
+            this.editorType = EditorType.BOOLEAN;
+        } else if (theProperty instanceof StringProperty) {
+            this.editorType = EditorType.TEXT;
+        } else if (theProperty instanceof IntegerProperty) {
+            this.editorType = EditorType.CONCEPT_SPEC_CHOICE_BOX;
+        }
     }
 
     public ConceptSpecification getSpecification() {
@@ -162,10 +171,8 @@ public class PropertySheetItem implements PropertySheet.Item {
         if (editorType == EditorType.UNSPECIFIED) {
             // not editable, don't set.
         } else {
-            if (value instanceof ConceptForControlWrapper) {
-                theProperty.setValue(((ConceptForControlWrapper) value).getNid());
-            } else if (value instanceof ConceptChronologyImpl) {
-                theProperty.setValue(((ConceptChronologyImpl) value).getNid());
+            if (value instanceof ConceptSpecification) {
+                theProperty.setValue(((ConceptSpecification) value).getNid());
             } else {
                 theProperty.setValue(value);
             }
@@ -191,7 +198,7 @@ public class PropertySheetItem implements PropertySheet.Item {
 
     @Override
     public String toString() {
-        return "PropertySheetItem{" + "name=" + name + ", editorType=" + editorType + '}';
+        return "PropertySheetItem{name=" + name + ", editorType=" + editorType + '}';
     }
     
     public PropertySheetPurpose getPropertySheetPurpose() {

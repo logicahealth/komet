@@ -18,9 +18,12 @@ package sh.isaac.solor.direct;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
@@ -113,6 +116,9 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                 completedUnitOfWork();
             }
             );
+            if (!missingIdentifiers.isEmpty()) {
+               throw new NoSuchElementException(missingIdentifiers.toString());
+            }
             return null;
         } finally {
             Get.activeTasks().remove(this);
@@ -120,13 +126,17 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
     }
     
     protected Assertion[] getProcedureAssertions(StringTokenizer tokenizer, LogicalExpressionBuilder builder) throws IllegalStateException {
-         // nid 4: "Exact match map from SNOMED CT source code to target code (foundation metadata concept)"
+        // nid 4: "Exact match map from SNOMED CT source code to target code (foundation metadata concept)"
         // nid 5: "Originally in LOINC (foundation metadata concept)"
         ArrayList<Assertion> assertions = new ArrayList<>();
         PARSE parseElement = PARSE.CONCEPT;
         while (parseElement == PARSE.CONCEPT) {
             String token = tokenizer.nextToken(); // SNOMED concept id
-            int nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token));
+            try {
+                int nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token));
+            } catch (NoSuchElementException ex) {
+                handleMissingIdentifier(token);
+            }
             // substitute procedure for observation...
             
             assertions.add(builder.conceptAssertion(TermAux.PROCEDURE.getNid()));
@@ -147,7 +157,12 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         }
         while (parseElement == PARSE.ROLE) {
             String token = tokenizer.nextToken(); // SNOMED concept id
-            int nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token));
+            int nid = TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
+            try {
+                nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token));
+            } catch (NoSuchElementException ex) {
+                handleMissingIdentifier(token);
+            }
             if (nid == directSiteProxy.getNid()) {
                 nid = hasSpecimenProxy.getNid();
             }
@@ -159,7 +174,12 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     throw new IllegalStateException("2. Unexpected delimiter: " + delimiter);
             }
             String token2 = tokenizer.nextToken(); // SNOMED concept id
-            int nid2 = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token2));
+            int nid2 = TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
+            try {
+                nid2 = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token2));
+            } catch (NoSuchElementException ex) {
+                handleMissingIdentifier(token2);
+            }
             
             assertions.add(builder.someRole(MetaData.ROLE_GROUP____SOLOR, builder.and(
                     builder.someRole(nid, builder.conceptAssertion(nid2)))));
@@ -190,7 +210,12 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         PARSE parseElement = PARSE.CONCEPT;
         while (parseElement == PARSE.CONCEPT) {
             String token = tokenizer.nextToken(); // SNOMED concept id
-            int nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token));
+            int nid = TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
+            try {
+                nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token));
+            } catch (NoSuchElementException ex) {
+                handleMissingIdentifier(token);
+            }
             assertions.add(builder.conceptAssertion(nid));
             if (tokenizer.hasMoreTokens()) {
                 String delimiter = tokenizer.nextToken();
@@ -209,7 +234,12 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         }
         while (parseElement == PARSE.ROLE) {
             String token = tokenizer.nextToken(); // SNOMED concept id
-            int nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token));
+            int nid = TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
+            try {
+                nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token));
+            } catch (NoSuchElementException ex) {
+                handleMissingIdentifier(token);
+            }
             String delimiter = tokenizer.nextToken();
             switch (delimiter) {
                 case "=":
@@ -218,7 +248,12 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     throw new IllegalStateException("2. Unexpected delimiter: " + delimiter);
             }
             String token2 = tokenizer.nextToken(); // SNOMED concept id
-            int nid2 = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token2));
+            int nid2 = TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
+            try {
+                nid2 = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token2));
+            } catch (NoSuchElementException ex) {
+                handleMissingIdentifier(token2);
+            }
             
             assertions.add(builder.someRole(MetaData.ROLE_GROUP____SOLOR, builder.and(
                     builder.someRole(nid, builder.conceptAssertion(nid2)))));
@@ -235,6 +270,13 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             }
         }
         return assertions.toArray(new Assertion[assertions.size()]);
+    }
+    ConcurrentHashMap<String, AtomicInteger> missingIdentifiers = new ConcurrentHashMap<>();
+    private void handleMissingIdentifier(String identifier) {
+        AtomicInteger oldValue = missingIdentifiers.putIfAbsent(identifier, new AtomicInteger(1));
+        if (oldValue != null) {
+            oldValue.incrementAndGet();
+        }
     }
 
     public enum PARSE {
@@ -268,11 +310,11 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             index(conceptToWrite);
 
             // add to loinc identifier assemblage
-            UUID loincIdentifierUuid = UuidT5Generator.get(MetaData.CODE____SOLOR.getPrimordialUuid(),
+            UUID loincIdentifierUuid = UuidT5Generator.get(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getPrimordialUuid(),
                     loincCode);
             SemanticChronologyImpl loincIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                     loincIdentifierUuid,
-                    MetaData.CODE____SOLOR.getNid(),
+                    MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
                     conceptToWrite.getNid());
 
             StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);

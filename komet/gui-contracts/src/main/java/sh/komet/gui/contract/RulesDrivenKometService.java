@@ -20,9 +20,11 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseEvent;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.action.Action;
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.BusinessRulesService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
@@ -35,11 +37,12 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Contract
-public interface RulesDrivenKometService {
+public interface RulesDrivenKometService extends BusinessRulesService {
    List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold, 
            LogicNode nodeToEdit, 
            LogicalExpression expressionContiningNode,
-            Consumer<LogicalExpression> expressionUpdater);
+            Consumer<LogicalExpression> expressionUpdater,
+            MouseEvent mouseEvent);
    
    List<MenuItem> getEditVersionMenuItems(Manifold manifold, 
            ObservableCategorizedVersion categorizedVersion, 

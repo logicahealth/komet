@@ -71,6 +71,7 @@ public interface LogicalExpression extends CommittableObject {
     * Find isomorphic aspects of this {@code LogicalExpression} (the reference expression) with respect
     * to another (the comparison expression). The {@code IsomorphicResults} will include the maximal
     * common rooted isomorphic solution, as well as identify additions and deletions.
+    * This method can be computationally intensive
     * @param another the other {@code LogicalExpression} to compare with
     * @return The results of the comparison.
     */
@@ -117,11 +118,11 @@ public interface LogicalExpression extends CommittableObject {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concept sequence.
+    * Gets the concept nid.
     *
-    * @return the concept sequence this expression is associated with
+    * @return the concept nid this expression is associated with
     */
-   int getConceptNid();
+   int getConceptBeingDefinedNid();
 
    /**
     * Gets the data.
@@ -186,5 +187,18 @@ public interface LogicalExpression extends CommittableObject {
     * @return the root node if this expression
     */
    LogicNode getRoot();
+   
+   /**
+    * 
+    * @return a string representation of this expression that conforms
+    * to legal java for the logical expression builder service. 
+    */
+   String toBuilder();
+
+   /**
+    * specify the identifier of the concept that this logical expression represents. 
+    * @param conceptNid 
+    */
+   void setConceptBeingDefinedNid(int conceptNid);
 }
 

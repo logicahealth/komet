@@ -39,6 +39,8 @@ import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.PropertySheetPurpose;
 import sh.komet.gui.manifold.Manifold;
+import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
+import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -70,6 +72,10 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
         if (conceptUuid != null) {
             setupWithConceptUuid(conceptUuid);
         }
+        editorGridPane.getStyleClass().add(StyleClasses.COMPONENT_PANEL.toString());
+        editorNode.getStyleClass().add(StyleClasses.COMPONENT_PANEL.toString());
+        editorGridPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
+        editorNode.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
     }
 
     private void setupWithConceptUuid(UUID conceptUuid) {

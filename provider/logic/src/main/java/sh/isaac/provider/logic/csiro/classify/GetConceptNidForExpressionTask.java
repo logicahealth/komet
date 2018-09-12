@@ -122,7 +122,7 @@ public class GetConceptNidForExpressionTask
     * @param expression the expression
     * @param classifierProvider the classifier provider
     * @param statedEditCoordinate the stated edit coordinate
-    * @return the gets the concept sequence for expression task
+    * @return the gets the concept nid for expression task
     */
    public static GetConceptNidForExpressionTask create(LogicalExpression expression,
          ClassifierProvider classifierProvider,

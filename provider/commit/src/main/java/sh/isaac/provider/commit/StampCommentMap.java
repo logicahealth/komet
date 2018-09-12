@@ -54,7 +54,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -65,7 +64,8 @@ import java.util.stream.StreamSupport;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.map.OpenIntObjectHashMap;
-
+import sh.isaac.api.datastore.ExtendedStore;
+import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.externalizable.StampComment;
 
 //~--- classes ----------------------------------------------------------------
@@ -85,10 +85,30 @@ public class StampCommentMap {
    /** The write. */
    private final Lock write = this.rwl.writeLock();
 
-   /** The stamp comment map. */
-   OpenIntObjectHashMap<String> stampCommentMap = new OpenIntObjectHashMap<>();
+   /** The stamp comment map for in-memory stores*/
+   private OpenIntObjectHashMap<String> stampCommentMap;
+   
+   /**
+    * Storage for DataStore linked storage
+    */
+   private ExtendedStore dataStore;
+   private ExtendedStoreData<Integer, String> stampToComment; 
 
-   //~--- methods -------------------------------------------------------------
+   /**
+    * Construct a default stamp comment map, which holds the comments in memory, and must be read / written to the file system.
+    */
+   public StampCommentMap() {
+      stampCommentMap = new OpenIntObjectHashMap<>();
+   }
+   
+   /**
+    * Construct a a StampAliasMap class, that is just a thin wrapper around a datastore.  Does not hold any data in memory.
+    * @param dataStore the datastore to read/write from 
+    */
+   public StampCommentMap(ExtendedStore dataStore) {
+      this.dataStore = dataStore;
+      stampToComment = dataStore.<Integer, String>getStore("stampCommentMap");
+   }
 
    /**
     * Adds the comment.
@@ -100,11 +120,21 @@ public class StampCommentMap {
       try {
          this.write.lock();
 
-         if (comment != null) {
-            this.stampCommentMap.put(stamp, comment);
-         } else {
-            this.stampCommentMap.removeKey(stamp);
+         if (dataStore == null) {
+            if (comment != null) {
+               this.stampCommentMap.put(stamp, comment);
+            } else {
+               this.stampCommentMap.removeKey(stamp);
+            }
          }
+         else {
+            if (comment != null) {
+                this.stampToComment.put(stamp, comment);
+             } else {
+                this.stampToComment.remove(stamp);
+             }
+         }
+            
       } finally {
          if (this.write != null) {
             this.write.unlock();
@@ -113,13 +143,6 @@ public class StampCommentMap {
    }
    
    /**
-    * Empty in-memory map.  Does nothing to the location it was initially read from on disk.
-    */
-   public void clear() {
-      stampCommentMap.clear();
-   }
-
-   /**
     * Read.
     *
     * @param mapFile the map file
@@ -127,6 +150,9 @@ public class StampCommentMap {
     */
    public void read(File mapFile)
             throws IOException {
+      if (dataStore != null) {
+         throw new RuntimeException("Read shouldn't be called with datastore storage");
+      }
       try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
          final int size = input.readInt();
 
@@ -149,6 +175,10 @@ public class StampCommentMap {
     */
    public void write(File mapFile)
             throws IOException {
+      if (dataStore != null) {
+         throw new RuntimeException("Write shouldn't be called with datastore storage");
+      }
+
       try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
          output.writeInt(this.stampCommentMap.size());
          this.stampCommentMap.forEachPair((int nid,
@@ -175,7 +205,13 @@ public class StampCommentMap {
    public Optional<String> getComment(int stamp) {
       try {
          this.read.lock();
-         return Optional.ofNullable(this.stampCommentMap.get(stamp));
+         if (dataStore == null) {
+            return Optional.ofNullable(this.stampCommentMap.get(stamp));
+         }
+         else {
+            return Optional.ofNullable(stampToComment.get(stamp));
+         }
+            
       } finally {
          if (this.read != null) {
             this.read.unlock();
@@ -189,7 +225,7 @@ public class StampCommentMap {
     * @return the size
     */
    public int getSize() {
-      return this.stampCommentMap.size();
+      return dataStore == null ? this.stampCommentMap.size() : stampToComment.size();
    }
 
    /**
@@ -198,7 +234,8 @@ public class StampCommentMap {
     * @return the stamp comment stream
     */
    public Stream<StampComment> getStampCommentStream() {
-      return StreamSupport.stream(new StampCommentSpliterator(), false);
+      return dataStore == null ? StreamSupport.stream(new StampCommentSpliterator(), false) : 
+         stampToComment.getStream().map(entry -> new StampComment(entry.getValue(), entry.getKey()));
    }
 
    //~--- inner classes -------------------------------------------------------

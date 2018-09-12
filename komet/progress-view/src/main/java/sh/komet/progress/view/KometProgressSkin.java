@@ -209,7 +209,7 @@ public class KometProgressSkin<T extends Task<?>>
          cancelButton.setOnAction(
              evt -> {
                 if (task != null) {
-                   task.cancel();
+                   task.cancel(false);
                 }
              });
          setContentDisplay(ContentDisplay.GRAPHIC_ONLY);

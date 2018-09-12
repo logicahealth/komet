@@ -107,6 +107,14 @@ public class NecessarySetNode
       return "Necessary " +  super.toSimpleString();
    }
 
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        for (AbstractLogicNode child: getChildren()) {
+            builder.append("\n       NecessarySet(");
+            child.addToBuilder(builder);
+            builder.append("\n          )\n");
+        }
+    }
 
    /**
     * Compare node fields.

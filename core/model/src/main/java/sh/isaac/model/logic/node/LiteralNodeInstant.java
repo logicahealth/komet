@@ -157,6 +157,12 @@ public class LiteralNodeInstant
       return this.literalValue +  super.toSimpleString();
    }
 
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+            builder.append("\n       InstantLiteral(");
+            builder.append(this.literalValue);
+            builder.append(")\n");
+    }
 
    /**
     * Compare fields.

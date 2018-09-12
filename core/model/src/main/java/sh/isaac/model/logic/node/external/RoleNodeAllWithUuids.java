@@ -46,8 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataOutput;
-import java.io.IOException;
 
 import java.util.UUID;
 
@@ -130,6 +128,16 @@ public class RoleNodeAllWithUuids
    public String toSimpleString() {
       return toString("");
    }
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        builder.append("\n       AllRole(");
+        builder.append("Get.conceptSpecification(\"").append(this.typeConceptUuid).append("\")");
+        builder.append(", ");
+        for (AbstractLogicNode child: getChildren()) {
+            child.addToBuilder(builder);
+        }
+        builder.append("),\n");
+    }
 
    /**
     * Write node data.

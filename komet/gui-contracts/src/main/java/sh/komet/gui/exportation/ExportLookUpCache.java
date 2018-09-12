@@ -3,6 +3,7 @@ package sh.komet.gui.exportation;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,34 +13,28 @@ import java.util.stream.Collectors;
  */
 public class ExportLookUpCache {
 
-    private List<Integer> sctidNids;
-    private List<Integer> rxnormNids;
-    private List<Integer> loincNids;
+    private static List<Integer> sctidNids = Get.assemblageService()
+            .getReferencedComponentNidStreamFromAssemblage(TermAux.SNOMED_IDENTIFIER)
+            .boxed()
+            .collect(Collectors.toList());
+    private static List<Integer> rxnormNids = Get.assemblageService()
+            .getReferencedComponentNidStreamFromAssemblage(MetaData.RXNORM_CUI____SOLOR)
+            .boxed()
+            .collect(Collectors.toList());
+    private static List<Integer> loincNids = Get.assemblageService()
+            .getReferencedComponentNidStreamFromAssemblage(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR)
+            .boxed()
+            .collect(Collectors.toList());
 
-    public ExportLookUpCache(){
-        sctidNids = Get.assemblageService()
-                .getReferencedComponentNidStreamFromAssemblage(TermAux.SNOMED_IDENTIFIER)
-                .boxed()
-                .collect(Collectors.toList());
-        rxnormNids = Get.assemblageService()
-                .getReferencedComponentNidStreamFromAssemblage(MetaData.RXNORM_CUI____SOLOR)
-                .boxed()
-                .collect(Collectors.toList());
-        loincNids = Get.assemblageService()
-                .getReferencedComponentNidStreamFromAssemblage(MetaData.CODE____SOLOR)
-                .boxed()
-                .collect(Collectors.toList());
+    public static boolean isSCTID(Chronology chronology){
+        return sctidNids.contains(chronology.getNid());
     }
 
-    public List<Integer> getSctidNids() {
-        return sctidNids;
+    public static boolean isRxNorm(Chronology chronology){
+        return rxnormNids.contains(chronology.getNid());
     }
 
-    public List<Integer> getRxnormNids() {
-        return rxnormNids;
-    }
-
-    public List<Integer> getLoincNids() {
-        return loincNids;
+    public static boolean isLoinc(Chronology chronology){
+        return loincNids.contains(chronology.getNid());
     }
 }

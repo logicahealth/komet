@@ -40,6 +40,7 @@
 package sh.isaac.api.component.concept;
 
 import java.util.List;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -102,7 +103,7 @@ public interface ConceptBuilder
     * @param logicalExpression the logical expression
     * @return the concept builder
     */
-   public ConceptBuilder setLogicalExpression(LogicalExpression logicalExpression);
+   ConceptBuilder setLogicalExpression(LogicalExpression logicalExpression);
 
    /**
     * Sets the logical expression builder. This method erases previous logical expression builders. 
@@ -110,7 +111,7 @@ public interface ConceptBuilder
     * @param logicalExpressionBuilder the logical expression builder
     * @return the concept builder
     */
-   public ConceptBuilder setLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder);
+   ConceptBuilder setLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder);
 
    /**
     * Sets the primordial UUID from the given spect, adds any additional UUIDs from the given spec, and
@@ -143,5 +144,19 @@ public interface ConceptBuilder
      * @return the description builders
      */
     List<DescriptionBuilder<?, ?>> getDescriptionBuilders();
+    
+    /**
+     * Useful for setting up a semantic type concept with the semantic fields, 
+     * or an assemblage concept with the field concepts. 
+     * @param componentUuid
+     * @param fieldIndex
+     * @param assemblageUuid
+     * @return the ConceptBuilder for a fluent interface. 
+     */
+    ConceptBuilder addComponentIntSemantic(UUID componentUuid, int fieldIndex, UUID assemblageUuid);
+    
+    default ConceptBuilder addComponentIntSemantic(ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage) {
+        return addComponentIntSemantic(componentUuid.getPrimordialUuid(), fieldIndex, assemblage.getPrimordialUuid());
+    }
 }
 

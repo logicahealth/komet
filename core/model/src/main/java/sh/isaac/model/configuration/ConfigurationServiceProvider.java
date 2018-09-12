@@ -64,6 +64,7 @@ import sh.isaac.api.IsaacCache;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.UserConfiguration;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.util.UuidT5Generator;
@@ -108,6 +109,8 @@ public class ConfigurationServiceProvider
    private SimpleObjectProperty<BuildMode> dbBuildMode = new SimpleObjectProperty<>(null);
    
    private DatabaseInitialization dbInitMode = DatabaseInitialization.NO_DATA_LOAD;
+   
+   private DatabaseImplementation dbImplementation = DatabaseImplementation.DEFAULT;
    
    private Cache<UUID, UserConfiguration> userConfigCache;
    
@@ -184,7 +187,12 @@ public class ConfigurationServiceProvider
                String dataStoreRootFolder = System.getProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY);
 
                if (StringUtils.isNotBlank(dataStoreRootFolder)) {
-                  this.systemPropertyDataStoreFolderPath = Paths.get(dataStoreRootFolder);
+                  if (this.systemPropertyDataStoreFolderPath == null) {
+                     //Due to the way the sync block is set up, we can sometimes enter this twice, and its confusing to log the path twice, hence the extra if check
+                     this.systemPropertyDataStoreFolderPath = Paths.get(dataStoreRootFolder);
+                     LOG.info("Datastore path from " + SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY + " is:" 
+                           + this.systemPropertyDataStoreFolderPath.toAbsolutePath());
+                  }
                   return this.systemPropertyDataStoreFolderPath;
                }
                else if (new File("target").isDirectory()){
@@ -225,7 +233,7 @@ public class ConfigurationServiceProvider
             throws IllegalStateException, IllegalArgumentException {
       LOG.info("setDataStoreFolderPath called with " + dataStoreFolderPath);
 
-      if (LookupService.isIsaacStarted()) {
+      if (LookupService.getCurrentRunLevel() >= LookupService.SL_L0_METADATA_STORE_STARTED_RUNLEVEL) {
          throw new IllegalStateException("Can only set the dbFolderPath prior to starting Isaac. Runlevel: " + LookupService.getCurrentRunLevel());
       }
 
@@ -242,6 +250,7 @@ public class ConfigurationServiceProvider
                                     e);
       }
 
+      LOG.info("Specified data store folder path: {}", dataStoreFolderPath.toFile().getAbsolutePath());
       this.userDataStoreFolderPath = dataStoreFolderPath;
    }
    
@@ -380,6 +389,39 @@ public class ConfigurationServiceProvider
       dbInitMode = initMode;
    }
 
+   @Override
+   public DatabaseImplementation getDatabaseImplementation()
+   {
+      String temp = System.getProperty(SystemPropertyConstants.DATA_STORE_TYPE);
+      DatabaseImplementation diFromSystem = null;
+      if (StringUtils.isNotBlank(temp)) {
+         try {
+            diFromSystem = DatabaseImplementation.valueOf(temp);
+            if (diFromSystem == null) {
+               LogManager.getLogger().warn("Ignoring invalid value '{}' for system property '{}'", temp, SystemPropertyConstants.DATA_STORE_TYPE);
+            }
+         }
+         catch (Exception e) {
+            LogManager.getLogger().warn("Ignoring invalid value '{}' for system property '{}'", temp, SystemPropertyConstants.DATA_STORE_TYPE);
+         }
+      }
+
+      if (diFromSystem != null) {
+         LOG.info("Overriding the DatabaseImplementation configuration of {} with the value {} from a system property", dbImplementation, diFromSystem);
+         return diFromSystem;
+      }
+
+      return dbImplementation == null ? DatabaseImplementation.DEFAULT : dbImplementation;
+   }
+   
+   @Override
+   public void setDatabaseImplementation(DatabaseImplementation implementation) {
+   if (LookupService.isIsaacStarted()) {
+         throw new IllegalStateException("Can only set the database implementation prior to starting Isaac. Runlevel: " + LookupService.getCurrentRunLevel());
+      }
+      dbImplementation = implementation;
+   }
+
    /**
     * {@inheritDoc}
     */
@@ -395,8 +437,8 @@ public class ConfigurationServiceProvider
          this.currentUser = Optional.empty();
          this.systemPropertyDataStoreFolderPath = null;
          this.systemPropertyIbdfImportPath = null;
-         this.userDataStoreFolderPath = null;
          this.userIbdfImportPath = null;
+         this.dbImplementation = null;
       }
    }
 }

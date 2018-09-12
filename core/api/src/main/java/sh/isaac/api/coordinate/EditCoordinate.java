@@ -39,6 +39,10 @@
 
 package sh.isaac.api.coordinate;
 
+import java.util.List;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
+
 /**
  * The Interface EditCoordinate.
  *
@@ -46,29 +50,48 @@ package sh.isaac.api.coordinate;
  */
 public interface EditCoordinate extends Coordinate {
    /**
-    * Gets the author sequence.
+    * Gets the author nid.
     *
-    * @return the author sequence
+    * @return the author nid
     */
    int getAuthorNid();
+   
+   default ConceptSpecification getAuthor() {
+       return Get.conceptSpecification(getAuthorNid());
+   }
 
    /**
-    * Gets the module sequence.
+    * Gets the module nid.
     *
-    * @return the module sequence
+    * @return the module nid
     */
    int getModuleNid();
+   
+   default ConceptSpecification getModule() {
+       return Get.conceptSpecification(getModuleNid());
+   }
+   
+   List<ConceptSpecification> getModuleOptions();
+   
+   void setModuleOptions(List<ConceptSpecification> options);
 
    /**
-    * Gets the path sequence.
+    * Gets the path nid.
     *
-    * @return the path sequence
+    * @return the path nid
     */
    int getPathNid();
 
-   @Override
-   public EditCoordinate deepClone();
+   default ConceptSpecification getPath() {
+       return Get.conceptSpecification(getPathNid());
+   }
+
+   List<ConceptSpecification> getPathOptions();
+
+   void setPathOptions(List<ConceptSpecification> options);
    
+   @Override
+   EditCoordinate deepClone();
    
 }
 

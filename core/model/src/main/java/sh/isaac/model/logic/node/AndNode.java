@@ -106,6 +106,19 @@ public class AndNode
       return "And " + super.toSimpleString();
    }
 
+    @Override
+    public void addToBuilder(StringBuilder builder) {
+        builder.append("\n       And(");
+        AbstractLogicNode[] children = getChildren();
+        for (int i = 0; i < children.length; i++) {
+            children[i].addToBuilder(builder);
+            if (i < children.length -1) {
+                builder.append(", ");
+            }
+        }
+        builder.append("\n          )\n");
+    }
+
 
    /**
     * Compare node fields.

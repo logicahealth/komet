@@ -15,16 +15,30 @@
  */
 package sh.komet.fx.stage;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Optional;
 import javafx.event.ActionEvent;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
 import javax.inject.Singleton;
+import javax.naming.AuthenticationException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.RemoteServiceInfo;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.sync.MergeFailOption;
+import sh.isaac.api.sync.MergeFailure;
+import sh.isaac.provider.sync.git.SyncServiceGIT;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LoincDirectImporter;
@@ -44,6 +58,7 @@ import sh.komet.gui.manifold.Manifold;
 @Service
 @Singleton
 public class KometBaseMenus implements MenuProvider {
+   private static final Logger LOG = LogManager.getLogger();
 
     private final HashMap<Manifold.ManifoldGroup, Manifold> manifolds = new HashMap<>();
 
@@ -84,8 +99,96 @@ public class KometBaseMenus implements MenuProvider {
                     DirectImporter importerFull = new DirectImporter(ImportType.FULL);
                     Get.executor().submit(importerFull);
                 });
+                
+                Menu synchronize = new Menu("Synchronize");
+                
+                MenuItem initializeLocal = new MenuItem("Initialize local");
+                synchronize.getItems().add(initializeLocal);
+                initializeLocal.setOnAction((ActionEvent event) -> {
+                    //
+                    SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                    ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
+                    Path dataPath = configurationService.getDataStoreFolderPath();
+                    File changeSetFolder = new File(dataPath.toFile(), "changesets");
+                    syncService.setRootLocation(changeSetFolder);
+                    StringBuilder gitIgnoreContent = new StringBuilder();
+                    gitIgnoreContent.append("lastUser.txt").append(System.lineSeparator());
+                    gitIgnoreContent.append("*.json").append(System.lineSeparator());
+                    syncService.setGitIgnoreContent(gitIgnoreContent.toString());
+                    if (!syncService.isRootLocationConfiguredForSCM()) {
+                        try {
+                            LOG.info("Initializing for git: " + changeSetFolder);
+                            syncService.initialize();
+                        } catch (IOException ex) {
+                            LOG.error(ex.getLocalizedMessage(), ex);
+                        }
+                    }
+                    
+                    
+                    LOG.info("Sync folder: " + changeSetFolder + " configured: " + syncService.isRootLocationConfiguredForSCM());
+                    
+                });
+                
+                MenuItem initializeFromRemote = new MenuItem("Initialize from remote...");
+                synchronize.getItems().add(initializeFromRemote);
+                initializeFromRemote.setOnAction((event) -> {
+                    SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                    ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
+                    Path dataPath = configurationService.getDataStoreFolderPath();
+                    File changeSetFolder = new File(dataPath.toFile(), "changesets");
+                    syncService.setRootLocation(changeSetFolder);
+                    Optional<RemoteServiceInfo> gitConfigOptional = Get.configurationService().getGlobalDatastoreConfiguration().getGitConfiguration();
+                    gitConfigOptional.ifPresent((t) -> {
+                        try {
+                            syncService.linkAndFetchFromRemote(t.getURL(), t.getUsername(), t.getPassword());
+                        } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
+                           LOG.error(ex.getLocalizedMessage(), ex);
+                         }
+                    });
+                    
+                    
+                });
+                
+                MenuItem pullFromRemote = new MenuItem("Pull...");
+                synchronize.getItems().add(pullFromRemote);
+                pullFromRemote.setOnAction((event) -> {
+                    SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                    ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
+                    Path dataPath = configurationService.getDataStoreFolderPath();
+                    File changeSetFolder = new File(dataPath.toFile(), "changesets");
+                    syncService.setRootLocation(changeSetFolder);
+                     Optional<RemoteServiceInfo> gitConfigOptional = Get.configurationService().getGlobalDatastoreConfiguration().getGitConfiguration();
+                    gitConfigOptional.ifPresent((t) -> {
+                        try {
+                            syncService.updateFromRemote(t.getUsername(), t.getPassword(), MergeFailOption.KEEP_LOCAL);
+                        } catch (IllegalArgumentException | IOException | MergeFailure | AuthenticationException ex) {
+                           LOG.error(ex.getLocalizedMessage(), ex);
+                         }
+                    });
+                });
+                
+                MenuItem pushToRemote = new MenuItem("Push...");
+                synchronize.getItems().add(pushToRemote);
+                pushToRemote.setOnAction((event) -> {
+                    SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                    ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
+                    Path dataPath = configurationService.getDataStoreFolderPath();
+                    File changeSetFolder = new File(dataPath.toFile(), "changesets");
+                    syncService.setRootLocation(changeSetFolder);
+                    Optional<RemoteServiceInfo> gitConfigOptional = Get.configurationService().getGlobalDatastoreConfiguration().getGitConfiguration();
+                    gitConfigOptional.ifPresent((t) -> {
+                        
+                        try {
+                            syncService.updateCommitAndPush("User push", t.getUsername(), t.getPassword(), MergeFailOption.KEEP_LOCAL, (String[]) null);
+                        } catch (IllegalArgumentException | IOException | MergeFailure | AuthenticationException ex) {
+                           LOG.error(ex.getLocalizedMessage(), ex);
+                         }
+                    });
+                });
+                
+                
                 return new MenuItem[]{selectiveImport, selectiveExport, importTransformFull,
-                    importSourcesFull};
+                    importSourcesFull, synchronize};
             }
 
             case TOOLS: {

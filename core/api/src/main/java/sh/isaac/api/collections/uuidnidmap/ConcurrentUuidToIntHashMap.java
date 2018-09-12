@@ -44,8 +44,10 @@ package sh.isaac.api.collections.uuidnidmap;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.locks.StampedLock;
+import sh.isaac.api.DataSerializer;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -53,7 +55,7 @@ import java.util.concurrent.locks.StampedLock;
  * Created by kec on 7/25/14.
  */
 public class ConcurrentUuidToIntHashMap
-        extends UuidToIntHashMap {
+        extends UuidToIntHashMap implements DataSerializer<ConcurrentUuidToIntHashMap> {
    /** The Constant serialVersionUID. */
    private static final long serialVersionUID = -6525403154660005459L;
 
@@ -141,7 +143,6 @@ public class ConcurrentUuidToIntHashMap
     * @param value the value
     * @return true, if successful
     */
-   @Override
    public boolean put(long[] key, int value) {
       throw new UnsupportedOperationException("Use put(long[] key, int value, long stamp) instead.");
    }
@@ -191,9 +192,9 @@ public class ConcurrentUuidToIntHashMap
     * @return the int
     */
    @Override
-   public int get(long[] key) {
+   public OptionalInt get(long[] key) {
       long stamp = this.sl.tryOptimisticRead();
-      int  value = super.get(key);
+      OptionalInt  value = super.get(key);
 
       if (!this.sl.validate(stamp)) {
          stamp = this.sl.readLock();
@@ -215,7 +216,7 @@ public class ConcurrentUuidToIntHashMap
     * @return the int
     */
    @Override
-   public int get(UUID key) {
+   public OptionalInt get(UUID key) {
       return this.get(new long[] { key.getMostSignificantBits(), key.getLeastSignificantBits() });
    }
 
@@ -226,7 +227,7 @@ public class ConcurrentUuidToIntHashMap
     * @param stampLong the stamp long
     * @return the int
     */
-   public int get(long[] key, long stampLong) {
+   public OptionalInt get(long[] key, long stampLong) {
       return super.get(key);
    }
 
@@ -237,7 +238,7 @@ public class ConcurrentUuidToIntHashMap
     * @param stampSequence the stamp sequence
     * @return the int
     */
-   public int get(UUID key, long stampSequence) {
+   public OptionalInt get(UUID key, long stampSequence) {
       return this.get(new long[] { key.getMostSignificantBits(), key.getLeastSignificantBits() }, stampSequence);
    }
 
@@ -259,9 +260,7 @@ public class ConcurrentUuidToIntHashMap
       return "distinct: " + getDistinct() + " free: " + getFreeEntries() + " utilization: " +
              getDistinct() * 100 / (getDistinct() + getFreeEntries());
    }
-   
-   
-   
+
    public int getMemoryInUse() {
        int bytesInUse = state.length;
        bytesInUse = bytesInUse + (table.length * 8);
@@ -322,7 +321,5 @@ public class ConcurrentUuidToIntHashMap
       } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
-   }   
-   
+   }
 }
-

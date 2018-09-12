@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>4.51</version>
+   <version>4.52</version>
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
@@ -116,7 +116,7 @@
       <maven-scm-publish-plugin.version>1.1</maven-scm-publish-plugin.version>
       <maven-site-plugin.version>3.6</maven-site-plugin.version>
       <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-      <maven-surefire-plugin.version>2.20.1</maven-surefire-plugin.version>
+      <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
       <maven-war-plugin.version>3.2.0</maven-war-plugin.version>
       <opencsv.version>4.1</opencsv.version>
       <poi-ooxml.version>3.17</poi-ooxml.version>
@@ -129,12 +129,11 @@
       <plexus-utils.version>3.1.0</plexus-utils.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-      <drools.version>7.6.0.Final</drools.version>
+      <drools.version>7.10.0.Final</drools.version>
       <org.apache.lucene.version>7.2.1</org.apache.lucene.version>
       <xodus.version>1.1.0</xodus.version>
       <fontawesome.version>4.7.0-5</fontawesome.version>
       <xml-apis.version>1.4.01</xml-apis.version>  <!-- Be really careful about changing this... tis a nightmare dependency -->
-
       <repackage-mojo.version>1.0</repackage-mojo.version>
       <sisu-guice.version>3.2.6</sisu-guice.version>
       <sisu-inject-plexus.version>2.6.0</sisu-inject-plexus.version>
@@ -143,6 +142,7 @@
       <testng.version>6.13.1</testng.version>
       <tilesfx.version>1.5.2</tilesfx.version>
       <wagon-provider-api.version>3.0.0</wagon-provider-api.version>
+      <jackson-databind.version>2.9.6</jackson-databind.version>
    </properties>
 
    <developers>
@@ -424,17 +424,17 @@
          <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.4</version>
+            <version>${jackson-databind.version}</version>
          </dependency>
          <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.196</version>
+            <version>1.4.197</version>
          </dependency>
          <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2-mvstore</artifactId>
-            <version>1.4.196</version>
+            <version>1.4.197</version>
          </dependency>
          <dependency>
             <groupId>org.jdom</groupId>
@@ -546,7 +546,7 @@
          <dependency>
             <groupId>au.csiro</groupId>
             <artifactId>snorocket-core</artifactId>
-            <version>2.8.1</version>
+            <version>3.0.0</version>
          </dependency>
          <dependency>
             <groupId>se.liu.imt.mi.snomedct</groupId>
