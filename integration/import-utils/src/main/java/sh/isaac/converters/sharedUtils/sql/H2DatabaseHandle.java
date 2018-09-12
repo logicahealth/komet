@@ -74,7 +74,7 @@ public class H2DatabaseHandle {
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new h 2 database handle.
+    * Instantiates a new H2DatabaseHandle.
     */
    public H2DatabaseHandle() {
       super();

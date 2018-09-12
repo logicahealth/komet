@@ -53,7 +53,7 @@ import java.util.List;
 public abstract class BPT_Skip
         extends PropertyType {
    /**
-    * Instantiates a new BP T skip.
+    * Instantiates a new BPT_Skip.
     *
     * @param description the description
     */
