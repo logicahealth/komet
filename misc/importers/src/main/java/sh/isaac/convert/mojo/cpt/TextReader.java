@@ -47,7 +47,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.apache.commons.io.input.BOMInputStream;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
 /**
@@ -118,7 +120,8 @@ public class TextReader
 			switch (type)
 			{
 				case LONGULT:
-					try (CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(new BOMInputStream(input))), '\t'))
+					try (CSVReader reader = new CSVReaderBuilder(new BufferedReader(new InputStreamReader(new BOMInputStream(input))))
+						.withCSVParser(new CSVParserBuilder().withSeparator('\t').build()).build())
 					{
 						reader.forEach(processor);
 					}
