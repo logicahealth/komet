@@ -44,6 +44,7 @@ package sh.isaac.model.semantic;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -57,6 +58,7 @@ import sh.isaac.model.semantic.types.DynamicFloatImpl;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
 import sh.isaac.model.semantic.types.DynamicLongImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
+import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 
 //~--- classes ----------------------------------------------------------------
@@ -327,5 +329,23 @@ public class DynamicSemanticValidatorTypeImplTest {
             new DynamicDoubleImpl(1),
             -1));
    }
+   
+   /**
+    * Test one_of.
+    */
+   @Test
+   public void testOneOf() {
+      Assert.assertTrue(DynamicValidatorType.ONE_OF.passesValidator(new DynamicStringImpl("a"),
+            new DynamicArrayImpl(new DynamicData[] {new DynamicStringImpl("c"), new DynamicStringImpl("b"), new DynamicStringImpl("a")}),
+            -1));
+      Assert.assertFalse(DynamicValidatorType.ONE_OF.passesValidator(new DynamicStringImpl("A"),
+            new DynamicArrayImpl(new DynamicData[] {new DynamicStringImpl("c"), new DynamicStringImpl("b"), new DynamicStringImpl("a")}),
+            -1));
+      Assert.assertTrue(DynamicValidatorType.ONE_OF.passesValidator(new DynamicIntegerImpl(5),
+            new DynamicArrayImpl(new DynamicData[] {new DynamicStringImpl("3"), new DynamicStringImpl("5"), new DynamicStringImpl("-3")}),
+            -1));
+      Assert.assertTrue(DynamicValidatorType.ONE_OF.passesValidator(new DynamicUUIDImpl(UUID.fromString("351955ff-30f4-5806-a0a5-5dda79756377")),
+            new DynamicArrayImpl(new DynamicData[] {new DynamicStringImpl("351955ff-30f4-5806-a0a5-5dda79756377")}),
+            -1));
+   }
 }
-

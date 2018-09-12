@@ -35,20 +35,13 @@
  *
  */
 
-
-
 package sh.isaac.api.component.semantic.version.dynamic;
-
-//~--- JDK imports ------------------------------------------------------------
 
 import java.security.InvalidParameterException;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.commons.lang3.StringUtils;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -68,8 +61,6 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.util.Interval;
 import sh.isaac.api.util.NumericUtils;
 
-//~--- enums ------------------------------------------------------------------
-
 /**
  * {@link DynamicValidatorType}
  *
@@ -85,6 +76,9 @@ import sh.isaac.api.util.NumericUtils;
  *
  * {@link DynamicValidatorType#REGEXP} - Should be a {@link DynamicString} with valid regular expression, per
  * http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
+ * 
+ * {@link DynamicValidatorType#ONE_OF} - Should be a {@link DynamicArray<DynamicString>}.  Values (of any type) will be converted 
+ * to a string, and then checked via .equals() to see if it matches any of the provided values in the array.  
  *
  * And for the following two:
  * {@link DynamicValidatorType#IS_CHILD_OF}
@@ -113,65 +107,53 @@ import sh.isaac.api.util.NumericUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum DynamicValidatorType {
-   /** The less than. */
    LESS_THAN("<"),
-
-   /** The greater than. */
    GREATER_THAN(">"),
-
-   /** The less than or equal. */
    LESS_THAN_OR_EQUAL("<="),
-
-   /** The greater than or equal. */
    GREATER_THAN_OR_EQUAL(">="),
 
-   /** The interval. */
-
-   // Standard math stuff
+   /** 
+    * math interval notation - such as [5,10)
+    */
    INTERVAL("Interval"),
 
-   /** The regexp. */
-
-   // math interval notation - such as [5,10)
+   /**
+    * http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
+    */
    REGEXP("Regular Expression"),
 
-   /** The external. */
-
-   // http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
+   /**
+    * see class docs above - implemented by an ExternalValidatorBI
+    */
    EXTERNAL("External"),
 
-   /** The is child of. */
-
-   // see class docs above - implemented by an ExternalValidatorBI
+   /**
+    * is child of - which only includes immediate (not recursive) children on the 'Is A' relationship.
+    */
    IS_CHILD_OF("Is Child Of"),
-
-   /** The is kind of. */
-
-   // OTF is child of - which only includes immediate (not recursive) children on the 'Is A' relationship.
+   /**
+    * kind of - which is child of - but recursive, and self (heart disease is a kind-of heart disease);
+    */
    IS_KIND_OF("Is Kind Of"),
 
-   /** The component type. */
-
-   // OTF kind of - which is child of - but recursive, and self (heart disease is a kind-of heart disease);
+   /**
+    * specify which type of nid can be put into a UUID or nid column
+    */
    COMPONENT_TYPE("Component Type Restriction"),
+   
+   /**
+    * For specifying a list of valid values
+    */
+   ONE_OF("One of"),
+   
+   /**
+    *  Not a real validator, only exists to allow GUI convenience, or potentially store other validator data that we don't support in the system
+    *  but we may need to store / retreive 
+    */
+   UNKNOWN("Unknown");  
 
-   /** The unknown. */
-
-   // specify which type of nid can be put into a UUID or nid column
-   UNKNOWN(
-      "Unknown");  // Not a real validator, only exists to allow GUI convenience, or potentially store other validator data that we don't support in OTF// Not a real validator, only exists to allow GUI convenience, or potentially store other validator data that we don't support in OTF
-
-   // but we may need to store / retreive
-
-   /** The logger. */
    private static final Logger logger = Logger.getLogger(DynamicValidatorType.class.getName());
-
-   //~--- fields --------------------------------------------------------------
-
-   /** The display name. */
    private final String displayName;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new dynamic validator type.
@@ -182,11 +164,7 @@ public enum DynamicValidatorType {
       this.displayName = displayName;
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Parses the.
-    *
     * @param nameOrEnumId the name or enum id
     * @param exceptionOnParseFail the exception on parse fail
     * @return the dynamic validator type
@@ -225,8 +203,6 @@ public enum DynamicValidatorType {
    }
 
    /**
-    * Parses the.
-    *
     * @param nameOrEnumId the name or enum id
     * @param exceptionOnParseFail the exception on parse fail
     * @return the dynamic validator type[]
@@ -318,6 +294,29 @@ public enum DynamicValidatorType {
             throw new RuntimeException("The specified validator data object was not a valid regular expression: " +
                                        e.getMessage());
          }
+      } else if (this == DynamicValidatorType.ONE_OF) {
+          try {
+             if (userData == null) {
+                return false;
+             }
+
+             String ud = userData.dataToString();
+             boolean haveMatchCriteria = false;
+             for (DynamicString ds : ((DynamicArray<DynamicString>) validatorDefinitionData).getDataArray()) {
+                haveMatchCriteria = true;
+                if (ud.equals(ds.getDataString())) {
+                   return true;
+                }
+             }
+             if (!haveMatchCriteria) {
+                throw new RuntimeException("The specified validator data object was not the expected value of an array of string data");
+             }
+             return false;
+          } catch (final Exception e) {
+             throw new RuntimeException("The specified validator data object was not the expected value of an array of string data" +
+                                        e.getMessage());
+          }
+
       } else if ((this == DynamicValidatorType.IS_CHILD_OF) || (this == DynamicValidatorType.IS_KIND_OF)) {
          try {
             int childId;
@@ -502,63 +501,63 @@ public enum DynamicValidatorType {
     * Validator supports type.
     *
     * @param type the type
-    * @return true, if successful
+    * @return true, if this validator supports the given data type, false otherwise
     */
    public boolean validatorSupportsType(DynamicDataType type) {
       // These are supported by all types - external specifies itself, what it supports, and we always include UNKNOWN.
-      if ((this == UNKNOWN) || (this == EXTERNAL)) {
+      // ONE_OF is simply a toString match, so it works for any data type too, though same uses may not make much sense, 
+      //like array
+      if ((this == UNKNOWN) || (this == EXTERNAL) || this == ONE_OF) {
          return true;
       }
 
       switch (type) {
-      case BOOLEAN:
-      case POLYMORPHIC: {
-         // technically, regexp would work here... but makes no sense.
-         return false;
-      }
-
-      case DOUBLE:
-      case FLOAT:
-      case INTEGER:
-      case LONG: {
-         if ((this == GREATER_THAN) ||
-               (this == GREATER_THAN_OR_EQUAL) ||
-               (this == LESS_THAN) ||
-               (this == LESS_THAN_OR_EQUAL) ||
-               (this == INTERVAL) ||
-               (this == REGEXP)) {
-            return true;
-         } else {
+         case BOOLEAN:
+         case POLYMORPHIC: {
+            // technically, regexp would work here... but makes no sense.
             return false;
          }
-      }
-
-      case NID:
-      case UUID: {
-         if ((this == IS_CHILD_OF) || (this == IS_KIND_OF) || (this == REGEXP) || (this == COMPONENT_TYPE)) {
-            return true;
-         } else {
+   
+         case DOUBLE:
+         case FLOAT:
+         case INTEGER:
+         case LONG: {
+            if ((this == GREATER_THAN) ||
+                  (this == GREATER_THAN_OR_EQUAL) ||
+                  (this == LESS_THAN) ||
+                  (this == LESS_THAN_OR_EQUAL) ||
+                  (this == INTERVAL) ||
+                  (this == REGEXP)) {
+               return true;
+            } else {
+               return false;
+            }
+         }
+   
+         case NID:
+         case UUID: {
+            if ((this == IS_CHILD_OF) || (this == IS_KIND_OF) || (this == REGEXP) || (this == COMPONENT_TYPE)) {
+               return true;
+            } else {
+               return false;
+            }
+         }
+   
+         case STRING:
+         case BYTEARRAY: {
+            if (this == REGEXP) {
+               return true;
+            } else {
+               return false;
+            }
+         }
+   
+         default: {
+            logger.warning("Unexpected case!");
             return false;
          }
-      }
-
-      case STRING:
-      case BYTEARRAY: {
-         if (this == REGEXP) {
-            return true;
-         } else {
-            return false;
-         }
-      }
-
-      default: {
-         logger.warning("Unexpected case!");
-         return false;
-      }
       }
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the display name.
