@@ -113,7 +113,7 @@ public class LanguageCoordinateImpl
     * @param languageConceptId the language concept id
     * @param dialectAssemblagePreferenceList the dialect assemblage preference list
     * @param descriptionTypePreferenceList the description type preference list
-    * @param modulePreferenceList the module preference list.  See {@link LanguageCoordinate#getModulePreferenceList()}
+    * @param modulePreferenceList the module preference list.  See {@link LanguageCoordinate#getModulePreferenceListForLanguage()}
     */
    public LanguageCoordinateImpl(int languageConceptId,
                                  int[] dialectAssemblagePreferenceList,
