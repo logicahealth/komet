@@ -325,7 +325,7 @@ public class ImportViewController {
                 break;
             case DELTA:
             default:
-                throw new RuntimeException("oops");
+                throw new RuntimeException("Oops. can't handle: " + importType.getValue());
 
         }
         if (directImportType != null) {

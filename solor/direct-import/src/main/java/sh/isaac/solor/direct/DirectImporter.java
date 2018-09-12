@@ -1228,7 +1228,7 @@ public class DirectImporter
                 columnsToWrite.add(newColumns);
             }
 
-            if (columns[4].equals("705112009") && (columns[7].equals("82052005") || columns[7].equals("418882002"))) {
+            if (columns[4].equals("705112009") && ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.containsKey(columns[7])) {
                 String[] newColumns = new String[columns.length];
                 newColumns[0] = columns[0]; // id, a uuid
                 newColumns[1] = "20180731"; // effective time
@@ -1237,7 +1237,10 @@ public class DirectImporter
                 newColumns[4] = columns[4]; // refsetId
                 newColumns[5] = columns[5]; // referenced component id
                 newColumns[6] = columns[6]; // mapTarget
-                newColumns[7] = columns[7].replaceAll("82052005", "769144008").replaceAll("418882002", "768845000"); // attributeId
+                newColumns[7] = columns[7];
+                for (Entry<String, String> entry: ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.entrySet()) {
+                    newColumns[7] = newColumns[7].replaceAll(entry.getKey(), entry.getValue());
+                }
                 newColumns[8] = columns[8]; // correlationId
                 newColumns[9] = columns[9]; // contentOriginId
                 columnsToWrite.add(newColumns);
@@ -1440,7 +1443,7 @@ public class DirectImporter
                 columnsToWrite.add(newColumns);
             }
 
-            if (columns[4].equals("705112009") && (columns[7].contains("82052005") || columns[7].contains("418882002"))) {
+            if (columns[4].equals("705112009") && ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.containsKey(columns[7])) {
                 String[] newColumns = new String[columns.length];
                 newColumns[0] = columns[0]; // id, a uuid
                 newColumns[1] = "20180731"; // effective time
@@ -1449,7 +1452,10 @@ public class DirectImporter
                 newColumns[4] = columns[4]; // refsetId
                 newColumns[5] = columns[5]; // referenced component id
                 newColumns[6] = columns[6]; // mapTarget
-                newColumns[7] = columns[7].replaceAll("82052005", "769144008").replaceAll("418882002", "768845000"); // attributeId
+                newColumns[7] = columns[7];
+                for (Entry<String, String> entry: ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.entrySet()) {
+                    newColumns[7] = newColumns[7].replaceAll(entry.getKey(), entry.getValue());
+                }
                 newColumns[8] = columns[8]; // correlationId
                 newColumns[9] = columns[9]; // contentOriginId
                 columnsToWrite.add(newColumns);
