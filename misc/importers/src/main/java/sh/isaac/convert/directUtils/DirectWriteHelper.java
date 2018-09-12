@@ -307,7 +307,8 @@ public class DirectWriteHelper
 	 * @param descriptionType The type of the description - {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
 	 *   or {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE} 
 	 * @param language The language concept of the description
-	 * @param caseSignificance {@link TermAux#DESCRIPTION_NOT_CASE_SENSITIVE} or {@link TermAux#DESCRIPTION_INITIAL_CHARACTER_SENSITIVE}
+	 * @param caseSignificance {@link TermAux#DESCRIPTION_NOT_CASE_SENSITIVE} or {@link TermAux#DESCRIPTION_INITIAL_CHARACTER_SENSITIVE} or 
+	 *   or {@link TermAux#DESCRIPTION_CASE_SENSITIVE}
 	 * @param status the status for the description
 	 * @param time the time for the description
 	 * @param dialect The dialect of the description.  Null to skip making a dialect.
@@ -368,10 +369,10 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * Annotate a description with the native description type it came from
+	 * Annotate a relationship with the native description type it came from
 	 * @param logicGraph the ISAAC logic graph that the relationship was put into
 	 * @param nativeRelationshipType - the UUID of the concept that represents the native relationship  type.  
-	 *   Must be a child of {@link TermAux#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY}
+	 *   Must be a child of {@link TermAux#RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY}
 	 * @param time The time to use for this creation
 	 * @return the identifier of the created object
 	 */
