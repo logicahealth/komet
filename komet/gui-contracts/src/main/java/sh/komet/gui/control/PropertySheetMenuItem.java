@@ -165,6 +165,7 @@ public class PropertySheetMenuItem
               .add(item);
       return item;
    }
+   
 
    //~--- get methods ---------------------------------------------------------
    private PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
@@ -205,8 +206,23 @@ public class PropertySheetMenuItem
 
    private PropertySheetTextWrapper getTextProperty(ConceptSpecification propertyConceptSpecification,
            String nameForProperty) {
-      return new PropertySheetTextWrapper(nameForProperty,
-              (StringProperty) getPropertyMap().get(propertyConceptSpecification));
+      ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
+      if (property == null) {
+          int assemblageNid = observableVersion.getAssemblageNid();
+          OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
+                  propertyConceptSpecification.getNid(), 
+                  assemblageNid, manifold);
+          if (propertyIndex.isPresent()) {
+              property = observableVersion.getProperties().get(propertyIndex.getAsInt());
+          }
+          getPropertyMap().put(propertyConceptSpecification, property);
+      }
+      StringProperty stringProperty = (StringProperty) property;
+
+      PropertySheetTextWrapper wrapper = new PropertySheetTextWrapper(nameForProperty,
+              stringProperty);
+       wrapper.setSpecification(propertyConceptSpecification);
+      return wrapper;
    }
 
    public Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {

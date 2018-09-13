@@ -21,6 +21,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -31,10 +32,15 @@ public class PropertySheetTextWrapper  implements PropertySheet.Item {
 
    private final String name;
    private final StringProperty textProperty;
+   private ConceptSpecification propertySpecification = null;
 
    public PropertySheetTextWrapper(String name, StringProperty textProperty) {
+       if (textProperty == null) {
+           throw new NullPointerException("textProperty cannot be null");
+       }
       this.name = name;
       this.textProperty = textProperty;
+      
    }
 
    public PropertySheetTextWrapper(Manifold manifold,
@@ -42,6 +48,17 @@ public class PropertySheetTextWrapper  implements PropertySheet.Item {
       this(manifold.getPreferredDescriptionText(new ConceptProxy(textProperty.getName())), 
               textProperty);
    }
+    public ConceptSpecification getSpecification() {
+        if (this.propertySpecification != null) {
+            return this.propertySpecification;
+        }
+        return new ConceptProxy(this.textProperty.getName());
+    }
+
+    public void setSpecification(ConceptSpecification propertySpecification) {
+        this.propertySpecification = propertySpecification;
+    }
+
 
    @Override
    public Class<?> getType() {

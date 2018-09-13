@@ -52,6 +52,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 
 import sh.isaac.api.Status;
@@ -76,6 +78,7 @@ import sh.isaac.model.observable.ObservableFields;
  */
 public abstract class ObservableVersionImpl
         implements ObservableVersion, CommittableComponent {
+    protected static final Logger LOG = LogManager.getLogger();
 
    /**
     * The primordial uuid property.
@@ -532,7 +535,11 @@ public abstract class ObservableVersionImpl
          this.timeProperty.set(stampedVersion.getTime());
       }
       
-      updateVersion();
+       try {
+           updateVersion();
+       } catch (UnsupportedOperationException e) {
+           LOG.warn("\n  ** Could not update to version: " + stampedVersion);
+       }
    }
 
    protected abstract void updateVersion();

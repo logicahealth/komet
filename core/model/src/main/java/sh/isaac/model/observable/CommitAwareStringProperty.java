@@ -96,8 +96,10 @@ public class CommitAwareStringProperty
     */
    @Override
    public void set(String newValue) {
-      CommitAwareIntegerProperty.checkChangesAllowed(getBean());
-      super.set(newValue);
+       if (!newValue.equals(get())) {
+            CommitAwareIntegerProperty.checkChangesAllowed(getBean());
+            super.set(newValue);
+       }
    }
 
    /**
@@ -107,8 +109,10 @@ public class CommitAwareStringProperty
     */
    @Override
    public void setValue(String v) {
-      CommitAwareIntegerProperty.checkChangesAllowed(getBean());
-      super.setValue(v);
+       if (!v.equals(get())) {
+            CommitAwareIntegerProperty.checkChangesAllowed(getBean());
+            super.setValue(v);
+       }
    }
 }
 

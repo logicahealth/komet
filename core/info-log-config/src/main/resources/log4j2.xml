@@ -22,7 +22,7 @@ logging config -->
 		<Logger name="sh.isaac.provider.datastore" level="info"/>
 		<Logger name="sh.isaac.model.tree" level="info"/>
 
-		<Root level="debug">
+		<Root level="info">
 			<AppenderRef ref="STDOUT" />
 		</Root>
 	</Loggers>

@@ -16,7 +16,7 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <mainClass>sh.komet.fx.stage.MainApp</mainClass>
       <log4j.version>2.8.1</log4j.version>
-      <solor.db.version>1.17</solor.db.version>
+      <solor.db.version>1.18</solor.db.version>
    </properties>
 
    <organization>
@@ -58,6 +58,11 @@
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>metadata</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>info-log-config</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
       <dependency>
