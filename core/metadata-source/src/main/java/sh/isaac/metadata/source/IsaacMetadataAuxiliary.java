@@ -231,14 +231,24 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept("Module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
             pushParent(current());
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
+               pushParent(current());
+                  createConcept("SOLOR quality assurance rule module");
+                  createConcept("SOLOR temporary concept module")
+                          .addDescription("The temporary module is used for concepts such as those that represent feature paths, that are never part of a release.", TermAux.DEFINITION_DESCRIPTION_TYPE);
+                  createConcept("SOLOR automation rule module");
+                  createConcept("SOLOR genomic module").addDescription("Collection of Variant and Gene", TermAux.DEFINITION_DESCRIPTION_TYPE);
+                  // The second UUID here was the old value from the TermAux - but this was an orphan. to best fix the bug that resulted,
+                  // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
+                  createConcept(TermAux.SOLOR_OVERLAY_MODULE).addDescription("SOLOR overlay", TermAux.REGULAR_NAME_DESCRIPTION_TYPE)
+                     .addUuids(UUID.fromString("1f2016a6-960e-11e5-8994-feff819cdc9f"));
+               
+                  popParent();
+
                createConcept(TermAux.SCT_CORE_MODULE);
                createConcept("US Extension modules", "US Extension");
                createConcept("LOINC® modules", "LOINC").addDescription("Logical Observation Identifiers Names and Codes", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("RxNorm modules", "RxNorm");
                createConcept("Generated administration of module");
-               createConcept("SOLOR quality assurance rule module");
-               createConcept("SOLOR automation rule module");
-               createConcept("SOLOR genomic module").addDescription("Collection of Variant and Gene", TermAux.DEFINITION_DESCRIPTION_TYPE);
 
                //The second UUID here was the old value from the TermAux - but this was an orphan.  to best fix the bug that resulted, 
                // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
@@ -248,10 +258,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.VHAT_EDIT);
                   popParent();
 
-               // The second UUID here was the old value from the TermAux - but this was an orphan. to best fix the bug that resulted,
-               // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
-               createConcept(TermAux.SOLOR_OVERLAY_MODULE).addDescription("SOLOR overlay", TermAux.REGULAR_NAME_DESCRIPTION_TYPE)
-                  .addUuids(UUID.fromString("1f2016a6-960e-11e5-8994-feff819cdc9f"));
                
                createConcept("HL7® v3 modules", "HL7v3").addDescription("Health Level 7 version 3", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("NUCC modules", "NUCC").addDescription("National Uniform Claim Committee", TermAux.DEFINITION_DESCRIPTION_TYPE);
