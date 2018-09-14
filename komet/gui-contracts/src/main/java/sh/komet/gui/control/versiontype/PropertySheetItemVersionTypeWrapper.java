@@ -21,7 +21,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
@@ -30,12 +29,11 @@ import sh.isaac.model.observable.ObservableFields;
 public class PropertySheetItemVersionTypeWrapper implements PropertySheet.Item {
     private final String name;
    
-    private final SimpleObjectProperty<VersionType> versionTypeForAction
-            = new SimpleObjectProperty(this, ObservableFields.VERSION_TYPE_FOR_ACTION.toExternalString());
+    private SimpleObjectProperty<VersionType> versionTypeForAction;
 
-    public PropertySheetItemVersionTypeWrapper(String name, VersionType defaultType) {
+    public PropertySheetItemVersionTypeWrapper(String name, SimpleObjectProperty<VersionType> versionTypeForAction) {
         this.name = name;
-        this.versionTypeForAction.set(defaultType);
+        this.versionTypeForAction = versionTypeForAction;
     }
 
     @Override

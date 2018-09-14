@@ -16,8 +16,10 @@
  */
 package sh.isaac.model.observable.version;
 
+import java.util.UUID;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
@@ -39,6 +41,10 @@ public class ObservableSemanticVersionImpl extends ObservableAbstractSemanticVer
 
     public ObservableSemanticVersionImpl(ObservableSemanticVersion versionToClone, ObservableSemanticChronology chronology) {
         super(versionToClone, chronology);
+    }
+    
+    public ObservableSemanticVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
+        super(VersionType.MEMBER, primordialUuid, referencedComponentUuid, assemblageNid);
     }
 
     @Override

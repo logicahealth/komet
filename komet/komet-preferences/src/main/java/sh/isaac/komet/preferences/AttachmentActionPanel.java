@@ -102,7 +102,7 @@ public class AttachmentActionPanel extends AbstractPreferences {
         getItemList().add(new PropertySheetBooleanWrapper("allow search", showSearchProperty));
         getItemList().add(new PropertySheetBooleanWrapper("allow history", showHistoryProperty));
 
-        getItemList().add(new PropertySheetItemVersionTypeWrapper("Version type", VersionType.CONCEPT));
+        getItemList().add(new PropertySheetItemVersionTypeWrapper("Version type", versionTypeForActionProperty));
         PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(manifold, assemblageForActionProperty);
         getItemList().add(conceptWrapper);
 

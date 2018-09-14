@@ -68,8 +68,10 @@ public class ObservableComponentNidVersionImpl
       setComponentNid(versionToClone.getComponentNid());
    }
 
-    public ObservableComponentNidVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
-        super(VersionType.COMPONENT_NID, primordialUuid, referencedComponentUuid, assemblageNid);
+    public ObservableComponentNidVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, 
+            int assemblageNid) {
+        super(VersionType.COMPONENT_NID, primordialUuid, referencedComponentUuid, 
+                assemblageNid);
     }
    
    

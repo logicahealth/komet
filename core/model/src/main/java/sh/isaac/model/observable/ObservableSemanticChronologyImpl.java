@@ -180,6 +180,9 @@ public class ObservableSemanticChronologyImpl
    protected <OV extends ObservableVersion>
            OV wrapInObservable(Version version) {
               SemanticVersion semanticVersion = (SemanticVersion) version;
+      if (version instanceof ObservableVersion) {
+         return (OV) version;
+      }
       switch (semanticVersion.getChronology().getVersionType()) {
          case DESCRIPTION:
             return (OV) new ObservableDescriptionVersionImpl((DescriptionVersionImpl) semanticVersion, this);

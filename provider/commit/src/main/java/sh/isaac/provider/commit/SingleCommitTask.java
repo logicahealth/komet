@@ -17,7 +17,6 @@
 package sh.isaac.provider.commit;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Optional;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.Get;

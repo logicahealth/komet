@@ -43,6 +43,7 @@ package sh.isaac.model.observable.version;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import javafx.beans.property.Property;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -52,6 +53,7 @@ import javafx.beans.property.StringProperty;
 import sh.isaac.api.chronicle.Chronology;
 
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
@@ -93,6 +95,11 @@ public class ObservableStringVersionImpl
       super(versionToClone, chronology);
       setString(versionToClone.getString());
    }
+   
+   public ObservableStringVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
+      super(VersionType.STRING, primordialUuid, referencedComponentUuid, assemblageNid);
+   }
+   
 
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {

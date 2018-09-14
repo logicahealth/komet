@@ -79,7 +79,7 @@ public abstract class ObservableAbstractSemanticVersionImpl
     IntegerProperty referencedComponentNidProperty;
 
     /**
-     * Minimal arg constructor, for making an observable uncoupled for
+     * Minimal arg constructor, for making an observable uncoupled from
      * underlying data, for example when creating a new component prior to being
      * committed for the first time.
      *

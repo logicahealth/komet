@@ -104,11 +104,11 @@ public class CategorizedVersions<V extends Version> {
       LatestVersion<V> wrappedLatestVersion = new LatestVersion();
 
       for (Version version: chronology.getVersionList()) {
-         if (latestStampSequences.contains(version.getStampSequence())) {
-            wrappedLatestVersion.addLatest(wrap(version, observableWrap));
-         } else if (version.isUncommitted()) {
+         if (version.isUncommitted()) {
             uncommittedVersions.add(wrap(version, observableWrap));
-         } else {
+         } else if (latestStampSequences.contains(version.getStampSequence())) {
+            wrappedLatestVersion.addLatest(wrap(version, observableWrap));
+         } else  {
             historicVersions.add(wrap(version, observableWrap));
          }
       }
