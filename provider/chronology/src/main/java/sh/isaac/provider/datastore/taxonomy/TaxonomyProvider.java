@@ -42,6 +42,7 @@ import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Objects;
 import java.util.Set;
@@ -322,7 +323,15 @@ public class TaxonomyProvider
 
         TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
 
-        return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
+        try {
+            return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
+        } catch (NoSuchElementException ex) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Error determining if concept is active.");
+            builder.append(Get.conceptSpecification(conceptNid));
+            LOG.error(builder.toString(), ex);
+            return false;
+        }
     }
 
     @Override
