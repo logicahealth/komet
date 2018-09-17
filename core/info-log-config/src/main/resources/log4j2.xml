@@ -21,6 +21,7 @@ logging config -->
 		<Logger name="sh.isaac.provider.logic" level="info" />
 		<Logger name="sh.isaac.provider.datastore" level="info"/>
 		<Logger name="sh.isaac.model.tree" level="info"/>
+		<Logger name="sh.isaac.provider.commit.ChangeSetLoadProvider" level="debug"/>
 
 		<Root level="info">
 			<AppenderRef ref="STDOUT" />

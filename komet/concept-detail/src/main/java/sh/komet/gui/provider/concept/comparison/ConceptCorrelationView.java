@@ -24,7 +24,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -66,9 +69,21 @@ public class ConceptCorrelationView {
     }
 
 
-    public static ConceptCorrelationController show(Manifold manifold, String title, 
+    public static ConceptCorrelationController show(Manifold manifold, 
             EventHandler<WindowEvent> closeRequestHandler) {
-        ConceptCorrelationView correlationView = new ConceptCorrelationView(manifold, title);
+        ConceptCorrelationView correlationView = new ConceptCorrelationView(manifold, "temp");
+        Stage stage = correlationView.stage;
+        stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
+        stage.getProperties().put(WindowProperties.NAME_SUFFIX, " correlation "  +  Integer.toString(MenuProvider.WINDOW_SEQUENCE.incrementAndGet()));
+        stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
+                        FxGet.getConfigurationName() +
+                        stage.getProperties().get(WindowProperties.NAME_SUFFIX));
+        FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
+        stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
+                        newValue +
+                        stage.getProperties().get(WindowProperties.NAME_SUFFIX));
+             
+        });
         
         correlationView.controller.setComparisonExpression(CorrelationProblem5.getComparisonExpression());
         correlationView.controller.setReferenceExpression(CorrelationProblem5.getReferenceExpression());

@@ -74,7 +74,7 @@ public class ObservableSemanticVersionImpl extends ObservableAbstractSemanticVer
 
     @Override
     public Chronology createChronologyForCommit(int stampSequence) {
-        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), stampSequence);
+        SemanticChronologyImpl sc = new SemanticChronologyImpl(versionType, getPrimordialUuid(), getAssemblageNid(), getReferencedComponentNid());
         SemanticVersion newVersion = new SemanticVersionImpl(sc, stampSequence);
         copyLocalFields(newVersion);
         sc.addVersion(newVersion);

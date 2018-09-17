@@ -649,6 +649,18 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.ROLE_TYPE_TO_ADD);
                   createConcept(ObservableFields.ASSEMBLAGE_FOR_CONSTRAINT);
                   popParent();
+               createConcept("Configuration properties");
+               pushParent(current());
+                  createConcept("Configuration name", "Configuration name");
+                  createConcept("Datastore location", "Datastore location");
+                  popParent();
+               createConcept("Synchronization item properties");
+               pushParent(current());
+                  createConcept("Synchronication item name", "Item name");
+                  createConcept("Synchronication item url", "Item url");
+                  createConcept("Synchronication item username", "Username");
+                  createConcept("Synchronication item password", "Password");
+                  popParent();
                createConcept("Coordinate properties");
                pushParent(current());
                   createConcept(AUTHOR_NID_FOR_EDIT_COORDINATE);

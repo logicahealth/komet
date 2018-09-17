@@ -52,7 +52,7 @@ import sh.komet.gui.util.FxGet;
 public class AttachmentActionPanel extends AbstractPreferences {
 
     public enum Keys {
-        ACTION_NAME,
+        ITEM_NAME,
         VERSION_TYPE,
         ASSEMBLAGE,
         SEMANTIC_FIELD_CONCEPTS,
@@ -67,7 +67,7 @@ public class AttachmentActionPanel extends AbstractPreferences {
     private final HashMap<ConceptSpecification, PropertySheet.Item> propertySheetItemMap = new HashMap<>();
 
     private final HashSet<ConceptSpecification> fieldConcepts = new HashSet<>();
-    private final SimpleStringProperty actionNameProperty
+    private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.ACTION_NAME____SOLOR.toExternalString());
 
     private final SimpleObjectProperty<ConceptSpecification> assemblageForActionProperty
@@ -91,11 +91,15 @@ public class AttachmentActionPanel extends AbstractPreferences {
     public AttachmentActionPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(preferencesNode,
-                preferencesNode.get(Keys.ACTION_NAME, "attachment action " + preferencesNode.name()),
+                preferencesNode.get(Keys.ITEM_NAME, "attachment action " + preferencesNode.name()),
                 manifold, kpc);
+        nameProperty.set(groupNameProperty().get());
+        nameProperty.addListener((observable, oldValue, newValue) -> {
+            groupNameProperty().set(newValue);
+        });
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(manifold, actionNameProperty));
+        getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit status", showStatusProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit module", showModuleProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit path", showPathProperty));
@@ -126,7 +130,7 @@ public class AttachmentActionPanel extends AbstractPreferences {
 
     @Override
     final void saveFields() throws BackingStoreException {
-        getPreferencesNode().put(Keys.ACTION_NAME, actionNameProperty.get());
+        getPreferencesNode().put(Keys.ITEM_NAME, nameProperty.get());
         getPreferencesNode().put(Keys.VERSION_TYPE_FOR_ACTION, versionTypeForActionProperty.get().name());
         getPreferencesNode().putConceptSpecification(Keys.ASSEMBLAGE, assemblageForActionProperty.get());
         // For each field, save a list: default value first, then allowed values. 
@@ -171,7 +175,7 @@ public class AttachmentActionPanel extends AbstractPreferences {
 
     @Override
     final void revertFields() {
-        this.actionNameProperty.set(getPreferencesNode().get(Keys.ACTION_NAME, getGroupName()));
+        this.nameProperty.set(getPreferencesNode().get(Keys.ITEM_NAME, getGroupName()));
         this.versionTypeForActionProperty.set(VersionType.valueOf(getPreferencesNode().get(Keys.VERSION_TYPE_FOR_ACTION, VersionType.CONCEPT.name())));
         this.assemblageForActionProperty.set(getPreferencesNode().getConceptSpecification(Keys.ASSEMBLAGE, TermAux.ASSEMBLAGE));
         this.fieldConcepts.clear();
@@ -265,13 +269,14 @@ public class AttachmentActionPanel extends AbstractPreferences {
         b.append("import sh.komet.gui.control.property.EditorType;\n");
         b.append("import sh.isaac.api.logic.NodeSemantic;\n");
         b.append("\n");
-        b.append("rule \"").append(actionNameProperty.get()).append("\"\n");
+        b.append("rule \"").append(nameProperty.get())
+                .append(" ").append(getPreferencesNode().name()).append("\"\n");
         b.append("when\n");
         b.append("   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.").append(versionTypeForActionProperty.get().name()).append(")\n");
         b.append("then\n");
         b.append("   System.out.println(\"AddAttachmentMenuItems: \" + $addAttachmentToVersion);\n");
         b.append("   PropertySheetMenuItem propertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem(\"")
-                .append(actionNameProperty.get())
+                .append(nameProperty.get())
                 .append("\", new ").append(new ConceptProxy(this.assemblageForActionProperty.get().toExternalString()).toString())
                 .append(");\n");
 
@@ -303,7 +308,8 @@ public class AttachmentActionPanel extends AbstractPreferences {
                 case CONCEPT: {
                     PropertySheetItemConceptConstraintWrapper constraintsItem = (PropertySheetItemConceptConstraintWrapper) item;
                     PropertySheetItemConceptWrapper conceptItem = constraintsItem.getValue();
-                    b.append("rule \"Setup constraints for ").append(getManifold().getFullySpecifiedDescriptionText(fieldConcept)).append("\"\n");
+                    b.append("rule \"Setup constraints for ").append(getManifold().getFullySpecifiedDescriptionText(fieldConcept))
+                .append(" ").append(getPreferencesNode().name()).append("\"\n");
                     b.append("when\n");
                     b.append("   $propertySheetItem : PropertySheetItemConceptWrapper(getSpecification() == new ")
                             .append(new ConceptProxy(fieldConcept.toExternalString()).toString()).append(");\n");
@@ -367,4 +373,11 @@ public class AttachmentActionPanel extends AbstractPreferences {
         }
         return type;
     }
+
+    @Override
+    public boolean showDelete() {
+        return true;
+    }
+    
+    
 }

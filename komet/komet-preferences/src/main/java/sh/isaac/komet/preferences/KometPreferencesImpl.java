@@ -69,7 +69,10 @@ public class KometPreferencesImpl implements KometPreferences {
                         .toString());
 
                 this.preferencesStage = new Stage();
-                this.preferencesStage.setTitle("KOMET Preferences");
+                this.preferencesStage.setTitle(FxGet.getConfigurationName() + " preferences");
+                FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
+                    this.preferencesStage.setTitle(newValue+ " preferences");
+                });
                 Scene scene = new Scene(root);
 
                 this.preferencesStage.setScene(scene);

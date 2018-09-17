@@ -149,6 +149,9 @@ public class PropertySheetItemConceptWrapperEditor implements PropertyEditor<Pro
         this.constraintWrapper = value;
         conceptListView.setItems(this.constraintWrapper.getAllowedValues());
         defaultConcept.setItems(this.constraintWrapper.getAllowedValues());
+        this.constraintWrapper.getObservableValue().get().addListener((observable, oldValue, newValue) -> {
+            defaultConcept.getSelectionModel().select(this.constraintWrapper.getValue());
+        });
         defaultConcept.getSelectionModel().select(this.constraintWrapper.getValue());
     }
     private void showFindPopup(ActionEvent event) {
@@ -188,18 +191,22 @@ public class PropertySheetItemConceptWrapperEditor implements PropertyEditor<Pro
     }
     private void moveUpSelection(ActionEvent event) {
         int selectedIndex = this.conceptListView.getSelectionModel().getSelectedIndex();
+        Object selectedItem = defaultConcept.getSelectionModel().getSelectedItem();
         if (selectedIndex > 0) {
             ConceptSpecification specToMove = this.conceptListView.getItems().remove(selectedIndex);
             this.conceptListView.getItems().add(selectedIndex-1, specToMove);
             this.conceptListView.getSelectionModel().select(selectedIndex-1);
         }
+        defaultConcept.getSelectionModel().select(selectedItem);
     }
     private void moveDownSelection(ActionEvent event) {
         int selectedIndex = this.conceptListView.getSelectionModel().getSelectedIndex();
-        if (selectedIndex > -1 && selectedIndex < this.conceptListView.getItems().size()) {
+        Object selectedItem = defaultConcept.getSelectionModel().getSelectedItem();
+        if (selectedIndex > -1 && selectedIndex < this.conceptListView.getItems().size() - 1) {
             ConceptSpecification specToMove = this.conceptListView.getItems().remove(selectedIndex);
             this.conceptListView.getItems().add(selectedIndex+1, specToMove);
             this.conceptListView.getSelectionModel().select(selectedIndex+1);
         }
+        defaultConcept.getSelectionModel().select(selectedItem);
     }
 }

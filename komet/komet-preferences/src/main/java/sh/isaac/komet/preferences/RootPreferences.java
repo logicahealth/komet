@@ -19,6 +19,7 @@ package sh.isaac.komet.preferences;
 import java.util.prefs.BackingStoreException;
 import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -33,11 +34,11 @@ public class RootPreferences extends AbstractPreferences {
                 kpc);
         if (!initialized()) {
             // Add children nodes and reflection classes for children
+            addChild("Configuration", ConfigurationPreferences.class);
             addChild("User", UserPreferences.class);
-            addChild("General", GeneralPreferences.class);
-            addChild("Change sets", ChangeSetPreferences.class);
-            addChild("Attachment actions", AttachmentActionPreferences.class);
-            addChild("Logic actions", LogicActionPreferences.class);
+            addChild(SYNCHRONIZATION_ITEMS_GROUP_NAME, SynchronizationItems.class);
+            addChild("Attachment actions", AttachmentItems.class);
+            addChild("Logic actions", LogicItems.class);
         }
         save();
 

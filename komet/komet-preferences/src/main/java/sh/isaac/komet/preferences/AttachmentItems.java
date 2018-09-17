@@ -16,58 +16,55 @@
  */
 package sh.isaac.komet.preferences;
 
-import java.util.Optional;
-import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import sh.komet.gui.manifold.Manifold;
 
 /**
+ * Attachment actions are provided by rules
+ *
+ * Rules are stored in assemblages
+ *
+ * One string semantic == 1 rule? One membership semantic = 1 rule?
+ *
+ * Attachments action rules may need to know: Version type to show within
+ *
+ * Assemblage concept
+ *
+ * Does versioned component already have member in assemblageForAction? Within
+ * assemblageForAction semantic referencing component exists, and if so it's
+ * value
+ *
+ * Properties to edit (active, text, ...) (not for membership and string)
+ *
+ * if a concept property, provide a list with a default? A search? A create?
  *
  * @author kec
  */
-public class LogicActionPreferences extends ActionPreferences {
+public class AttachmentItems extends ParentPanelPreferences {
 
-    
-    public LogicActionPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
+    public AttachmentItems(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Logic actions"), 
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Attachment actions"),
                 manifold, kpc);
         revertFields();
         save();
     }
-     
+
     @Override
     void saveFields() throws BackingStoreException {
-        getPreferencesNode().putList(Keys.ACTION_ID_LIST, actionUuidList);
+        // nothing to save
     }
 
     @Override
     final void revertFields() {
-        actionUuidList.clear();
-        actionUuidList.addAll(getPreferencesNode().getList(Keys.ACTION_ID_LIST));
+        // nothing to revert
     }
-    
+
     @Override
-    protected void addActionPanel(UUID actionUuid) {
-        try {
-            IsaacPreferences actionPreferencesNode = getPreferencesNode().node(actionUuid.toString());
-            addChild(actionUuid.toString(), LogicActionPanel.class);
-            Optional<PreferencesTreeItem> optionalActionItem = PreferencesTreeItem.from(actionPreferencesNode,
-                    getManifold(), kpc);
-            if (getTreeItem() == null) {
-                childrenToAdd.push(optionalActionItem.get());
-            } else {
-                getTreeItem().getChildren().add(optionalActionItem.get());
-                getTreeItem().setExpanded(true);
-            }
-            
-            saveFields();
-        } catch (BackingStoreException ex) {
-            throw new RuntimeException(ex);
-        }
-       
-    }
-    
+    protected Class getChildClass() {
+        return AttachmentActionPanel.class;
+    }    
+
 }

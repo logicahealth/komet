@@ -17,46 +17,37 @@
 package sh.isaac.komet.preferences;
 
 import java.util.prefs.BackingStoreException;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import sh.isaac.api.preferences.IsaacPreferences;
-import static sh.isaac.komet.preferences.GeneralPreferences.Keys.ENABLE_EDITING;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
-import sh.isaac.model.observable.ObservableFields;
-import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
-public class GeneralPreferences extends AbstractPreferences {
+public class LogicItems extends ParentPanelPreferences {
 
-    public enum Keys {
-        ENABLE_EDITING
-
-    }
-    private final BooleanProperty enableEdit = new SimpleBooleanProperty(this, ObservableFields.ENABLE_EDIT.toExternalString());
-
-    public GeneralPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
+    
+    public LogicItems(IsaacPreferences preferencesNode, Manifold manifold, 
             KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "General"), manifold, 
-                kpc);
-        this.enableEdit.setValue(preferencesNode.getBoolean(enableEdit.getName(), true));
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Logic actions"), 
+                manifold, kpc);
         revertFields();
         save();
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, enableEdit));
     }
 
     @Override
     void saveFields() throws BackingStoreException {
-        getPreferencesNode().putBoolean(ENABLE_EDITING, enableEdit.get());
+        // nothing to save
     }
 
     @Override
     final void revertFields() {
-        enableEdit.set(getPreferencesNode().getBoolean(ENABLE_EDITING, true));
+        // nothing to revert
     }
 
-
+    @Override
+    protected Class getChildClass() {
+        return LogicActionPanel.class;
+    }
 }

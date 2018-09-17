@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+ * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.preferences;
+package sh.komet.gui.control.property;
 
 /**
  *
  * @author kec
  */
-public enum PreferenceNodeType {
-   CONFIGURATION, USER, SYSTEM;
+public enum WindowProperties {
+    NAME_PREFIX, NAME_SUFFIX;
 }
