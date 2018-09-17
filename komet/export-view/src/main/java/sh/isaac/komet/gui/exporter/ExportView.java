@@ -1,4 +1,4 @@
-package sh.komet.gui.exportation;
+package sh.isaac.komet.gui.exporter;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

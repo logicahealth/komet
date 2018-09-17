@@ -1,4 +1,4 @@
-package sh.komet.gui.exportation;
+package sh.isaac.solor;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;

@@ -11,7 +11,6 @@ public enum ExportFormatType {
         this.fullyQualifiedName = fullyQualifiedName;
     }
 
-
     @Override
     public String toString() {
         return this.fullyQualifiedName;

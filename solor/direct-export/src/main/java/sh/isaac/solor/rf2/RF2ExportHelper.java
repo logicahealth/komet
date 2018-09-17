@@ -1,4 +1,10 @@
-package sh.komet.gui.exportation.batching.specification;
+package sh.isaac.solor.rf2;
+
+
+
+/*
+ * aks8m - 9/6/18
+ */
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
@@ -10,44 +16,34 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.komet.gui.exportation.ExportLookUpCache;
+import sh.isaac.solor.ExportLookUpCache;
 import sh.komet.gui.manifold.Manifold;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
-/*
- * aks8m - 5/22/18
- */
-public abstract class RF2ExportBatchSpec implements BatchSpecification<Chronology, String> {
+public class RF2ExportHelper {
 
-    private final Manifold manifold;
+    private Manifold manifold;
     private static ObservableSnapshotService snapshotService;
 
-    public RF2ExportBatchSpec(Manifold manifold) {
+    public RF2ExportHelper(Manifold manifold) {
         this.manifold = manifold;
-        createSnapshotInstance(this.manifold);
-    }
-
-    abstract void addColumnHeaders(List<String> batchResultList);
-
-    private static void createSnapshotInstance(Manifold manifold){
         snapshotService = Get.observableSnapshotService(manifold);
     }
 
     public ObservableSnapshotService getSnapshotService() {
-        return this.snapshotService;
+        return snapshotService;
     }
 
-    StringBuilder getRF2CommonElements(Chronology chronology){
+    public StringBuilder getRF2CommonElements(Chronology chronology){
 
         int stampNid = 0;
 
         if(chronology instanceof ConceptChronology)
-            stampNid = getSnapshotService().getObservableConceptVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
+            stampNid = snapshotService.getObservableConceptVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
         else if(chronology instanceof SemanticChronology)
-            stampNid = getSnapshotService().getObservableSemanticVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
+            stampNid = snapshotService.getObservableSemanticVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
 
 
         return new StringBuilder()
@@ -60,35 +56,30 @@ public abstract class RF2ExportBatchSpec implements BatchSpecification<Chronolog
     String getIdString(Chronology chronology){
 
         if (ExportLookUpCache.isSCTID(chronology)) {
-            return lookUpIdentifierFromSemantic(this.snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), chronology);
+            return lookUpIdentifierFromSemantic(snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), chronology);
         } else if (ExportLookUpCache.isLoinc(chronology)) {
-            final String loincId = lookUpIdentifierFromSemantic(this.snapshotService, MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(), chronology);
+            final String loincId = lookUpIdentifierFromSemantic(snapshotService, MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeSolorIdFromLoincId(loincId);
         } else if (ExportLookUpCache.isRxNorm(chronology)) {
-            final String rxnormId = lookUpIdentifierFromSemantic(this.snapshotService, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);
+            final String rxnormId = lookUpIdentifierFromSemantic(snapshotService, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeSolorIdFromRxNormId(rxnormId);
         } else {
             return UuidT5Generator.makeSolorIdFromUuid(chronology.getPrimordialUuid());
         }
-
-    }
-    String getIdString(int chronologyNid){
-        return getIdString(Get.concept(chronologyNid));
     }
 
-
-    String getTimeString(int stampNid){
+    private String getTimeString(int stampNid){
         return new SimpleDateFormat("YYYYMMdd").format(new Date(Get.stampService().getTimeForStamp(stampNid)));
     }
 
-    String getActiveString(int stampNid){
+    private String getActiveString(int stampNid){
         return Get.stampService().getStatusForStamp(stampNid).isActive() ? "1" : "0";
     }
 
-    String getModuleString(int stampNid){
+    private String getModuleString(int stampNid){
         ConceptChronology moduleConcept = Get.concept(Get.stampService().getModuleNidForStamp(stampNid));
         if (ExportLookUpCache.isSCTID(moduleConcept)) {
-            return lookUpIdentifierFromSemantic(this.snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), moduleConcept);
+            return lookUpIdentifierFromSemantic(snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), moduleConcept);
         } else {
             return UuidT5Generator.makeSolorIdFromUuid(moduleConcept.getPrimordialUuid());
         }
@@ -106,5 +97,6 @@ public abstract class RF2ExportBatchSpec implements BatchSpecification<Chronolog
 
         return stringVersion.isPresent() ? stringVersion.get().getString() : "";
     }
+
 
 }
