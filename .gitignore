@@ -9,3 +9,4 @@
 komet/application/data/*
 \.idea/
 /komet/application/target-full/
+*.iml

@@ -1,4 +1,4 @@
-package sh.komet.gui.exportation;
+package sh.isaac.komet.gui.exporter;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +11,8 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
+import sh.isaac.solor.DirectExporterFactory;
+import sh.komet.gui.exportation.ExportFormatType;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
@@ -66,10 +68,13 @@ public class ExportViewController {
 
     @FXML
     public void exportData(){
-        Get.executor().execute(new ExportContentAndZipTask(
+
+        Get.executor().execute(DirectExporterFactory.GetRF2DirectExporter(
                 this.manifold,
                 this.selectedDirectory,
-                this.exportTypeChoiceBox.getSelectionModel().getSelectedItem()));
+                this.exportTypeChoiceBox.getSelectionModel().getSelectedItem().toString()
+        ));
+
         this.exportStage.close();
     }
 

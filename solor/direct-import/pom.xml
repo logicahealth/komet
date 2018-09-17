@@ -9,7 +9,6 @@
 	
    <groupId>sh.isaac.solor</groupId>
    <artifactId>direct-import</artifactId>
-	
    <packaging>jar</packaging>
 
    <name>ISAAC SOLOR: Direct import</name>

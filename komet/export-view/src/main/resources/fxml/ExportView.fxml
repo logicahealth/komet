@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="150.0" prefWidth="500.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.exportation.ExportViewController">
+<AnchorPane id="AnchorPane" prefHeight="150.0" prefWidth="500.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.isaac.komet.gui.exporter.ExportViewController">
     <stylesheets>
         <URL value="@/styles/importview.css" />
     </stylesheets>

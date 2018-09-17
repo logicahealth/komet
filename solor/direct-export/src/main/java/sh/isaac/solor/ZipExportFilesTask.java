@@ -1,16 +1,14 @@
-package sh.komet.gui.exportation;
+package sh.isaac.solor;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.komet.gui.exportation.batching.specification.BatchSpecification;
+import sh.isaac.solor.ExportComponentType;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -20,24 +18,18 @@ import java.util.zip.ZipOutputStream;
 /*
  * aks8m - 5/19/18
  */
-public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
+public class ZipExportFilesTask extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
 
-    private final ExportFormatType exportFormatType;
     private final File exportDirectory;
-    private final Map<BatchSpecification, List<String>> bytesToZip;
+    private final Map<ExportComponentType, List<String>> linesToWriteMap;
     private final Semaphore readSemaphore;
+    private final String zipFileName;
 
-
-    public ZipExportFiles(ExportFormatType exportFormatType, File exportDirectory, Map<BatchSpecification, List<String>> stringsToZip, Semaphore readSemaphore) {
-        this.exportFormatType = exportFormatType;
+    public ZipExportFilesTask(File exportDirectory, Map<ExportComponentType, List<String>> linesToWriteMap, Semaphore readSemaphore, String zipFileName) {
         this.exportDirectory = exportDirectory;
-        this.bytesToZip = stringsToZip;
+        this.linesToWriteMap = linesToWriteMap;
         this.readSemaphore = readSemaphore;
-        readSemaphore.acquireUninterruptibly();
-
-        updateTitle("Zipping Export Data");
-        Get.activeTasks().add(this);
-
+        this.zipFileName = zipFileName;
     }
 
     @Override
@@ -45,16 +37,11 @@ public class ZipExportFiles extends TimedTaskWithProgressTracker<Void> implement
 
         try {
 
-            final String rootDirName = "SnomedCT_SolorRF2_PRODUCTION_"
-                    + DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(LocalDateTime.now());
+            ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(this.exportDirectory + this.zipFileName), StandardCharsets.UTF_8);
 
-            ZipOutputStream zipOut = new ZipOutputStream(
-                    new FileOutputStream(this.exportDirectory.getAbsolutePath() + "/" + rootDirName + ".zip"),
-                    StandardCharsets.UTF_8);
+            for (Map.Entry<ExportComponentType, List<String>> entry : this.linesToWriteMap.entrySet()) {
 
-            for (Map.Entry<BatchSpecification, List<String>> entry : this.bytesToZip.entrySet()) {
-
-                ZipEntry zipEntry = new ZipEntry(entry.getKey().getFileName(rootDirName));
+                ZipEntry zipEntry = new ZipEntry(entry.getKey().getFilePath());
                 try {
                     zipOut.putNextEntry(zipEntry);
 

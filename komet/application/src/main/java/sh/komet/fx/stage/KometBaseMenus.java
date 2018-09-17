@@ -47,7 +47,7 @@ import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
-import sh.komet.gui.exportation.ExportView;
+import sh.isaac.komet.gui.exporter.ExportView;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.manifold.Manifold;
 
