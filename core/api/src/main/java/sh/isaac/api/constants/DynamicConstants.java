@@ -406,12 +406,27 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
                LookupService.getService(DynamicUtility.class).createDynamicUUIDData(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid()), true) }) {
    };
 
-   /** The dynamic prisme user id. */
-
-   // TODO [DAN 3] rewrite this with multiple columns, to store whatever interesting data is passed over the json from prisme that we choose to store.
-   public final MetadataDynamicConstant DYNAMIC_PRISME_USER_ID = new MetadataDynamicConstant("PRISME user ID", UUID.fromString("00e6cca4-3c5b-5f2e-b2d8-2c4a6f8f6b46"),
-         "Used to store a PRISME user ID on a user/author concept",
+   /** The dynamic external user id. */
+   public final MetadataDynamicConstant DYNAMIC_EXTERNAL_USER_ID = new MetadataDynamicConstant("External user ID", UUID.fromString("00e6cca4-3c5b-5f2e-b2d8-2c4a6f8f6b46"),
+         "Used to store an external user ID on a user/author concept",
          new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true, true) }) {
+   };
+   
+   /** The dynamic description core type is used to mark description types that come from non snomed terminologies
+    * as the equivalent of one of the core types.  This information can then be utilized in constructing the language
+    * ranking defaults - so when the user selects FQN or Regular Name in the GUI, we can pick the appropriate description
+    * type to use as a substitute, when no FQN or Regular Name type is found. */
+   public final MetadataDynamicConstant DYNAMIC_DESCRIPTION_CORE_TYPE = new MetadataDynamicConstant("Description core type", 
+         UUID.fromString("351955ff-30f4-5806-a0a5-5dda79756377"),
+         "Used to mark non-snomed descriptions as one of the core snomed types.",
+         new DynamicColumnInfo[] { new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.UUID, 
+               LookupService.getService(DynamicUtility.class).createDynamicUUIDData(TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getPrimordialUuid()), true,
+               DynamicValidatorType.ONE_OF, 
+               LookupService.getService(DynamicUtility.class).createDynamicStringArrayData(
+                  TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getPrimordialUuid().toString(),
+                  TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getPrimordialUuid().toString(),
+                  TermAux.DEFINITION_DESCRIPTION_TYPE.getPrimordialUuid().toString()),
+               true) }) {
    };
 
    // An organizational concept which serves as a parent concept for dynamic fields defined in the system
@@ -427,7 +442,8 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
          addChild(DynamicConstants.this.DYNAMIC_ASSOCIATION_INVERSE_NAME);
          addChild(DynamicConstants.this.DYNAMIC_EXTENDED_DESCRIPTION_TYPE);
          addChild(DynamicConstants.this.DYNAMIC_EXTENDED_RELATIONSHIP_TYPE);
-         addChild(DynamicConstants.this.DYNAMIC_PRISME_USER_ID);
+         addChild(DynamicConstants.this.DYNAMIC_DESCRIPTION_CORE_TYPE);
+         addChild(DynamicConstants.this.DYNAMIC_EXTERNAL_USER_ID);
          setParent(TermAux.ASSEMBLAGE);
       }
    };

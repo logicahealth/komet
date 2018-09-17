@@ -536,6 +536,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.DESCRIPTION_CASE_SENSITIVE);
                createConcept(TermAux.DESCRIPTION_NOT_CASE_SENSITIVE);
                createConcept(TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE);
+               createConcept("Not Applicable");
                popParent();
             createConcept("Description acceptability");
             pushParent(current());

@@ -20,31 +20,37 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.hk2.runlevel.RunLevelException;
 import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
+import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
-import sh.isaac.api.IdentifiedObjectService;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.Status;
 import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -53,6 +59,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
@@ -71,6 +78,8 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
+import sh.isaac.utility.Frills;
 
 /**
  * A class similar to {@link IBDFCreationUtility}, but intended for direct writes, rather than the previous traditional way
@@ -81,7 +90,7 @@ import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 public class DirectWriteHelper
 {
 	private Logger log = LogManager.getLogger();
-	
+
 	private List<IndexBuilderService> indexers;
 	private int authorNid;
 	private int moduleNid;
@@ -89,26 +98,30 @@ public class DirectWriteHelper
 	private ConverterUUID converterUUID;
 	private ConceptService conceptService;
 	private IdentifierService identifierService;
-	private IdentifiedObjectService identifiedObjectService;
 	private StampService stampService;
 	private AssemblageService assemblageService;
 	private SemanticBuilderService<?> semanticBuilderService;
 	private LogicalExpressionBuilderService logicalExpressionBuilderService;
 	private TaxonomyService taxonomyService;
-	
+
 	private HashSet<Integer> deferredTaxonomyUpdates = new HashSet<Integer>();
 	private LoadStats loadStats;
-	
-	private Optional<UUID> associationTypes = Optional.empty();
-	private Optional<UUID> attributeTypes = Optional.empty();
-	private Optional<UUID> descriptionTypes = Optional.empty();
-	private Optional<UUID> refsetTypes = Optional.empty();
-	private Optional<UUID> relationTypes = Optional.empty();
+
+	private Optional<UUID> associationTypesNode = Optional.empty();
+	private Optional<UUID> attributeTypesNode = Optional.empty();
+	private Optional<UUID> descriptionTypesNode = Optional.empty();
+	private Optional<UUID> refsetTypesNode = Optional.empty();
+	private Optional<UUID> relationTypesNode = Optional.empty();
 
 	private HashSet<UUID> associations = new HashSet<>();
-	
+
+	//maintain a mapping of _all_ applied description labels to the UUID created for it.
+	private HashMap<String, UUID> createdDescriptionTypes = new HashMap<>();
+	private HashMap<String, UUID> createdAttributeTypes = new HashMap<>();
+	private HashMap<String, UUID> createdRefsetTypes = new HashMap<>();
+
 	/**
-	 * If you create ANY logic graphs, ensure that you call {@link #processTaxonomyUpdates()} before allowing this helper to be 
+	 * If you create ANY logic graphs, ensure that you call {@link #processTaxonomyUpdates()} before allowing this helper to be
 	 * garbage collected.
 	 * 
 	 * @param author The default author to use for creates
@@ -125,7 +138,6 @@ public class DirectWriteHelper
 		this.converterUUID = converterUUID;
 		this.conceptService = Get.conceptService();
 		this.identifierService = Get.identifierService();
-		this.identifiedObjectService = Get.identifiedObjectService();
 		this.stampService = Get.stampService();
 		this.assemblageService = Get.assemblageService();
 		this.semanticBuilderService = Get.semanticBuilderService();
@@ -148,6 +160,30 @@ public class DirectWriteHelper
 	}
 
 	/**
+	 * Calls {@link #makeConcept(UUID, Status, long)}, followed by {@link #makeDescriptionEnNoDialect(UUID, String, UUID, Status, long)
+	 * 
+	 * @param name The text to use for the FQN and name
+	 * @param descriptionType The type of the description - {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or
+	 *            {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
+	 *            or {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, or a properly specified third-party description type
+	 * @param parents - optional list of parent(s) to add
+	 * @param status the status for the description
+	 * @param time the time for the description
+	 * @return the UUID of the created description
+	 */
+	public UUID makeConceptEnNoDialect(String name, UUID descriptionType, UUID[] parents, Status status, long time)
+	{
+		UUID concept = converterUUID.createNamespaceUUIDFromString(name);
+		makeConcept(concept, status, time);
+		makeDescriptionEnNoDialect(concept, name, descriptionType, status, time);
+		if (parents != null && parents.length > 0)
+		{
+			makeParentGraph(concept, Arrays.asList(parents), status, time);
+		}
+		return concept;
+	}
+
+	/**
 	 * @param concept The UUID of the concept to be created
 	 * @param status The status of the concept to be created
 	 * @param time The time to use for the concept to be created
@@ -166,7 +202,7 @@ public class DirectWriteHelper
 		conceptToWrite.addAdditionalUuids(additionalUUIDs);
 		int conceptStamp = stampService.getStampSequence(status, time, authorNid, moduleNid, pathNid);
 		conceptToWrite.createMutableVersion(conceptStamp);
-		
+
 		indexAndWrite(conceptToWrite);
 		loadStats.addConcept();
 		return concept;
@@ -175,7 +211,7 @@ public class DirectWriteHelper
 	/**
 	 * This creates a semantic type of {@link VersionType#DYNAMIC} with no data columns
 	 * 
-	 * This serves the same purpose as {@link #makeBrittleRefsetMember(UUID, UUID, long)} but allows for the refset to be described in the 
+	 * This serves the same purpose as {@link #makeBrittleRefsetMember(UUID, UUID, long)} but allows for the refset to be described in the
 	 * dynamic definition.
 	 * 
 	 * @param assemblageConcept The type of refset member to create
@@ -187,14 +223,14 @@ public class DirectWriteHelper
 	{
 		UUID uuidForCreatedMember = UuidFactory.getUuidForDynamic(converterUUID.getNamespace(), assemblageConcept, memberUUID, null,
 				((input, uuid) -> converterUUID.addMapping(input, uuid)));
-		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC,
-				uuidForCreatedMember, identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(memberUUID));
+		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, uuidForCreatedMember,
+				identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(memberUUID));
 		refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
 		indexAndWrite(refsetMemberToWrite);
-		loadStats.addRefsetMember(Get.conceptDescriptionText(identifierService.getNidForUuids(assemblageConcept)));
+		loadStats.addRefsetMember(getOriginStringForUuid(assemblageConcept));
 		return refsetMemberToWrite.getPrimordialUuid();
 	}
-	
+
 	/**
 	 * This creates a semantic type of {@link VersionType#MEMBER}
 	 * 
@@ -205,16 +241,16 @@ public class DirectWriteHelper
 	 */
 	public UUID makeBrittleRefsetMember(UUID assemblageConcept, UUID memberUUID, long time)
 	{
-		UUID uuidForCreatedMember = UuidFactory.getUuidForMemberSemantic(converterUUID.getNamespace(), assemblageConcept, memberUUID, 
+		UUID uuidForCreatedMember = UuidFactory.getUuidForMemberSemantic(converterUUID.getNamespace(), assemblageConcept, memberUUID,
 				((input, uuid) -> converterUUID.addMapping(input, uuid)));
-		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.MEMBER,
-				uuidForCreatedMember, identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(memberUUID));
+		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.MEMBER, uuidForCreatedMember,
+				identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(memberUUID));
 		refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
 		indexAndWrite(refsetMemberToWrite);
-		loadStats.addRefsetMember(Get.conceptDescriptionText(identifierService.getNidForUuids(assemblageConcept)));
+		loadStats.addRefsetMember(getOriginStringForUuid(assemblageConcept));
 		return refsetMemberToWrite.getPrimordialUuid();
 	}
-	
+
 	/**
 	 * This creates a semantic type of {@link VersionType#DYNAMIC} with the specified data columns.
 	 * 
@@ -228,7 +264,7 @@ public class DirectWriteHelper
 	{
 		return makeDynamicSemantic(assemblageConcept, referencedComponent, data, time, null);
 	}
-	
+
 	/**
 	 * This creates a semantic type of {@link VersionType#DYNAMIC} with the specified data columns.
 	 * 
@@ -241,20 +277,34 @@ public class DirectWriteHelper
 	 */
 	public UUID makeDynamicSemantic(UUID assemblageConcept, UUID referencedComponent, DynamicData[] data, long time, UUID uuidForCreatedSemantic)
 	{
-		UUID uuidForCreatedMember = uuidForCreatedSemantic == null ? UuidFactory.getUuidForDynamic(converterUUID.getNamespace(), assemblageConcept, referencedComponent, data,
-				((input, uuid) -> converterUUID.addMapping(input, uuid))) : uuidForCreatedSemantic;
-		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC,
-				uuidForCreatedMember, identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(referencedComponent));
-		MutableDynamicVersion<?> dv = refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
+		UUID uuidForCreatedMember = uuidForCreatedSemantic == null ? UuidFactory.getUuidForDynamic(converterUUID.getNamespace(), assemblageConcept,
+				referencedComponent, data, ((input, uuid) -> converterUUID.addMapping(input, uuid))) : uuidForCreatedSemantic;
+		int referencedComponentNid = identifierService.getNidForUuids(referencedComponent);
+		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, uuidForCreatedMember,
+				identifierService.getNidForUuids(assemblageConcept), referencedComponentNid);
+		MutableDynamicVersion<?> dv = refsetMemberToWrite
+				.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
 		dv.setData(data);
 		indexAndWrite(refsetMemberToWrite);
-		loadStats.addAnnotation(identifiedObjectService.getChronology(identifierService.getNidForUuids(referencedComponent)).get().getIsaacObjectType().toString(),
-				converterUUID.getUUIDCreationString(assemblageConcept));
+		
+		IsaacObjectType objectType = identifierService.getObjectTypeForComponent(referencedComponentNid);
+		String objectTypeAnnotated;
+		if (objectType == IsaacObjectType.SEMANTIC)
+		{
+			objectTypeAnnotated = assemblageService.getSemanticChronology(referencedComponentNid).getVersionType().name();
+		}
+		else
+		{
+			objectTypeAnnotated = objectType.name();
+		}
+		
+		loadStats.addAnnotation(objectTypeAnnotated, getOriginStringForUuid(assemblageConcept));
 		return refsetMemberToWrite.getPrimordialUuid();
 	}
-	
+
 	/**
 	 * create a dynamic semantic entry in the pattern that matches an assemblage dynamic semantic.
+	 * 
 	 * @param assemblageConcept the type of association to create
 	 * @param sourceConcept the source of the association
 	 * @param targetConcept the optional target of the association
@@ -263,31 +313,55 @@ public class DirectWriteHelper
 	 */
 	public UUID makeAssociation(UUID assemblageConcept, UUID sourceConcept, UUID targetConcept, long time)
 	{
-		return makeDynamicSemantic(assemblageConcept, sourceConcept, targetConcept == null ? null : new DynamicData[] {new DynamicUUIDImpl(targetConcept)}, time);
+		return makeDynamicSemantic(assemblageConcept, sourceConcept, targetConcept == null ? null : new DynamicData[] { new DynamicUUIDImpl(targetConcept) },
+				time);
 	}
-	
+
 	/**
-	 * Calls {@link #makeDescription(UUID, String, UUID, UUID, UUID, Status, long, UUID, UUID)} with {@link MetaData#ENGLISH_DIALECT_ASSEMBLAGE____SOLOR} 
-	 *   and {@link MetaData#US_ENGLISH_DIALECT____SOLOR}
+	 * Calls {@link #makeDescription(UUID, String, UUID, UUID, UUID, Status, long, UUID, UUID)} with
+	 * {@link MetaData#ENGLISH_DIALECT_ASSEMBLAGE____SOLOR}
+	 * and {@link MetaData#US_ENGLISH_DIALECT____SOLOR}
+	 * 
 	 * @param concept The concept to attach the description onto
 	 * @param text The text of the description
-	 * @param descriptionType The type of the description - {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
-	 *   or {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE} 
+	 * @param descriptionType The type of the description - {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or
+	 *            {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
+	 *            or {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}
 	 * @param caseSignificance {@link TermAux#DESCRIPTION_NOT_CASE_SENSITIVE} or {@link TermAux#DESCRIPTION_INITIAL_CHARACTER_SENSITIVE}
 	 * @param status the status for the description
 	 * @param time the time for the description
-	 * @param dialectAcceptibility The dialect acceptability of the description.  Ignored if dialect is null.  required if dialect is not null.
-	 *   either {@link TermAux#ACCEPTABLE} or {@link TermAux#PREFERRED}
+	 * @param dialectAcceptibility The dialect acceptability of the description. Ignored if dialect is null. required if dialect is not null.
+	 *            either {@link TermAux#ACCEPTABLE} or {@link TermAux#PREFERRED}
 	 * @return the UUID of the created description
 	 */
 	public UUID makeDescriptionEn(UUID concept, String text, UUID descriptionType, UUID caseSignificance, Status status, long time, UUID dialectAcceptibility)
 	{
-		return makeDescription(concept, text, descriptionType, MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(), caseSignificance, status, time, 
+		return makeDescription(concept, text, descriptionType, MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(), caseSignificance, status, time,
 				MetaData.US_ENGLISH_DIALECT____SOLOR.getPrimordialUuid(), dialectAcceptibility);
 	}
-	
+
+	/**
+	 * Calls {@link #makeDescription(UUID, String, UUID, UUID, UUID, Status, long, UUID, UUID)} with no dialect, no dialect acceptibility,
+	 * and case sentivity of {@link MetaData#NOT_APPLICABLE____SOLOR}
+	 * 
+	 * @param concept The concept to attach the description onto
+	 * @param text The text of the description
+	 * @param descriptionType The type of the description - {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or
+	 *            {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
+	 *            or {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, or a properly specified third-party description type
+	 * @param status the status for the description
+	 * @param time the time for the description
+	 * @return the UUID of the created description
+	 */
+	public UUID makeDescriptionEnNoDialect(UUID concept, String text, UUID descriptionType, Status status, long time)
+	{
+		return makeDescription(concept, text, descriptionType, MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(),
+				MetaData.NOT_APPLICABLE____SOLOR.getPrimordialUuid(), status, time, null, null);
+	}
+
 	/**
 	 * Create a new dynamic semantic of type {@link DynamicConstants#DYNAMIC_COMMENT_ATTRIBUTE} in the corret format.
+	 * 
 	 * @param referencedComponent the item to place the comment on
 	 * @param comment the comment
 	 * @param commentContext the optional comment context
@@ -296,24 +370,25 @@ public class DirectWriteHelper
 	 */
 	public UUID makeComment(UUID referencedComponent, String comment, String commentContext, long time)
 	{
-		return makeDynamicSemantic(DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE.getPrimordialUuid(), referencedComponent, 
-				new DynamicData[] {new DynamicStringImpl(comment),
-						(StringUtils.isBlank(commentContext) ? null : new DynamicStringImpl(commentContext))}, time);
+		return makeDynamicSemantic(DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE.getPrimordialUuid(), referencedComponent,
+				new DynamicData[] { new DynamicStringImpl(comment), (StringUtils.isBlank(commentContext) ? null : new DynamicStringImpl(commentContext)) },
+				time);
 	}
-	
+
 	/**
 	 * @param concept The concept to attach the description onto
 	 * @param text The text of the description
-	 * @param descriptionType The type of the description - {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
-	 *   or {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE} 
+	 * @param descriptionType The type of the description - {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or
+	 *            {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
+	 *            or {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}
 	 * @param language The language concept of the description
-	 * @param caseSignificance {@link TermAux#DESCRIPTION_NOT_CASE_SENSITIVE} or {@link TermAux#DESCRIPTION_INITIAL_CHARACTER_SENSITIVE} or 
-	 *   or {@link TermAux#DESCRIPTION_CASE_SENSITIVE}
+	 * @param caseSignificance {@link TermAux#DESCRIPTION_NOT_CASE_SENSITIVE} or {@link TermAux#DESCRIPTION_INITIAL_CHARACTER_SENSITIVE} or
+	 *            or {@link TermAux#DESCRIPTION_CASE_SENSITIVE}
 	 * @param status the status for the description
 	 * @param time the time for the description
-	 * @param dialect The dialect of the description.  Null to skip making a dialect.
-	 * @param dialectAcceptibility The dialect acceptability of the description.  Ignored if dialect is null.  required if dialect is not null.
-	 *   either {@link TermAux#ACCEPTABLE} or {@link TermAux#PREFERRED}
+	 * @param dialect The dialect of the description. Null to skip making a dialect.
+	 * @param dialectAcceptibility The dialect acceptability of the description. Ignored if dialect is null. required if dialect is not null.
+	 *            either {@link TermAux#ACCEPTABLE} or {@link TermAux#PREFERRED}
 	 * @return the UUID of the created description
 	 */
 	public UUID makeDescription(UUID concept, String text, UUID descriptionType, UUID language, UUID caseSignificance, Status status, long time, UUID dialect,
@@ -323,6 +398,12 @@ public class DirectWriteHelper
 		{
 			throw new RuntimeException("Blank text!");
 		}
+
+		if (descriptionType == null)
+		{
+			throw new RunLevelException("Missing description type for description '" + text + "'");
+		}
+
 		UUID descriptionUuid = UuidFactory.getUuidForDescriptionSemantic(converterUUID.getNamespace(), concept, caseSignificance, descriptionType, language,
 				text, ((input, uuid) -> converterUUID.addMapping(input, uuid)));
 
@@ -341,47 +422,49 @@ public class DirectWriteHelper
 		{
 			UUID dialectUUID = UuidFactory.getUuidForComponentNidSemantic(converterUUID.getNamespace(), dialect, descriptionUuid, dialectAcceptibility,
 					((input, uuid) -> converterUUID.addMapping(input, uuid)));
-			
+
 			SemanticChronologyImpl dialectToWrite = new SemanticChronologyImpl(VersionType.COMPONENT_NID, dialectUUID,
 					identifierService.getNidForUuids(dialect), identifierService.getNidForUuids(descriptionUuid));
 			int dialectStamp = stampService.getStampSequence(status, time, authorNid, moduleNid, pathNid);
 			ComponentNidVersionImpl dialectVersion = dialectToWrite.createMutableVersion(dialectStamp);
-	
+
 			dialectVersion.setComponentNid(identifierService.getNidForUuids(dialectAcceptibility));
 			indexAndWrite(dialectToWrite);
 		}
-		loadStats.addDescription(Get.conceptDescriptionText(identifierService.getNidForUuids(descriptionType)));
+		loadStats.addDescription(getOriginStringForUuid(descriptionType));
 		return descriptionUuid;
 	}
-	
+
 	/**
 	 * Annotate a description with the native description type it came from
+	 * 
 	 * @param description the ISAAC description semantic to be annotated
-	 * @param nativeDescriptionType - the UUID of the concept that represents the native description type.  
-	 *   Must be a child of {@link TermAux#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY}
+	 * @param nativeDescriptionType - the UUID of the concept that represents the native description type.
+	 *            Must be a child of {@link TermAux#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY}
 	 * @param time The time to use for this creation
 	 * @return the identifier of the created object
 	 */
 	public UUID makeExtendedDescriptionTypeAnnotation(UUID description, UUID nativeDescriptionType, long time)
 	{
-		return makeDynamicSemantic(DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getPrimordialUuid(), description, 
-				new DynamicData[] {new DynamicUUIDImpl(nativeDescriptionType)}, time);
+		return makeDynamicSemantic(DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getPrimordialUuid(), description,
+				new DynamicData[] { new DynamicUUIDImpl(nativeDescriptionType) }, time);
 	}
-	
+
 	/**
 	 * Annotate a relationship with the native description type it came from
+	 * 
 	 * @param logicGraph the ISAAC logic graph that the relationship was put into
-	 * @param nativeRelationshipType - the UUID of the concept that represents the native relationship  type.  
-	 *   Must be a child of {@link TermAux#RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY}
+	 * @param nativeRelationshipType - the UUID of the concept that represents the native relationship type.
+	 *            Must be a child of {@link TermAux#RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY}
 	 * @param time The time to use for this creation
 	 * @return the identifier of the created object
 	 */
 	public UUID makeExtendedRelationshipTypeAnnotation(UUID logicGraph, UUID nativeRelationshipType, long time)
 	{
-		return makeDynamicSemantic(DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE.getPrimordialUuid(), logicGraph, 
-				new DynamicData[] {new DynamicUUIDImpl(nativeRelationshipType)}, time);
+		return makeDynamicSemantic(DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE.getPrimordialUuid(), logicGraph,
+				new DynamicData[] { new DynamicUUIDImpl(nativeRelationshipType) }, time);
 	}
-	
+
 	/**
 	 * Ensure that you call {@link #processTaxonomyUpdates()} at some point after using this method.
 	 * 
@@ -393,9 +476,9 @@ public class DirectWriteHelper
 	 */
 	public UUID makeParentGraph(UUID concept, UUID parent, Status status, long time)
 	{
-		return makeParentGraph(concept, Arrays.asList(new UUID[] {parent}), status, time);
+		return makeParentGraph(concept, Arrays.asList(new UUID[] { parent }), status, time);
 	}
-	
+
 	/**
 	 * Ensure that you call {@link #processTaxonomyUpdates()} at some point after using this method.
 	 * 
@@ -424,15 +507,15 @@ public class DirectWriteHelper
 			assertions[i++] = ConceptAssertion(identifierService.getNidForUuids(parentUuid), leb);
 		}
 		NecessarySet(And(assertions));
-		
+
 		LogicalExpression le = leb.build();
 
-		SemanticBuilder<?> sb = semanticBuilderService.getLogicalExpressionBuilder(le, Get.identifierService().getNidForUuids(concept), 
+		SemanticBuilder<?> sb = semanticBuilderService.getLogicalExpressionBuilder(le, identifierService.getNidForUuids(concept),
 				MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid());
 		sb.setStatus(status);
 		sb.setT5Uuid(converterUUID.getNamespace(), ((input, uuid) -> converterUUID.addMapping(input, uuid)));
-		int graphStamp = Get.stampService().getStampSequence(status, time, authorNid, moduleNid, pathNid);
-		SemanticChronology sc = (SemanticChronology)sb.build(graphStamp, new ArrayList<>());
+		int graphStamp = stampService.getStampSequence(status, time, authorNid, moduleNid, pathNid);
+		SemanticChronology sc = (SemanticChronology) sb.build(graphStamp, new ArrayList<>());
 		indexAndWrite(sc);
 		deferredTaxonomyUpdates.add(sc.getNid());
 		loadStats.addGraph();
@@ -447,9 +530,10 @@ public class DirectWriteHelper
 		log.debug("Changing module nid from {} to {}", this.moduleNid, moduleNid);
 		this.moduleNid = moduleNid;
 	}
-	
+
 	/**
-	 * Index and write the Chronology to the store.  This only needs to be called if you have created chronologies outside of this class.
+	 * Index and write the Chronology to the store. This only needs to be called if you have created chronologies outside of this class.
+	 * 
 	 * @param c
 	 */
 	public void indexAndWrite(Chronology c)
@@ -460,20 +544,21 @@ public class DirectWriteHelper
 		}
 		if (c instanceof ConceptChronology)
 		{
-			conceptService.writeConcept((ConceptChronology)c);
+			conceptService.writeConcept((ConceptChronology) c);
 		}
 		else if (c instanceof SemanticChronology)
 		{
-			assemblageService.writeSemanticChronology((SemanticChronology)c);
+			assemblageService.writeSemanticChronology((SemanticChronology) c);
 		}
 		else
 		{
 			throw new RuntimeException("unsupported type " + c);
 		}
 	}
-	
+
 	/**
-	 * Properly update the taxonomy service for graph changes made.  Ensure to call this at some point after calling {@link #makeParentGraph(UUID, List, Status, long)}
+	 * Properly update the taxonomy service for graph changes made. Ensure to call this at some point after calling
+	 * {@link #makeParentGraph(UUID, List, Status, long)}
 	 */
 	public void processTaxonomyUpdates()
 	{
@@ -482,10 +567,10 @@ public class DirectWriteHelper
 		log.debug("Processing deferred taxonomy updates for {} graphs", temp.size());
 		for (int nid : temp)
 		{
-			taxonomyService.updateTaxonomy(Get.assemblageService().getSemanticChronology(nid));
+			taxonomyService.updateTaxonomy(assemblageService.getSemanticChronology(nid));
 		}
 	}
-	
+
 	/**
 	 * @return the load stats object that has details on what has been created by this class.
 	 */
@@ -493,20 +578,37 @@ public class DirectWriteHelper
 	{
 		return loadStats;
 	}
-	
+
+	/**
+	 * Reset the load stats tracking
+	 */
+	public void clearLoadStats()
+	{
+		this.loadStats = new LoadStats();
+	}
+
 	/**
 	 * Set up a hierarchy under {@link MetaData#SOLOR_CONTENT_METADATA____SOLOR} for various assemblage types for a specific terminology import.
+	 * 
 	 * @param terminologyName - The name to use as a prefix for all created metadata concepts
-	 * @param makeAttributeTypes - create the {name} Attribute Types node.  This is used for arbitrary property types.
-	 * @param makeDescriptionTypes - create the {name} Description Types node.  The is used for extended (native) description types.
-	 * @param makeAssociationTypes - create the {name} Association Types node.  This is used for associations/relationships that don't go into the logic graph. 
-	 * @param makeRefsets - create the {name} Refsets node.  This is for all member refset types
-	 * @param makeRelationTypes - create the {name} Relation Types node.  This is used for extended (native) relationship types that were mapped to isA
-	 *   and placed in the logic graph.
+	 * @param makeAttributeTypes - create the {terminologyName} Attribute Types node. This is used for arbitrary property types.
+	 * @param makeDescriptionTypes - create the {terminologyName} Description Types node. The is used for extended (native) description types.
+	 * @param makeDescriptionTypesNative - if {makeDescriptionTypes} is set to true -then when false - configure this as an extended type,
+	 *            by giving the desription types node a parent of {@link MetaData#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR}. When true, does
+	 *            NOT make this description type node a child of {@link MetaData#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR}, rather, just
+	 *            placing it in the terminology metadata hierarchy. In this case, individual terminology types should be created with two parents - one being
+	 *            {@link MetaData#DESCRIPTION_TYPE____SOLOR}, and the other being the concept created here. The description should also be annotated
+	 *            with {@link MetaData#DYNAMIC_DESCRIPTION_CORE_TYPE}
+	 * @param makeAssociationTypes - create the {terminologyName} Association Types node. This is used for associations/relationships that don't go
+	 *            into the logic graph.
+	 * @param makeRefsets - create the {terminologyName} Refsets node. This is for all member refset types
+	 * @param makeRelationTypes - create the {terminologyName} Relation Types node. This is used for extended (native) relationship types that were
+	 *            mapped to isA
+	 *            and placed in the logic graph.
 	 * @param time - the time to use for the creation
 	 */
-	public void makeMetadataHierarchy(String terminologyName, boolean makeAttributeTypes, boolean makeDescriptionTypes, boolean makeAssociationTypes, 
-			boolean makeRefsets, boolean makeRelationTypes, long time)
+	public void makeMetadataHierarchy(String terminologyName, boolean makeAttributeTypes, boolean makeDescriptionTypes, boolean makeDescriptionTypesNative,
+			boolean makeAssociationTypes, boolean makeRefsets, boolean makeRelationTypes, long time)
 	{
 		String rootFsn = terminologyName + " Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG;
 		UUID hierarchyRoot = converterUUID.createNamespaceUUIDFromString(rootFsn, true);
@@ -516,161 +618,183 @@ public class DirectWriteHelper
 			makeConcept(hierarchyRoot, Status.ACTIVE, time);
 			makeDescriptionEn(hierarchyRoot, rootFsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 					MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-			makeDescriptionEn(hierarchyRoot, SemanticTags.stripSemanticTagIfPresent(rootFsn), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-					MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+			makeDescriptionEn(hierarchyRoot, SemanticTags.stripSemanticTagIfPresent(rootFsn),
+					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(),
+					Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
 			makeParentGraph(hierarchyRoot, MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), Status.ACTIVE, time);
 		}
-		
+
 		if (makeAttributeTypes)
 		{
 			String fsn = terminologyName + " Attribute Types" + IBDFCreationUtility.METADATA_SEMANTIC_TAG;
 			log.info("Building attribute types '" + fsn + "'");
-			attributeTypes = Optional.of(converterUUID.createNamespaceUUIDFromString(fsn, true));
-			if (!conceptService.hasConcept(identifierService.assignNid(attributeTypes.get())))
+			attributeTypesNode = Optional.of(converterUUID.createNamespaceUUIDFromString(fsn, true));
+			if (!conceptService.hasConcept(identifierService.assignNid(attributeTypesNode.get())))
 			{
-				makeConcept(attributeTypes.get(), Status.ACTIVE, time);
-				makeDescriptionEn(attributeTypes.get(), fsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeDescriptionEn(attributeTypes.get(), SemanticTags.stripSemanticTagIfPresent(fsn), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeParentGraph(attributeTypes.get(), hierarchyRoot, Status.ACTIVE, time);
+				makeConcept(attributeTypesNode.get(), Status.ACTIVE, time);
+				makeDescriptionEn(attributeTypesNode.get(), fsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+				makeDescriptionEn(attributeTypesNode.get(), SemanticTags.stripSemanticTagIfPresent(fsn),
+						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+				makeParentGraph(attributeTypesNode.get(), hierarchyRoot, Status.ACTIVE, time);
 			}
 		}
-		
+
 		if (makeDescriptionTypes)
 		{
 			String fsn = terminologyName + " Description Types" + IBDFCreationUtility.METADATA_SEMANTIC_TAG;
 			log.info("Building description types '" + fsn + "'");
-			descriptionTypes = Optional.of(converterUUID.createNamespaceUUIDFromString(fsn, true));
-			if (!conceptService.hasConcept(identifierService.assignNid(descriptionTypes.get())))
+			descriptionTypesNode = Optional.of(converterUUID.createNamespaceUUIDFromString(fsn, true));
+			if (!conceptService.hasConcept(identifierService.assignNid(descriptionTypesNode.get())))
 			{
-				makeConcept(descriptionTypes.get(), Status.ACTIVE, time);
-				makeDescriptionEn(descriptionTypes.get(), fsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeDescriptionEn(descriptionTypes.get(), SemanticTags.stripSemanticTagIfPresent(fsn), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeParentGraph(descriptionTypes.get(), 
-						Arrays.asList(new UUID[] {hierarchyRoot, MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getPrimordialUuid()}), Status.ACTIVE, time);
+				makeConcept(descriptionTypesNode.get(), Status.ACTIVE, time);
+				makeDescriptionEn(descriptionTypesNode.get(), fsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+				makeDescriptionEn(descriptionTypesNode.get(), SemanticTags.stripSemanticTagIfPresent(fsn),
+						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+				makeParentGraph(descriptionTypesNode.get(),
+						Arrays.asList(new UUID[] { hierarchyRoot, MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getPrimordialUuid() }),
+						Status.ACTIVE, time);
 			}
 		}
-		
+
 		if (makeAssociationTypes)
 		{
 			String fsn = terminologyName + " Association Types" + IBDFCreationUtility.METADATA_SEMANTIC_TAG;
 			log.info("Building association types '" + fsn + "'");
-			associationTypes = Optional.of(converterUUID.createNamespaceUUIDFromString(fsn, true));
-			if (!conceptService.hasConcept(identifierService.assignNid(associationTypes.get())))
+			associationTypesNode = Optional.of(converterUUID.createNamespaceUUIDFromString(fsn, true));
+			if (!conceptService.hasConcept(identifierService.assignNid(associationTypesNode.get())))
 			{
-				makeConcept(associationTypes.get(), Status.ACTIVE, time);
-				makeDescriptionEn(associationTypes.get(), fsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeDescriptionEn(associationTypes.get(), SemanticTags.stripSemanticTagIfPresent(fsn), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeParentGraph(associationTypes.get(), hierarchyRoot, Status.ACTIVE, time);
+				makeConcept(associationTypesNode.get(), Status.ACTIVE, time);
+				makeDescriptionEn(associationTypesNode.get(), fsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+				makeDescriptionEn(associationTypesNode.get(), SemanticTags.stripSemanticTagIfPresent(fsn),
+						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+				makeParentGraph(associationTypesNode.get(), hierarchyRoot, Status.ACTIVE, time);
 			}
 		}
-		
+
 		if (makeRelationTypes)
 		{
 			String fsn = terminologyName + " Relation Types" + IBDFCreationUtility.METADATA_SEMANTIC_TAG;
 			log.info("Building relation types '" + fsn + "'");
-			relationTypes = Optional.of(converterUUID.createNamespaceUUIDFromString(fsn, true));
-			if (!conceptService.hasConcept(identifierService.assignNid(relationTypes.get())))
+			relationTypesNode = Optional.of(converterUUID.createNamespaceUUIDFromString(fsn, true));
+			if (!conceptService.hasConcept(identifierService.assignNid(relationTypesNode.get())))
 			{
-				makeConcept(relationTypes.get(), Status.ACTIVE, time);
-				makeDescriptionEn(relationTypes.get(), fsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeDescriptionEn(relationTypes.get(), SemanticTags.stripSemanticTagIfPresent(fsn), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeParentGraph(relationTypes.get(), 
-						Arrays.asList(new UUID[] {hierarchyRoot, MetaData.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getPrimordialUuid()}), Status.ACTIVE, time);
+				makeConcept(relationTypesNode.get(), Status.ACTIVE, time);
+				makeDescriptionEn(relationTypesNode.get(), fsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+				makeDescriptionEn(relationTypesNode.get(), SemanticTags.stripSemanticTagIfPresent(fsn),
+						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+				makeParentGraph(relationTypesNode.get(),
+						Arrays.asList(new UUID[] { hierarchyRoot, MetaData.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getPrimordialUuid() }),
+						Status.ACTIVE, time);
 			}
 		}
-		
+
 		if (makeRefsets)
 		{
 			String fsn = terminologyName + " Refsets" + IBDFCreationUtility.METADATA_SEMANTIC_TAG;
 			log.info("Building refsets '" + fsn + "'");
-			refsetTypes = Optional.of(converterUUID.createNamespaceUUIDFromString(fsn, true));
-			if (!conceptService.hasConcept(identifierService.assignNid(refsetTypes.get())))
+			refsetTypesNode = Optional.of(converterUUID.createNamespaceUUIDFromString(fsn, true));
+			if (!conceptService.hasConcept(identifierService.assignNid(refsetTypesNode.get())))
 			{
-				makeConcept(refsetTypes.get(), Status.ACTIVE, time);
-				makeDescriptionEn(refsetTypes.get(), fsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeDescriptionEn(refsetTypes.get(), SemanticTags.stripSemanticTagIfPresent(fsn), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeParentGraph(refsetTypes.get(), 
-						Arrays.asList(new UUID[] {hierarchyRoot, MetaData.SOLOR_ASSEMBLAGE____SOLOR.getPrimordialUuid()}), Status.ACTIVE, time);
+				makeConcept(refsetTypesNode.get(), Status.ACTIVE, time);
+				makeDescriptionEn(refsetTypesNode.get(), fsn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+				makeDescriptionEn(refsetTypesNode.get(), SemanticTags.stripSemanticTagIfPresent(fsn),
+						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+				makeParentGraph(refsetTypesNode.get(), Arrays.asList(new UUID[] { hierarchyRoot, MetaData.SOLOR_ASSEMBLAGE____SOLOR.getPrimordialUuid() }),
+						Status.ACTIVE, time);
 			}
 		}
 	}
-	
+
 	/**
-	* Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
-	* See {@link DynamicUsageDescription} class for more details on this format.
-	* implemented by See {@link DynamicUtility#configureConceptAsDynamicSemantic(int, String, DynamicColumnInfo[], IsaacObjectType, VersionType, int)}
-	* 
-	* @param concept - The concept that will define a dynamic semantic
-	* @param dynamicUsageDescription - The description that describes the purpose of this dynamic semantic
-	* @param columns - optional - the columns of data that this dynamic semantic needs to be able to store.
-	* @param referencedComponentTypeRestriction - optional - any component type restriction info for the columns
-	* @param referencedComponentTypeSubRestriction - optional - any compont sub-type restrictions for the columns
-	* @param time - The time to use for this modification
-	*/
+	 * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
+	 * See {@link DynamicUsageDescription} class for more details on this format.
+	 * implemented by See
+	 * {@link DynamicUtility#configureConceptAsDynamicSemantic(int, String, DynamicColumnInfo[], IsaacObjectType, VersionType, int)}
+	 * 
+	 * @param concept - The concept that will define a dynamic semantic
+	 * @param dynamicUsageDescription - The description that describes the purpose of this dynamic semantic
+	 * @param columns - optional - the columns of data that this dynamic semantic needs to be able to store.
+	 * @param referencedComponentTypeRestriction - optional - any component type restriction info for the columns
+	 * @param referencedComponentTypeSubRestriction - optional - any compont sub-type restrictions for the columns
+	 * @param time - The time to use for this modification
+	 */
 	public void configureConceptAsDynamicAssemblage(UUID concept, String dynamicUsageDescription, DynamicColumnInfo[] columns,
 			IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, long time)
 	{
 		int stampSequence = stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid);
-		List<Chronology> items = Get.service(DynamicUtility.class).configureConceptAsDynamicSemantic(identifierService.getNidForUuids(concept), 
+		List<Chronology> items = Get.service(DynamicUtility.class).configureConceptAsDynamicSemantic(identifierService.getNidForUuids(concept),
 				dynamicUsageDescription, columns, referencedComponentTypeRestriction, referencedComponentTypeSubRestriction, stampSequence);
-		
+
 		for (Chronology c : items)
 		{
 			indexAndWrite(c);
 		}
 	}
-	
+
 	/**
-	* Add all of the necessary metadata semantics onto the specified concept to make it an association.
-	* 
-	* This configures the concept as a dynamicSemantic, and then further adds association metadata.
-	* 
-	* @param concept - The concept that will define a dynamic semantic
-	* @param dynamicUsageDescription - The description that describes the purpose of this dynamic semantic
-	* @param inverseName - optional - the name to use when reading this association in reverse.  Do not create this name if it is identical to the forward name 
-	* @param associationComponentTypeRestriction optional restriction on which types of components can be associated
-	* @param associationComponentTypeSubRestriction  optional sub-restriction on which types of semantics can be associated.
-	* @param time - The time to use for this modification
-	*/
-	public void configureConceptAsAssociation(UUID concept, String dynamicUsageDescription, String inverseName, IsaacObjectType associationComponentTypeRestriction,
-			VersionType associationComponentTypeSubRestriction, long time)
+	 * Add all of the necessary metadata semantics onto the specified concept to make it an association.
+	 * 
+	 * This configures the concept as a dynamicSemantic, and then further adds association metadata.
+	 * 
+	 * @param concept - The concept that will define a dynamic semantic
+	 * @param dynamicUsageDescription - The description that describes the purpose of this dynamic semantic
+	 * @param inverseName - optional - the name to use when reading this association in reverse. Do not create this name if it is identical to the
+	 *            forward name
+	 * @param associationComponentTypeRestriction optional restriction on which types of components can be associated
+	 * @param associationComponentTypeSubRestriction optional sub-restriction on which types of semantics can be associated.
+	 * @param time - The time to use for this modification
+	 */
+	public void configureConceptAsAssociation(UUID concept, String dynamicUsageDescription, String inverseName,
+			IsaacObjectType associationComponentTypeRestriction, VersionType associationComponentTypeSubRestriction, long time)
 	{
 		//Make this a dynamic refex - with the association column info
-		DynamicColumnInfo[] columns = new DynamicColumnInfo[] {
-				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), DynamicDataType.UUID, null, false, true)};
-		configureConceptAsDynamicAssemblage(concept, dynamicUsageDescription, columns, associationComponentTypeRestriction, associationComponentTypeSubRestriction, time);
+		DynamicColumnInfo[] columns = new DynamicColumnInfo[] { new DynamicColumnInfo(0,
+				DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), DynamicDataType.UUID, null, false, true) };
+		configureConceptAsDynamicAssemblage(concept, dynamicUsageDescription, columns, associationComponentTypeRestriction,
+				associationComponentTypeSubRestriction, time);
 
 		//Add this concept to the association refset
 		makeDynamicRefsetMember(DynamicConstants.get().DYNAMIC_ASSOCIATION.getPrimordialUuid(), concept, time);
-		
+
 		//Add inverse name, if provided
 		if (StringUtils.isNotBlank(inverseName))
 		{
 			//If inverse name equals forward (regular name) this is going to blow up...
-			UUID descriptionUUID = makeDescriptionEn(concept, inverseName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
-					MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.ACCEPTABLE____SOLOR.getPrimordialUuid());
+			UUID descriptionUUID = makeDescriptionEn(concept, inverseName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+					MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+					MetaData.ACCEPTABLE____SOLOR.getPrimordialUuid());
 			makeDynamicRefsetMember(DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getPrimordialUuid(), descriptionUUID, time);
 		}
 		associations.add(concept);
 	}
-	
+
 	/**
-	 * The current usage of the {@link MetaData#IDENTIFIER_SOURCE____SOLOR} refset is for {@link StringVersion} semantics 
+	 * The current usage of the {@link MetaData#IDENTIFIER_SOURCE____SOLOR} refset is for {@link StringVersion} semantics
 	 * which happen to contain a value that is an identifier.
 	 * 
 	 * Assemblage concepts marked with this identifier assemblage get special treatment in search patterns.
 	 * 
-	 * You should only call this method if the passed in concept is being used as the assemblage concept for {@link StringVersion} semantics. 
+	 * You should only call this method if the passed in concept is being used as the assemblage concept for {@link StringVersion} semantics.
 	 * 
 	 * @param concept The concept defining a {@link StringVersion} semantic assemblage, which is also carrying identifier data.
 	 * @param time the time to use for making the modifications.
@@ -679,96 +803,301 @@ public class DirectWriteHelper
 	{
 		makeBrittleRefsetMember(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid(), concept, time);
 	}
-	
-	public UUID makeStringAnnotation(UUID assemblageConcept, UUID referencedComponent, String annotation, long time)
+
+	/**
+	 * Creates a new concept to represent a core description type, creates a FQN and regular name, adds parents of
+	 * {@link #getDescriptionTypesNode()} and {@link MetaData#DESCRIPTION____SOLOR}, and annotates the description type
+	 * with the {@link DynamicConstants#DYNAMIC_DESCRIPTION_CORE_TYPE} annotation.
+	 * 
+	 * @param name The name to use for the FQN and Regular Name
+	 * @param altName - optional - additional regular name to add
+	 * @param moduleName The name of the module being loaded - use as the semantic type in the FQN
+	 * @param coreDescriptionType - the core type this new type should be treated as for presentation. Should be one of
+	 *            {@link MetaData#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, {@link MetaData#REGULAR_NAME_DESCRIPTION_TYPE____SOLOR},
+	 *            or {@link MetaData#DEFINITION_DESCRIPTION_TYPE____SOLOR}
+	 * @param time - the commit time
+	 * @return the UUID of the created concept.
+	 */
+	public UUID makeDescriptionTypeConcept(String name, String altName, String moduleName, UUID coreDescriptionType, long time)
+	{
+		UUID concept = makeTypeConcept(name, altName, moduleName, (fName, fConcept) -> createdDescriptionTypes.put(fName, fConcept), time);
+
+		ArrayList<UUID> parents = new ArrayList<>();
+		parents.add(getDescriptionTypesNode().get());
+		parents.add(MetaData.DESCRIPTION____SOLOR.getPrimordialUuid());
+
+		makeParentGraph(concept, parents, Status.ACTIVE, time);
+
+		makeDynamicSemantic(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getPrimordialUuid(), concept,
+				new DynamicData[] { new DynamicUUIDImpl(coreDescriptionType) }, time);
+		return concept;
+	}
+
+	/**
+	 * Creates a new concept to represent an attribute type, which can store one value of data. Adds parents of
+	 * {@link #getAttributeTypesNode()} and {@link MetaData#IDENTIFIER_SOURCE____SOLOR} (if {isIdentifier} is true)
+	 * 
+	 * @param name The name to use for the FQN and Regular Name
+	 * @param altName - optional - additional regular name to add
+	 * @param moduleName The name of the module being loaded - use as the semantic type in the FQN
+	 * @param isIdentifier - if true, mark this attribute as an identifier, (which uses brittle refsets) otherwise,
+	 *            configures it as a dynamic refset that holds one value, of the specified type.
+	 * @param dataType - the data type to store in the annotation - ignored if {isIdentifier} is true.
+	 * @param time - the commit time
+	 * @return the UUID of the created concept.
+	 */
+	public UUID makeAttributeTypeConcept(String name, String altName, String moduleName, boolean isIdentifier, DynamicDataType dataType, long time)
+	{
+		UUID concept = makeTypeConcept(name, altName, moduleName, (fName, fConcept) -> createdAttributeTypes.put(fName, fConcept), time);
+		ArrayList<UUID> parents = new ArrayList<>();
+		parents.add(getAttributeTypesNode().get());
+		if (isIdentifier)
+		{
+			parents.add(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid());
+			makeBrittleRefsetMember(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid(), concept, time);
+		}
+		else
+		{
+			configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(altName) ? name : altName,
+					new DynamicColumnInfo[] { new DynamicColumnInfo(0, concept, dataType, null, true, true) }, null, null, time);
+		}
+
+		makeParentGraph(concept, parents, Status.ACTIVE, time);
+		return concept;
+	}
+
+	/**
+	 * Update the logic graph of an already existing concept, to add another parent to it, and add another FQN to it, that includes a semantic
+	 * tag for the module re-using the constant.
+	 * 
+	 * @param existingConstant the existing concept
+	 * @param moduleName the module being loaded - used to add another description to the constant
+	 * @param time the commit time
+	 * @param stampCoordinate the stamp coordinate to use when reading the current graph
+	 * @return the UUID of the updated graph
+	 */
+	public UUID linkToExistingAttributeTypeConcept(ConceptSpecification existingConstant, String moduleName, long time, StampCoordinate stampCoordinate)
+	{
+		List<LatestVersion<LogicGraphVersionImpl>> lgs = assemblageService.getSnapshot(LogicGraphVersionImpl.class, stampCoordinate)
+				.getLatestSemanticVersionsForComponentFromAssemblage(existingConstant.getNid(), MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid());
+
+		if (lgs.size() == 0)
+		{
+			throw new RuntimeException("No existing parent?");
+		}
+		else if (lgs.size() > 1)
+		{
+			throw new RuntimeException("Unexpected number of stated logic graphs");
+		}
+
+		Set<Integer> existingParents = Frills.getParentConceptNidsFromLogicGraph(lgs.get(0).get());
+
+		final LogicalExpressionBuilder leb = logicalExpressionBuilderService.getLogicalExpressionBuilder();
+
+		final Assertion[] assertions = new Assertion[existingParents.size() + 1];
+
+		int i = 0;
+		for (Integer parent : existingParents)
+		{
+			assertions[i++] = ConceptAssertion(parent, leb);
+		}
+		assertions[i] = ConceptAssertion(identifierService.getNidForUuids(getAttributeTypesNode().get()), leb);
+		NecessarySet(And(assertions));
+
+		LogicalExpression le = leb.build();
+
+		int stamp = stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid);
+		MutableLogicGraphVersion mlgv = lgs.get(0).get().getChronology().createMutableVersion(stamp);
+		mlgv.setGraphData(le.getData(DataTarget.INTERNAL));
+		indexAndWrite(mlgv.getChronology());
+		deferredTaxonomyUpdates.add(mlgv.getNid());
+		loadStats.addGraph();
+
+		String currentName = SemanticTags.stripSemanticTagIfPresent(existingConstant.getFullyQualifiedName());
+
+		makeDescriptionEn(existingConstant.getPrimordialUuid(), currentName + " (" + moduleName + ")",
+				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.ACCEPTABLE____SOLOR.getPrimordialUuid());
+
+		createdAttributeTypes.put(currentName, existingConstant.getPrimordialUuid());
+
+		return mlgv.getPrimordialUuid();
+	}
+
+	/**
+	 * Creates a new concept to represent a refset type, (essentially the same as an attribute type, except it stores no data).
+	 * Adds a parent of {@link #getRefsetTypesNode()}
+	 * 
+	 * @param name The name to use for the FQN and Regular Name
+	 * @param altName - optional - additional regular name to add
+	 * @param moduleName The name of the module being loaded - use as the semantic type in the FQN
+	 * @param time - the commit time
+	 * @return the UUID of the created concept.
+	 */
+	public UUID makeRefsetTypeConcept(String name, String altName, String moduleName, long time)
+	{
+		UUID concept = makeTypeConcept(name, altName, moduleName, (fName, fConcept) -> createdRefsetTypes.put(fName, fConcept), time);
+		ArrayList<UUID> parents = new ArrayList<>();
+		parents.add(getRefsetTypesNode().get());
+		configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(altName) ? name : altName, new DynamicColumnInfo[] {}, null, null, time);
+
+		makeParentGraph(concept, parents, Status.ACTIVE, time);
+		return concept;
+	}
+
+	/**
+	 * Internal helper method for making the various type concepts
+	 * 
+	 * @param name
+	 * @param altName
+	 * @param moduleName
+	 * @param typeListUpdate
+	 * @param time
+	 * @return
+	 */
+	private UUID makeTypeConcept(String name, String altName, String moduleName, BiFunction<String, UUID, UUID> typeListUpdate, long time)
+	{
+		String fqn = name + " (" + moduleName + ")";
+		UUID concept = converterUUID.createNamespaceUUIDFromString(fqn);
+		makeConcept(concept, Status.ACTIVE, time);
+
+		makeDescriptionEn(concept, fqn, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+		makeDescriptionEn(concept, name, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
+
+		if (typeListUpdate.apply(name, concept) != null)
+		{
+			throw new RuntimeException("The type '" + name + "' is already mapped.  Type names must be unique!");
+		}
+		if (StringUtils.isNotBlank(altName) && !name.equals(altName))
+		{
+			makeDescriptionEn(concept, altName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+					MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+					MetaData.ACCEPTABLE____SOLOR.getPrimordialUuid());
+			if (typeListUpdate.apply(altName, concept) != null)
+			{
+				throw new RuntimeException("The type '" + altName + "' is already mapped.  Type names must be unique!");
+			}
+		}
+		return concept;
+	}
+
+	public UUID makeBrittleStringAnnotation(UUID assemblageConcept, UUID referencedComponent, String annotation, long time)
 	{
 		UUID uuidForCreatedMember = UuidFactory.getUuidForStringSemantic(converterUUID.getNamespace(), assemblageConcept, referencedComponent, annotation,
 				((input, uuid) -> converterUUID.addMapping(input, uuid)));
-		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.STRING,
-				uuidForCreatedMember, identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(referencedComponent));
-		MutableStringVersion version = refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
+		final int referencedComponentNid = identifierService.getNidForUuids(referencedComponent);
+		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.STRING, uuidForCreatedMember,
+				identifierService.getNidForUuids(assemblageConcept), referencedComponentNid);
+		MutableStringVersion version = refsetMemberToWrite
+				.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
 		version.setString(annotation);
 		indexAndWrite(refsetMemberToWrite);
-		loadStats.addRefsetMember(Get.conceptDescriptionText(identifierService.getNidForUuids(assemblageConcept)));
+		IsaacObjectType objectType = identifierService.getObjectTypeForComponent(referencedComponentNid);
+		String objectTypeAnnotated;
+		if (objectType == IsaacObjectType.SEMANTIC)
+		{
+			objectTypeAnnotated = assemblageService.getSemanticChronology(referencedComponentNid).getVersionType().name();
+		}
+		else
+		{
+			objectTypeAnnotated = objectType.name();
+		}
+		loadStats.addAnnotation(objectTypeAnnotated, getOriginStringForUuid(assemblageConcept));
 		return refsetMemberToWrite.getPrimordialUuid();
 	}
-	
+
 	public void makeTerminologyMetadataAnnotations(UUID terminologyModuleVersionConcept, String converterSourceArtifactVersion,
-			Optional<String> converterSourceReleaseDate, Optional<String> converterOutputArtifactVersion, Optional<String> converterOutputArtifactClassifier, long time)
+			Optional<String> converterSourceReleaseDate, Optional<String> converterOutputArtifactVersion, Optional<String> converterOutputArtifactClassifier,
+			long time)
 	{
-		makeStringAnnotation(MetaData.SOURCE_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept, converterSourceArtifactVersion, time);
+		makeBrittleStringAnnotation(MetaData.SOURCE_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
+				converterSourceArtifactVersion, time);
 		if (converterOutputArtifactVersion.isPresent() && StringUtils.isNotBlank(converterOutputArtifactVersion.get()))
 		{
-			makeStringAnnotation(MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept, 
+			makeBrittleStringAnnotation(MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
 					converterOutputArtifactVersion.get(), time);
 		}
-		makeStringAnnotation(MetaData.CONVERTER_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept, VersionFinder.findProjectVersion(true), time);
+		makeBrittleStringAnnotation(MetaData.CONVERTER_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
+				VersionFinder.findProjectVersion(true), time);
 
 		if (converterOutputArtifactClassifier.isPresent() && StringUtils.isNotBlank(converterOutputArtifactClassifier.get()))
 		{
-			makeStringAnnotation(MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept, 
+			makeBrittleStringAnnotation(MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
 					converterOutputArtifactClassifier.get(), time);
 		}
 		if (converterSourceReleaseDate.isPresent() && StringUtils.isNotBlank(converterSourceReleaseDate.get()))
 		{
-			makeStringAnnotation(MetaData.SOURCE_RELEASE_DATE____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept, 
+			makeBrittleStringAnnotation(MetaData.SOURCE_RELEASE_DATE____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
 					converterSourceReleaseDate.get(), time);
 		}
 	}
 
 	/**
-	 * @return The UUID of the association types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)}, 
-	 * if it has been created.
+	 * @return The UUID of the association types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)},
+	 *         if it has been created.
 	 */
-	public Optional<UUID> getAssociationTypes()
+	public Optional<UUID> getAssociationTypesNode()
 	{
-		return associationTypes;
+		return associationTypesNode;
 	}
 
 	/**
-	 * @return The UUID of the attribute types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)}, 
-	 * if it has been created.
+	 * @return The UUID of the attribute types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)},
+	 *         if it has been created.
 	 */
-	public Optional<UUID> getAttributeTypes()
+	public Optional<UUID> getAttributeTypesNode()
 	{
-		return attributeTypes;
+		return attributeTypesNode;
 	}
 
 	/**
-	 * @return The UUID of the description types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)}, 
-	 * if it has been created.
+	 * @return The UUID of the description types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)},
+	 *         if it has been created.
 	 */
-	public Optional<UUID> getDescriptionTypes()
+	public Optional<UUID> getDescriptionTypesNode()
 	{
-		return descriptionTypes;
+		return descriptionTypesNode;
 	}
 
 	/**
-	 * @return The UUID of the refset types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)}, 
-	 * if it has been created.
+	 * @return The UUID of the refset types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)},
+	 *         if it has been created.
 	 */
-	public Optional<UUID> getRefsetTypes()
+	public Optional<UUID> getRefsetTypesNode()
 	{
-		return refsetTypes;
+		return refsetTypesNode;
 	}
 
 	/**
-	 * @return The UUID of the relation types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)}, 
-	 * if it has been created.
+	 * @return The UUID of the relation types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)},
+	 *         if it has been created.
 	 */
-	public Optional<UUID> getRelationTypes()
+	public Optional<UUID> getRelationTypesNode()
 	{
-		return relationTypes;
+		return relationTypesNode;
 	}
-	
+
 	/**
-	 * @return true, if the concept was configured {@link #configureConceptAsAssociation(UUID, String, String, IsaacObjectType, VersionType, long)} 
-	 * as an association
+	 * @return true, if the concept was configured {@link #configureConceptAsAssociation(UUID, String, String, IsaacObjectType, VersionType, long)}
+	 *         as an association
 	 * @param concept the concept to check
 	 */
 	public boolean isAssociation(UUID concept)
 	{
 		return associations.contains(concept);
+	}
+
+	/**
+	 * Return the UUID of the concept that matches the description created by {@link #makeDescriptionTypeConcept(String, String, String, UUID, long)}
+	 * 
+	 * @param descriptionName the name or altName of the description
+	 * @return the UUID of the concept that represents it
+	 */
+	public UUID getDescriptionType(String descriptionName)
+	{
+		return createdDescriptionTypes.get(descriptionName);
 	}
 
 	/**
@@ -778,5 +1107,20 @@ public class DirectWriteHelper
 	{
 		log.debug("Changing author nid from {} to {}", this.authorNid, authorNid);
 		this.authorNid = authorNid;
+	}
+
+	private String getOriginStringForUuid(UUID uuid)
+	{
+		String temp = converterUUID.getUUIDCreationString(uuid);
+		if (temp != null)
+		{
+			String[] parts = temp.split(":");
+			if (parts != null && parts.length > 1)
+			{
+				return parts[parts.length - 1];
+			}
+			return temp;
+		}
+		return Get.conceptDescriptionText(identifierService.getNidForUuids(uuid));
 	}
 }

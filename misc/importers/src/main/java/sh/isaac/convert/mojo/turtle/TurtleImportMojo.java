@@ -83,7 +83,6 @@ import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DataWriteListenerImpl;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.convert.directUtils.LoggingConfig;
-import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
@@ -454,7 +453,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				}
 				
 				//Set up our metadata hierarchy
-				dwh.makeMetadataHierarchy(title, true, true, true, true, true, releaseTime);
+				dwh.makeMetadataHierarchy(title, true, true, false, true, true, true, releaseTime);
 				
 				//Need to make the root concept, and its rel, prior to adding its descriptions - also the coregroup concept
 				rootConcept = getConceptUUID(preferredNamespaceUri, subject);  //make sure our nid is assigned to the combination of both nids.
@@ -507,7 +506,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 						dwh.makeConcept(stringUUID, Status.ACTIVE, releaseTime);
 						dwh.makeDescriptionEn(stringUUID, entry.getKey(), fsn, insensitive, Status.ACTIVE, releaseTime, preferred);
 						dwh.makeDescriptionEn(stringUUID, entry.getValue(), regularName, insensitive, Status.ACTIVE, releaseTime, preferred);
-						dwh.makeParentGraph(stringUUID, dwh.getRelationTypes().get(), Status.ACTIVE, releaseTime);
+						dwh.makeParentGraph(stringUUID, dwh.getRelationTypesNode().get(), Status.ACTIVE, releaseTime);
 					}
 				}
 				
@@ -519,7 +518,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 						dwh.makeConcept(refsetId, Status.ACTIVE, releaseTime);
 						dwh.makeDescriptionEn(refsetId, entry.getKey(), fsn, insensitive, Status.ACTIVE, releaseTime, preferred);
 						dwh.makeDescriptionEn(refsetId, entry.getValue(), regularName, insensitive, Status.ACTIVE, releaseTime, preferred);
-						dwh.makeParentGraph(refsetId, dwh.getRefsetTypes().get(), Status.ACTIVE, releaseTime);
+						dwh.makeParentGraph(refsetId, dwh.getRefsetTypesNode().get(), Status.ACTIVE, releaseTime);
 						dwh.configureConceptAsDynamicAssemblage(refsetId, "Refset", null, null, null, releaseTime);
 					}
 				}
@@ -544,13 +543,13 @@ public class TurtleImportMojo extends ConverterBaseMojo
 									parentStatements.add(s);
 								}
 							}
-							writeParentGraph(entry.getKey(), associationUUID, parentStatements, new UUID[] {dwh.getAssociationTypes().get()}, releaseTime);
+							writeParentGraph(entry.getKey(), associationUUID, parentStatements, new UUID[] {dwh.getAssociationTypesNode().get()}, releaseTime);
 						}
 						else
 						{
 							dwh.makeDescriptionEn(associationUUID, entry.getKey(), fsn, insensitive, Status.ACTIVE, releaseTime, preferred);
 							dwh.makeDescriptionEn(associationUUID, entry.getValue(), regularName, insensitive, Status.ACTIVE, releaseTime, preferred);
-							dwh.makeParentGraph(associationUUID, dwh.getAssociationTypes().get(), Status.ACTIVE, releaseTime);
+							dwh.makeParentGraph(associationUUID, dwh.getAssociationTypesNode().get(), Status.ACTIVE, releaseTime);
 						}
 						dwh.configureConceptAsAssociation(associationUUID, entry.getKey(), null, IsaacObjectType.CONCEPT, null, releaseTime);
 					}
@@ -574,7 +573,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 									parentStatements.add(s);
 								}
 							}
-							writeParentGraph(entry.getKey(), dynamicSemenatic, parentStatements, new UUID[] {dwh.getAttributeTypes().get()}, releaseTime);
+							writeParentGraph(entry.getKey(), dynamicSemenatic, parentStatements, new UUID[] {dwh.getAttributeTypesNode().get()}, releaseTime);
 						}
 						else
 						{
@@ -583,7 +582,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 							{
 								dwh.makeDescriptionEn(dynamicSemenatic, entry.getValue().getNiceName(), regularName, insensitive, Status.ACTIVE, releaseTime, preferred);
 							}
-							dwh.makeParentGraph(dynamicSemenatic, dwh.getAttributeTypes().get(), Status.ACTIVE, releaseTime);
+							dwh.makeParentGraph(dynamicSemenatic, dwh.getAttributeTypesNode().get(), Status.ACTIVE, releaseTime);
 						}
 						
 						dwh.configureConceptAsDynamicAssemblage(dynamicSemenatic, "Stores anonymous RDF node data", 
@@ -610,13 +609,13 @@ public class TurtleImportMojo extends ConverterBaseMojo
 									parentStatements.add(s);
 								}
 							}
-							writeParentGraph(entry.getKey(), uuid, parentStatements, new UUID[] {dwh.getDescriptionTypes().get()}, releaseTime);
+							writeParentGraph(entry.getKey(), uuid, parentStatements, new UUID[] {dwh.getDescriptionTypesNode().get()}, releaseTime);
 						}
 						else 
 						{
 							dwh.makeDescriptionEn(uuid, entry.getKey(), fsn, insensitive, Status.ACTIVE, releaseTime, preferred);
 							dwh.makeDescriptionEn(uuid, entry.getValue().getKey(), regularName, insensitive, Status.ACTIVE, releaseTime, preferred);
-							dwh.makeParentGraph(uuid, dwh.getDescriptionTypes().get(), Status.ACTIVE, releaseTime);
+							dwh.makeParentGraph(uuid, dwh.getDescriptionTypesNode().get(), Status.ACTIVE, releaseTime);
 						}
 					}
 				}
@@ -682,7 +681,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	
 			if (converterUUID != null && this.outputDirectory != null)
 			{
-				ConsoleUtil.println("Dumping UUID Debug File");
+				log.info("Dumping UUID Debug File");
 				converterUUID.dump(this.outputDirectory, "TurtleUUID");
 				converterUUID.clearCache();
 			}
@@ -971,7 +970,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 
 			if (writeParentGraphs) 
 			{
-				writeParentGraph(subjectFQN, concept, parentStatements, (madeRefset ? new UUID[] {dwh.getRefsetTypes().get()} : null), time);
+				writeParentGraph(subjectFQN, concept, parentStatements, (madeRefset ? new UUID[] {dwh.getRefsetTypesNode().get()} : null), time);
 			}
 			return concept;
 		}

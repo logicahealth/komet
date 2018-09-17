@@ -37,7 +37,6 @@ public class LoggingConfig
 	 */
 	public static void configureLogging(File outputDirectory, String converterOutputArtifactClassifier)
 	{
-		
 		LoggerContext lc = (LoggerContext) LogManager.getContext(false);
 		Appender a = lc.getConfiguration().getAppender("mylogger");
 		((org.apache.logging.log4j.core.config.AbstractConfiguration)lc.getConfiguration()).removeAppender("mylogger");  //Clean up from a previous run

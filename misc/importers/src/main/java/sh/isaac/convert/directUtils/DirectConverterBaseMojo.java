@@ -1,0 +1,346 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * You may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
+ *
+ * US Veterans Health Administration contributions by government employees
+ * are work of the U.S. Government and are not subject to copyright
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
+ * 
+ * Contribution by contractors to the US Veterans Health Administration
+ * during this period are contractually contributed under the
+ * Apache License, Version 2.0.
+ *
+ * See: https://www.usa.gov/government-works
+ * 
+ * Contributions prior to 2013:
+ *
+ * Copyright (C) International Health Terminology Standards Development Organisation.
+ * Licensed under the Apache License, Version 2.0.
+ *
+ */
+
+package sh.isaac.convert.directUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.FileUtils;
+import sh.isaac.MetaData;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
+import sh.isaac.api.constants.DatabaseInitialization;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
+import sh.isaac.model.configuration.StampCoordinates;
+
+/**
+ *
+ * {@link DirectConverterBaseMojo}
+ *
+ * Base mojo class with shared parameters for reuse by terminology specific converters.
+ * 
+ * This base mojo is intended for converters that have been rewritten as "direct" importers.
+ *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ */
+public abstract class DirectConverterBaseMojo extends AbstractMojo
+{
+	protected Logger log = LogManager.getLogger();
+
+	protected ConverterUUID converterUUID;
+	protected DirectWriteHelper dwh;
+
+	//Variables for the progress printer
+	private boolean runningInMaven = false;
+	private boolean disableFancyConsoleProgress = (System.console() == null);
+	private int printsSinceReturn = 0;
+	private int lastStatus;
+	
+	protected StampCoordinate readbackCoordinate;
+
+	/**
+	 * Location to write the output file.
+	 */
+	@Parameter(required = true, defaultValue = "${project.build.directory}")
+	protected File outputDirectory;
+
+	/**
+	 * Location of the input source file(s). May be a file or a directory, depending on the specific loader. Usually a
+	 * directory.
+	 */
+	@Parameter(required = true)
+	protected File inputFileLocation;
+
+	/**
+	 * Output artifactId.
+	 */
+	@Parameter(required = true, defaultValue = "${project.artifactId}")
+	protected String converterOutputArtifactId;
+
+	/**
+	 * Loader version number.
+	 */
+	@Parameter(required = true, defaultValue = "${loader.version}")
+	protected String converterVersion;
+
+	/**
+	 * Converter result version number.
+	 */
+	@Parameter(required = true, defaultValue = "${project.version}")
+	protected String converterOutputArtifactVersion;
+
+	/**
+	 * Converter result classifier.
+	 */
+	@Parameter(required = false, defaultValue = "${resultArtifactClassifier}")
+	protected String converterOutputArtifactClassifier;
+
+	/**
+	 * Converter source artifact version.
+	 */
+	@Parameter(required = true, defaultValue = "${sourceData.version}")
+	protected String converterSourceArtifactVersion;
+
+	/**
+	 * Set '-Dsdp' (skipUUIDDebugPublish) on the command line, to prevent the publishing of the debug UUID map (it will
+	 * still be created, and written to a file) At the moment, this param is never used in code - it is just used as a
+	 * pom trigger (but documented here).
+	 */
+	@Parameter(required = false, defaultValue = "${sdp}")
+	private String createDebugUUIDMapSkipPublish;
+
+	/**
+	 * Set '-DskipUUIDDebug' on the command line, to disable the in memory UUID Debug map entirely (this disables UUID
+	 * duplicate detection, but significantly cuts the required RAM overhead to run a loader).
+	 */
+	@Parameter(required = false, defaultValue = "${skipUUIDDebug}")
+	private String skipUUIDDebugMap;
+
+	/**
+	 * Execute.
+	 *
+	 * @throws MojoExecutionException the mojo execution exception
+	 */
+	@Override
+	public void execute() throws MojoExecutionException
+	{
+		runningInMaven = true;
+		try
+		{
+			// Set up the output
+			if (!this.outputDirectory.exists())
+			{
+				this.outputDirectory.mkdirs();
+			}
+
+			LoggingConfig.configureLogging(outputDirectory, converterOutputArtifactClassifier);
+			
+			log.info(this.getClass().getName() + " converter begins in maven mode");
+			
+			converterUUID = Get.service(ConverterUUID.class);
+			converterUUID.clearCache();
+			converterUUID.configureNamespace(UuidT5Generator.PATH_ID_FROM_FS_DESC);
+
+			converterUUID.setUUIDMapState(
+					((this.skipUUIDDebugMap == null) || (this.skipUUIDDebugMap.length() == 0)) ? true : !Boolean.parseBoolean(this.skipUUIDDebugMap));
+
+			if (!converterUUID.isUUIDMapEnabled())
+			{
+				log.info("The UUID Debug map is disabled - this also prevents duplicate ID detection");
+			}
+
+			String outputName = converterOutputArtifactId
+					+ (StringUtils.isBlank(converterOutputArtifactClassifier) ? "" : "-" + converterOutputArtifactClassifier) + "-"
+					+ converterOutputArtifactVersion;
+			Path ibdfFileToWrite = new File(outputDirectory, outputName + ".ibdf").toPath();
+			ibdfFileToWrite.toFile().delete();
+
+			log.info("Writing IBDF to " + ibdfFileToWrite.toFile().getCanonicalPath());
+
+			File file = new File(outputDirectory, "isaac-db");
+			// make sure this is empty
+			FileUtils.deleteDirectory(file);
+
+			Get.configurationService().setDataStoreFolderPath(file.toPath());
+
+			LookupService.startupPreferenceProvider();
+
+			Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
+
+			LookupService.startupIsaac();
+			
+			readbackCoordinate = StampCoordinates.getDevelopmentLatest();
+
+			// Don't need to build indexes
+			for (IndexBuilderService ibs : LookupService.getServices(IndexBuilderService.class))
+			{
+				ibs.setEnabled(false);
+			}
+
+			DataWriteListenerImpl listener = new DataWriteListenerImpl(ibdfFileToWrite, null);
+
+			// we register this after the metadata has already been written.
+			LookupService.get().getService(DataStore.class).registerDataWriteListener(listener);
+
+			convertContent();
+
+			LookupService.shutdownSystem();
+
+			listener.close();
+		}
+		catch (Exception ex)
+		{
+			throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
+		}
+	}
+
+	/**
+	 * Where the logic should be implemented to actually do the conversion
+	 * @throws IOException 
+	 */
+	protected abstract void convertContent() throws IOException;
+	
+	/**
+	 * Create the version specific module concept, and add the loader metadata to it.
+	 * @param name
+	 * @param parentModule
+	 * @param releaseTime
+	 * @return
+	 */
+	protected UUID setupModule(String name, UUID parentModule, long releaseTime)
+	{
+		//Create a module for this version.
+		String fullName = name + " " + converterSourceArtifactVersion + " module";
+		UUID versionModule = converterUUID.createNamespaceUUIDFromString(fullName);
+		int moduleNid = Get.identifierService().assignNid(versionModule);
+		dwh.changeModule(moduleNid);  //change to the version specific module for all future work.
+		
+		//Actually create the module concept
+		dwh.makeConcept(versionModule, Status.ACTIVE, releaseTime);
+		dwh.makeDescriptionEnNoDialect(versionModule, fullName + " (" + ConceptProxy.METADATA_SEMANTIC_TAG + ")", 
+				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+				Status.ACTIVE, releaseTime);
+		dwh.makeDescriptionEnNoDialect(versionModule, fullName, 
+				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+				Status.ACTIVE, releaseTime);
+		dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
+		
+		dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, Optional.of(new Date(releaseTime).toString()), 
+				Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), releaseTime);
+		
+		return versionModule;
+	}
+
+	/**
+	 * Should be called after calling showProgress(), but prior to logging anything else, to advance the console prior to the log output.
+	 * Does nothing if not running on a console in maven mode
+	 */
+	protected void advanceProgressLine()
+	{
+		if (runningInMaven && printsSinceReturn > 0)
+		{
+			System.out.println();
+			printsSinceReturn = 0;
+		}
+	}
+
+	/**
+	 * Can be called by converters so show progress on a console in maven mode
+	 * Does nothing if not running on a console in maven mode
+	 */
+	protected void showProgress()
+	{
+		if (runningInMaven)
+		{
+			char c;
+
+			switch (lastStatus)
+			{
+				case 0:
+					c = '/';
+					break;
+
+				case 1:
+					c = '-';
+					break;
+
+				case 2:
+					c = '\\';
+					break;
+
+				case 3:
+					c = '|';
+					break;
+
+				default :  // shouldn't be used
+					c = '-';
+					break;
+			}
+
+			lastStatus++;
+
+			if (lastStatus > 3)
+			{
+				lastStatus = 0;
+			}
+
+			if (disableFancyConsoleProgress)
+			{
+				System.out.print(".");
+				printsSinceReturn++;
+
+				if (printsSinceReturn >= 75)
+				{
+					advanceProgressLine();
+				}
+			}
+			else
+			{
+				if (printsSinceReturn == 0)
+				{
+					System.out.print(c);
+				}
+				else
+				{
+					System.out.print("\r" + c);
+				}
+				printsSinceReturn++;
+			}
+		}
+		else
+		{
+			//TODO maybe provide a progress bar?
+		}
+	}
+}
