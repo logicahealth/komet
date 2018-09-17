@@ -68,13 +68,17 @@ public class ExportViewController {
 
     @FXML
     public void exportData(){
-
-        Get.executor().execute(DirectExporterFactory.GetRF2DirectExporter(
-                this.manifold,
-                this.selectedDirectory,
-                this.exportTypeChoiceBox.getSelectionModel().getSelectedItem().toString()
-        ));
-
+        switch(this.exportTypeChoiceBox.getSelectionModel().getSelectedItem()){
+            case RF2:
+                Get.executor().execute(DirectExporterFactory.GetRF2DirectExporter(
+                        this.manifold,
+                        this.selectedDirectory,
+                        this.exportTypeChoiceBox.getSelectionModel().getSelectedItem().toString()
+                ));
+                break;
+            case SRF:
+                break;
+        }
         this.exportStage.close();
     }
 
