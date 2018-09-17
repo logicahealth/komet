@@ -79,6 +79,7 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.DatabaseImplementation;
@@ -960,6 +961,12 @@ public class FileSystemDataStore
       int value = nidToAssemblageNidMap.get(nid);
       if (value != Integer.MAX_VALUE) {
          return OptionalInt.of(value);
+      }
+      if (nid == Get.identifierService().assignNid(UUID.fromString("24eb96e0-8770-405a-94e4-1eff3c1bc6e2")) ||
+              nid == Get.identifierService().assignNid(UUID.fromString("6e2f04f7-28dd-4318-8576-c5adf02511bd")) ||
+              nid == Get.identifierService().assignNid(UUID.fromString("263c355e-19ca-4892-88a6-572ecb035fd0"))) {
+        return OptionalInt.of(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+
       }
       return OptionalInt.empty();
    }
