@@ -50,8 +50,6 @@ import java.util.zip.ZipFile;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.glassfish.hk2.api.PerLookup;
-import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -76,8 +74,8 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Mojo(name = "convert-CPT-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
-@Service
-@PerLookup
+//This implements DirectConverter, but isn't a service nor a singleton due to maven dependencies getting cranky.  See the extension of this class
+//for the HK2 pattern.
 public class CPTImportMojoDirect extends DirectConverterBaseMojo implements DirectConverter
 {
 	/**
@@ -87,7 +85,6 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	{
 		
 	}
-	
 	
 	/**
 	 * A constructor for runtime usage
@@ -117,8 +114,6 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
 		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
 	}
-	
-	
 	
 	@Override
 	public SupportedConverterTypes[] getSupportedTypes()
@@ -181,26 +176,26 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		}
 		
 		//Right now, we are configured for the CPT grouping modules nid
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID);
+		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, "CPT");
 		
 		setupModule("CPT", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), contentTime);
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy("CPT", true, true, true, false, true, false, contentTime);
+		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept("LONGULT", "Long Description Upper/Lower Case", "CPT",
+		dwh.makeDescriptionTypeConcept("LONGULT", "Long Description Upper/Lower Case",
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), contentTime);
 		
-		dwh.makeDescriptionTypeConcept("MEDU", "Medium Description Upper Case",  "CPT",
+		dwh.makeDescriptionTypeConcept("MEDU", "Medium Description Upper Case",
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), contentTime);
 		
-		dwh.makeDescriptionTypeConcept("SHORTU", "Short Description Upper Case",  "CPT",
-				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), contentTime);
+		dwh.makeDescriptionTypeConcept("SHORTU", "Short Description Upper Case",
+				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), contentTime);
 		
-		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, "CPT", contentTime, readbackCoordinate);
+		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept("All CPT Concepts", null, "CPT", contentTime);
+		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept("All CPT Concepts", null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
 		final UUID cptRootConcept = dwh.makeConceptEnNoDialect("CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 

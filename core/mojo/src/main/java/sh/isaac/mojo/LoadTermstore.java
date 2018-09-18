@@ -65,7 +65,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import com.cedarsoftware.util.io.JsonWriter;
-import java.util.concurrent.Future;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -447,145 +446,180 @@ public class LoadTermstore
                             final NidSet sequences = Get.assemblageService()
                                                                    .getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(),
                                                                             statedNid);
-
                             if (sequences.size() == 1 && sequences.contains(sc.getNid())) {
                                // not a duplicate, just an index for itself. 
-                            } else if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
-                               duplicateCount++;
-                               final List<LogicalExpression> listToMerge = new ArrayList<>();
-
-                               listToMerge.add(getLatestLogicalExpression(sc));
-                               getLog().debug("\nDuplicate: " + sc);
-                               sequences.stream()
-                                        .forEach(
-                                            (semanticSequence) -> listToMerge.add(
-                                                getLatestLogicalExpression(Get.assemblageService()
-                                                      .getSemanticChronology(semanticSequence))));
-                               getLog().debug("Duplicates: " + listToMerge);
-
-                               if (listToMerge.size() > 2) {
-                                  throw new UnsupportedOperationException("Can't merge list of size: " +
-                                        listToMerge.size() + "\n" + listToMerge);
+                               //However, it likely means there are multiple versions of a single item.
+                               //in the case where there are multiple versions on a metadata concept, we likely want to merge 
+                               //together the isA relationships on the metadata.
+                              if (sc.getVersionList().size() > 1) {
+                                 final List<LogicalExpression> listToMerge = new ArrayList<>();
+                                 boolean foundMetadataModule = false;
+                                 for (Version lgv : sc.getVersionList()) {
+                                    //We may need to also check for membership in the Metadata Hierarchy, in the future...
+                                    if (lgv.getModuleNid() == TermAux.SOLOR_MODULE.getNid()) {
+                                       foundMetadataModule = true;
+                                    }
+                                    listToMerge.add(((LogicGraphVersion) lgv).getLogicalExpression());
+                              }
+                              if (foundMetadataModule) {
+                                 //This involves metadata, go ahead and merge the versions.
+                                 Set<Integer> mergedParents = new HashSet<>();
+                                 for (LogicalExpression le : listToMerge) {
+                                    mergedParents.addAll(getParentConceptSequencesFromLogicExpression(le));
+                                 }
+                                 Assertion[] assertions = new Assertion[mergedParents.size()];
+                                 LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                                 int i = 0;
+                                 for (Integer parent : mergedParents) {
+                                    assertions[i++] = ConceptAssertion(parent, leb);
+                                 }
+   
+                                 NecessarySet(And(assertions));
+                                 byte[][] data = leb.build().getData(DataTarget.INTERNAL);
+                                 mergeCount++;
+   
+                                 final SemanticChronology existingChronology = Get.assemblageService().getSemanticChronology(sequences.findFirst().getAsInt());
+                                 int stampSequence = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(),
+                                       TermAux.USER.getNid(), TermAux.SOLOR_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
+                                 MutableLogicGraphVersion newVersion = (MutableLogicGraphVersion) existingChronology.createMutableVersion(stampSequence);
+                                 newVersion.setGraphData(data);
+                                 sc = existingChronology;
                                }
-                               
-                               Set<Integer> mergedParents = new HashSet<>();
-                               for (LogicalExpression le : listToMerge) {
-                                  mergedParents.addAll(getParentConceptSequencesFromLogicExpression(le));
-                               }
+                           }
+                        } else if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
+                           duplicateCount++;
+                           final List<LogicalExpression> listToMerge = new ArrayList<>();
 
-                               byte[][] data;
+                           listToMerge.add(getLatestLogicalExpression(sc));
+                           getLog().debug("\nDuplicate: " + sc);
+                           sequences.stream()
+                                    .forEach(
+                                        (semanticSequence) -> listToMerge.add(
+                                            getLatestLogicalExpression(Get.assemblageService()
+                                                  .getSemanticChronology(semanticSequence))));
+                           getLog().debug("Duplicates: " + listToMerge);
 
-                               if (mergedParents.isEmpty()) {
-                                  // The logic graph is too complex for our stupid merger - Use the isomorphic one.
-                                  IsomorphicResults isomorphicResults = listToMerge.get(0).findIsomorphisms(listToMerge.get(1));
-                                  
-                                  getLog().debug("Isomorphic results: " + isomorphicResults);
-                                  data = isomorphicResults.getMergedExpression().getData(DataTarget.INTERNAL);
-                               } else {
-                                  // Use our stupid merger to just merge parents, cause the above merge isn't really designed to handle ibdf
-                                  // import merges - especially in metadata where we keep adding additional parents one ibdf file at a time.
-                                  // Note, this hack won't work at all to merge more complex logic graphs.
-                                  // Probably won't work for RF2 content.
-                                  // But for IBDF files, which are just adding extra parents, this avoids a bunch of issues with the logic graphs.
-                                  Assertion[] assertions = new Assertion[mergedParents.size()];
-                                  LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                                  int i = 0;
-                                  for (Integer parent : mergedParents) {
-                                     assertions[i++] = ConceptAssertion(parent, leb);
-                                  }
+                           if (listToMerge.size() > 2) {
+                              throw new UnsupportedOperationException("Can't merge list of size: " +
+                                    listToMerge.size() + "\n" + listToMerge);
+                           }
+                           
+                           Set<Integer> mergedParents = new HashSet<>();
+                           for (LogicalExpression le : listToMerge) {
+                              mergedParents.addAll(getParentConceptSequencesFromLogicExpression(le));
+                           }
 
-                                  NecessarySet(And(assertions));
-                                  data = leb.build().getData(DataTarget.INTERNAL);
-                               }
-                               
-                               mergeCount++;
+                           byte[][] data;
 
-                               final SemanticChronology existingChronology = Get.assemblageService()
-                                                                              .getSemanticChronology(sequences.findFirst()
-                                                                                    .getAsInt());
-                               int stampSequence = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(), TermAux.USER.getNid(),
-                                  TermAux.SOLOR_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
-                               MutableLogicGraphVersion newVersion = (MutableLogicGraphVersion) existingChronology.createMutableVersion(stampSequence);
-                               newVersion.setGraphData(data);
-                               sc = existingChronology;
-                            }
-                         }
-                      }
-
-                      if (!LoadTermstore.this.semanticTypesToSkip.contains(sc.getVersionType()) &&
-                            (!LoadTermstore.this.activeOnly ||
-                             (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
-                          try {
-                             Get.assemblageService().writeSemanticChronology(sc);
-                             if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
-                                 deferredActionNids.add(sc.getNid());
+                           if (mergedParents.isEmpty()) {
+                              // The logic graph is too complex for our stupid merger - Use the isomorphic one.
+                              IsomorphicResults isomorphicResults = listToMerge.get(0).findIsomorphisms(listToMerge.get(1));
+                              
+                              getLog().debug("Isomorphic results: " + isomorphicResults);
+                              data = isomorphicResults.getMergedExpression().getData(DataTarget.INTERNAL);
+                           } else {
+                              // Use our stupid merger to just merge parents, cause the above merge isn't really designed to handle ibdf
+                              // import merges - especially in metadata where we keep adding additional parents one ibdf file at a time.
+                              // Note, this hack won't work at all to merge more complex logic graphs.
+                              // Probably won't work for RF2 content.
+                              // But for IBDF files, which are just adding extra parents, this avoids a bunch of issues with the logic graphs.
+                              Assertion[] assertions = new Assertion[mergedParents.size()];
+                              LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                              int i = 0;
+                              for (Integer parent : mergedParents) {
+                                 assertions[i++] = ConceptAssertion(parent, leb);
                               }
 
-                              this.semanticCount++;
+                              NecessarySet(And(assertions));
+                              data = leb.build().getData(DataTarget.INTERNAL);
+                           }
+                           
+                           mergeCount++;
+
+                           final SemanticChronology existingChronology = Get.assemblageService()
+                                                                          .getSemanticChronology(sequences.findFirst()
+                                                                                .getAsInt());
+                           int stampSequence = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(), TermAux.USER.getNid(),
+                              TermAux.SOLOR_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
+                           MutableLogicGraphVersion newVersion = (MutableLogicGraphVersion) existingChronology.createMutableVersion(stampSequence);
+                           newVersion.setGraphData(data);
+                           sc = existingChronology;
+                        }
+                     }
+                  }
+
+                  if (!LoadTermstore.this.semanticTypesToSkip.contains(sc.getVersionType()) &&
+                        (!LoadTermstore.this.activeOnly ||
+                         (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
+                      try {
+                         Get.assemblageService().writeSemanticChronology(sc);
+                         if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
+                             deferredActionNids.add(sc.getNid());
                           }
-                          catch (Exception e) {
-                             getLog().error("Write Error - ", e);
-                             throw e;
-                          }
-                      } else {
-                         this.skippedItems.add(sc.getNid());
+
+                          this.semanticCount++;
                       }
+                      catch (Exception e) {
+                         getLog().error("Write Error - ", e);
+                         throw e;
+                      }
+                  } else {
+                     this.skippedItems.add(sc.getNid());
+                  }
 
-                      break;
+                  break;
 
-                   case STAMP_ALIAS:
-                      Get.commitService()
-                         .addAlias(((StampAlias) object).getStampSequence(),
-                                   ((StampAlias) object).getStampAlias(),
-                                   null);
-                      this.stampAliasCount++;
-                      break;
+               case STAMP_ALIAS:
+                  Get.commitService()
+                     .addAlias(((StampAlias) object).getStampSequence(),
+                               ((StampAlias) object).getStampAlias(),
+                               null);
+                  this.stampAliasCount++;
+                  break;
 
-                   case STAMP_COMMENT:
-                      Get.commitService()
-                         .setComment(((StampComment) object).getStampSequence(),
-                                     ((StampComment) object).getComment());
-                      this.stampCommentCount++;
-                      break;
+               case STAMP_COMMENT:
+                  Get.commitService()
+                     .setComment(((StampComment) object).getStampSequence(),
+                                 ((StampComment) object).getComment());
+                  this.stampCommentCount++;
+                  break;
 
-                   default:
-                      throw new UnsupportedOperationException("Unknown object type: " + object);
-                   }
-                }
-             } catch (final UnsupportedOperationException e) {
-                this.itemFailure++;
-                getLog().error("Failure at " + this.conceptCount + " concepts, " + this.semanticCount +
-                               " semantics, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
-                               " stampComments",
-                               e);
+               default:
+                  throw new UnsupportedOperationException("Unknown object type: " + object);
+               }
+            }
+         } catch (final UnsupportedOperationException e) {
+            this.itemFailure++;
+            getLog().error("Failure at " + this.conceptCount + " concepts, " + this.semanticCount +
+                           " semantics, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
+                           " stampComments",
+                           e);
 
-                final Map<String, Object> args = new HashMap<>();
+            final Map<String, Object> args = new HashMap<>();
 
-                args.put(JsonWriter.PRETTY_PRINT, true);
+            args.put(JsonWriter.PRETTY_PRINT, true);
 
-                final ByteArrayOutputStream baos       = new ByteArrayOutputStream();
-                try (JsonWriter json = new JsonWriter(baos, args)) {
-                   UUID                        primordial = null;
-                   
-                   if (object instanceof Chronology) {
-                      primordial = ((Chronology) object).getPrimordialUuid();
-                   }
-                   
-                   json.write(object);
-                   getLog().error("Failed on " + ((primordial == null) ? ": "
-                           : "object with primoridial UUID " + primordial.toString() + ": ") + baos.toString());
-                }
-             }
+            final ByteArrayOutputStream baos       = new ByteArrayOutputStream();
+            try (JsonWriter json = new JsonWriter(baos, args)) {
+               UUID                        primordial = null;
+               
+               if (object instanceof Chronology) {
+                  primordial = ((Chronology) object).getPrimordialUuid();
+               }
+               
+               json.write(object);
+               getLog().error("Failed on " + ((primordial == null) ? ": "
+                       : "object with primoridial UUID " + primordial.toString() + ": ") + baos.toString());
+            }
+         }
 
-             if (LoadTermstore.this.itemCount % 50000 == 0) {
-                getLog().info("Read " + LoadTermstore.this.itemCount + " entries, " + "Loaded " + this.conceptCount +
-                              " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount +
-                              " stampAlias, " + this.stampCommentCount + " stampComment");
-             }
-
-
-          }
+         if (LoadTermstore.this.itemCount % 50000 == 0) {
+            getLog().info("Read " + LoadTermstore.this.itemCount + " entries, " + "Loaded " + this.conceptCount +
+                          " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount +
+                          " stampAlias, " + this.stampCommentCount + " stampComment");
+         }
       }
+   }
       
    protected void summarize()
    {

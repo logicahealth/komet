@@ -368,6 +368,8 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				String identifier = findPredicateValue("http://purl.org/dc/terms/identifier", statements).asLiteral().getString();  //"http://rdfs.co/bevon/0.8"
 				String version = findPredicateValue("http://www.w3.org/2002/07/owl#versionInfo", statements).asLiteral().getString();  //"0.8"
 				
+				String termName = title.contains(":") ? title.substring(0,  title.indexOf(':')) : title;
+				
 				if (!subject.equals(identifier))
 				{
 					throw new RuntimeException("Was expecting these to be the same: " + subject + ", " + identifier);
@@ -379,7 +381,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				{
 					//We don't have a module of our own yet, so put the "grouping" concept on the solor module.
 					moduleNid = MetaData.MODULE____SOLOR.getNid();
-					dwh = new DirectWriteHelper(MetaData.USER____SOLOR.getNid(), moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID);
+					dwh = new DirectWriteHelper(MetaData.USER____SOLOR.getNid(), moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, termName);
 					dwh.makeConcept(parentModule, Status.ACTIVE, releaseTime);
 					
 					dwh.makeDescriptionEn(parentModule, preferredNamespaceUri + " modules", fsn, 
@@ -419,7 +421,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				//Switch the direct write helper to the bevon module for the 'version specific' module...
 				if (dwh == null)
 				{
-					dwh = new DirectWriteHelper(authorNid, moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID);
+					dwh = new DirectWriteHelper(authorNid, moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, termName);
 				}
 				else
 				{
@@ -453,7 +455,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				}
 				
 				//Set up our metadata hierarchy
-				dwh.makeMetadataHierarchy(title, true, true, false, true, true, true, releaseTime);
+				dwh.makeMetadataHierarchy(true, true, false, true, true, true, releaseTime);
 				
 				//Need to make the root concept, and its rel, prior to adding its descriptions - also the coregroup concept
 				rootConcept = getConceptUUID(preferredNamespaceUri, subject);  //make sure our nid is assigned to the combination of both nids.
