@@ -24,7 +24,7 @@ import javafx.application.Platform;
  *         Just a runner class in the test package, so that eclipse launches with a classpath that includes test libraries, which makes
  *         logging work to the console.
  */
-public class Rf2DirectMojoRunner extends Rf2DirectImportMojo
+public class Rf2DirectMojoRunner extends Rf2ImportMojoDirect
 {
 	public static void main(String[] args) throws MojoExecutionException
 	{

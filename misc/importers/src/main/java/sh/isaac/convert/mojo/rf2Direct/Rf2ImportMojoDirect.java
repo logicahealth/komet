@@ -51,8 +51,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.FileUtils;
-import org.glassfish.hk2.api.PerLookup;
-import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -81,16 +79,14 @@ import sh.isaac.solor.direct.Rf2RelationshipTransformer;
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
 @Mojo(name = "convert-RF2-direct-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
-@Service
-@PerLookup
-public class Rf2DirectImportMojo extends DirectConverterBaseMojo implements DirectConverter
+public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements DirectConverter
 {
 	private Logger log = LogManager.getLogger();
 	
 	/**
 	 * For maven and HK2
 	 */
-	public Rf2DirectImportMojo()
+	public Rf2ImportMojoDirect()
 	{
 		
 	}
