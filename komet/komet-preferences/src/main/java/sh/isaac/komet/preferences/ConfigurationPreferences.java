@@ -16,11 +16,14 @@
  */
 package sh.isaac.komet.preferences;
 
+import java.nio.file.Path;
 import java.util.prefs.BackingStoreException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import sh.isaac.MetaData;
+import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.ConfigurationPreferences.Keys.ENABLE_EDITING;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
@@ -62,16 +65,21 @@ public class ConfigurationPreferences extends AbstractPreferences {
         });
         getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableEdit));
+        getItemList().add(new PropertySheetTextWrapper(manifold, datastoreLocationProperty));
     }
 
     @Override
     void saveFields() throws BackingStoreException {
+        getPreferencesNode().put(Keys.DATASTORE_LOCATION, datastoreLocationProperty.get());
         getPreferencesNode().put(Keys.CONFIGURATION_NAME, nameProperty.get());
         getPreferencesNode().putBoolean(ENABLE_EDITING, enableEdit.get());
     }
 
     @Override
     final void revertFields() {
+        ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
+        Path folderPath = configurationService.getDataStoreFolderPath();
+        this.datastoreLocationProperty.set(getPreferencesNode().get(Keys.DATASTORE_LOCATION, folderPath.toString()));
         this.nameProperty.set(getPreferencesNode().get(Keys.CONFIGURATION_NAME, getGroupName()));
         enableEdit.set(getPreferencesNode().getBoolean(ENABLE_EDITING, true));
     }

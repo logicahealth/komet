@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.fx.tabpane;
+package sh.isaac.api.util;
 
 public class SystemUtils {
 

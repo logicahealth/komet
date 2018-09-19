@@ -25,5 +25,10 @@
          <groupId>org.apache.logging.log4j</groupId>
          <artifactId>log4j-core</artifactId>
       </dependency>
+     <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>api</artifactId>
+         <version>${parent.version}</version>
+      </dependency>
    </dependencies>
 </project>

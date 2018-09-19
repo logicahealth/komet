@@ -19,6 +19,8 @@ package sh.isaac.komet.preferences;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.prefs.BackingStoreException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -49,7 +51,24 @@ public class KometPreferencesImpl implements KometPreferences {
     public KometPreferencesImpl() {
 
     }
+
+    @Override
+    public void resetUserPreferences() {
+        try {
+            IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferences.class);
+            clearNodeAndChildren(userPreferences);
+        } catch (BackingStoreException ex) {
+            LOG.error(ex.getLocalizedMessage(), ex);
+        }
+    }
     
+    private void clearNodeAndChildren(IsaacPreferences node) throws BackingStoreException {
+        for (IsaacPreferences child: node.children()) {
+            clearNodeAndChildren(child);
+        }
+        node.clear();
+        node.sync();
+    }
 
     @Override
     public void loadPreferences(IsaacPreferences preferences,
@@ -71,7 +90,7 @@ public class KometPreferencesImpl implements KometPreferences {
                 this.preferencesStage = new Stage();
                 this.preferencesStage.setTitle(FxGet.getConfigurationName() + " preferences");
                 FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
-                    this.preferencesStage.setTitle(newValue+ " preferences");
+                    this.preferencesStage.setTitle(newValue + " preferences");
                 });
                 Scene scene = new Scene(root);
 
@@ -86,7 +105,6 @@ public class KometPreferencesImpl implements KometPreferences {
             }
         }
     }
-    
 
     @Override
     public void showPreferences(IsaacPreferences preferences,
@@ -127,6 +145,5 @@ public class KometPreferencesImpl implements KometPreferences {
         });
         preferencesStage.setAlwaysOnTop(true);
     }
-    
-    
+
 }

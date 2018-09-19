@@ -63,7 +63,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.eclipse.fx.core.SystemUtils;
 import org.glassfish.hk2.api.MultiException;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
@@ -83,6 +82,7 @@ import sh.isaac.komet.preferences.RootPreferences;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
+import sh.isaac.api.util.SystemUtils;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.control.property.WindowProperties;
@@ -102,6 +102,7 @@ public class MainApp
     private static Stage primaryStage;
     public IsaacPreferences configurationPreferences;
     public boolean firstRun = true;
+    public boolean resetUserPreferences = true;
 
     //~--- methods -------------------------------------------------------------
     /**
@@ -135,6 +136,10 @@ public class MainApp
 
         if (configurationPreferences.getBoolean(PreferenceGroup.Keys.INITIALIZED, false)) {
             firstRun = false;
+        }
+        
+        if (firstRun && resetUserPreferences) {
+                FxGet.kometPreferences().resetUserPreferences();
         }
         Get.configurationService().setSingleUserMode(true);  //TODO eventually, this needs to be replaced with a proper user identifier
         Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);

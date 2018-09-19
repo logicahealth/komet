@@ -964,7 +964,7 @@ public interface IsaacPreferences {
     default Optional<char[]> getPassword(String key) {
         try {
             Optional<String> encryptedPassword = get(key);
-            if (encryptedPassword.isPresent()) {
+            if (encryptedPassword.isPresent() && !encryptedPassword.get().isEmpty()) {
                 return Optional.of(PasswordHasher.decryptToChars("obfuscate-komet".toCharArray(), 
 								encryptedPassword.get()));
             }

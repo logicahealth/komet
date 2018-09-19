@@ -31,6 +31,7 @@ import javax.naming.AuthenticationException;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.preferences.PreferenceNodeType;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_LOCAL_FOLDER;
@@ -38,12 +39,14 @@ import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_PASSW
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_URL;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_USER_NAME;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
 import sh.komet.gui.control.PropertySheetItemStringListWrapper;
 import sh.komet.gui.control.PropertySheetPasswordWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -67,7 +70,7 @@ public class SynchronizationItemPanel extends AbstractPreferences {
 
     public SynchronizationItemPanel(IsaacPreferences preferencesNode, Manifold manifold, 
             KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Change sets"), 
+        super(getEquivalentUserPreferenceNode(preferencesNode), preferencesNode.get(GROUP_NAME, "Change sets"), 
                 manifold, kpc);
         nameProperty.set(groupNameProperty().get());
         nameProperty.addListener((observable, oldValue, newValue) -> {
@@ -81,6 +84,27 @@ public class SynchronizationItemPanel extends AbstractPreferences {
         getItemList().add(new PropertySheetTextWrapper(manifold, gitUrl));
         getItemList().add(new PropertySheetItemStringListWrapper(manifold, localFolder, 
                 Arrays.asList(new String[] {"data/isaac.data/changesets", "data/isaac.data/preferences"})));
+    }
+    private static IsaacPreferences getEquivalentUserPreferenceNode(IsaacPreferences configurationPreferencesNode) {
+        try {
+            if (configurationPreferencesNode.getNodeType() == PreferenceNodeType.CONFIGURATION) {
+                IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferences.class).node(configurationPreferencesNode.absolutePath());
+                for (String key : configurationPreferencesNode.keys()) {
+                    userPreferences.put(key, configurationPreferencesNode.get(key, ""));
+                }
+                for (IsaacPreferences configChildNode : configurationPreferencesNode.children()) {
+                    IsaacPreferences userChildNode = userPreferences.node(configChildNode.name());
+                    for (String key : configChildNode.keys()) {
+                        userChildNode.put(key, configChildNode.get(key, ""));
+                    }
+                }
+                return userPreferences;
+            } else {
+                return configurationPreferencesNode;
+            }
+        } catch (BackingStoreException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override

@@ -18,9 +18,11 @@ package sh.isaac.komet.preferences;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.preferences.PreferenceNodeType;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.INITIALIZED;
 import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
@@ -47,19 +49,23 @@ public class SynchronizationItems extends ParentPanelPreferences {
         save();
     }
 
-    static final IsaacPreferences getEquivalentUserPreferenceNode(IsaacPreferences configurationPreferencesNode) {
+    private static IsaacPreferences getEquivalentUserPreferenceNode(IsaacPreferences configurationPreferencesNode) {
         try {
-            IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferences.class).node(SYNCHRONIZATION_ITEMS_GROUP_NAME);
-            for (String key : configurationPreferencesNode.keys()) {
-                userPreferences.put(key, configurationPreferencesNode.get(key, ""));
-            }
-            for (IsaacPreferences configChildNode : configurationPreferencesNode.children()) {
-                IsaacPreferences userChildNode = userPreferences.node(configChildNode.name());
-                for (String key : configChildNode.keys()) {
-                    userChildNode.put(key, configChildNode.get(key, ""));
+            if (configurationPreferencesNode.getNodeType() == PreferenceNodeType.CONFIGURATION) {
+                IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferences.class).node(SYNCHRONIZATION_ITEMS_GROUP_NAME);
+                for (String key : configurationPreferencesNode.keys()) {
+                    userPreferences.put(key, configurationPreferencesNode.get(key, ""));
                 }
+                for (IsaacPreferences configChildNode : configurationPreferencesNode.children()) {
+                    IsaacPreferences userChildNode = userPreferences.node(configChildNode.name());
+                    for (String key : configChildNode.keys()) {
+                        userChildNode.put(key, configChildNode.get(key, ""));
+                    }
+                }
+                return userPreferences;
+            } else {
+                return configurationPreferencesNode;
             }
-            return userPreferences;
         } catch (BackingStoreException ex) {
             throw new RuntimeException(ex);
         }
@@ -71,10 +77,16 @@ public class SynchronizationItems extends ParentPanelPreferences {
         // configuration preferences
         configSyncItemsNode.putList(CHILDREN_NODES, userSyncItemsNode.getList(CHILDREN_NODES));
         configSyncItemsNode.putBoolean(INITIALIZED, userSyncItemsNode.getBoolean(INITIALIZED, true));
-        
+        Optional<PreferenceNodeType> optionalNodeType = userSyncItemsNode.getEnum(PreferenceNodeType.class);
+        if (optionalNodeType.isPresent()) {
+            configSyncItemsNode.putEnum(optionalNodeType.get());
+        } else {
+            configSyncItemsNode.putEnum(PreferenceNodeType.USER);
+        }
+
         Set<String> nodesToDelete = new HashSet(Arrays.asList(configSyncItemsNode.childrenNames()));
         nodesToDelete.removeAll(configSyncItemsNode.getList(CHILDREN_NODES));
-        for (String childToDelete: nodesToDelete) {
+        for (String childToDelete : nodesToDelete) {
             configSyncItemsNode.node(childToDelete).removeNode();
             userSyncItemsNode.node(childToDelete).removeNode();
         }
@@ -95,10 +107,16 @@ public class SynchronizationItems extends ParentPanelPreferences {
         // configuration preferences to the user preferences
         configSyncItemsNode.putList(CHILDREN_NODES, userSyncItemsNode.getList(CHILDREN_NODES));
         configSyncItemsNode.putBoolean(INITIALIZED, userSyncItemsNode.getBoolean(INITIALIZED, false));
-        
+        Optional<PreferenceNodeType> optionalNodeType = userSyncItemsNode.getEnum(PreferenceNodeType.class);
+        if (optionalNodeType.isPresent()) {
+            configSyncItemsNode.putEnum(optionalNodeType.get());
+        } else {
+            configSyncItemsNode.putEnum(PreferenceNodeType.USER);
+        }
+
         Set<String> nodesToDelete = new HashSet(Arrays.asList(configSyncItemsNode.childrenNames()));
         nodesToDelete.removeAll(userSyncItemsNode.getList(CHILDREN_NODES));
-        for (String childToDelete: nodesToDelete) {
+        for (String childToDelete : nodesToDelete) {
             configSyncItemsNode.node(childToDelete).removeNode();
             userSyncItemsNode.node(childToDelete).removeNode();
         }

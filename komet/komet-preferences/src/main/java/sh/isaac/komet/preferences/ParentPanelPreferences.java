@@ -59,26 +59,21 @@ public abstract class ParentPanelPreferences extends AbstractPreferences {
     }
     
     final void addChildPanel(UUID childUuid) {
-        try {
-            IsaacPreferences actionPreferencesNode = getPreferencesNode().node(childUuid.toString());
-            addChild(childUuid.toString(), getChildClass());
-            Optional<PreferencesTreeItem> optionalActionItem = PreferencesTreeItem.from(actionPreferencesNode,
-                    getManifold(), kpc);
-            if (optionalActionItem.isPresent()) {
-                PreferencesTreeItem actionItem = optionalActionItem.get();
-                if (getTreeItem() == null) {
-                    childrenToAdd.push(actionItem);
-                } else {
-                    getTreeItem().getChildren().add(actionItem);
-                    getTreeItem().setExpanded(true);
-                    actionItem.select();
-                }
+        IsaacPreferences actionPreferencesNode = getPreferencesNode().node(childUuid.toString());
+        addChild(childUuid.toString(), getChildClass());
+        Optional<PreferencesTreeItem> optionalActionItem = PreferencesTreeItem.from(actionPreferencesNode,
+                getManifold(), kpc);
+        if (optionalActionItem.isPresent()) {
+            PreferencesTreeItem actionItem = optionalActionItem.get();
+            if (getTreeItem() == null) {
+                childrenToAdd.push(actionItem);
+            } else {
+                getTreeItem().getChildren().add(actionItem);
+                getTreeItem().setExpanded(true);
+                actionItem.select();
             }
-
-            saveFields();
-        } catch (BackingStoreException ex) {
-            throw new RuntimeException(ex);
         }
+        save();
     }
     
     abstract protected Class getChildClass();

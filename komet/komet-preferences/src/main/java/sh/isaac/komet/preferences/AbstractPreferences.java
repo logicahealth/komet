@@ -153,6 +153,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     @Override
     public void setTreeItem(PreferencesTreeItem treeItem) {
         this.treeItem = treeItem;
+        this.treeItem.preferences = this.preferencesNode;
         addChildren();
     }
 
@@ -169,6 +170,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         try {
             initialized.set(true);
             preferencesNode.putBoolean(INITIALIZED, initialized.get());
+            preferencesNode.putEnum(preferencesNode.getNodeType());
             saveFields();
             preferencesNode.sync();
         } catch (BackingStoreException ex) {
@@ -210,6 +212,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     public final void revert() {
         try {
             initialized.setValue(preferencesNode.getBoolean(INITIALIZED, false));
+            preferencesNode.putEnum(preferencesNode.getNodeType());
             revertFields();
         } catch (BackingStoreException ex) {
             throw new RuntimeException(ex);

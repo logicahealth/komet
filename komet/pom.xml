@@ -29,5 +29,6 @@
         <module>export-view</module>
           <module>open-jdk-fixes</module>
           <module>komet-preferences</module>
-     </modules>
+    <module>changeset-view</module>
+  </modules>
 </project>

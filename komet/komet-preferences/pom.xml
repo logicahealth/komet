@@ -12,8 +12,7 @@
 
     <name>ISAAC’s KOMET: Preferences</name>
     <description>
-        User configurable preferences from within KOMET. Incorporates PreferencesFx, which is licensed under Apache 2. 
-        https://github.com/dlemmermann/PreferencesFX
+        User configurable preferences from within KOMET. 
     </description>
 
     <dependencies>
@@ -29,21 +28,5 @@
             <version>${project.parent.version}</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>com.dlsc.preferencesfx</groupId>
-            <artifactId>preferencesfx-core</artifactId>
-            <version>2.0.3</version>
-        </dependency>        
     </dependencies>
-    <repositories>
-        <repository>
-            <id>jcenter</id>
-            <url>http://jcenter.bintray.com</url>
-        </repository>
-        <repository>
-            <name>BestSolution e(fx)clipse releases</name>
-            <id>efxclipse-releases</id>
-            <url>http://maven.bestsolution.at/efxclipse-releases/</url>
-        </repository>
-    </repositories>
 </project>

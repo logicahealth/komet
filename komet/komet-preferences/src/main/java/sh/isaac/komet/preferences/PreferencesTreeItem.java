@@ -38,7 +38,7 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup> {
         
     } 
     
-    final IsaacPreferences preferences;
+    IsaacPreferences preferences;
     final KometPreferencesController controller;
     
     private PreferencesTreeItem(PreferenceGroup value,
