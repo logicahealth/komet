@@ -358,13 +358,14 @@ public class Get
     * method will try first to return the fully specified description, or the
     * preferred description, as specified in the default
     * {@code StampCoordinate} and the default {@code LanguageCoordinate}.
+    * 
+    * Note that this implementation does rely on the configuration of the 
+    * {@link #defaultConceptSnapshotService()} - if that configuration is changed, 
+    * the behavor of this method will follow.
     *
-    * @param conceptNid nid of the concept to get the description
-    * for
+    * @param conceptNid nid of the concept to get the description for
     * @return a description for this concept. If no description can be found,
     * {@code "No desc for: " + conceptNid;} will be returned.
-    *  TODO: make getDescriptionOptional return a LatestVersion, which has optional value, rather than returning an
-    *  Optional&gt;LatestVersion>&lt;
     */
    public static String conceptDescriptionText(int conceptNid) {
      if (conceptNid >= 0) {

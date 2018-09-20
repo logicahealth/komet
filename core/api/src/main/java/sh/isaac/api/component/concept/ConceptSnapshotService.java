@@ -79,7 +79,7 @@ public interface ConceptSnapshotService extends SharedConceptSnapshotService {
    /**
     * This method will try to return description types according to the type preferences
     * of the language coordinate, finally any description if there is no
-    * preferred or fully specified description that satisfies the {@code StampCoordinate} and the
+    * regular or fully specified description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     * @param conceptNid of the concept to get the description for
     * @return a Optional description for this concept.
