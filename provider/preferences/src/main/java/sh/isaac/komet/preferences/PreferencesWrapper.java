@@ -136,7 +136,11 @@ public class PreferencesWrapper implements IsaacPreferences {
 
    @Override
    public void removeNode() throws BackingStoreException {
-      delegate.removeNode();
+       try {
+           delegate.removeNode();
+       } catch (IllegalStateException ex) {
+           // if already removed, ignore. 
+       }
    }
 
    @Override

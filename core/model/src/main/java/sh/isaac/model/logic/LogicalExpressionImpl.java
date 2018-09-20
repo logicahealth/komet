@@ -37,7 +37,6 @@
 package sh.isaac.model.logic;
 
 //~--- JDK imports ------------------------------------------------------------
-import sh.isaac.api.logic.IsomorphicSolution;
 import java.time.Instant;
 
 import java.util.ArrayList;
@@ -48,9 +47,7 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
-import java.util.logging.Level;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
@@ -1430,9 +1427,9 @@ public class LogicalExpressionImpl
                                             .toArray());
                     if (nodes.length == 0) {
                         if (getConceptBeingDefinedNid() == -1) {
-                            LOG.debug("Role termination error for unspecified concept. ");
+                            LOG.debug("Role termination error for unspecified isomorphic concept. ");
                         } else {
-                            LOG.debug("Role termination error for concept: " + Get.conceptSpecification(getConceptBeingDefinedNid()));
+                            LOG.debug("Role termination error for isomorphic concept: " + Get.conceptSpecification(getConceptBeingDefinedNid()));
                         }
                         
                         results[i] = SomeRole(((TypedNodeWithNids) oldLogicNode).getTypeConceptNid(),

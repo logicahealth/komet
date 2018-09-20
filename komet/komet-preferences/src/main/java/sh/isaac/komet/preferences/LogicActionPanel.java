@@ -58,13 +58,15 @@ public class LogicActionPanel extends AbstractPreferences {
     private final SimpleObjectProperty<ConceptSpecification> roleTypeProperty
             = new SimpleObjectProperty(this, ObservableFields.ROLE_TYPE_TO_ADD.toExternalString());
 
-
-
     public LogicActionPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(preferencesNode,
                 preferencesNode.get(Keys.ACTION_NAME, "logic action " + preferencesNode.name()),
                 manifold, kpc);
+        actionNameProperty.set(groupNameProperty().get());
+        actionNameProperty.addListener((observable, oldValue, newValue) -> {
+            groupNameProperty().set(newValue);
+        });
         revertFields();
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, actionNameProperty));
@@ -145,7 +147,8 @@ public class LogicActionPanel extends AbstractPreferences {
         b.append("import sh.komet.gui.control.property.EditorType;\n");
         b.append("import sh.isaac.api.logic.NodeSemantic;\n");
         b.append("\n");
-        b.append("rule \"").append(actionNameProperty.get()).append("\"\n");
+        b.append("rule \"").append(actionNameProperty.get())
+                .append(" ").append(getPreferencesNode().name()).append("\"\n");
         b.append("when\n");
         b.append("   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.NECESSARY_SET || "
                 + "getNodeSemantic() == NodeSemantic.SUFFICIENT_SET);\n");
@@ -173,5 +176,9 @@ public class LogicActionPanel extends AbstractPreferences {
             throw new UnsupportedOperationException("Can't handle: " + item.getValue() + " from: " + item);
         }
         return type;
+    }
+    @Override
+    public boolean showDelete() {
+        return true;
     }
 }

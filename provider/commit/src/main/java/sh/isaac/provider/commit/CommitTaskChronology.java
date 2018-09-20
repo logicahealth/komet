@@ -41,8 +41,6 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.api.Get;

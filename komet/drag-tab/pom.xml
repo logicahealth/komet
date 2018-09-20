@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.52-SNAPSHOT</version>
+      <version>4.53-SNAPSHOT</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>drag-tab</artifactId>
@@ -24,6 +24,11 @@
      <dependency>
          <groupId>org.apache.logging.log4j</groupId>
          <artifactId>log4j-core</artifactId>
+      </dependency>
+     <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>api</artifactId>
+         <version>${parent.version}</version>
       </dependency>
    </dependencies>
 </project>

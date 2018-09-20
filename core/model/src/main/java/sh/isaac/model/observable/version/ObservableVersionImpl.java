@@ -52,6 +52,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 
 import sh.isaac.api.Status;
@@ -60,6 +62,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.VersionImpl;
@@ -67,6 +70,7 @@ import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -76,6 +80,7 @@ import sh.isaac.model.observable.ObservableFields;
  */
 public abstract class ObservableVersionImpl
         implements ObservableVersion, CommittableComponent {
+    protected static final Logger LOG = LogManager.getLogger();
 
    /**
     * The primordial uuid property.
@@ -133,7 +138,7 @@ public abstract class ObservableVersionImpl
    /**
     * The chronology.
     */
-   protected final ObservableChronology chronology;
+   protected ObservableChronology chronology;
    
    protected final VersionType versionType;
    
@@ -154,7 +159,7 @@ public abstract class ObservableVersionImpl
      * @param assemblageNid
     */
    public ObservableVersionImpl(VersionType versionType, UUID primordialUuid, int assemblageNid) {
-       this.stampedVersionProperty = null;
+        this.stampedVersionProperty = null;
        this.chronology = null;
        this.versionType = versionType;
        assemblageNidProperty(assemblageNid);
@@ -164,7 +169,7 @@ public abstract class ObservableVersionImpl
                  primordialUuid);
        getProperties();
    }
-
+   
     /**
      * Instantiates a new observable version.
      *
@@ -182,6 +187,13 @@ public abstract class ObservableVersionImpl
       this.stampedVersionProperty = null;
       this.versionType = chronology.getVersionType();
    }
+   
+   public void setChronology(ObservableChronology chronology) {
+       if (this.chronology != null) {
+           throw new IllegalStateException("Chronology is not null. Cannot change.");
+       }
+       this.chronology = chronology;
+   }
 
    //~--- methods -------------------------------------------------------------
     /**
@@ -193,7 +205,7 @@ public abstract class ObservableVersionImpl
         return assemblageNidProperty(getAssemblageNid());
     }
    
-    public final IntegerProperty assemblageNidProperty(int assemblageNid) {
+    private final IntegerProperty assemblageNidProperty(int assemblageNid) {
         if (this.assemblageNidProperty == null) {
             this.assemblageNidProperty = 
                     new CommitAwareIntegerProperty(this, 
@@ -532,7 +544,11 @@ public abstract class ObservableVersionImpl
          this.timeProperty.set(stampedVersion.getTime());
       }
       
-      updateVersion();
+       try {
+           updateVersion();
+       } catch (UnsupportedOperationException e) {
+           LOG.warn("\n  ** Could not update to version: " + stampedVersion);
+       }
    }
 
    protected abstract void updateVersion();

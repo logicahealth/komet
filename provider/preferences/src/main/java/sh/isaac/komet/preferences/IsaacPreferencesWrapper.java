@@ -141,7 +141,11 @@ public class IsaacPreferencesWrapper implements IsaacPreferences {
 
    @Override
    public void removeNode() throws BackingStoreException {
-      delegate.removeNode();
+       try {
+           delegate.removeNode();
+       } catch (IllegalStateException ex) {
+           // ignore node already removed exception. 
+       }
    }
 
    @Override
@@ -156,7 +160,7 @@ public class IsaacPreferencesWrapper implements IsaacPreferences {
 
    @Override
    public PreferenceNodeType getNodeType() {
-      return PreferenceNodeType.APPLICATION;
+      return PreferenceNodeType.CONFIGURATION;
    }
 
    @Override

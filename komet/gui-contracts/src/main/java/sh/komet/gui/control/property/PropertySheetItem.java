@@ -30,9 +30,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.komet.gui.control.concept.ConceptForControlWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 /**

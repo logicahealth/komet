@@ -124,7 +124,7 @@ public class ImportViewController {
     private final String loincSNOMEDCollabRequiredText =
             "✘ Import Selection Requires LOINC/SNOMED Collaboration (SnomedCT_LOINCRF2_PRODUCTION_20170831T120000Z.zip)";
     private final String snomedCTRequiredText =
-            "✘ Import Selection Requires SNOMED CT (SnomedCT_InternationalRF2_PRODUCTION_20170731T150000Z.zip)";
+            "✘ Import Selection Requires SNOMED CT (SnomedCT_InternationalRF2_PRODUCTION_[YYYYMMDDTHHMMSS]Z.zip)";
     
     private String importReadyMessage = "";
 
@@ -325,7 +325,7 @@ public class ImportViewController {
                 break;
             case DELTA:
             default:
-                throw new RuntimeException("oops");
+                throw new RuntimeException("Oops. can't handle: " + importType.getValue());
 
         }
         if (directImportType != null) {
@@ -458,7 +458,7 @@ public class ImportViewController {
            }
          @Override
          protected boolean computeValue() {
-            if (listeningTo.size() == 0) {
+            if (listeningTo.isEmpty()) {
                setInvalidReason("At least one file must be imported");
                return false;
             }

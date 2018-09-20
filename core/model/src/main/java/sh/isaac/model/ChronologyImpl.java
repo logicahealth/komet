@@ -944,6 +944,12 @@ public abstract class ChronologyImpl
                 return Optional.of((V) version);
             }
         }
+        for (Version version : this.uncommittedVersions) {
+            if (version.getStampSequence() == stampSequence) {
+                LOG.warn("Returning committed from uncommitted: " + stampSequence + " in: \n" + this);
+                return Optional.of((V) version);
+            }
+        }
         return Optional.empty();
 
     }
@@ -1072,7 +1078,12 @@ public abstract class ChronologyImpl
     private <V extends StampedVersion> List<V> getVersionsForStamps(int[] stampSequences) {
         final List<V> versions = new ArrayList<>(stampSequences.length);
         for (int stampSequence : stampSequences) {
-            versions.add((V) getVersionForStamp(stampSequence).get());
+            Optional<V> version = getVersionForStamp(stampSequence);
+            if (version.isPresent()) {
+                versions.add(version.get());
+            } else {
+                LOG.error("No version for stamp: " + stampSequence + " in: \n" + this);
+            }
         }
         return versions;
     }

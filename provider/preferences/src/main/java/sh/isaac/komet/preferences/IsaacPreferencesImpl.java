@@ -115,11 +115,16 @@ public class IsaacPreferencesImpl
       init();
    }
    
+   @Override
+    public String toString() {
+        return "Configuration Preference Node: " + this.absolutePath();
+    }
+   
    /**
     * The public mechanism to get a handle to a preferences store that stores its data inside the datastore folder.
     * @return This class, wrapped by a {@link IsaacPreferencesWrapper}
     */
-   public static IsaacPreferences getApplicationRootPreferences() {
+   public static IsaacPreferences getConfigurationRootPreferences() {
       //utilize HK2 here, so we essentially get a singleton for the root prefs
       return new IsaacPreferencesWrapper(Get.service(IsaacPreferencesImpl.class));
    }

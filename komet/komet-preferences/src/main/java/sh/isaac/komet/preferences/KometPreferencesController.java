@@ -109,6 +109,10 @@ public class KometPreferencesController implements Initializable {
         }
     }
 
+    public TreeView<PreferenceGroup> getPreferenceTree() {
+        return preferenceTree;
+    }
+
     void setManifold(Manifold manifold) {
         this.manifold = manifold;
     }

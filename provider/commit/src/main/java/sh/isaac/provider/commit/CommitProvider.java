@@ -477,35 +477,6 @@ public class CommitProvider
         }
     }
 
-    /**
-     * Commit.
-     *
-     * @param chronicle the chronicle
-     * @param editCoordinate the edit coordinate
-     * @param commitComment the commit comment
-     * @return the task
-     * @deprecated
-     */
-    @Override
-    public synchronized CommitTask commit(Chronology chronicle,
-            EditCoordinate editCoordinate,
-            String commitComment) {
-        //TODO chronicle commit is broken, as it doesn't update the uncommited stamp set.
-        //thus, if you commit a concept using this method, then later do a global commit, the global commit will
-        //recommit this concept, leading it to have two commit stamps with the same time.
-        CommitTaskChronology task = CommitTaskChronology.get(
-                chronicle,
-                editCoordinate,
-                commitComment,
-                this.uncommittedConceptsWithChecksNidSet,
-                this.uncommittedConceptsNoChecksNidSet,
-                this.uncommittedSemanticsWithChecksNidSet,
-                this.uncommittedSemanticsNoChecksNidSet,
-                this.checkers,
-                this);
-        return task;
-    }
-
     @Override
     public CommitTask commit(
             EditCoordinate editCoordinate,

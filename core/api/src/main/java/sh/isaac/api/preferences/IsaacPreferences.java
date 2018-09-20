@@ -612,7 +612,7 @@ public interface IsaacPreferences {
      * Removes this preference node and all of its descendants, invalidating any
      * preferences contained in the removed nodes. Once a node has been removed,
      * attempting any method other than {@link #name()},
-     * {@link #absolutePath()}, {@link #isUserNode()}, {@link #flush()} or
+     * {@link #absolutePath()}, {@link #flush()} or
      * {@link #node(String) nodeExists("")} on the corresponding
      * <tt>Preferences</tt> instance will fail with an
      * <tt>IllegalStateException</tt>. (The methods defined on {@link Object}
@@ -658,7 +658,7 @@ public interface IsaacPreferences {
     /**
      *
      *
-     * @return the preference node type. APPLICATION, USER, or SYSTEM.
+     * @return the preference node type. CONFIGURATION, USER, or SYSTEM.
      */
     PreferenceNodeType getNodeType();
 
@@ -964,7 +964,7 @@ public interface IsaacPreferences {
     default Optional<char[]> getPassword(String key) {
         try {
             Optional<String> encryptedPassword = get(key);
-            if (encryptedPassword.isPresent()) {
+            if (encryptedPassword.isPresent() && !encryptedPassword.get().isEmpty()) {
                 return Optional.of(PasswordHasher.decryptToChars("obfuscate-komet".toCharArray(), 
 								encryptedPassword.get()));
             }

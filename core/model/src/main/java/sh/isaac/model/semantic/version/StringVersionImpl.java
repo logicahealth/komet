@@ -119,9 +119,14 @@ public class StringVersionImpl
       final StringBuilder sb = new StringBuilder();
 
       sb.append("{String≤");
-      sb.append(this.string);
-      toString(sb);
+      if (this.string == null || this.string.isEmpty()) {
+          sb.append("null or empty");
+      } else {
+          sb.append(this.string);
+      }
+      
       sb.append("≥S}");
+      toString(sb);
       return sb.toString();
    }
 

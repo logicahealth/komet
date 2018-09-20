@@ -1228,6 +1228,24 @@ public class DirectImporter
                 columnsToWrite.add(newColumns);
             }
 
+            if (columns[4].equals("705112009") && ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.containsKey(columns[7])) {
+                String[] newColumns = new String[columns.length];
+                newColumns[0] = columns[0]; // id, a uuid
+                newColumns[1] = "20180731"; // effective time
+                newColumns[2] = columns[2]; // active
+                newColumns[3] = TermAux.SOLOR_OVERLAY_MODULE.getPrimordialUuid().toString(); // moduleId
+                newColumns[4] = columns[4]; // refsetId
+                newColumns[5] = columns[5]; // referenced component id
+                newColumns[6] = columns[6]; // mapTarget
+                newColumns[7] = columns[7];
+                for (Entry<String, String> entry: ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.entrySet()) {
+                    newColumns[7] = newColumns[7].replaceAll(entry.getKey(), entry.getValue());
+                }
+                newColumns[8] = columns[8]; // correlationId
+                newColumns[9] = columns[9]; // contentOriginId
+                columnsToWrite.add(newColumns);
+            }
+
             if (columnsToWrite.size() == writeSize) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing sscc semantics from: " + trimZipName(
@@ -1422,6 +1440,24 @@ public class DirectImporter
                 newColumns[8] = columns[8]; // definitionStatusId
                 newColumns[9] = columns[9]; // correlationId
                 newColumns[10] = columns[10]; // contentOriginId
+                columnsToWrite.add(newColumns);
+            }
+
+            if (columns[4].equals("705112009") && ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.containsKey(columns[7])) {
+                String[] newColumns = new String[columns.length];
+                newColumns[0] = columns[0]; // id, a uuid
+                newColumns[1] = "20180731"; // effective time
+                newColumns[2] = columns[2]; // active
+                newColumns[3] = TermAux.SOLOR_OVERLAY_MODULE.getPrimordialUuid().toString(); // moduleId
+                newColumns[4] = columns[4]; // refsetId
+                newColumns[5] = columns[5]; // referenced component id
+                newColumns[6] = columns[6]; // mapTarget
+                newColumns[7] = columns[7];
+                for (Entry<String, String> entry: ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.entrySet()) {
+                    newColumns[7] = newColumns[7].replaceAll(entry.getKey(), entry.getValue());
+                }
+                newColumns[8] = columns[8]; // correlationId
+                newColumns[9] = columns[9]; // contentOriginId
                 columnsToWrite.add(newColumns);
             }
 

@@ -28,4 +28,5 @@ import sh.komet.gui.manifold.Manifold;
 public interface KometPreferences {
     void showPreferences(IsaacPreferences preferences, Manifold manifold);
     void loadPreferences(IsaacPreferences preferences, Manifold manifold);
+    void resetUserPreferences();
 }

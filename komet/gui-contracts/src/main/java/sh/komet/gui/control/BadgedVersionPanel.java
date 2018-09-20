@@ -183,14 +183,18 @@ public abstract class BadgedVersionPanel
                 .addListener(this::textLayoutChanged);
         componentText.layoutBoundsProperty().addListener(this::debugTextLayoutListener);
         isInactive.set(this.categorizedVersion.getStatus() != Status.ACTIVE);
-        if (stampOrderHashMap.containsKey(categorizedVersion.getStampSequence())) {
+        int stampSequence = -1;
+        if (!categorizedVersion.isUncommitted()) {
+            stampSequence = categorizedVersion.getStampSequence();
+        }
+        if (stampOrderHashMap.containsKey(stampSequence)) {
             this.stampControl.setStampedVersion(
-                    categorizedVersion.getStampSequence(),
+                    stampSequence,
                     manifold,
-                    stampOrderHashMap.get(categorizedVersion.getStampSequence()));
+                    stampOrderHashMap.get(stampSequence));
         } else {
             this.stampControl.setStampedVersion(
-                    categorizedVersion.getStampSequence(),
+                    stampSequence,
                     manifold,
                     -1);
         }

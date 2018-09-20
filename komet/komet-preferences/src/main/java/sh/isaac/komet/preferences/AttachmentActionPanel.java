@@ -40,6 +40,7 @@ import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
+import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
@@ -51,14 +52,14 @@ import sh.komet.gui.util.FxGet;
 public class AttachmentActionPanel extends AbstractPreferences {
 
     public enum Keys {
-        ACTION_NAME,
+        ITEM_NAME,
         VERSION_TYPE,
         ASSEMBLAGE,
         SEMANTIC_FIELD_CONCEPTS,
         VERSION_TYPE_FOR_ACTION,
         SHOW_STATUS,
         SHOW_MODULE,
-        SHOW_PATH, 
+        SHOW_PATH,
         SHOW_SEARCH,
         SHOW_HISTORY
     };
@@ -66,7 +67,7 @@ public class AttachmentActionPanel extends AbstractPreferences {
     private final HashMap<ConceptSpecification, PropertySheet.Item> propertySheetItemMap = new HashMap<>();
 
     private final HashSet<ConceptSpecification> fieldConcepts = new HashSet<>();
-    private final SimpleStringProperty actionNameProperty
+    private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.ACTION_NAME____SOLOR.toExternalString());
 
     private final SimpleObjectProperty<ConceptSpecification> assemblageForActionProperty
@@ -76,34 +77,36 @@ public class AttachmentActionPanel extends AbstractPreferences {
             = new SimpleObjectProperty(this, ObservableFields.VERSION_TYPE_FOR_ACTION.toExternalString());
 
     private final SimpleObjectProperty<List<PropertySheet.Item>> itemListProperty = new SimpleObjectProperty<>(this, "item list property");
-    
+
     private final SimpleBooleanProperty showStatusProperty = new SimpleBooleanProperty(this, "edit status", true);
-    
+
     private final SimpleBooleanProperty showModuleProperty = new SimpleBooleanProperty(this, "edit module", true);
-    
+
     private final SimpleBooleanProperty showPathProperty = new SimpleBooleanProperty(this, "edit path", true);
-    
+
     private final SimpleBooleanProperty showSearchProperty = new SimpleBooleanProperty(this, "allow search", true);
-    
+
     private final SimpleBooleanProperty showHistoryProperty = new SimpleBooleanProperty(this, "allow history", true);
-    
-    
 
     public AttachmentActionPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(preferencesNode,
-                preferencesNode.get(Keys.ACTION_NAME, "attachment action " + preferencesNode.name()),
+                preferencesNode.get(Keys.ITEM_NAME, "attachment action " + preferencesNode.name()),
                 manifold, kpc);
+        nameProperty.set(groupNameProperty().get());
+        nameProperty.addListener((observable, oldValue, newValue) -> {
+            groupNameProperty().set(newValue);
+        });
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(manifold, actionNameProperty));
+        getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit status", showStatusProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit module", showModuleProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit path", showPathProperty));
         getItemList().add(new PropertySheetBooleanWrapper("allow search", showSearchProperty));
         getItemList().add(new PropertySheetBooleanWrapper("allow history", showHistoryProperty));
-        
-        getItemList().add(new PropertySheetItemVersionTypeWrapper("Version type", VersionType.CONCEPT));
+
+        getItemList().add(new PropertySheetItemVersionTypeWrapper("Version type", versionTypeForActionProperty));
         PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(manifold, assemblageForActionProperty);
         getItemList().add(conceptWrapper);
 
@@ -127,7 +130,7 @@ public class AttachmentActionPanel extends AbstractPreferences {
 
     @Override
     final void saveFields() throws BackingStoreException {
-        getPreferencesNode().put(Keys.ACTION_NAME, actionNameProperty.get());
+        getPreferencesNode().put(Keys.ITEM_NAME, nameProperty.get());
         getPreferencesNode().put(Keys.VERSION_TYPE_FOR_ACTION, versionTypeForActionProperty.get().name());
         getPreferencesNode().putConceptSpecification(Keys.ASSEMBLAGE, assemblageForActionProperty.get());
         // For each field, save a list: default value first, then allowed values. 
@@ -138,6 +141,19 @@ public class AttachmentActionPanel extends AbstractPreferences {
                 fieldConcepts.add(fieldConcept);
                 propertySheetItemMap.put(fieldConcept, item);
                 constraintsItem.writeToPreferences(getPreferencesNode().node(fieldConcept.getPrimordialUuid().toString()));
+            } else if (item instanceof PropertySheetItem) {
+                PropertySheetItem propertySheetItem = (PropertySheetItem) item;
+                switch (propertySheetItem.getEditorType()) {
+                    case TEXT:
+                        ConceptSpecification fieldConcept = propertySheetItem.getSpecification();
+                        fieldConcepts.add(fieldConcept);
+                        propertySheetItemMap.put(fieldConcept, item);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Can't handle: " + propertySheetItem.getEditorType());
+
+                }
+
             } else {
                 throw new UnsupportedOperationException("Can't handle : " + item);
             }
@@ -159,7 +175,7 @@ public class AttachmentActionPanel extends AbstractPreferences {
 
     @Override
     final void revertFields() {
-        this.actionNameProperty.set(getPreferencesNode().get(Keys.ACTION_NAME, getGroupName()));
+        this.nameProperty.set(getPreferencesNode().get(Keys.ITEM_NAME, getGroupName()));
         this.versionTypeForActionProperty.set(VersionType.valueOf(getPreferencesNode().get(Keys.VERSION_TYPE_FOR_ACTION, VersionType.CONCEPT.name())));
         this.assemblageForActionProperty.set(getPreferencesNode().getConceptSpecification(Keys.ASSEMBLAGE, TermAux.ASSEMBLAGE));
         this.fieldConcepts.clear();
@@ -173,11 +189,24 @@ public class AttachmentActionPanel extends AbstractPreferences {
             if (item instanceof PropertySheetItemConceptConstraintWrapper) {
                 readPropertySheetItemConceptContstraintWrapper(item);
 
+            } else if (item instanceof PropertySheetItem) {
+                PropertySheetItem propertySheetItem = (PropertySheetItem) item;
+                switch (propertySheetItem.getEditorType()) {
+                    case TEXT:
+                        ConceptSpecification fieldConcept = propertySheetItem.getSpecification();
+                        fieldConcepts.add(fieldConcept);
+                        propertySheetItemMap.put(fieldConcept, item);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Can't handle: " + propertySheetItem.getEditorType());
+
+                }
+
             } else {
                 throw new UnsupportedOperationException("Can't handle : " + item);
             }
         }
-        
+
         this.showHistoryProperty.set(getPreferencesNode().getBoolean(Keys.SHOW_HISTORY, true));
         this.showModuleProperty.set(getPreferencesNode().getBoolean(Keys.SHOW_MODULE, true));
         this.showPathProperty.set(getPreferencesNode().getBoolean(Keys.SHOW_PATH, true));
@@ -233,19 +262,21 @@ public class AttachmentActionPanel extends AbstractPreferences {
         b.append("import sh.isaac.api.chronicle.VersionType;\n");
         b.append("import sh.isaac.provider.drools.AddAttachmentMenuItems;\n");
         b.append("import sh.komet.gui.control.PropertyEditorType;\n");
+        b.append("import sh.komet.gui.control.PropertySheetTextWrapper;\n");
         b.append("import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;\n");
         b.append("import sh.komet.gui.control.property.PropertySheetItem;\n");
         b.append("import sh.komet.gui.control.property.PropertySheetPurpose;\n");
         b.append("import sh.komet.gui.control.property.EditorType;\n");
         b.append("import sh.isaac.api.logic.NodeSemantic;\n");
         b.append("\n");
-        b.append("rule \"").append(actionNameProperty.get()).append("\"\n");
+        b.append("rule \"").append(nameProperty.get())
+                .append(" ").append(getPreferencesNode().name()).append("\"\n");
         b.append("when\n");
         b.append("   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.").append(versionTypeForActionProperty.get().name()).append(")\n");
         b.append("then\n");
         b.append("   System.out.println(\"AddAttachmentMenuItems: \" + $addAttachmentToVersion);\n");
         b.append("   PropertySheetMenuItem propertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem(\"")
-                .append(actionNameProperty.get())
+                .append(nameProperty.get())
                 .append("\", new ").append(new ConceptProxy(this.assemblageForActionProperty.get().toExternalString()).toString())
                 .append(");\n");
 
@@ -258,14 +289,14 @@ public class AttachmentActionPanel extends AbstractPreferences {
                     .append(type.name())
                     .append(");\n");
         }
-        
+
         if (showModuleProperty.get()) {
             b.append("   propertySheetMenuItem.addPropertyToEdit(\"module\", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
         }
         if (showStatusProperty.get()) {
             b.append("   propertySheetMenuItem.addPropertyToEdit(\"status\", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);\n");
         }
-        if (showPathProperty .get()) {
+        if (showPathProperty.get()) {
             b.append("   propertySheetMenuItem.addPropertyToEdit(\"path\", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
         }
         b.append("end\n\n");
@@ -273,29 +304,63 @@ public class AttachmentActionPanel extends AbstractPreferences {
         for (ConceptSpecification fieldConcept : fieldConcepts) {
             PropertySheet.Item item = propertySheetItemMap.get(fieldConcept);
             PropertyEditorType type = getPropertyEditorType(item);
-            if (type == PropertyEditorType.CONCEPT) {
-                PropertySheetItemConceptConstraintWrapper constraintsItem = (PropertySheetItemConceptConstraintWrapper) item;
-                PropertySheetItemConceptWrapper conceptItem = constraintsItem.getValue();
-                b.append("rule \"Setup constraints for ").append(getManifold().getFullySpecifiedDescriptionText(fieldConcept)).append("\"\n");
-                b.append("when\n");
-                b.append("   $propertySheetItem : PropertySheetItemConceptWrapper(getSpecification() == new ")
-                        .append(new ConceptProxy(fieldConcept.toExternalString()).toString()).append(");\n");
-                b.append("then\n");
-                b.append("   $propertySheetItem.setDefaultValue(new ").append(new ConceptProxy(conceptItem.getValue()).toString()).append(");\n");
-                for (ConceptSpecification conceptSpec: conceptItem.getAllowedValues()) {
-                    b.append("   $propertySheetItem.getAllowedValues().add(new ").append(new ConceptProxy(conceptSpec).toString()).append(");\n");
-                }
-                b.append("   $propertySheetItem.setAllowSearch(").append(Boolean.toString(showSearchProperty.get())).append(");\n");
-                b.append("   $propertySheetItem.setAllowHistory(").append(Boolean.toString(showHistoryProperty.get())).append(");\n");
+            switch (type) {
+                case CONCEPT: {
+                    PropertySheetItemConceptConstraintWrapper constraintsItem = (PropertySheetItemConceptConstraintWrapper) item;
+                    PropertySheetItemConceptWrapper conceptItem = constraintsItem.getValue();
+                    b.append("rule \"Setup constraints for ").append(getManifold().getFullySpecifiedDescriptionText(fieldConcept))
+                .append(" ").append(getPreferencesNode().name()).append("\"\n");
+                    b.append("when\n");
+                    b.append("   $propertySheetItem : PropertySheetItemConceptWrapper(getSpecification() == new ")
+                            .append(new ConceptProxy(fieldConcept.toExternalString()).toString()).append(");\n");
+                    b.append("then\n");
+                    b.append("   $propertySheetItem.setDefaultValue(new ").append(new ConceptProxy(conceptItem.getValue()).toString()).append(");\n");
+                    for (ConceptSpecification conceptSpec : conceptItem.getAllowedValues()) {
+                        b.append("   $propertySheetItem.getAllowedValues().add(new ").append(new ConceptProxy(conceptSpec).toString()).append(");\n");
+                    }
+                    b.append("   $propertySheetItem.setAllowSearch(").append(Boolean.toString(showSearchProperty.get())).append(");\n");
+                    b.append("   $propertySheetItem.setAllowHistory(").append(Boolean.toString(showHistoryProperty.get())).append(");\n");
 
-                b.append("end\n\n");
+                    b.append("end\n\n");
+                    break;
+                }
+                case TEXT: {
+//                    b.append("rule \"Setup ").append(getManifold().getFullySpecifiedDescriptionText(fieldConcept)).append("\"\n");
+//                    b.append("   lock-on-active true\n");
+//                    b.append("when\n");
+//                    b.append("   $propertySheetItem : PropertySheetTextWrapper(getSpecification() == new ")
+//                            .append(new ConceptProxy(fieldConcept.toExternalString()).toString()).append(");\n");
+//                    b.append("then\n");
+//                    b.append("   $propertySheetItem.setEditorType(EditorType.TEXT);\n");
+//                    b.append("end\n\n");
+                    break;
+                }
+                case STATUS:
             }
 
+            
+            
         }
         return b.toString().getBytes();
     }
 
     protected PropertyEditorType getPropertyEditorType(PropertySheet.Item item) throws UnsupportedOperationException {
+        if (item instanceof PropertySheetItem) {
+            PropertySheetItem propertySheetItem = (PropertySheetItem) item;
+            // TODO consolidate PropertyEditorType and EditorType?
+            switch (propertySheetItem.getEditorType()) {
+                case TEXT:
+                    return PropertyEditorType.TEXT;
+                case CONCEPT_SPEC_CHOICE_BOX:
+                    return PropertyEditorType.CONCEPT;
+                case OBJECT_CHOICE_BOX:
+                    break;
+                case BOOLEAN:
+                    throw new UnsupportedOperationException("Boolean not yet supported");
+                case UNSPECIFIED:
+            }
+        }
+
         PropertyEditorType type;
         if (item.getValue() instanceof ConceptSpecification) {
             type = PropertyEditorType.CONCEPT;
@@ -308,4 +373,11 @@ public class AttachmentActionPanel extends AbstractPreferences {
         }
         return type;
     }
+
+    @Override
+    public boolean showDelete() {
+        return true;
+    }
+    
+    
 }
