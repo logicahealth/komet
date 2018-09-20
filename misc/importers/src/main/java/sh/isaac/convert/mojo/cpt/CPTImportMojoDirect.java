@@ -233,8 +233,10 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			{
 				// Make a new grouping concept
 				firstThree = d.code.substring(0, 3);
-				parent = ComponentReference.fromConcept(dwh.makeConceptEnNoDialect(firstThree, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				parent = ComponentReference.fromConcept(dwh.makeConceptEnNoDialect(firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {cptRootConcept}, Status.ACTIVE, contentTime));
+				dwh.makeDescriptionEnNoDialect(parent.getPrimordialUuid(), "Grouping concept for all codes that start with " + firstThree, 
+						MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, contentTime);
 				groupingConCount++;
 			}
 			cptConCount++;
@@ -247,7 +249,8 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 				advanceProgressLine();
 				log.info("Processed " + cptConCount + " concepts");
 			}
-			UUID concept = dwh.makeConceptEnNoDialect(d.code, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, Status.ACTIVE, contentTime);
+			
+			UUID concept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(d.code), Status.ACTIVE, contentTime);
 
 			dwh.makeParentGraph(concept, parent.getPrimordialUuid(), Status.ACTIVE, contentTime);
 			dwh.makeBrittleStringAnnotation(MetaData.CODE____SOLOR.getPrimordialUuid(), concept, d.code, contentTime);
