@@ -69,10 +69,20 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup> {
     
     public static Optional<PreferencesTreeItem> from(IsaacPreferences preferences, 
             Manifold manifold, KometPreferencesController controller)  {
-        Optional<String> propertySheetClass = preferences.get(Properties.PROPERTY_SHEET_CLASS);
-        if (propertySheetClass.isPresent()) {
+        Optional<String> optionalPropertySheetClass = preferences.get(Properties.PROPERTY_SHEET_CLASS);
+        if (optionalPropertySheetClass.isPresent()) {
             try {
-                Class preferencesSheetClass = Class.forName(propertySheetClass.get());
+                String propertySheetClassName = optionalPropertySheetClass.get();
+                if (propertySheetClassName.equals("sh.isaac.komet.preferences.GeneralPreferences")) {
+                    propertySheetClassName = "sh.isaac.komet.preferences.ConfigurationPreferences";
+                } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.ChangeSetPreferences")) {
+                    propertySheetClassName = "sh.isaac.komet.preferences.SynchronizationItems";
+                } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.AttachmentActionPreferences")) {
+                    propertySheetClassName = "sh.isaac.komet.preferences.AttachmentItems";
+                } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.LogicActionPreferences")) {
+                    propertySheetClassName = "sh.isaac.komet.preferences.LogicItems";
+                } 
+                Class preferencesSheetClass = Class.forName(propertySheetClassName);
                 Constructor<PreferenceGroup> c = preferencesSheetClass.getConstructor(
                         IsaacPreferences.class, 
                         Manifold.class, 

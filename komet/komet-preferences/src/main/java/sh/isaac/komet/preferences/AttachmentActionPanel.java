@@ -91,7 +91,7 @@ public class AttachmentActionPanel extends AbstractPreferences {
     public AttachmentActionPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(preferencesNode,
-                preferencesNode.get(Keys.ITEM_NAME, "attachment action " + preferencesNode.name()),
+                getGroupName(preferencesNode),
                 manifold, kpc);
         nameProperty.set(groupNameProperty().get());
         nameProperty.addListener((observable, oldValue, newValue) -> {
@@ -112,6 +112,15 @@ public class AttachmentActionPanel extends AbstractPreferences {
 
         handleAssemblageChange(null, null, assemblageForActionProperty.get());
         assemblageForActionProperty.addListener(this::handleAssemblageChange);
+    }
+    
+    private static String getGroupName(IsaacPreferences preferencesNode) {
+        if (preferencesNode.hasKey("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME")) {
+            String actionName = preferencesNode.get("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME", "");
+            preferencesNode.remove("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME");
+            preferencesNode.put(Keys.ITEM_NAME, actionName);
+        }
+        return preferencesNode.get(Keys.ITEM_NAME, "error");
     }
 
     private void handleAssemblageChange(ObservableValue<? extends ConceptSpecification> observable, ConceptSpecification oldValue, ConceptSpecification newValue) {
