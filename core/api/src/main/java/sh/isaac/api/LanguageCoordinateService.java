@@ -46,7 +46,7 @@ import java.util.List;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
-
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -125,7 +125,41 @@ public interface LanguageCoordinateService {
    int getPreferredConceptNid();
 
    /**
-    * Gets the specified description.
+    * Gets the specified description(s).
+    * 
+    * Iterates over the list of supplied descriptions, finding the descriptions that match the highest ranked 
+    * {@link LanguageCoordinate#getDescriptionTypePreferenceList()} (first item in the array) and the 
+    * {@link LanguageCoordinate#getLanguageConceptNid()}.  If no descriptions match, the process is repeated 
+    * with each subsequent item in {@link LanguageCoordinate#getDescriptionTypePreferenceList()}, walking 
+    * through the array one by one.
+    * 
+    * To be returned, a description MUST match one of the description types, and the specified language.
+    * 
+    * If the specified language {@link LanguageCoordinate#getLanguageConceptNid()} is {@link TermAux#LANGUAGE}, 
+    * then language will be considered to always match, ignoring the actual value of the language in the description.
+    * This allows this method to be used with a fallback behavior - where it will match a description of any language, 
+    * but still rank by the requested type.   
+    * 
+    *  - If no descriptions match this criteria, then 
+    *    - if a {@link LanguageCoordinate#getNextProrityLanguageCoordinate()} is supplied, the method is re-evaluated with the next coordinate.
+    *    - if there is no next priority coordinate, then an empty {@link LatestVersion} is returned.
+    * 
+    * For any descriptions that matched the criteria, they are then compared with the requested 
+    * {@link LanguageCoordinate#getDialectAssemblagePreferenceList()}
+    * The dialect preferences are evaluated in array order.  Each description that has a dialect annotation that matches
+    * the dialect preference, with a type of {@link TermAux#PREFERRED}, it is advanced to the next ranking step (below)
+    * 
+    * If none of the descriptions has a dialect annotation of type {@link TermAux#PREFERRED} that matches a dialect 
+    * in the {@link LanguageCoordinate#getDialectAssemblagePreferenceList()}, then all matching language / type matching
+    * descriptions are advanced to the next ranking step (below).
+    * 
+    * The final ranking step, is to evaluate {@link LanguageCoordinate#getModulePreferenceListForLanguage()}
+    * The module list is evaluated in order.  If a description matches the requested module, then it is placed
+    * into the top position, so it is returned via {@link LatestVersion#get()}.  All other descriptions are still 
+    * returned, but as part of the {@link LatestVersion#contradictions()}.
+    * 
+    * If none of the description match a specified module ranking, then the descriptions are returned in an arbitrary order, 
+    * between {@link LatestVersion#get()} and {@link LatestVersion#contradictions()}.
     *
     * @param stampCoordinate used to determine which versions of descriptions and dialect annotations are current.
     * @param descriptionList List of descriptions to consider.
@@ -134,20 +168,6 @@ public interface LanguageCoordinateService {
     */
    LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
          List<SemanticChronology> descriptionList,
-         LanguageCoordinate languageCoordinate);
-
-   /**
-    * Gets the specified description.
-    *
-    * @param stampCoordinate used to determine which versions of descriptions and dialect annotations are current.
-    * @param descriptionList List of descriptions to consider.
-    * @param typeConceptNid The specific type to match.
-    * @param languageCoordinate Used to determine ranking of candidate matches.
-    * @return the specified description
-    */
-   LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SemanticChronology> descriptionList,
-         int typeConceptNid,
          LanguageCoordinate languageCoordinate);
 
    /**

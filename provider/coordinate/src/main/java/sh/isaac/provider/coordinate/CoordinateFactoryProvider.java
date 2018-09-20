@@ -416,99 +416,55 @@ public class CoordinateFactoryProvider
     }
 
     /**
-     * Gets the specified description.
-     *
-     * @param stampCoordinate the stamp coordinate
-     * @param descriptionList the description list
-     * @param languageCoordinate the language coordinate
-     * @return the specified description
+     * @see sh.isaac.api.LanguageCoordinateService#getSpecifiedDescription(sh.isaac.api.coordinate.StampCoordinate, java.util.List, sh.isaac.api.coordinate.LanguageCoordinate)
      */
     @Override
-    public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-            List<SemanticChronology> descriptionList,
+    public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate, List<SemanticChronology> descriptionList,
             LanguageCoordinate languageCoordinate) {
-        for (final int descType : languageCoordinate.getDescriptionTypePreferenceList()) {
-            final LatestVersion<DescriptionVersion> match = getSpecifiedDescription(
-                    stampCoordinate,
-                    descriptionList,
-                    descType,
-                    languageCoordinate);
-
-            if (match.isPresent()) {
-                return match;
-            }
-        }
-
-        return new LatestVersion<>();
-    }
-
-    /**
-     * Gets the specified description.
-     *
-     * @param stampCoordinate the stamp coordinate
-     * @param descriptionList the description list
-     * @param typeSequence the type sequence
-     * @param languageCoordinate the language coordinate
-     * @return the specified description
-     */
-    @Override
-    public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-            List<SemanticChronology> descriptionList,
-            int typeSequence,
-            LanguageCoordinate languageCoordinate) {
-        final SemanticSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.assemblageService()
-                .getSnapshot(ComponentNidVersion.class,
-                        stampCoordinate);
         final List<DescriptionVersion> descriptionsForLanguageOfType = new ArrayList<>();
 
-        for (SemanticChronology descriptionChronicle : descriptionList) {
-            final LatestVersion<DescriptionVersion> latestDescription
-                    = ((SemanticChronology) descriptionChronicle).getLatestVersion(stampCoordinate);
-
-            if (latestDescription.isPresent()) {
-                final LatestVersion<DescriptionVersion> latestDescriptionVersion = latestDescription;
-                for (DescriptionVersion descriptionVersion : latestDescriptionVersion.versionList()) {
-                    if (descriptionVersion.getLanguageConceptNid()
-                            == languageCoordinate.getLanguageConceptNid()) {
-                        if (descriptionVersion.getDescriptionTypeConceptNid()
-                                == typeSequence) {
+        //Find all descriptions that match the language and description type - moving through the desired description types until 
+        //we find at least one.
+        for (final int descType : languageCoordinate.getDescriptionTypePreferenceList()) {
+            for (SemanticChronology descriptionChronicle : descriptionList) {
+                final LatestVersion<DescriptionVersion> latestDescription = ((SemanticChronology) descriptionChronicle).getLatestVersion(stampCoordinate);
+    
+                if (latestDescription.isPresent()) {
+                    for (DescriptionVersion descriptionVersion : latestDescription.versionList()) {
+                        if ((descriptionVersion.getLanguageConceptNid() == languageCoordinate.getLanguageConceptNid() ||
+                              languageCoordinate.getLanguageConceptNid() == TermAux.LANGUAGE.getNid())
+                                && descriptionVersion.getDescriptionTypeConceptNid() == descType) {
                             descriptionsForLanguageOfType.add(descriptionVersion);
                         }
                     }
                 }
             }
+            if (!descriptionsForLanguageOfType.isEmpty()) {
+                //If we found at least one that matches the language and type, go on to rank by dialect
+                break;
+            }
         }
 
         if (descriptionsForLanguageOfType.isEmpty()) {
+            //Didn't find any that matched any of the allowed description types.  See if there is another priority coordinate to continue with
             Optional<LanguageCoordinate> nextPriorityCoordinate = languageCoordinate.getNextProrityLanguageCoordinate();
             if (nextPriorityCoordinate.isPresent()) {
-                return getSpecifiedDescription(stampCoordinate,
-                        descriptionList,
-                        typeSequence,
-                        nextPriorityCoordinate.get());
+                return getSpecifiedDescription(stampCoordinate, descriptionList, nextPriorityCoordinate.get());
             }
-            // implement fail-safe. If no descriptions are returned, get first active one in any language. 
-            for (SemanticChronology descriptionChronicle : descriptionList) {
-                final LatestVersion<DescriptionVersion> latestDescription
-                        = ((SemanticChronology) descriptionChronicle).getLatestVersion(stampCoordinate);
-
-                if (latestDescription.isPresent()) {
-                    return latestDescription;
-                }
+            else {
+                return new LatestVersion<>();
             }
-            // nothing current in any language. 
-            return new LatestVersion<>();
         }
 
         // handle dialect...
-        final LatestVersion<DescriptionVersion> preferredForDialect = new LatestVersion(DescriptionVersion.class);
-
+        final LatestVersion<DescriptionVersion> preferredForDialect = new LatestVersion<>(DescriptionVersion.class);
+        final SemanticSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.assemblageService().getSnapshot(ComponentNidVersion.class,
+                stampCoordinate);
         for (int dialectAssemblageNid : languageCoordinate.getDialectAssemblagePreferenceList()) {
             if (!preferredForDialect.isPresent()) {
                 for (DescriptionVersion description : descriptionsForLanguageOfType) {
-                    for (LatestVersion<ComponentNidVersion> acceptabilityVersion : acceptabilitySnapshot.getLatestSemanticVersionsForComponentFromAssemblage(description.getNid(),
-                            dialectAssemblageNid)) {
-
+                    for (LatestVersion<ComponentNidVersion> acceptabilityVersion : acceptabilitySnapshot
+                            .getLatestSemanticVersionsForComponentFromAssemblage(description.getNid(), dialectAssemblageNid)) {
                         acceptabilityVersion.ifPresent((acceptability) -> {
                             if (acceptability.getComponentNid() == getPreferredConceptNid()) {
                                 preferredForDialect.addLatest(description);
@@ -519,21 +475,20 @@ public class CoordinateFactoryProvider
             }
         }
 
+        //If none matched the dialect rank list, just ignore the dialect, and keep all that matched the type and language.
         if (!preferredForDialect.isPresent()) {
-            descriptionsForLanguageOfType.forEach(
-                    (description) -> {
-                        preferredForDialect.addLatest(description);
-                    });
+            descriptionsForLanguageOfType.forEach((description) -> {
+                preferredForDialect.addLatest(description);
+            });
         }
-        
+
         // add in module preferences if there is more than one. 
-        if (languageCoordinate.getModulePreferenceListForLanguage().length != 0) {
-            List<DescriptionVersion> versionList = preferredForDialect.versionList();
-            for (int preference: languageCoordinate.getModulePreferenceListForLanguage()) {
-                for (DescriptionVersion descriptionVersion: versionList) {
+        if (languageCoordinate.getModulePreferenceListForLanguage() != null && languageCoordinate.getModulePreferenceListForLanguage().length != 0) {
+            for (int preference : languageCoordinate.getModulePreferenceListForLanguage()) {
+                for (DescriptionVersion descriptionVersion : preferredForDialect.versionList()) {
                     if (descriptionVersion.getModuleNid() == preference) {
-                        LatestVersion<DescriptionVersion> preferredForModule = new LatestVersion(descriptionVersion);
-                        for (DescriptionVersion alternateVersion: versionList) {
+                        LatestVersion<DescriptionVersion> preferredForModule = new LatestVersion<>(descriptionVersion);
+                        for (DescriptionVersion alternateVersion : preferredForDialect.versionList()) {
                             if (alternateVersion != preferredForModule.get()) {
                                 preferredForModule.addLatest(alternateVersion);
                             }
@@ -543,7 +498,6 @@ public class CoordinateFactoryProvider
                 }
             }
         }
-
         return preferredForDialect;
     }
 

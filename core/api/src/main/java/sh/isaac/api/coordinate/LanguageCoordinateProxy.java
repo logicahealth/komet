@@ -69,4 +69,15 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    public default Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
       return getLanguageCoordinate().getNextProrityLanguageCoordinate();
    }
+
+   @Override
+   default LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList, int[] descriptionTypePreference,
+         StampCoordinate stampCoordinate) {
+      return getLanguageCoordinate().getDescription(descriptionList, descriptionTypePreference, stampCoordinate);
+   }
+
+   @Override
+   default LatestVersion<DescriptionVersion> getDescription(int conceptNid, int[] descriptionTypePreference, StampCoordinate stampCoordinate) {
+      return getLanguageCoordinate().getDescription(conceptNid, descriptionTypePreference, stampCoordinate);
+   }
 }

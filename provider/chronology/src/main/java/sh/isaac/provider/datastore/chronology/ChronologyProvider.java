@@ -97,6 +97,7 @@ import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.configuration.EditCoordinates;
+import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
@@ -807,19 +808,20 @@ public class ChronologyProvider
                     .getDescriptionsForComponent(conceptNid);
         }
 
-        /**
-         * Gets the description optional.
-         *
-         * @param conceptId the concept id
-         * @return the description optional
-         */
         @Override
         public LatestVersion<DescriptionVersion> getDescriptionOptional(int conceptId) {
             if (conceptId >= 0) {
                 throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptId);
             }
 
-            return this.manifoldCoordinate.getDescription(getDescriptionList(conceptId));
+            LatestVersion<DescriptionVersion> lv = this.manifoldCoordinate.getDescription(getDescriptionList(conceptId));
+            if (lv.isAbsent()) {
+               //Use a coordinate that will return anything
+               return LanguageCoordinates.getRegularNameCoordinate().getDescription(getDescriptionList(conceptId), this.manifoldCoordinate);
+            }
+            else {
+               return lv;
+            }
         }
 
         /**

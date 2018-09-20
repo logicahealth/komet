@@ -70,7 +70,7 @@ import javafx.scene.paint.Color;
 
 import javafx.stage.WindowEvent;
 import org.controlsfx.property.editor.PropertyEditor;
-
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -400,8 +400,9 @@ public class ManifoldLinkedConceptLabel
         
         if (label.manifold.getFocusedConcept().isPresent()) {
             ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept().get());
-            focusedConcept
-                    .getFullySpecifiedDescription(label.manifold)
+            label.manifold.getDescription(focusedConcept.getNid(), new int[] {
+                    MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid(), 
+                    MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()})
                     .ifPresent(label::setDescriptionText)
                     .ifAbsent(label::setEmptyText);
         } else {
@@ -412,8 +413,9 @@ public class ManifoldLinkedConceptLabel
     public static void setPreferredText(ManifoldLinkedConceptLabel label) {
         if (label.manifold.getFocusedConcept().isPresent()) {
             ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept().get());
-            focusedConcept
-                    .getPreferredDescription(label.manifold)
+            label.manifold.getDescription(focusedConcept.getNid(), new int[] {
+                  MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(), 
+                  MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()})
                     .ifPresent(label::setDescriptionText)
                     .ifAbsent(label::setEmptyText);
         } else {

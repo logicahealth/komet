@@ -39,15 +39,27 @@
 
 package sh.isaac.model.configuration;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Locale;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.LanguageCoordinateService;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -58,6 +70,9 @@ import sh.isaac.model.coordinate.LanguageCoordinateImpl;
  * @author kec
  */
 public class LanguageCoordinates {
+   
+   private static final Logger LOG = LogManager.getLogger();
+   
    /**
     * Case significance to concept nid.
     *
@@ -252,9 +267,8 @@ public class LanguageCoordinates {
       final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
       final int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getNid(),
                                                                 TermAux.US_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = new int[] {
-                                                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
-                                                           TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()};
+      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
       return new LanguageCoordinateImpl(languageSequence,
@@ -272,8 +286,8 @@ public class LanguageCoordinates {
       final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
       final int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getNid(),
                                                                 TermAux.US_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = new int[] { TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(),
-                                                              TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid() };
+      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
       return new LanguageCoordinateImpl(languageSequence,
@@ -291,9 +305,8 @@ public class LanguageCoordinates {
       final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
       final int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getNid(),
                                                                 TermAux.GB_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = new int[] {
-                                                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
-                                                           TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid() };
+      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+            new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
@@ -315,8 +328,8 @@ public class LanguageCoordinates {
       final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
       final int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getNid(),
                                                                 TermAux.GB_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = new int[] { TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(),
-                                                              TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid() };
+      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
@@ -330,15 +343,15 @@ public class LanguageCoordinates {
    public static LanguageCoordinate getSpanishLanguageFullySpecifiedNameCoordinate() {
       final int languageSequence = TermAux.SPANISH_LANGUAGE.getNid();
       final int[] dialectAssemblagePreferenceList = new int[] { TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = new int[] {
-                                                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
-                                                           TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid() };
+      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
+      coordinate.setNextProrityLanguageCoordinate(getFullyQualifiedCoordinate());
       
       return coordinate;
    }
@@ -350,16 +363,121 @@ public class LanguageCoordinates {
    public static LanguageCoordinate getSpanishLanguagePreferredTermCoordinate() {
       final int languageSequence = TermAux.SPANISH_LANGUAGE.getNid();
       final int[] dialectAssemblagePreferenceList = new int[] { TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = new int[] { TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(),
-                                                              TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid() };
+      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
+      coordinate.setNextProrityLanguageCoordinate(getRegularNameCoordinate());
       
       return coordinate;
    }
-}
+   
+   /**
+    * A coordinate that completely ignores language - descriptions ranked by this coordinate will only be ranked by
+    * description type and module preference.  This coordinate is primarily useful as a fallback coordinate for the final 
+    * {@link LanguageCoordinate#getNextProrityLanguageCoordinate()} in a chain
+    * 
+    * See {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, java.util.List, LanguageCoordinate)}
+    *
+    * @return a coordinate that prefers regular names, of arbitrary language, but will return descriptions of any description
+    * type
+    */
+   public static LanguageCoordinate getRegularNameCoordinate() {
+      final int languageSequence = TermAux.LANGUAGE.getNid();
+      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), 
+                    TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(), 
+                    TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()}, 
+              null);
 
+      final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
+                                        new int[] {},
+                                        descriptionTypePreferenceList, 
+                                        modulePreferenceList);
+      return coordinate;
+   }
+   
+   /**
+    * A coordinate that completely ignores language - descriptions ranked by this coordinate will only be ranked by
+    * description type and module preference.  This coordinate is primarily useful as a fallback coordinate for the final 
+    * {@link LanguageCoordinate#getNextProrityLanguageCoordinate()} in a chain
+    * 
+    * See {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, java.util.List, LanguageCoordinate)}
+    *
+    * @return a coordinate that prefers fully qualified names, of arbitrary language  but will return descriptions of any description
+    * type
+    */
+   public static LanguageCoordinate getFullyQualifiedCoordinate() {
+      final int languageSequence = TermAux.LANGUAGE.getNid();
+      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
+                    TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), 
+                    TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()}, 
+              null);
+
+      final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
+                                        new int[] {},
+                                        descriptionTypePreferenceList, 
+                                        modulePreferenceList);
+      return coordinate;
+   }
+   
+   /**
+    * Take in a list of the description type prefs, such as {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
+    * and include any non-core description types that are linked to these core types, in the right order, so that the LanguageCoordinates can include the 
+    * non-core description types in the appropriate places when looking for descriptions.
+    * @param descriptionTypePreferenceList the starting list - should only consist of core description types - 
+    * {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}, {@link TermAux#DEFINITION_DESCRIPTION_TYPE} 
+    * @param stampCoordinate - optional - if not provided, uses {@link StampCoordinates#getDevelopmentLatestActiveOnly()}
+    * @return the initial list, plus any equivalent non-core types in the appropriate order.  See {@link DynamicConstants#DYNAMIC_DESCRIPTION_CORE_TYPE}
+    */
+   public static int[] expandDescriptionTypePreferenceList(int[] descriptionTypePreferenceList, StampCoordinate stampCoordinate) {
+      long time = System.currentTimeMillis();
+      StampCoordinate stamp = stampCoordinate == null ? StampCoordinates.getDevelopmentLatestActiveOnly() : stampCoordinate;
+      HashMap<Integer, NidSet> equivalentTypes = new HashMap<>();
+      
+      //Collect the mappings from core types -> non core types
+      Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(sc -> 
+      {
+         @SuppressWarnings("unchecked")
+         DynamicVersion<? extends Version> dv = (DynamicVersion<? extends Version>)sc.getLatestVersion(stamp).get();
+         int coreTypeNid = Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID());
+         NidSet mapped = equivalentTypes.get(coreTypeNid);
+         if (mapped == null) {
+            mapped = new NidSet();
+            equivalentTypes.put(coreTypeNid, mapped);
+         }
+         mapped.add(sc.getReferencedComponentNid());
+      });
+      
+      if (equivalentTypes.isEmpty()) {
+         //this method is a noop
+         LOG.debug("Expanded description types call is a noop in {}ms", System.currentTimeMillis() - time);
+         return descriptionTypePreferenceList;
+      }
+      
+      ArrayList<Integer> result = new ArrayList<>();
+      for (int coreTypeNid : descriptionTypePreferenceList) {
+         result.add(coreTypeNid);
+         NidSet nonCoreTypes = equivalentTypes.get(coreTypeNid);
+         if (nonCoreTypes != null) {
+            for (int type: nonCoreTypes.asArray()) {
+               result.add(type);
+            }
+         }
+      }
+      int[] finalResult = new int[result.size()];
+      int i = 0;
+      for (int r : result) {
+         finalResult[i++] = r;  
+      }
+      LOG.info("Expanded language type list from {} to {} in {}ms", descriptionTypePreferenceList, finalResult, System.currentTimeMillis() - time);
+      return finalResult;
+   }
+}
