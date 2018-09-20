@@ -182,6 +182,8 @@ public class TermAux implements StaticIsaacCache {
    public static ConceptSpecification SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE = new ConceptProxy("Latin american spanish dialect assemblage", "Latin American Spanish",
          UUID.fromString("835d3fe2-7bd7-3aa8-a52a-25e203b0afbe"));
 
+   public static ConceptSpecification LANGUAGE = new ConceptProxy("Language", UUID.fromString("f56fa231-10f9-5e7f-a86d-a1d61b5b56e3"));
+   
    /** ConceptProxy for: "English language". */
    public static ConceptSpecification ENGLISH_LANGUAGE = new ConceptProxy("English language", UUID.fromString("06d905ea-c647-3af9-bfe5-2514e135b558"));
 

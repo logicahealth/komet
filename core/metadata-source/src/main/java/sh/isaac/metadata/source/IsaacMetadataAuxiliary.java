@@ -334,7 +334,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("MIM Number").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
 
                popParent();
-            createConcept("Language");
+            createConcept(TermAux.LANGUAGE);
             pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 
             //confusing than necessary, also, making 2 parents, one of language, the other under assemblage.
                createConcept(TermAux.ENGLISH_LANGUAGE, 
