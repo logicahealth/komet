@@ -455,7 +455,12 @@ public class KometStageController
                     ConceptChronology concept = (ConceptChronology) newValue;
                     buff.append(concept.toString());
                 }
-                System.out.println(buff);
+                if (Get.configurationService().isVerboseDebugEnabled()) {
+                   System.out.println(buff.toString());
+                }
+                else {
+                   LOG.debug(buff.toString());
+                }
             }
         });
     }

@@ -495,7 +495,7 @@ public class FileSystemDataStore
                     if (directory.exists()) {
                         int filesRead = map.read(directory);
                         if (filesRead > 0) {
-                            LOG.info("Read  " + filesRead + " element to nid files for assemblage: "
+                            LOG.debug("Read  " + filesRead + " element to nid files for assemblage: "
                                     + " " + properties.getProperty(Integer.toString(assemblageNid))
                                     + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
                         }
@@ -620,7 +620,7 @@ public class FileSystemDataStore
                     if (spineDirectory.exists()) {
                         int filesToRead = spinedByteArrayArrayMap.lazyRead(spineDirectory);
                         if (filesToRead > 0) {
-                            LOG.info("Lazy open of " + filesToRead
+                            LOG.debug("Lazy open of " + filesToRead
                                     + " chronology files for assemblage: "
                                     + " " + properties.getProperty(Integer.toString(assemblageNid))
                                     + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
