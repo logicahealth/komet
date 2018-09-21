@@ -40,12 +40,12 @@ public class PropertySheetTextWrapper  implements PropertySheet.Item {
        }
       this.name = name;
       this.textProperty = textProperty;
-      
    }
 
    public PropertySheetTextWrapper(Manifold manifold,
            StringProperty textProperty) {
-      this(manifold.getPreferredDescriptionText(new ConceptProxy(textProperty.getName())), 
+      this(manifold.getPreferredDescriptionText(new ConceptProxy(textProperty.getName()), 
+              ConceptSpecification.getNameFromExternalString(textProperty.getName())), 
               textProperty);
    }
     public ConceptSpecification getSpecification() {

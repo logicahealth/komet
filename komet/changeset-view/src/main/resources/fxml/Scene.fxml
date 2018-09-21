@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="200" prefWidth="320" xmlns:fx="http://javafx.com/fxml" fx:controller="sh.isaac.komet.changeset.view.FXMLController">
-    <children>
-        <Button layoutX="126" layoutY="90" text="Click Me!" onAction="#handleButtonAction" fx:id="button" />
-        <Label layoutX="126" layoutY="120" minHeight="16" minWidth="69" fx:id="label" />
-    </children>
+<AnchorPane id="AnchorPane" prefHeight="626.0" prefWidth="776.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/9" fx:controller="sh.isaac.komet.changeset.view.FXMLController">
+   <children>
+      <TableView layoutX="7.0" prefHeight="200.0" prefWidth="320.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <columns>
+          <TableColumn prefWidth="75.0" text="type" />
+          <TableColumn prefWidth="75.0" text="status" />
+            <TableColumn prefWidth="75.0" text="time" />
+            <TableColumn prefWidth="75.0" text="author" />
+            <TableColumn prefWidth="75.0" text="module" />
+            <TableColumn prefWidth="75.0" text="path" />
+            <TableColumn prefWidth="325.0" text="data" />
+        </columns>
+      </TableView>
+   </children>
 </AnchorPane>

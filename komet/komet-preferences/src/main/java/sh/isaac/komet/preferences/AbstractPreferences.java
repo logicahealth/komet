@@ -18,7 +18,6 @@ package sh.isaac.komet.preferences;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;

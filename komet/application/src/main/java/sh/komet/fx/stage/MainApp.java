@@ -102,7 +102,6 @@ public class MainApp
     private static Stage primaryStage;
     public IsaacPreferences configurationPreferences;
     public boolean firstRun = true;
-    public boolean resetUserPreferences = true;
 
     //~--- methods -------------------------------------------------------------
     /**
@@ -138,9 +137,6 @@ public class MainApp
             firstRun = false;
         }
         
-        if (firstRun && resetUserPreferences) {
-                FxGet.kometPreferences().resetUserPreferences();
-        }
         Get.configurationService().setSingleUserMode(true);  //TODO eventually, this needs to be replaced with a proper user identifier
         Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
         Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);

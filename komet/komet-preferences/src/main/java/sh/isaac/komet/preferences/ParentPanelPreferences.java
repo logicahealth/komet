@@ -23,9 +23,14 @@ import java.util.prefs.BackingStoreException;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
+import javafx.stage.Stage;
 import sh.isaac.api.preferences.IsaacPreferences;
+import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -82,8 +87,32 @@ public abstract class ParentPanelPreferences extends AbstractPreferences {
     public final Node getTopPanel(Manifold manifold) {
         Button addButton = new Button("Add");
         addButton.setOnAction(this::newChild);
-        return new ToolBar(addButton);
+        ToolBar toolbar = new ToolBar(addButton);
+        MenuItem resetUserItems = new MenuItem("Clear user items");
+        resetUserItems.setOnAction(this::resetUserItems);
+        MenuItem resetConfigurationAndUserItems = new MenuItem("Clear user and child items");
+        resetConfigurationAndUserItems.setOnAction(this::resetConfigurationAndUserItems);
+        toolbar.setContextMenu(new ContextMenu(resetUserItems, resetConfigurationAndUserItems));
+        return toolbar;
     }
+    
+    private void resetUserItems(ActionEvent actionEvent) {
+        FxGet.kometPreferences().resetUserPreferences();
+        Stage stage = (Stage) this.getTreeItem().controller.getPreferenceTree().getScene().getWindow();
+        stage.close();
+    } 
+
+    private void resetConfigurationAndUserItems(ActionEvent actionEvent) {
+        try {
+            IsaacPreferences configurationNode = FxGet.configurationNode(ConfigurationPreferences.class).node(getPreferencesNode().absolutePath());
+            configurationNode.remove(CHILDREN_NODES);
+            configurationNode.sync();
+            FxGet.kometPreferences().resetUserPreferences();
+            FxGet.kometPreferences().closePreferences();
+        } catch (BackingStoreException ex) {
+           throw new RuntimeException(ex);
+        }
+    } 
     
     @Override
     public boolean showRevertAndSave() {

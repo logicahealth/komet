@@ -141,9 +141,16 @@ public class KometPreferencesImpl implements KometPreferences {
         preferencesStage.showingProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == false) {
                 this.kpc = null;
+                this.preferencesStage = null;
             }
         });
         preferencesStage.setAlwaysOnTop(true);
+    }
+    
+    public void closePreferences() {
+        this.preferencesStage.close();
+        this.kpc = null;
+        this.preferencesStage = null;
     }
 
 }

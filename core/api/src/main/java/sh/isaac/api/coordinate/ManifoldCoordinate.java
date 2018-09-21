@@ -213,6 +213,24 @@ public interface ManifoldCoordinate
        }
        return getPreferredDescriptionText(conceptSpec.getNid());
    }
+   /**
+    * Calls {@link #getPreferredDescriptionText(int)} with the nid of the specified concept spec.
+    * @param conceptSpec  If not provided, this method simply returns "empty"
+    * @param defaultText If an instance is misconfigured, it may be lacking some required concepts. 
+    * Rather than throw an exception, the default text option allows a better fallback.
+    * @return see {@link #getPreferredDescriptionText(int)}
+    */
+   
+   default String getPreferredDescriptionText(ConceptSpecification conceptSpec, String defaultText) {
+       if (conceptSpec == null) {
+           return defaultText;
+       }
+       LatestVersion<DescriptionVersion> latestDescription = getPreferredDescription(conceptSpec);
+       if (latestDescription.isPresent()) {
+           return latestDescription.get().getText();
+       }
+       return defaultText;
+   }
    
    /**
     * calls {@link #getRegularName(int)}

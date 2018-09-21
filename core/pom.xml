@@ -12,7 +12,6 @@
     <packaging>pom</packaging>
     <modules>
        <module>api</module>
-        <module>info-log-config</module>
         <module>log-config</module>
         <module>mapping-constants</module>
         <module>metadata</module>

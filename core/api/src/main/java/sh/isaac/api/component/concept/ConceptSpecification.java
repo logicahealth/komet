@@ -43,6 +43,7 @@ package sh.isaac.api.component.concept;
 
 import java.util.Optional;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.util.StringUtils;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -79,6 +80,13 @@ public interface ConceptSpecification
       return sb.toString();
    }
 
+   static String getNameFromExternalString(String externalString) {
+        String[] parts = StringUtils.split(externalString, FIELD_SEPARATOR);
+        if (parts.length > 2) {
+            return parts[1];
+        }
+        return parts[0];
+   }
    //~--- get methods ---------------------------------------------------------
 
    /**
