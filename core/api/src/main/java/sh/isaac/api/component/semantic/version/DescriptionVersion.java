@@ -39,9 +39,9 @@
 
 package sh.isaac.api.component.semantic.version;
 
-import org.apache.logging.log4j.LogManager;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
 
 /**
@@ -88,8 +88,10 @@ public interface DescriptionVersion
       } else if (nid == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
           return "Definition";
       } else {
-         LogManager.getLogger().warn("Unexpected description type {}!", nid);
-         return Get.conceptDescriptionText(nid);
+         LatestVersion<DescriptionVersion> lv = Get.defaultCoordinate().getLanguageCoordinate().getDescription(nid, 
+               new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()},
+               Get.defaultCoordinate());
+         return lv.isPresent() ? lv.get().getText() : Get.conceptDescriptionText(nid);
       }
    }
 
