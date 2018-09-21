@@ -86,7 +86,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import org.apache.lucene.search.RegexpQuery;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -114,6 +113,7 @@ import sh.isaac.api.index.IndexStatusListener;
 import sh.isaac.api.util.Interval;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
+import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.ManifoldCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
@@ -195,6 +195,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
     private final Tooltip searchTextTooltip = new Tooltip();
     private Integer currentlyEnteredAssemblageNid = null;
     private final FlowPane searchInColumnsHolder = new FlowPane();
+    private int descriptionTypeSelectionExtendedIndex = Integer.MAX_VALUE;
 
     private enum SearchInOptions {
         Descriptions, Identifiers, Semantics
@@ -421,20 +422,12 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         searchInRefexHBox.getChildren().add(searchInSemantics.getNode());
         HBox.setHgrow(searchInSemantics.getNode(), Priority.ALWAYS);
 
-        descriptionTypeSelection.getItems().add(new SimpleDisplayConcept("All", Integer.MIN_VALUE));
-        descriptionTypeSelection.getItems().add(new SimpleDisplayConcept("Fully Qualified Name", MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()));
-        descriptionTypeSelection.getItems().add(new SimpleDisplayConcept("Regular Name", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()));
-        descriptionTypeSelection.getItems().add(new SimpleDisplayConcept("Definition", MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()));
-        descriptionTypeSelection.getItems().add(new SimpleDisplayConcept("--- Terminology Types ---", Integer.MAX_VALUE));
-
         descriptionTypeSelection.valueProperty().addListener((change)
                 -> {
             if (descriptionTypeSelection.getValue().getNid() == Integer.MAX_VALUE) {
                 descriptionTypeSelection.getSelectionModel().clearAndSelect(0);
             }
         });
-
-        descriptionTypeSelection.getSelectionModel().clearAndSelect(0);
 
         searchInColumnsHolder.setHgap(10);
         searchInColumnsHolder.setVgap(5.0);
@@ -654,8 +647,8 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         if (dynamicRefexList_.isEmpty()) {
             populateDynamicSememeList();
         }
-        if (descriptionTypeSelection.getItems().size() == 5) {
-            populateExtendedDescriptionList();
+        if (descriptionTypeSelection.getItems().size() == 0) {
+            populateDescriptionList();
         }
         return borderPane;
     }
@@ -741,21 +734,15 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                 case Descriptions:
                     int[] descriptionTypeRestriction;
                     int[] extendedDescriptionTypeRestriction;
-                    if (descriptionTypeSelection.getValue().getNid() == Integer.MIN_VALUE) {
+                    if (descriptionTypeSelection.getValue().getNid() == Integer.MIN_VALUE ||
+                          descriptionTypeSelection.getValue().getNid() == Integer.MAX_VALUE) {
                         LOG.debug("Doing a description search across all description types");
                         descriptionTypeRestriction = null;
                         extendedDescriptionTypeRestriction = null;
-                    } else if (descriptionTypeSelection.getValue().getNid() == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
-                        LOG.debug("Doing a description search on FQN");
-                        descriptionTypeRestriction = new int[]{descriptionTypeSelection.getValue().getNid()};
-                        extendedDescriptionTypeRestriction = null;
-                    } else if (descriptionTypeSelection.getValue().getNid() == MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()) {
-                        LOG.debug("Doing a description search on Definition");
-                        descriptionTypeRestriction = new int[]{descriptionTypeSelection.getValue().getNid()};
-                        extendedDescriptionTypeRestriction = null;
-                    } else if (descriptionTypeSelection.getValue().getNid() == MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
-                        LOG.debug("Doing a description search on Synonym");
-                        descriptionTypeRestriction = new int[]{descriptionTypeSelection.getValue().getNid()};
+                    } else if (descriptionTypeSelection.getSelectionModel().getSelectedIndex() < descriptionTypeSelectionExtendedIndex) {
+                        LOG.debug("Doing a description search on core description type {}", Get.conceptDescriptionText(descriptionTypeSelection.getValue().getNid()));
+                        descriptionTypeRestriction = LanguageCoordinates.expandDescriptionTypePreferenceList(new int[]{descriptionTypeSelection.getValue().getNid()}, 
+                                readManifoldCoordinate);
                         extendedDescriptionTypeRestriction = null;
                     } else {
                         LOG.debug("Doing a description search on the extended type {}", descriptionTypeSelection.getValue().getDescription());
@@ -872,13 +859,35 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         Get.workExecutors().getExecutor().execute(t);
     }
 
-    private void populateExtendedDescriptionList() {
+    private void populateDescriptionList() {
         Get.workExecutors().getExecutor().execute(()
                 -> {
             try {
+                descriptionTypeSelection.getItems().add(new SimpleDisplayConcept("All", Integer.MIN_VALUE));
+                for (int nid : LanguageCoordinates.expandDescriptionTypePreferenceList(new int[] {MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()}, readManifoldCoordinate)) {
+                    descriptionTypeSelection.getItems().add(
+                        new SimpleDisplayConcept((nid == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid() ? "" : "  ") 
+                           + readManifoldCoordinate.getRegularName(nid).get(), nid));
+                }
+                for (int nid : LanguageCoordinates.expandDescriptionTypePreferenceList(new int[] {MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()}, readManifoldCoordinate)) {
+                    descriptionTypeSelection.getItems().add(
+                        new SimpleDisplayConcept((nid == MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid() ? "" : "  ") 
+                           + readManifoldCoordinate.getRegularName(nid).get(), nid));
+                }
+                for (int nid : LanguageCoordinates.expandDescriptionTypePreferenceList(new int[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()}, readManifoldCoordinate)) {
+                    descriptionTypeSelection.getItems().add(
+                        new SimpleDisplayConcept((nid == MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid() ? "" : "  ") 
+                           + readManifoldCoordinate.getRegularName(nid).get(), nid));
+                }
                 Set<Integer> extendedDescriptionTypes = Frills.getAllChildrenOfConcept(
                         MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true, readManifoldCoordinate);
                 ArrayList<SimpleDisplayConcept> temp = new ArrayList<>();
+                
+                if (extendedDescriptionTypes.size() > 0) {
+                    descriptionTypeSelection.getItems().add(new SimpleDisplayConcept("--- Extended Types ---", Integer.MAX_VALUE));
+                    descriptionTypeSelectionExtendedIndex = descriptionTypeSelection.getItems().size() - 1;
+                }
+                
                 for (Integer c : extendedDescriptionTypes) {
                     temp.add(new SimpleDisplayConcept(c));
                 }
@@ -886,6 +895,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                 Platform.runLater(()
                         -> {
                     descriptionTypeSelection.getItems().addAll(temp);
+                    descriptionTypeSelection.getSelectionModel().clearAndSelect(0);
                 });
             } catch (Exception e1) {
                 LOG.error("Error reading extended description types", e1);
