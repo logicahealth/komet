@@ -18,10 +18,13 @@ package sh.isaac.komet.preferences;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
@@ -39,9 +42,10 @@ import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_PASSW
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_URL;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_USER_NAME;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
-import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
+import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.ITEM_ACTIVE;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
+import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetItemStringListWrapper;
 import sh.komet.gui.control.PropertySheetPasswordWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
@@ -55,6 +59,7 @@ import sh.komet.gui.util.FxGet;
 public class SynchronizationItemPanel extends AbstractPreferences {
     enum Keys {
         ITEM_NAME,
+        ITEM_ACTIVE,
         GIT_USER_NAME,
         GIT_PASSWORD,
         GIT_URL,
@@ -62,12 +67,59 @@ public class SynchronizationItemPanel extends AbstractPreferences {
     }
 // ObservableFields.STATEMENT_NARRATIVE.toExternalString()
     private final SimpleStringProperty nameProperty
-            = new SimpleStringProperty(this, MetaData.SYNCHRONICATION_ITEM_NAME____SOLOR.toExternalString());
+            = new SimpleStringProperty(this, MetaData.ITEM_NAME____SOLOR.toExternalString());
+    private final SimpleBooleanProperty activeProperty = new SimpleBooleanProperty(this, MetaData.ITEM_ACTIVE____SOLOR.toExternalString(), false);
     private final StringProperty gitUserName = new SimpleStringProperty(this, ObservableFields.GIT_USER_NAME.toExternalString());
     private final StringProperty gitPassword = new SimpleStringProperty(this, ObservableFields.GIT_PASSWORD.toExternalString());
     private final StringProperty gitUrl = new SimpleStringProperty(this, ObservableFields.GIT_URL.toExternalString());
     private final StringProperty localFolder = new SimpleStringProperty(this, ObservableFields.GIT_LOCAL_FOLDER.toExternalString());
-
+    private final String[] folderOptions;
+    Button initializeButton = new Button("Initialize");
+    {
+        initializeButton.setOnAction((event) -> {
+            try {
+                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                syncService.setRootLocation(new File(localFolder.get()));
+                syncService.linkAndFetchFromRemote(gitUrl.get(), gitUserName.get(), gitPassword.get().toCharArray());
+                setupSyncButtons();
+            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
+                LOG.error(ex.getLocalizedMessage(), ex);
+            }
+        });
+    }
+    Button pushButton = new Button("Push");
+    {
+        pushButton.setOnAction((event) -> {
+            try {
+                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                syncService.setRootLocation(new File(localFolder.get()));
+                syncService.updateCommitAndPush("Push commit", gitUserName.get(), 
+                        gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
+                setupSyncButtons();
+            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
+                LOG.error(ex.getLocalizedMessage(), ex);
+            } catch (MergeFailure ex) {
+                Logger.getLogger(SynchronizationItemPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+    }
+    Button pullButton = new Button("Pull");
+    {
+        pullButton.setOnAction((event) -> {
+            try {
+                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                syncService.setRootLocation(new File(localFolder.get()));
+                syncService.updateFromRemote(gitUserName.get(), 
+                        gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
+                setupSyncButtons();
+            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
+                LOG.error(ex.getLocalizedMessage(), ex);
+            } catch (MergeFailure ex) {
+                Logger.getLogger(SynchronizationItemPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+    }
+    
     public SynchronizationItemPanel(IsaacPreferences preferencesNode, Manifold manifold, 
             KometPreferencesController kpc) {
         super(getEquivalentUserPreferenceNode(preferencesNode), preferencesNode.get(GROUP_NAME, "Change sets"), 
@@ -76,27 +128,58 @@ public class SynchronizationItemPanel extends AbstractPreferences {
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
         });
+        if (Files.exists(Paths.get("target"))) {
+            folderOptions = new String[] {"target/data/isaac.data/changesets", "target/data/isaac.data/preferences"};
+        } else {
+            folderOptions = new String[] {"data/isaac.data/changesets", "data/isaac.data/preferences"};
+        }        
         revertFields();
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(manifold, activeProperty));
         getItemList().add(new PropertySheetTextWrapper(manifold, gitUserName));
         getItemList().add(new PropertySheetPasswordWrapper(manifold, gitPassword));
         getItemList().add(new PropertySheetTextWrapper(manifold, gitUrl));
         getItemList().add(new PropertySheetItemStringListWrapper(manifold, localFolder, 
-                Arrays.asList(new String[] {"data/isaac.data/changesets", "data/isaac.data/preferences"})));
+                Arrays.asList(folderOptions)));
+        setupSyncButtons();
+        localFolder.addListener((observable, oldValue, newValue) -> {
+            setupSyncButtons();
+        });
+        
+        activeProperty.addListener((observable, oldValue, newValue) -> {
+            setupSyncButtons();
+        });
+        
     }
+    
+    private void setupSyncButtons() {
+        if (activeProperty.get() && new File(localFolder.get()).exists()) {
+            if (new File(localFolder.get(), ".git").exists()) {
+                initializeButton.setDisable(true);
+                pushButton.setDisable(false);
+                pullButton.setDisable(false);
+            } else {
+                initializeButton.setDisable(false);
+                pushButton.setDisable(true);
+                pullButton.setDisable(true);
+            }
+        } else {
+            initializeButton.setDisable(true);
+            pushButton.setDisable(true);
+            pullButton.setDisable(true);
+        }
+    }
+    
     private static IsaacPreferences getEquivalentUserPreferenceNode(IsaacPreferences configurationPreferencesNode) {
         try {
             if (configurationPreferencesNode.getNodeType() == PreferenceNodeType.CONFIGURATION) {
                 IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferences.class).node(configurationPreferencesNode.absolutePath());
                 for (String key : configurationPreferencesNode.keys()) {
-                    userPreferences.put(key, configurationPreferencesNode.get(key, ""));
-                }
-                for (IsaacPreferences configChildNode : configurationPreferencesNode.children()) {
-                    IsaacPreferences userChildNode = userPreferences.node(configChildNode.name());
-                    for (String key : configChildNode.keys()) {
-                        userChildNode.put(key, configChildNode.get(key, ""));
+                    if (!key.endsWith(ITEM_ACTIVE.name())) {
+                        userPreferences.put(key, configurationPreferencesNode.get(key, ""));
                     }
+                    
                 }
                 return userPreferences;
             } else {
@@ -110,62 +193,29 @@ public class SynchronizationItemPanel extends AbstractPreferences {
     @Override
     void saveFields() throws BackingStoreException {
         getPreferencesNode().put(AttachmentActionPanel.Keys.ITEM_NAME, nameProperty.get());
+        IsaacPreferences configurationNode = FxGet.configurationNode(ConfigurationPreferences.class).node(getPreferencesNode().absolutePath());
+        configurationNode.putBoolean(ITEM_ACTIVE, activeProperty.get());
         getPreferencesNode().put(GIT_USER_NAME, gitUserName.get());
         getPreferencesNode().putPassword(GIT_PASSWORD, gitPassword.get().toCharArray());
         getPreferencesNode().put(GIT_URL, gitUrl.get());
         getPreferencesNode().put(GIT_LOCAL_FOLDER, localFolder.get());
-        
     }
 
     @Override
     final void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(AttachmentActionPanel.Keys.ITEM_NAME, getGroupName()));
+        IsaacPreferences configurationNode = FxGet.configurationNode(ConfigurationPreferences.class).node(getPreferencesNode().absolutePath());
+        activeProperty.set(configurationNode.getBoolean(ITEM_ACTIVE, false));
         gitUserName.set(getPreferencesNode().get(GIT_USER_NAME, "username"));
         gitPassword.set(new String(getPreferencesNode().getPassword(GIT_PASSWORD, "password".toCharArray())));
-        gitUrl.set(getPreferencesNode().get(GIT_URL, "url"));
-        localFolder.set(getPreferencesNode().get(GIT_LOCAL_FOLDER, "data/isaac.data/changesets"));
+        gitUrl.set(getPreferencesNode().get(GIT_URL, "https://bitbucket.org/account/repo.git"));
+        localFolder.set(getPreferencesNode().get(GIT_LOCAL_FOLDER, folderOptions[0]));
     }
 
     @Override
     public Node getTopPanel(Manifold manifold) {
-        Button initializeButton = new Button("Initialize");
-        initializeButton.setOnAction((event) -> {
-            try {
-                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                syncService.setRootLocation(new File(localFolder.get()));
-                syncService.linkAndFetchFromRemote(gitUrl.get(), gitUserName.get(), gitPassword.get().toCharArray());
-            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
-                LOG.error(ex.getLocalizedMessage(), ex);
-            }
-        });
 
-        Button pushButton = new Button("Push");
-        pushButton.setOnAction((event) -> {
-            try {
-                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                syncService.setRootLocation(new File(localFolder.get()));
-                syncService.updateCommitAndPush("Push commit", gitUserName.get(), 
-                        gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
-            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
-                LOG.error(ex.getLocalizedMessage(), ex);
-            } catch (MergeFailure ex) {
-                Logger.getLogger(SynchronizationItemPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
 
-        Button pullButton = new Button("Pull");
-        pullButton.setOnAction((event) -> {
-            try {
-                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                syncService.setRootLocation(new File(localFolder.get()));
-                syncService.updateFromRemote(gitUserName.get(), 
-                        gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
-            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
-                LOG.error(ex.getLocalizedMessage(), ex);
-            } catch (MergeFailure ex) {
-                Logger.getLogger(SynchronizationItemPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
         ToolBar topBar = new ToolBar(initializeButton, pushButton, pullButton);
         return topBar;
     }

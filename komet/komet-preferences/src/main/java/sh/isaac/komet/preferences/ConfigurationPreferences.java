@@ -53,7 +53,7 @@ public class ConfigurationPreferences extends AbstractPreferences {
 
     public ConfigurationPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
             KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Configuration"), manifold, 
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "KOMET"), manifold, 
                 kpc);
         nameProperty.set(groupNameProperty().get());
         this.enableEdit.setValue(preferencesNode.getBoolean(enableEdit.getName(), true));

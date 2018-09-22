@@ -119,6 +119,9 @@ import static sh.isaac.model.observable.ObservableFields.CORELATION_REFERENCE_EX
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DESCRIPTION;
 import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DIALECT;
+import static sh.isaac.model.observable.ObservableFields.GIT_PASSWORD;
+import static sh.isaac.model.observable.ObservableFields.GIT_URL;
+import static sh.isaac.model.observable.ObservableFields.GIT_USER_NAME;
 import static sh.isaac.model.observable.ObservableFields.MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.MODULE_OPTIONS_FOR_EDIT_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.NATIVE_ID_FOR_COMPONENT;
@@ -657,10 +660,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   popParent();
                createConcept("Synchronization item properties");
                pushParent(current());
-                  createConcept("Synchronication item name", "Item name");
-                  createConcept("Synchronication item url", "Item url");
-                  createConcept("Synchronication item username", "Username");
-                  createConcept("Synchronication item password", "Password");
+                  createConcept("Item name");
+                  createConcept("Item active", "Active");
+                  createConcept(GIT_URL);
+                  createConcept(GIT_USER_NAME);
+                  createConcept(GIT_PASSWORD);
                   popParent();
                createConcept("Coordinate properties");
                pushParent(current());
@@ -739,9 +743,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   popParent();
                createConcept("KOMET preference properties");
                pushParent(current());
-                  createConcept(ObservableFields.GIT_USER_NAME);
-                  createConcept(ObservableFields.GIT_PASSWORD);
-                  createConcept(ObservableFields.GIT_URL);
                   createConcept(ObservableFields.GIT_LOCAL_FOLDER);
                   createConcept(ObservableFields.ENABLE_EDIT);
                   createConcept(ObservableFields.KOMET_USER);

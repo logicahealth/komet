@@ -256,13 +256,13 @@ public class MainApp
             switch (ap) {
                 case APP:
                     if (tk != null) {
-                        MenuItem aboutItem = new MenuItem("About...");
+                        MenuItem aboutItem = new MenuItem("About KOMET...");
                         aboutItem.setOnAction(this::handleAbout);
                         ap.getMenu().getItems().add(aboutItem);
                         ap.getMenu().getItems().add(new SeparatorMenuItem());
                     }
                     if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-                        MenuItem prefsItem = new MenuItem("Preferences...");
+                        MenuItem prefsItem = new MenuItem("KOMET Preferences...");
                         //TODO TEMP to do  something. Need to make it do something better. 
                         prefsItem.setOnAction(this::handlePrefs);
                         ap.getMenu().getItems().add(prefsItem);
