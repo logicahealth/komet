@@ -104,15 +104,48 @@ public interface ManifoldCoordinate
    }
    
    /**
-    * Return the description according to the type and dialect preferences
-    * of the {@code ManifoldCoordinate}'s {@code LanguageCoordinate}.
+    * Return the best description text according to langauge and dialect preferences of this {@code LanguageCoordinate}, 
+    * but ignoring the type preferences of the coordinate, rather, using the supplied type preference order
+    *
+    * @param conceptId the concept id. 
+    * @param descriptionTypePreference the order of the description types to try to match, overriding and ignoring the 
+    * {@link LanguageCoordinate#getDescriptionTypePreferenceList()} present in this manifold.
+    * @return an optional String best matching the {@link LanguageCoordinate} constraints within this ManifoldCoordinate and 
+    * the supplied description type preference list, or empty if none available that match the {@link ManifoldCoordinate}.
+    */
+   default Optional<String> getDescriptionText(int conceptId, int[] descriptionTypePreference) {
+      LatestVersion<DescriptionVersion> temp = getLanguageCoordinate().getDescription(conceptId, descriptionTypePreference, this.getStampCoordinate());
+      if (temp.isPresent()) {
+         return Optional.of(temp.get().getText());
+      }
+      return Optional.empty();
+   }
+   
+   /**
+    * Return the best description text according to language and dialect preferences of this {@code LanguageCoordinate}, 
+    * but ignoring the type preferences of the coordinate, rather, using the supplied type preference order
+    *
+    * @param conceptId the concept id. 
+    * @param descriptionTypePreference the order of the description types to try to match, overriding and ignoring the 
+    * {@link LanguageCoordinate#getDescriptionTypePreferenceList()} present in this manifold.
+    * @return the best matching description to the {@link LanguageCoordinate} constraints within this ManifoldCoordinate and 
+    * the supplied description type preference list, or empty if none available that match the {@link ManifoldCoordinate}.
+    */
+   default LatestVersion<DescriptionVersion> getDescription(int conceptId, int[] descriptionTypePreference) {
+      return getLanguageCoordinate().getDescription(conceptId, descriptionTypePreference, getStampCoordinate());
+   }
+   
+   /**
+    * Return the description according to the type and dialect preferences of the {@code ManifoldCoordinate}'s {@code LanguageCoordinate}.
+    * 
+    * If none of the supplied descriptions matches the manifolds {@code LanguageCoordinate}, then empty is returned.
+    * 
+    *  {@link LanguageCoordinate#getDescription(List, StampCoordinate)}
     *
     * @param descriptionList descriptions to consider
-    * @return an optional description best matching the {@code LanguageCoordinate}
-    * constraints.
+    * @return an optional description best matching the {@code LanguageCoordinate} constraints
     */
-   default LatestVersion<DescriptionVersion> getDescription(
-           List<SemanticChronology> descriptionList) {
+   default LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList) {
       return getLanguageCoordinate().getDescription(descriptionList, getStampCoordinate());
    };
    
@@ -141,22 +174,28 @@ public interface ManifoldCoordinate
               getStampCoordinate());
    }
    /**
+    * DISCOURAGED METHOD!
     * Get the preferred description text associated with the {@code conceptId}.
     * @param conceptId the conceptId to get the text for.
     * @return preferred description text.
     * 
-    *  Note that this method gives no indication when the preferred text isn't available, instead returning 
-    *  and "unknown..." type of string.  See {@link #getRegularName(int)} for a method without this behavior.
+    * Note that this method gives no indication when the preferred text isn't available, instead silently 
+    * falling back to a fully specified description, and if that is not present, returns a "no description for {conceptid}"
+    * text string
+    * 
+    * One should really use the method {@link #getDescription(int, StampCoordinate)} instead of this method which will
+    * properly use the language coordinate(s) to locate a description, or clearly return an empty.
     */
    default String getPreferredDescriptionText(int conceptId) {
-      return getLanguageCoordinate().getPreferredDescriptionText(conceptId, 
-              getStampCoordinate());
+      return getLanguageCoordinate().getRegularName(conceptId, getStampCoordinate())
+            .orElse(getLanguageCoordinate().getFullyQualifiedName(conceptId, getStampCoordinate())
+               .orElse("no description for " + conceptId));
    }
    
    /**
     * Get the regularName text associated with the {@code conceptId}.
     * @param conceptId the conceptId to get the text for.
-    * @return preferred description text. 
+    * @return regular name description text, or empty, if not present.
     */
    default Optional<String> getRegularName(int conceptId) {
       return getLanguageCoordinate().getRegularName(conceptId, 
@@ -164,31 +203,42 @@ public interface ManifoldCoordinate
    }
    
    /**
-    * Get the preferred description text associated with the {@code ConceptSpecification}.
-    * @param conceptSpec the {@code ConceptSpecification} to get the text for.
-    * @return preferred description text. 
-    * 
-    * Note that this method does not give any indication of text being unavailable, rather, 
-    * returning an arbitrary "unknown" string when there is no text avaiable on the coordinate.
-    * 
-    * See {@link #getRegularName(ConceptSpecification)} for a method without this behavior.
+    * Calls {@link #getPreferredDescriptionText(int)} with the nid of the specified concept spec.
+    * @param conceptSpec  If not provided, this method simply returns "empty"
+    * @return see {@link #getPreferredDescriptionText(int)}
     */
    default String getPreferredDescriptionText(ConceptSpecification conceptSpec) {
        if (conceptSpec == null) {
            return "empty";
        }
-       return getLanguageCoordinate().getPreferredDescriptionText(conceptSpec.getNid(), 
-              getStampCoordinate());
+       return getPreferredDescriptionText(conceptSpec.getNid());
+   }
+   /**
+    * Calls {@link #getPreferredDescriptionText(int)} with the nid of the specified concept spec.
+    * @param conceptSpec  If not provided, this method simply returns "empty"
+    * @param defaultText If an instance is misconfigured, it may be lacking some required concepts. 
+    * Rather than throw an exception, the default text option allows a better fallback.
+    * @return see {@link #getPreferredDescriptionText(int)}
+    */
+   
+   default String getPreferredDescriptionText(ConceptSpecification conceptSpec, String defaultText) {
+       if (conceptSpec == null) {
+           return defaultText;
+       }
+       LatestVersion<DescriptionVersion> latestDescription = getPreferredDescription(conceptSpec);
+       if (latestDescription.isPresent()) {
+           return latestDescription.get().getText();
+       }
+       return defaultText;
    }
    
    /**
-    * Get the regular name (Preferred description ) text associated with the {@code ConceptSpecification}.
+    * calls {@link #getRegularName(int)}
     * @param conceptSpec the {@code ConceptSpecification} to get the text for.
-    * @return preferred description text. 
+    * @return see {@link #getRegularName(int)}
     */
    default Optional<String> getRegularName(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getRegularName(conceptSpec.getNid(), 
-              getStampCoordinate());
+      return getRegularName(conceptSpec.getNid());
    }
    
    /**
@@ -205,31 +255,40 @@ public interface ManifoldCoordinate
    }
 
    /**
-    * Get the fully-specified description associated with the {@code conceptId}.
+    * Calls {@link #getFullySpecifiedDescription(int)}
     * @param conceptSpec the {@code ConceptSpecification} to get the text for.
-    * @return preferred description.
+    * @return see {@link #getFullySpecifiedDescription(int)}
     */
    default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getFullySpecifiedDescription(conceptSpec.getNid(), getStampCoordinate());
+      return getFullySpecifiedDescription(conceptSpec.getNid());
    }
 
   /**
+    * DISCOURAGED METHOD!
     * Get the fully-specified description text associated with the {@code conceptId}.
     * @param conceptId the conceptId to get the text for.
-    * @return preferred description text.
+    * @return fully qualified description text.
+    * 
+    * Note that this method gives no indication when the fully specified text isn't available, instead silently 
+    * falling back to a regular name description, and if that is not present, returns a "no description for {conceptid}"
+    * text string
+    * 
+    * One should really use the method {@link #getDescription(int, StampCoordinate)} instead of this method which will
+    * properly use the language coordinate(s) to locate a description, or clearly return an empty.
     */
    default String getFullySpecifiedDescriptionText(int conceptId) {
-      return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptId, getStampCoordinate());
+         return getLanguageCoordinate().getFullyQualifiedName(conceptId, getStampCoordinate())
+            .orElse(getLanguageCoordinate().getRegularName(conceptId, getStampCoordinate())
+               .orElse("no description for " + conceptId));
    }
 
-
   /**
-    * Get the fully-specified description text associated with the {@code conceptId}.
+    * calls {@link #getFullySpecifiedDescriptionText(int)}
     * @param conceptSpec the {@code ConceptSpecification} to get the text for.
-    * @return preferred description text.
+    * @return see {@link #getFullySpecifiedDescriptionText(int)}
     */
    default String getFullySpecifiedDescriptionText(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptSpec.getNid(), getStampCoordinate());
+      return getFullySpecifiedDescriptionText(conceptSpec.getNid());
    }
 
    @Override

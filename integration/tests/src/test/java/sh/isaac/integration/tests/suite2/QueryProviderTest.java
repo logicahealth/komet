@@ -202,21 +202,21 @@ public class QueryProviderTest {
 		Assert.assertEquals(di.query("mash", null).size(), 4);
 
 		Assert.assertEquals(di.query("mash AND cereal", null).size(), 1);
-		Assert.assertEquals(di.query("bevon AND metadata AND (ISAAC)", null).size(), 1);
-		Assert.assertEquals(di.query("bevon AND metadata AND \\(ISAAC\\)", null).size(), 1);
-		Assert.assertEquals(di.query("metadata AND \"Beverage Ontology\" AND (ISAAC)", null).size(), 1);
+		Assert.assertEquals(di.query("dynamic AND assemblages AND (SOLOR)", null).size(), 1);
+		Assert.assertEquals(di.query("dynamic AND assemblages AND \\(SOLOR\\)", null).size(), 1);
+		Assert.assertEquals(di.query("\"Beverage Ontology\"", null).size(), 5);
 		
 		
 		
-		Assert.assertEquals(di.query("bevon AND metadata NOT \\(ISAAC\\)", null).size(), 1);
-		//This query won't work as expected, because the way we are searching, the white space analyzer keeps the text as ... "(SOLOR)" so "NOT SOLOR"
-		//matches on the whitespace analyzed field, as it doesn't contain the token "SOLOR".
-		//Assert.assertEquals(di.query("bevon AND metadata NOT ISAAC", null).size(), 1);
-		Assert.assertEquals(di.query("bevon AND metadata NOT (ISAAC)", null).size(), 1);
+		Assert.assertEquals(di.query("dynamic AND assemblages NOT \\(SOLOR\\)", null).size(), 1);
+		//This query won't work as expected, because the way we are searching, the white space analyzer keeps the text as ... "(BEVON)" so "NOT BEVON"
+		//matches on the whitespace analyzed field, as it doesn't contain the token "BEVON".
+		//Assert.assertEquals(di.query("dynamic AND assemblages NOT SOLOR", null).size(), 1);
+		Assert.assertEquals(di.query("dynamic AND assemblages NOT (SOLOR)", null).size(), 1);
 
-		Assert.assertEquals(di.query("bevon OR (ISAAC)", null).size(), 100);
-		Assert.assertEquals(di.query("bevon ISAAC", null).size(), 100);
-		Assert.assertEquals(di.query("bevon (ISAAC)", null).size(), 100);
+		Assert.assertEquals(di.query("bevon OR (SOLOR)", null).size(), 100);
+		Assert.assertEquals(di.query("bevon SOLOR", null).size(), 100);
+		Assert.assertEquals(di.query("bevon (SOLOR)", null).size(), 100);
 		Assert.assertEquals(di.query("bevon isaac", null).size(), 100);
 	}
 	

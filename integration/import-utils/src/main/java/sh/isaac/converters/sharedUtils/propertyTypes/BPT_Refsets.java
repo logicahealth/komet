@@ -50,7 +50,7 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  */
 public class BPT_Refsets extends PropertyType implements BPT_HasAltMetaDataParent {
    /**
-    * Instantiates a new BP T refsets.
+    * Instantiates a new BPT_Refsets.
     *
     * @param terminologyName
     *           the terminology name
@@ -61,7 +61,7 @@ public class BPT_Refsets extends PropertyType implements BPT_HasAltMetaDataParen
    }
    
    /**
-    * Instantiates a new BP T refsets.
+    * Instantiates a new BPT_Refsets
     *
     * @param terminologyName
     *           the terminology name

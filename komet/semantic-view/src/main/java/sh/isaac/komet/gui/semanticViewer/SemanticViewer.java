@@ -775,7 +775,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	{
 		if (noRefresh_.get() > 0)
 		{
-			logger_.info("Skip refresh of dynamic semantic due to wait count {}", noRefresh_.get());
+			logger_.debug("Skip refresh of dynamic semantic due to wait count {}", noRefresh_.get());
 			return;
 		}
 		else
@@ -1413,7 +1413,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		//Now add the data
 		ArrayList<TreeItem<SemanticGUI>> rowData = getDataRows(viewFocusNid_);
 		
-		logger_.info("Found {} rows of data in a dynamic semantic", rowData.size());
+		logger_.debug("Found {} rows of data in a dynamic semantic", rowData.size());
 		
 		Get.workExecutors().getExecutor().execute(() ->
 		{

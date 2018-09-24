@@ -19,6 +19,8 @@ package sh.isaac.komet.preferences;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.prefs.BackingStoreException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -27,6 +29,7 @@ import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.Get;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.KometPreferences;
@@ -45,15 +48,34 @@ public class KometPreferencesImpl implements KometPreferences {
 
     private KometPreferencesController kpc;
     private Stage preferencesStage;
+    private Manifold manifold;
 
     public KometPreferencesImpl() {
 
     }
-    
 
     @Override
-    public void loadPreferences(IsaacPreferences preferences,
-            Manifold manifold) {
+    public void resetUserPreferences() {
+        try {
+            IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferences.class);
+            clearNodeAndChildren(userPreferences);
+        } catch (BackingStoreException ex) {
+            LOG.error(ex.getLocalizedMessage(), ex);
+        }
+    }
+
+    private void clearNodeAndChildren(IsaacPreferences node) throws BackingStoreException {
+        for (IsaacPreferences child : node.children()) {
+            clearNodeAndChildren(child);
+        }
+        node.clear();
+        node.sync();
+    }
+
+    @Override
+    public void loadPreferences(Manifold manifold) {
+        this.manifold = manifold; 
+        IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferences.class);
         if (kpc == null) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/preferences/KometPreferences.fxml"));
@@ -69,7 +91,10 @@ public class KometPreferencesImpl implements KometPreferences {
                         .toString());
 
                 this.preferencesStage = new Stage();
-                this.preferencesStage.setTitle("KOMET Preferences");
+                this.preferencesStage.setTitle(FxGet.getConfigurationName() + " preferences");
+                FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
+                    this.preferencesStage.setTitle(newValue + " preferences");
+                });
                 Scene scene = new Scene(root);
 
                 this.preferencesStage.setScene(scene);
@@ -83,11 +108,20 @@ public class KometPreferencesImpl implements KometPreferences {
             }
         }
     }
-    
 
     @Override
-    public void showPreferences(IsaacPreferences preferences,
-            Manifold manifold) {
+    public void reloadPreferences() {
+        Get.preferencesService().reloadConfigurationPreferences();
+        IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferences.class);
+        Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold, kpc);
+        if (treeRoot.isPresent()) {
+            this.kpc.setRoot(treeRoot.get());
+        }
+    }
+
+    @Override
+    public void showPreferences(Manifold manifold) {
+        IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferences.class);
         if (kpc == null) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/preferences/KometPreferences.fxml"));
@@ -120,10 +154,16 @@ public class KometPreferencesImpl implements KometPreferences {
         preferencesStage.showingProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == false) {
                 this.kpc = null;
+                this.preferencesStage = null;
             }
         });
         preferencesStage.setAlwaysOnTop(true);
     }
-    
-    
+
+    @Override
+    public void closePreferences() {
+        this.preferencesStage.close();
+        this.kpc = null;
+        this.preferencesStage = null;
+    }
 }

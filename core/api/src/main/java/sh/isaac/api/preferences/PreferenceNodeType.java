@@ -21,5 +21,5 @@ package sh.isaac.api.preferences;
  * @author kec
  */
 public enum PreferenceNodeType {
-   APPLICATION, USER, SYSTEM;
+   CONFIGURATION, USER, SYSTEM;
 }

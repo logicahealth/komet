@@ -256,7 +256,17 @@ public class DynamicUtilityImpl
       return new DynamicUUIDImpl(value);
    }
 
-   /**
+   @Override
+   public DynamicArray<DynamicString> createDynamicStringArrayData(String... values)
+   {
+      DynamicString[] temp = new DynamicString[values.length];
+      for (int i = 0; i < values.length; i++) {
+         temp[i] = new DynamicStringImpl(values[i]);
+      }
+      return new DynamicArrayImpl<DynamicString>(temp);
+   }
+
+/**
     * Read the {@link DynamicUsageDescription} for the specified assemblage concept.
     *
     * @param assemblageNidOrSequence the assemblage nid or sequence

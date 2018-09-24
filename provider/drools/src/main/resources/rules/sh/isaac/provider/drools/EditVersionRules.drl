@@ -41,6 +41,53 @@ import sh.komet.gui.control.PropertyEditorType;
  * @author kec
  */
  
+rule "Given a AddEditVersionMenuItems, with VersionType.MEMBER, add editing options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.MEMBER);
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+end
+
+ 
+rule "Given a AddEditVersionMenuItems, with VersionType.COMPONENT_NID, add editing options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.COMPONENT_NID);
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+end
+
+rule "Given a AddEditVersionMenuItems, with VersionType.LONG, add editing options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.LONG);
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+end
+
+ 
+rule "Given a AddEditVersionMenuItems, with VersionType.STRING, add editing options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.STRING);
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+end
+
+ 
 rule "Given a AddEditVersionMenuItems, with VersionType.CONCEPT, add editing options"
    lock-on-active true
 when

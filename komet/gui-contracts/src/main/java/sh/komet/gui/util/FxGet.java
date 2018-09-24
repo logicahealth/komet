@@ -74,6 +74,8 @@ public class FxGet implements StaticIsaacCache {
     private static final List<GuiSearcher> SEARCHER_LIST = new ArrayList<>();
     // TODO make SEARCHER_LIST behave like a normal lookup service. 
     private static final List<GuiConceptBuilder> BUILDER_LIST = new ArrayList<>();
+    
+    private static SimpleStringProperty CONFIGURATION_NAME_PROPERTY = new SimpleStringProperty(null, MetaData.CONFIGURATION_NAME____SOLOR.toExternalString(), "viewer");
 
     public static List<GuiSearcher> searchers() {
         return SEARCHER_LIST;
@@ -115,6 +117,18 @@ public class FxGet implements StaticIsaacCache {
         return Get.service(KometPreferences.class);
     }
 
+    public static SimpleStringProperty configurationNameProperty() {
+        return CONFIGURATION_NAME_PROPERTY;
+    }
+
+    public static void setConfigurationName(String configurationName) {
+        FxGet.CONFIGURATION_NAME_PROPERTY.set(configurationName);
+    }
+    
+    public static String getConfigurationName() {
+        return FxGet.CONFIGURATION_NAME_PROPERTY.get();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -127,19 +141,19 @@ public class FxGet implements StaticIsaacCache {
     }
 
     public static PreferencesService preferenceService() {
-        return Get.service(PreferencesService.class);
+        return Get.preferencesService();
     }
 
     public static IsaacPreferences systemNode(Class<?> c) {
-        return preferenceService().getApplicationPreferences().node(c);
+        return preferenceService().getSystemPreferences().node(c);
     }
 
     public static IsaacPreferences userNode(Class<?> c) {
         return preferenceService().getUserPreferences().node(c);
     }
 
-    public static IsaacPreferences applicationNode(Class<?> c) {
-        return preferenceService().getApplicationPreferences().node(c);
+    public static IsaacPreferences configurationNode(Class<?> c) {
+        return preferenceService().getConfigurationPreferences().node(c);
     }
 
     public static List<PropertySheet.Item> constraintPropertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, Manifold manifold) {

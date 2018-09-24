@@ -80,7 +80,7 @@ public class CommitAwareIntegerProperty
          final CommittableComponent committableComponent = (CommittableComponent) bean;
 
          if (committableComponent.getCommitState() == CommitStates.COMMITTED) {
-            throw new RuntimeException("Cannot change value, component is already committed.");
+            throw new UnsupportedOperationException("Cannot change value, component is already committed.");
          }
       }
    }

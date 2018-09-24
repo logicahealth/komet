@@ -57,7 +57,7 @@ public interface SemanticBuilderService<C extends SemanticChronology> {
     /**
      * Gets the component semantic builder.
      *
-     * @param componentNid the component nid for the semantic
+     * @param componentNid the component nid the semantic references (not the nid of the semantic itself)
      * @param referencedComponent the referenced component
      * @param assemblageConceptNid the assemblage concept nid
      * @return the component sematic builder
@@ -69,7 +69,7 @@ public interface SemanticBuilderService<C extends SemanticChronology> {
     /**
      * Gets the component semantic builder.
      *
-     * @param componentNid the component nid for the semantic
+     * @param componentNid the component nid the semantic references (not the nid of the semantic itself)
      * @param referencedComponentNid the referenced component nid
      * @param assemblageConceptNid the assemblage concept nid
      * @return the component semantic builder
@@ -81,7 +81,7 @@ public interface SemanticBuilderService<C extends SemanticChronology> {
     /**
      * Gets the component semantic builder.
      *
-     * @param componentNid the component nid for the semantic
+     * @param componentNid the component nid the semantic references (not the nid of the semantic itself)
      * @param intValue the integer value for the semantic
      * @param referencedComponent the referenced component
      * @param assemblageConceptNid the assemblage concept nid

@@ -84,13 +84,7 @@ public class ConceptForControlWrapper
    @Override
    public String toString() {
        if (conceptNid != 0) {
-        Optional<String> description = getRegularName();
-
-        if (description.isPresent()) {
-            return description.get();
-        }
-        
-        return "No description for: " + conceptNid;
+          return getRegularName().orElse("No description for: " + conceptNid);
        }
 
       return "unspecified";
@@ -105,18 +99,18 @@ public class ConceptForControlWrapper
 
    @Override
    public String getFullyQualifiedName() {
-       if (conceptNid != 0) {
-      return this.manifold.getFullySpecifiedDescriptionText(this.conceptNid);
-       }
-       return "unspecified";
+      if (conceptNid != 0) {
+         return this.manifold.getFullySpecifiedDescriptionText(this.conceptNid);
+      }
+      return "unspecified";
    }
 
    @Override
    public Optional<String> getRegularName() {
-       if (conceptNid != 0) {
-      return Optional.of(this.manifold.getPreferredDescriptionText(this.conceptNid));
-       }
-       return Optional.empty();
+      if (conceptNid != 0) {
+         return this.manifold.getRegularName(this.conceptNid);
+      }
+      return Optional.empty();
    }
 
    @Override
@@ -141,4 +135,3 @@ public class ConceptForControlWrapper
       return Long.hashCode(this.getNid());
    }
 }
-

@@ -47,8 +47,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.apache.commons.io.input.BOMInputStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
-import sh.isaac.converters.sharedUtils.ConsoleUtil;
+import com.opencsv.CSVReaderBuilder;
 
 /**
  * {@link TextReader}
@@ -57,6 +60,8 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
  */
 public class TextReader
 {
+	private static Logger log = LogManager.getLogger();
+	
 	public enum CPTFileType
 	{
 		LONGULT, MEDU, SHORTU
@@ -118,7 +123,8 @@ public class TextReader
 			switch (type)
 			{
 				case LONGULT:
-					try (CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(new BOMInputStream(input))), '\t'))
+					try (CSVReader reader = new CSVReaderBuilder(new BufferedReader(new InputStreamReader(new BOMInputStream(input))))
+						.withCSVParser(new CSVParserBuilder().withSeparator('\t').build()).build())
 					{
 						reader.forEach(processor);
 					}
@@ -147,7 +153,7 @@ public class TextReader
 		{
 			input.close();
 		}
-		ConsoleUtil.println("Read " + lineCount.get() + " lines with " + dataLineCount.get() + " cpt codes");
+		log.info("Read " + lineCount.get() + " lines with " + dataLineCount.get() + " cpt codes");
 		return dataLineCount.get();
 	}
 }

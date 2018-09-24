@@ -17,7 +17,6 @@
 package sh.komet.gui.contract;
 
 import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -26,6 +25,9 @@ import sh.komet.gui.manifold.Manifold;
  */
 @Contract
 public interface KometPreferences {
-    void showPreferences(IsaacPreferences preferences, Manifold manifold);
-    void loadPreferences(IsaacPreferences preferences, Manifold manifold);
+    void showPreferences(Manifold manifold);
+    void loadPreferences(Manifold manifold);
+    void reloadPreferences();
+    void resetUserPreferences();
+    void closePreferences();
 }

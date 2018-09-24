@@ -19,8 +19,11 @@ package sh.komet.gui.control.concept;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
@@ -33,7 +36,7 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-public class PropertySheetItemConceptConstraintWrapper implements PropertySheet.Item {
+public class PropertySheetItemConceptConstraintWrapper implements PropertySheet.Item, PreferenceChanged {
 
     public enum Keys {
         CONSTRAINT_LIST
@@ -43,11 +46,34 @@ public class PropertySheetItemConceptConstraintWrapper implements PropertySheet.
             = new SimpleObjectProperty<>(this, ObservableFields.CONCEPT_CONSTRAINTS.toExternalString());
     Manifold manifold;
     String name;
+    private final BooleanProperty changedProperty = new SimpleBooleanProperty(this, "changed", false);
+
 
     public PropertySheetItemConceptConstraintWrapper(PropertySheetItemConceptWrapper conceptWrapper, Manifold manifold, String name) {
         this.manifold = manifold;
+        this.constraint.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                bindPropertySheetItemConceptWrapper(newValue);
+            }
+        });
         this.constraint.setValue(conceptWrapper);
+        
         this.name = name;
+    }
+
+    @Override
+    public BooleanProperty changedProperty() {
+        return changedProperty;
+    }
+    
+    private void bindPropertySheetItemConceptWrapper(PropertySheetItemConceptWrapper conceptWrapper) {
+        conceptWrapper.changedProperty().set(false);
+        conceptWrapper.changedProperty().addListener((observable, oldValue, conceptChanged) -> {
+            if (conceptChanged) {
+                conceptWrapper.changedProperty().set(false);
+                this.changedProperty.set(true);
+            }
+        });
     }
             
     @Override

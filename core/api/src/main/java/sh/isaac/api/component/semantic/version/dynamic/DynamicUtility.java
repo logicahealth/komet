@@ -136,6 +136,14 @@ public interface DynamicUtility {
     * @return the dynamic UUID
     */
    public DynamicUUID createDynamicUUIDData(UUID value);
+   
+   /**
+    * Creates the dynamic Array String data.
+    *
+    * @param value the value
+    * @return the dynamic Array
+    */
+   public DynamicArray<DynamicString> createDynamicStringArrayData(String ... values);
 
    /**
     * Convenience method to read all of the extended details of a DynamicAssemblage.

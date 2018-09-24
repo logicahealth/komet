@@ -43,6 +43,7 @@ package sh.isaac.model.observable.version;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -52,6 +53,7 @@ import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Chronology;
 
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.MutableLongVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -63,10 +65,7 @@ import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
-import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -96,6 +95,10 @@ public class ObservableLongVersionImpl
       super(versionToClone, chronology);
       setLongValue(versionToClone.getLongValue());
    }
+    public ObservableLongVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
+        super(VersionType.LONG, primordialUuid, referencedComponentUuid, assemblageNid);
+    }
+   
 
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {

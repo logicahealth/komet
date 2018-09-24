@@ -59,6 +59,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
@@ -186,7 +187,8 @@ public class IBDFCreationUtility
    private long defaultTime;
    
    private final static UUID isARelUuid_ = MetaData.IS_A____SOLOR.getPrimordialUuid();
-   public final static String METADATA_SEMANTIC_TAG = " (ISAAC)";
+   //TODO get rid of this constant
+   public final static String METADATA_SEMANTIC_TAG = " (" + ConceptProxy.METADATA_SEMANTIC_TAG + ")";
    
    private ComponentReference module = null;
    private HashMap<UUID, DynamicColumnInfo[]> refexAllowedColumnTypes = new HashMap<>();

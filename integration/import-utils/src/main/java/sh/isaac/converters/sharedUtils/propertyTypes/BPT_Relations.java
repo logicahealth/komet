@@ -53,7 +53,7 @@ import sh.isaac.MetaData;
  */
 public class BPT_Relations extends PropertyType implements BPT_HasAltMetaDataParent {
    /**
-    * Instantiates a new BP T relations.
+    * Instantiates a new BPT_Relations.
     *
     * @param terminologyName the terminology name
     */

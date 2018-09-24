@@ -39,6 +39,7 @@ package sh.isaac.provider.datastore.chronology;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -136,7 +137,14 @@ public class ChronologyUpdate implements StaticIsaacCache {
         if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == referencedComponentNid) {
             LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
         }
-        int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(referencedComponentNid).getAsInt();
+        OptionalInt optionalConceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(referencedComponentNid);
+        int conceptAssemblageNid;
+        if (optionalConceptAssemblageNid.isPresent()) {
+            conceptAssemblageNid = optionalConceptAssemblageNid.getAsInt();
+        } else {
+            // TODO, remove this hack and figure out why some components are missing their assemblage. 
+            conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
+        }
 
 //   System.out.println("Taxonomy update " + taxonomyUpdateCount.getAndIncrement() + " for: " + 
 //         referencedComponentNid + " index: " + 
@@ -482,7 +490,14 @@ public class ChronologyUpdate implements StaticIsaacCache {
         TaxonomyRecord destinationTaxonomyRecord = new TaxonomyRecord();
         destinationTaxonomyRecord.addStampRecord(originNid, CHILD_OF_NID, stampSequence, taxonomyFlags.bits);
 
-        int conceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(originNid).getAsInt();
+        OptionalInt optionalConceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(originNid);
+        int conceptAssemblageNid;
+        if (optionalConceptAssemblageNid.isPresent()) {
+            conceptAssemblageNid = optionalConceptAssemblageNid.getAsInt();
+        } else {
+            // TODO, remove this hack and figure out why some components are missing their assemblage. 
+            conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
+        }
         int[] record = destinationTaxonomyRecord.pack();
         //TaxonomyRecord.validate(record);
         TAXONOMY_SERVICE.accumulateAndGetTaxonomyData(

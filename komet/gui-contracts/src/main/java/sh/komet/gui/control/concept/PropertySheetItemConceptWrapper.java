@@ -20,12 +20,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.WeakListChangeListener;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
@@ -37,7 +40,7 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public class PropertySheetItemConceptWrapper implements ConceptSpecification, PropertySheet.Item {
+public class PropertySheetItemConceptWrapper implements ConceptSpecification, PropertySheet.Item, PreferenceChanged {
 
     private final Manifold manifoldForDisplay;
     private final String name;
@@ -46,6 +49,8 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
     private ObservableList<ConceptSpecification> allowedValues = FXCollections.observableArrayList();
     private final SimpleBooleanProperty allowSearchProperty = new SimpleBooleanProperty(this, "allow search", true);
     private final SimpleBooleanProperty allowHistoryProperty = new SimpleBooleanProperty(this, "allow history", true);
+    private final BooleanProperty changedProperty = new SimpleBooleanProperty(this, "changed", false);
+
     private ConceptSpecification propertySpecification = null;
 
     public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay,
@@ -87,13 +92,30 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
         bindProperties();
     }
 
+    @Override
+    public BooleanProperty changedProperty() {
+        return changedProperty;
+    }
+
     private void bindProperties() {
+        
         this.observableWrapper.addListener((observable, oldValue, newValue) -> {
             setValue(newValue);
+            changedProperty.setValue(true);
         });
         this.conceptProperty.addListener((observable, oldValue, newValue) -> {
             setValue(newValue);
+            changedProperty.setValue(true);
         });
+        this.allowHistoryProperty.addListener((observable, oldValue, newValue) -> {
+            changedProperty.setValue(true);
+        });
+        this.allowSearchProperty.addListener((observable, oldValue, newValue) -> {
+            changedProperty.setValue(true);
+        });
+        this.allowedValues.addListener(new WeakListChangeListener<>((ListChangeListener.Change<? extends ConceptSpecification> c) -> {
+            changedProperty.setValue(true);
+        }));
     }
 
     public boolean allowSearch() {
@@ -151,6 +173,9 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
     
     public void setAllowedValues(ObservableList<ConceptSpecification> allowedValues) {
         this.allowedValues = allowedValues;
+        this.allowedValues.addListener((ListChangeListener.Change<? extends ConceptSpecification> c) -> {
+            changedProperty.setValue(true);
+       });
     }
 
     @Override

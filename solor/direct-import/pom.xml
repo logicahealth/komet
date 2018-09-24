@@ -4,12 +4,11 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>solor</artifactId>
-      <version>4.52</version>
+      <version>4.53</version>
    </parent>
 	
    <groupId>sh.isaac.solor</groupId>
    <artifactId>direct-import</artifactId>
-	
    <packaging>jar</packaging>
 
    <name>ISAAC SOLOR: Direct import</name>
@@ -47,7 +46,7 @@
        <dependency>
            <groupId>sh.isaac.provider</groupId>
            <artifactId>query</artifactId>
-           <version>4.52</version>
+           <version>4.53</version>
        </dependency>
    </dependencies>
 </project>

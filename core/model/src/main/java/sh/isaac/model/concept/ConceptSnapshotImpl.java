@@ -63,6 +63,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -169,7 +170,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public String getFullyQualifiedName() {
-      return getLanguageCoordinate().getFullySpecifiedDescriptionText(getNid(), getStampCoordinate());
+      return getLanguageCoordinate().getFullyQualifiedName(getNid(), getStampCoordinate()).orElse("No FQN description for: " + getNid());
    }
 
    /**
@@ -187,27 +188,14 @@ public class ConceptSnapshotImpl
     */
    @Override
    public DescriptionVersion getDescription() {
-      
       LatestVersion<DescriptionVersion> optionalDescription = this.manifoldCoordinate.getDescription(conceptChronology.getConceptDescriptionList());
       if (optionalDescription.isPresent()) {
          return optionalDescription.get();
       }
-      
-      final LatestVersion<DescriptionVersion> fsd = getFullySpecifiedDescription();
-
-      if (fsd.isPresent()) {
-         return fsd.get();
-      }
-
-      final LatestVersion<DescriptionVersion> pd = getPreferredDescription();
-
-      if (pd.isPresent()) {
-         return pd.get();
-      }
-
-      // Last resort if none of above return a proper version. 
-      return (DescriptionVersion) Get.assemblageService()
-                .getDescriptionsForComponent(getNid()).get(0).getVersionList().get(0);
+      else {
+          //Use a coordinate that will return anything
+          return LanguageCoordinates.getFullyQualifiedCoordinate().getDescription(conceptChronology.getConceptDescriptionList(), this.manifoldCoordinate).get();
+       }
    }
 
    /**

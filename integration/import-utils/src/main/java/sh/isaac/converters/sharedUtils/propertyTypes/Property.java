@@ -59,8 +59,8 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  * {@link Property}
  *
  * The converters common code uses this property abstraction system to handle converting different property
- * types in the WB, while maintaining consistency in how properties are represented.  Also handles advanced
- * cases where we do things like map a property to an existing WB property type, and then annotate the property
+ * types in ISAAC, while maintaining consistency in how properties are represented.  Also handles advanced
+ * cases where we do things like map a property to an existing ISAAC property type, and then annotate the property
  * instance with the terminology specific property info.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>

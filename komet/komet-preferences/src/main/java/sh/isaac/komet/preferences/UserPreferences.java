@@ -171,9 +171,6 @@ public final class UserPreferences extends AbstractPreferences {
     void revertFields() {
         shiroIniProperty.set(preferencesNode.get(Keys.SHIRO_INI, makeShiroIni()));
 
-        String userConceptSpec = preferencesNode.get(Keys.USER_CONCEPT, MetaData.USER____SOLOR.toExternalString());
-        userConceptProperty.set(new ConceptProxy(userConceptSpec));
-        
         List<String> userConceptOptionExternalStrings = preferencesNode.getList(Keys.USER_CONCEPT_OPTIONS);
         if (userConceptOptionExternalStrings.isEmpty()) {
             userConceptOptionExternalStrings.add(MetaData.USER____SOLOR.toExternalString());
@@ -185,9 +182,10 @@ public final class UserPreferences extends AbstractPreferences {
         for (String externalString: userConceptOptionExternalStrings) {
             userConceptOptions.add(new ConceptProxy(externalString));
         }
+        String userConceptSpec = preferencesNode.get(Keys.USER_CONCEPT, MetaData.USER____SOLOR.toExternalString());
+        userConceptProperty.set(new ConceptProxy(userConceptSpec));
         
-        String pathConceptSpec = preferencesNode.get(Keys.PATH_CONCEPT, MetaData.DEVELOPMENT_PATH____SOLOR.toExternalString());
-        pathConceptProperty.set(new ConceptProxy(pathConceptSpec));
+        
         List<String> pathConceptOptionExternalStrings = preferencesNode.getList(Keys.PATH_CONCEPT_OPTIONS);
         if (pathConceptOptionExternalStrings.isEmpty()) {
             pathConceptOptionExternalStrings.add(MetaData.MASTER_PATH____SOLOR.toExternalString());
@@ -197,9 +195,9 @@ public final class UserPreferences extends AbstractPreferences {
         for (String externalString: pathConceptOptionExternalStrings) {
             pathConceptOptions.add(new ConceptProxy(externalString));
         }
+        String pathConceptSpec = preferencesNode.get(Keys.PATH_CONCEPT, MetaData.DEVELOPMENT_PATH____SOLOR.toExternalString());
+        pathConceptProperty.set(new ConceptProxy(pathConceptSpec));
         
-        String moduleConceptSpec = preferencesNode.get(Keys.MODULE_CONCEPT, MetaData.SOLOR_MODULE____SOLOR.toExternalString());
-        moduleConceptProperty.set(new ConceptProxy(moduleConceptSpec));
         List<String> moduleConceptOptionExternalStrings = preferencesNode.getList(Keys.MODULE_CONCEPT_OPTIONS);
         if (moduleConceptOptionExternalStrings.isEmpty()) {
             moduleConceptOptionExternalStrings.add(MetaData.SOLOR_MODULE____SOLOR.toExternalString());
@@ -209,6 +207,8 @@ public final class UserPreferences extends AbstractPreferences {
         for (String externalString: moduleConceptOptionExternalStrings) {
             moduleConceptOptions.add(new ConceptProxy(externalString));
         }
+        String moduleConceptSpec = preferencesNode.get(Keys.MODULE_CONCEPT, MetaData.SOLOR_MODULE____SOLOR.toExternalString());
+        moduleConceptProperty.set(new ConceptProxy(moduleConceptSpec));
         
         
         

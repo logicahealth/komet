@@ -164,20 +164,6 @@ public interface CommitService
     */
    CommitTask commit(EditCoordinate editCoordinate, String commitComment);
 
-   /**
-    * Commit all pending changes for the provided EditCoordinate. The caller may
-    * choose to block on the returned task if synchronous operation is desired.
-    *
-    * @param chronicle the chronicle
-    * @param editCoordinate the edit coordinate to determine which changes to
-    *                       commit.
-    * @param commitComment  comment to associate with the commit.
-    * @return task representing the cancel.
-    */
-   @Deprecated
-   CommitTask commit(Chronology chronicle,
-         EditCoordinate editCoordinate,
-         String commitComment);
 
    
    CommitTask commit(

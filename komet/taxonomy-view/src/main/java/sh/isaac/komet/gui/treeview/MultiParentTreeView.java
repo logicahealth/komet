@@ -95,7 +95,7 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.komet.iconography.Iconography;
-
+import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.komet.gui.alert.AlertPanel;
 import sh.komet.gui.control.ChoiceBoxControls;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -161,7 +161,7 @@ public class MultiParentTreeView
         long startTime = System.currentTimeMillis();
         this.manifold = manifold.deepClone();
         this.manifold.getStampCoordinate().allowedStatesProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Allowed states changed to: " + newValue);
+            LOG.info("Allowed states changed to: {}", newValue);
         });
         historySwitch.setSelected(false);
         updateManifoldHistoryStates();
@@ -613,10 +613,6 @@ public class MultiParentTreeView
 
     }
     
-    public int getPreferredDescriptionType() {
-        return this.manifold.getLanguageCoordinate().descriptionTypePreferenceListProperty().get().get(0);
-    }
-
     public final void handleDescriptionTypeChange(ActionEvent event) {
         ConceptSpecification selectedDescriptionType = this.descriptionTypeChoiceBox.getSelectionModel().getSelectedItem();
         List<ConceptSpecification> items = this.descriptionTypeChoiceBox.getItems();
@@ -628,6 +624,7 @@ public class MultiParentTreeView
                 descriptionTypes[descriptionIndex++] = spec.getNid();
             }
         }
+        descriptionTypes = LanguageCoordinates.expandDescriptionTypePreferenceList(descriptionTypes, getManifold());
         this.manifold.getLanguageCoordinate().descriptionTypePreferenceListProperty().get().setAll(descriptionTypes);
         this.rootTreeItem.invalidate();
         this.treeView.refresh();

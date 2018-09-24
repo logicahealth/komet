@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalInt;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import javafx.scene.control.MenuItem;
@@ -27,19 +28,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.isaac.api.task.OptionalWaitTask;
 import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
+import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
+import sh.isaac.model.observable.version.ObservableLongVersionImpl;
+import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.observable.version.ObservableStringVersionImpl;
+import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -47,6 +50,7 @@ import sh.komet.gui.util.FxGet;
  * @author kec
  */
 public class AddAttachmentMenuItems {
+
     private static final Logger LOG = LogManager.getLogger();
 
     final List<MenuItem> menuItems = new ArrayList<>();
@@ -82,11 +86,7 @@ public class AddAttachmentMenuItems {
         MenuItem menuItem = new MenuItem(menuText);
         menuItem.setOnAction((event) -> {
             try {
-                SemanticChronology newChronology = makeNewChronology(assemblageSpecification);
-
-                ObservableSemanticChronology newObservableChronology = Get.observableChronologyService().getObservableSemanticChronology(newChronology.getNid());
-                CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = newObservableChronology.getCategorizedVersions(manifold);
-                ObservableVersion newVersion = categorizedVersions.getUncommittedVersions().get(0).getObservableVersion();
+                ObservableVersion newVersion = makeNewVersion(assemblageSpecification);
 
                 propertySheetMenuItem.setVersionInFlight(newVersion);
 
@@ -99,58 +99,62 @@ public class AddAttachmentMenuItems {
         menuItems.add(menuItem);
         return propertySheetMenuItem;
     }
-       
-    protected SemanticChronology makeNewChronology(ConceptSpecification assemblageSpecification) throws NoSuchElementException, InterruptedException, IllegalStateException, ExecutionException {
+
+    protected ObservableVersion makeNewVersion(ConceptSpecification assemblageSpecification) throws NoSuchElementException, InterruptedException, IllegalStateException, ExecutionException {
         OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageSpecification, manifold);
         if (optionalSemanticConceptNid.isPresent()) {
             int semanticTypeNid = optionalSemanticConceptNid.getAsInt();
             if (semanticTypeNid == MetaData.CONCEPT_SEMANTIC____SOLOR.getNid()
                     || semanticTypeNid == MetaData.COMPONENT_SEMANTIC____SOLOR.getNid()) {
+
+                ObservableComponentNidVersionImpl version
+                        = new ObservableComponentNidVersionImpl(UUID.randomUUID(),
+                                this.categorizedVersion.getPrimordialUuid(),
+                                assemblageSpecification.getNid());
+                version.setComponentNid(TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
+                setupWithChronicle(version);
                 
-                SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getComponentSemanticBuilder(TermAux.UNINITIALIZED_COMPONENT_ID.getNid(),
-                        this.categorizedVersion.getNid(),
-                        assemblageSpecification.getNid());
-                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(FxGet.editCoordinate(), ChangeCheckerMode.INACTIVE);
-                // this step does an add uncommitted...
-                SemanticChronology newChronology = buildTask.get();
-                return newChronology;
+                return version;
             } else if (semanticTypeNid == MetaData.INTEGER_SEMANTIC____SOLOR.getNid()) {
-                SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getLongSemanticBuilder(-1,
-                        this.categorizedVersion.getNid(),
+
+                ObservableLongVersionImpl version = new ObservableLongVersionImpl(UUID.randomUUID(),
+                        this.categorizedVersion.getPrimordialUuid(),
                         assemblageSpecification.getNid());
-                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(FxGet.editCoordinate(), ChangeCheckerMode.INACTIVE);
-                // this step does an add uncommitted...
-                SemanticChronology newChronology = buildTask.get();
-                return newChronology;
+                version.setLongValue(-1);
+                setupWithChronicle(version);
             } else if (semanticTypeNid == MetaData.MEMBERSHIP_SEMANTIC____SOLOR.getNid()) {
-                SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getMembershipSemanticBuilder(
-                        this.categorizedVersion.getNid(),
+                ObservableSemanticVersionImpl version = new ObservableSemanticVersionImpl(UUID.randomUUID(),
+                        this.categorizedVersion.getPrimordialUuid(),
                         assemblageSpecification.getNid());
-                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(FxGet.editCoordinate(), ChangeCheckerMode.INACTIVE);
-                // this step does an add uncommitted...
-                SemanticChronology newChronology = buildTask.get();
-                return newChronology;
+                setupWithChronicle(version);
+                return version;
             } else if (semanticTypeNid == MetaData.STRING_SEMANTIC____SOLOR.getNid()) {
-                SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getStringSemanticBuilder("",
-                        this.categorizedVersion.getNid(),
+                ObservableStringVersionImpl version = new ObservableStringVersionImpl(UUID.randomUUID(),
+                        this.categorizedVersion.getPrimordialUuid(),
                         assemblageSpecification.getNid());
-                OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(FxGet.editCoordinate(), ChangeCheckerMode.INACTIVE);
-                // this step does an add uncommitted...
-                SemanticChronology newChronology = buildTask.get();
-                return newChronology;
+                version.setString("");
+                setupWithChronicle(version);
+                return version;
             } else {
                 throw new UnsupportedOperationException("Can't handle: " + Get.conceptDescriptionText(semanticTypeNid));
             }
         }
 
         LOG.warn("No semantic type defined for assemblge: " + Get.conceptDescriptionText(assemblageSpecification.getNid()));
-        SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService().getStringSemanticBuilder("",
-                this.categorizedVersion.getNid(),
+        ObservableStringVersionImpl version = new ObservableStringVersionImpl(UUID.randomUUID(),
+                this.categorizedVersion.getPrimordialUuid(),
                 assemblageSpecification.getNid());
-        OptionalWaitTask<? extends SemanticChronology> buildTask = builder.build(FxGet.editCoordinate(), ChangeCheckerMode.INACTIVE);
-        // this step does an add uncommitted...
-        SemanticChronology newChronology = buildTask.get();
-        return newChronology;
+        version.setString("");
+                setupWithChronicle(version);
+        return version;
+    }
+
+    protected void setupWithChronicle(ObservableVersionImpl version) throws NoSuchElementException {
+        version.setStatus(Status.ACTIVE);
+        version.setAuthorNid(FxGet.editCoordinate().getAuthorNid());
+        version.setModuleNid(FxGet.editCoordinate().getModuleNid());
+        version.setPathNid(FxGet.editCoordinate().getPathNid());
+        version.setChronology(new ObservableSemanticChronologyImpl((SemanticChronology) version.createIndependentChronicle()));
     }
 
 }

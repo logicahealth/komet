@@ -63,7 +63,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.eclipse.fx.core.SystemUtils;
 import org.glassfish.hk2.api.MultiException;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
@@ -77,14 +76,16 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.komet.preferences.GeneralPreferences;
+import sh.isaac.komet.preferences.ConfigurationPreferences;
 import sh.isaac.komet.preferences.PreferenceGroup;
 import sh.isaac.komet.preferences.RootPreferences;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
+import sh.isaac.api.util.SystemUtils;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
@@ -99,7 +100,7 @@ public class MainApp
     public static final String SPLASH_IMAGE = "prism-splash.png";
     protected static final Logger LOG = LogManager.getLogger();
     private static Stage primaryStage;
-    public IsaacPreferences applicationPreferences;
+    public IsaacPreferences configurationPreferences;
     public boolean firstRun = true;
 
     //~--- methods -------------------------------------------------------------
@@ -130,11 +131,12 @@ public class MainApp
 
         SvgImageLoaderFactory.install();
         LookupService.startupPreferenceProvider();
-        applicationPreferences = FxGet.applicationNode(GeneralPreferences.class);
+        configurationPreferences = FxGet.configurationNode(ConfigurationPreferences.class);
 
-        if (applicationPreferences.getBoolean(PreferenceGroup.Keys.INITIALIZED, false)) {
+        if (configurationPreferences.getBoolean(PreferenceGroup.Keys.INITIALIZED, false)) {
             firstRun = false;
         }
+        
         Get.configurationService().setSingleUserMode(true);  //TODO eventually, this needs to be replaced with a proper user identifier
         Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
         Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
@@ -146,8 +148,7 @@ public class MainApp
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             System.out.println("Beta features enabled");
         }
-        FxGet.kometPreferences().loadPreferences( 
-                applicationPreferences, Manifold.make(ManifoldGroup.TAXONOMY));
+        FxGet.kometPreferences().loadPreferences(Manifold.make(ManifoldGroup.TAXONOMY));
 
         if (Get.metadataService()
                 .wasMetadataImported()) {
@@ -175,7 +176,10 @@ public class MainApp
 
         root.setId(stageUuid.toString());
 
-        stage.setTitle("Viewer");
+        stage.setTitle(FxGet.getConfigurationName());
+        FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
+            stage.setTitle(newValue);
+        });
         
         Scene scene = new Scene(setupStageMenus(stage, root));
         stage.setScene(scene);
@@ -203,7 +207,7 @@ public class MainApp
         // CHILLDE
         // Knowledge, Language, Dialect, Chronology
         // KOLDAC
-        applicationPreferences.sync();
+        configurationPreferences.sync();
     }
 
     protected Parent setupStageMenus(Stage stage, BorderPane root) throws MultiException {
@@ -252,13 +256,13 @@ public class MainApp
             switch (ap) {
                 case APP:
                     if (tk != null) {
-                        MenuItem aboutItem = new MenuItem("About...");
+                        MenuItem aboutItem = new MenuItem("About KOMET...");
                         aboutItem.setOnAction(this::handleAbout);
                         ap.getMenu().getItems().add(aboutItem);
                         ap.getMenu().getItems().add(new SeparatorMenuItem());
                     }
                     if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-                        MenuItem prefsItem = new MenuItem("Preferences...");
+                        MenuItem prefsItem = new MenuItem("KOMET Preferences...");
                         //TODO TEMP to do  something. Need to make it do something better. 
                         prefsItem.setOnAction(this::handlePrefs);
                         ap.getMenu().getItems().add(prefsItem);
@@ -279,7 +283,7 @@ public class MainApp
                         for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                             if (mp.getParentMenus().contains(AppMenu.NEW_WINDOW)) {
                                 for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner())) {
-                                    menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.applicationNode(RootPreferences.class));
+                                    menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.configurationNode(RootPreferences.class));
                                     newWindowMenu.getItems().add(menuItem);
                                 }
                             }
@@ -353,8 +357,9 @@ public class MainApp
 
     private void newStatement(ActionEvent event) {
         Manifold statementManifold = Manifold.make(ManifoldGroup.CLINICAL_STATEMENT);
-        StatementViewController statementController = StatementView.show(statementManifold,
-                "Clinical statement " + MenuProvider.WINDOW_SEQUENCE.getAndIncrement(), MenuProvider::handleCloseRequest);
+        StatementViewController statementController = StatementView.show(statementManifold, 
+                MenuProvider::handleCloseRequest);
+
         statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
         statementController.getClinicalStatement().setManifold(statementManifold);
         MenuProvider.WINDOW_COUNT.incrementAndGet();
@@ -372,11 +377,23 @@ public class MainApp
                     .toString());
 
             if (MenuProvider.WINDOW_SEQUENCE.get() >= 1) {
-                stage.setTitle("Viewer " + MenuProvider.WINDOW_SEQUENCE.incrementAndGet());
+                stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
+                stage.getProperties().put(WindowProperties.NAME_SUFFIX, " " +  Integer.toString(MenuProvider.WINDOW_SEQUENCE.incrementAndGet()));
+                stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
+                        FxGet.getConfigurationName() +
+                        stage.getProperties().get(WindowProperties.NAME_SUFFIX)
+                );
             } else {
-                stage.setTitle("Viewer");
+                stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
+                stage.getProperties().put(WindowProperties.NAME_SUFFIX, "");
+                stage.setTitle(FxGet.getConfigurationName());
                 MenuProvider.WINDOW_SEQUENCE.incrementAndGet();
             }
+            FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
+                stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
+                        newValue +
+                        stage.getProperties().get(WindowProperties.NAME_SUFFIX));
+            });
 
             //Menu hackery
             Scene scene;
@@ -407,8 +424,7 @@ public class MainApp
     }
 
     private void handlePrefs(ActionEvent event) {
-        FxGet.kometPreferences().showPreferences( 
-                applicationPreferences, Manifold.make(ManifoldGroup.TAXONOMY));
+        FxGet.kometPreferences().showPreferences(Manifold.make(ManifoldGroup.TAXONOMY));
     }
 
     private void handleAbout(ActionEvent event) {
@@ -450,7 +466,7 @@ public class MainApp
         Get.applicationStates().remove(ApplicationStates.RUNNING);
         Get.applicationStates().add(ApplicationStates.STOPPING);
         try {
-            applicationPreferences.flush();
+            configurationPreferences.flush();
         } catch (BackingStoreException ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
         }
@@ -459,7 +475,7 @@ public class MainApp
             LookupService.shutdownSystem();
             Platform.runLater(() -> {
                 try {
-                    applicationPreferences.flush();
+                    configurationPreferences.flush();
                     Platform.exit();
                     System.exit(0);
                 } catch (Throwable ex) {

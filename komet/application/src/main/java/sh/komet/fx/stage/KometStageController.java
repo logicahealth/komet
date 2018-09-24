@@ -88,7 +88,7 @@ import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
 import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.NodeFactory.PanelPlacement;
 import sh.komet.gui.contract.StatusMessageConsumer;
-import sh.komet.gui.exportation.ExportView;
+import sh.isaac.komet.gui.exporter.ExportView;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -455,7 +455,12 @@ public class KometStageController
                     ConceptChronology concept = (ConceptChronology) newValue;
                     buff.append(concept.toString());
                 }
-                System.out.println(buff);
+                if (Get.configurationService().isVerboseDebugEnabled()) {
+                   System.out.println(buff.toString());
+                }
+                else {
+                   LOG.debug(buff.toString());
+                }
             }
         });
     }

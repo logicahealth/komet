@@ -56,6 +56,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 
@@ -63,10 +64,7 @@ import java.util.prefs.BackingStoreException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.glassfish.hk2.runlevel.RunLevel;
-import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.preferences.IsaacPreferences;
 
 //~--- classes ----------------------------------------------------------------
@@ -75,12 +73,13 @@ import sh.isaac.api.preferences.IsaacPreferences;
  *
  * @author kec
  */
-@Service
-@RunLevel(value=LookupService.SL_L0_METADATA_STORE_STARTED_RUNLEVEL)
 public class IsaacPreferencesImpl
         extends AbstractPreferences {
    private final Logger LOG = LogManager.getLogger();
    public static final String DB_PREFERENCES_FOLDER = "preferences";
+   
+   public static AtomicReference<IsaacPreferencesWrapper> singleton = new AtomicReference<>();
+   public static AtomicReference<IsaacPreferencesImpl> coreSingleton = new AtomicReference<>();
 
    //~--- fields --------------------------------------------------------------
 
@@ -115,15 +114,28 @@ public class IsaacPreferencesImpl
       init();
    }
    
+   @Override
+    public String toString() {
+        return "Configuration Preference Node: " + this.absolutePath();
+    }
+   
    /**
     * The public mechanism to get a handle to a preferences store that stores its data inside the datastore folder.
     * @return This class, wrapped by a {@link IsaacPreferencesWrapper}
     */
-   public static IsaacPreferences getApplicationRootPreferences() {
-      //utilize HK2 here, so we essentially get a singleton for the root prefs
-      return new IsaacPreferencesWrapper(Get.service(IsaacPreferencesImpl.class));
+   public static IsaacPreferences getConfigurationRootPreferences() {
+       if (singleton.get() == null) {
+           coreSingleton.compareAndSet(null, new IsaacPreferencesImpl());
+           singleton.compareAndSet(null, new IsaacPreferencesWrapper(coreSingleton.get()));
+       }
+       
+      return singleton.get();
    }
 
+   public static void reloadConfigurationPreferences() {
+        coreSingleton.set(new IsaacPreferencesImpl());
+        singleton.get().changeDelegate(coreSingleton.get());
+   }
    //~--- methods -------------------------------------------------------------
    
    private void init()

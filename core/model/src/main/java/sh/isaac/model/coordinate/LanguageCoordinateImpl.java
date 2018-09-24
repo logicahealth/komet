@@ -39,50 +39,32 @@
 
 package sh.isaac.model.coordinate;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
-
-import javafx.collections.ArrayChangeListener;
-import javafx.collections.ObservableIntegerArray;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
+import sh.isaac.api.LanguageCoordinateService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class LanguageCoordinateImpl.
  *
  * @author kec
  */
-@XmlRootElement(name = "languageCoordinate")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class LanguageCoordinateImpl
          implements LanguageCoordinate {
    /** The language concept nid. */
@@ -96,16 +78,9 @@ public class LanguageCoordinateImpl
    
    int[] modulePreferenceList;
    
+   private HashMap<Integer, LanguageCoordinate> altDescriptionTypeListCache = new HashMap<>();
+   
    LanguageCoordinateImpl nextProrityLanguageCoordinate;
-
-   //~--- constructors --------------------------------------------------------
-
-   /**
-    * Instantiates a new language coordinate impl.
-    */
-   private LanguageCoordinateImpl() {
-      // for jaxb
-   }
 
    /**
     * Instantiates a new language coordinate impl.
@@ -113,7 +88,7 @@ public class LanguageCoordinateImpl
     * @param languageConceptId the language concept id
     * @param dialectAssemblagePreferenceList the dialect assemblage preference list
     * @param descriptionTypePreferenceList the description type preference list
-    * @param modulePreferenceList the module preference list.  See {@link LanguageCoordinate#getModulePreferenceList()}
+    * @param modulePreferenceList the module preference list.  See {@link LanguageCoordinate#getModulePreferenceListForLanguage()}
     */
    public LanguageCoordinateImpl(int languageConceptId,
                                  int[] dialectAssemblagePreferenceList,
@@ -137,8 +112,6 @@ public class LanguageCoordinateImpl
                                  int[] descriptionTypePreferenceList) {
       this(languageConceptId, dialectAssemblagePreferenceList, descriptionTypePreferenceList, new int[] {});
    }
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Equals.
@@ -165,6 +138,12 @@ public class LanguageCoordinateImpl
       if (!Arrays.equals(this.dialectAssemblagePreferenceList, other.dialectAssemblagePreferenceList)) {
          return false;
       }
+      
+      if ((modulePreferenceList == null && other.modulePreferenceList != null) 
+            || (modulePreferenceList != null && other.modulePreferenceList == null)
+            || modulePreferenceList != null && !Arrays.equals(this.modulePreferenceList, other.modulePreferenceList)) {
+         return false;
+      }
 
       return Arrays.equals(this.descriptionTypePreferenceList, other.descriptionTypePreferenceList);
    }
@@ -180,6 +159,8 @@ public class LanguageCoordinateImpl
 
       hash = 79 * hash + this.languageConceptNid;
       hash = 79 * hash + Arrays.hashCode(this.dialectAssemblagePreferenceList);
+      hash = 79 * hash + Arrays.hashCode(this.descriptionTypePreferenceList);
+      hash = 79 * hash + (this.modulePreferenceList == null ? 0 : Arrays.hashCode(this.modulePreferenceList));
       return hash;
    }
 
@@ -192,17 +173,13 @@ public class LanguageCoordinateImpl
    public String toString() {
       return "Language Coordinate{" + Get.conceptDescriptionText(this.languageConceptNid) +
              ", dialect preference: " + Get.conceptDescriptionTextList(this.dialectAssemblagePreferenceList) +
-             ", type preference: " + Get.conceptDescriptionTextList(this.descriptionTypePreferenceList) + '}';
+             ", type preference: " + Get.conceptDescriptionTextList(this.descriptionTypePreferenceList) +
+             ", module preference: " + Get.conceptDescriptionTextList(this.modulePreferenceList)+ '}';
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the description.
-    *
-    * @param descriptionList the description list
-    * @param stampCoordinate the stamp coordinate
-    * @return the description
+    * @see sh.isaac.api.coordinate.LanguageCoordinate#getDescription(java.util.List, sh.isaac.api.coordinate.StampCoordinate)
+    * Implemented via {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, List, LanguageCoordinate)}
     */
    @Override
    public LatestVersion<DescriptionVersion> getDescription(
@@ -210,6 +187,37 @@ public class LanguageCoordinateImpl
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate, descriptionList, this);
+   }
+   
+   
+   /**
+    * 
+    * @see sh.isaac.api.coordinate.LanguageCoordinate#getDescription(int, int[], sh.isaac.api.coordinate.StampCoordinate)
+    */
+   @Override
+   public LatestVersion<DescriptionVersion> getDescription(int conceptNid, int[] descriptionTypePreference, StampCoordinate stampCoordinate) {
+      Integer key = Arrays.hashCode(descriptionTypePreference);
+      LanguageCoordinate lc = altDescriptionTypeListCache.get(key);
+      if (lc == null) {
+         lc = this.cloneAndChangeDescriptionType(descriptionTypePreference);
+         altDescriptionTypeListCache.put(key, lc);
+      }
+      return lc.getDescription(conceptNid, stampCoordinate);
+   }
+
+   /**
+    * @see sh.isaac.api.coordinate.LanguageCoordinate#getDescription(java.util.List, int[], sh.isaac.api.coordinate.StampCoordinate)
+    */
+    @Override
+   public LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList, int[] descriptionTypePreference,
+         StampCoordinate stampCoordinate) {
+      Integer key = Arrays.hashCode(descriptionTypePreference);
+      LanguageCoordinate lc = altDescriptionTypeListCache.get(key);
+      if (lc == null) {
+         lc = this.cloneAndChangeDescriptionType(descriptionTypePreference);
+         altDescriptionTypeListCache.put(key, lc);
+      }
+      return lc.getDescription(descriptionList, stampCoordinate);
    }
 
    /**
@@ -224,8 +232,20 @@ public class LanguageCoordinateImpl
 
    public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
       this.descriptionTypePreferenceList = descriptionTypePreferenceList;
+      //Don't need to clear altDescriptionTypeListCache here, because its ignored anyway
    }
-
+   
+   /**
+    * Same as {@link #setDescriptionTypePreferenceList(int[])}, except it also makes the same 
+    * call recursively on the preference list in {@link #getNextProrityLanguageCoordinate()}, if any.
+    * @param descriptionTypePreferenceList
+    */
+   public void setDescriptionTypePreferenceListRecursive(int[] descriptionTypePreferenceList) {
+      this.descriptionTypePreferenceList = descriptionTypePreferenceList;
+      if (getNextProrityLanguageCoordinate().isPresent()) {
+         ((LanguageCoordinateImpl)getNextProrityLanguageCoordinate().get()).setDescriptionTypePreferenceListRecursive(descriptionTypePreferenceList);
+      }
+   }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -241,27 +261,14 @@ public class LanguageCoordinateImpl
 
    public void setDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList) {
       this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
+      altDescriptionTypeListCache.clear();
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the fully specified description.
-    *
-    * @param descriptionList the description list
-    * @param stampCoordinate the stamp coordinate
-    * @return the fully specified description
-    */
    @Override
    public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
            List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
-      return Get.languageCoordinateService()
-                .getSpecifiedDescription(stampCoordinate,
-                                         descriptionList,
-                                         Get.languageCoordinateService()
-                                               .getFullySpecifiedConceptNid(),
-                                         this);
+      return getDescription(descriptionList, new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, stampCoordinate);
    }
 
    /**
@@ -273,8 +280,6 @@ public class LanguageCoordinateImpl
    public int getLanguageConceptNid() {
       return this.languageConceptNid;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Set language concept nid property.
@@ -290,6 +295,7 @@ public class LanguageCoordinateImpl
             };
 
       languageConceptSequenceProperty.addListener(new WeakChangeListener<>(listener));
+      altDescriptionTypeListCache.clear();
       return listener;
    }
 
@@ -303,53 +309,30 @@ public class LanguageCoordinateImpl
             };
 
       nextProrityLanguageCoordinateProperty.addListener(new WeakChangeListener<>(listener));
+      altDescriptionTypeListCache.clear();
       return listener;
    }
-   //~--- get methods ---------------------------------------------------------
 
-   /**
-    * Gets the preferred description.
-    *
-    * @param descriptionList the description list
-    * @param stampCoordinate the stamp coordinate
-    * @return the preferred description
-    */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription(
            List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
-      return Get.languageCoordinateService()
-                .getSpecifiedDescription(stampCoordinate,
-                                         descriptionList,
-                                         Get.languageCoordinateService()
-                                               .getSynonymConceptNid(),
-                                         this);
+      return getDescription(descriptionList, new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, stampCoordinate);
    }
 
    @Override
    public LatestVersion<DescriptionVersion> getDefinitionDescription(
            List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
-
-       LatestVersion<DescriptionVersion> definition = Get.languageCoordinateService()
-                .getSpecifiedDescription(stampCoordinate,
-                                         descriptionList,
-                                         TermAux.DEFINITION_DESCRIPTION_TYPE.getNid(),
-                                         this);
-       
-        if (definition.isPresent() && definition.get().getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
-            return definition;
-        }
-        
-       return new LatestVersion();
+      return getDescription(descriptionList, new int[] {TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()}, stampCoordinate);
    }
 
    @Override
-   public LanguageCoordinate deepClone() {
+   public LanguageCoordinateImpl deepClone() {
       LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConceptNid,
                                  dialectAssemblagePreferenceList.clone(),
                                  descriptionTypePreferenceList.clone(),
-                                 modulePreferenceList.clone());
+                                 modulePreferenceList == null ? null : modulePreferenceList.clone());
       if (this.nextProrityLanguageCoordinate != null) {
           newCoordinate.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) this.nextProrityLanguageCoordinate.deepClone();
       }
@@ -363,6 +346,7 @@ public class LanguageCoordinateImpl
 
     public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
         this.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
+        altDescriptionTypeListCache.clear();
     }
 
     @Override
@@ -370,6 +354,15 @@ public class LanguageCoordinateImpl
         return modulePreferenceList;
     }
     
-    
+    /**
+     * Clone this coordinate, and change the description types list to the new list, recursively.
+     * Also expands description types
+     * @param descriptionTypes
+     * @return
+     */
+    private LanguageCoordinate cloneAndChangeDescriptionType(int[] descriptionTypes) {
+        LanguageCoordinateImpl lci = deepClone();
+        lci.setDescriptionTypePreferenceListRecursive(LanguageCoordinates.expandDescriptionTypePreferenceList(descriptionTypes, null));
+        return lci;
+    }
 }
-

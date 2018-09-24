@@ -183,7 +183,7 @@ public class TableHeaderRowTooltipInstaller
 		}
 		else
 		{
-			logger_.info("No tooltip text available for column '" + l.getText() + "'");
+			logger_.debug("No tooltip text available for column '" + l.getText() + "'");
 			return;
 		}
 	}

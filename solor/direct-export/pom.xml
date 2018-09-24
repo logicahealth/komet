@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>sh.isaac</groupId>
+        <artifactId>solor</artifactId>
+        <version>4.53</version>
+    </parent>
+
+    <groupId>sh.isaac.solor</groupId>
+    <artifactId>direct-export</artifactId>
+    <packaging>jar</packaging>
+
+    <name>ISAAC SOLOR: Direct export</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>metadata</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>model</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>api</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>gui-contracts</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

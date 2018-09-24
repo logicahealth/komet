@@ -43,6 +43,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -77,7 +78,7 @@ public class PreferencesProvider
    @PostConstruct
    protected void startMe() {
       //Just doing this to make sure it starts without errors
-      getApplicationPreferences();
+      getConfigurationPreferences();
    }
    /**
     * Stop me.
@@ -86,7 +87,7 @@ public class PreferencesProvider
    protected void stopMe() {
       try {
          LOG.info("Stopping Preferences Provider.");
-         getApplicationPreferences().sync();
+         getConfigurationPreferences().sync();
       } catch (Throwable ex) {
          LOG.error("Unexpected error stopping prefs provider", ex);
          throw new RuntimeException(ex);
@@ -95,12 +96,16 @@ public class PreferencesProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   @Override
+   public void reloadConfigurationPreferences() {
+       IsaacPreferencesImpl.reloadConfigurationPreferences();
+   }
    /**
     * {@inheritDoc}
     */
    @Override
-   public IsaacPreferences getApplicationPreferences() {
-      return IsaacPreferencesImpl.getApplicationRootPreferences();
+   public IsaacPreferences getConfigurationPreferences() {
+      return IsaacPreferencesImpl.getConfigurationRootPreferences();
    }
 
    /**
@@ -123,10 +128,10 @@ public class PreferencesProvider
     * {@inheritDoc}
     */
    @Override
-   public void clearApplicationPreferences() {
+   public void clearConfigurationPreferences() {
       try {
-         getApplicationPreferences().removeNode();
-         getApplicationPreferences().flush();
+         getConfigurationPreferences().removeNode();
+         getConfigurationPreferences().flush();
       }
       catch (BackingStoreException e) {
          throw new RuntimeException(e);

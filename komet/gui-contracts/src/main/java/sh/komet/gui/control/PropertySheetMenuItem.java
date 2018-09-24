@@ -42,7 +42,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.concurrent.ExecutionException;
 import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -50,6 +52,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
+import org.apache.logging.log4j.LogManager;
 
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.PropertySheet.Item;
@@ -57,7 +60,9 @@ import org.controlsfx.control.PropertySheet.Item;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -78,6 +83,7 @@ import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
  */
 public class PropertySheetMenuItem
         implements EditInFlight {
+    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
 
    PropertySheet propertySheet = new PropertySheet();
    List<PropertySpec> propertiesToEdit = new ArrayList<>();
@@ -122,8 +128,6 @@ public class PropertySheetMenuItem
 
    @Override
    public void cancel() {
-      Get.commitService()
-              .cancel(observableVersion.getChronology(), FxGet.editCoordinate());
       completionListeners.forEach((listener) -> {
          listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.CANCELED);
       });
@@ -131,12 +135,18 @@ public class PropertySheetMenuItem
    }
 
    public void commit() {
-      Get.commitService()
-              .commit(observableVersion.getChronology(), FxGet.editCoordinate(), "temporary comment");
-      completionListeners.forEach((listener) -> {
-         listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.COMMITTED);
-      });
-      completionListeners.clear();
+       try {
+           CommitTask commitTask = Get.commitService()
+                   .commit(FxGet.editCoordinate(), "temporary comment", getVersionInFlight());
+           Optional<CommitRecord> optionalCommitRecord = commitTask.get();
+           completionListeners.forEach((listener) -> {
+               listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.COMMITTED);
+           });
+           completionListeners.clear();
+       } catch (InterruptedException | ExecutionException ex) {
+           LOG.error(ex.getLocalizedMessage(), ex);
+           FxGet.dialogs().showErrorDialog(ex.getLocalizedMessage(), ex);
+       }
    }
 
    public void prepareToExecute() {
@@ -165,6 +175,7 @@ public class PropertySheetMenuItem
               .add(item);
       return item;
    }
+   
 
    //~--- get methods ---------------------------------------------------------
    private PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
@@ -205,8 +216,23 @@ public class PropertySheetMenuItem
 
    private PropertySheetTextWrapper getTextProperty(ConceptSpecification propertyConceptSpecification,
            String nameForProperty) {
-      return new PropertySheetTextWrapper(nameForProperty,
-              (StringProperty) getPropertyMap().get(propertyConceptSpecification));
+      ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
+      if (property == null) {
+          int assemblageNid = observableVersion.getAssemblageNid();
+          OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
+                  propertyConceptSpecification.getNid(), 
+                  assemblageNid, manifold);
+          if (propertyIndex.isPresent()) {
+              property = observableVersion.getProperties().get(propertyIndex.getAsInt());
+          }
+          getPropertyMap().put(propertyConceptSpecification, property);
+      }
+      StringProperty stringProperty = (StringProperty) property;
+
+      PropertySheetTextWrapper wrapper = new PropertySheetTextWrapper(nameForProperty,
+              stringProperty);
+       wrapper.setSpecification(propertyConceptSpecification);
+      return wrapper;
    }
 
    public Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {

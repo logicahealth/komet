@@ -21,7 +21,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -612,7 +614,7 @@ public interface IsaacPreferences {
      * Removes this preference node and all of its descendants, invalidating any
      * preferences contained in the removed nodes. Once a node has been removed,
      * attempting any method other than {@link #name()},
-     * {@link #absolutePath()}, {@link #isUserNode()}, {@link #flush()} or
+     * {@link #absolutePath()}, {@link #flush()} or
      * {@link #node(String) nodeExists("")} on the corresponding
      * <tt>Preferences</tt> instance will fail with an
      * <tt>IllegalStateException</tt>. (The methods defined on {@link Object}
@@ -658,7 +660,7 @@ public interface IsaacPreferences {
     /**
      *
      *
-     * @return the preference node type. APPLICATION, USER, or SYSTEM.
+     * @return the preference node type. CONFIGURATION, USER, or SYSTEM.
      */
     PreferenceNodeType getNodeType();
 
@@ -964,7 +966,7 @@ public interface IsaacPreferences {
     default Optional<char[]> getPassword(String key) {
         try {
             Optional<String> encryptedPassword = get(key);
-            if (encryptedPassword.isPresent()) {
+            if (encryptedPassword.isPresent() && !encryptedPassword.get().isEmpty()) {
                 return Optional.of(PasswordHasher.decryptToChars("obfuscate-komet".toCharArray(), 
 								encryptedPassword.get()));
             }
@@ -1024,4 +1026,16 @@ public interface IsaacPreferences {
         put(enumToGeneralKey(key), defaultValue.toExternalString());
     }
 
+    /**
+     * 
+     * @return Map of the preferences at this node level.
+     * @throws java.util.prefs.BackingStoreException
+     */
+    default Map<String, String> getMap() throws BackingStoreException {
+        HashMap<String, String> map = new HashMap<>();
+        for (String key: keys()) {
+            map.put(key, get(key, ""));
+        }
+        return map;
+    }
 }

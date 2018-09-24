@@ -92,9 +92,10 @@ public interface ConceptSnapshot
    Set<? extends StampedVersion> getContradictions();
 
    /**
-    * This method will try first to return the fully specified description,
-    * next the preferred description, finally any description if there is no
-    * preferred or fully specified description that satisfies the {@code StampCoordinate} and the
+    * This method will try first to return a description that matches the manifold 
+    * language coordinate preferences.  If that fails, it will attempt to return a 
+    * fully specified description, next the preferred description, finally any description 
+    * if there is no preferred or fully specified description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     * @return a description for this concept.
     */

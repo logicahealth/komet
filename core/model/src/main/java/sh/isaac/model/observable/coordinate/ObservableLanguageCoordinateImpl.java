@@ -36,37 +36,24 @@
  */
 package sh.isaac.model.observable.coordinate;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.util.List;
 import java.util.Optional;
-
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableIntegerArray;
-
-//~--- JDK imports ------------------------------------------------------------
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-//~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class ObservableLanguageCoordinateImpl.
  *
@@ -79,32 +66,24 @@ public final class ObservableLanguageCoordinateImpl
     /**
      * The language concept nid property.
      */
-    IntegerProperty languageConceptSequenceProperty = null;
+    private IntegerProperty languageConceptSequenceProperty = null;
 
     /**
      * The dialect assemblage preference list property.
      */
-    ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty = null;
+    private ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty = null;
 
     /**
      * The description type preference list property.
      */
-    ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty = null;
+    private ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty = null;
 
-    ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty = null;
+    private ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty = null;
 
     /**
      * The language coordinate.
      */
     private LanguageCoordinateImpl languageCoordinate;
-
-    //~--- constructors --------------------------------------------------------
-    /**
-     * Instantiates a new observable language coordinate impl.
-     */
-    private ObservableLanguageCoordinateImpl() {
-        // for jaxb
-    }
 
     /**
      * Instantiates a new observable language coordinate impl.
@@ -114,16 +93,12 @@ public final class ObservableLanguageCoordinateImpl
     public ObservableLanguageCoordinateImpl(LanguageCoordinate languageCoordinate) {
         if (languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
             throw new IllegalStateException("Trying to wrap an observable coordinate in an observable coordinate...");
-
         }
         this.languageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
     }
 
-    //~--- methods -------------------------------------------------------------
     /**
-     * Description type preference list property.
-     *
-     * @return the object property
+     * @see sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate#descriptionTypePreferenceListProperty()
      */
     @Override
     public ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty() {
@@ -148,10 +123,9 @@ public final class ObservableLanguageCoordinateImpl
     private void descriptionTypeArrayChanged(ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) {
         this.languageCoordinate.setDescriptionTypePreferenceList(observableArray.toArray(new int[observableArray.size()]));
     }
+
     /**
-     * Dialect assemblage preference list property.
-     *
-     * @return the object property
+     * @see sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate#dialectAssemblagePreferenceListProperty()
      */
     @Override
     public ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty() {
@@ -162,7 +136,6 @@ public final class ObservableLanguageCoordinateImpl
                     ObservableFields.DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                     preferenceList);
             this.dialectAssemblagePreferenceListProperty.addListener(this::dialectAssemblagePreferenceChanged);
-            
         }
 
         return this.dialectAssemblagePreferenceListProperty;
@@ -178,6 +151,9 @@ public final class ObservableLanguageCoordinateImpl
     }
     
 
+    /**
+     * @see sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate#nextProrityLanguageCoordinateProperty()
+     */
     @Override
     public ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty() {
         if (this.nextProrityLanguageCoordinateProperty == null) {
@@ -193,21 +169,21 @@ public final class ObservableLanguageCoordinateImpl
 
             addListenerReference(this.languageCoordinate
                     .setNextProrityLanguageCoordinateProperty(nextProrityLanguageCoordinateProperty));
-
         }
 
         return this.nextProrityLanguageCoordinateProperty;
     }
 
+    /**
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getNextProrityLanguageCoordinate()
+     */
     @Override
     public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
         return Optional.ofNullable(nextProrityLanguageCoordinateProperty().get());
     }
 
     /**
-     * Language concept nid property.
-     *
-     * @return the integer property
+     * @see sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate#languageConceptNidProperty()
      */
     @Override
     public IntegerProperty languageConceptNidProperty() {
@@ -223,22 +199,15 @@ public final class ObservableLanguageCoordinateImpl
     }
 
     /**
-     * To string.
-     *
-     * @return the string
+     * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
         return "ObservableLanguageCoordinateImpl{" + this.languageCoordinate + '}';
     }
 
-    //~--- get methods ---------------------------------------------------------
     /**
-     * Gets the description.
-     *
-     * @param descriptionList the description list
-     * @param stampCoordinate the stamp coordinate
-     * @return the description
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getDescription(java.util.List, sh.isaac.api.coordinate.StampCoordinate)
      */
     @Override
     public LatestVersion<DescriptionVersion> getDescription(
@@ -248,41 +217,23 @@ public final class ObservableLanguageCoordinateImpl
     }
 
     /**
-     * Gets the description type preference list.
-     *
-     * @return the description type preference list
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getDescriptionTypePreferenceList()
      */
     @Override
     public int[] getDescriptionTypePreferenceList() {
-        if (this.descriptionTypePreferenceListProperty != null) {
-            return this.descriptionTypePreferenceListProperty.get()
-                    .toArray(new int[] {this.descriptionTypePreferenceListProperty.get().size()});
-        }
-
         return this.languageCoordinate.getDescriptionTypePreferenceList();
     }
 
     /**
-     * Gets the dialect assemblage preference list.
-     *
-     * @return the dialect assemblage preference list
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getDialectAssemblagePreferenceList()
      */
     @Override
     public int[] getDialectAssemblagePreferenceList() {
-        if (this.dialectAssemblagePreferenceListProperty != null) {
-            return this.dialectAssemblagePreferenceListProperty.get()
-                    .toArray(new int[dialectAssemblagePreferenceListProperty.get().size()]);
-        }
-
         return this.languageCoordinate.getDialectAssemblagePreferenceList();
     }
 
     /**
-     * Gets the fully specified description.
-     *
-     * @param descriptionList the description list
-     * @param stampCoordinate the stamp coordinate
-     * @return the fully specified description
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getFullySpecifiedDescription(java.util.List, sh.isaac.api.coordinate.StampCoordinate)
      */
     @Override
     public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
@@ -292,9 +243,7 @@ public final class ObservableLanguageCoordinateImpl
     }
 
     /**
-     * Gets the language concept nid.
-     *
-     * @return the language concept nid
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getLanguageConceptNid()
      */
     @Override
     public int getLanguageConceptNid() {
@@ -306,11 +255,7 @@ public final class ObservableLanguageCoordinateImpl
     }
 
     /**
-     * Gets the preferred description.
-     *
-     * @param descriptionList the description list
-     * @param stampCoordinate the stamp coordinate
-     * @return the preferred description
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getPreferredDescription(java.util.List, sh.isaac.api.coordinate.StampCoordinate)
      */
     @Override
     public LatestVersion<DescriptionVersion> getPreferredDescription(
@@ -319,6 +264,9 @@ public final class ObservableLanguageCoordinateImpl
         return this.languageCoordinate.getPreferredDescription(descriptionList, stampCoordinate);
     }
 
+    /**
+     * @see sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate#deepClone()
+     */
     @Override
     public ObservableLanguageCoordinateImpl deepClone() {
         return new ObservableLanguageCoordinateImpl(languageCoordinate.deepClone());
@@ -328,15 +276,30 @@ public final class ObservableLanguageCoordinateImpl
         return languageCoordinate;
     }
 
+    /**
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getDefinitionDescription(java.util.List, sh.isaac.api.coordinate.StampCoordinate)
+     */
     @Override
     public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
         return this.languageCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
     }
 
+    /**
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getModulePreferenceListForLanguage()
+     */
     @Override
     public int[] getModulePreferenceListForLanguage() {
         return this.languageCoordinate.getModulePreferenceListForLanguage();
     }
-    
-    
+
+    @Override
+    public LatestVersion<DescriptionVersion> getDescription(int conceptNid, int[] descriptionTypePreference, StampCoordinate stampCoordinate) {
+        return this.languageCoordinate.getDescription(conceptNid, descriptionTypePreference, stampCoordinate);
+    }
+
+    @Override
+    public LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList, int[] descriptionTypePreference,
+            StampCoordinate stampCoordinate) {
+        return this.languageCoordinate.getDescription(descriptionList, descriptionTypePreference, stampCoordinate);
+    }
 }
