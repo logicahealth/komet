@@ -16,8 +16,10 @@
  */
 package sh.isaac.komet.preferences;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
@@ -26,6 +28,7 @@ import sh.isaac.api.preferences.PreferenceNodeType;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.INITIALIZED;
 import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
+import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.PROPERTY_SHEET_CLASS;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -49,14 +52,35 @@ public class SynchronizationItems extends ParentPanelPreferences {
         save();
     }
 
-    private static IsaacPreferences getEquivalentUserPreferenceNode(IsaacPreferences configurationPreferencesNode) {
+    private static IsaacPreferences getEquivalentUserPreferenceNode(IsaacPreferences configurationPreferences) {
         try {
-            if (configurationPreferencesNode.getNodeType() == PreferenceNodeType.CONFIGURATION) {
+            if (configurationPreferences.getNodeType() == PreferenceNodeType.CONFIGURATION) {
                 IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferences.class).node(SYNCHRONIZATION_ITEMS_GROUP_NAME);
-                for (String key : configurationPreferencesNode.keys()) {
-                    userPreferences.put(key, configurationPreferencesNode.get(key, ""));
+                // for version upgrade forward compatibility...
+                userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_USER_NAME");
+                userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_URL");
+                userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_PASSWORD");
+                userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_LOCAL_FOLDER");
+                
+                configurationPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_USER_NAME");
+                configurationPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_URL");
+                configurationPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_PASSWORD");
+                configurationPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_LOCAL_FOLDER");
+                
+                userPreferences.putBoolean(INITIALIZED, true);
+                userPreferences.put(PROPERTY_SHEET_CLASS, SynchronizationItems.class.getName());
+                configurationPreferences.put(PROPERTY_SHEET_CLASS, SynchronizationItems.class.getName());
+                
+                List<String> userChildren = userPreferences.getList(CHILDREN_NODES);
+                List<String> configChildren = configurationPreferences.getList(CHILDREN_NODES);
+                for (String configChild: configChildren) {
+                    if (!userChildren.contains(configChild)) {
+                        userChildren.add(configChild);
+                    }
                 }
-                for (IsaacPreferences configChildNode : configurationPreferencesNode.children()) {
+                userPreferences.putList(CHILDREN_NODES, userChildren);
+                
+                for (IsaacPreferences configChildNode : configurationPreferences.children()) {
                     IsaacPreferences userChildNode = userPreferences.node(configChildNode.name());
                     for (String key : configChildNode.keys()) {
                         userChildNode.put(key, configChildNode.get(key, ""));
@@ -64,7 +88,7 @@ public class SynchronizationItems extends ParentPanelPreferences {
                 }
                 return userPreferences;
             } else {
-                return configurationPreferencesNode;
+                return configurationPreferences;
             }
         } catch (BackingStoreException ex) {
             throw new RuntimeException(ex);

@@ -29,6 +29,7 @@ import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.Get;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.KometPreferences;
@@ -47,6 +48,7 @@ public class KometPreferencesImpl implements KometPreferences {
 
     private KometPreferencesController kpc;
     private Stage preferencesStage;
+    private Manifold manifold;
 
     public KometPreferencesImpl() {
 
@@ -61,9 +63,9 @@ public class KometPreferencesImpl implements KometPreferences {
             LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
-    
+
     private void clearNodeAndChildren(IsaacPreferences node) throws BackingStoreException {
-        for (IsaacPreferences child: node.children()) {
+        for (IsaacPreferences child : node.children()) {
             clearNodeAndChildren(child);
         }
         node.clear();
@@ -71,8 +73,9 @@ public class KometPreferencesImpl implements KometPreferences {
     }
 
     @Override
-    public void loadPreferences(IsaacPreferences preferences,
-            Manifold manifold) {
+    public void loadPreferences(Manifold manifold) {
+        this.manifold = manifold; 
+        IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferences.class);
         if (kpc == null) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/preferences/KometPreferences.fxml"));
@@ -107,8 +110,18 @@ public class KometPreferencesImpl implements KometPreferences {
     }
 
     @Override
-    public void showPreferences(IsaacPreferences preferences,
-            Manifold manifold) {
+    public void reloadPreferences() {
+        Get.preferencesService().reloadConfigurationPreferences();
+        IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferences.class);
+        Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold, kpc);
+        if (treeRoot.isPresent()) {
+            this.kpc.setRoot(treeRoot.get());
+        }
+    }
+
+    @Override
+    public void showPreferences(Manifold manifold) {
+        IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferences.class);
         if (kpc == null) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/preferences/KometPreferences.fxml"));
@@ -146,11 +159,11 @@ public class KometPreferencesImpl implements KometPreferences {
         });
         preferencesStage.setAlwaysOnTop(true);
     }
-    
+
+    @Override
     public void closePreferences() {
         this.preferencesStage.close();
         this.kpc = null;
         this.preferencesStage = null;
     }
-
 }

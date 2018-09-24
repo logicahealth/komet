@@ -24,7 +24,11 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface PreferencesService {
-   
+   /**
+    * Reload the configuration preferences from disk. For example, used when git fetches updates to the 
+    * configuration preferences, and the preferences should be reloaded to to reflect the newly downloaded preferences. 
+    */
+    void reloadConfigurationPreferences();
    /**
     * @return a database specific preferences store which is stored within the data store folder.
     */

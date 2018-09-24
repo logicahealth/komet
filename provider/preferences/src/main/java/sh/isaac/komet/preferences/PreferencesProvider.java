@@ -43,6 +43,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -95,6 +96,10 @@ public class PreferencesProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   @Override
+   public void reloadConfigurationPreferences() {
+       IsaacPreferencesImpl.reloadConfigurationPreferences();
+   }
    /**
     * {@inheritDoc}
     */

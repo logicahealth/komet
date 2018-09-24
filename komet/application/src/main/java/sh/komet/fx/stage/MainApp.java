@@ -148,7 +148,7 @@ public class MainApp
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             System.out.println("Beta features enabled");
         }
-        FxGet.kometPreferences().loadPreferences(configurationPreferences, Manifold.make(ManifoldGroup.TAXONOMY));
+        FxGet.kometPreferences().loadPreferences(Manifold.make(ManifoldGroup.TAXONOMY));
 
         if (Get.metadataService()
                 .wasMetadataImported()) {
@@ -424,7 +424,7 @@ public class MainApp
     }
 
     private void handlePrefs(ActionEvent event) {
-        FxGet.kometPreferences().showPreferences(configurationPreferences, Manifold.make(ManifoldGroup.TAXONOMY));
+        FxGet.kometPreferences().showPreferences(Manifold.make(ManifoldGroup.TAXONOMY));
     }
 
     private void handleAbout(ActionEvent event) {

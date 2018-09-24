@@ -90,6 +90,7 @@ import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
+import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.api.util.NamedThreadFactory;
@@ -193,6 +194,8 @@ public class Get
    
    private static DataStore dataStore;
    
+   private static PreferencesService preferencesService;
+   
    
    //~--- constructors --------------------------------------------------------
 
@@ -238,6 +241,13 @@ public class Get
       }
 
       return assemblageService;
+   }
+   
+   public static PreferencesService preferencesService() {
+      if (preferencesService == null) {
+         preferencesService = getService(PreferencesService.class);
+      }
+      return preferencesService;
    }
 
    /**
@@ -744,6 +754,7 @@ public class Get
       descriptionIndexer              = null;
       semanticIndexer                 = null;
       dataStore                       = null;
+      preferencesService              = null;
    }
 
    public static ScheduledExecutorService scheduledExecutor() {

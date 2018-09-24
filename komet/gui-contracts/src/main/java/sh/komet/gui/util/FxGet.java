@@ -141,7 +141,7 @@ public class FxGet implements StaticIsaacCache {
     }
 
     public static PreferencesService preferenceService() {
-        return Get.service(PreferencesService.class);
+        return Get.preferencesService();
     }
 
     public static IsaacPreferences systemNode(Class<?> c) {

@@ -21,7 +21,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -1024,4 +1026,16 @@ public interface IsaacPreferences {
         put(enumToGeneralKey(key), defaultValue.toExternalString());
     }
 
+    /**
+     * 
+     * @return Map of the preferences at this node level.
+     * @throws java.util.prefs.BackingStoreException
+     */
+    default Map<String, String> getMap() throws BackingStoreException {
+        HashMap<String, String> map = new HashMap<>();
+        for (String key: keys()) {
+            map.put(key, get(key, ""));
+        }
+        return map;
+    }
 }

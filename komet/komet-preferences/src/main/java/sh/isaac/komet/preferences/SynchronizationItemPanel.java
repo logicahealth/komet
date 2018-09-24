@@ -32,17 +32,21 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
 import javax.naming.AuthenticationException;
 import sh.isaac.MetaData;
+import sh.isaac.api.ChangeSetLoadService;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferenceNodeType;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
+import sh.isaac.api.util.DirectoryUtil;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_LOCAL_FOLDER;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_PASSWORD;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_URL;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_USER_NAME;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.ITEM_ACTIVE;
+import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
@@ -79,9 +83,21 @@ public class SynchronizationItemPanel extends AbstractPreferences {
         initializeButton.setOnAction((event) -> {
             try {
                 SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                DirectoryUtil.cleanDirectory(localFolder.get());
                 syncService.setRootLocation(new File(localFolder.get()));
                 syncService.linkAndFetchFromRemote(gitUrl.get(), gitUserName.get(), gitPassword.get().toCharArray());
                 setupSyncButtons();
+                if (localFolder.get().endsWith("preferences")) { 
+                    File from = new File(localFolder.get() + "/sh/isaac/komet/preferences/Change sets");
+                    File to = new File(localFolder.get() + "/sh/isaac/komet/preferences/" + SYNCHRONIZATION_ITEMS_GROUP_NAME);
+                    DirectoryUtil.moveDirectory(from.toPath(), to.toPath());
+                    FxGet.kometPreferences().reloadPreferences();
+                } else if (localFolder.get().endsWith("changesets")) {
+                    LOG.info("Reading all synchronized changeset files");
+                    int loaded = LookupService.get().getService(ChangeSetLoadService.class).readChangesetFiles();
+                    LOG.info("Read {} changeset files", loaded);
+                    FxGet.statusMessageService().reportStatus("Read "+ loaded + " changeset files");
+                }
             } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
             }
@@ -112,6 +128,14 @@ public class SynchronizationItemPanel extends AbstractPreferences {
                 syncService.updateFromRemote(gitUserName.get(), 
                         gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
                 setupSyncButtons();
+                if (localFolder.get().endsWith("preferences")) { 
+                    FxGet.kometPreferences().reloadPreferences();
+                } else if (localFolder.get().endsWith("changesets")) {
+                    LOG.info("Reading all synchronized changeset files");
+                    int loaded = LookupService.get().getService(ChangeSetLoadService.class).readChangesetFiles();
+                    LOG.info("Read {} changeset files", loaded);
+                    FxGet.statusMessageService().reportStatus("Read "+ loaded + " changeset files");
+                }
             } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
             } catch (MergeFailure ex) {
@@ -147,10 +171,6 @@ public class SynchronizationItemPanel extends AbstractPreferences {
             setupSyncButtons();
         });
         
-        activeProperty.addListener((observable, oldValue, newValue) -> {
-            setupSyncButtons();
-        });
-        
     }
     
     private void setupSyncButtons() {
@@ -175,6 +195,12 @@ public class SynchronizationItemPanel extends AbstractPreferences {
         try {
             if (configurationPreferencesNode.getNodeType() == PreferenceNodeType.CONFIGURATION) {
                 IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferences.class).node(configurationPreferencesNode.absolutePath());
+                
+                userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_USER_NAME");
+                userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_LOCAL_FOLDER");
+                userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_URL");
+                userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_PASSWORD");
+                
                 for (String key : configurationPreferencesNode.keys()) {
                     if (!key.endsWith(ITEM_ACTIVE.name())) {
                         userPreferences.put(key, configurationPreferencesNode.get(key, ""));
@@ -199,6 +225,7 @@ public class SynchronizationItemPanel extends AbstractPreferences {
         getPreferencesNode().putPassword(GIT_PASSWORD, gitPassword.get().toCharArray());
         getPreferencesNode().put(GIT_URL, gitUrl.get());
         getPreferencesNode().put(GIT_LOCAL_FOLDER, localFolder.get());
+        setupSyncButtons();
     }
 
     @Override
@@ -210,6 +237,7 @@ public class SynchronizationItemPanel extends AbstractPreferences {
         gitPassword.set(new String(getPreferencesNode().getPassword(GIT_PASSWORD, "password".toCharArray())));
         gitUrl.set(getPreferencesNode().get(GIT_URL, "https://bitbucket.org/account/repo.git"));
         localFolder.set(getPreferencesNode().get(GIT_LOCAL_FOLDER, folderOptions[0]));
+        setupSyncButtons();
     }
 
     @Override

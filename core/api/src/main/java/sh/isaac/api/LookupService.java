@@ -116,7 +116,7 @@ public class LookupService {
    /** The Constant STARTUP_LOCK. */
    private static final Object STARTUP_LOCK = new Object();
    
-   private static Map<Stoppable, Integer> jobsToStop = Collections.synchronizedMap(new WeakHashMap<>());
+   private static final Map<Stoppable, Integer> jobsToStop = Collections.synchronizedMap(new WeakHashMap<>());
 
    //~--- methods -------------------------------------------------------------
 

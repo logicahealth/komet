@@ -24,7 +24,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.komet.preferences.IsaacPreferencesImpl;
-import sh.isaac.komet.preferences.PreferencesProvider;
 import sh.isaac.provider.metacontent.MVStoreMetaContentProvider;
 
 /**

@@ -16,9 +16,11 @@
  */
 package sh.isaac.komet.preferences;
 
+import java.util.List;
 import java.util.prefs.BackingStoreException;
 import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
 import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
 import sh.komet.gui.manifold.Manifold;
 
@@ -40,8 +42,17 @@ public class RootPreferences extends AbstractPreferences {
             addChild("Attachment actions", AttachmentItems.class);
             addChild("Logic actions", LogicItems.class);
         }
+        List<String> childPreferences = this.preferencesNode.getList(CHILDREN_NODES);
+        if (childPreferences.contains("Change sets")) {
+            childPreferences.replaceAll((t) -> {
+                if (t.equals("Change sets")) {
+                    return SYNCHRONIZATION_ITEMS_GROUP_NAME;
+                }
+                return t; 
+            });
+            this.preferencesNode.putList(CHILDREN_NODES, childPreferences);
+        }
         save();
-
     }
 
     @Override

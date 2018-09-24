@@ -30,10 +30,14 @@ import sh.isaac.api.preferences.PreferenceNodeType;
  * @author kec
  */
 public class IsaacPreferencesWrapper implements IsaacPreferences {
-   final IsaacPreferencesImpl delegate;
+   IsaacPreferencesImpl delegate;
 
    public IsaacPreferencesWrapper(IsaacPreferencesImpl delegate) {
       this.delegate = delegate;
+   }
+   
+   protected void changeDelegate(IsaacPreferencesImpl delegate) {
+       this.delegate = delegate;
    }
 
    @Override

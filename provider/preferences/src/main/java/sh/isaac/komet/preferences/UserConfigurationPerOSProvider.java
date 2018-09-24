@@ -188,7 +188,7 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 		{
 			throw new RuntimeException("User has already been set!");
 		}
-		IsaacPreferences mainDataStore = Get.service(PreferencesService.class).getUserPreferences();
+		IsaacPreferences mainDataStore = Get.preferencesService().getUserPreferences();
 		dataStore = mainDataStore.node(nodeName).node(userId.toString());
 		this.userId = userId;
 	}

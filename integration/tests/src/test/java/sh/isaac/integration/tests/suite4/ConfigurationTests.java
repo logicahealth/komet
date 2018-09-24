@@ -60,7 +60,7 @@ public class ConfigurationTests {
 		System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
 		LookupService.startupPreferenceProvider();
 		//Make sure remnants from any previous test are gone
-		IsaacPreferences mainDataStore = Get.service(PreferencesService.class).getUserPreferences();
+		IsaacPreferences mainDataStore = Get.preferencesService().getUserPreferences();
 		mainDataStore.node(UserConfigurationPerOSProvider.nodeName).removeNode();
 		Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 		LookupService.startupIsaac();
@@ -70,7 +70,7 @@ public class ConfigurationTests {
 	public void shutdown() throws BackingStoreException {
 		LOG.info("Suite 4 teardown");
 		//cleanup
-		IsaacPreferences mainDataStore = Get.service(PreferencesService.class).getUserPreferences();
+		IsaacPreferences mainDataStore = Get.preferencesService().getUserPreferences();
 		mainDataStore.node(UserConfigurationPerOSProvider.nodeName).removeNode();
 		LookupService.shutdownSystem();
 	}
