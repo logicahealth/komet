@@ -313,8 +313,11 @@ public class ConceptBuilderImpl
       for (int i = 1; i < uuids.length; i++) {
          conceptChronology.addAdditionalUuids(uuids[i]);
       }
-
-      conceptChronology.createMutableVersion(this.state, editCoordinate);
+      if (getModule().isPresent()) {
+        conceptChronology.createMutableVersion(this.state, editCoordinate, getModule().get());
+      } else {
+        conceptChronology.createMutableVersion(this.state, editCoordinate);
+      }
       builtObjects.add(conceptChronology);
 
       getDescriptionBuilders().forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate, changeCheckerMode, builtObjects)));

@@ -42,6 +42,7 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
@@ -54,6 +55,7 @@ import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 
 //~--- interfaces -------------------------------------------------------------
@@ -127,7 +129,7 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
    /**
     * Create a component with a state of ACTIVE.
     *
-    * @param editCoordinate the edit coordinate that determines the author, module and path for the change
+    * @param editCoordinate the edit coordinate that determines the author, module (unless overridden) and path for the change
     * @param changeCheckerMode determines if added to the commit manager with or without checks.
     * @param subordinateBuiltObjects a list of subordinate objects also build as a result of building this object.  Includes top-level object being built.
     * @return a task which will return the constructed component after it has been added to the commit manager -
@@ -220,5 +222,18 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
      * @return the {@link VersionType} that will be built by this builder
      */
     public VersionType getVersionType();
+    
+    /**
+     * 
+     * @param moduleSpecification the module within which this builder should create its content. 
+     */
+    public void setModule(ConceptSpecification moduleSpecification);
+    
+    /**
+     * 
+     * @return the module (if specified) within which this builder will create its content. 
+     * If this method returns Optional.empty(), then the module provided by the edit coordinate will be used. 
+     */
+    public Optional<ConceptSpecification> getModule();    
 }
 

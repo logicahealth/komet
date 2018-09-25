@@ -470,6 +470,7 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification SEMANTIC_FIELD_CONCEPTS = new ConceptProxy("Semantic field concepts", "Semantic field concepts", UUID.fromString("b4316cb8-14fe-5b32-b03b-f5f966c87819"));
     public static ConceptSpecification SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE = new ConceptProxy("Semantic field data types assemblage", "Semantic data type", UUID.fromString("2fc4663f-c389-590e-9445-df02e277ddb1"));
 
+    public static ConceptSpecification KOMET_MODULE = new ConceptProxy("KOMET module", "KOMET module", UUID.fromString("2fc4663f-c389-590e-9445-df02e277ddb1"));
 
 
     /*

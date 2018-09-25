@@ -66,5 +66,6 @@ public interface StaticIsaacCache extends IsaacCache
 	/**
 	 * Eliminate all references to cached services or data.
 	 */
+        @Override
 	void reset();
 }

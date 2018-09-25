@@ -229,18 +229,27 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
                                                    this.descriptionText,this.conceptNid);
 
       descBuilder.setPrimordialUuid(this.getPrimordialUuid());
+      getModule().ifPresent((moduleSpec) -> {
+          descBuilder.setModule(moduleSpec);
+      });
+      
 
       final OptionalWaitTask<SemanticChronology> newDescription =
-         (OptionalWaitTask<SemanticChronology>) descBuilder.setStatus(this.state)
-                                                                                    .build(editCoordinate,
+         (OptionalWaitTask<SemanticChronology>) descBuilder.setStatus(this.state).build(editCoordinate,
                                                                                           changeCheckerMode,
                                                                                           builtObjects);
 
       nestedBuilders.add(newDescription);
 
-      getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
+      getSemanticBuilders().forEach((builder) -> {
+            getModule().ifPresent((moduleSpec) -> {
+                builder.setModule(moduleSpec);
+            });
+          
+            nestedBuilders.add(builder.build(editCoordinate,
             changeCheckerMode,
-            builtObjects)));
+            builtObjects));
+                      });
       return new OptionalWaitTask<>(null, (T) newDescription.getNoWait(), nestedBuilders);
    }
    

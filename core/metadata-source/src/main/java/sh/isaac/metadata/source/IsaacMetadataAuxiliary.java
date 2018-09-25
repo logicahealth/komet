@@ -233,6 +233,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 popParent();
             createConcept("Module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
             pushParent(current());
+               createConcept(TermAux.KOMET_MODULE).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                pushParent(current());
                   createConcept("SOLOR quality assurance rule module");
@@ -653,10 +654,14 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.ROLE_TYPE_TO_ADD);
                   createConcept(ObservableFields.ASSEMBLAGE_FOR_CONSTRAINT);
                   popParent();
-               createConcept("Configuration properties");
+               createConcept("Configuration properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
-                  createConcept("Configuration name", "Configuration name");
-                  createConcept("Datastore location", "Datastore location");
+                  createConcept("Configuration name", "Configuration name").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Datastore location", "Datastore location").setModule(TermAux.KOMET_MODULE);
+                  popParent();
+               createConcept("Taxonomy configuration properties").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                  createConcept("Taxonomy configuration name").getPreferredDescriptionBuilder().setDescriptionText("Configuration name").setModule(TermAux.KOMET_MODULE);
                   popParent();
                createConcept("Synchronization item properties");
                pushParent(current());
@@ -916,7 +921,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE);
                createConcept(TermAux.REL_RESTRICTION_QUERY_CLAUSE);
                createConcept(TermAux.REL_TYPE_QUERY_CLAUSE);
-               createConcept(TermAux.ASSOCIATED_PARAMETER_QUERY_CLAUSE);
+               createConcept(TermAux.ASSOCIATED_PARAMETER_QUERY_CLAUSE).setModule(TermAux.KOMET_MODULE);
                popParent();
             popParent(); 
          popParent(); // ISAAC root should still be parent on stack...
