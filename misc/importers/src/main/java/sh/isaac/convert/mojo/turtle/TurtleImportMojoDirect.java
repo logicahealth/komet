@@ -37,10 +37,13 @@
 package sh.isaac.convert.mojo.turtle;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -52,6 +55,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
+import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.rdf.model.Model;
@@ -60,52 +64,40 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.codehaus.plexus.util.FileUtils;
 import javafx.util.Pair;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCode;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.constants.DatabaseInitialization;
-import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.convert.directUtils.DataWriteListenerImpl;
+import sh.isaac.convert.directUtils.DirectConverter;
+import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
-import sh.isaac.convert.directUtils.LoggingConfig;
-import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
+import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
+import sh.isaac.pombuilder.converter.ConverterOptionParam;
+import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.utility.LanguageMap;
 
 /**
  * 
- * {@link TurtleImportMojo}
+ * {@link TurtleImportMojoDirect}
  * 
  * Goal which converts CPT data into the workbench jbin format
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Mojo(name = "convert-turtle-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
-public class TurtleImportMojo extends ConverterBaseMojo
+public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements DirectConverter
 {
-	private Logger log = LogManager.getLogger();
-	
-	private InputStream inputStream;
-
-	private ConverterUUID converterUUID;
-	private DirectWriteHelper dwh;
-
 	private int moduleNid;
 	private int authorNid = 0;
 	private UUID rootConcept;
@@ -113,6 +105,8 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	private UUID coreGroupConcept;
 	
 	private long releaseTime;
+	
+	private InputStream inputStream;
 
 	private HashMap<String, List<Statement>> allStatements;
 	private HashMap<UUID, Resource> conceptsToBeBuilt = new HashMap<>();
@@ -137,30 +131,48 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	private AnonymousNodeUtil anu;
 
 	/**
-	 * Constructor for maven
+	 * Constructor for maven and HK2 and should not be used at runtime.  You should 
+	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
 	 */
-	public TurtleImportMojo()
+	public TurtleImportMojoDirect()
 	{
 		// This constructor is for maven
 	}
-
-	/**
-	 * Constructor for runtime use
-	 * 
-	 * @param outputDirectory {@link #outputDirectory} - optional for runtime use, if provided, UUID debug file will be written here.
-	 * @param ttlFile {@link #inputFileLocation}
-	 * @param converterSourceArtifactVersion {@link #converterSourceArtifactVersion}
-	 */
-	public TurtleImportMojo(File outputDirectory, InputStream ttlFile, String converterSourceArtifactVersion)
+	
+	@Override
+	public ConverterOptionParam[] getConverterOptions()
 	{
-		this();
-		this.outputDirectory = outputDirectory;
-		this.inputStream = ttlFile;
-		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
-		converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		init();
+		return new ConverterOptionParam[] {};
+	}
+
+	@Override
+	public void setConverterOption(String internalName, String... values)
+	{
+		//noop, we don't require any.
+	}
+
+	@Override
+	public SupportedConverterTypes[] getSupportedTypes()
+	{
+		return new SupportedConverterTypes[] {SupportedConverterTypes.BEVON};
 	}
 	
+	/**
+	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
+	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
+	 * 
+	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampCoordinate)
+	 */
+	@Override
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	{
+		this.outputDirectory = outputDirectory;
+		this.inputFileLocationPath = inputFolder;
+		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
+		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
+		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
+	}
+
 	private void init()
 	{
 		//Each of these will only get created as a metadata concept if it is present in the dataset.
@@ -219,84 +231,36 @@ public class TurtleImportMojo extends ConverterBaseMojo
 	}
 
 	/**
-	 * This is the execution path when maven is running.
 	 * {@inheritDoc}
+	 * @throws IOException 
 	 */
 	@Override
-	public void execute() throws MojoExecutionException
+	public void convertContent(Consumer<String> statusUpdates) throws IOException
 	{
-		try
+		init();
+		
+		Files.walk(inputFileLocationPath, new FileVisitOption[] {}).forEach(path ->
 		{
-			File ttlFile = null;
-			for (File f : inputFileLocation.listFiles())
+			if (Files.isRegularFile(path, new LinkOption[] {}) && path.toString().toLowerCase().endsWith(".ttl"))
 			{
-				if (f.getName().toLowerCase().endsWith("ttl"))
+				if (inputStream != null)
 				{
-					ttlFile = f;
-					break;
+					throw new RuntimeException("Only expected to find one ttl file in the folder " + inputFileLocationPath.normalize());
 				}
+				try
+				{
+					inputStream = Files.newInputStream(path, StandardOpenOption.READ);
+				}
+				catch (IOException e)
+				{
+					throw new RuntimeException(e);
+				}
+				log.info("Reading " + path.toString());
+				statusUpdates.accept("Reading " + path.toString());
 			}
-	
-			getLog().info("Reading " + ttlFile.getCanonicalPath());
-			
-			this.inputStream = new FileInputStream(ttlFile);
-			
-			LoggingConfig.configureLogging(outputDirectory, converterOutputArtifactClassifier);
+		
+		});
 
-			converterUUID = Get.service(ConverterUUID.class);
-			converterUUID.configureNamespace(UuidT5Generator.PATH_ID_FROM_FS_DESC);
-
-			String outputName = converterOutputArtifactId
-					+ (StringUtils.isBlank(converterOutputArtifactClassifier) ? "" : "-" + converterOutputArtifactClassifier) + "-"
-					+ converterOutputArtifactVersion;
-			Path ibdfFileToWrite = new File(outputDirectory, outputName + ".ibdf").toPath();
-			ibdfFileToWrite.toFile().delete();
-
-			log.info("Writing IBDF to " + ibdfFileToWrite.toFile().getCanonicalPath());
-
-			File file = new File(outputDirectory, "isaac-db");
-			// make sure this is empty
-			FileUtils.deleteDirectory(file);
-
-			Get.configurationService().setDataStoreFolderPath(file.toPath());
-
-			LookupService.startupPreferenceProvider();
-
-			Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
-
-			LookupService.startupIsaac();
-
-			// Don't need to build indexes
-			for (IndexBuilderService ibs : LookupService.getServices(IndexBuilderService.class))
-			{
-				ibs.setEnabled(false);
-			}
-
-			DataWriteListenerImpl listener = new DataWriteListenerImpl(ibdfFileToWrite, null);
-
-			// we register this after the metadata has already been written.
-			LookupService.get().getService(DataStore.class).registerDataWriteListener(listener);
-			
-			init();
-
-			processTurtle();
-			
-			LookupService.shutdownSystem();
-			
-			listener.close();
-		}
-		catch (Exception ex)
-		{
-			throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
-		}
-	}
-
-	/**
-	 * This is the execution path when maven is running, or, when you want to run it directly.
-	 * @throws IOException
-	 */
-	public void processTurtle() throws IOException
-	{
 		try
 		{
 			Model model = ModelFactory.createDefaultModel();
@@ -428,6 +392,8 @@ public class TurtleImportMojo extends ConverterBaseMojo
 					dwh.changeModule(moduleNid);
 					dwh.changeAuthor(authorNid);
 				}
+				
+				statusUpdates.accept("Configuring module");
 				
 				//Create a module for this version.
 				UUID versionModule = getConceptUUID(identifier + " module");
@@ -636,6 +602,7 @@ public class TurtleImportMojo extends ConverterBaseMojo
 				//loop through this code a second time.
 			}
 	
+			statusUpdates.accept("Processing content");
 			for (Entry<String, List<Statement>> entries : allStatements.entrySet())
 			{
 				if (processedSubjects.contains(entries.getKey()))

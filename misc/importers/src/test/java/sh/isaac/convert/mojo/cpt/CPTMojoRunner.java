@@ -15,7 +15,7 @@ public class CPTMojoRunner extends CPTImportMojoDirect
 	{
 		CPTMojoRunner i = new CPTMojoRunner();
 		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
-		i.inputFileLocation = new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
+		i.inputFileLocationPath = new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src").toPath();
 		i.converterOutputArtifactVersion = "2016.01.07.foo";
 		i.converterVersion = "SNAPSHOT";
 		i.converterSourceArtifactVersion = "2017";

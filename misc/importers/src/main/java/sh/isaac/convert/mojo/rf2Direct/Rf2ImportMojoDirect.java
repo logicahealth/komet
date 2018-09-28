@@ -39,36 +39,36 @@ package sh.isaac.convert.mojo.rf2Direct;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Future;
-import org.apache.commons.lang3.StringUtils;
+import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.codehaus.plexus.util.FileUtils;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.datastore.DataStore;
-import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.convert.directUtils.DataWriteListenerImpl;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
-import sh.isaac.convert.directUtils.LoggingConfig;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.pombuilder.converter.ContentConverterCreator;
+import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
@@ -92,10 +92,33 @@ public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	}
 	
 	@Override
-	public void configure(File outputDirectory, File inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	public ConverterOptionParam[] getConverterOptions()
+	{
+		return new Rf2DirectConfigOptions().getConfigOptions();
+	}
+
+	@Override
+	public void setConverterOption(String internalName, String... values)
+	{
+		if (internalName.equals(ContentConverterCreator.CLASSIFIERS_OPTION))
+		{
+			if (values == null || values.length != 1)
+			{
+				throw new RuntimeException("One and only one option may be set for direct conversion");
+			}
+			this.converterOutputArtifactClassifier = values[0];
+		}
+		else
+		{
+			throw new RuntimeException("Unsupported converter option: " + internalName);
+		}
+	}
+	
+	@Override
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
 	{
 		this.outputDirectory = outputDirectory;
-		this.inputFileLocation = inputFolder;
+		this.inputFileLocationPath = inputFolder;
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
 		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
@@ -108,7 +131,7 @@ public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	}
 
 	@Override
-	public void convertContent() throws IOException
+	public void convertContent(Consumer<String> messages) throws IOException
 	{
 		try
 		{
@@ -122,7 +145,21 @@ public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, true);
 			
 			DirectImporter.importDynamic = true;
-			DirectImporter importer = new DirectImporter(it, inputFileLocation.getCanonicalFile());
+			
+			log.info("Setting up import file structure");
+			
+			ArrayList<ContentProvider> items = new ArrayList<>();
+			
+			Files.walk(this.inputFileLocationPath, new FileVisitOption[] {}).forEach(path -> 
+			{
+				if (Files.isRegularFile(path, new LinkOption[] {}))
+				{
+					items.add(new ContentProvider(path));
+				}
+			});
+			
+			
+			DirectImporter importer = new DirectImporter(it, items);
 			
 			log.info("Importing");
 			Future<?> f = Get.executor().submit(importer);
@@ -132,6 +169,12 @@ public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(it);
 			Future<?> transformTask = Get.executor().submit(transformer);
 			transformTask.get();
+			
+			if (this.runningInMaven)
+			{
+				addModuleMetadata();
+			}
+			
 		}
 		catch (Exception e)
 		{
@@ -142,85 +185,21 @@ public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	@Override
 	public void execute() throws MojoExecutionException
 	{
-		try
+		//Set up our function that will put these in the right place...
+		//Needs to be a function, because we can't get nids prior to isaac startup
+		toIgnore = () -> 
 		{
-			LoggingConfig.configureLogging(outputDirectory, converterOutputArtifactClassifier);
-			
-			ImportType it = ImportType.parseFromString(converterOutputArtifactClassifier);
-			
-			if (it == ImportType.DELTA)
-			{
-				log.warn("import type delta not yet supported by direct import");
-				return;
-			}
-			converterUUID = Get.service(ConverterUUID.class);
-			converterUUID.clearCache();
-			
-			String outputName = converterOutputArtifactId 
-					+ (StringUtils.isBlank(converterOutputArtifactClassifier) ? "" : "-" + converterOutputArtifactClassifier) + "-" + converterOutputArtifactVersion;
-			Path ibdfFileToWrite = new File(outputDirectory, outputName + ".ibdf").toPath();
-			ibdfFileToWrite.toFile().delete();
-			
-			log.info("Writing IBDF to " + ibdfFileToWrite.toFile().getCanonicalPath());
-			
-			File file = new File(outputDirectory, "isaac-db");
-			// make sure this is empty
-			FileUtils.deleteDirectory(file);
-
-			Get.configurationService().setDataStoreFolderPath(file.toPath());
-
-			LookupService.startupPreferenceProvider();
-			
-			Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
-
-			LookupService.startupIsaac();
-			
-			//Don't need to build indexes
-			for (IndexBuilderService ibs : LookupService.getServices(IndexBuilderService.class))
-			{
-				ibs.setEnabled(false);
-			}
-			
 			HashSet<Integer> toIgnore = new HashSet<>();
 			toIgnore.add(MetaData.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE____SOLOR.getNid());
 			toIgnore.add(MetaData.RF2_STATED_RELATIONSHIP_ASSEMBLAGE____SOLOR.getNid());
-			
-			DataWriteListenerImpl listener = new DataWriteListenerImpl(ibdfFileToWrite, toIgnore);
-			
-			//we register this after the metadata has already been written.
-			LookupService.get().getService(DataStore.class).registerDataWriteListener(listener);
-
-			log.info("Setting up import file structure");
-			
-			DirectImporter.importDynamic = true;
-			DirectImporter importer = new DirectImporter(it, inputFileLocation.getCanonicalFile());
-			
-			log.info("Importing");
-			Future<?> f = Get.executor().submit(importer);
-			f.get();
-
-			log.info("Transforming relationships");
-			Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(it);
-			Future<?> transformTask = Get.executor().submit(transformer);
-			transformTask.get();
-
-			addModuleMetadata();
-			
-			LookupService.shutdownSystem();
-			
-			listener.close();
-			
-			log.info("Conversion complete");
-		}
-		catch (Exception ex)
-		{
-			throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
-		}
+			return toIgnore;
+		};
+		super.execute();
 	}
 	
-	/*
+	/**
 	 * Note, this routine is only valid if we are doing a maven conversion, as it makes assumptions about modules...
-	 * In general, its kinda dumb... and needs to be rewritten.
+	 * TODO In general, its kinda dumb... and needs to be rewritten.
 	 */
 	private void addModuleMetadata()
 	{

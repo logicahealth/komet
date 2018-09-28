@@ -16,7 +16,6 @@
 package sh.isaac.convert.mojo.turtle;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.FileUtils;
@@ -47,9 +46,9 @@ public class TurtleImportRunner
 
 			LookupService.startupIsaac();
 
-			TurtleImportMojo tim = new TurtleImportMojo(new File("target"), 
-					new FileInputStream(new File("../../integration/tests/src/test/resources/turtle/bevontology-0.8.ttl")), "0.8");
-			tim.processTurtle();
+			TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
+			timd.configure(null, new File("../../integration/tests/src/test/resources/turtle/bevontology-0.8.ttl").toPath(), "0.8", null);
+			timd.convertContent(update -> {});
 		}
 		finally
 		{

@@ -341,7 +341,7 @@ public class ImportViewController {
         if (item.importData()) {
             if (item instanceof ImportItemZipEntry) {
                 ImportItemZipEntry zipEntry = (ImportItemZipEntry) item;
-                if (!zipEntry.entry.isDirectory()) {
+                if (!zipEntry.entry.isDirectory() && !zipEntry.getContent().getStreamSourceName().toLowerCase().endsWith(".zip")) {
                     entriesToImport.add(zipEntry.getContent());
                 }
             }

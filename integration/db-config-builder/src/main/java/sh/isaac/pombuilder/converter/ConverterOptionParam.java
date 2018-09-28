@@ -54,8 +54,6 @@ import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.dbConfigBuilder.artifacts.MavenArtifactUtils;
 import sh.isaac.pombuilder.FileUtil;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  *
  * {@link ConverterOptionParam}
@@ -73,27 +71,16 @@ public class ConverterOptionParam
 	/** The Constant LOG. */
 	private static final Logger LOG = LogManager.getLogger();
 
-	// ~--- fields --------------------------------------------------------------
-
-	/** The display name. */
 	private String displayName;
-
-	/** The internal name. */
 	private String internalName;
-
-	/** The description. */
 	private String description;
-
-	/** The allow no selection. */
 	private boolean allowNoSelection;
-
-	/** The allow multi select. */
-	private boolean allowMultiSelect;
+	private boolean allowMultiSelectInPomMode;
+	private boolean allowMultiSelectInDirectMode = false;
+	private String[] defaultsForDirectMode = new String[0];
 
 	/** The suggested pick list values. */
 	private ConverterOptionParamSuggestedValue[] suggestedPickListValues;
-
-	// ~--- constructors --------------------------------------------------------
 
 	/**
 	 * Instantiates a new converter option param.
@@ -111,30 +98,28 @@ public class ConverterOptionParam
 	 * @param internalName The name to use when writing the option to a pom file
 	 * @param description A description suitable for display to end users of the system (in the GUI)
 	 * @param allowNoSelection true if it is valid for the user to select 0 entries from the pick list, false if they must select 1 or more.
-	 * @param allowMultiSelect true if it is valie for the user to select more than 1 entry from the pick list, false if they may select at most 1.
+	 * @param allowMultiSelectInPomMode true if it is valid for the user to select more than 1 entry from the pick list, false if they may select at most 1
+	 *            when the conversion is being done by a generated pom file.
+	 * @param allowMultiSelectInDirectMode true if it is valid for the user to select more than 1 entry from the pick list when importing directly into a live 
+	 *            DB.  False if they may select at most 1.
+	 * @param defaultsForDirectMode - the default values (if any) that can be used for direct import
 	 * @param suggestedPickListValues the values to provide the user to select from. This may not be an all-inclusive list of values - the
 	 *            user should still have the option to provide their own value.
 	 */
 	@SafeVarargs
-	public ConverterOptionParam(String displayName, String internalName, String description, boolean allowNoSelection, boolean allowMultiSelect,
-			ConverterOptionParamSuggestedValue... suggestedPickListValues)
+	public ConverterOptionParam(String displayName, String internalName, String description, boolean allowNoSelection, boolean allowMultiSelectInPomMode,
+			boolean allowMultiSelectInDirectMode, String[] defaultsForDirectMode, ConverterOptionParamSuggestedValue... suggestedPickListValues)
 	{
 		this.displayName = displayName;
 		this.internalName = internalName;
 		this.description = description;
 		this.allowNoSelection = allowNoSelection;
-		this.allowMultiSelect = allowMultiSelect;
+		this.allowMultiSelectInPomMode = allowMultiSelectInPomMode;
+		this.allowMultiSelectInDirectMode = allowMultiSelectInDirectMode;
+		this.defaultsForDirectMode = defaultsForDirectMode == null ? new String[] {} : defaultsForDirectMode;
 		this.suggestedPickListValues = suggestedPickListValues;
 	}
 
-	// ~--- methods -------------------------------------------------------------
-
-	/**
-	 * Equals.
-	 *
-	 * @param obj the obj
-	 * @return true, if successful
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -160,7 +145,12 @@ public class ConverterOptionParam
 			return false;
 		}
 
-		if (this.allowMultiSelect != other.allowMultiSelect)
+		if (this.allowMultiSelectInPomMode != other.allowMultiSelectInPomMode)
+		{
+			return false;
+		}
+		
+		if (this.allowMultiSelectInDirectMode != other.allowMultiSelectInDirectMode)
 		{
 			return false;
 		}
@@ -205,6 +195,11 @@ public class ConverterOptionParam
 		{
 			return false;
 		}
+		
+		if (!Arrays.equals(this.defaultsForDirectMode, other.defaultsForDirectMode))
+		{
+			return false;
+		}
 
 		return true;
 	}
@@ -237,7 +232,7 @@ public class ConverterOptionParam
 
 			if (localMavenPath != null && localMavenPath.isDirectory())
 			{
-				File browseFolder = new File(localMavenPath, "sh/isaac/misc/importers");
+				File browseFolder = new File(localMavenPath, "sh/isaac/uts-core/misc/importers");
 				for (File versionFolder : browseFolder.listFiles())
 				{
 					if (versionFolder.isDirectory() && versionFolder.getName().equals(converterVersion))
@@ -389,11 +384,13 @@ public class ConverterOptionParam
 		int result = 1;
 
 		result = prime * result + (this.allowNoSelection ? 1231 : 1237);
-		result = prime * result + (this.allowMultiSelect ? 1231 : 1237);
+		result = prime * result + (this.allowMultiSelectInPomMode ? 1231 : 1237);
+		result = prime * result + (this.allowMultiSelectInDirectMode ? 1231 : 1237);
 		result = prime * result + ((this.description == null) ? 0 : this.description.hashCode());
 		result = prime * result + ((this.displayName == null) ? 0 : this.displayName.hashCode());
 		result = prime * result + ((this.internalName == null) ? 0 : this.internalName.hashCode());
 		result = prime * result + Arrays.hashCode(this.suggestedPickListValues);
+		result = prime * result + Arrays.hashCode(this.defaultsForDirectMode);
 		return result;
 	}
 
@@ -427,20 +424,32 @@ public class ConverterOptionParam
 	public String toString()
 	{
 		return "ConverterOptionParam [displayName=" + this.displayName + ", internalName=" + this.internalName + ", description=" + this.description
-				+ ", allowNoSelection=" + this.allowNoSelection + ", allowMultiSelect=" + this.allowMultiSelect + ", suggestedPickListValues="
+				+ ", allowNoSelection=" + this.allowNoSelection + ", allowMultiSelectInPomMode=" + this.allowMultiSelectInPomMode
+				+ ", allowMultiSelectInDirectMode=" + this.allowMultiSelectInDirectMode + ", defaultsForDirectMode=["
+						+ Arrays.toString(this.defaultsForDirectMode) + "] " + ", suggestedPickListValues=["
 				+ Arrays.toString(this.suggestedPickListValues) + "]";
 	}
-
-	// ~--- get methods ---------------------------------------------------------
-
+	
 	/**
-	 * true if it is valie for the user to select more than 1 entry from the pick list, false if they may select at most 1.
+	 * true if it is valie for the user to select more than 1 entry from the pick list, false if they may select at most 1 when running the 
+	 * conversion as a maven / pom conversion.
 	 *
 	 * @return true, if allow multi select
 	 */
-	public boolean isAllowMultiSelect()
+	public boolean isAllowMultiSelectInPomMode()
 	{
-		return this.allowMultiSelect;
+		return this.allowMultiSelectInPomMode;
+	}
+	
+	/**
+	 * true if it is valie for the user to select more than 1 entry from the pick list, false if they may select at most 1 when running the 
+	 * conversion as a direct conversion.
+	 *
+	 * @return true, if allow multi select
+	 */
+	public boolean isAllowMultiSelectInDirectMode()
+	{
+		return this.allowMultiSelectInDirectMode;
 	}
 
 	/**
@@ -491,5 +500,14 @@ public class ConverterOptionParam
 	public ConverterOptionParamSuggestedValue[] getSuggestedPickListValues()
 	{
 		return this.suggestedPickListValues;
+	}
+	
+	/**
+	 * Get the default values for direct mode
+	 * @return
+	 */
+	public String[] getDefaultsForDirectMode()
+	{
+		return defaultsForDirectMode;
 	}
 }

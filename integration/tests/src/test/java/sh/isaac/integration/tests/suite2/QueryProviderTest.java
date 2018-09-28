@@ -19,6 +19,7 @@
 package sh.isaac.integration.tests.suite2;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +41,7 @@ import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.RecursiveDelete;
-import sh.isaac.convert.mojo.turtle.TurtleImportMojo;
+import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
@@ -69,9 +70,9 @@ public class QueryProviderTest {
 		Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 		LookupService.startupIsaac();
 
-		TurtleImportMojo tim = new TurtleImportMojo(null, QueryProviderTest.class.getResourceAsStream("/turtle/bevontology-0.8.ttl"), "0.8");
-		
-		tim.processTurtle();
+		TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
+		timd.configure(null, Paths.get(QueryProviderTest.class.getResource("/turtle/bevontology-0.8.ttl").toURI()), "0.8", null);
+		timd.convertContent(update -> {});
 		
 		di = LookupService.get().getService(DescriptionIndexer.class);
 		di.forceMerge();  //Just a way to force the query readers to refresh more quickly than they would
