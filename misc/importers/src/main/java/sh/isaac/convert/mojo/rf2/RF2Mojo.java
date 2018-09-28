@@ -99,6 +99,7 @@ import sh.isaac.utility.MetaDataFinder;
 
 /**
  * Loader code to convert RF2 files into isaac.
+ * @deprecated replaced by {@link DirectImporter}
  */
 @Mojo(name = "convert-RF2-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class RF2Mojo extends ConverterBaseMojo

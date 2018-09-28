@@ -107,6 +107,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
+import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.ComponentReference;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.IBDFCreationUtility;
@@ -159,7 +160,7 @@ import sh.isaac.utility.Frills;
 
 /**
  * Goal which converts VHAT data into the workbench jbin format
- * 
+ * @deprecated will possibly be used in the future, but needs to be converted to extend {@link DirectConverterBaseMojo}
  */
 public class VHATDeltaImport extends ConverterBaseMojo
 {

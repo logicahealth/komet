@@ -133,6 +133,7 @@ import sh.isaac.model.semantic.types.DynamicUUIDImpl;
  * CREATE INDEX IDX_TYPE_ID ON TYPE(ID);
  * CREATE INDEX IDX_PROPERTY_ENTITY_ID ON PROPERTY(ENTITY_ID);
  * CREATE INDEX IDX_PROPERTY_CONCEPTENTITY_ID ON PROPERTY(CONCEPTENTITY_ID);
+ * @deprecated this was never completed, and the VA work it requires doesn't exist right now.
  */
 @Mojo(name = "convert-VHAT-SQL-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class VHATSQLImportMojo extends ConverterBaseMojo
