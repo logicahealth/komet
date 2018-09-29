@@ -191,7 +191,7 @@ public class PropertySheetItemConceptWrapperEditor implements PropertyEditor<Pro
     }
     private void moveUpSelection(ActionEvent event) {
         int selectedIndex = this.conceptListView.getSelectionModel().getSelectedIndex();
-        Object selectedItem = defaultConcept.getSelectionModel().getSelectedItem();
+        Object selectedItem = this.conceptListView.getSelectionModel().getSelectedItem();
         if (selectedIndex > 0) {
             ConceptSpecification specToMove = this.conceptListView.getItems().remove(selectedIndex);
             this.conceptListView.getItems().add(selectedIndex-1, specToMove);
@@ -201,7 +201,7 @@ public class PropertySheetItemConceptWrapperEditor implements PropertyEditor<Pro
     }
     private void moveDownSelection(ActionEvent event) {
         int selectedIndex = this.conceptListView.getSelectionModel().getSelectedIndex();
-        Object selectedItem = defaultConcept.getSelectionModel().getSelectedItem();
+        Object selectedItem = this.conceptListView.getSelectionModel().getSelectedItem();
         if (selectedIndex > -1 && selectedIndex < this.conceptListView.getItems().size() - 1) {
             ConceptSpecification specToMove = this.conceptListView.getItems().remove(selectedIndex);
             this.conceptListView.getItems().add(selectedIndex+1, specToMove);

@@ -39,7 +39,6 @@ import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.komet.preferences.UserConfigurationPerOSProvider;
 import sh.isaac.model.configuration.DefaultCoordinateProvider;

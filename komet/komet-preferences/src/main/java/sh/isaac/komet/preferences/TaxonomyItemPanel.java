@@ -16,25 +16,55 @@
  */
 package sh.isaac.komet.preferences;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.prefs.BackingStoreException;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import sh.isaac.MetaData;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
+import sh.isaac.api.SingleAssemblageSnapshot;
+import sh.isaac.api.TaxonomySnapshot;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.tree.TaxonomyAmalgam;
+import sh.isaac.api.tree.TaxonomySnapshotFromComponentNidAssemblage;
+import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.INCLUDE_DEFINING_TAXONOMY;
+import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.INVERSE_TREES;
+import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.TREES;
+import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
  * @author kec
  */
 public class TaxonomyItemPanel extends AbstractPreferences {
-
+    // TreeAmalgam
     public enum Keys {
         ITEM_NAME,
+        TREES,
+        INVERSE_TREES,
+        INCLUDE_DEFINING_TAXONOMY
     };
 
     private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.TAXONOMY_CONFIGURATION_NAME____SOLOR.toExternalString());
+    
+    private final SimpleListProperty<ConceptSpecification> treeListProperty = 
+            new SimpleListProperty<>(this, MetaData.TREE_LIST____SOLOR.toExternalString(), FXCollections.observableArrayList());
+    private final SimpleListProperty<ConceptSpecification> inverseTreeListProperty = 
+            new SimpleListProperty<>(this, MetaData.INVERSE_TREE_LIST____SOLOR.toExternalString(), FXCollections.observableArrayList());
+    private final SimpleBooleanProperty includeDefiningTaxonomyProperty = 
+            new SimpleBooleanProperty(this, MetaData.INCLUDE_DEFINING_TAXONOMY____SOLOR.toExternalString());
 
     public TaxonomyItemPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
@@ -48,6 +78,9 @@ public class TaxonomyItemPanel extends AbstractPreferences {
         revertFields();
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(manifold, includeDefiningTaxonomyProperty));
+        getItemList().add(new PropertySheetConceptListWrapper(manifold, treeListProperty));
+        getItemList().add(new PropertySheetConceptListWrapper(manifold, inverseTreeListProperty));
 
     }
     
@@ -57,18 +90,64 @@ public class TaxonomyItemPanel extends AbstractPreferences {
 
     @Override
     final void saveFields() throws BackingStoreException {
+        // Delete old amalgam
+        Optional<String> oldItemName = getPreferencesNode().get(Keys.ITEM_NAME);
+        if (oldItemName.isPresent()) {
+            FxGet.removeTaxonomyConfiguration(oldItemName.get());
+        }
+        
         getPreferencesNode().put(Keys.ITEM_NAME, nameProperty.get());
+        List<String> treeSpecList = new ArrayList<>();
+        for (ConceptSpecification proxy: treeListProperty.get()) {
+            treeSpecList.add(proxy.toExternalString());
+        }
+        getPreferencesNode().putList(TREES, treeSpecList);
+        
+        List<String> inverseTreeSpecList = new ArrayList<>();
+        for (ConceptSpecification proxy: inverseTreeListProperty.get()) {
+            inverseTreeSpecList.add(proxy.toExternalString());
+        }
+        getPreferencesNode().putList(INVERSE_TREES, inverseTreeSpecList);
+        getPreferencesNode().putBoolean(INCLUDE_DEFINING_TAXONOMY, this.includeDefiningTaxonomyProperty.get());
+        
+        TaxonomyAmalgam amalgam = new TaxonomyAmalgam();
+        if (this.includeDefiningTaxonomyProperty.get()) {
+            amalgam.getTaxonomies().add(new DefiningTaxonomyProxy());
+        }
+        // TODO add support for other types of assemblage...
+        for (ConceptSpecification proxy: treeListProperty.get()) {
+            SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold());
+            TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
+            amalgam.getTaxonomies().add(taxonomySnapshot);
+        }        
+        for (ConceptSpecification proxy: inverseTreeListProperty.get()) {
+            SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold());
+            TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
+            amalgam.getInverseTaxonomies().add(taxonomySnapshot);
+        }
+        FxGet.addTaxonomyConfiguration(nameProperty.get(), amalgam);
     }
 
     @Override
     final void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(Keys.ITEM_NAME, getGroupName()));
+        List<String> inverseTreeProxyList = getPreferencesNode().getList(TREES);
+        inverseTreeListProperty.get().clear();
+        for (String proxyString: inverseTreeProxyList) {
+            inverseTreeListProperty.get().add(new ConceptProxy(proxyString));
+        }
+        
+        List<String> treeProxyList = getPreferencesNode().getList(TREES);
+        treeListProperty.get().clear();
+        for (String proxyString: treeProxyList) {
+            treeListProperty.get().add(new ConceptProxy(proxyString));
+        }
+        this.includeDefiningTaxonomyProperty.set(getPreferencesNode().getBoolean(INCLUDE_DEFINING_TAXONOMY, true));
     }
     
     @Override
     public boolean showDelete() {
         return true;
     }
-     
     
 }

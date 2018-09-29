@@ -109,6 +109,14 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
       this.calculator = RelativePositionCalculator.getCalculator(stampCoordinate);
    }
 
+    @Override
+    public SemanticSnapshotService<V> makeAnalog(StampCoordinate stampCoordinate) {
+        return new AssemblageSnapshotProvider(versionType,
+           stampCoordinate,
+           semanticProvider);
+    }
+
+   
    //~--- get methods ---------------------------------------------------------
    /**
     * Gets the latest description versions for component.

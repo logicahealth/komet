@@ -19,6 +19,7 @@ package sh.isaac.api;
 import java.util.List;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.stream.VersionStream;
 
 /**
@@ -59,5 +60,7 @@ public interface SingleAssemblageSnapshot<V extends SemanticVersion> {
     * criterion of this snapshot service.
     */
    VersionStream<V> getLatestSemanticVersionsFromAssemblage(ProgressTracker... progressTrackers);
+   
+   SingleAssemblageSnapshot<V> makeAnalog(StampCoordinate stampCoordinate);
 }
 

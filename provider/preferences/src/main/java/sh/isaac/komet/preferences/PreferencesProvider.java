@@ -43,7 +43,6 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 

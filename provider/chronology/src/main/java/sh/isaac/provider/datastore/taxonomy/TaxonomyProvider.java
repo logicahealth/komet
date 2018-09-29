@@ -41,6 +41,7 @@ import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -84,7 +85,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.RefreshListener;
 import sh.isaac.api.Status;
 import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.TaxonomySnapshotService;
+import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
@@ -107,6 +108,8 @@ import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
 import sh.isaac.provider.datastore.identifier.IdentifierProvider;
+import sh.isaac.api.TaxonomySnapshot;
+import sh.isaac.api.tree.TaxonomyLinkage;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -369,7 +372,7 @@ public class TaxonomyProvider
     }
 
     @Override
-    public TaxonomySnapshotService getStatedLatestSnapshot(int pathNid, NidSet modules, EnumSet<Status> allowedStates) {
+    public TaxonomySnapshot getStatedLatestSnapshot(int pathNid, NidSet modules, EnumSet<Status> allowedStates) {
         return getSnapshot(new ManifoldCoordinateImpl(
                 new StampCoordinateImpl(StampPrecedence.TIME,
                         new StampPositionImpl(Long.MAX_VALUE, pathNid),
@@ -377,7 +380,7 @@ public class TaxonomyProvider
     }
 
     @Override
-    public TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc) {
+    public TaxonomySnapshot getSnapshot(ManifoldCoordinate tc) {
         Task<Tree> treeTask = getTaxonomyTree(tc);
 
         return new TaxonomySnapshotProvider(tc, treeTask);
@@ -488,7 +491,7 @@ public class TaxonomyProvider
      * The Class TaxonomySnapshotProvider.
      */
     private class TaxonomySnapshotProvider
-            implements TaxonomySnapshotService {
+            implements TaxonomySnapshot {
 
         int isaNid = TermAux.IS_A.getNid();
         int childOfNid = TermAux.CHILD_OF.getNid();
@@ -496,9 +499,9 @@ public class TaxonomyProvider
         NidSet isaTypeNidSet = new NidSet();
 
         /**
-         * The tc.
+         * The manifoldCoordinate.
          */
-        final ManifoldCoordinate tc;
+        final ManifoldCoordinate manifoldCoordinate;
         Tree treeSnapshot;
         final Task<Tree> treeTask;
 
@@ -509,8 +512,8 @@ public class TaxonomyProvider
         }
 
         //~--- constructors -----------------------------------------------------
-        public TaxonomySnapshotProvider(ManifoldCoordinate tc, Task<Tree> treeTask) {
-            this.tc = tc;
+        public TaxonomySnapshotProvider(ManifoldCoordinate manifoldCoordinate, Task<Tree> treeTask) {
+            this.manifoldCoordinate = manifoldCoordinate;
             this.treeTask = treeTask;
 
             if (!treeTask.isDone()) {
@@ -547,6 +550,31 @@ public class TaxonomyProvider
             }
         }
 
+        @Override
+        public TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate) {
+            return TaxonomyProvider.this.getSnapshot(manifoldCoordinate);
+        }
+
+    @Override
+    public Iterable<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
+        int[] parentNids = getTaxonomyParentConceptNids(parentConceptNid);
+        ArrayList<TaxonomyLink> links = new ArrayList(parentNids.length);
+        for (int parentNid: parentNids) {
+            links.add(new TaxonomyLinkage(TermAux.IS_A.getNid(), parentNid));
+        }
+        return links;
+    }
+
+    @Override
+    public Iterable<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
+        int[] childNids = getTaxonomyChildConceptNids(childConceptNid);
+        ArrayList<TaxonomyLink> links = new ArrayList(childNids.length);
+        for (int childNid: childNids) {
+            links.add(new TaxonomyLinkage(TermAux.IS_A.getNid(), childNid));
+        }
+        return links;
+    }
+
         //~--- methods ----------------------------------------------------------
         private void succeeded(ObservableValue<? extends State> observable, State oldValue, State newValue) {
             try {
@@ -577,7 +605,7 @@ public class TaxonomyProvider
 
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
 
-            return taxonomyRecordPrimitive.containsNidViaType(parentId, isaNid, tc);
+            return taxonomyRecordPrimitive.containsNidViaType(parentId, isaNid, manifoldCoordinate);
         }
 
         /**
@@ -656,7 +684,7 @@ public class TaxonomyProvider
 
         @Override
         public ManifoldCoordinate getManifoldCoordinate() {
-            return this.tc;
+            return this.manifoldCoordinate;
         }
 
         /**
@@ -665,7 +693,7 @@ public class TaxonomyProvider
          * @return the roots
          */
         @Override
-        public int[] getRoots() {
+        public int[] getRootNids() {
             if (treeSnapshot != null) {
                 return treeSnapshot.getRootNids();
             }
@@ -682,21 +710,21 @@ public class TaxonomyProvider
         @Override
         public int[] getTaxonomyChildConceptNids(int parentId) {
             if (treeSnapshot != null) {
-                return this.treeSnapshot.getChildNids(parentId);
+                return this.treeSnapshot.getTaxonomyChildConceptNids(parentId);
             }
 
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(parentId);
 
-            return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, tc);
+            return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, manifoldCoordinate);
         }
 
         @Override
         public boolean isLeaf(int conceptNid) {
             if (treeSnapshot != null) {
-                return this.treeSnapshot.getChildNids(conceptNid).length == 0;
+                return this.treeSnapshot.getTaxonomyChildConceptNids(conceptNid).length == 0;
             }
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(conceptNid);
-            return !taxonomyRecordPrimitive.hasDestinationNidsOfType(childOfTypeNidSet, tc);
+            return !taxonomyRecordPrimitive.hasDestinationNidsOfType(childOfTypeNidSet, manifoldCoordinate);
         }
 
         /**
@@ -708,12 +736,12 @@ public class TaxonomyProvider
         @Override
         public int[] getTaxonomyParentConceptNids(int childId) {
             if (treeSnapshot != null) {
-                return this.treeSnapshot.getParentNids(childId);
+                return this.treeSnapshot.getTaxonomyParentConceptNids(childId);
             }
 
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
 
-            return taxonomyRecordPrimitive.getDestinationNidsOfType(isaTypeNidSet, tc);
+            return taxonomyRecordPrimitive.getDestinationNidsOfType(isaTypeNidSet, manifoldCoordinate);
         }
 
         /**

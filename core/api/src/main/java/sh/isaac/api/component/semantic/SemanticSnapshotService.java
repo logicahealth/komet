@@ -49,6 +49,7 @@ import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.stream.VersionStream;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -106,5 +107,12 @@ public interface SemanticSnapshotService<V extends SemanticVersion> {
     */
    VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid,
          ProgressTracker... progressTrackers);
+   
+   /**
+    * 
+    * @param stampCoordinate 
+    * @return a new SemanticSnapshotService based on the provided stamp coordinate;
+    */
+   SemanticSnapshotService<V> makeAnalog(StampCoordinate stampCoordinate);
 }
 

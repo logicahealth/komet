@@ -23,10 +23,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.TaxonomySnapshot;
 
 /**
  *
@@ -69,7 +69,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
             } else {  // if (conceptChronology != null)
                 // Gather the children
                 TreeSet<MultiParentTreeItemImpl> childrenToAdd = new TreeSet<>();
-                TaxonomySnapshotService taxonomySnapshot = treeItemImpl.getTreeView().getTaxonomySnapshot();
+                TaxonomySnapshot taxonomySnapshot = treeItemImpl.getTreeView().getTaxonomySnapshot();
                 Manifold manifold = treeItemImpl.getTreeView().getManifold();
                 int[]  children = taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid());
                 int batchCount = children.length/CHILD_BATCH_SIZE;

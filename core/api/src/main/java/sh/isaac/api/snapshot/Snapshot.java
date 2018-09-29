@@ -48,7 +48,6 @@ import java.util.stream.Stream;
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -58,6 +57,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.TaxonomySnapshot;
 
 //~--- classes ----------------------------------------------------------------
 

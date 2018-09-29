@@ -41,7 +41,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
-import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -66,6 +65,7 @@ import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
+import sh.isaac.api.TaxonomySnapshot;
 
 /**
  * Lucene Manager which specializes in indexing descriptions.
@@ -151,7 +151,7 @@ public class DescriptionIndexer extends LuceneIndexer
          {
             isMetadata = isMetadataCache.get(key, pathAndRefComp -> {
             //cache doesn't have the answer, needs to calculate.  We construct a snapshot of latest time, the path, and any module, active only.
-            TaxonomySnapshotService tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
+            TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
                   new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, pathNid), NidSet.EMPTY, new int[0], Status.ACTIVE_ONLY_SET), null));
             return tss.isKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
             }).booleanValue();

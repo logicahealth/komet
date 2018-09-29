@@ -54,11 +54,11 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.util.NaturalOrder;
 import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.TaxonomySnapshot;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -207,7 +207,7 @@ public class MultiParentTreeItemImpl
                     // Gather the children
                     LOG.info("addChildrenNOW(): conceptChronology={}", conceptChronology);
                     ArrayList<MultiParentTreeItemImpl> childrenToAdd = new ArrayList<>();
-                    TaxonomySnapshotService taxonomySnapshot = treeView.getTaxonomySnapshot();
+                    TaxonomySnapshot taxonomySnapshot = treeView.getTaxonomySnapshot();
 
                     if (childNids == null) {
                         childNids = taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid());

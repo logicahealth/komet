@@ -82,7 +82,6 @@ import javafx.scene.input.TransferMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.RefreshListener;
 import sh.isaac.api.Status;
-import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
 import sh.isaac.api.alert.AlertEvent;
@@ -108,6 +107,7 @@ import sh.komet.gui.layout.LayoutAnimator;
 
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
 import sh.komet.gui.util.FxGet;
+import sh.isaac.api.TaxonomySnapshot;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -152,10 +152,13 @@ public class MultiParentTreeView
     private final LayoutAnimator taxonomyAlertsAnimator = new LayoutAnimator();
     private final ChoiceBox<ConceptSpecification> descriptionTypeChoiceBox;
     private final ChoiceBox<ConceptSpecification> premiseChoiceBox;
-    private final SimpleObjectProperty<TaxonomySnapshotService> taxonomySnapshotProperty = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<TaxonomySnapshot> taxonomySnapshotProperty = new SimpleObjectProperty<>();
     private final UUID uuid = UUID.randomUUID();
     private final Label titleLabel = new Label();
-
+    private final ChoiceBox<String> taxonomyConfiguration = new ChoiceBox(FxGet.taxonomyConfigurationNames());
+    {
+        taxonomyConfiguration.getSelectionModel().select(FxGet.defaultTaxonomyConfiguration());
+    }
     //~--- constructors --------------------------------------------------------
     public MultiParentTreeView(Manifold manifold, ConceptSpecification rootSpec) {
         long startTime = System.currentTimeMillis();
@@ -169,7 +172,7 @@ public class MultiParentTreeView
                 .addListener(this::setShowHistory);
 
         this.displayPolicies = new DefaultMultiParentTreeItemDisplayPolicies(this.manifold);
-        this.taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(this.manifold));
+        this.taxonomySnapshotProperty.set(FxGet.taxonomySnapshot(this.manifold, taxonomyConfiguration.getValue()));
         getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
         treeView = new TreeView<>();
         treeView.getSelectionModel()
@@ -380,6 +383,8 @@ public class MultiParentTreeView
      *
      * This should be called on a background thread.
      *
+     * @param item
+     * @param targetChildUUID
      * @return the found child, or null, if not found. found child will have
      * already been told to expand and fetch its children.
      * @throws InterruptedException
@@ -588,6 +593,8 @@ public class MultiParentTreeView
         historySwitchWithLabel.setContentDisplay(ContentDisplay.RIGHT);
         toolBar.getItems()
                 .add(historySwitchWithLabel);
+        
+        toolBar.getItems().add(taxonomyConfiguration);
 
         // Node child, int columnIndex, int rowIndex, int columnspan, int rowspan,
         // HPos halignment, VPos valignment, Priority hgrow, Priority vgrow
@@ -642,7 +649,7 @@ public class MultiParentTreeView
         this.manifold.getManifoldCoordinate()
                 .taxonomyPremiseTypeProperty()
                 .set(newPremiseType);
-        taxonomySnapshotProperty.set(Get.taxonomyService().getSnapshot(manifold));
+        taxonomySnapshotProperty.set(FxGet.taxonomySnapshot(this.manifold, taxonomyConfiguration.getValue()));
         this.rootTreeItem.clearChildren();
         Get.workExecutors().getExecutor().execute(() -> this.rootTreeItem.addChildren());
         this.rootTreeItem.invalidate();
@@ -675,7 +682,7 @@ public class MultiParentTreeView
         return rootTreeItem;
     }
 
-    protected TaxonomySnapshotService getTaxonomySnapshot() {
+    protected TaxonomySnapshot getTaxonomySnapshot() {
         return taxonomySnapshotProperty.get();
     }
 

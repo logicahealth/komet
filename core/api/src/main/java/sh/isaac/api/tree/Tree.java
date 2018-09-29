@@ -117,7 +117,7 @@ public interface Tree {
     * @param parentNid nid of the concept from which to find children
     * @return an array of child nids.
     */
-   int[] getChildNids(int parentNid);
+   int[] getTaxonomyChildConceptNids(int parentNid);
 
    /**
     * Gets the descendent nid set.
@@ -134,7 +134,7 @@ public interface Tree {
     * @param childNid nid of the concept from which to find parent
     * @return an array of parent nids.
     */
-   int[] getParentNids(int childNid);
+   int[] getTaxonomyParentConceptNids(int childNid);
    
    /**
     * Remove a parent from the tree... May be necessary after detecting a cycle in a 

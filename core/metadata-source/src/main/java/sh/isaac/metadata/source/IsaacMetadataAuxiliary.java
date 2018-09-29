@@ -553,6 +553,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.ACCEPTABLE);
                createConcept(TermAux.PREFERRED);
                popParent();
+            createConcept("Tree amalgam properties").setModule(TermAux.KOMET_MODULE);
+            pushParent(current());
+               createConcept("Include defining taxonomy").setModule(TermAux.KOMET_MODULE);
+               createConcept("Tree list").setModule(TermAux.KOMET_MODULE);
+               createConcept("Inverse tree list").setModule(TermAux.KOMET_MODULE);
+               popParent();
             createConcept("Taxonomy operator");
             pushParent(current());
                createConcept(TermAux.CHILD_OF);
