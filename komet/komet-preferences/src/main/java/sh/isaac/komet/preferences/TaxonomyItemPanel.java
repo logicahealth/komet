@@ -108,6 +108,7 @@ public class TaxonomyItemPanel extends AbstractPreferences {
             inverseTreeSpecList.add(proxy.toExternalString());
         }
         getPreferencesNode().putList(INVERSE_TREES, inverseTreeSpecList);
+        
         getPreferencesNode().putBoolean(INCLUDE_DEFINING_TAXONOMY, this.includeDefiningTaxonomyProperty.get());
         
         TaxonomyAmalgam amalgam = new TaxonomyAmalgam();
@@ -131,7 +132,7 @@ public class TaxonomyItemPanel extends AbstractPreferences {
     @Override
     final void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(Keys.ITEM_NAME, getGroupName()));
-        List<String> inverseTreeProxyList = getPreferencesNode().getList(TREES);
+        List<String> inverseTreeProxyList = getPreferencesNode().getList(INVERSE_TREES);
         inverseTreeListProperty.get().clear();
         for (String proxyString: inverseTreeProxyList) {
             inverseTreeListProperty.get().add(new ConceptProxy(proxyString));

@@ -38,6 +38,7 @@ package sh.isaac.komet.gui.treeview;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -54,6 +55,7 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.util.NaturalOrder;
@@ -93,24 +95,30 @@ public class MultiParentTreeItemImpl
     private MultiParentTreeView treeView;
     private String conceptDescriptionText;  // Cached to speed up comparisons with toString method.
     private final int nid;
-    private int[] childNids;
+    private final int typeNid;
+    private Collection<TaxonomyLink> childLinks;
 
     //~--- constructors --------------------------------------------------------
-    MultiParentTreeItemImpl(int conceptSequence, MultiParentTreeView treeView) {
+    MultiParentTreeItemImpl(int conceptSequence, MultiParentTreeView treeView, int typeNid) {
         this(Get.conceptService()
-                .getConceptChronology(conceptSequence), treeView, null);
+                .getConceptChronology(conceptSequence), treeView, typeNid, null);
     }
 
-    MultiParentTreeItemImpl(ConceptChronology conceptChronology, MultiParentTreeView treeView, Node graphic) {
+    MultiParentTreeItemImpl(ConceptChronology conceptChronology, MultiParentTreeView treeView, int typeNid, Node graphic) {
         super(conceptChronology, graphic);
         this.treeView = treeView;
         this.nid = conceptChronology.getNid();
+        this.typeNid = typeNid;
     }
 
     //~--- methods -------------------------------------------------------------
     public void blockUntilChildrenReady()
             throws InterruptedException {
         childrenLoadedLatch.await();
+    }
+
+    public int getTypeNid() {
+        return typeNid;
     }
 
     /**
@@ -124,7 +132,7 @@ public class MultiParentTreeItemImpl
                     ((MultiParentTreeItemImpl) child).clearChildren();
                 });
         getChildren().clear();
-        childNids = null;
+        childLinks = null;
         resetChildrenCalculators();
 
     }
@@ -209,17 +217,17 @@ public class MultiParentTreeItemImpl
                     ArrayList<MultiParentTreeItemImpl> childrenToAdd = new ArrayList<>();
                     TaxonomySnapshot taxonomySnapshot = treeView.getTaxonomySnapshot();
 
-                    if (childNids == null) {
-                        childNids = taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid());
+                    if (childLinks == null) {
+                        childLinks = taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
                     }
 
-                    for (int childNid : childNids) {
-                        ConceptChronology childChronology = Get.concept(childNid);
-                        MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeView, null);
+                    for (TaxonomyLink childLink : childLinks) {
+                        ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
+                        MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeView, childLink.getTypeNid(), null);
                         Manifold manifold = treeView.getManifold();
                         childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
                         childItem.toString();
-                        childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childNid).length > 1);
+                        childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
 
                         if (childItem.shouldDisplay()) {
                             childrenToAdd.add(childItem);
@@ -323,11 +331,11 @@ public class MultiParentTreeItemImpl
         if (multiParentDepth > 0) {
             return true;
         }
-        if (this.childNids == null) {
-            this.childNids = this.treeView.getTaxonomySnapshot().getTaxonomyChildConceptNids(nid);
+        if (this.childLinks == null) {
+            this.childLinks = this.treeView.getTaxonomySnapshot().getTaxonomyChildLinks(nid);
         }
 
-        return this.childNids.length == 0;
+        return this.childLinks.isEmpty();
     }
 
     @Override

@@ -43,6 +43,7 @@ package sh.isaac.komet.gui.treeview;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -69,6 +70,7 @@ import javafx.scene.transform.NonInvertibleTransformException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomyLink;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
@@ -204,15 +206,15 @@ final public class MultiParentTreeCell
          if (treeItem.isSecondaryParentOpened()) {
             removeExtraParents(treeItem, siblings);
          } else {
-            int[] allParents = treeItem.getTreeView()
+            Collection<TaxonomyLink> allParents = treeItem.getTreeView()
                                        .getTaxonomySnapshot()
-                                       .getTaxonomyParentConceptNids(value.getNid());
+                                       .getTaxonomyParentLinks(value.getNid());
             ArrayList<MultiParentTreeItemImpl> secondaryParentItems = new ArrayList<>();
 
-            for (int parentSequence: allParents) {
-               if ((allParents.length == 1) || (parentSequence != parentItem.getValue().getNid())) {
-                  ConceptChronology parentChronology = Get.concept(parentSequence);
-                  MultiParentTreeItemImpl extraParentItem = new MultiParentTreeItemImpl(parentChronology, treeItem.getTreeView(), null);
+            for (TaxonomyLink parentLink: allParents) {
+               if ((allParents.size() == 1) || (parentLink.getDestinationNid() != parentItem.getValue().getNid())) {
+                  ConceptChronology parentChronology = Get.concept(parentLink.getDestinationNid());
+                  MultiParentTreeItemImpl extraParentItem = new MultiParentTreeItemImpl(parentChronology, treeItem.getTreeView(), parentLink.getTypeNid(), null);
                   Manifold manifold = treeItem.getTreeView().getManifold();
                   extraParentItem.setDefined(parentChronology.isSufficientlyDefined(manifold, manifold));
                   extraParentItem.setMultiParentDepth(treeItem.getMultiParentDepth() + 1);

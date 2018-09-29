@@ -17,6 +17,7 @@
 package sh.isaac.api.tree;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import sh.isaac.api.Get;
 import sh.isaac.api.SingleAssemblageSnapshot;
@@ -120,7 +121,7 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
     }
 
     @Override
-    public Iterable<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
+    public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
         int[] parentNids = getTaxonomyParentConceptNids(parentConceptNid);
         ArrayList<TaxonomyLink> links = new ArrayList(parentNids.length);
         for (int parentNid: parentNids) {
@@ -130,7 +131,7 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
     }
 
     @Override
-    public Iterable<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
+    public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
         int[] childNids = getTaxonomyChildConceptNids(childConceptNid);
         ArrayList<TaxonomyLink> links = new ArrayList(childNids.length);
         for (int childNid: childNids) {

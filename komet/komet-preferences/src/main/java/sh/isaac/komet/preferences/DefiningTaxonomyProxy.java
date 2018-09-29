@@ -16,6 +16,7 @@
  */
 package sh.isaac.komet.preferences;
 
+import java.util.Collection;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.TaxonomySnapshot;
@@ -65,12 +66,12 @@ public class DefiningTaxonomyProxy implements TaxonomySnapshot {
     }
 
     @Override
-    public Iterable<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
+    public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Iterable<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
+    public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -44,6 +44,7 @@ package sh.isaac.api;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.Collection;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.Tree;
@@ -118,14 +119,14 @@ public interface TaxonomySnapshot {
     * @param parentConceptNid
     * @return an Iterable of all the parent taxonomy links. 
     */
-   Iterable<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid);
+   Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid);
 
    /**
     * For circumstances where there is more than one type of relationship in the taxonomy. 
     * @param childConceptNid
     * @return an Iterable of all the child taxonomy links. 
     */
-   Iterable<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid);
+   Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid);
    
    /**
     * Gets the taxonomy tree.

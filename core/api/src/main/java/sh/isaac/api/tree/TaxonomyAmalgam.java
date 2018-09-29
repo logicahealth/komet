@@ -144,7 +144,7 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
     }
 
     @Override
-    public Iterable<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
+    public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
         List<TaxonomyLink> links = new ArrayList<>();
         for (TaxonomySnapshot tree: taxonomies) {
             links.addAll((Collection<? extends TaxonomyLink>) tree.getTaxonomyParentLinks(parentConceptNid));
@@ -156,7 +156,7 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
     }
 
     @Override
-    public Iterable<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
+    public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
         List<TaxonomyLink> links = new ArrayList<>();
         for (TaxonomySnapshot tree: taxonomies) {
             links.addAll((Collection<? extends TaxonomyLink>) tree.getTaxonomyChildLinks(childConceptNid));

@@ -108,6 +108,7 @@ import sh.komet.gui.layout.LayoutAnimator;
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
 import sh.komet.gui.util.FxGet;
 import sh.isaac.api.TaxonomySnapshot;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -187,12 +188,13 @@ public class MultiParentTreeView
                         });
         this.setCenter(treeView);
 
-        ConceptChronology rootConceptCV = Get.conceptService()
+        ConceptChronology rootConcept = Get.conceptService()
                 .getConceptChronology(rootSpec);
 
         rootTreeItem = new MultiParentTreeItemImpl(
-                rootConceptCV,
+                rootConcept,
                 MultiParentTreeView.this,
+                TermAux.UNINITIALIZED_COMPONENT_ID.getNid(),
                 Iconography.TAXONOMY_ROOT_ICON.getIconographic());
         treeView.getSelectionModel()
                 .setSelectionMode(SelectionMode.SINGLE);

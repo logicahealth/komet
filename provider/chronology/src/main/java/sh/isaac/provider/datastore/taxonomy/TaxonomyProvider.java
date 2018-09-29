@@ -42,6 +42,7 @@ import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -556,7 +557,7 @@ public class TaxonomyProvider
         }
 
     @Override
-    public Iterable<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
+    public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
         int[] parentNids = getTaxonomyParentConceptNids(parentConceptNid);
         ArrayList<TaxonomyLink> links = new ArrayList(parentNids.length);
         for (int parentNid: parentNids) {
@@ -566,7 +567,7 @@ public class TaxonomyProvider
     }
 
     @Override
-    public Iterable<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
+    public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
         int[] childNids = getTaxonomyChildConceptNids(childConceptNid);
         ArrayList<TaxonomyLink> links = new ArrayList(childNids.length);
         for (int childNid: childNids) {

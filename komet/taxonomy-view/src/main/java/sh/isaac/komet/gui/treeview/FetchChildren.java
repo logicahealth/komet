@@ -17,12 +17,14 @@
 package sh.isaac.komet.gui.treeview;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.komet.gui.manifold.Manifold;
@@ -71,17 +73,17 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 TreeSet<MultiParentTreeItemImpl> childrenToAdd = new TreeSet<>();
                 TaxonomySnapshot taxonomySnapshot = treeItemImpl.getTreeView().getTaxonomySnapshot();
                 Manifold manifold = treeItemImpl.getTreeView().getManifold();
-                int[]  children = taxonomySnapshot.getTaxonomyChildConceptNids(conceptChronology.getNid());
-                int batchCount = children.length/CHILD_BATCH_SIZE;
-                addToTotalWork(children.length + batchCount);
+                Collection<TaxonomyLink>  children = taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
+                int batchCount = children.size()/CHILD_BATCH_SIZE;
+                addToTotalWork(children.size() + batchCount);
                 
                 
-                for (int childNid : children) {
-                    ConceptChronology childChronology = Get.concept(childNid);
-                    MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeItemImpl.getTreeView(), null);
+                for (TaxonomyLink childLink : children) {
+                    ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
+                    MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeItemImpl.getTreeView(), childLink.getTypeNid(), null);
                     childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
                     childItem.toString();
-                    childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childNid).length > 1);
+                    childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
                     childItem.isLeaf();
 
                     if (childItem.shouldDisplay()) {
