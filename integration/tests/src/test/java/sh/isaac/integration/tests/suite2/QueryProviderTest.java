@@ -105,7 +105,7 @@ public class QueryProviderTest {
 	@Test
 	public void testSizeLimits2() {
 		
-		int expectedMaxHits = 158;
+		int expectedMaxHits = 242;
 		
 		Assert.assertEquals(di.query("bevon", Integer.MAX_VALUE).size(), expectedMaxHits);
 		
@@ -253,10 +253,10 @@ public class QueryProviderTest {
 	public void testPredicate() {
 		
 		//no predicate
-		Assert.assertEquals(di.query("rdfs.co", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 141);
+		Assert.assertEquals(di.query("rdfs.co", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 183);
 		
 		//no fail predicate
-		Assert.assertEquals(di.query("rdfs.co", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 141);
+		Assert.assertEquals(di.query("rdfs.co", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 183);
 		
 		//no pass predicate
 		Assert.assertEquals(di.query("rdfs.co", false, null, (nid -> false), null, 1, Integer.MAX_VALUE, null).size(), 0);
@@ -306,7 +306,7 @@ public class QueryProviderTest {
 	@Test
 	public void testPrefixWithMergeOnConcepts() {
 		
-		Assert.assertEquals(di.query("whis", true, null, null, 1, 125, null).size(), 53);
+		Assert.assertEquals(di.query("whis", true, null, null, 1, 125, null).size(), 54);
 		
 		Assert.assertEquals(di.mergeResultsOnConcept(di.query("whis", true, null, null, 1, 125, null)).size(), 25);
 	}
