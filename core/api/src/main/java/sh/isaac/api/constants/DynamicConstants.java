@@ -487,5 +487,9 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
 
       return cache;
    }
+   
+   @Override public int getModuleRank() {
+      return Integer.MAX_VALUE;
+   }
 //J+
 }
