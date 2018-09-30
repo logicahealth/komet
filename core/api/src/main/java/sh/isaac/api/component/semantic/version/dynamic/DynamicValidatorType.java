@@ -108,6 +108,7 @@ import sh.isaac.api.util.NumericUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum DynamicValidatorType {
+   //If you modify this enum, you need to change the definition of DYNAMIC_EXTENSION_DEFINITION to match, otherwise, it won't allow the new type
    LESS_THAN("<"),
    GREATER_THAN(">"),
    LESS_THAN_OR_EQUAL("<="),

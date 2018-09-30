@@ -325,8 +325,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    // This is the assemblage type that is usually present on a concept when it is used as an assemblage itself to describe the attached data -
    // the attached
    // refex using this for an assemblage will describe a data column that is to be attached with the refex. This assemblage type wouldn't be
-   // used if there was
-   // no data to attach.
+   // used if there was no data to attach.
    public final MetadataDynamicConstant DYNAMIC_EXTENSION_DEFINITION = new MetadataDynamicConstant("Dynamic extension definition",
          UUID.fromString("406e872b-2e19-5f5e-a71d-e4e4b2c68fe5"),
          "This concept is used as an assemblage for defining new extensions.  " + "The attached data columns describe what columns are required to define a new Semantic.",
@@ -340,7 +339,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
                            .createDynamicStringData(DynamicValidatorType.COMPONENT_TYPE.name() + "|" + DynamicValidatorType.EXTERNAL.name() + "|"
                                  + DynamicValidatorType.GREATER_THAN.name() + "|" + DynamicValidatorType.GREATER_THAN_OR_EQUAL.name() + "|" + DynamicValidatorType.INTERVAL.name()
                                  + "|" + DynamicValidatorType.IS_CHILD_OF.name() + "|" + DynamicValidatorType.IS_KIND_OF.name() + "|" + DynamicValidatorType.LESS_THAN.name() + "|"
-                                 + DynamicValidatorType.LESS_THAN_OR_EQUAL.name() + "|" + DynamicValidatorType.REGEXP.name()),
+                                 + DynamicValidatorType.LESS_THAN_OR_EQUAL.name() + "|" + DynamicValidatorType.REGEXP.name() + "|" + DynamicValidatorType.ONE_OF.name()),
                      true),
                new DynamicColumnInfo(6, this.DYNAMIC_COLUMN_VALIDATOR_DATA.getPrimordialUuid(), DynamicDataType.ARRAY, null, false, true) },
          null) {
