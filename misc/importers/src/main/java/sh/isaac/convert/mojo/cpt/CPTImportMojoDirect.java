@@ -209,26 +209,27 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		statusUpdates.accept("Setting up metadata");
 		
 		//Right now, we are configured for the CPT grouping modules nid
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, "CPT");
+		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+				"CPT", false);
 		
 		setupModule("CPT", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), contentTime);
 		
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept("LONGULT", "Long Description Upper/Lower Case",
-				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), contentTime);
+		dwh.makeDescriptionTypeConcept(null, "LONGULT", null, "Long Description Upper/Lower Case",
+				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept("MEDU", "Medium Description Upper Case",
-				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), contentTime);
+		dwh.makeDescriptionTypeConcept(null, "MEDU", null, "Medium Description Upper Case",
+				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept("SHORTU", "Short Description Upper Case",
-				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), contentTime);
+		dwh.makeDescriptionTypeConcept(null, "SHORTU", null, "Short Description Upper Case",
+				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept("All CPT Concepts", null, contentTime);
+		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept(null, "All CPT Concepts", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
 		final UUID cptRootConcept = dwh.makeConceptEnNoDialect("CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 

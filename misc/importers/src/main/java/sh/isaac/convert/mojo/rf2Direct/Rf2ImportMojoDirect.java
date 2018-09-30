@@ -210,7 +210,7 @@ public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		converterUUID.configureNamespace(MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getPrimordialUuid());
 		
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getNid(), 
-				TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, "Snomed");
+				TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, "Snomed", false);
 
 		log.info("Reading modules");
 		ss.getStampSequences().forEach(stampSequence -> 
