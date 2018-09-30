@@ -97,7 +97,6 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    /** The unknown concept. */
    public final UUID UNKNOWN_CONCEPT = UUID.fromString("00000000-0000-0000-C000-000000000046");
 
-   /** The dynamic dt nid. */
 
    // Set up all of the data type columns
    public final MetadataConceptConstant DYNAMIC_DT_NID = new MetadataConceptConstant("nid", UUID.fromString("d1a17272-9785-51aa-8bde-cc556ab32ebb")) {
@@ -471,7 +470,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
     */
    @Override
    public MetadataConceptConstant[] getConstantsToCreate() {
-      return new MetadataConceptConstant[] { this.DYNAMIC_ASSEMBLAGES, this.DYNAMIC_METADATA };
+      return new MetadataConceptConstant[] {this.DYNAMIC_METADATA , this.DYNAMIC_ASSEMBLAGES};
    }
 
    /**

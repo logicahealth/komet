@@ -57,6 +57,8 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -67,8 +69,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import sh.isaac.api.ConfigurationService.BuildMode;
-import sh.isaac.api.Get;
 import sh.isaac.api.IsaacTaxonomy;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -114,9 +114,6 @@ public class ExportTaxonomy
    public void execute()
             throws MojoExecutionException, MojoFailureException {
       try {
-         Get.configurationService()
-            .setDBBuildMode(BuildMode.IBDF);
-
          final IsaacTaxonomy taxonomy = LookupService.get()
                                                      .getService(IsaacTaxonomy.class);
          
@@ -126,8 +123,15 @@ public class ExportTaxonomy
          // TODO: [KEC] this step adds the metadata constant to the last concept on the parent stack... 
          // WHich is not always what you want, and subject to change if the IsaacTaxonomy class changes. 
          // Need to modify 
+         ArrayList<ModuleProvidedConstants> sortedConstants = new ArrayList<>();
          for (final ModuleProvidedConstants mpc: LookupService.get()
-               .getAllServices(ModuleProvidedConstants.class)) {
+                 .getAllServices(ModuleProvidedConstants.class)) {
+            sortedConstants.add(mpc);
+         }
+         
+         Collections.sort(sortedConstants);
+         
+         for (final ModuleProvidedConstants mpc: sortedConstants) {
             getLog().info("Adding metadata constants from " + mpc.getClass().getName());
 
             int count = 0;
