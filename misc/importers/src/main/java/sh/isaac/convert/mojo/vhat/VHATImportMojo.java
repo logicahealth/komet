@@ -161,7 +161,7 @@ public class VHATImportMojo extends ConverterBaseMojo
 			List<TypeImportDTO> dto = terminology.getTypes();
 
 			ComponentReference vhatMetadata = ComponentReference.fromConcept(
-					createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), "VHAT Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
+					createType(MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid(), "VHAT Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
 					Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);
@@ -525,15 +525,11 @@ public class VHATImportMojo extends ConverterBaseMojo
 			importUtil.addAssociation(concept, null, refsets_.getPropertyTypeUUID(), associations_.getProperty("has_parent").getUUID(), Status.ACTIVE, null,
 					null);
 
-			importUtil.addAssociation(concept, null, refsets_.getAltMetaDataParentUUID(), associations_.getProperty("has_parent").getUUID(), Status.ACTIVE,
-					null, null);
-
 			importUtil.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 					associations_.getProperty("has_parent").getUUID(), Status.ACTIVE, null, null);
 
 			// place it in three places - refsets under VHAT Metadata, vhat refsets under SOLOR Refsets, and the dynamic semantic mapping semantic type.
-			NecessarySet(And(new Assertion[] { ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getAltMetaDataParentUUID()), leb),
-					ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getPropertyTypeUUID()), leb),
+			NecessarySet(And(new Assertion[] {ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getPropertyTypeUUID()), leb),
 					ConceptAssertion(
 							Get.identifierService().getNidForUuids(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid()),
 							leb) }));

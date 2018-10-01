@@ -129,7 +129,7 @@ public class MVXImportMojo extends ConverterBaseMojo
 			 */
 			// Parent mvxMetadata ComponentReference
 			final ComponentReference mvxMetadata = ComponentReference.fromConcept(
-					createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), "MVX Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
+					createType(MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid(), "MVX Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			// loadTerminologyMetadataAttributes onto mvxMetadata
 			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,

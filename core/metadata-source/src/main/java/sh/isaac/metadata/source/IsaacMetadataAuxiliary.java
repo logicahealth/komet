@@ -466,18 +466,16 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
 
                   // addPathOrigin(pathOrigins, developmentPath, masterPath);
                   popParent();
-               createConcept("SOLOR assemblage").setPrimordialUuid("7a9b495e-69c1-53e5-a2d5-41be2429c146");
-               createConcept("SOLOR Content Metadata");
-               pushParent(current());
-                  createConcept(TermAux.DATABASE_UUID);
-                  createConcept("Source Artifact Version");
-                  createConcept("Source Release Date");
-                  createConcept("Converter Version");
-                  createConcept("Converted IBDF Artifact Version");
-                  createConcept("Converted IBDF Artifact Classifier");
-                  popParent();
                popParent();
-               
+            createConcept("Content Metadata");
+            pushParent(current());
+               createConcept(TermAux.DATABASE_UUID);
+               createConcept("Source Artifact Version");
+               createConcept("Source Release Date");
+               createConcept("Converter Version");
+               createConcept("Converted IBDF Artifact Version");
+               createConcept("Converted IBDF Artifact Classifier");
+               popParent();
             createConcept(TermAux.LANGUAGE);
             pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 
             //confusing than necessary, also, making 2 parents, one of language, the other under assemblage.

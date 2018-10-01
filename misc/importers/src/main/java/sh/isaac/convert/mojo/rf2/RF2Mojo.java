@@ -182,7 +182,7 @@ public class RF2Mojo extends ConverterBaseMojo
          loadDatabase(zipFile);
 
          ComponentReference rf2Metadata = ComponentReference.fromConcept(importUtil.createConcept("RF2 Metadata " + contentNameVersion_, true));
-         importUtil.addParent(rf2Metadata, MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid());
+         importUtil.addParent(rf2Metadata, MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid());
 
          importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.ofNullable(timeString_), converterOutputArtifactVersion,
                Optional.of(converterOutputArtifactClassifier), converterVersion);

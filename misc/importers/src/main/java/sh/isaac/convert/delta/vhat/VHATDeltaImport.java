@@ -2255,15 +2255,12 @@ public class VHATDeltaImport extends ConverterBaseMojo
 
 						importUtil.addAssociation(concept, null, this.subsets.getPropertyTypeUUID(), this.associations.getProperty("has_parent").getUUID(),
 								Status.ACTIVE, null, null);
-						importUtil.addAssociation(concept, null, this.subsets.getAltMetaDataParentUUID(), this.associations.getProperty("has_parent").getUUID(),
-								Status.ACTIVE, null, null);
 						importUtil.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 								this.associations.getProperty("has_parent").getUUID(), Status.ACTIVE, null, null);
 
 						LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
 
 						NecessarySet(And(new Assertion[] {
-								ConceptAssertion(Get.identifierService().getNidForUuids(this.subsets.getAltMetaDataParentUUID()), leb),
 								ConceptAssertion(Get.identifierService().getNidForUuids(this.subsets.getPropertyTypeUUID()), leb),
 								ConceptAssertion(Get.identifierService()
 										.getNidForUuids(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid()), leb) }));

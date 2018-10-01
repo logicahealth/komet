@@ -644,7 +644,7 @@ public class DirectWriteHelper
 			makeDescriptionEn(hierarchyRoot, SemanticTags.stripSemanticTagIfPresent(rootFsn),
 					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(),
 					Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-			makeParentGraph(hierarchyRoot, MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), Status.ACTIVE, time);
+			makeParentGraph(hierarchyRoot, MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid(), Status.ACTIVE, time);
 		}
 
 		if (makeAttributeTypes)
@@ -742,7 +742,7 @@ public class DirectWriteHelper
 						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
 						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeParentGraph(refsetTypesNode.get(), Arrays.asList(new UUID[] { hierarchyRoot, MetaData.SOLOR_ASSEMBLAGE____SOLOR.getPrimordialUuid() }),
+				makeParentGraph(refsetTypesNode.get(), Arrays.asList(new UUID[] { hierarchyRoot}),
 						Status.ACTIVE, time);
 			}
 		}
@@ -1012,7 +1012,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * Creates a new concept to represent a refset type, (essentially the same as an attribute type, except it stores no data).
+	 * Creates a new concept to represent a dynamic refset type, (essentially the same as an attribute type, except it stores no data).
 	 * Adds a parent of {@link #getRefsetTypesNode()}
 	 * @param uuid optional - the UUID to use for the concept.  Created from the FQN, if not provided
 	 * @param name The name to use for the FQN and Regular Name

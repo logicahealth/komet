@@ -154,7 +154,7 @@ public class ICD10ImportMojo extends ConverterBaseMojo
 			 */
 
 			// Parent icdMetadata ComponentReference
-			final ComponentReference icdMetadata = ComponentReference.fromConcept(createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(),
+			final ComponentReference icdMetadata = ComponentReference.fromConcept(createType(MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid(),
 					"ICD-10-" + sourceType.toUpperCase() + " Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			// loadTerminologyMetadataAttributes onto icdMetadata

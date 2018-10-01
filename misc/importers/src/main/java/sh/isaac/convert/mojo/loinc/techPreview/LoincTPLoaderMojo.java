@@ -175,7 +175,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo
 			
 			// Set up a meta-data root concept
 			ComponentReference metadata = ComponentReference.fromConcept(importUtil.createConcept("LOINC Tech Preview Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG, true,
-					MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid()));
+					MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid()));
 			
 			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, 
 					Optional.of(loincData.getReleaseDate()), converterOutputArtifactVersion, Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);

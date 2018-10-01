@@ -135,7 +135,7 @@ public class SOPTImportMojo extends ConverterBaseMojo
 			// HL7 Table 0396 Code - PHDSCPT
 
 			// Parent soptMetadata ComponentReference
-			final ComponentReference soptMetadata = ComponentReference.fromConcept(createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(),
+			final ComponentReference soptMetadata = ComponentReference.fromConcept(createType(MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid(),
 					COMPONENT_REFERENCE_METADATA + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			// loadTerminologyMetadataAttributes onto soptMetadata

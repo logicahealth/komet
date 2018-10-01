@@ -138,7 +138,7 @@ public class NUCCImportMojo extends ConverterBaseMojo
 			 */
 			// Parent nuccMetadata ComponentReference
 			final ComponentReference nuccMetadata = ComponentReference.fromConcept(
-					createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), "NUCC Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
+					createType(MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid(), "NUCC Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			// loadTerminologyMetadataAttributes onto nuccMetadata
 			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
