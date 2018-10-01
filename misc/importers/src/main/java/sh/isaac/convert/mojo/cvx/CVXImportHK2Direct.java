@@ -34,54 +34,23 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+package sh.isaac.convert.mojo.cvx;
 
-package sh.isaac.convert.mojo.cvx.propertyTypes;
-
-import sh.isaac.convert.mojo.cvx.CVXConstants;
-import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Descriptions;
-import sh.isaac.converters.sharedUtils.propertyTypes.Property;
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.convert.directUtils.DirectConverter;
 
 /**
- * 
- * {@link PT_Descriptions}
+ * {@link CVXImportHK2Direct}
  *
- * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
- *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class PT_Descriptions extends BPT_Descriptions
+@PerLookup
+@Service
+public class CVXImportHK2Direct extends CVXImportMojoDirect implements DirectConverter
 {
-	public enum Descriptions
+	private CVXImportHK2Direct()
 	{
-		ShortDescription("Short Description", FULLY_QUALIFIED_NAME), FullVaccinename("Full Vaccine Name", SYNONYM);
-
-		private final int descriptionType_;
-		private final String niceName_;
-		private Property property_;
-
-		private Descriptions(String niceName, int descriptionType)
-		{
-			descriptionType_ = descriptionType;
-			niceName_ = niceName;
-		}
-
-		public int getDescriptionType()
-		{
-			return descriptionType_;
-		}
-
-		public Property getProperty()
-		{
-			return property_;
-		}
-	}
-
-	public PT_Descriptions()
-	{
-		super(CVXConstants.TERMINOLOGY_NAME);
-
-		for (Descriptions description : Descriptions.values())
-		{
-			description.property_ = addProperty(description.niceName_, description.getDescriptionType());
-		}
+		//For HK2
 	}
 }

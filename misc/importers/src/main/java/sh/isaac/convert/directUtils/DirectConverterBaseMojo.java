@@ -170,7 +170,10 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	public void execute() throws MojoExecutionException
 	{
 		runningInMaven = true;
-		inputFileLocationPath = inputFileLocation.toPath();
+		if (inputFileLocation != null)
+		{
+			inputFileLocationPath = inputFileLocation.toPath();
+		}
 		try
 		{
 			// Set up the output
