@@ -84,7 +84,11 @@ public class ConceptForControlWrapper
    @Override
    public String toString() {
        if (conceptNid != 0) {
-          return getRegularName().orElse("No description for: " + conceptNid);
+           Optional<String> optionalName = getRegularName();
+           if (optionalName.isPresent()) {
+               return optionalName.get();
+           }
+           return "No description for: " + conceptNid;
        }
 
       return "unspecified";

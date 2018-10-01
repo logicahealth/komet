@@ -115,6 +115,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @param descriptionList the descriptions to evaluate
     * @param descriptionTypePreference the order of the description types to try to match, overriding and ignoring the 
     * {@link LanguageCoordinate#getDescriptionTypePreferenceList()} present in this manifold.
+     * @param stampCoordinate
     * @return the best matching description to the {@link LanguageCoordinate} constraints within this ManifoldCoordinate and 
     * the supplied description type preference list, or empty if none available that match the {@link ManifoldCoordinate}.
     */

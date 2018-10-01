@@ -1,11 +1,15 @@
 package sh.komet.gui.control;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 
-import java.time.*;
 import java.util.Optional;
 
 public class PropertySheetItemDateTimeWrapper implements PropertySheet.Item {
@@ -17,15 +21,13 @@ public class PropertySheetItemDateTimeWrapper implements PropertySheet.Item {
     public PropertySheetItemDateTimeWrapper(String name, LongProperty timeProperty) {
         this.name = name;
         this.timeProperty = timeProperty;
-        Instant instant;
 
-        if(timeProperty.get() == Long.MAX_VALUE){
-            instant = Instant.now();
-        }else{
-            instant = Instant.ofEpochMilli(timeProperty.get());
-        }
-        this.dateObserver = new SimpleObjectProperty<>(LocalDateTime.ofInstant(instant,
+        if (timeProperty.get() == Long.MAX_VALUE) {
+            this.dateObserver = new SimpleObjectProperty<>(LocalDateTime.MAX);
+        } else {
+            this.dateObserver = new SimpleObjectProperty<>(LocalDateTime.ofInstant(Instant.ofEpochMilli(timeProperty.get()),
                 (OffsetDateTime.now(ZoneId.systemDefault())).getOffset()));
+       }
     }
 
     @Override
@@ -57,7 +59,11 @@ public class PropertySheetItemDateTimeWrapper implements PropertySheet.Item {
     public void setValue(Object value) {
         LocalDateTime localDateTime = (LocalDateTime) value;
         this.dateObserver.setValue(localDateTime);
-        this.timeProperty.set(localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli());
+        if (localDateTime.equals(LocalDateTime.MAX)) {
+            this.timeProperty.set(Long.MAX_VALUE);
+        } else {
+            this.timeProperty.set(localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli());
+        }
     }
 
     @Override

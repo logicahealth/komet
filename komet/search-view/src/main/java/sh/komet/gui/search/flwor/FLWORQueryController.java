@@ -228,7 +228,6 @@ public class FLWORQueryController
                LOG.error("Can't handle type in result display: "
                        + Get.identifierService().getObjectTypeForComponent(nid) + " for: " + nid);
          }
-
       }
    }
 
@@ -236,7 +235,7 @@ public class FLWORQueryController
    void executeQuery(ActionEvent event) {
       QueryBuilder queryBuilder = new QueryBuilder(this.letPropertySheet.getManifold());
 
-      System.out.println("\n" + this.letPropertySheet.getManifold() + "\n");
+      System.out.println("Search manifold:\n" + this.letPropertySheet.getManifold() + "\n");
 
       if (allComponents.isSelected()) {
          queryBuilder.from(ComponentCollectionTypes.ALL_COMPONENTS);
