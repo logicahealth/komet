@@ -159,7 +159,6 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 				}
 				zipFile.set(path);
 			}
-		
 		});
 
 		if (zipFile.get() == null)
@@ -322,11 +321,11 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		log.info("Created " + groupingConCount + " Grouping Concepts");
 
 		// this could be removed from final release. Just added to help debug editor problems.
-		log.info("Dumping UUID Debug File");
 		if (outputDirectory != null)
 		{
+			log.info("Dumping UUID Debug File");
 			converterUUID.dump(outputDirectory, "cptUuid");
 		}
-		converterUUID.clearCache();		
+		converterUUID.clearCache();
 	}
 }
