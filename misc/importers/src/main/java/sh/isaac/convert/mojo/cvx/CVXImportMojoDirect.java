@@ -132,7 +132,7 @@ public class CVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	@Override
 	public void convertContent(Consumer<String> statusUpdates) throws IOException 
 	{
-		// There is no global release date for mvx - but each item has its own date. This date will only be used for metadata.
+		// There is no global release date for cvx - but each item has its own date. This date will only be used for metadata.
 		Date date = new Date();
 		
 		//Right now, we are configured for the CPT grouping modules nid
