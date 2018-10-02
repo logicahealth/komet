@@ -71,7 +71,7 @@ public class StringCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 		{
 			setText("");
 		}
-		else if (item != null)
+		else
 		{
 			//setText(stringFetcher_.apply(item));
 			setText(null);
