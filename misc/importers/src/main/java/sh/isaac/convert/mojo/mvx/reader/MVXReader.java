@@ -36,18 +36,18 @@
  */
 
 package sh.isaac.convert.mojo.mvx.reader;
-
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
-import java.util.ArrayList;
+import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import org.apache.logging.log4j.LogManager;
 import sh.isaac.convert.mojo.mvx.data.MVXCodes;
 import sh.isaac.convert.mojo.mvx.data.ObjectFactory;
-import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
 /**
  * 
@@ -58,44 +58,32 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
  */
 public class MVXReader
 {
-	private final File file_;
+	private final AtomicReference<Path> file_ = new AtomicReference<>();
 
-	/**
-	 * @param inputFileOrDirectory
-	 * @throws IOException 
-	 */
-	public MVXReader(File inputFileOrDirectory) throws IOException
+	public MVXReader(Path inputFileOrDirectory) throws IOException
 	{
-		if (inputFileOrDirectory.isDirectory())
+		Files.walk(inputFileOrDirectory, new FileVisitOption[] {}).forEach(path ->
 		{
-			ArrayList<File> files = new ArrayList<File>();
-			for (File f : inputFileOrDirectory.listFiles())
+			if (path.toString().toLowerCase().endsWith(".xml"))
 			{
-				if (f.isFile() && (f.getName().toLowerCase().endsWith(".xml")))
+				if (file_.get() != null)
 				{
-					files.add(f);
+					throw new RuntimeException("Only expected to find one xml file in the folder " + inputFileOrDirectory.normalize());
 				}
+				file_.set(path);
 			}
+		});
 
-			if (files.size() != 1)
-			{
-				throw new RuntimeException(files.size() + " xml files were found inside of " + inputFileOrDirectory.getAbsolutePath()
-						+ " but this implementation requires 1 and only 1 xml file to be present.");
-			}
-
-			file_ = files.get(0);
-		}
-		else
+		if (file_.get() == null)
 		{
-			file_ = inputFileOrDirectory;
+			throw new IOException("Failed to locate the xml file in " + inputFileOrDirectory);
 		}
-
-		ConsoleUtil.println("Prepared to process: " + file_.getCanonicalPath());
+		LogManager.getLogger().info("Prepared to process: " + file_.get());
 	}
 
 	public MVXCodes process() throws IOException, JAXBException
 	{
-		byte[] data = Files.readAllBytes(file_.toPath());
+		byte[] data = Files.readAllBytes(file_.get());
 		ByteArrayInputStream xmlContentBytes = new ByteArrayInputStream(data);
 		// XMLStreamReader xmlStreamReader = new DomStreamReader(file_);
 		JAXBContext context = JAXBContext.newInstance(ObjectFactory.class);
