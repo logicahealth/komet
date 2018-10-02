@@ -139,7 +139,7 @@ public class CVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"CVX", false);
 		
-		setupModule("CVX", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), date.getTime());
+		setupModule("CVX", MetaData.CVX_MODULES____SOLOR.getPrimordialUuid(), date.getTime());
 		
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, true, true, false, true, false, date.getTime());
@@ -193,7 +193,7 @@ public class CVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		statusUpdates.accept("Loading content");
 
 		// Create CVX root concept under SOLOR_CONCEPT____SOLOR
-		final UUID cvxRootConcept = dwh.makeConceptEnNoDialect("CVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		final UUID cvxRootConcept = dwh.makeConceptEnNoDialect(null, "CVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, date.getTime());
 
 		for (CVXInfo row : terminology.getCVXInfo())

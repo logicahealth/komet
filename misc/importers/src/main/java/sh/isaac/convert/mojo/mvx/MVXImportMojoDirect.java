@@ -78,7 +78,6 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 public class MVXImportMojoDirect extends DirectConverterBaseMojo implements DirectConverter
 {
 	private int conceptCount = 0;
-
 	
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
@@ -138,7 +137,7 @@ public class MVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.MVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"MVX", false);
 		
-		setupModule("MVX", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), date.getTime());
+		setupModule("MVX", MetaData.MVX_MODULES____SOLOR.getPrimordialUuid(), date.getTime());
 		
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, true, true, false, true, false, date.getTime());
@@ -176,7 +175,7 @@ public class MVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		statusUpdates.accept("Loading content");
 
 		// Create MVX root concept under SOLOR_CONCEPT____SOLOR
-		final UUID mvxRootConcept = dwh.makeConceptEnNoDialect("MVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		final UUID mvxRootConcept = dwh.makeConceptEnNoDialect(null, "MVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, date.getTime());
 
 		for (MVXInfo row : terminology.getMVXInfo())
@@ -234,6 +233,6 @@ public class MVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			log.info("Dumping UUID Debug File");
 			converterUUID.dump(outputDirectory, "mvxUuid");
 		}
-		converterUUID.clearCache();		
+		converterUUID.clearCache();
 	}
 }

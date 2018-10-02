@@ -231,7 +231,7 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept(null, "All CPT Concepts", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-		final UUID cptRootConcept = dwh.makeConceptEnNoDialect("CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		final UUID cptRootConcept = dwh.makeConceptEnNoDialect(null, "CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 
 		log.info("Metadata load stats");
@@ -268,7 +268,7 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			{
 				// Make a new grouping concept
 				firstThree = d.code.substring(0, 3);
-				parent = ComponentReference.fromConcept(dwh.makeConceptEnNoDialect(firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				parent = ComponentReference.fromConcept(dwh.makeConceptEnNoDialect(null, firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {cptRootConcept}, Status.ACTIVE, contentTime));
 				dwh.makeDescriptionEnNoDialect(parent.getPrimordialUuid(), "Grouping concept for all codes that start with " + firstThree, 
 						MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, contentTime);

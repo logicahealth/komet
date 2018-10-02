@@ -173,6 +173,7 @@ public class DirectWriteHelper
 	/**
 	 * Calls {@link #makeConcept(UUID, Status, long)}, followed by {@link #makeDescriptionEnNoDialect(UUID, String, UUID, Status, long)
 	 * 
+	 * @param concept - optional - the UUID to use for the created concept.  If not provided, created from the name
 	 * @param name The text to use for the FQN and name
 	 * @param descriptionType The type of the description - {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or
 	 *            {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
@@ -182,10 +183,9 @@ public class DirectWriteHelper
 	 * @param time the time for the description
 	 * @return the UUID of the created description
 	 */
-	public UUID makeConceptEnNoDialect(String name, UUID descriptionType, UUID[] parents, Status status, long time)
+	public UUID makeConceptEnNoDialect(UUID concept, String name, UUID descriptionType, UUID[] parents, Status status, long time)
 	{
-		UUID concept = converterUUID.createNamespaceUUIDFromString(name);
-		makeConcept(concept, status, time);
+		concept = makeConcept(concept == null ? converterUUID.createNamespaceUUIDFromString(name) : concept, status, time);
 		makeDescriptionEnNoDialect(concept, name, descriptionType, status, time);
 		if (parents != null && parents.length > 0)
 		{
