@@ -304,31 +304,6 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	{
 		if (runningInMaven)
 		{
-			char c;
-
-			switch (lastStatus)
-			{
-				case 0:
-					c = '/';
-					break;
-
-				case 1:
-					c = '-';
-					break;
-
-				case 2:
-					c = '\\';
-					break;
-
-				case 3:
-					c = '|';
-					break;
-
-				default :  // shouldn't be used
-					c = '-';
-					break;
-			}
-
 			lastStatus++;
 
 			if (lastStatus > 3)
@@ -348,6 +323,30 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 			}
 			else
 			{
+				char c;
+
+				switch (lastStatus)
+				{
+					case 0:
+						c = '/';
+						break;
+
+					case 1:
+						c = '-';
+						break;
+
+					case 2:
+						c = '\\';
+						break;
+
+					case 3:
+						c = '|';
+						break;
+
+					default :  // shouldn't be used
+						c = '-';
+						break;
+				}
 				if (printsSinceReturn == 0)
 				{
 					System.out.print(c);

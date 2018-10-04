@@ -1217,12 +1217,12 @@ public class DirectWriteHelper
 	/**
 	 * Return the UUID of the concept that matches the description created by {@link #makeAttributeTypeConcept(String, String, boolean, DynamicDataType, List, long)}
 	 * 
-	 * @param descriptionName the name or altName of the description
+	 * @param attributeName the name or altName of the attribute
 	 * @return the UUID of the concept that represents it
 	 */
-	public UUID getAttributeType(String descriptionName)
+	public UUID getAttributeType(String attributeName)
 	{
-		return createdAttributeTypes.get(descriptionName);
+		return createdAttributeTypes.get(attributeName);
 	}
 	
 	/**
