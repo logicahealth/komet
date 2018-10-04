@@ -146,8 +146,8 @@ public class FLWORQueryController
    private TreeTableView<QueryClause> whereTreeTable;    // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="clauseNameColumn"
    private TreeTableColumn<QueryClause, String> clauseNameColumn;  // Value injected by FXMLLoader
-   @FXML                                                                         // fx:id="parameterColumn"
-   private TreeTableColumn<QueryClause, Object> parameterColumn;   // Value injected by FXMLLoader
+   @FXML                                                                         // fx:id="clausePropertiesColumn"
+   private TreeTableColumn<QueryClause, Object> clausePropertiesColumn;   // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="returnPane"
    private TitledPane returnPane;        // Value injected by FXMLLoader
    @FXML                                                                         // fx:id="executeButton"
@@ -287,7 +287,7 @@ public class FLWORQueryController
       assert whereTreeTable != null : "fx:id=\"whereTreeTable\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert clauseNameColumn != null :
               "fx:id=\"clauseNameColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
-      assert parameterColumn != null : "fx:id=\"parameterColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+      assert clausePropertiesColumn != null : "fx:id=\"clausePropertiesColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert returnPane != null : "fx:id=\"returnPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert executeButton != null : "fx:id=\"executeButton\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
       assert progressBar != null : "fx:id=\"progressBar\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
@@ -388,15 +388,6 @@ public class FLWORQueryController
          } else if (clause.getClass().equals(ConceptIs.class)) {
 
          } else if (clause.getClass().equals(ConceptIsChildOf.class)) {
-            QueryClauseParameter<ConceptSpecification> parameter = itemToProcess.getValue().parameter
-                    .getValue();
-            if (parameter == null) {
-               throw new IllegalStateException("Parameter cannot be null for DescriptionLuceneMatch");
-            }
-
-            ConceptIsChildOf conceptIsChildOf = (ConceptIsChildOf) clause;
-            conceptIsChildOf.setChildOfSpecification(parameter.getParameter());
-            conceptIsChildOf.setManifoldCoordinate(this.letPropertySheet.getManifold());
 
          } else if (clause.getClass().equals(ConceptIsDescendentOf.class)) {
 
@@ -404,41 +395,11 @@ public class FLWORQueryController
 
          } else if (clause.getClass().equals(DescriptionActiveLuceneMatch.class)) {
 
-            QueryClauseParameter<String> parameter = itemToProcess.getValue().parameter
-                    .getValue();
-            if (parameter == null) {
-               throw new IllegalStateException("Parameter cannot be null for DescriptionLuceneMatch");
-            }
-
-            DescriptionActiveLuceneMatch descriptionActiveLuceneMatch = (DescriptionActiveLuceneMatch) clause;
-            descriptionActiveLuceneMatch.setParameterString(parameter.getParameter());
-            descriptionActiveLuceneMatch.setManifoldCoordinate(this.letPropertySheet.getManifold());
-
          } else if (clause.getClass().equals(DescriptionActiveRegexMatch.class)) {
 
          } else if (clause.getClass().equals(DescriptionLuceneMatch.class)) {
 
-            QueryClauseParameter<String> parameter = itemToProcess.getValue().parameter
-                    .getValue();
-            if (parameter == null) {
-               throw new IllegalStateException("Parameter cannot be null for DescriptionLuceneMatch");
-            }
-
-            DescriptionLuceneMatch descriptionLuceneMatch = (DescriptionLuceneMatch) clause;
-            descriptionLuceneMatch.setParameterString(parameter.getParameter());
-            descriptionLuceneMatch.setManifoldCoordinate(this.letPropertySheet.getManifold());
-
          } else if (clause.getClass().equals(DescriptionRegexMatch.class)) {
-
-            QueryClauseParameter<String> parameter = itemToProcess.getValue().parameter
-                    .getValue();
-            if (parameter == null) {
-               throw new IllegalStateException("Parameter cannot be null for DescriptionLuceneMatch");
-            }
-
-            DescriptionRegexMatch descriptionRegexMatch = (DescriptionRegexMatch) clause;
-            descriptionRegexMatch.setParameterString(parameter.getParameter());
-            descriptionRegexMatch.setManifoldCoordinate(this.letPropertySheet.getManifold());
 
          } else if (clause.getClass().equals(ChangedFromPreviousVersion.class)) {
 
@@ -660,9 +621,10 @@ public class FLWORQueryController
               (TreeTableColumn.CellDataFeatures<QueryClause, String> p) -> p.getValue()
                       .getValue().clauseName);
 
-      this.parameterColumn.setCellValueFactory(new TreeItemPropertyValueFactory("parameter"));
-      this.parameterColumn.setCellFactory(param -> new WhereParameterCell());
+      this.clausePropertiesColumn.setCellValueFactory(new TreeItemPropertyValueFactory("clause"));
+      this.clausePropertiesColumn.setCellFactory(param -> new WhereParameterCell());
       this.whereTreeTable.setRoot(root);
+      this.whereTreeTable.setFixedCellSize(-1);
       this.textColumn.setCellValueFactory(new PropertyValueFactory("text"));
       this.typeColumn.setCellValueFactory(new PropertyValueFactory("descriptionTypeConceptSequence"));
       this.typeColumn.setCellFactory(

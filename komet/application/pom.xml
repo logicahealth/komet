@@ -95,6 +95,11 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
+         <artifactId>identifier</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
          <artifactId>datastore-locator</artifactId>
          <version>${project.version}</version>
       </dependency>

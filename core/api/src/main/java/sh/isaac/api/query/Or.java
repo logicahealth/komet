@@ -111,6 +111,11 @@ public class Or
    }
 
    //~--- get methods ---------------------------------------------------------
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.OR;
+    }
+   
 
    /**
     * Gets the where clause.

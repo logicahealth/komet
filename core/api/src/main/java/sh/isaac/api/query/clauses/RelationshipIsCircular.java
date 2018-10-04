@@ -180,6 +180,11 @@ public class RelationshipIsCircular
        *       });
        */
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.RELATIONSHIP_IS_CIRCULAR;
+    }
+   
 
    /**
     * Gets the where clause.

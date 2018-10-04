@@ -215,6 +215,11 @@ public class RelRestriction
 //                     }
 //      }
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.REL_RESTRICTION;
+    }
+   
 
    /**
     * Gets the where clause.

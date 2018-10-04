@@ -113,7 +113,7 @@ import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.ConceptSearchResult;
 import sh.isaac.api.index.GenerateIndexes;
@@ -487,7 +487,7 @@ public abstract class LuceneIndexer
     * @param stamp The StampCoordinate to further restrict the query
     * @return
     */
-   protected Query addAmpRestriction(Query query, AmpRestriction amp)
+   protected Query addAmpRestriction(Query query, AuthorModulePathRestriction amp)
    {
       if (amp == null)
       {
@@ -595,7 +595,7 @@ public abstract class LuceneIndexer
    @Override
    public List<SearchResult> query(String query,
          int[] assemblageConcept,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) {
@@ -609,7 +609,7 @@ public abstract class LuceneIndexer
    public List<SearchResult> query(String query,
          boolean prefixSearch,
          int[] assemblageConcept,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) {
@@ -688,7 +688,7 @@ public abstract class LuceneIndexer
     */
    protected final List<SearchResult> search(Query q,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) 
@@ -708,7 +708,7 @@ public abstract class LuceneIndexer
     */
    private final List<SearchResult> searchInternal(Query q,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration, 
@@ -830,7 +830,7 @@ public abstract class LuceneIndexer
             //are in the cache, and its likely cheapest just to get straight to the result we want, rather than paging 
             //our way up.  If, for some reason, we needed to jump over very large result sets, we may need to reevaluate this
             //to do this in multiple-page jumps to keep memory usage down.
-            //Note, we don't pass the AmpRestriction parameter, as it was already integrated into the query we were passed.
+            //Note, we don't pass the AuthorModulePathRestriction parameter, as it was already integrated into the query we were passed.
             AtomicReference<ScoreDoc> temp = new AtomicReference<ScoreDoc>();
             searchInternal(q, filter, null, 1, ((pageNum - 1) * sizeLimit), targetGeneration, temp);
             return temp.get();

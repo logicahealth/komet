@@ -92,7 +92,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
          int[] assemblageConcepts,
          int[] searchColumns,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);
@@ -132,7 +132,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
          int[] assemblageConcepts,
          int[] searchColumns,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);
@@ -178,7 +178,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
          int[] assemblageConcepts,
          int[] searchColumns,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);
@@ -223,7 +223,7 @@ public interface IndexSemanticQueryService extends IndexQueryService {
          boolean prefixSearch,
          int[] assemblageConcepts,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);

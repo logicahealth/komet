@@ -136,6 +136,11 @@ public class ConceptIs
    public void getQueryMatches(ConceptVersion conceptVersion) {
       // Nothing to do here...
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.CONCEPT_IS;
+    }
+   
 
    /**
     * Gets the where clause.

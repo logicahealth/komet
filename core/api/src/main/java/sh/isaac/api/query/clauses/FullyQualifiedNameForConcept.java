@@ -136,6 +136,11 @@ public class FullyQualifiedNameForConcept
    }
 
    //~--- get methods ---------------------------------------------------------
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.FULLY_QUALIFIED_NAME_FOR_CONCEPT;
+    }
+   
 
    /**
     * Gets the where clause.

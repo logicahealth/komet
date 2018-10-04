@@ -61,7 +61,7 @@
                                     <TreeTableView fx:id="whereTreeTable" editable="true" prefHeight="442.0" prefWidth="578.0" showRoot="false">
                                       <columns>
                                         <TreeTableColumn fx:id="clauseNameColumn" maxWidth="3000.0" minWidth="20.0" prefWidth="300.0" sortType="DESCENDING" sortable="false" text="clause" />
-                                        <TreeTableColumn fx:id="parameterColumn" prefWidth="235.0" sortable="false" text="parameter" />
+                                        <TreeTableColumn fx:id="clausePropertiesColumn" prefWidth="235.0" sortable="false" text="clause properties" />
                                       </columns>
                                        <columnResizePolicy>
                                           <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

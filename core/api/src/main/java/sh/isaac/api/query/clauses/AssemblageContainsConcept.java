@@ -164,6 +164,11 @@ public class AssemblageContainsConcept
    public void getQueryMatches(ConceptVersion conceptVersion) {
       // Nothing to do here...
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.ASSEMBLAGE_CONTAINS_CONCEPT;
+    }
+   
 
    /**
     * Gets the where clause.

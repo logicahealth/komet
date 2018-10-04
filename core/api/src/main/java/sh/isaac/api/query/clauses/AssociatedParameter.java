@@ -9,6 +9,7 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.WhereClause;
 
 import java.util.EnumSet;
+import sh.isaac.api.query.ClauseSemantic;
 
 public class AssociatedParameter extends LeafClause {
 
@@ -42,6 +43,11 @@ public class AssociatedParameter extends LeafClause {
     public WhereClause getWhereClause() {
         return null;
     }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return null;
+    }
+   
 
     @Override
     public ConceptSpecification getClauseConcept() {

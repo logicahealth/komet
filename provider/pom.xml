@@ -43,5 +43,6 @@
         <module>mv-datastore</module>
         <module>memory-managment</module>
         <module>datastore-locator</module>
+        <module>identifier</module>
     </modules>
 </project>

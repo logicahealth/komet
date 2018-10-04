@@ -59,7 +59,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.IndexSemanticQueryService;
@@ -97,7 +97,7 @@ public class SearchHandler
 	 * @param manifoldForRead - optional - if not supplied, uses the default for the user / system, for any operations that require getting a 
 	 *            version (as opposed to a chronology).  This primarily impacts convenience methods inside of {@link CompositeSearchResult}
 	 * @param filterOffPathResults - if true, will only return matching components that are present on the provided stampForVersionRead.  Note, 
-	 * it is faster to do Author / Module / Path restrictions with a {@link AmpRestriction} during the query - this should only be used to filter out 
+	 * it is faster to do Author / Module / Path restrictions with a {@link AuthorModulePathRestriction} during the query - this should only be used to filter out 
 	 * based on status or time.
 	 * @param queryFilter - Optional - a parameter that allows application of exclusionary criteria to the returned result. Predicate implementations
 	 *           will be passed the nids of chronologies which met all other search criteria. To include the chronology in the result, return
@@ -109,7 +109,7 @@ public class SearchHandler
 	public static SearchHandle searchIdentifiers(String searchString, int[] identifierTypes, final Consumer<SearchHandle> operationToRunWhenSearchComplete, 
 			final Integer taskId, final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> postQueryfilter,
 			boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults, Predicate<Integer> queryFilter,
-			AmpRestriction amp, int sizeLimit)
+			AuthorModulePathRestriction amp, int sizeLimit)
 	{
 		final SearchHandle searchHandle = new SearchHandle(taskId);
 
@@ -154,7 +154,7 @@ public class SearchHandler
 			}
 			catch (final Exception ex)
 			{
-				LOG.error("Unexpected error during lucene search", ex);
+				LOG.error("Unexpected error during lucene search for: " + searchString, ex);
 				searchHandle.setError(ex);
 			}
 			finally
@@ -210,7 +210,7 @@ public class SearchHandler
 	 * @param manifoldForRead - optional - if not supplied, uses the default for the user / system, for any operations that require getting a 
 	 *            version (as opposed to a chronology).  This primarily impacts convenience methods inside of {@link CompositeSearchResult}
 	 * @param filterOffPathResults - if true, will only return matching components that are present on the provided stampForVersionRead.  Note, 
-	 * it is faster to do Author / Module / Path restrictions with a {@link AmpRestriction} during the query - this should only be used to filter out 
+	 * it is faster to do Author / Module / Path restrictions with a {@link AuthorModulePathRestriction} during the query - this should only be used to filter out 
 	 * based on status or time.
 	 * @return A handle to the running search.
 	 */

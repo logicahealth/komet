@@ -68,7 +68,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
@@ -350,7 +350,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 					SearchHandle ssh = SearchHandler.search(() -> 
 					{
 						return Get.service(IndexDescriptionQueryService.class).query(text, true, null, null, 
-								AmpRestriction.restrict(manifoldCoord.get()), metadataOnly, null, null, 1, 5, null);
+								AuthorModulePathRestriction.restrict(manifoldCoord.get()), metadataOnly, null, null, 1, 5, null);
 					},
 					(searchHandle) -> {this.taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());},
 					id,

@@ -9,7 +9,7 @@
    <groupId>sh.isaac.provider</groupId>
    <artifactId>chronology</artifactId>
    <packaging>jar</packaging>
-   <name>ISAAC provider: Chronology, identifier, taxonomy</name>
+   <name>ISAAC provider: Chronology, taxonomy</name>
    <dependencies>
       <dependency>
          <groupId>sh.isaac.core</groupId>

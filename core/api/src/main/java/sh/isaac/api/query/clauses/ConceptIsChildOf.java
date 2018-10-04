@@ -156,6 +156,11 @@ public class ConceptIsChildOf
    public void getQueryMatches(ConceptVersion conceptVersion) {
       // Nothing to do...
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.CONCEPT_IS_CHILD_OF;
+    }
+   
 
    /**
     * Gets the where clause.

@@ -125,6 +125,8 @@ public abstract class Clause implements ConceptSpecification {
       enclosingQuery.getComputePhases().addAll(getComputePhases());
    }
 
+   public abstract ClauseSemantic getClauseSemantic();
+   
    public final void setEnclosingQuery(Query enclosingQuery) {
       this.enclosingQuery = enclosingQuery;
       enclosingQuery.getComputePhases().addAll(getComputePhases());

@@ -37,7 +37,7 @@ import javafx.util.Callback;
 import sh.isaac.MetaData;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.utility.Frills;
 import tornadofx.control.DateTimePicker;
 
@@ -155,7 +155,7 @@ public class StampSelectionController
 		gridPane.getChildren().add(timeEnd);
 	}
 	
-	protected void finishSetup(ManifoldCoordinate readManifoldCoordinate, AmpRestriction amp, TimeStatusRestriction tsr)
+	protected void finishSetup(ManifoldCoordinate readManifoldCoordinate, AuthorModulePathRestriction amp, TimeStatusRestriction tsr)
 	{
 		this.readManifoldCoordinate = readManifoldCoordinate;
 		
@@ -394,7 +394,7 @@ public class StampSelectionController
 		}
 	}
 
-	public AmpRestriction getAmpRestriction()
+	public AuthorModulePathRestriction getAmpRestriction()
 	{
 		NidSet authorRestriction;
 		if (authors.getSelectionModel().getSelectedIndices().contains(0))
@@ -428,7 +428,7 @@ public class StampSelectionController
 			pathRestriction = new NidSet();
 			paths.getSelectionModel().getSelectedItems().forEach(item -> pathRestriction.add(item));
 		}
-		return AmpRestriction.restrict(authorRestriction, moduleRestriction, pathRestriction);
+		return AuthorModulePathRestriction.restrict(authorRestriction, moduleRestriction, pathRestriction);
 	}
 	
 	private void toNidSet(TreeItem<Integer> treeItem, NidSet moduleRestriction)

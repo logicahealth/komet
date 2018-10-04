@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.provider.datastore.identifier;
+package sh.isaac.provider.identifier;
 
 /**
  * UUID to nid map is read from disk in the following circumstances: 
