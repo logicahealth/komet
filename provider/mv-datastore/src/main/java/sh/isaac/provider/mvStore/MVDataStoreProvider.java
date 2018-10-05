@@ -513,7 +513,9 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 		byte[][] version = getVersionMap(assemblageNid.getAsInt()).get(nid);
 		if (version == null)
 		{
-			throw new RuntimeException("Should be impossible to have chronicle data with no version data");
+			LOG.warn("It is unusual to have chronicle data with no version data - This can only possibly happen if a read is "
+					+ "happening in parallel with the initial write, which is rare, but possible.");
+			return Optional.empty();
 		}
 		else
 		{
