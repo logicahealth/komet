@@ -1085,7 +1085,30 @@ public class DirectWriteHelper
 		}
 		return concept;
 	}
+	
+	/**
+	 * This creates a semantic type of {@link VersionType#DYNAMIC} with a single String column
+	 * 
+	 * @param assemblageConcept The type of refset member to create
+	 * @param referencedComponent the referenced component this dynamic semantic entry is being added to
+	 * @param value The string value to attach
+	 * @param time The time to use for the entry
+	 * @return The UUID of the object created
+	 */
+	public UUID makeStringAnnotation(UUID assemblageConcept, UUID referencedComponent, String value, long time)
+	{
+		return makeDynamicSemantic(assemblageConcept, referencedComponent, new DynamicData[] {new DynamicStringImpl(value)}, time);
+	}
 
+	/**
+	 * This creates a semantic type of {@link VersionType#STRING}
+	 * 
+	 * @param assemblageConcept The type of refset member to create
+	 * @param referencedComponent the referenced component this dynamic semantic entry is being added to
+	 * @param annotation the string value to attach
+	 * @param time the time to use for the entry
+	 * @return
+	 */
 	public UUID makeBrittleStringAnnotation(UUID assemblageConcept, UUID referencedComponent, String annotation, long time)
 	{
 		UUID uuidForCreatedMember = UuidFactory.getUuidForStringSemantic(converterUUID.getNamespace(), assemblageConcept, referencedComponent, annotation,

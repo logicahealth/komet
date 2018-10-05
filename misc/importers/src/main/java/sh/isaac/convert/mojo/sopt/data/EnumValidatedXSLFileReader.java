@@ -37,23 +37,25 @@
 
 package sh.isaac.convert.mojo.sopt.data;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import org.apache.poi.EncryptedDocumentException;
+import java.util.zip.ZipInputStream;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import org.apache.poi.util.CloseIgnoringInputStream;
 
 /**
  * {@link EnumValidatedXSLFileReader}
@@ -66,61 +68,53 @@ public class EnumValidatedXSLFileReader
 	SOPTDataColumnsV1[] dataHeaders;
 	List<String[]> valueSetData = new ArrayList<>();
 	
-	public static EnumValidatedXSLFileReader readZip(File inputFileOrDirectory) throws IOException
+	public static EnumValidatedXSLFileReader readZip(Path inputFileOrDirectory) throws IOException
 	{
-		File file = null;
-		if (inputFileOrDirectory.isDirectory())
+		final AtomicReference<Path> zipFile = new AtomicReference<>();
+		
+		Files.walk(inputFileOrDirectory, new FileVisitOption[] {}).forEach(path ->
 		{
-			ArrayList<File> files = new ArrayList<File>();
-			for (File f : inputFileOrDirectory.listFiles())
+			if (path.toString().toLowerCase().endsWith(".zip"))
 			{
-				if (f.isFile() && (f.getName().toLowerCase().endsWith(".zip")))
+				if (zipFile.get() != null)
 				{
-					files.add(f);
+					throw new RuntimeException("Only expected to find one zip file in the folder " + inputFileOrDirectory.normalize());
 				}
+				zipFile.set(path);
 			}
+		});
 
-			if (files.size() != 1)
-			{
-				throw new RuntimeException(files.size() + " zip files were found inside of " + inputFileOrDirectory.getAbsolutePath()
-						+ " but this implementation requires 1 and only 1 zip file to be present.");
-			}
-
-			file = files.get(0);
-		}
-		else
+		if (zipFile.get() == null)
 		{
-			file = inputFileOrDirectory;
+			throw new RuntimeException("Did not find a zip file in " + inputFileOrDirectory.normalize());
 		}
 
-		System.out.println("Prepared to process: " + file.getCanonicalPath());
-
-		try (ZipFile zf = new ZipFile(file);)
+		try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile.get(), StandardOpenOption.READ)))
 		{
-			Enumeration<? extends ZipEntry> zipEntries = zf.entries();
-			InputStream is = null;
-			while (zipEntries.hasMoreElements())
+			ZipEntry ze = zis.getNextEntry();
+			EnumValidatedXSLFileReader result = null;
+			while (ze != null)
 			{
-				ZipEntry ze = zipEntries.nextElement();
 				if (ze.getName().toLowerCase().endsWith(".xls") && ze.getName().toUpperCase().contains("PHDSC"))
 				{
-					if (is != null)
+					if (result != null)
 					{
 						throw new RuntimeException("Found multiple xls files inside the zip file that contain 'PHDSC' in their file name.  Expected only 1.");
 					}
 					else
 					{
-						is = zf.getInputStream(ze);
+						result = new EnumValidatedXSLFileReader(zis);
 					}
 				}
+				ze = zis.getNextEntry();
 			}
 	
-			if (is == null)
+			if (result == null)
 			{
 				throw new RuntimeException("Failed to find a xls file inside the zip file that contain 'PHDSC' in the file name.");
 			}
 	
-			return new EnumValidatedXSLFileReader(is);
+			return result;
 		}
 	}
 
@@ -128,7 +122,8 @@ public class EnumValidatedXSLFileReader
 	{
 		try
 		{
-			Workbook workbook = WorkbookFactory.create(excelFile);
+			//TODO get the date
+			Workbook workbook = WorkbookFactory.create(new CloseIgnoringInputStream(excelFile));
 			
 			readInfoSheet(workbook.getSheetAt(0));
 			
@@ -170,16 +165,9 @@ public class EnumValidatedXSLFileReader
 			// sort data by first column which contains hierarchy ids of records
 			Collections.sort(valueSetData, (a, b) -> (a[0].compareTo(b[0])));
 		}
-		catch (EncryptedDocumentException | InvalidFormatException | org.apache.poi.openxml4j.exceptions.InvalidFormatException e)
+		catch (Exception e)
 		{
 			throw new IOException(e);
-		}
-		finally
-		{
-			if (excelFile != null)
-			{
-				excelFile.close();
-			}
 		}
 	}
 

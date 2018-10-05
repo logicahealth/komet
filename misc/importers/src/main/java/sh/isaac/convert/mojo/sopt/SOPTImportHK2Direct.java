@@ -34,29 +34,23 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+package sh.isaac.convert.mojo.sopt;
 
-package sh.isaac.convert.mojo.sopt.propertyTypes;
-
-import sh.isaac.convert.mojo.sopt.data.SOPTDataColumnsV1;
-import sh.isaac.convert.mojo.sopt.data.SOPTValueSetColumnsV1;
-import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Descriptions;
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.convert.directUtils.DirectConverter;
 
 /**
- * 
- * {@link PT_Descriptions}
+ * {@link SOPTImportHK2Direct}
  *
- * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
- *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class PT_Descriptions extends BPT_Descriptions
+@PerLookup
+@Service
+public class SOPTImportHK2Direct extends SOPTImportMojoDirect implements DirectConverter
 {
-	public PT_Descriptions()
+	private SOPTImportHK2Direct()
 	{
-		super("SOPT");
-		addProperty(SOPTDataColumnsV1.ConceptName.name());
-		addProperty(SOPTDataColumnsV1.CodeSystemName.name());
-		addProperty(SOPTDataColumnsV1.PreferredConceptName.name());
-		addProperty(SOPTValueSetColumnsV1.ValueSetName.name());
-		addProperty(SOPTValueSetColumnsV1.ValueSetDefinition.name());
+		//For HK2
 	}
 }
