@@ -79,8 +79,6 @@ public class MultipleDataWriterService implements DataWriterService
     private final boolean enableRotate;
     
     private String prefix;
-    
-    private Semaphore threadedWrite;
 
     /**
      * This constructor creates a multiple data writer service which writes to the specified files, and does not do any rotation or autonaming.
@@ -116,7 +114,6 @@ public class MultipleDataWriterService implements DataWriterService
                 LogManager.getLogger().warn("ibdf writer was requested, but not found on classpath!");
             }
         }
-        threadedWrite = new Semaphore(writers.size());
     }
 
     /**
@@ -163,7 +160,6 @@ public class MultipleDataWriterService implements DataWriterService
                 LogManager.getLogger().warn("ibdf writer was requested, but not found on classpath!");
             }
         }
-        threadedWrite = new Semaphore(writers.size());
     }
 
     /**
@@ -211,39 +207,45 @@ public class MultipleDataWriterService implements DataWriterService
      * Utility method to handle all of our writers
      *
      * @param function the function
+     * @param inParallel - execute the function on the writers in parallel if true in new threads, otherwise, in serial, in this thread.
+     * Either way, this method does not return until all writers have completed the function.
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    private void handleMulti(Function<DataWriterService, IOException> function, boolean thread) throws IOException {
+    private void handleMulti(Function<DataWriterService, IOException> function, boolean inParallel) throws IOException {
         final ArrayList<IOException> exceptions = new ArrayList<>();
-        
-        for (final DataWriterService writer : this.writers) {
-            threadedWrite.acquireUninterruptibly();
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        IOException e = function.apply(writer);
-                        if (e != null) {
-                            exceptions.add(e);
-                        }
-                    }
-                    finally {
-                        threadedWrite.release();
-                    }
-                }
-            };
-            
-            if (thread) {
-                Get.workExecutors().getPotentiallyBlockingExecutor().execute(r);
+        if (inParallel && this.writers.size() > 1)
+        {
+            final Semaphore threadedWrite = new Semaphore(this.writers.size());
+            for (final DataWriterService writer : this.writers) {
+                 threadedWrite.acquireUninterruptibly();
+                 Runnable r = new Runnable() {
+                     @Override
+                     public void run() {
+                         try {
+                             IOException e = function.apply(writer);
+                             if (e != null) {
+                                 exceptions.add(e);
+                             }
+                         }
+                         finally {
+                             threadedWrite.release();
+                         }
+                     }
+                 };
+                 Get.workExecutors().getPotentiallyBlockingExecutor().execute(r);
             }
-            else {
-                r.run();
+            //wait for all to complete
+            threadedWrite.acquireUninterruptibly(writers.size());
+            threadedWrite.release(writers.size());
+        }
+        else {
+            for (final DataWriterService writer : this.writers) {
+                IOException e = function.apply(writer);
+                if (e != null) {
+                    exceptions.add(e);
+                }
             }
         }
-        
-        threadedWrite.acquireUninterruptibly(writers.size());
-        threadedWrite.release(writers.size());
-        
         if (exceptions.size() > 0) {
             if (exceptions.size() > 1) {
                 for (int i = 1; i < exceptions.size(); i++) {
@@ -325,6 +327,7 @@ public class MultipleDataWriterService implements DataWriterService
      */
     private void rotateFiles() throws RuntimeException
     {
+        LOG.info("File Rotation begins");
         try {
             pause();
 
@@ -344,11 +347,18 @@ public class MultipleDataWriterService implements DataWriterService
             }, writers.size() > 1);
 
             this.objectWriteCount.set(0);
-            resume();
         }
         catch (final IOException e) {
             LOG.error("Unexpected error rotating changeset files!", e);
             throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                resume();
+            }
+            catch (Exception e) {
+                LOG.error("Unexpected error resuming data writer after rotation!", e);
+            }
         }
     }
 
