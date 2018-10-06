@@ -142,6 +142,32 @@ public abstract class ChronologyImpl
      */
     protected ChronologyImpl() {
     }
+    /**
+     * 
+     * @return true if uncommitted versions where removed. 
+     */
+    public boolean removeUncommittedVersions() {
+        boolean anyRemoved = false;
+        if (this.uncommittedVersions != null) {
+            List<Version> toRemove = new ArrayList<>();
+            for (Version v: this.uncommittedVersions) {
+                if (v.getTime() == Long.MAX_VALUE) {
+                    toRemove.add(v);
+                    anyRemoved = true;
+                }
+            };
+            this.uncommittedVersions.removeAll(toRemove);
+        }
+        List<Version> toRemove = new ArrayList<>();
+            for (Version v: this.committedVersions) {
+                if (v.getTime() == Long.MAX_VALUE) {
+                    toRemove.add(v);
+                    anyRemoved = true;
+                }
+            };
+        this.committedVersions.removeAll(toRemove);
+        return anyRemoved;
+    }
 
     @Override
     public final int getAssemblageNid() {

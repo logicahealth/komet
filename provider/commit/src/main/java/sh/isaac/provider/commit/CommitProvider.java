@@ -114,8 +114,10 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.SequentialAggregateTask;
 import sh.isaac.api.util.DataToBytesUtils;
 import sh.isaac.model.VersionImpl;
+import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -501,17 +503,25 @@ public class CommitProvider
     public void importNoChecks(IsaacExternalizable isaacExternalizable) {
         switch (isaacExternalizable.getIsaacObjectType()) {
             case CONCEPT:
-                final ConceptChronology conceptChronology = (ConceptChronology) isaacExternalizable;
-
-                Get.conceptService()
+                final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) isaacExternalizable;
+                if (conceptChronology.removeUncommittedVersions()) {
+                    LOG.warn("Removed uncommitted versions on import from: " + conceptChronology);
+                }
+                if (!conceptChronology.getVersionList().isEmpty()) {
+                    Get.conceptService()
                         .writeConcept(conceptChronology);
+                }
                 break;
 
             case SEMANTIC:
-                final SemanticChronology semanticChronology = (SemanticChronology) isaacExternalizable;
-
-                Get.assemblageService()
+                final SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) isaacExternalizable;
+                if (semanticChronology.removeUncommittedVersions()) {
+                    LOG.warn("Removed uncommitted versions on import from: " + semanticChronology);
+                }
+                if (!semanticChronology.getVersionList().isEmpty()) {
+                    Get.assemblageService()
                         .writeSemanticChronology(semanticChronology);
+                } 
 
                 deferNidAction(semanticChronology.getNid());
                 break;
