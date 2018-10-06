@@ -22,6 +22,7 @@ import java.util.List;
 import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
@@ -31,6 +32,11 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 public class TaxonomyAmalgam implements TaxonomySnapshot {
     ArrayList<TaxonomySnapshot> taxonomies = new ArrayList<>();
     ArrayList<TaxonomySnapshot> inverseTaxonomies = new ArrayList<>();
+    ArrayList<ConceptSpecification> taxonomyRoots = new ArrayList<>();
+
+    public ArrayList<ConceptSpecification> getTaxonomyRoots() {
+        return taxonomyRoots;
+    }
 
     public ArrayList<TaxonomySnapshot> getTaxonomies() {
         return taxonomies;
@@ -71,6 +77,9 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
         NidSet rootNids = new NidSet();
         for (TaxonomySnapshot tree: taxonomies) {
             rootNids.addAll(tree.getRootNids());
+        }
+        for (ConceptSpecification root: taxonomyRoots) {
+            rootNids.add(root.getNid());
         }
         return rootNids.asArray();
     }

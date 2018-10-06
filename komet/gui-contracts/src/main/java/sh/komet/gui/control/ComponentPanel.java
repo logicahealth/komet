@@ -100,7 +100,8 @@ public final class ComponentPanel
 //                if (uncommittedVersion.getAuthorNid() == ) {
 //                    
 //                }
-                System.err.println("Error: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion);
+                System.err.println("Error: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion.getPrimordialUuid()
+                        + "\n       " + uncommittedVersion);
             }
         }
 

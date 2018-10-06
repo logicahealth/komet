@@ -50,16 +50,34 @@ public class DateTimeUtil {
         return Instant.ofEpochMilli(epochMilliSecond);
     }
     public static String format(long epochMilliSecond) {
+        if (epochMilliSecond == Long.MAX_VALUE) {
+            return "Latest";
+        }
+        if (epochMilliSecond == Long.MIN_VALUE) {
+            return "Canceled";
+        }
        return FORMATTER.format(Instant.ofEpochMilli(epochMilliSecond).atZone(ZoneOffset.UTC));
     }
     
     public static String format(Instant instant) {
+        if (instant.equals(Instant.MAX)) {
+            return "Latest";
+        }
+        if (instant.equals(Instant.MIN)) {
+            return "Canceled";
+        }
        return FORMATTER.format(instant);
     }
     public static String format(ZonedDateTime zonedDateTime) {
        return zonedDateTime.format(ZONE_FORMATTER);
     }
     public static String format(Instant instant, Double resolution) {
+        if (instant.equals(Instant.MAX)) {
+            return "Latest";
+        }
+        if (instant.equals(Instant.MIN)) {
+            return "Canceled";
+        }
         if (resolution < MS_IN_SEC) {
             return ZONE_FORMATTER.format(instant);
         }

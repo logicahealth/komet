@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="626.0" prefWidth="776.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/9" fx:controller="sh.isaac.komet.changeset.view.FXMLController">
+
+<AnchorPane id="AnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="800.0" prefWidth="1235.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.isaac.komet.changeset.view.FXMLController">
    <children>
-      <TableView layoutX="7.0" prefHeight="200.0" prefWidth="320.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <columns>
-          <TableColumn prefWidth="75.0" text="type" />
-          <TableColumn prefWidth="75.0" text="status" />
-            <TableColumn prefWidth="75.0" text="time" />
-            <TableColumn prefWidth="75.0" text="author" />
-            <TableColumn prefWidth="75.0" text="module" />
-            <TableColumn prefWidth="75.0" text="path" />
-            <TableColumn prefWidth="325.0" text="data" />
-        </columns>
-      </TableView>
+      <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <content>
+            <TreeTableView fx:id="changeSetTreeTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+              <columns>
+                <TreeTableColumn fx:id="typeColumn" minWidth="140.0" prefWidth="-1.0" text="Type" />
+                <TreeTableColumn fx:id="infoColumn" minWidth="410.0" prefWidth="-1.0" text="Info" />
+                  <TreeTableColumn fx:id="statusColumn" minWidth="60.0" prefWidth="60.0" text="Status" />
+                  <TreeTableColumn fx:id="timeColumn" minWidth="135.0" prefWidth="-1.0" text="Time" />
+                  <TreeTableColumn fx:id="authorColumn" minWidth="135.0" prefWidth="-1.0" text="Author" />
+                  <TreeTableColumn fx:id="moduleColumn" minWidth="175.0" prefWidth="-1.0" text="Module" />
+                  <TreeTableColumn fx:id="pathColumn" minWidth="175.0" prefWidth="-1.0" text="Path" />
+              </columns>
+            </TreeTableView>
+         </content>
+      </ScrollPane>
    </children>
 </AnchorPane>

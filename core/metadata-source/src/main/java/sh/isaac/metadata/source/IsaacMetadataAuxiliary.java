@@ -668,6 +668,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Taxonomy configuration properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
                   createConcept("Taxonomy configuration name").getPreferredDescriptionBuilder().setDescriptionText("Configuration name").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Taxonomy configuration roots").getPreferredDescriptionBuilder().setDescriptionText("Taxonomy roots").setModule(TermAux.KOMET_MODULE);
                   popParent();
                createConcept("Synchronization item properties");
                pushParent(current());

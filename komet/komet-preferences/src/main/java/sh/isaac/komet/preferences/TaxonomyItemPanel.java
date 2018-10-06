@@ -36,6 +36,7 @@ import sh.isaac.api.tree.TaxonomyAmalgam;
 import sh.isaac.api.tree.TaxonomySnapshotFromComponentNidAssemblage;
 import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.INCLUDE_DEFINING_TAXONOMY;
 import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.INVERSE_TREES;
+import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.ROOTS;
 import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.TREES;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
@@ -53,11 +54,14 @@ public class TaxonomyItemPanel extends AbstractPreferences {
         ITEM_NAME,
         TREES,
         INVERSE_TREES,
-        INCLUDE_DEFINING_TAXONOMY
+        INCLUDE_DEFINING_TAXONOMY,
+        ROOTS
     };
 
     private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.TAXONOMY_CONFIGURATION_NAME____SOLOR.toExternalString());
+    private final SimpleListProperty<ConceptSpecification> taxonomyRootListProperty = 
+            new SimpleListProperty<>(this, MetaData.TAXONOMY_CONFIGURATION_ROOTS____SOLOR.toExternalString(), FXCollections.observableArrayList());
     
     private final SimpleListProperty<ConceptSpecification> treeListProperty = 
             new SimpleListProperty<>(this, MetaData.TREE_LIST____SOLOR.toExternalString(), FXCollections.observableArrayList());
@@ -79,6 +83,7 @@ public class TaxonomyItemPanel extends AbstractPreferences {
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
         getItemList().add(new PropertySheetBooleanWrapper(manifold, includeDefiningTaxonomyProperty));
+        getItemList().add(new PropertySheetConceptListWrapper(manifold, taxonomyRootListProperty));
         getItemList().add(new PropertySheetConceptListWrapper(manifold, treeListProperty));
         getItemList().add(new PropertySheetConceptListWrapper(manifold, inverseTreeListProperty));
 
@@ -97,6 +102,15 @@ public class TaxonomyItemPanel extends AbstractPreferences {
         }
         
         getPreferencesNode().put(Keys.ITEM_NAME, nameProperty.get());
+       
+        List<String> rootSpecList = new ArrayList<>();
+        for (ConceptSpecification proxy: taxonomyRootListProperty.get()) {
+            rootSpecList.add(proxy.toExternalString());
+        }
+        getPreferencesNode().putList(ROOTS, rootSpecList);
+        
+        
+        
         List<String> treeSpecList = new ArrayList<>();
         for (ConceptSpecification proxy: treeListProperty.get()) {
             treeSpecList.add(proxy.toExternalString());
@@ -126,12 +140,22 @@ public class TaxonomyItemPanel extends AbstractPreferences {
             TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
             amalgam.getInverseTaxonomies().add(taxonomySnapshot);
         }
+        for (ConceptSpecification proxy: taxonomyRootListProperty) {
+            amalgam.getTaxonomyRoots().add(proxy);
+        }
         FxGet.addTaxonomyConfiguration(nameProperty.get(), amalgam);
     }
 
-    @Override
+    @Override 
     final void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(Keys.ITEM_NAME, getGroupName()));
+
+        List<String> rootProxyList = getPreferencesNode().getList(ROOTS);
+        taxonomyRootListProperty.get().clear();
+        for (String proxyString: rootProxyList) {
+            taxonomyRootListProperty.get().add(new ConceptProxy(proxyString));
+        }
+        
         List<String> inverseTreeProxyList = getPreferencesNode().getList(INVERSE_TREES);
         inverseTreeListProperty.get().clear();
         for (String proxyString: inverseTreeProxyList) {

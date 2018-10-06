@@ -283,7 +283,6 @@ public class AttachmentActionPanel extends AbstractPreferences {
         b.append("when\n");
         b.append("   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.").append(versionTypeForActionProperty.get().name()).append(")\n");
         b.append("then\n");
-        b.append("   System.out.println(\"AddAttachmentMenuItems: \" + $addAttachmentToVersion);\n");
         b.append("   PropertySheetMenuItem propertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem(\"")
                 .append(nameProperty.get())
                 .append("\", new ").append(new ConceptProxy(this.assemblageForActionProperty.get().toExternalString()).toString())
