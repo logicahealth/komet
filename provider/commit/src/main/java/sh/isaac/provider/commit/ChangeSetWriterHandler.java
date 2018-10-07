@@ -61,14 +61,14 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeSetListener;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.util.NamedThreadFactory;
+import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 
 /**
@@ -214,12 +214,11 @@ public class ChangeSetWriterHandler
    */
    private void conceptNidSetChange(NidSet conceptNidSet) {
       conceptNidSet.stream().forEach((conceptSequence) -> {
-         final ConceptChronology concept = Get.conceptService().getConceptChronology(conceptSequence);
-
+         final ConceptChronologyImpl concept = (ConceptChronologyImpl) Get.conceptService().getConceptChronology(conceptSequence);
+         concept.removeUncommittedVersions();
          try {
             writeToFile(concept);
-         }
-         catch (final Exception e) {
+         } catch (final IOException e) {
             throw new RuntimeException("Error writing concept " + conceptSequence, e);
          }
       });
@@ -230,12 +229,11 @@ public class ChangeSetWriterHandler
    */
    private void semanticNidSetChange(NidSet semanticNidSet) {
       semanticNidSet.stream().forEach((semanticSequence) -> {
-         final SemanticChronology semantic = Get.assemblageService().getSemanticChronology(semanticSequence);
-
+         final SemanticChronologyImpl semantic = (SemanticChronologyImpl) Get.assemblageService().getSemanticChronology(semanticSequence);
+         semantic.removeUncommittedVersions();
          try {
             writeToFile(semantic);
-         }
-         catch (final Exception e) {
+         } catch (final IOException e) {
             throw new RuntimeException("Error writing semantic " + semanticSequence, e);
          }
       });
@@ -262,7 +260,7 @@ public class ChangeSetWriterHandler
          enable();
          this.changeSetWriteExecutor = Executors.newSingleThreadExecutor(new NamedThreadFactory("ISAAC-changeset-write", false));
          Get.postCommitService().addChangeSetListener(this);
-      } catch (final Exception e) {
+      } catch (final IOException | RuntimeException e) {
          LOG.error("Error in ChangeSetWriterHandler post-construct ", e);
          LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure("Change Set Writer Handler", e);
          throw new RuntimeException(e);
