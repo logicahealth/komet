@@ -40,6 +40,7 @@ package sh.isaac.provider.datastore.taxonomy;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TestConcept;
@@ -60,12 +61,12 @@ public class UpdateTaxonomyAfterCommitTask
     /**
      * The work done.
      */
-    int workDone = 0;
+    AtomicInteger workDone = new AtomicInteger(0);
 
     /**
      * The total work.
      */
-    int totalWork = 0;
+    AtomicInteger  totalWork = new AtomicInteger(0);
 
     /**
      * The taxonomy service.
@@ -105,9 +106,9 @@ public class UpdateTaxonomyAfterCommitTask
         this.semanticNidsForUnhandledChanges = semanticNidsForUnhandledChanges;
         this.permit = permit;
         this.taxonomyProvider = taxonomyProvider;
-        this.totalWork = semanticNidsForUnhandledChanges.size();
+        this.totalWork.set(semanticNidsForUnhandledChanges.size());
         this.updateTitle("Update taxonomy after commit");
-        this.addToTotalWork(totalWork);
+        this.addToTotalWork(totalWork.get());
     }
 
     //~--- methods -------------------------------------------------------------
@@ -124,12 +125,12 @@ public class UpdateTaxonomyAfterCommitTask
         try {
             final AtomicBoolean atLeastOneFailed = new AtomicBoolean(false);
 
-            for (int semanticNid : this.semanticNidsForUnhandledChanges) {
+            this.semanticNidsForUnhandledChanges.stream().parallel().forEach((semanticNid) -> {
                 if (TestConcept.WATCH_NID_SET.contains(semanticNid)) {
                     LOG.info("FOUND WATCH IN SET: " + TestConcept.WATCH_NID_SET);
                 }
                 try {
-                    this.workDone++;
+                    this.workDone.incrementAndGet();
                     this.completedUnitOfWork();
 
                     if (this.commitRecord.getSemanticNidsInCommit()
@@ -143,7 +144,7 @@ public class UpdateTaxonomyAfterCommitTask
                     LOG.error("Error handling update taxonomy after commit on semantic " + semanticNid, e);
                     atLeastOneFailed.set(true);
                 }
-            }
+            });
 
             if (atLeastOneFailed.get()) {
                 throw new RuntimeException("There were errors during taxonomy update after commit");

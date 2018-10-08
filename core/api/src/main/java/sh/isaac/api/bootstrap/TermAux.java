@@ -470,12 +470,10 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification SEMANTIC_FIELD_CONCEPTS = new ConceptProxy("Semantic field concepts", "Semantic field concepts", UUID.fromString("b4316cb8-14fe-5b32-b03b-f5f966c87819"));
     public static ConceptSpecification SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE = new ConceptProxy("Semantic field data types assemblage", "Semantic data type", UUID.fromString("2fc4663f-c389-590e-9445-df02e277ddb1"));
 
-    public static ConceptSpecification KOMET_MODULE = new ConceptProxy("KOMET module", "KOMET module", UUID.fromString("2fc4663f-c389-590e-9445-df02e277ddb1"));
+    public static ConceptSpecification KOMET_MODULE = new ConceptProxy("KOMET module", "KOMET module", UUID.fromString("34a6dae3-e5e9-50db-a9ee-69c1067911d8"));
 
 
     /*
-    public static ConceptSpecification SPEC54 = new ConceptProxy("", "", UUID.fromString("2fc4663f-c389-590e-9445-df02e277ddb1"));
-    public static ConceptSpecification SPEC55 = new ConceptProxy("", "", UUID.fromString("34a6dae3-e5e9-50db-a9ee-69c1067911d8"));
     public static ConceptSpecification SPEC56 = new ConceptProxy("", "", UUID.fromString("0608e233-d79d-5076-985b-9b1ea4e14b4c"));
     public static ConceptSpecification SPEC57 = new ConceptProxy("", "", UUID.fromString("a9b0dfb2-f463-5dae-8ba8-7f2e8385571b"));
     public static ConceptSpecification SPEC58 = new ConceptProxy("", "", UUID.fromString("4eb9de0d-7486-5f18-a9b4-82e3432f4103"));
