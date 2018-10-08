@@ -128,7 +128,7 @@ public class GraphCollector
       final int[] taxonomyData = this.taxonomyDataProvider.apply(originNid);
       
       if (taxonomyData == null) {
-         LOG.warn("No taxonomy data for: {} with NID: {}", Get.conceptDescriptionText(originNid), originNid);
+         LOG.error("No taxonomy data for: {} {} with NID: {}", Get.identifierService().getUuidPrimordialForNid(originNid), Get.conceptDescriptionText(originNid), originNid);
          
       } else {
          TaxonomyRecordPrimitive isaacPrimitiveTaxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);

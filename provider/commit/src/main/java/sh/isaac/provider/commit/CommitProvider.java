@@ -251,7 +251,7 @@ public class CommitProvider
      * The commit manager folder.
      */
     private Path commitManagerFolder;
-    
+
     private ExtendedStore dataStore = null;
     private ExtendedStoreData<Integer, NidSet> nidStore;
     private static final int uncommittedConceptsWithChecksNidSetId = 0;
@@ -482,14 +482,14 @@ public class CommitProvider
     @Override
     public CommitTask commit(
             EditCoordinate editCoordinate,
-            String commitComment, 
+            String commitComment,
             ObservableVersion... versionToCommit) {
 
         SingleCommitTask commitTask = new SingleCommitTask(
-            editCoordinate,
-            commitComment,
-            this,
-            versionToCommit);
+                editCoordinate,
+                commitComment,
+                this,
+                versionToCommit);
         Get.executor().execute(commitTask);
         return commitTask;
     }
@@ -509,7 +509,7 @@ public class CommitProvider
                 }
                 if (!conceptChronology.getVersionList().isEmpty()) {
                     Get.conceptService()
-                        .writeConcept(conceptChronology);
+                            .writeConcept(conceptChronology);
                 }
                 break;
 
@@ -520,8 +520,8 @@ public class CommitProvider
                 }
                 if (!semanticChronology.getVersionList().isEmpty()) {
                     Get.assemblageService()
-                        .writeSemanticChronology(semanticChronology);
-                } 
+                            .writeSemanticChronology(semanticChronology);
+                }
 
                 deferNidAction(semanticChronology.getNid());
                 break;
@@ -569,9 +569,8 @@ public class CommitProvider
         if (nids != null) {
             LOG.info("Post processing import. Deferred set size: " + nids.size());
 
-            ArrayList<Future<Long>> futures = new ArrayList<>();
-            List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
 
+            // update the taxonomy first, incase the description indexer wants to know the taxonomy of a description. 
             for (final int nid : nids) {
                 if (IsaacObjectType.SEMANTIC == Get.identifierService()
                         .getObjectTypeForComponent(nid)) {
@@ -581,6 +580,18 @@ public class CommitProvider
                     if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
                         Get.taxonomyService().updateTaxonomy(sc);
                     }
+                } else {
+                    throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
+                }
+            }
+            
+            ArrayList<Future<Long>> futures = new ArrayList<>();
+            List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
+            for (final int nid : nids) {
+                if (IsaacObjectType.SEMANTIC == Get.identifierService()
+                        .getObjectTypeForComponent(nid)) {
+                    final SemanticChronology sc = Get.assemblageService()
+                            .getSemanticChronology(nid);
 
                     for (IndexBuilderService ibs : indexers) {
                         futures.add(ibs.index(sc));
@@ -692,10 +703,11 @@ public class CommitProvider
                 } else {
                     listener.handleChange((SemanticChronology) chronology);
                 }
-                
+
             }
         });
     }
+
     /**
      * Revert commit.
      *
@@ -858,33 +870,30 @@ public class CommitProvider
 
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
             Path dataStorePath = configurationService.getDataStoreFolderPath();
-            
+
             if (Get.dataStore().implementsExtendedStoreAPI()) {
-                dataStore = (ExtendedStore)Get.dataStore();
-                nidStore = dataStore.<Integer, byte[], NidSet>getStore("CommitProviderNidSetStore", 
-                        (valueToSerialize) -> valueToSerialize == null ? null : DataToBytesUtils.getBytes(valueToSerialize::write), 
-                        (valueToDeserialize) ->
-                        {
-                            try {
-                                NidSet ns = new NidSet();
-                                if (valueToDeserialize != null)
-                                {
-                                    ns.read(DataToBytesUtils.getDataInput(valueToDeserialize));
-                                }
-                                return ns;
-                            }
-                            catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
+                dataStore = (ExtendedStore) Get.dataStore();
+                nidStore = dataStore.<Integer, byte[], NidSet>getStore("CommitProviderNidSetStore",
+                        (valueToSerialize) -> valueToSerialize == null ? null : DataToBytesUtils.getBytes(valueToSerialize::write),
+                        (valueToDeserialize)
+                        -> {
+                    try {
+                        NidSet ns = new NidSet();
+                        if (valueToDeserialize != null) {
+                            ns.read(DataToBytesUtils.getDataInput(valueToDeserialize));
+                        }
+                        return ns;
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
                 LOG.info("DataStore implements extended API, will be used for Commit Provider");
-            }
-            else {
+            } else {
                 this.dbFolderPath = dataStorePath.resolve("commit-provider");
-    
+
                 Files.createDirectories(this.dbFolderPath);
                 this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);
-    
+
                 if (!Files.isDirectory(this.commitManagerFolder) || !Files.isRegularFile(this.commitManagerFolder.resolve(COMMIT_MANAGER_DATA_FILENAME))) {
                     this.databaseValidity = DataStoreStartState.NO_DATASTORE;
                 } else {
@@ -895,11 +904,11 @@ public class CommitProvider
                         LOG.warn("No datastore ID in the pre-existing commit service {}", this.commitManagerFolder);
                     }
                 }
-    
+
                 Files.createDirectories(this.commitManagerFolder);
-                
+
                 LOG.debug("Commit provider starting in {} using local storage", this.commitManagerFolder.toFile().getCanonicalFile().toString());
-    
+
                 if (!this.dataStoreId.isPresent()) {
                     this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
                     Files.write(this.commitManagerFolder.resolve(DATASTORE_ID_FILE), this.dataStoreId.get().toString().getBytes());
@@ -920,15 +929,14 @@ public class CommitProvider
 
             this.writeCompletionService.start();
 
-
             if (dataStore == null) {
-               stampCommentMap = new StampCommentMap();
-               stampAliasMap = new StampAliasMap();
-               
-               if (getDataStoreStartState() == DataStoreStartState.EXISTING_DATASTORE) {
+                stampCommentMap = new StampCommentMap();
+                stampAliasMap = new StampAliasMap();
+
+                if (getDataStoreStartState() == DataStoreStartState.EXISTING_DATASTORE) {
                     LOG.info("Reading existing commit manager data from {}", this.commitManagerFolder);
                     LOG.info("Reading " + COMMIT_MANAGER_DATA_FILENAME);
-    
+
                     try (DataInputStream in
                             = new DataInputStream(new FileInputStream(new File(this.commitManagerFolder.toFile(),
                                     COMMIT_MANAGER_DATA_FILENAME)))) {
@@ -938,14 +946,13 @@ public class CommitProvider
                         this.uncommittedSemanticsWithChecksNidSet.read(in);
                         this.uncommittedSemanticsNoChecksNidSet.read(in);
                     }
-    
+
                     LOG.info("Reading: " + STAMP_ALIAS_MAP_FILENAME);
                     this.stampAliasMap.read(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
                     LOG.info("Reading: " + STAMP_COMMENT_MAP_FILENAME);
                     this.stampCommentMap.read(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
                 }
-            }
-            else {
+            } else {
                 if (getDataStoreStartState() == DataStoreStartState.EXISTING_DATASTORE) {
                     // If a DB is just built by a loader, its possible that the databaseSequence was never incremented, and then, never stored to the data store.
                     // It needs to stay the default value, startup value, in this case.  
@@ -957,7 +964,7 @@ public class CommitProvider
                 }
                 stampAliasMap = new StampAliasMap(dataStore);  //doen't need to read, it reads live as necessary
                 stampCommentMap = new StampCommentMap(dataStore); //doen't need to read, it reads live as necessary
-                
+
             }
 
             //This change checker prevents developers from making a mutable, not committing it, then making another mutable
@@ -1064,7 +1071,7 @@ public class CommitProvider
         if (dataStore == null) {
             this.stampAliasMap.write(new File(this.commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
             this.stampCommentMap.write(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
-    
+
             try (DataOutputStream out = new DataOutputStream(
                     new FileOutputStream(
                             new File(
@@ -1076,8 +1083,7 @@ public class CommitProvider
                 this.uncommittedSemanticsWithChecksNidSet.write(out);
                 this.uncommittedSemanticsNoChecksNidSet.write(out);
             }
-        }
-        else {
+        } else {
             //Just need to write the uncommitted nidset data.   Everything else  is written on change
             nidStore.put(uncommittedConceptsWithChecksNidSetId, this.uncommittedConceptsWithChecksNidSet);
             nidStore.put(uncommittedConceptsNoChecksNidSetId, this.uncommittedConceptsNoChecksNidSet);
