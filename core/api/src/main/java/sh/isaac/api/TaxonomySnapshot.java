@@ -44,6 +44,7 @@ package sh.isaac.api;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.Collection;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.Tree;
@@ -51,11 +52,11 @@ import sh.isaac.api.tree.Tree;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * The Interface TaxonomySnapshotService.
+ * The Interface TaxonomySnapshot.
  *
  * @author kec
  */
-public interface TaxonomySnapshotService {
+public interface TaxonomySnapshot {
 
    /**
     * 
@@ -93,9 +94,9 @@ public interface TaxonomySnapshotService {
    /**
     * Gets the roots.
     *
-    * @return the roo concept nids
+    * @return the root concept nids
     */
-   int[] getRoots();
+   int[] getRootNids();
 
    /**
     * Gets the taxonomy child nids.
@@ -108,11 +109,25 @@ public interface TaxonomySnapshotService {
    /**
     * Gets the taxonomy parent nids.
     *
-    * @param childConceptNids the child id
+    * @param childConceptNid the child id
     * @return the taxonomy parent nids
     */
-   int[] getTaxonomyParentConceptNids(int childConceptNids);
+   int[] getTaxonomyParentConceptNids(int childConceptNid);
+   
+   /**
+    * For circumstances where there is more than one type of relationship in the taxonomy. 
+    * @param parentConceptNid
+    * @return an Iterable of all the parent taxonomy links. 
+    */
+   Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid);
 
+   /**
+    * For circumstances where there is more than one type of relationship in the taxonomy. 
+    * @param childConceptNid
+    * @return an Iterable of all the child taxonomy links. 
+    */
+   Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid);
+   
    /**
     * Gets the taxonomy tree.
     *
@@ -125,6 +140,12 @@ public interface TaxonomySnapshotService {
     * @return ManifoldCoordinate
     */
    ManifoldCoordinate getManifoldCoordinate();
+   /**
+    * 
+    * @param manifoldCoordinate
+    * @return An analog snapshot that uses the provided manifold coordinate.
+    */
+   TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate);
    
 }
 

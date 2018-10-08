@@ -23,7 +23,7 @@ import tornadofx.control.DateTimePicker;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import sh.isaac.api.TaxonomySnapshotService;
+import sh.isaac.api.TaxonomySnapshot;
 
 /**
  *
@@ -167,7 +167,7 @@ public class LetPropertySheet{
     private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item prop){
        Collection<ConceptForControlWrapper> collection = new ArrayList<>();
        ConceptChronology concept = Get.concept(conceptSpecification.getNid());
-       TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);
+       TaxonomySnapshot taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);
        for (int i: taxonomySnapshot.getTaxonomyChildConceptNids(concept.getNid())) {
           ConceptForControlWrapper propertySheetItemConceptWrapper =
                   new ConceptForControlWrapper(this.manifoldForDisplay, i);
@@ -222,7 +222,7 @@ public class LetPropertySheet{
                .moduleNidsProperty().get();
        if (manifoldModules.size() == 0) {
           ArrayList<Integer> moduleNIDs = new ArrayList<>();
-          TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);
+          TaxonomySnapshot taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);
           for (int i : taxonomySnapshot.getTaxonomyChildConceptNids(MetaData.MODULE____SOLOR.getNid())) {
              moduleNIDs.add(i);
           }

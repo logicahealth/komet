@@ -157,6 +157,11 @@ public class Not
    }
 
    //~--- get methods ---------------------------------------------------------
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.NOT;
+    }
+   
 
    /**
     * Gets the where clause.

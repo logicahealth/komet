@@ -47,15 +47,18 @@ package sh.isaac.api.chronicle;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommittableComponent;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
@@ -96,6 +99,52 @@ public interface Chronology
     * @return the mutable version
     */
    <V extends Version> V createMutableVersion(Status state, EditCoordinate ec);
+   
+   /**
+    * Create a mutable version with Long.MAX_VALUE as the time, indicating
+    * the version is uncommitted. It is the responsibility of the caller to
+    * add the mutable version to the commit manager when changes are complete
+    * prior to committing the component.
+    *
+    * @param <V> the mutable version type
+    * @param state state of the created mutable version
+    * @param ec edit coordinate to provide the author, module, and path for the mutable version
+    * @param moduleOverride create version on this module, instead of the edit coordinates module. 
+    * @return the mutable version
+    */
+   default <V extends Version> V createMutableVersion(Status state, EditCoordinate ec, ConceptSpecification moduleOverride) {
+       return createMutableVersion(state, ec, moduleOverride.getNid());
+   }
+
+   default <V extends Version> V createMutableVersion(Status state, EditCoordinate ec, Optional<ConceptSpecification> moduleOverride) {
+       if (moduleOverride.isPresent()) {
+           return createMutableVersion(state, ec, moduleOverride.get());
+       }
+       return createMutableVersion(state, ec);
+   }
+
+   /**
+    * Create a mutable version with Long.MAX_VALUE as the time, indicating
+    * the version is uncommitted. It is the responsibility of the caller to
+    * add the mutable version to the commit manager when changes are complete
+    * prior to committing the component.
+    *
+    * @param <V> the mutable version type
+    * @param state state of the created mutable version
+    * @param ec edit coordinate to provide the author, module, and path for the mutable version
+    * @param moduleOverrideNid create version on this module, instead of the edit coordinates module. 
+    * @return the mutable version
+    */
+   default <V extends Version> V createMutableVersion(Status state, EditCoordinate ec, int moduleOverrideNid) {
+      final int stampSequence = Get.stampService()
+                                   .getStampSequence(
+                                       state,
+                                       Long.MAX_VALUE,
+                                       ec.getAuthorNid(),
+                                       moduleOverrideNid,
+                                       ec.getPathNid());
+       return createMutableVersion(stampSequence);
+   }
 
    /**
     * Gets the latest version.

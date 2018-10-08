@@ -22,6 +22,7 @@ import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.stream.VersionStream;
 
 /**
@@ -37,9 +38,7 @@ public class SingleAssemblageSnapshotProvider <V extends SemanticVersion> implem
     public SingleAssemblageSnapshotProvider(int assemblageConceptNid, SemanticSnapshotService<V> assemblageProvider) {
         this.assemblageConceptNid = assemblageConceptNid;
         this.assemblageProvider = assemblageProvider;
-    }
-   
-   
+    }   
 
     @Override
     public int getAssemblageNid() {
@@ -60,5 +59,11 @@ public class SingleAssemblageSnapshotProvider <V extends SemanticVersion> implem
     public VersionStream<V> getLatestSemanticVersionsFromAssemblage(ProgressTracker... progressTrackers) {
         return assemblageProvider.getLatestSemanticVersionsFromAssemblage(assemblageConceptNid, progressTrackers);
     }
+
+    @Override
+    public SingleAssemblageSnapshot<V> makeAnalog(StampCoordinate stampCoordinate) {
+        return new SingleAssemblageSnapshotProvider(assemblageConceptNid, assemblageProvider.makeAnalog(stampCoordinate));
+    }
+
     
 }

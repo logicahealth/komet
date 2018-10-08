@@ -64,10 +64,10 @@ import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.index.AmpRestriction;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.index.AuthorModulePathRestriction;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -153,7 +153,7 @@ public class DescriptionLuceneMatch
                }
             } 
             return false;
-      }), AmpRestriction.restrict(this.manifoldCoordinate), 1, 1000, null);
+      }), AuthorModulePathRestriction.restrict(this.manifoldCoordinate), 1, 1000, null);
 
       queryResults.stream().forEach((s) -> {
                               nids.add(s.getNid());
@@ -184,6 +184,11 @@ public class DescriptionLuceneMatch
    public void getQueryMatches(ConceptVersion conceptVersion) {
       getResultsCache();
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.DESCRIPTION_LUCENE_MATCH;
+    }
+   
 
    /**
     * Gets the where clause.

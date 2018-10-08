@@ -18,45 +18,105 @@ package sh.komet.gui.search.flwor;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
+import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.query.Clause;
+import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 //~--- inner classes -------------------------------------------------------
 public class QueryClause {
 
-   SimpleObjectProperty<Clause> clauseProperty;
-   SimpleStringProperty clauseName;
-   SimpleObjectProperty<QueryClauseParameter> parameter;
-   Manifold manifold;
+    SimpleObjectProperty<Clause> clauseProperty;
+    SimpleStringProperty clauseName;
+    Manifold manifold;
 
-   //~--- constructors -----------------------------------------------------
-   protected QueryClause(Clause clause, Manifold manifold) {
-      this.manifold = manifold;
-      this.clauseProperty = new SimpleObjectProperty<>(this, "clauseProperty", clause);
-      this.parameter = new SimpleObjectProperty<>(this, "parameter", new QueryClauseParameter());
-      this.clauseName = new SimpleStringProperty(this, "clauseName", manifold.getManifoldCoordinate().getPreferredDescriptionText(clause.getClauseConcept()));
-      this.clauseProperty.addListener(
-              (javafx.beans.value.ObservableValue<? extends sh.isaac.api.query.Clause> ov, sh.isaac.api.query.Clause oldClause, sh.isaac.api.query.Clause newClause)
-                      -> this.clauseName.setValue(manifold.getManifoldCoordinate().getPreferredDescriptionText(newClause.getClauseConcept())));
-   }
+    //~--- constructors -----------------------------------------------------
+    protected QueryClause(Clause clause, Manifold manifold) {
+        this.manifold = manifold;
+        this.clauseProperty = new SimpleObjectProperty<>(this, "clauseProperty", clause);
+        this.clauseName = new SimpleStringProperty(this, clause.getClauseConcept().toExternalString(), manifold.getManifoldCoordinate().getPreferredDescriptionText(clause.getClauseConcept()));
+        this.clauseProperty.addListener(
+                (javafx.beans.value.ObservableValue<? extends sh.isaac.api.query.Clause> ov, sh.isaac.api.query.Clause oldClause, sh.isaac.api.query.Clause newClause)
+                -> this.clauseName.setValue(manifold.getManifoldCoordinate().getPreferredDescriptionText(newClause.getClauseConcept())));
+    }
 
-   //~--- methods ----------------------------------------------------------
-   public SimpleObjectProperty<QueryClauseParameter> parameterProperty() {
-      return parameter;
-   }
+    //~--- methods ----------------------------------------------------------
+    public Node getPropertySheet() {
+                PropertySheet clausePropertySheet = new PropertySheet();
+                clausePropertySheet.setSearchBoxVisible(false);
+                clausePropertySheet.setModeSwitcherVisible(false);
+        switch (this.clauseProperty.get().getClauseSemantic()) {
+            case AND:
+                return new Pane();
+            case AND_NOT:
+                return new Pane();
+            case ASSEMBLAGE_CONTAINS_COMPONENT:
+                return new Pane();
+            case ASSEMBLAGE_CONTAINS_CONCEPT:
+                return new Pane();
+            case ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT:
+                return new Pane();
+           case ASSEMBLAGE_CONTAINS_STRING:
+                return new Pane();
+            case ASSEMBLAGE_LUCENE_MATCH:
+                return new Pane();
+            case CHANGED_FROM_PREVIOUS_VERSION:
+                return new Pane();
+            case CONCEPT_FOR_COMPONENT:
+                return new Pane();
+            case CONCEPT_IS:
+                return new Pane();
+            case CONCEPT_IS_CHILD_OF:
+                return new Pane();
+            case CONCEPT_IS_DESCENDENT_OF:
+                return new Pane();
+            case CONCEPT_IS_KIND_OF:
+                return new Pane();
+            case DESCRIPTION_ACTIVE_LUCENE_MATCH:
+                return new Pane();
+            case DESCRIPTION_ACTIVE_REGEX_MATCH:
+                 return new Pane();
+           case DESCRIPTION_LUCENE_MATCH:
+                clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold, clauseName));
+                return clausePropertySheet;
+            case DESCRIPTION_REGEX_MATCH:
+                return new Pane();
+            case FULLY_QUALIFIED_NAME_FOR_CONCEPT:
+                return new Pane();
+            case NOT:
+                return new Pane();
+            case OR:
+                return new Pane();
+            case PREFERRED_NAME_FOR_CONCEPT:
+                return new Pane();
+            case RELATIONSHIP_IS_CIRCULAR:
+                return new Pane();
+            case REL_RESTRICTION:
+                return new Pane();
+            case REL_TYPE:
+                return new Pane();
+            case XOR:
+                return new Pane();
+            default:
+                throw new UnsupportedOperationException("Can't handle: " + this.clauseProperty.get().getClauseSemantic());
 
-   @Override
-   public String toString() {
-      return clauseName.get();
-   }
+        }
+    }
 
-   //~--- get methods ------------------------------------------------------
-   public Clause getClause() {
-      return clauseProperty.get();
-   }
+    @Override
+    public String toString() {
+        return clauseName.get();
+    }
 
-   public String getName() {
-      return clauseName.getValue();
-   }
+    //~--- get methods ------------------------------------------------------
+    public Clause getClause() {
+        return clauseProperty.get();
+    }
+
+    public String getName() {
+        return clauseName.getValue();
+    }
 
 }

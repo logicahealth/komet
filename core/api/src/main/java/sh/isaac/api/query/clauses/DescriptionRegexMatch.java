@@ -174,6 +174,11 @@ public class DescriptionRegexMatch
                               }
                            });
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.DESCRIPTION_REGEX_MATCH;
+    }
+   
 
    /**
     * Gets the where clause.

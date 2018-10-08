@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.TreeMap;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
@@ -27,6 +28,10 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javax.inject.Singleton;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -35,6 +40,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
@@ -45,6 +51,8 @@ import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
+import sh.isaac.api.tree.TaxonomyAmalgam;
+import sh.isaac.api.tree.Tree;
 import sh.komet.gui.contract.DialogService;
 import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.contract.GuiSearcher;
@@ -75,7 +83,21 @@ public class FxGet implements StaticIsaacCache {
     // TODO make SEARCHER_LIST behave like a normal lookup service. 
     private static final List<GuiConceptBuilder> BUILDER_LIST = new ArrayList<>();
     
-    private static SimpleStringProperty CONFIGURATION_NAME_PROPERTY = new SimpleStringProperty(null, MetaData.CONFIGURATION_NAME____SOLOR.toExternalString(), "viewer");
+    private static final SimpleStringProperty CONFIGURATION_NAME_PROPERTY = new SimpleStringProperty(null, MetaData.CONFIGURATION_NAME____SOLOR.toExternalString(), "viewer");
+    private static final ObservableMap<String, TaxonomyAmalgam> TAXONOMY_CONFIGURATIONS = FXCollections.observableHashMap();
+    private static final ObservableList<String> TAXONOMY_CONFIGURATION_KEY_LIST = FXCollections.observableArrayList();
+    private static final String DEFAULT_TAXONOMY_CONFIGURATION = "Defining";
+    static {
+        TAXONOMY_CONFIGURATIONS.addListener((MapChangeListener.Change<? extends String, ? extends TaxonomySnapshot> change) -> {
+            if (change.wasAdded()) {
+                TAXONOMY_CONFIGURATION_KEY_LIST.add(change.getKey());
+            }
+            if (change.wasRemoved()) {            
+                TAXONOMY_CONFIGURATION_KEY_LIST.remove(change.getKey());
+            }
+        });
+        TAXONOMY_CONFIGURATIONS.put(DEFAULT_TAXONOMY_CONFIGURATION, null);
+    }
 
     public static List<GuiSearcher> searchers() {
         return SEARCHER_LIST;
@@ -138,6 +160,11 @@ public class FxGet implements StaticIsaacCache {
         RULES_DRIVEN_KOMET_SERVICE = null;
         STATUS_MESSAGE_PROVIDER = null;
         FX_CONFIGURATION = null;
+        Platform.runLater(() -> {
+            TAXONOMY_CONFIGURATIONS.clear();
+            TAXONOMY_CONFIGURATION_KEY_LIST.clear();
+        });
+        
     }
 
     public static PreferencesService preferenceService() {
@@ -261,5 +288,33 @@ public class FxGet implements StaticIsaacCache {
     
     public static ObservableEditCoordinate editCoordinate() {
         return (ObservableEditCoordinate) SecurityUtils.getSubject().getSession().getAttribute(SessionProperty.EDIT_COORDINATE);
+    }
+    
+    public static ObservableList<String> taxonomyConfigurationNames() {
+        return TAXONOMY_CONFIGURATION_KEY_LIST;
+    }
+    
+    public static TaxonomyAmalgam taxonomyConfiguration(String configurationName) {
+        return TAXONOMY_CONFIGURATIONS.get(configurationName);
+    }
+
+    public static void addTaxonomyConfiguration(String configurationName, TaxonomyAmalgam taxonomyConfiguration) {
+        TAXONOMY_CONFIGURATIONS.put(configurationName, taxonomyConfiguration);
+    }
+
+    public static void removeTaxonomyConfiguration(String configurationName) {
+        TAXONOMY_CONFIGURATIONS.remove(configurationName);
+    }
+
+    public static String defaultTaxonomyConfiguration() {
+        return DEFAULT_TAXONOMY_CONFIGURATION;
+    }
+    
+    public static TaxonomySnapshot taxonomySnapshot(Manifold manifold, String configurationName) {
+        if (configurationName.equals(DEFAULT_TAXONOMY_CONFIGURATION)) {
+            return Get.taxonomyService().getSnapshot(manifold);
+        }
+        TaxonomyAmalgam amalgam = taxonomyConfiguration(configurationName);
+        return amalgam.makeAnalog(manifold);
     }
 }

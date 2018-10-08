@@ -139,7 +139,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
         
         int[] assembalgeNids = Get.assemblageService().getAssemblageConceptNids();
         
-        LOG.info("Assemblage nid count: " + assembalgeNids.length + "\n" + Arrays.toString(assembalgeNids));
+        LOG.debug("Assemblage nid count: " + assembalgeNids.length + "\n" + Arrays.toString(assembalgeNids));
         
         for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
             MenuItem menu = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
@@ -148,7 +148,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
             });
             assemblagesMenu.getItems().add(menu);
             String preferredDescText = manifold.getPreferredDescriptionText(assemblageNid);
-            LOG.info("Assemblage name <" + assemblageNid + ">: " + preferredDescText);
+            LOG.debug("Assemblage name <" + assemblageNid + ">: " + preferredDescText);
             MenuItem menu2 = new MenuItem(preferredDescText);
             menu2.setOnAction((event) -> {
                 manifold.setFocusedConceptChronology(Get.concept(assemblageNid));

@@ -148,6 +148,11 @@ public class ConceptIsDescendentOf
       // Nothing to do...
    }
 
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.CONCEPT_IS_DESCENDENT_OF;
+    }
+   
    /**
     * Gets the where clause.
     *

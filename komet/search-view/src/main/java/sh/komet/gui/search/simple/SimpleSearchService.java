@@ -12,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
@@ -25,6 +24,7 @@ import sh.isaac.provider.query.search.SearchHandle;
 import sh.isaac.provider.query.search.SearchHandler;
 
 import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.TaxonomySnapshot;
 
 /**
  * @author aks8m
@@ -53,7 +53,7 @@ public class SimpleSearchService extends Service<NidSet> {
                 if (!getLuceneQuery().isEmpty()) {
 
                     final NidSet filteredValues = new NidSet();
-                    TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(getManifold());
+                    TaxonomySnapshot taxonomySnapshot = Get.taxonomyService().getSnapshot(getManifold());
 
                     runLuceneDescriptionQuery(results);
                     NidSet allowedConceptNids = findAllKindOfConcepts(results, taxonomySnapshot);
@@ -110,7 +110,7 @@ public class SimpleSearchService extends Service<NidSet> {
 
             }
 
-            private NidSet findAllKindOfConcepts(NidSet results, TaxonomySnapshotService taxonomySnapshot) {
+            private NidSet findAllKindOfConcepts(NidSet results, TaxonomySnapshot taxonomySnapshot) {
                 NidSet allowedConceptNids = new NidSet();
 
                 try {
@@ -140,7 +140,7 @@ public class SimpleSearchService extends Service<NidSet> {
             }
 
             private void filterAllSemanticsBasedOnReferencedConcepts(NidSet results, NidSet allowedConceptNids,
-                    NidSet filteredValues, TaxonomySnapshotService taxonomySnapshot) {
+                    NidSet filteredValues, TaxonomySnapshot taxonomySnapshot) {
 
                 if (results.isEmpty()) {
                     updateProgress(computeProgress(PROGRESS_INCREMENT_VALUE), PROGRESS_MAX_VALUE);
@@ -192,7 +192,7 @@ public class SimpleSearchService extends Service<NidSet> {
 
             }
 
-            protected void handleDescription(SemanticChronology semanticChronology, NidSet allowedConceptNids, TaxonomySnapshotService taxonomySnapshot, NidSet filteredValues) {
+            protected void handleDescription(SemanticChronology semanticChronology, NidSet allowedConceptNids, TaxonomySnapshot taxonomySnapshot, NidSet filteredValues) {
                 LatestVersion<DescriptionVersion> description = semanticChronology.getLatestVersion(getManifold());
                 if (!description.isPresent()) {
                     return;

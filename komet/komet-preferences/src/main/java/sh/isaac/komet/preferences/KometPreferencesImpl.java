@@ -19,7 +19,6 @@ package sh.isaac.komet.preferences;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

@@ -136,6 +136,11 @@ public class And
       return whereClause;
    }
 
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.AND;
+    }
+   
    @Override
    public ConceptSpecification getClauseConcept() {
       return TermAux.AND_QUERY_CLAUSE;

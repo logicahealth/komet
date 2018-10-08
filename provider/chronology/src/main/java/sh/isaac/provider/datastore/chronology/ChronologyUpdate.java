@@ -50,10 +50,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
-import org.apache.mahout.math.set.OpenIntHashSet;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.bootstrap.TestConcept;
@@ -74,7 +74,6 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.taxonomy.TaxonomyFlag;
 import sh.isaac.model.taxonomy.TaxonomyRecord;
 import sh.isaac.model.taxonomy.TypeStampTaxonomyRecords;
-import sh.isaac.provider.datastore.identifier.IdentifierProvider;
 import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 
 //~--- classes ----------------------------------------------------------------
@@ -91,7 +90,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
     private static int ISA_NID;
     private static int CHILD_OF_NID;
     private static int ROLE_GROUP_NID;
-    private static IdentifierProvider IDENTIFIER_SERVICE;
+    private static IdentifierService IDENTIFIER_SERVICE;
     private static TaxonomyProvider TAXONOMY_SERVICE;
 
     private ChronologyUpdate() {
@@ -104,7 +103,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
             CHILD_OF_NID = TermAux.CHILD_OF.getNid();
             ISA_NID = TermAux.IS_A.getNid();
             ROLE_GROUP_NID = TermAux.ROLE_GROUP.getNid();
-            IDENTIFIER_SERVICE = Get.service(IdentifierProvider.class);
+            IDENTIFIER_SERVICE = Get.identifierService();
             TAXONOMY_SERVICE = Get.service(TaxonomyProvider.class);
         }
     }

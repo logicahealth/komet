@@ -255,8 +255,7 @@ public class DocBook {
                 || conceptNid == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
             return false;
         }
-        int[] parents = Get.taxonomyService().getSnapshot(manifold)
-                .getTaxonomyTree().getParentNids(conceptNid);
+        int[] parents = Get.taxonomyService().getSnapshot(manifold).getTaxonomyParentConceptNids(conceptNid);
         Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, PremiseType.STATED);
         if (!conceptExpression.isPresent()) {
             return false;

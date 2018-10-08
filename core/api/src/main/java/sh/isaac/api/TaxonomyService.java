@@ -117,7 +117,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the snapshot
     */
-   TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc);
+   TaxonomySnapshot getSnapshot(ManifoldCoordinate tc);
    
 
 	/**
@@ -129,7 +129,7 @@ public interface TaxonomyService
 	 * @param allowedStates
 	 * @return the Snapshot service
 	 */
-	TaxonomySnapshotService getStatedLatestSnapshot(int pathNid, NidSet modules, EnumSet<Status> allowedStates);
+	TaxonomySnapshot getStatedLatestSnapshot(int pathNid, NidSet modules, EnumSet<Status> allowedStates);
    
    /**
     * 

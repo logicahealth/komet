@@ -178,9 +178,9 @@ public interface CommitService
     * one MUST call {@link CommitService#postProcessImportNoChecks()} when your import batch is complete
     * to ensure data integrity.
     *
-    * @param ochreExternalizable the object to be imported.
+    * @param isaacExternalizable the object to be imported.
     */
-   void importNoChecks(IsaacExternalizable ochreExternalizable);
+   void importNoChecks(IsaacExternalizable isaacExternalizable);
 
    /**
     * Increment and get sequence.

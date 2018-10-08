@@ -105,7 +105,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.IndexSemanticQueryService;
@@ -203,7 +203,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
     private final SimpleBooleanProperty displayIndexConfigMenu_ = new SimpleBooleanProperty(false);
     private Manifold outsideManifold;
     private ManifoldCoordinate readManifoldCoordinate;
-    private AmpRestriction amp = null;
+    private AuthorModulePathRestriction amp = null;
     private TimeStatusRestriction timeStatusRestriction = null;
 
     public static ExtendedSearchViewController init(Manifold manifold) {

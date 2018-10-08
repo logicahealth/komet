@@ -141,6 +141,11 @@ public class DescriptionActiveLuceneMatch
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_AND_POST_ITERATION;
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.DESCRIPTION_ACTIVE_LUCENE_MATCH;
+    }
+   
 
    /**
     * Gets the where clause.

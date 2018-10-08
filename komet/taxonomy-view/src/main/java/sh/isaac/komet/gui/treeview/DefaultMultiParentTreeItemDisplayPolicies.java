@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import javafx.scene.Node;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.manifold.Manifold;
 
@@ -43,9 +44,15 @@ public class DefaultMultiParentTreeItemDisplayPolicies implements MultiParentTre
    
    @Override
    public Node computeGraphic(MultiParentTreeItem item) {
-      if (item.isRoot()) {
-         return Iconography.TAXONOMY_ROOT_ICON.getIconographic();
-      } else if (item.isDefined() && (item.isMultiParent() || item.getMultiParentDepth() > 0)) {
+        if (item.isRoot()) {
+            return Iconography.TAXONOMY_ROOT_ICON.getIconographic();
+        } 
+       
+       if (item.getTypeNid() != TermAux.IS_A.getNid()) {
+          return Iconography.ALERT_CONFIRM.getIconographic();
+       } 
+       
+       if (item.isDefined() && (item.isMultiParent() || item.getMultiParentDepth() > 0)) {
          if (item.isSecondaryParentOpened()) {
             return Iconography.TAXONOMY_DEFINED_MULTIPARENT_OPEN.getIconographic();
          } else {

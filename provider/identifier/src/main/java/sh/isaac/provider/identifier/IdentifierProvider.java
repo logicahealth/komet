@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.provider.datastore.identifier;
+package sh.isaac.provider.identifier;
 
 import java.io.File;
 import java.io.IOException;

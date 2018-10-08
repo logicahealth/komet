@@ -111,6 +111,11 @@ public class AndNot
    }
 
    //~--- get methods ---------------------------------------------------------
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.AND_NOT;
+    }
+   
 
    /**
     * Gets the where clause.

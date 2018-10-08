@@ -256,7 +256,9 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
     }
 
     private PropertyEditor<?> createConceptListEditor(PropertySheetConceptListWrapper propertySheetConceptListWrapper) {
-        return new ConceptListEditor(manifoldForDisplay, propertySheetConceptListWrapper.getValue());
+        ConceptListEditor editor = new ConceptListEditor(manifoldForDisplay);
+        editor.setValue(propertySheetConceptListWrapper.getValue());
+        return  editor;
     }
 
 }

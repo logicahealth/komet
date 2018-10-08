@@ -14,12 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.provider.datastore.identifier;
+package sh.isaac.api;
 
 /**
- * UUID to nid map is read from disk in the following circumstances: 
- * <p>
- * 1. Data is read (direct import or ibdf/change set)
- * <p>
- * 2. Concept specification is converted to nid. May occur at any time...
+ * The type and destination parts of a relationship displayed in a tree.
+ * @author kec
  */
+public interface TaxonomyLink {
+    /**
+     * 
+     * @return the concept nid for the type of the linkage to the destination
+     */
+    int getTypeNid();
+    
+    /**
+     * 
+     * @return the destination concept nid. 
+     */
+    int getDestinationNid();
+}

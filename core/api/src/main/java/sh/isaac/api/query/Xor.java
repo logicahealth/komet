@@ -81,6 +81,11 @@ public class Xor
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.XOR;
+    }
+   
 
    /**
     * Compute components.

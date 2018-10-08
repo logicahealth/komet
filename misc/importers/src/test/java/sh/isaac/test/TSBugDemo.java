@@ -27,7 +27,6 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
-import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
@@ -38,6 +37,7 @@ import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.ManifoldCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.api.TaxonomySnapshot;
 
 /**
  * @author a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
@@ -72,7 +72,7 @@ public class TSBugDemo
 			
 			dwh.processTaxonomyUpdates();
 			
-			TaxonomySnapshotService tss = Get.taxonomyService().getSnapshot(ManifoldCoordinates.getStatedManifoldCoordinate(StampCoordinates.getDevelopmentLatest(), 
+			TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(ManifoldCoordinates.getStatedManifoldCoordinate(StampCoordinates.getDevelopmentLatest(), 
 					LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()));
 			Assert.assertEquals(tss.getTaxonomyParentConceptNids(Get.identifierService().getNidForUuids(concept)).length, 3);
 			

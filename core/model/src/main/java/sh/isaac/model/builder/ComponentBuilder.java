@@ -44,6 +44,7 @@ package sh.isaac.model.builder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -54,6 +55,7 @@ import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.Status;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommittableComponent;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.component.semantic.SemanticBuilder;
@@ -81,6 +83,8 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
    /** The state. */
    protected Status state = Status.ACTIVE;
+   
+   private ConceptSpecification moduleSpecification = null;
    
    public ComponentBuilder(int assemblageId) {
       this.assemblageId = assemblageId;
@@ -247,5 +251,17 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     public boolean isPrimordialUuidSet() {
         return this.primordialUuid != null;
     }
+
+    @Override
+    public void setModule(ConceptSpecification moduleSpecification) {
+        this.moduleSpecification = moduleSpecification;
+    }
+
+    @Override
+    public Optional<ConceptSpecification> getModule() {
+        return Optional.ofNullable(this.moduleSpecification);
+    }
+    
+    
 }
 

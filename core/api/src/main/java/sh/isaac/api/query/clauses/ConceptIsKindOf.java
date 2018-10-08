@@ -153,6 +153,11 @@ public class ConceptIsKindOf
    public void getQueryMatches(ConceptVersion conceptVersion) {
       // Nothing to do...
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.CONCEPT_IS_KIND_OF;
+    }
+   
 
    /**
     * Gets the where clause.

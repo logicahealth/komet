@@ -27,7 +27,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.memory.MemoryManagementService;
 import sh.isaac.api.memory.SpineReference;
 import sh.isaac.api.memory.WriteToDiskCache;
-import sh.isaac.provider.datastore.identifier.IdentifierProvider;
+import sh.isaac.provider.identifier.IdentifierProvider;
 
 /**
  *

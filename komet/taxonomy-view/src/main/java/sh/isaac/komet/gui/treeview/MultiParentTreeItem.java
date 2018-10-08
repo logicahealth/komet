@@ -21,12 +21,12 @@ package sh.isaac.komet.gui.treeview;
  * @author kec
  */
 public interface MultiParentTreeItem {
-	public boolean isRoot();
-	public boolean isDefined();
-	public boolean isMultiParent();
-	public boolean isSecondaryParentOpened();
-	public int getConceptNid();
-	
-	public int getMultiParentDepth();
+	boolean isRoot();
+	boolean isDefined();
+	boolean isMultiParent();
+	boolean isSecondaryParentOpened();
+	int getConceptNid();
+        int getTypeNid();
+	int getMultiParentDepth();
    
 }

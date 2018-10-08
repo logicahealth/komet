@@ -287,7 +287,7 @@ public class HashTreeWithIntArraySets
    public final Tree createAncestorTree(int childNid) {
       final HashTreeWithIntArraySets tree = new HashTreeWithIntArraySets(manifoldCoordinate, assemblageNid);
 
-      addParentsAsChildren(tree, childNid, getParentNids(childNid));
+      addParentsAsChildren(tree, childNid, getTaxonomyParentConceptNids(childNid));
       return tree;
    }
 
@@ -426,7 +426,7 @@ public class HashTreeWithIntArraySets
                .forEach(
                    (parentNid) -> {
                       tree.addChild(childNid, parentNid);
-                      addParentsAsChildren(tree, parentNid, getParentNids(parentNid));
+                      addParentsAsChildren(tree, parentNid, getTaxonomyParentConceptNids(parentNid));
                    });
    }
 
@@ -490,12 +490,12 @@ public class HashTreeWithIntArraySets
     * {@inheritDoc}
     */
    @Override
-   public final int[] getChildNids(int parentNid) {
+   public final int[] getTaxonomyChildConceptNids(int parentNid) {
       int[] returnValue = this.parentNid_ChildNidSetArray_Map.get(parentNid);
       if (returnValue != null) {
           OpenIntHashSet childrenSet = new OpenIntHashSet();
           for (int childNid: returnValue) {
-              if (Arrays.binarySearch(getParentNids(childNid), parentNid) >= 0) {
+              if (Arrays.binarySearch(getTaxonomyParentConceptNids(childNid), parentNid) >= 0) {
                   childrenSet.add(childNid);
               }
           }
@@ -511,7 +511,7 @@ public class HashTreeWithIntArraySets
     */
    @Override
    public final boolean isChildOf(int childConceptNid, int parentConceptNid) {
-      int[] parentConceptNids = getParentNids(childConceptNid);
+      int[] parentConceptNids = getTaxonomyParentConceptNids(childConceptNid);
 
       return Arrays.binarySearch(parentConceptNids, parentConceptNid) >= 0;
    }
@@ -724,7 +724,7 @@ public class HashTreeWithIntArraySets
     * {@inheritDoc}
     */
    @Override
-   public final int[] getParentNids(int childNid) {
+   public final int[] getTaxonomyParentConceptNids(int childNid) {
       return getParentNidsNoFilter(childNid);
    }
 

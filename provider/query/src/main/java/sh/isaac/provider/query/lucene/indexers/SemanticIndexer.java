@@ -94,7 +94,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNumeric;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
-import sh.isaac.api.index.AmpRestriction;
+import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicNode;
@@ -574,7 +574,7 @@ public class SemanticIndexer
          boolean prefixSearch,
          int[] assemblageConcept,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) {
@@ -592,7 +592,7 @@ public class SemanticIndexer
          int[] assemblageConcepts,
          int[] searchColumns,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) {
@@ -618,7 +618,7 @@ public class SemanticIndexer
          int[] assemblageConcepts,
          int[] searchColumns,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) {
@@ -642,7 +642,7 @@ public class SemanticIndexer
          int[] assemblageConcepts,
          int[] searchColumns,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) {
@@ -719,7 +719,7 @@ public class SemanticIndexer
          boolean prefixSearch,
          int[] assemblageConcept,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration) {

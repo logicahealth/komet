@@ -144,6 +144,11 @@ public class PreferredNameForConcept
    public EnumSet<ClauseComputeType> getComputePhases() {
       return POST_ITERATION;
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.PREFERRED_NAME_FOR_CONCEPT;
+    }
+   
 
    /**
     * Gets the where clause.

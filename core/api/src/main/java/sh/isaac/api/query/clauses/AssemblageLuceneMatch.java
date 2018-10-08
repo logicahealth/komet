@@ -168,6 +168,11 @@ public class AssemblageLuceneMatch
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {}
 
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.ASSEMBLAGE_LUCENE_MATCH;
+    }
+   
    /**
     * Gets the where clause.
     *

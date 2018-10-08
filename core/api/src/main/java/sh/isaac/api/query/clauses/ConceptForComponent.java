@@ -139,6 +139,11 @@ public class ConceptForComponent
    public EnumSet<ClauseComputeType> getComputePhases() {
       return POST_ITERATION;
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.CONCEPT_FOR_COMPONENT;
+    }
+   
 
    /**
     * Gets the where clause.

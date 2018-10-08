@@ -102,7 +102,7 @@ public interface IndexQueryService {
     */
    public List<SearchResult> query(String query,
          int[] assemblageConcepts,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);
@@ -142,7 +142,7 @@ public interface IndexQueryService {
    public List<SearchResult> query(String query,
          boolean prefixSearch,
          int[] assemblageConcepts,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);
@@ -186,7 +186,7 @@ public interface IndexQueryService {
          boolean prefixSearch,
          int[] assemblageConcepts,
          Predicate<Integer> filter,
-         AmpRestriction amp,
+         AuthorModulePathRestriction amp,
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);

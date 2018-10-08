@@ -47,38 +47,38 @@ import sh.isaac.api.coordinate.StampCoordinate;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  *
  */
-public class AmpRestriction {
+public class AuthorModulePathRestriction {
 
    private NidSet authors;
    private NidSet modules;
    private NidSet paths;
 
-   private AmpRestriction() {
+   private AuthorModulePathRestriction() {
 
    }
 
-   public static AmpRestriction restrictAuthor(NidSet authors) {
-      AmpRestriction ar = new AmpRestriction();
+   public static AuthorModulePathRestriction restrictAuthor(NidSet authors) {
+      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.authors = authors;
       return ar;
    }
 
-   public static AmpRestriction restrictModule(NidSet modules) {
-      AmpRestriction ar = new AmpRestriction();
+   public static AuthorModulePathRestriction restrictModule(NidSet modules) {
+      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.modules = modules;
       return ar;
    }
 
-   public static AmpRestriction restrictPath(NidSet paths) {
-      AmpRestriction ar = new AmpRestriction();
+   public static AuthorModulePathRestriction restrictPath(NidSet paths) {
+      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.paths = paths;
       return ar;
    }
 
-   public static AmpRestriction restrict(NidSet authors,
+   public static AuthorModulePathRestriction restrict(NidSet authors,
          NidSet modules,
          NidSet paths) {
-      AmpRestriction ar = new AmpRestriction();
+      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.authors = authors;
       ar.modules = modules;
       ar.paths = paths;
@@ -86,12 +86,12 @@ public class AmpRestriction {
    }
    
    /**
-    * Build an AmpRestriction by extracting the modules and Path from the manifold coordinate
+    * Build an AuthorModulePathRestriction by extracting the modules and Path from the manifold coordinate
     * @param mc
     * @return
     */
-   public static AmpRestriction restrict(ManifoldCoordinate mc) {
-      AmpRestriction ar = new AmpRestriction();
+   public static AuthorModulePathRestriction restrict(ManifoldCoordinate mc) {
+      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.authors = NidSet.EMPTY;
       ar.modules = mc.getModuleNids();
       ar.paths = NidSet.of(mc.getStampCoordinate().getStampPosition().getStampPathNid());
@@ -99,12 +99,12 @@ public class AmpRestriction {
    }
    
    /**
-    * Build an AmpRestriction by extracting the modules and Path from the manifold coordinate
+    * Build an AuthorModulePathRestriction by extracting the modules and Path from the manifold coordinate
     * @param sc
     * @return
     */
-   public static AmpRestriction restrict(StampCoordinate sc) {
-      AmpRestriction ar = new AmpRestriction();
+   public static AuthorModulePathRestriction restrict(StampCoordinate sc) {
+      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.authors = NidSet.EMPTY;
       ar.modules = sc.getModuleNids();
       ar.paths = NidSet.of(sc.getStampPosition().getStampPathNid());

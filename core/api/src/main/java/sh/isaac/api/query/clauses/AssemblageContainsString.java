@@ -172,6 +172,11 @@ public class AssemblageContainsString
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {}
 
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.ASSEMBLAGE_CONTAINS_STRING;
+    }
+   
    /**
     * Gets the where clause.
     *

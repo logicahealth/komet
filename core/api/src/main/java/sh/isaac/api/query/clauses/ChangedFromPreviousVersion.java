@@ -153,6 +153,11 @@ public class ChangedFromPreviousVersion
 //        }
 //    }
    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.CHANGED_FROM_PREVIOUS_VERSION;
+    }
+   
 
    /**
     * Gets the where clause.

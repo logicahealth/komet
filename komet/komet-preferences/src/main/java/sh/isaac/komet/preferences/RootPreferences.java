@@ -41,6 +41,7 @@ public class RootPreferences extends AbstractPreferences {
             addChild(SYNCHRONIZATION_ITEMS_GROUP_NAME, SynchronizationItems.class);
             addChild("Attachment actions", AttachmentItems.class);
             addChild("Logic actions", LogicItems.class);
+            addChild("Taxonomy configurations", TaxonomyItems.class);
         }
         List<String> childPreferences = this.preferencesNode.getList(CHILDREN_NODES);
         if (childPreferences.contains("Change sets")) {

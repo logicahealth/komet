@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-        <version>4.53</version>
+        <version>4.54</version>
     </parent>
     <groupId>sh.isaac.provider</groupId>
     <artifactId>memory-managment</artifactId>
@@ -21,5 +21,10 @@
             <artifactId>chronology</artifactId>
             <version>${project.version}</version>
         </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>identifier</artifactId>
+         <version>${project.version}</version>
+      </dependency>
     </dependencies>
 </project>
