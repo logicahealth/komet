@@ -113,7 +113,7 @@ public class AttachmentActionPanel extends AbstractPreferences {
         handleAssemblageChange(null, null, assemblageForActionProperty.get());
         assemblageForActionProperty.addListener(this::handleAssemblageChange);
     }
-    
+
     private static String getGroupName(IsaacPreferences preferencesNode) {
         if (preferencesNode.hasKey("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME")) {
             String actionName = preferencesNode.get("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME", "");
@@ -290,12 +290,16 @@ public class AttachmentActionPanel extends AbstractPreferences {
 
         for (ConceptSpecification fieldConcept : fieldConcepts) {
             PropertySheet.Item item = propertySheetItemMap.get(fieldConcept);
-            PropertyEditorType type = getPropertyEditorType(item);
-            b.append("   propertySheetMenuItem.addPropertyToEdit(\"")
-                    .append(getManifold().getPreferredDescriptionText(fieldConcept)).append("\", new ")
-                    .append(new ConceptProxy(fieldConcept.toExternalString()).toString()).append(", PropertyEditorType.")
-                    .append(type.name())
-                    .append(");\n");
+            if (item == null) {
+                LOG.error("Null item for: " + fieldConcept);
+            } else {
+                PropertyEditorType type = getPropertyEditorType(item);
+                b.append("   propertySheetMenuItem.addPropertyToEdit(\"")
+                        .append(getManifold().getPreferredDescriptionText(fieldConcept)).append("\", new ")
+                        .append(new ConceptProxy(fieldConcept.toExternalString()).toString()).append(", PropertyEditorType.")
+                        .append(type.name())
+                        .append(");\n");
+            }
         }
 
         if (showModuleProperty.get()) {
@@ -311,28 +315,31 @@ public class AttachmentActionPanel extends AbstractPreferences {
 
         for (ConceptSpecification fieldConcept : fieldConcepts) {
             PropertySheet.Item item = propertySheetItemMap.get(fieldConcept);
-            PropertyEditorType type = getPropertyEditorType(item);
-            switch (type) {
-                case CONCEPT: {
-                    PropertySheetItemConceptConstraintWrapper constraintsItem = (PropertySheetItemConceptConstraintWrapper) item;
-                    PropertySheetItemConceptWrapper conceptItem = constraintsItem.getValue();
-                    b.append("rule \"Setup constraints for ").append(getManifold().getFullySpecifiedDescriptionText(fieldConcept))
-                .append(" ").append(getPreferencesNode().name()).append("\"\n");
-                    b.append("when\n");
-                    b.append("   $propertySheetItem : PropertySheetItemConceptWrapper(getSpecification() == new ")
-                            .append(new ConceptProxy(fieldConcept.toExternalString()).toString()).append(");\n");
-                    b.append("then\n");
-                    b.append("   $propertySheetItem.setDefaultValue(new ").append(new ConceptProxy(conceptItem.getValue()).toString()).append(");\n");
-                    for (ConceptSpecification conceptSpec : conceptItem.getAllowedValues()) {
-                        b.append("   $propertySheetItem.getAllowedValues().add(new ").append(new ConceptProxy(conceptSpec).toString()).append(");\n");
-                    }
-                    b.append("   $propertySheetItem.setAllowSearch(").append(Boolean.toString(showSearchProperty.get())).append(");\n");
-                    b.append("   $propertySheetItem.setAllowHistory(").append(Boolean.toString(showHistoryProperty.get())).append(");\n");
+            if (item == null) {
+                LOG.error("Null item for: " + fieldConcept);
+            } else {
+                PropertyEditorType type = getPropertyEditorType(item);
+                switch (type) {
+                    case CONCEPT: {
+                        PropertySheetItemConceptConstraintWrapper constraintsItem = (PropertySheetItemConceptConstraintWrapper) item;
+                        PropertySheetItemConceptWrapper conceptItem = constraintsItem.getValue();
+                        b.append("rule \"Setup constraints for ").append(getManifold().getFullySpecifiedDescriptionText(fieldConcept))
+                                .append(" ").append(getPreferencesNode().name()).append("\"\n");
+                        b.append("when\n");
+                        b.append("   $propertySheetItem : PropertySheetItemConceptWrapper(getSpecification() == new ")
+                                .append(new ConceptProxy(fieldConcept.toExternalString()).toString()).append(");\n");
+                        b.append("then\n");
+                        b.append("   $propertySheetItem.setDefaultValue(new ").append(new ConceptProxy(conceptItem.getValue()).toString()).append(");\n");
+                        for (ConceptSpecification conceptSpec : conceptItem.getAllowedValues()) {
+                            b.append("   $propertySheetItem.getAllowedValues().add(new ").append(new ConceptProxy(conceptSpec).toString()).append(");\n");
+                        }
+                        b.append("   $propertySheetItem.setAllowSearch(").append(Boolean.toString(showSearchProperty.get())).append(");\n");
+                        b.append("   $propertySheetItem.setAllowHistory(").append(Boolean.toString(showHistoryProperty.get())).append(");\n");
 
-                    b.append("end\n\n");
-                    break;
-                }
-                case TEXT: {
+                        b.append("end\n\n");
+                        break;
+                    }
+                    case TEXT: {
 //                    b.append("rule \"Setup ").append(getManifold().getFullySpecifiedDescriptionText(fieldConcept)).append("\"\n");
 //                    b.append("   lock-on-active true\n");
 //                    b.append("when\n");
@@ -341,13 +348,11 @@ public class AttachmentActionPanel extends AbstractPreferences {
 //                    b.append("then\n");
 //                    b.append("   $propertySheetItem.setEditorType(EditorType.TEXT);\n");
 //                    b.append("end\n\n");
-                    break;
+                        break;
+                    }
+                    case STATUS:
                 }
-                case STATUS:
             }
-
-            
-            
         }
         return b.toString().getBytes();
     }
@@ -386,6 +391,5 @@ public class AttachmentActionPanel extends AbstractPreferences {
     public boolean showDelete() {
         return true;
     }
-    
-    
+
 }

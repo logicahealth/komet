@@ -65,7 +65,12 @@ public class DirectoryUtil {
 
     private static void copy(Path source, Path dest) {
         try {
+            if (Files.exists(dest) && Files.isDirectory(dest)) {
+                // delete directory, then copy. 
+                deleteDirectory(dest);
+            } 
             Files.copy(source, dest, REPLACE_EXISTING);
+            
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
