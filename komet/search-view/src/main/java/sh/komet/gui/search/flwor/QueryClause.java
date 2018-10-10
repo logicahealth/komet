@@ -19,9 +19,12 @@ package sh.komet.gui.search.flwor;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import org.controlsfx.control.PropertySheet;
+import sh.isaac.MetaData;
 import sh.isaac.api.query.Clause;
+import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.manifold.Manifold;
 
@@ -45,6 +48,7 @@ public class QueryClause {
     //~--- methods ----------------------------------------------------------
     public Node getPropertySheet() {
                 PropertySheet clausePropertySheet = new PropertySheet();
+                clausePropertySheet.getStyleClass().setAll("clause-properties");
                 clausePropertySheet.setSearchBoxVisible(false);
                 clausePropertySheet.setModeSwitcherVisible(false);
         switch (this.clauseProperty.get().getClauseSemantic()) {
@@ -78,9 +82,16 @@ public class QueryClause {
                 return new Pane();
             case DESCRIPTION_ACTIVE_REGEX_MATCH:
                  return new Pane();
-           case DESCRIPTION_LUCENE_MATCH:
-                clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold, clauseName));
+            case DESCRIPTION_LUCENE_MATCH: {
+                DescriptionLuceneMatch descriptionLuceneMatch = (DescriptionLuceneMatch) clauseProperty.get();
+                SimpleStringProperty queryText = new SimpleStringProperty(this, MetaData.QUERY_STRING____SOLOR.toExternalString());
+                queryText.addListener((observable, oldValue, newValue) -> {
+                    descriptionLuceneMatch.setParameterString(newValue);
+                });
+
+                clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold, queryText));
                 return clausePropertySheet;
+            }
             case DESCRIPTION_REGEX_MATCH:
                 return new Pane();
             case FULLY_QUALIFIED_NAME_FOR_CONCEPT:

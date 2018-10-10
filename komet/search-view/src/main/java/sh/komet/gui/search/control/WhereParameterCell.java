@@ -12,6 +12,10 @@ import sh.komet.gui.search.flwor.QueryClause;
 
 public class WhereParameterCell extends TreeTableCell<QueryClause, Object>{
 
+    public WhereParameterCell() {
+        getStyleClass().add("where-cell");
+    }
+
     @Override
     protected void updateItem(Object item, boolean empty) {
         super.updateItem(item, empty);

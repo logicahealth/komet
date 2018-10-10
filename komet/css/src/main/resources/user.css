@@ -85,7 +85,32 @@ limitations under the License.
    /* use circled plus? in Material Icons? */
 }
 
+.tree-table-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell:filled:selected,
+.tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected {
+    -fx-background-color: -komet-blue-color;
+   
+}
 
+.tree-table-cell {
+    -fx-alignment: CENTER_LEFT;
+}
+.tree-table-row-cell:filled:selected  * .property-pane {
+   -fx-background-color: -komet-blue-color;
+   -fx-border-color: -komet-blue-color;
+}
+.where-cell .scroll-pane {
+   -fx-background-color: transparent;
+   -fx-border-color: transparent;
+}
+
+.property-pane .label {
+   /*-fx-background-color: orange;
+   -fx-border-color: orange; */
+}
+.property-pane .text-field {
+   /*-fx-background-color: green;
+   -fx-border-color: green; */
+}
 
 .concept-label-toolbar {
     -fx-background-color: -komet-blue-color;
@@ -820,11 +845,7 @@ limitations under the License.
 }
 
 
-.tree-table-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell:filled:selected,
-.tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected {
-    -fx-background-color: -komet-blue-color;
-   
-}
+
 .titled-pane > *.content {
     -fx-background-color: whitesmoke;
 }

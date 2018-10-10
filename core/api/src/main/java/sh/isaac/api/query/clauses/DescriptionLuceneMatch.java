@@ -137,23 +137,7 @@ public class DescriptionLuceneMatch
          throw new IllegalStateException("No description indexer found on classpath");
       }
 
-      final List<SearchResult> queryResults = descriptionIndexer.query(this.parameterString, false, null,
-            (nid -> {
-               //The AmpRestriction only does module/path - not active / inactive.  So insert a predicate that does the active bit.
-         final Optional<? extends Chronology> chronology =
-               Get.identifiedObjectService()
-                  .getChronology(nid);
-
-            if (chronology.isPresent()) {
-               //TODO [KEC] pretty sure this is NOT what was intended - this will only return active items, rather than returning items that 
-               //match the provided coordinate
-               if (chronology.get()
-                              .isLatestVersionActive(this.manifoldCoordinate)) {
-                  return true;
-               }
-            } 
-            return false;
-      }), AuthorModulePathRestriction.restrict(this.manifoldCoordinate), 1, 1000, null);
+      final List<SearchResult> queryResults = descriptionIndexer.query(this.parameterString, 1000);
 
       queryResults.stream().forEach((s) -> {
                               nids.add(s.getNid());

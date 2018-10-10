@@ -930,6 +930,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.REL_TYPE_QUERY_CLAUSE);
                createConcept(TermAux.ASSOCIATED_PARAMETER_QUERY_CLAUSE).setModule(TermAux.KOMET_MODULE);
                popParent();
+            createConcept("Query clause parameters");
+            pushParent(current());
+               createConcept("Query string");
+               popParent();
             popParent(); 
          popParent(); // ISAAC root should still be parent on stack...
          //createConcept("Clinical statement");
