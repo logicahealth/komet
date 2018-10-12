@@ -270,8 +270,21 @@ public class StampCoordinateImpl
    public StampCoordinate makeCoordinateAnalog(EnumSet<Status> states) {
       return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSpecifications, this.modulePriorityList, states);
    }
-
+   
    /**
+    * @see sh.isaac.api.coordinate.StampCoordinate#makeModuleAnalog(Collection<ConceptSpecification>, boolean)
+    */
+   @Override
+   public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+      HashSet<ConceptSpecification> newNids = new HashSet<>();
+      newNids.addAll(modules);
+      if (add) {
+         newNids.addAll(this.moduleSpecifications);
+      }
+      return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, newNids, this.modulePriorityList, this.allowedStates);
+   }
+
+/**
     * To string.
     *
     * @return the string

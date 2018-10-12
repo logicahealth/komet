@@ -41,6 +41,7 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -122,6 +123,14 @@ public interface StampCoordinate
    
    @Override
    public StampCoordinate deepClone();
-
+   
+   /**
+    * Create a new Stamp Coordinate identical to the this coordinate, but with the modules modified.
+    * @param modules the new modules list, or the modules to append.
+    * @param add - true, if the modules parameter should be appended to the existing modules, false if the 
+    * supplied modules should replace the existing modules
+    * @return the new coordinate
+    */
+   public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add);
 }
 

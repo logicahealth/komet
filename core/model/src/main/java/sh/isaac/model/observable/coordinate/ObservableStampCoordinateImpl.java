@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 import javafx.beans.InvalidationListener;
@@ -152,10 +153,14 @@ public class ObservableStampCoordinateImpl
    }
    
    @Override
-   public ObservableStampCoordinate makeCoordinateAnalog(EnumSet<Status> states)
-   {
+   public ObservableStampCoordinate makeCoordinateAnalog(EnumSet<Status> states) {
       StampCoordinate analog = stampCoordinate.makeCoordinateAnalog(states);
       return new ObservableStampCoordinateImpl(analog);
+   }
+   
+   @Override
+   public ObservableStampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+      return new ObservableStampCoordinateImpl(this.stampCoordinate.makeModuleAnalog(modules, add));
    }
 
    
