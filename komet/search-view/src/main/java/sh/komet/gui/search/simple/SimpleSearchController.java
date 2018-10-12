@@ -307,14 +307,6 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     public void setManifold(Manifold manifold) {
         this.manifold = manifold;
         initializeControls();
-
-        //TODO: Current hack to get around metadata not being indexed on a clean "first" start of viewer
-        //Check to see if Metadata is index, if not reindex
-        DescriptionLuceneMatch quickMetaSearch = new DescriptionLuceneMatch();
-        quickMetaSearch.setParameterString("\"solor module (solor)\"");
-        quickMetaSearch.setManifoldCoordinate(this.manifold);
-        if(quickMetaSearch.computePossibleComponents(null).size() == 0)
-            Get.startIndexTask();
     }
 
     @Override

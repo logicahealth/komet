@@ -129,7 +129,7 @@ public abstract class LeafClause
    /**
     * Gets the <code>NidSet</code> of components that match the criterion specified in the LeafClause.
     *
-    * @return <code>NativeIdSetBI</code> of components in the resultsCache,
+    * @return <code>NidSet</code> of components in the resultsCache,
     * which is the components that match the criterion
     * specified in the LeafClause.
     */

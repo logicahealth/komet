@@ -34,16 +34,11 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -51,8 +46,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
@@ -66,11 +59,8 @@ import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.index.AuthorModulePathRestriction;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * Returns descriptions matching the input string using Lucene.
  *
@@ -80,133 +70,138 @@ import sh.isaac.api.index.AuthorModulePathRestriction;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionLuceneMatch
         extends LeafClause {
-   /** The lucene match key. */
-   @XmlElement
-   String luceneMatchKey;
 
-   /** The view coordinate key. */
-   @XmlElement
-   String viewCoordinateKey;
+    /**
+     * The lucene match key.
+     */
+    @XmlElement
+    String luceneMatchKey;
 
-   private String parameterString;
-   private ManifoldCoordinate manifoldCoordinate;
+    /**
+     * The view coordinate key.
+     */
+    @XmlElement
+    String viewCoordinateKey;
 
-   //~--- constructors --------------------------------------------------------
+    private String parameterString;
+    private ManifoldCoordinate manifoldCoordinate;
 
-   /**
-    * Instantiates a new description lucene match.
-    */
-   public DescriptionLuceneMatch() {}
+    //~--- constructors --------------------------------------------------------
+    /**
+     * Instantiates a new description lucene match.
+     */
+    public DescriptionLuceneMatch() {
+    }
 
-   /**
-    * Instantiates a new description lucene match.
-    *
-    * @param enclosingQuery the enclosing query
-    * @param luceneMatchKey the lucene match key
-    * @param viewCoordinateKey the view coordinate key
-    */
-   public DescriptionLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
-      super(enclosingQuery);
-      this.luceneMatchKey    = luceneMatchKey;
-      this.viewCoordinateKey = viewCoordinateKey;
-   }
+    /**
+     * Instantiates a new description lucene match.
+     *
+     * @param enclosingQuery the enclosing query
+     * @param luceneMatchKey the lucene match key
+     * @param viewCoordinateKey the view coordinate key
+     */
+    public DescriptionLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
+        super(enclosingQuery);
+        this.luceneMatchKey = luceneMatchKey;
+        this.viewCoordinateKey = viewCoordinateKey;
+    }
 
-   //~--- methods -------------------------------------------------------------
+    //~--- methods -------------------------------------------------------------
+    public void setParameterString(String parameterString) {
+        this.parameterString = parameterString;
+    }
 
+    public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
+    }
 
-   public void setParameterString(String parameterString) {
-      this.parameterString = parameterString;
-   }
+    /**
+     * Compute possible components.
+     *
+     * @param incomingPossibleComponents the incoming possible components
+     * @return the nid set
+     */
+    @Override
+    public final NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
+        final NidSet nids = new NidSet();
+        IndexDescriptionQueryService descriptionIndexer = LookupService.get().getService(IndexDescriptionQueryService.class);
 
-   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
-      this.manifoldCoordinate = manifoldCoordinate;
-   }
+        if (descriptionIndexer == null) {
+            throw new IllegalStateException("No description indexer found on classpath");
+        }
 
-   /**
-    * Compute possible components.
-    *
-    * @param incomingPossibleComponents the incoming possible components
-    * @return the nid set
-    */
-   @Override
-   public final NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final NidSet                 nids               = new NidSet();
-      IndexDescriptionQueryService descriptionIndexer = LookupService.get().getService(IndexDescriptionQueryService.class);
+        final List<SearchResult> queryResults = descriptionIndexer.query(this.parameterString, 1000);
 
-      if (descriptionIndexer == null) {
-         throw new IllegalStateException("No description indexer found on classpath");
-      }
+        queryResults.stream().forEach((s) -> {
+            if (incomingPossibleComponents.contains(s.getNid())) {
+                nids.add(s.getNid());
+            }
 
-      final List<SearchResult> queryResults = descriptionIndexer.query(this.parameterString, 1000);
+        });
 
-      queryResults.stream().forEach((s) -> {
-                              nids.add(s.getNid());
-                           });
+        getResultsCache().or(nids);
+        return nids;
+    }
 
-      getResultsCache().or(nids);
-      return nids;
-   }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the compute phases.
+     *
+     * @return the compute phases
+     */
+    @Override
+    public EnumSet<ClauseComputeType> getComputePhases() {
+        return PRE_ITERATION;
+    }
 
-   //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the query matches.
+     *
+     * @param conceptVersion the concept version
+     */
+    @Override
+    public void getQueryMatches(ConceptVersion conceptVersion) {
+        getResultsCache();
+    }
 
-   /**
-    * Gets the compute phases.
-    *
-    * @return the compute phases
-    */
-   @Override
-   public EnumSet<ClauseComputeType> getComputePhases() {
-      return PRE_ITERATION;
-   }
-
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
-   @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {
-      getResultsCache();
-   }
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.DESCRIPTION_LUCENE_MATCH;
     }
-   
 
-   /**
-    * Gets the where clause.
-    *
-    * @return the where clause
-    */
-   @Override
-   public WhereClause getWhereClause() {
-      final WhereClause whereClause = new WhereClause();
+    /**
+     * Gets the where clause.
+     *
+     * @return the where clause
+     */
+    @Override
+    public WhereClause getWhereClause() {
+        final WhereClause whereClause = new WhereClause();
 
-      whereClause.setSemantic(ClauseSemantic.DESCRIPTION_LUCENE_MATCH);
-      whereClause.getLetKeys()
-                 .add(this.luceneMatchKey);
-      return whereClause;
-   }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE;
-   }
-   public String getLuceneMatchKey() {
-      return luceneMatchKey;
-   }
+        whereClause.setSemantic(ClauseSemantic.DESCRIPTION_LUCENE_MATCH);
+        whereClause.getLetKeys()
+                .add(this.luceneMatchKey);
+        return whereClause;
+    }
 
-   public void setLuceneMatchKey(String luceneMatchKey) {
-      this.luceneMatchKey = luceneMatchKey;
-   }
+    @Override
+    public ConceptSpecification getClauseConcept() {
+        return TermAux.DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE;
+    }
 
-   public String getViewCoordinateKey() {
-      return viewCoordinateKey;
-   }
+    public String getLuceneMatchKey() {
+        return luceneMatchKey;
+    }
 
-   public void setViewCoordinateKey(String viewCoordinateKey) {
-      this.viewCoordinateKey = viewCoordinateKey;
-   }
+    public void setLuceneMatchKey(String luceneMatchKey) {
+        this.luceneMatchKey = luceneMatchKey;
+    }
+
+    public String getViewCoordinateKey() {
+        return viewCoordinateKey;
+    }
+
+    public void setViewCoordinateKey(String viewCoordinateKey) {
+        this.viewCoordinateKey = viewCoordinateKey;
+    }
 }
-

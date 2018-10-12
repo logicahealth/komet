@@ -47,6 +47,7 @@ import java.io.IOException;
 
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 
 //~--- classes ----------------------------------------------------------------
@@ -69,11 +70,7 @@ public class QueryExample {
    public QueryExample() {
       
       this.query =
-         new Query(Get.coordinateFactory().createDefaultInferredManifoldCoordinate()) {
-         @Override
-         protected ForSetSpecification ForSetSpecification() {
-            return new ForSetSpecification(ComponentCollectionTypes.ALL_CONCEPTS);
-         }
+         new Query(Get.coordinateFactory().createDefaultInferredManifoldCoordinate(), TermAux.SOLOR_CONCEPT_ASSEMBLAGE) {
          @Override
          public void Let() {
             let("allergic-asthma", new ConceptProxy("Allergic asthma", "531abe20-8324-3db9-9104-8bcdbf251ac7"));

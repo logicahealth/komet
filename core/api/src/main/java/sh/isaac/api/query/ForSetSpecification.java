@@ -41,47 +41,24 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
  * Created by kec on 11/2/14.
  */
-@XmlRootElement(name = "for-set")
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ForSetSpecification {
-   /** The for collection types. */
-   @XmlElementWrapper(name = "for")
-   @XmlElement(name = "component")
-   private List<ComponentCollectionTypes> forCollectionTypes = new ArrayList<>();
-
-   /** The custom collection. */
-   @XmlElementWrapper(name = "custom-for")
-   @XmlElement(name = "uuid")
-   private Set<UUID> customCollection = new HashSet<>();
 
    //~--- constructors --------------------------------------------------------
-
+    private ConceptSpecification assemblageSpecificationForSet = TermAux.UNINITIALIZED_COMPONENT_ID;
    /**
     * Instantiates a new for set specification.
     */
@@ -90,10 +67,10 @@ public class ForSetSpecification {
    /**
     * Instantiates a new for set specification.
     *
-    * @param forCollectionTypes the for collection types
+    * @param assemblageSpecificationForSet the for collection assemblage
     */
-   public ForSetSpecification(ComponentCollectionTypes... forCollectionTypes) {
-      this.forCollectionTypes.addAll(Arrays.asList(forCollectionTypes));
+   public ForSetSpecification(ConceptSpecification assemblageSpecificationForSet) {
+      this.assemblageSpecificationForSet = assemblageSpecificationForSet;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -102,83 +79,11 @@ public class ForSetSpecification {
     * Gets the collection.
     *
     * @return the collection
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public NidSet getCollection()
-            throws IOException {
-      final NidSet forSet = NidSet.of();
-
-      for (final ComponentCollectionTypes collection: this.forCollectionTypes) {
-         switch (collection) {
-         case ALL_COMPONENTS:
-            forSet.addAll(Get.identifierService().getNidStreamOfType(IsaacObjectType.SEMANTIC));
-            forSet.addAll(Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT));
-            break;
-
-         case ALL_CONCEPTS:
-            forSet.or(NidSet.of(Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT)));
-            break;
-
-         case ALL_SEMANTICS:
-            forSet.or(NidSet.of(Get.identifierService().getNidStreamOfType(IsaacObjectType.SEMANTIC)));
-            break;
-
-         case CUSTOM_SET:
-            for (final UUID uuid: this.customCollection) {
-               forSet.add(Get.identifierService()
-                             .getNidForUuids(uuid));
-            }
-
-            break;
-
-         default:
-            throw new UnsupportedOperationException();
-         }
-      }
-
-      return forSet;
-   }
-
-   /**
-    * Gets the custom collection.
-    *
-    * @return the custom collection
-    */
-   public Set<UUID> getCustomCollection() {
-      return this.customCollection;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the custom collection.
-    *
-    * @param customCollection the new custom collection
-    */
-   public void setCustomCollection(Set<UUID> customCollection) {
-      this.customCollection = customCollection;
+   public NidSet getCollection() {
+      return NidSet.of(Get.identifierService().getNidsForAssemblage(this.assemblageSpecificationForSet));
    }
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the for collection types.
-    *
-    * @return the for collection types
-    */
-   public List<ComponentCollectionTypes> getForCollectionTypes() {
-      return this.forCollectionTypes;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the for collection types.
-    *
-    * @param forCollectionTypes the new for collection types
-    */
-   public void setForCollectionTypes(List<ComponentCollectionTypes> forCollectionTypes) {
-      this.forCollectionTypes = forCollectionTypes;
-   }
 }
 

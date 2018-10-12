@@ -104,7 +104,7 @@ public class Not
     */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      this.forSet = this.enclosingQuery.getForSet();
+      this.forSet = this.enclosingQuery.For();
       assert this.forSet != null;
 
       final NidSet activeSet = new NidSet();
