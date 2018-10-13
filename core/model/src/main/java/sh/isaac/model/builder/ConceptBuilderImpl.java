@@ -207,7 +207,7 @@ public class ConceptBuilderImpl
          throw new IllegalStateException("language and dialect are required if a concept name is provided");
       }
 
-      if (!this.conceptName.equals(value)) {
+      if (!value.equals(this.conceptName)) {
          this.descriptionBuilders.add(LookupService.getService(DescriptionBuilderService.class)
                  .getDescriptionBuilder(value, this, descriptionType, this.defaultLanguageForDescriptions)
                  .addAcceptableInDialectAssemblage(this.defaultDialectAssemblageForDescriptions));
@@ -360,7 +360,7 @@ public class ConceptBuilderImpl
             
       Optional<String> temp = conceptSpec.getRegularName();
       
-      if (temp.isPresent() && !this.conceptName.equals(temp.get())) {
+      if (temp.isPresent() && !temp.get().equals(this.conceptName)) {
          addDescription(temp.get(), TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
       }
 
