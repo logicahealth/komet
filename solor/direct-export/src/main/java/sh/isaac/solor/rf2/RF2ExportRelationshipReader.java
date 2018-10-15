@@ -13,6 +13,7 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
+import sh.isaac.solor.ExportConfiguration;
 import sh.komet.gui.manifold.Manifold;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class RF2ExportRelationshipReader extends TimedTaskWithProgressTracker<Li
     private final Semaphore readSemaphore;
     private final Manifold manifold;
 
-    public RF2ExportRelationshipReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold) {
+    public RF2ExportRelationshipReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, ExportConfiguration exportConfiguration) {
         this.chronologies = chronologies;
         this.readSemaphore = readSemaphore;
         this.manifold = manifold;
@@ -36,7 +37,7 @@ public class RF2ExportRelationshipReader extends TimedTaskWithProgressTracker<Li
 
         readSemaphore.acquireUninterruptibly();
 
-        updateTitle("Reading relationship batch of size: " + chronologies.size());
+        updateTitle("Reading " + exportConfiguration.getMessage() + " batch of size: " + chronologies.size());
         updateMessage("Processing batch of relationships for RF2 Export");
         addToTotalWork(chronologies.size());
         Get.activeTasks().add(this);
