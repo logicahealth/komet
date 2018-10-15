@@ -16,6 +16,8 @@
  */
 package sh.komet.gui.control.property;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import sh.komet.gui.control.concept.ConceptLabel;
 import sh.komet.gui.control.concept.ConceptForControlWrapper;
@@ -38,6 +40,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.Editors;
@@ -49,8 +52,10 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.isaac.model.statement.ResultImpl;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
+import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
 import sh.komet.gui.control.PropertySheetItemStringListWrapper;
 import sh.komet.gui.control.PropertySheetPasswordWrapper;
+import sh.komet.gui.control.PropertySheetStatusSetWrapper;
 import sh.komet.gui.control.PropertySheetStatusWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.circumstance.CircumstanceEditor;
@@ -69,6 +74,8 @@ import sh.komet.gui.control.result.ResultEditor;
 import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.time.KometDateTimePicker;
+import tornadofx.control.DateTimePicker;
 
 /**
  *
@@ -123,6 +130,28 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return createPasswordEditor(propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetConceptListWrapper) {
             return createConceptListEditor((PropertySheetConceptListWrapper) propertySheetItem);
+        } else if (propertySheetItem instanceof PropertySheetStatusSetWrapper) {
+            return Editors.createChoiceEditor(propertySheetItem,
+                    ((PropertySheetStatusSetWrapper) propertySheetItem).getAllowedValues());
+        } else if (propertySheetItem instanceof PropertySheetItemDateTimeWrapper) {
+            PropertySheetItemDateTimeWrapper dateTimeWrapper = (PropertySheetItemDateTimeWrapper) propertySheetItem;
+            PropertyEditor<?> dateTimePropertyEditor = new AbstractPropertyEditor<LocalDateTime, KometDateTimePicker>(propertySheetItem, new KometDateTimePicker()) {
+
+                {
+                    super.getEditor().setDateTimeValue(dateTimeWrapper.getValue());
+                }
+
+                @Override
+                protected ObservableValue<LocalDateTime> getObservableValue() {
+                    return getEditor().dateTimeValueProperty();
+                }
+
+                @Override
+                public void setValue(LocalDateTime value) {
+                    getEditor().setDateTimeValue(value);
+                }
+            };
+            return dateTimePropertyEditor;
         }
         throw new UnsupportedOperationException("Not supported yet: " + propertySheetItem.getClass().getName());
     }
@@ -258,7 +287,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
     private PropertyEditor<?> createConceptListEditor(PropertySheetConceptListWrapper propertySheetConceptListWrapper) {
         ConceptListEditor editor = new ConceptListEditor(manifoldForDisplay);
         editor.setValue(propertySheetConceptListWrapper.getValue());
-        return  editor;
+        return editor;
     }
 
 }

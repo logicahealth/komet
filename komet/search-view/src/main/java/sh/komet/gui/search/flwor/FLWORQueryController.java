@@ -172,6 +172,8 @@ public class FLWORQueryController
     private TreeItem<QueryClause> root;
     private Manifold manifold;
     private LetPropertySheet letPropertySheet;
+    
+    private LetItemsController letItemsController;
 
     //~--- methods -------------------------------------------------------------
     @Override
@@ -225,10 +227,8 @@ public class FLWORQueryController
 
     @FXML
     void executeQuery(ActionEvent event) {
-        QueryBuilder queryBuilder = new QueryBuilder(this.letPropertySheet.getManifold())
+        QueryBuilder queryBuilder = new QueryBuilder()
                 .from(this.forAssemblage);
-
-        System.out.println("Search manifold:\n" + this.letPropertySheet.getManifold() + "\n");
 
         TreeItem<QueryClause> itemToProcess = this.root;
         Clause rootClause = itemToProcess.getValue()
@@ -427,7 +427,7 @@ public class FLWORQueryController
 
             } else if (clause.getClass().equals(DescriptionRegexMatch.class)) {
 
-            } else if (clause.getClass().equals(ChangedFromPreviousVersion.class)) {
+            } else if (clause.getClass().equals(ChangedBetweenVersions.class)) {
 
             } else if (clause.getClass().equals(FullyQualifiedNameForConcept.class)) {
 
@@ -701,7 +701,7 @@ public class FLWORQueryController
 
         letPropertySheet = new LetPropertySheet(this.manifold.deepClone());
         this.letAnchorPane.getChildren()
-                .add(letPropertySheet.getPropertySheet());
+                .add(letPropertySheet.getNode());
         
         setupForMenu();
     }
@@ -721,5 +721,10 @@ public class FLWORQueryController
     @Override
     public ReadOnlyProperty<String> getToolTip() {
         return toolTipProperty;
+    }
+
+    void setLetItemsController(LetItemsController letItemsController) {
+        this.letItemsController = letItemsController;
+        this.letPropertySheet.setLetItemsController(letItemsController);
     }
 }

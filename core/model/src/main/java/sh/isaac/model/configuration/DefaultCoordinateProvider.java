@@ -47,6 +47,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.collections.ObservableIntegerArray;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -246,14 +248,14 @@ public class DefaultCoordinateProvider {
    /**
     * Sets the default path.
     *
-    * @param conceptId the new default path
+    * @param pathSpecification
     */
-   public void setDefaultPath(int conceptId) {
+   public void setDefaultPath(ConceptSpecification pathSpecification) {
       setupDefaults();
-      this.observableStampPosition.stampPathNidProperty()
-                                  .set(conceptId);
+      this.observableStampPosition.stampPathConceptSpecificationProperty()
+                                  .set(pathSpecification);
       this.observableEditCoordinate.pathNidProperty()
-                                   .set(conceptId);
+                                   .set(pathSpecification.getNid());
    }
 
    /**

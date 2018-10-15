@@ -39,21 +39,10 @@ package sh.isaac.api.query;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Optional;
-import javax.xml.bind.annotation.XmlElementWrapper;
-
-//~--- non-JDK imports --------------------------------------------------------
-import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.query.clauses.ChangedFromPreviousVersion;
+import sh.isaac.api.query.clauses.ChangedBetweenVersions;
 import sh.isaac.api.query.clauses.ConceptForComponent;
 import sh.isaac.api.query.clauses.ConceptIs;
 import sh.isaac.api.query.clauses.ConceptIsChildOf;
@@ -70,7 +59,6 @@ import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
 import sh.isaac.api.query.clauses.AssemblageContainsString;
 import sh.isaac.api.query.clauses.AssemblageLuceneMatch;
 import sh.isaac.api.query.clauses.RelRestriction;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -110,8 +98,8 @@ public abstract class Query {
     /**
      * The let declarations.
      */
-    @XmlElementWrapper(name = "let")
-    private HashMap<String, Object> letDeclarations;
+    private final HashMap<String, Object> letDeclarations = new HashMap<>();
+
 
     /**
      * The concepts, stored as nids in a <code>NidSet</code>, that are
@@ -119,24 +107,18 @@ public abstract class Query {
      */
     private ForSetSpecification forSetSpecification;
 
-    /**
-     * The <code>ManifoldCoordinate</code> used in the query.
-     */
-    private ManifoldCoordinate manifoldCoordinate;
 
     //~--- constructors --------------------------------------------------------
     /**
      * Constructor for <code>Query</code>.
      *
-     * @param manifoldCoordinate the taxonomy coordinate
      * @param assemblageToIterate
      */
-    public Query(ManifoldCoordinate manifoldCoordinate, ConceptSpecification assemblageToIterate) {
-        this(manifoldCoordinate, new ForSetSpecification(assemblageToIterate));
+    public Query(ConceptSpecification assemblageToIterate) {
+        this(new ForSetSpecification(assemblageToIterate));
     }
 
-    public Query(ManifoldCoordinate manifoldCoordinate, ForSetSpecification forSetSpecification) {
-        this.manifoldCoordinate = manifoldCoordinate;
+    public Query(ForSetSpecification forSetSpecification) {
         this.forSetSpecification = forSetSpecification;
     }
 
@@ -150,10 +132,11 @@ public abstract class Query {
      * Not.
      *
      * @param clause the clause
+     * @param stampCoordinateKey
      * @return the not
      */
-    public Not Not(Clause clause) {
-        return new Not(this, clause);
+    public Not Not(Clause clause, String stampCoordinateKey) {
+        return new Not(this, clause, stampCoordinateKey);
     }
 
     /**
@@ -176,27 +159,6 @@ public abstract class Query {
         this.rootClause[0] = Where();
 
         final NidSet possibleComponents = this.rootClause[0].computePossibleComponents(For());
-
-        if (this.computeTypes.contains(ClauseComputeType.ITERATION)) {
-            final NidSet conceptsToIterateOver = NidSet.of(possibleComponents);
-            final NidSet conceptNids = NidSet.of(conceptsToIterateOver);
-
-            Get.conceptService()
-                    .getConceptChronologyStream(conceptNids)
-                    .forEach((concept) -> {
-                        concept.createMutableVersion(concept.getNid());
-
-                        final ConceptChronology cch = concept;
-                        final LatestVersion<ConceptVersion> latest
-                                = cch.getLatestVersion(this.manifoldCoordinate);
-
-                        if (latest.isPresent()) {
-                            this.rootClause[0].getChildren().stream().forEach((c) -> {
-                                c.getQueryMatches(latest.get());
-                            });
-                        }
-                    });
-        }
 
         return this.rootClause[0].computeComponents(possibleComponents);
     }
@@ -242,11 +204,12 @@ public abstract class Query {
     /**
      * Changed from previous version.
      *
-     * @param previousCoordinateKey the previous coordinate key
+     * @param stampVersionOneKey the previous coordinate key
+     * @param stampVersionTwoKey
      * @return the changed from previous version
      */
-    protected ChangedFromPreviousVersion ChangedFromPreviousVersion(String previousCoordinateKey) {
-        return new ChangedFromPreviousVersion(this, previousCoordinateKey);
+    protected ChangedBetweenVersions ChangedFromPreviousVersion(String stampVersionOneKey, String stampVersionTwoKey) {
+        return new ChangedBetweenVersions(this, stampVersionOneKey, stampVersionTwoKey);
     }
 
     /**
@@ -434,10 +397,12 @@ public abstract class Query {
      * Fully specified name for concept.
      *
      * @param clause the clause
+     * @param stampCoordinateKey
+     * @param languageCoordinateKey
      * @return the fully specified name for concept
      */
-    protected FullyQualifiedNameForConcept FullySpecifiedNameForConcept(Clause clause) {
-        return new FullyQualifiedNameForConcept(this, clause);
+    protected FullyQualifiedNameForConcept FullySpecifiedNameForConcept(Clause clause, String stampCoordinateKey, String languageCoordinateKey) {
+        return new FullyQualifiedNameForConcept(this, clause, stampCoordinateKey, languageCoordinateKey);
     }
 
     /**
@@ -464,10 +429,12 @@ public abstract class Query {
      * Preferred name for concept.
      *
      * @param clause the clause
+     * @param stampCoordinateKey
+     * @param languageCoordinateKey
      * @return the preferred name for concept
      */
-    protected PreferredNameForConcept PreferredNameForConcept(Clause clause) {
-        return new PreferredNameForConcept(this, clause);
+    protected PreferredNameForConcept PreferredNameForConcept(Clause clause, String stampCoordinateKey, String languageCoordinateKey) {
+        return new PreferredNameForConcept(this, clause, stampCoordinateKey, languageCoordinateKey);
     }
 
     /**
@@ -656,14 +623,6 @@ public abstract class Query {
         return this.computeTypes;
     }
 
-    /**
-     * Gets the language coordinate.
-     *
-     * @return the language coordinate
-     */
-    public LanguageCoordinate getLanguageCoordinate() {
-        return this.manifoldCoordinate;
-    }
 
     /**
      * Gets the let declarations.
@@ -671,32 +630,7 @@ public abstract class Query {
      * @return the let declarations
      */
     public HashMap<String, Object> getLetDeclarations() {
-        if (this.letDeclarations == null) {
-            this.letDeclarations = new HashMap<>();
-
-            if (!this.letDeclarations.containsKey(CURRENT_TAXONOMY_RESULT)) {
-                if (this.manifoldCoordinate != null) {
-                    this.letDeclarations.put(CURRENT_TAXONOMY_RESULT, this.manifoldCoordinate);
-                } else {
-                    this.letDeclarations.put(CURRENT_TAXONOMY_RESULT,
-                            Get.configurationService()
-                                    .getUserConfiguration(Optional.empty()).getManifoldCoordinate());
-                }
-            }
-
-            Let();
-        }
-
         return this.letDeclarations;
-    }
-
-    /**
-     * Gets the logic coordinate.
-     *
-     * @return the logic coordinate
-     */
-    public LogicCoordinate getLogicCoordinate() {
-        return this.manifoldCoordinate.getLogicCoordinate();
     }
 
     /**
@@ -729,23 +663,4 @@ public abstract class Query {
     }
 
     //~--- get methods ---------------------------------------------------------
-    /**
-     * Gets the stamp coordinate.
-     *
-     * @return the <code>StampCoordinate</code> in the query
-     */
-    public StampCoordinate getStampCoordinate() {
-        return this.manifoldCoordinate.getStampCoordinate();
-    }
-
-    //~--- set methods ---------------------------------------------------------
-    /**
-     * Set <code>ManifoldCoordinate</code> used in the query.
-     *
-     * @param manifoldCoordinate the new <code>ManifoldCoordinate</code> used in
-     * the query
-     */
-    public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
-        this.manifoldCoordinate = manifoldCoordinate;
-    }
 }

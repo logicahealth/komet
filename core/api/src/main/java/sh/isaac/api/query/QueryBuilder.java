@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
  *
@@ -31,7 +30,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 public class QueryBuilder  {
    public static final String DEFAULT_MANIFOLD_COORDINATE_KEY = "DEFAULT_MANIFOLD_COORDINATE_KEY";
    int sequence = 0;
-   ManifoldCoordinate manifoldCoordinate;
    ParentClause root;
    
    List<ComponentCollectionTypes> forClause = new ArrayList<>();
@@ -40,9 +38,7 @@ public class QueryBuilder  {
    List<Object> orderByClauses = new ArrayList<>();
    List<Object> returnClauses = new ArrayList<>();
 
-   public QueryBuilder(ManifoldCoordinate manifoldCoordinate) {
-      this.manifoldCoordinate = manifoldCoordinate;
-      letClauses.put(DEFAULT_MANIFOLD_COORDINATE_KEY, manifoldCoordinate);
+   public QueryBuilder() {
    }
    
    /**
@@ -96,7 +92,7 @@ public class QueryBuilder  {
    
    public Query build() {
       
-      QueryBuilderQuery query = new QueryBuilderQuery(this.manifoldCoordinate);
+      QueryBuilderQuery query = new QueryBuilderQuery();
       
       
       
@@ -111,8 +107,8 @@ public class QueryBuilder  {
    class QueryBuilderQuery extends Query {
 
 
-      public QueryBuilderQuery(ManifoldCoordinate manifoldCoordinate) {
-         super(manifoldCoordinate, QueryBuilder.this.forSetSpecification);
+      public QueryBuilderQuery() {
+         super(QueryBuilder.this.forSetSpecification);
          getLetDeclarations().putAll(letClauses);
       }
       

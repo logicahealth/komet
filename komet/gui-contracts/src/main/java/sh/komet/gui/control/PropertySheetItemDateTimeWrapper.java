@@ -51,18 +51,21 @@ public class PropertySheetItemDateTimeWrapper implements PropertySheet.Item {
     }
 
     @Override
-    public Object getValue() {
+    public LocalDateTime getValue() {
         return this.dateObserver.get();
     }
 
     @Override
     public void setValue(Object value) {
         LocalDateTime localDateTime = (LocalDateTime) value;
+        if (value == null) {
+            localDateTime = LocalDateTime.now();
+        }
         this.dateObserver.setValue(localDateTime);
-        if (localDateTime.equals(LocalDateTime.MAX)) {
+        if (localDateTime.isEqual(LocalDateTime.MAX)) {
             this.timeProperty.set(Long.MAX_VALUE);
         } else {
-            this.timeProperty.set(localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli());
+            this.timeProperty.set(localDateTime.toEpochSecond(ZoneOffset.UTC));
         }
     }
 

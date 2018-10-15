@@ -65,7 +65,7 @@ public class StampCoordinates {
     */
    public static StampCoordinate getDevelopmentLatest() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.DEVELOPMENT_PATH.getNid());
+                                                                TermAux.DEVELOPMENT_PATH);
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
@@ -81,7 +81,7 @@ public class StampCoordinates {
     */
    public static StampCoordinate getDevelopmentLatestActiveOnly() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.DEVELOPMENT_PATH.getNid());
+                                                                TermAux.DEVELOPMENT_PATH);
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
@@ -97,7 +97,7 @@ public class StampCoordinates {
     */
    public static StampCoordinate getMasterLatest() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.MASTER_PATH.getNid());
+                                                                TermAux.MASTER_PATH);
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
@@ -113,7 +113,7 @@ public class StampCoordinates {
     */
    public static StampCoordinate getMasterLatestActiveOnly() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.MASTER_PATH.getNid());
+                                                                TermAux.MASTER_PATH);
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,

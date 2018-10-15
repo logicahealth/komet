@@ -148,7 +148,7 @@ public class ConfigurationTests {
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultInferredAssemblage(-5);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultLanguage(-6);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultModule(-7);
-		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPath(-8);
+		//Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPath(TermAux.DEVELOPMENT_PATH);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPremiseType(PremiseType.STATED);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultStatedAssemblage(-9);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultTime(10);
@@ -169,7 +169,7 @@ public class ConfigurationTests {
 		Assert.assertEquals(-5, c.getDefaultLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(-6, c.getDefaultLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(-7, c.getDefaultEditCoordinate().getModuleNid());
-		Assert.assertEquals(-8, c.getDefaultEditCoordinate().getPathNid());
+		//Assert.assertEquals(TermAux.DEVELOPMENT_PATH.getNid(), c.getDefaultEditCoordinate().getPathNid());
 		Assert.assertEquals(PremiseType.STATED, c.getDefaultManifoldCoordinate().getTaxonomyPremiseType());
 		Assert.assertEquals(-9, c.getDefaultLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(10, c.getDefaultStampCoordinate().getStampPosition().getTime());
@@ -184,7 +184,7 @@ public class ConfigurationTests {
 		Assert.assertEquals(-5, uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(-6, uc.getLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(-7, uc.getEditCoordinate().getModuleNid());
-		Assert.assertEquals(-8, uc.getEditCoordinate().getPathNid());
+		//Assert.assertEquals(TermAux.DEVELOPMENT_PATH.getNid(), uc.getEditCoordinate().getPathNid());
 		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getTaxonomyPremiseType());
 		Assert.assertEquals(-9, uc.getLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(10, uc.getStampCoordinate().getStampPosition().getTime());

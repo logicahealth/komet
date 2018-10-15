@@ -42,8 +42,6 @@ package sh.isaac.api.query;
 //~--- JDK imports ------------------------------------------------------------
 
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -54,6 +52,7 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -64,16 +63,14 @@ import sh.isaac.api.component.concept.ConceptVersion;
  *
  * @author kec
  */
-@XmlRootElement()
 public class Not
         extends ParentClause {
    /** The for set. */
-   @XmlTransient
    NidSet forSet;
 
    /** The not set. */
-   @XmlTransient
    NidSet notSet;
+    private String stampCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -89,9 +86,11 @@ public class Not
     *
     * @param enclosingQuery the enclosing query
     * @param child the child
+     * @param stampCoordinateKey
     */
-   public Not(Query enclosingQuery, Clause child) {
+   public Not(Query enclosingQuery, Clause child, String stampCoordinateKey) {
       super(enclosingQuery, child);
+        this.stampCoordinateKey = stampCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -108,10 +107,11 @@ public class Not
       assert this.forSet != null;
 
       final NidSet activeSet = new NidSet();
+      StampCoordinate stampCoordinate = (StampCoordinate) getEnclosingQuery().getLetDeclarations().get(stampCoordinateKey);
 
       Get.conceptService().getConceptChronologyStream(incomingComponents).forEach((ConceptChronology cc) -> {
                      final LatestVersion<ConceptVersion> latestVersion =
-                        cc.getLatestVersion(getEnclosingQuery().getStampCoordinate());
+                        cc.getLatestVersion(stampCoordinate);
 
                      if (latestVersion.isPresent()) {
                         activeSet.add(cc.getNid());

@@ -72,6 +72,7 @@ public interface ObservableStampCoordinate
     * @return the object property
     */
    ObjectProperty<ObservableIntegerArray> moduleNidsProperty();
+   
    /**
     * Module preference list property.
     *

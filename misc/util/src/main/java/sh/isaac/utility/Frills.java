@@ -2065,7 +2065,7 @@ public class Frills
       HashSet<Integer> terminologyTypes = new HashSet<>();
       
       TaxonomySnapshot tss = Get.taxonomyService().getStatedLatestSnapshot(
-            (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathNid() : stamp.getStampPosition().getStampPathNid()),
+            (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathSpecification().getNid() : stamp.getStampPosition().getStampPathSpecification().getNid()),
             (stamp == null ? NidSet.EMPTY : stamp.getModuleNids()),
             (stamp == null ? Status.ACTIVE_ONLY_SET : stamp.getAllowedStates()));
 

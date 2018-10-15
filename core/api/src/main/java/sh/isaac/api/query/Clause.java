@@ -252,7 +252,7 @@ public abstract class Clause implements ConceptSpecification {
       return new Clause[] { new And(), new AndNot(), new Not(), new Or(), new Xor(), 
          new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
          new AssemblageContainsString(), new AssemblageLuceneMatch(),
-         new ChangedFromPreviousVersion(), new ConceptForComponent(),
+         new ChangedBetweenVersions(), new ConceptForComponent(),
          new ConceptIs(), new ConceptIsChildOf(), new ConceptIsDescendentOf(),
          new ConceptIsKindOf(), new DescriptionActiveLuceneMatch(),
          new DescriptionActiveRegexMatch(), new DescriptionLuceneMatch(),

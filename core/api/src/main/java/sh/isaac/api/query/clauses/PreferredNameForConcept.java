@@ -43,9 +43,6 @@ package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -71,11 +68,12 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
  *
  * @author dylangrald
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class PreferredNameForConcept
         extends ParentClause {
-   /**
+    private String languageCoordinateKey;
+    private String stampCoordinateKey;
+
+    /**
     * Instantiates a new preferred name for concept.
     */
    public PreferredNameForConcept() {}
@@ -85,11 +83,14 @@ public class PreferredNameForConcept
     *
     * @param enclosingQuery the enclosing query
     * @param child the child
+     * @param stampCoordinateKey
+     * @param languageCoordinateKey
     */
-   public PreferredNameForConcept(Query enclosingQuery, Clause child) {
+   public PreferredNameForConcept(Query enclosingQuery, Clause child, String stampCoordinateKey, String languageCoordinateKey) {
       super(enclosingQuery, child);
+      this.languageCoordinateKey = languageCoordinateKey;
+      this.stampCoordinateKey = stampCoordinateKey;
    }
-
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -100,8 +101,8 @@ public class PreferredNameForConcept
     */
    @Override
    public NidSet computeComponents(NidSet incomingConcepts) {
-      final LanguageCoordinate languageCoordinate    = getEnclosingQuery().getLanguageCoordinate();
-      final StampCoordinate    stampCoordinate       = getEnclosingQuery().getStampCoordinate();
+      final LanguageCoordinate languageCoordinate         = (LanguageCoordinate) getEnclosingQuery().getLetDeclarations().get(this.languageCoordinateKey);
+      final StampCoordinate    stampCoordinate            = (StampCoordinate) getEnclosingQuery().getLetDeclarations().get(this.stampCoordinateKey);
       final NidSet             outgoingPreferredNids = new NidSet();
 
       getChildren().stream().map((childClause) -> childClause.computePossibleComponents(incomingConcepts)).map((childPossibleComponentNids) -> NidSet.of(childPossibleComponentNids)).forEach((conceptNidSet) -> {

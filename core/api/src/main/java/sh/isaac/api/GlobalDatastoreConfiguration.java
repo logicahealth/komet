@@ -17,6 +17,7 @@ package sh.isaac.api;
 
 import java.util.Optional;
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.PremiseType;
@@ -200,9 +201,9 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	 * objects that reference this object will be updated accordingly. Default:
 	 * The value to use if another value is not provided.
 	 *
-	 * @param conceptId the nid of a concept
+         * @param pathSpecification
 	 */
-	public default void setDefaultPath(int conceptId)
+	public default void setDefaultPath(ConceptSpecification pathSpecification)
 	{
 		throw new UnsupportedOperationException();
 	}

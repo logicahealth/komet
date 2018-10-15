@@ -43,6 +43,12 @@ public class FLWORQueryViewFactory implements ExplorationNodeFactory {
          loader.load();
          FLWORQueryController flworQueryController = loader.getController();
          flworQueryController.setManifold(manifold);
+         
+         FXMLLoader letItemsLoader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/LetItems.fxml"));
+         letItemsLoader.load();
+         LetItemsController letItemsController = letItemsLoader.getController();
+         flworQueryController.setLetItemsController(letItemsController);
+         
          return flworQueryController;
       } catch (IOException ex) {
          throw new RuntimeException(ex);
