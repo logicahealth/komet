@@ -596,7 +596,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                
                final ConceptBuilder syn = createConcept(TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
-               syn.addDescription("Synonyn", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
+               syn.addDescription("Synonym", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                createConcept(TermAux.DEFINITION_DESCRIPTION_TYPE);
                popParent();
             createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // LOINC and RxNorm description types are created under this node
