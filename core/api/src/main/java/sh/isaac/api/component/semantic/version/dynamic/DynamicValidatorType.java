@@ -38,6 +38,7 @@
 package sh.isaac.api.component.semantic.version.dynamic;
 
 import java.security.InvalidParameterException;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -348,13 +349,13 @@ public enum DynamicValidatorType {
                
                return Get.taxonomyService().getStatedLatestSnapshot(
                      Get.stampService().getPathNidForStamp(stampSequence), 
-                     NidSet.EMPTY,  //the stamp sequence is only going to tell us the module this semantic is being created on, 
+                     new HashSet(),  //the stamp sequence is only going to tell us the module this semantic is being created on, 
                      //but often, the is_child_of check is about a different concept entirely, likely in a different module.
                      Status.ACTIVE_ONLY_SET).isChildOf(childId, parentId);
             } else {  //IS_KIND_OF
                return Get.taxonomyService().getStatedLatestSnapshot(
                       Get.stampService().getPathNidForStamp(stampSequence), 
-                      NidSet.EMPTY,  //the stamp sequence is only going to tell us the module this semantic is being created on, 
+                      new HashSet(),  //the stamp sequence is only going to tell us the module this semantic is being created on, 
                       //but often, the is_child_of check is about a different concept entirely, likely in a different module.
                       Status.ACTIVE_ONLY_SET).isKindOf(childId, parentId);
             }

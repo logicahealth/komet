@@ -40,6 +40,7 @@
 package sh.isaac.api;
 
 import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.BinaryOperator;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -52,6 +53,7 @@ import java.util.stream.IntStream;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -129,7 +131,7 @@ public interface TaxonomyService
 	 * @param allowedStates
 	 * @return the Snapshot service
 	 */
-	TaxonomySnapshot getStatedLatestSnapshot(int pathNid, NidSet modules, EnumSet<Status> allowedStates);
+	TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, EnumSet<Status> allowedStates);
    
    /**
     * 

@@ -41,12 +41,14 @@ package sh.isaac.api.collections;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 
 //~--- classes ----------------------------------------------------------------
@@ -104,8 +106,8 @@ public class NidSet
     * @param members the members
     * @return the nid set
     */
-   public static NidSet of(Collection<Integer> members) {
-      return new NidSet(members.stream().mapToInt(i -> i));
+   public static NidSet of(Collection<ConceptSpecification> members) {
+      return new NidSet(members.stream().mapToInt(i -> i.getNid()));
    }
 
    /**
@@ -117,6 +119,15 @@ public class NidSet
    public static NidSet of(int... members) {
       return new NidSet(members);
    }
+   
+   public static NidSet of(Integer... members) {
+      return new NidSet(Arrays.stream(members).mapToInt(i -> i));
+   }
+   
+   public static NidSet of(ConceptSpecification... members) {
+      return new NidSet(Arrays.stream(members).mapToInt(i -> i.getNid()));
+   }
+   
    public static NidSet concurrent() {
       return new NidSet(Concurrency.THREAD_SAFE);
    }

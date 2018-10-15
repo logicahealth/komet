@@ -42,6 +42,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.TemporalAccessor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -252,12 +253,7 @@ public class CoordinateFactoryProvider
      * @return the stamp coordinate
      */
     @Override
-    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
-            StampPrecedence precedence,
-            List<ConceptSpecification> moduleSpecificationList,
-            int[] modulePriorityList,
-            EnumSet<Status> allowedStateSet,
-            CharSequence dateTimeText) {
+    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath, StampPrecedence precedence, List<ConceptSpecification> moduleSpecificationList, java.util.List modulePriorityList, EnumSet<Status> allowedStateSet, CharSequence dateTimeText) {
         final StampPositionImpl stampPosition = new StampPositionImpl(
                 LocalDateTime.parse(dateTimeText).toEpochSecond(ZoneOffset.UTC),
                 stampPath.getNid());
@@ -271,6 +267,7 @@ public class CoordinateFactoryProvider
      * @param stampPath the stamp path
      * @param precedence the precedence
      * @param moduleSpecificationList the module specification list
+     * @param modulePriorityList
      * @param allowedStateSet the allowed state set
      * @param temporal the temporal
      * @return the stamp coordinate
@@ -278,9 +275,9 @@ public class CoordinateFactoryProvider
     @Override
     public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
             StampPrecedence precedence,
-            List<ConceptSpecification> moduleSpecificationList,
-             int[] modulePriorityList,
-           EnumSet<Status> allowedStateSet,
+            Collection<ConceptSpecification> moduleSpecificationList,
+            List<ConceptSpecification> modulePriorityList,
+            EnumSet<Status> allowedStateSet,
             TemporalAccessor temporal) {
         final StampPositionImpl stampPosition = new StampPositionImpl(
                 LocalDateTime.from(temporal).toEpochSecond(ZoneOffset.UTC),
@@ -295,6 +292,7 @@ public class CoordinateFactoryProvider
      * @param stampPath the stamp path
      * @param precedence the precedence
      * @param moduleSpecificationList the module specification list
+     * @param modulePriorityList
      * @param allowedStateSet the allowed state set
      * @param year the year
      * @param month the month
@@ -307,8 +305,8 @@ public class CoordinateFactoryProvider
     @Override
     public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
             StampPrecedence precedence,
-            List<ConceptSpecification> moduleSpecificationList,
-            int[] modulePriorityList,
+            Collection<ConceptSpecification> moduleSpecificationList,
+            List<ConceptSpecification> modulePriorityList,
             EnumSet<Status> allowedStateSet,
             int year,
             int month,

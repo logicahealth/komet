@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.TreeSet;
@@ -161,8 +162,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
 
         StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH,
                 stampPosition,
-                new NidSet(),
-                new int[0],
+                new HashSet(), new ArrayList(),
                 Status.makeActiveOnlySet());
 
         // only process active concepts... TODO... Process all

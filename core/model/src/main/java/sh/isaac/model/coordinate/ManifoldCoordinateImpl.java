@@ -44,6 +44,7 @@ package sh.isaac.model.coordinate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -60,6 +61,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -75,8 +77,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author kec
  */
-@XmlRootElement(name = "manifoldCoordinate")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class ManifoldCoordinateImpl
          implements ManifoldCoordinate {
 
@@ -84,15 +84,12 @@ public class ManifoldCoordinateImpl
    PremiseType taxonomyPremiseType;
 
    /** The stamp coordinate. */
-   @XmlJavaTypeAdapter(AnyTypeAdapter.class)
    StampCoordinate stampCoordinate;
 
    /** The language coordinate. */
-   @XmlJavaTypeAdapter(AnyTypeAdapter.class)
    LanguageCoordinate languageCoordinate;
 
    /** The logic coordinate. */
-   @XmlJavaTypeAdapter(AnyTypeAdapter.class)
    LogicCoordinate logicCoordinate;
 
    /** The uuid. */
@@ -355,8 +352,13 @@ public class ManifoldCoordinateImpl
     }
 
     @Override
-    public int[] getModulePreferenceListForVersions() {
+    public List<ConceptSpecification> getModulePreferenceListForVersions() {
         return stampCoordinate.getModulePreferenceListForVersions();
+    }
+
+    @Override
+    public Set<ConceptSpecification> getModuleSpecifications() {
+        return stampCoordinate.getModuleSpecifications();
     }
     
     

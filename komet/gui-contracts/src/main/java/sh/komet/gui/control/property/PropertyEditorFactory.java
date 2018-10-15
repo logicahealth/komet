@@ -55,6 +55,7 @@ import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
 import sh.komet.gui.control.PropertySheetItemStringListWrapper;
 import sh.komet.gui.control.PropertySheetPasswordWrapper;
+import sh.komet.gui.control.PropertySheetStampPrecedenceWrapper;
 import sh.komet.gui.control.PropertySheetStatusSetWrapper;
 import sh.komet.gui.control.PropertySheetStatusWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
@@ -133,6 +134,9 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
         } else if (propertySheetItem instanceof PropertySheetStatusSetWrapper) {
             return Editors.createChoiceEditor(propertySheetItem,
                     ((PropertySheetStatusSetWrapper) propertySheetItem).getAllowedValues());
+        } else if (propertySheetItem instanceof PropertySheetStampPrecedenceWrapper) {
+            return Editors.createChoiceEditor(propertySheetItem,
+                    ((PropertySheetStampPrecedenceWrapper) propertySheetItem).getAllowedValues());
         } else if (propertySheetItem instanceof PropertySheetItemDateTimeWrapper) {
             PropertySheetItemDateTimeWrapper dateTimeWrapper = (PropertySheetItemDateTimeWrapper) propertySheetItem;
             PropertyEditor<?> dateTimePropertyEditor = new AbstractPropertyEditor<LocalDateTime, KometDateTimePicker>(propertySheetItem, new KometDateTimePicker()) {

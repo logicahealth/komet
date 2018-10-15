@@ -86,7 +86,10 @@ public enum ObservableFields
       "Dialect assemblage nid preference list for language coordinate", "Dialect preferences"),
    
    MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE(
-      "Module nid preference list for stamp coordinate", "Mofule for version preferences"),
+      "Module nid preference list for stamp coordinate", "Module nids for version preferences"),
+   
+   MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE(
+      "Module preference list for stamp coordinate", "Modules for version preferences"),
    
    
    NEXT_PRIORITY_LANGUAGE_COORDINATE(
@@ -116,6 +119,8 @@ public enum ObservableFields
 
    /** The module nid array for stamp coordinate. */
    MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("Module nid array for stamp coordinate", "Modules for stamp coordinates"),
+   
+   MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Module specification set for stamp coordinate", "Modules for stamp coordinates"),
 
    /** The allowed states for stamp coordinate. */
    ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),

@@ -984,7 +984,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
     private void resetReadManifold() {
         StampCoordinate stamp = new StampCoordinateImpl(outsideManifold.getStampCoordinate().getStampPrecedence(),
                 new StampPositionImpl(Long.MAX_VALUE, outsideManifold.getStampCoordinate().getStampPosition().getStampPathSpecification()),
-                NidSet.EMPTY, new int[0], Status.ANY_STATUS_SET);
+                new HashSet(), new ArrayList(), Status.ANY_STATUS_SET);
         readManifoldCoordinate = ManifoldCoordinates.getStatedManifoldCoordinate(stamp, outsideManifold.getLanguageCoordinate());
     }
 

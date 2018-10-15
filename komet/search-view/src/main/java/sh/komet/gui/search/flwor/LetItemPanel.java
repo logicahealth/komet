@@ -26,6 +26,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampPosition;
 import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
+import sh.komet.gui.control.PropertySheetStampPrecedenceWrapper;
 import sh.komet.gui.control.PropertySheetStatusSetWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
@@ -84,5 +85,6 @@ public class LetItemPanel {
         this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, "Path", 
                 stampPosition.stampPathConceptSpecificationProperty(), TermAux.DEVELOPMENT_PATH, TermAux.MASTER_PATH));
         this.sheet.getItems().add(new PropertySheetItemDateTimeWrapper("Time", stampPosition.timeProperty()));
+        this.sheet.getItems().add(new PropertySheetStampPrecedenceWrapper("Precedence", stampCoordinateItem.stampPrecedenceProperty()));
     }
 }

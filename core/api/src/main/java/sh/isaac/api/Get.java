@@ -57,6 +57,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 import com.lmax.disruptor.dsl.Disruptor;
+import java.util.Collection;
 import javafx.concurrent.Task;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -437,9 +438,15 @@ public class Get
     * @param conceptIds the concept ids
     * @return the string
     */
-   public static String conceptDescriptionTextList(List<Integer> conceptIds) {
+   public static String conceptDescriptionTextList(Collection<Integer> conceptIds) {
       return conceptDescriptionTextList(conceptIds.stream()
             .mapToInt((boxedInt) -> (int) boxedInt)
+            .toArray());
+   }
+
+   public static String conceptDescriptionTextListFromSpecList(Collection<ConceptSpecification> conceptSpecifications) {
+      return conceptDescriptionTextList(conceptSpecifications.stream()
+            .mapToInt((spec) -> (int) spec.getNid())
             .toArray());
    }
 

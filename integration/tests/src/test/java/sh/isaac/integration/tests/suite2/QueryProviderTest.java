@@ -229,22 +229,22 @@ public class QueryProviderTest {
 		Assert.assertEquals(di.query("fu*", new int[] {MetaData.IRISH_LANGUAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 1);
 		Assert.assertEquals(di.query("fuisce", new int[] {MetaData.IRISH_LANGUAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 1);
 		
-		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictPath(NidSet.of(Arrays.asList(new Integer[] {MetaData.DEVELOPMENT_PATH____SOLOR.getNid()}))), 
+		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictPath(NidSet.of(new Integer[] {MetaData.DEVELOPMENT_PATH____SOLOR.getNid()})), 
 				null, 10, null).size(), 10);
-		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictPath(NidSet.of(Arrays.asList(new Integer[] {MetaData.MASTER_PATH____SOLOR.getNid()}))), 
+		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictPath(NidSet.of(new Integer[] {MetaData.MASTER_PATH____SOLOR.getNid()})), 
 				null, 10, null).size(), 0);
 		
-		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictModule(NidSet.of(Arrays.asList(new Integer[] 
-				{Get.identifierService().getNidForUuids(UUID.fromString("ef56f36a-9b3a-54e7-9afd-c48b36f4c5e3"))}))),  //UUID for bevon module 0.8
+		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictModule(NidSet.of(new Integer[] 
+				{Get.identifierService().getNidForUuids(UUID.fromString("ef56f36a-9b3a-54e7-9afd-c48b36f4c5e3"))})),  //UUID for bevon module 0.8
 				null, 10, null).size(), 10);
-		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictModule(NidSet.of(Arrays.asList(new Integer[] {MetaData.ICD10_MODULES____SOLOR.getNid()}))), 
+		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictModule(NidSet.of(new Integer[] {MetaData.ICD10_MODULES____SOLOR.getNid()})), 
 				null, 10, null).size(), 0);
 		
 		int userNid = Get.assemblageService().getSemanticChronology(di.query("jayg.me").get(0).getNid()).getReferencedComponentNid();
 		
-		Assert.assertEquals(di.query("whiskey", null, AuthorModulePathRestriction.restrictAuthor(NidSet.of(Arrays.asList(new Integer[] {userNid}))), 
+		Assert.assertEquals(di.query("whiskey", null, AuthorModulePathRestriction.restrictAuthor(NidSet.of(new Integer[] {userNid})), 
 				null, 13, null).size(), 13);
-		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictAuthor(NidSet.of(Arrays.asList(new Integer[] {MetaData.KEITH_EUGENE_CAMPBELL____SOLOR.getNid()}))), 
+		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictAuthor(NidSet.of(new Integer[] {MetaData.KEITH_EUGENE_CAMPBELL____SOLOR.getNid()})), 
 				null, 13, null).size(), 0);
 	}
 	

@@ -41,9 +41,10 @@ package sh.isaac.model.configuration;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
@@ -69,8 +70,8 @@ public class StampCoordinates {
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     new NidSet(),
-                                     new int[0],
+                                     new HashSet(),
+                                     new ArrayList(),
                                      Status.makeAnyStateSet());
    }
 
@@ -85,8 +86,8 @@ public class StampCoordinates {
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     new NidSet(),
-                                     new int[0],
+                                     new HashSet(),
+                                     new ArrayList(),
                                      Status.makeActiveOnlySet());
    }
 
@@ -101,8 +102,8 @@ public class StampCoordinates {
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     new NidSet(),
-                                     new int[0],
+                                     new HashSet(),
+                                     new ArrayList(),
                                      Status.makeAnyStateSet());
    }
 
@@ -117,8 +118,8 @@ public class StampCoordinates {
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     new NidSet(),
-                                     new int[0],
+                                     new HashSet(),
+                                     new ArrayList(),
                                      Status.makeActiveOnlySet());
    }
 }
