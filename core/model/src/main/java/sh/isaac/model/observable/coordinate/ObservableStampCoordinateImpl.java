@@ -279,25 +279,25 @@ public class ObservableStampCoordinateImpl
     }
 
     @Override
-    public ObservableList<ConceptSpecification> getModulePreferenceListForVersions() {
+    public ObservableList<ConceptSpecification> getModulePreferenceOrderForVersions() {
         return this.modulePreferenceListForVersionsProperty().get();
     }
     /**
      * The dialect assemblage preference list property.
      */
-    SimpleListProperty<ConceptSpecification> modulePreferenceListForVersionsProperty = null;
+    SimpleListProperty<ConceptSpecification> modulePreferenceOrderForVersionsProperty = null;
 
     @Override
     public ListProperty<ConceptSpecification> modulePreferenceListForVersionsProperty() {
-        if (this.modulePreferenceListForVersionsProperty == null) {
-            ObservableList<ConceptSpecification> preferenceList = FXCollections.observableArrayList(this.stampCoordinate.getModulePreferenceListForVersions());
-            this.modulePreferenceListForVersionsProperty = new SimpleListProperty(this,
+        if (this.modulePreferenceOrderForVersionsProperty == null) {
+            ObservableList<ConceptSpecification> preferenceList = FXCollections.observableArrayList(this.stampCoordinate.getModulePreferenceOrderForVersions());
+            this.modulePreferenceOrderForVersionsProperty = new SimpleListProperty(this,
                     ObservableFields.MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE.toExternalString(),
                     preferenceList);
             this.stampCoordinate.setModulePreferenceListForVersions(preferenceList);
         }
 
-        return this.modulePreferenceListForVersionsProperty;
+        return this.modulePreferenceOrderForVersionsProperty;
     }
 
     @Override

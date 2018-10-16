@@ -104,8 +104,8 @@ public class StampCoordinateImmutableWrapper implements StampCoordinate {
     }
 
     @Override
-    public List<ConceptSpecification> getModulePreferenceListForVersions() {
-        return stampCoordinate.getModulePreferenceListForVersions();
+    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
+        return stampCoordinate.getModulePreferenceOrderForVersions();
     }
 
     @Override

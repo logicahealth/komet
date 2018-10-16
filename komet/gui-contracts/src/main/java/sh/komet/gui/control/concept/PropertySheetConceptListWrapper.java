@@ -17,7 +17,7 @@
 package sh.komet.gui.control.concept;
 
 import java.util.Optional;
-import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.ListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
@@ -31,10 +31,10 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class PropertySheetConceptListWrapper implements PropertySheet.Item {
 
-    private final SimpleListProperty<ConceptSpecification> conceptListProperty;
+    private final ListProperty<ConceptSpecification> conceptListProperty;
     private final String name;
 
-    public PropertySheetConceptListWrapper(Manifold manifold, SimpleListProperty<ConceptSpecification> conceptListProperty) {
+    public PropertySheetConceptListWrapper(Manifold manifold, ListProperty<ConceptSpecification> conceptListProperty) {
         this.conceptListProperty = conceptListProperty;
         this.name = manifold.getPreferredDescriptionText(new ConceptProxy(conceptListProperty.getName()));
     }

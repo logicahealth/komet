@@ -16,7 +16,6 @@
  */
 package sh.komet.gui.control.property;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import sh.komet.gui.control.concept.ConceptLabel;
@@ -30,6 +29,8 @@ import java.util.NoSuchElementException;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.CheckBox;
@@ -40,7 +41,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.util.Callback;
-import javafx.util.StringConverter;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.Editors;
@@ -64,6 +64,7 @@ import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
 import sh.komet.gui.control.concept.ConceptListEditor;
 import sh.komet.gui.control.concept.ConceptSpecificationEditor;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
+import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapperEditor;
@@ -76,7 +77,6 @@ import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.time.KometDateTimePicker;
-import tornadofx.control.DateTimePicker;
 
 /**
  *
@@ -131,6 +131,8 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return createPasswordEditor(propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetConceptListWrapper) {
             return createConceptListEditor((PropertySheetConceptListWrapper) propertySheetItem);
+        } else if (propertySheetItem instanceof PropertySheetConceptSetWrapper) {
+            return createConceptListEditor((PropertySheetConceptSetWrapper) propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetStatusSetWrapper) {
             return Editors.createChoiceEditor(propertySheetItem,
                     ((PropertySheetStatusSetWrapper) propertySheetItem).getAllowedValues());
@@ -294,4 +296,9 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
         return editor;
     }
 
+    private PropertyEditor<?> createConceptListEditor(PropertySheetConceptSetWrapper propertySheetConceptSetWrapper) {
+        ConceptListEditor editor = new ConceptListEditor(manifoldForDisplay);
+        editor.setValue(propertySheetConceptSetWrapper.getValue());
+        return editor;
+    }
 }

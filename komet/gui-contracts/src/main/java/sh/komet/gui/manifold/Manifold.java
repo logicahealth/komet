@@ -444,8 +444,8 @@ public class Manifold
     }
 
     @Override
-    public List<ConceptSpecification> getModulePreferenceListForVersions() {
-        return this.observableManifoldCoordinate.getModulePreferenceListForVersions();
+    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
+        return this.observableManifoldCoordinate.getModulePreferenceOrderForVersions();
     }
 
     @Override

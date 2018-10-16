@@ -386,8 +386,8 @@ public class ConceptSnapshotImpl
     }
 
     @Override
-    public List<ConceptSpecification> getModulePreferenceListForVersions() {
-        return this.manifoldCoordinate.getModulePreferenceListForVersions();
+    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
+        return this.manifoldCoordinate.getModulePreferenceOrderForVersions();
     }
 
     @Override
