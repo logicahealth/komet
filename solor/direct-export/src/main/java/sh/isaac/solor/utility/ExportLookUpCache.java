@@ -1,4 +1,4 @@
-package sh.isaac.solor;
+package sh.isaac.solor.utility;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;

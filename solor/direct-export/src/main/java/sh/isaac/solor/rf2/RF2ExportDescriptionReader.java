@@ -7,6 +7,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.solor.ExportConfiguration;
 import sh.komet.gui.manifold.Manifold;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class RF2ExportDescriptionReader extends TimedTaskWithProgressTracker<Lis
     private final Semaphore readSemaphore;
     private final Manifold manifold;
 
-    public RF2ExportDescriptionReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold) {
+    public RF2ExportDescriptionReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, ExportConfiguration exportConfiguration) {
         this.chronologies = chronologies;
         this.readSemaphore = readSemaphore;
         this.manifold = manifold;
@@ -28,7 +29,7 @@ public class RF2ExportDescriptionReader extends TimedTaskWithProgressTracker<Lis
 
         readSemaphore.acquireUninterruptibly();
 
-        updateTitle("Reading description batch of size: " + chronologies.size());
+        updateTitle("Reading " + exportConfiguration.getMessage() + " batch of size: " + chronologies.size());
         updateMessage("Processing batch of descriptions for RF2 Export");
         addToTotalWork(chronologies.size());
         Get.activeTasks().add(this);
@@ -51,6 +52,7 @@ public class RF2ExportDescriptionReader extends TimedTaskWithProgressTracker<Lis
                                 .append(getCaseSignificanceId(chronology)) //caseSignificanceId
                                 .append("\r")
                                 .toString());
+                completedUnitOfWork();
             }
 
 

@@ -3,7 +3,6 @@ package sh.isaac.solor;
 import sh.isaac.api.Get;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.solor.ExportComponentType;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,11 +20,11 @@ import java.util.zip.ZipOutputStream;
 public class ZipExportFilesTask extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
 
     private final File exportDirectory;
-    private final Map<ExportComponentType, List<String>> linesToWriteMap;
+    private final Map<ExportConfiguration, List<String>> linesToWriteMap;
     private final Semaphore readSemaphore;
     private final String zipFileName;
 
-    public ZipExportFilesTask(File exportDirectory, Map<ExportComponentType, List<String>> linesToWriteMap, Semaphore readSemaphore, String zipFileName) {
+    public ZipExportFilesTask(File exportDirectory, Map<ExportConfiguration, List<String>> linesToWriteMap, Semaphore readSemaphore, String zipFileName) {
         this.exportDirectory = exportDirectory;
         this.linesToWriteMap = linesToWriteMap;
         this.readSemaphore = readSemaphore;
@@ -39,7 +38,7 @@ public class ZipExportFilesTask extends TimedTaskWithProgressTracker<Void> imple
 
             ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(this.exportDirectory + this.zipFileName), StandardCharsets.UTF_8);
 
-            for (Map.Entry<ExportComponentType, List<String>> entry : this.linesToWriteMap.entrySet()) {
+            for (Map.Entry<ExportConfiguration, List<String>> entry : this.linesToWriteMap.entrySet()) {
 
                 ZipEntry zipEntry = new ZipEntry(entry.getKey().getFilePath());
                 try {
