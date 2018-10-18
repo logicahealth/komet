@@ -2103,6 +2103,9 @@ public class Frills
             terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
          }
       }
+      
+      //This isn't a valid module to ask for terminology type on
+      modules.remove(MetaData.MODULE____SOLOR.getNid());
 
       for (int moduleNid : modules) {
          terminologyTypes.add(getTerminologyTypeForModule(moduleNid, stamp));
