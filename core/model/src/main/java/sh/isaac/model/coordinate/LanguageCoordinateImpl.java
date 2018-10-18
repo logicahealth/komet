@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -52,6 +51,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCoordinateService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -68,7 +68,7 @@ import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 public class LanguageCoordinateImpl
          implements LanguageCoordinate {
    /** The language concept nid. */
-   int languageConceptNid;
+   ConceptSpecification languageConcept;
 
    /** The dialect assemblage preference list. */
    int[] dialectAssemblagePreferenceList;
@@ -85,16 +85,16 @@ public class LanguageCoordinateImpl
    /**
     * Instantiates a new language coordinate impl.
     *
-    * @param languageConceptId the language concept id
+    * @param languageConcept the language concept id
     * @param dialectAssemblagePreferenceList the dialect assemblage preference list
     * @param descriptionTypePreferenceList the description type preference list
     * @param modulePreferenceList the module preference list.  See {@link LanguageCoordinate#getModulePreferenceListForLanguage()}
     */
-   public LanguageCoordinateImpl(int languageConceptId,
+   public LanguageCoordinateImpl(ConceptSpecification languageConcept,
                                  int[] dialectAssemblagePreferenceList,
                                  int[] descriptionTypePreferenceList,
                                  int[] modulePreferenceList) {
-      this.languageConceptNid         = languageConceptId;
+      this.languageConcept         = languageConcept;
       this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
       this.descriptionTypePreferenceList = descriptionTypePreferenceList;
       this.modulePreferenceList = modulePreferenceList;
@@ -103,15 +103,20 @@ public class LanguageCoordinateImpl
    /**
     * Instantiates a new language coordinate impl, with an unspecified set of modulePreferences.
     *
-    * @param languageConceptId the language concept id
+    * @param languageConcept the language concept
     * @param dialectAssemblagePreferenceList the dialect assemblage preference list
     * @param descriptionTypePreferenceList the description type preference list
     */
-   public LanguageCoordinateImpl(int languageConceptId,
+   public LanguageCoordinateImpl(ConceptSpecification languageConcept,
                                  int[] dialectAssemblagePreferenceList,
                                  int[] descriptionTypePreferenceList) {
-      this(languageConceptId, dialectAssemblagePreferenceList, descriptionTypePreferenceList, new int[] {});
+      this(languageConcept, dialectAssemblagePreferenceList, descriptionTypePreferenceList, new int[] {});
    }
+
+    @Override
+    public ConceptSpecification getLanguageConcept() {
+        return languageConcept;
+    }
 
    /**
     * Equals.
@@ -131,7 +136,7 @@ public class LanguageCoordinateImpl
 
       final LanguageCoordinateImpl other = (LanguageCoordinateImpl) obj;
 
-      if (this.languageConceptNid != other.languageConceptNid) {
+      if (this.languageConcept.getNid() != other.languageConcept.getNid()) {
          return false;
       }
 
@@ -157,7 +162,7 @@ public class LanguageCoordinateImpl
    public int hashCode() {
       int hash = 3;
 
-      hash = 79 * hash + this.languageConceptNid;
+      hash = 79 * hash + this.languageConcept.getNid();
       hash = 79 * hash + Arrays.hashCode(this.dialectAssemblagePreferenceList);
       hash = 79 * hash + Arrays.hashCode(this.descriptionTypePreferenceList);
       hash = 79 * hash + (this.modulePreferenceList == null ? 0 : Arrays.hashCode(this.modulePreferenceList));
@@ -171,7 +176,7 @@ public class LanguageCoordinateImpl
     */
    @Override
    public String toString() {
-      return "Language Coordinate{" + Get.conceptDescriptionText(this.languageConceptNid) +
+      return "Language Coordinate{" + Get.conceptDescriptionText(this.languageConcept.getNid()) +
              ", dialect preference: " + Get.conceptDescriptionTextList(this.dialectAssemblagePreferenceList) +
              ", type preference: " + Get.conceptDescriptionTextList(this.descriptionTypePreferenceList) +
              ", module preference: " + Get.conceptDescriptionTextList(this.modulePreferenceList)+ '}';
@@ -264,6 +269,13 @@ public class LanguageCoordinateImpl
       altDescriptionTypeListCache.clear();
    }
 
+    public void setLanguageConceptNid(int languageConceptNid) {
+        this.languageConcept = Get.conceptSpecification(languageConceptNid);
+    }
+    public void setLanguageConcept(ConceptSpecification languageConcept) {
+        this.languageConcept = languageConcept;
+    }
+
    @Override
    public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
            List<SemanticChronology> descriptionList,
@@ -278,25 +290,7 @@ public class LanguageCoordinateImpl
     */
    @Override
    public int getLanguageConceptNid() {
-      return this.languageConceptNid;
-   }
-
-   /**
-    * Set language concept nid property.
-    *
-    * @param languageConceptSequenceProperty the language concept nid property
-    * @return the change listener
-    */
-   public ChangeListener<Number> setLanguageConceptNidProperty(IntegerProperty languageConceptSequenceProperty) {
-      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                               Number oldValue,
-                                               Number newValue) -> {
-               this.languageConceptNid = newValue.intValue();
-            };
-
-      languageConceptSequenceProperty.addListener(new WeakChangeListener<>(listener));
-      altDescriptionTypeListCache.clear();
-      return listener;
+      return this.languageConcept.getNid();
    }
 
    public ChangeListener<ObservableLanguageCoordinate> setNextProrityLanguageCoordinateProperty(
@@ -329,7 +323,7 @@ public class LanguageCoordinateImpl
 
    @Override
    public LanguageCoordinateImpl deepClone() {
-      LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConceptNid,
+      LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConcept,
                                  dialectAssemblagePreferenceList.clone(),
                                  descriptionTypePreferenceList.clone(),
                                  modulePreferenceList == null ? null : modulePreferenceList.clone());

@@ -452,6 +452,11 @@ public class Manifold
     public Set<ConceptSpecification> getModuleSpecifications() {
         return this.observableManifoldCoordinate.getModuleSpecifications();
     }
+
+    @Override
+    public ConceptSpecification getLanguageConcept() {
+        return this.observableManifoldCoordinate.getLanguageConcept();
+    }
     
     
 }

@@ -271,7 +271,7 @@ public class LanguageCoordinates {
               new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
-      return new LanguageCoordinateImpl(languageSequence,
+      return new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
@@ -290,7 +290,7 @@ public class LanguageCoordinates {
               new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
-      return new LanguageCoordinateImpl(languageSequence,
+      return new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
@@ -309,7 +309,7 @@ public class LanguageCoordinates {
             new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
@@ -332,7 +332,7 @@ public class LanguageCoordinates {
               new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
@@ -347,7 +347,7 @@ public class LanguageCoordinates {
               new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.SPANISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
@@ -367,7 +367,7 @@ public class LanguageCoordinates {
               new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.SPANISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
@@ -395,7 +395,7 @@ public class LanguageCoordinates {
               null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.LANGUAGE,
                                         new int[] {},
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
@@ -421,7 +421,7 @@ public class LanguageCoordinates {
               null);
 
       final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(languageSequence,
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.LANGUAGE,
                                         new int[] {},
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);

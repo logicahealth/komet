@@ -81,9 +81,15 @@ public enum ObservableFields
    /** The language nid for language coordinate. */
    LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("Language nid for language coordinate", "Language nid for language coordinate"),
 
+   /** The language nid for language coordinate. */
+   LANGUAGE_FOR_LANGUAGE_COORDINATE("Language specification for language coordinate", "Language"),
+
    /** The dialect assemblage nid preference list for language coordinate. */
    DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
       "Dialect assemblage nid preference list for language coordinate", "Dialect preferences"),
+   
+   DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
+      "Dialect assemblage preference list for language coordinate", "Dialect order"),
    
    MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE(
       "Module nid preference list for stamp coordinate", "Module nids for version preferences"),
@@ -97,7 +103,7 @@ public enum ObservableFields
 
    /** The description type nid preference list for language coordinate. */
    DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
-      "Description type nid preference list for language coordinate", "Type preferences"),
+      "Description type nid preference list for language coordinate", "Type order"),
 
    /** The stated assemblage nid for logic coordinate. */
    STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Stated assemblage nid for logic coordinate", "Stated assemblage"),

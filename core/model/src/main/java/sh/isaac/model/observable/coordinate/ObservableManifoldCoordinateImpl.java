@@ -52,7 +52,6 @@ import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -360,6 +359,11 @@ public class ObservableManifoldCoordinateImpl
     @Override
     public Set<ConceptSpecification> getModuleSpecifications() {
         return manifoldCoordinate.getModuleSpecifications();
+    }
+
+    @Override
+    public ConceptSpecification getLanguageConcept() {
+        return manifoldCoordinate.getLanguageConcept();
     }
     
     

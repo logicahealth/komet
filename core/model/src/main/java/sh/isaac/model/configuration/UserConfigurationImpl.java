@@ -37,6 +37,7 @@ import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 
 /**
@@ -77,7 +78,7 @@ public class UserConfigurationImpl implements UserConfiguration
 	private GlobalDatastoreConfiguration globalConfig = null;
 	
 	private ObservableEditCoordinate editCoordinate;
-	private ObservableLanguageCoordinate languageCoordinate;
+	private ObservableLanguageCoordinateImpl languageCoordinate;
 	private ObservableLogicCoordinate logicCoordinate;
 	private ObservableStampCoordinate stampCoordinate;
 	private ObservableManifoldCoordinate manifoldCoordinate;
@@ -129,10 +130,10 @@ public class UserConfigurationImpl implements UserConfiguration
 		editCoordinate.pathNidProperty().set(getOption(ConfigurationOption.EDIT_PATH));
 		
 		//TODO add setters / options for things below that aren't yet being set?
-		languageCoordinate = globalConfig.getDefaultLanguageCoordinate().deepClone();
-		languageCoordinate.descriptionTypePreferenceListProperty().get().setAll((int[])getOption(ConfigurationOption.DESCRIPTION_TYPE_PREFERENCE_LIST));
-		languageCoordinate.dialectAssemblagePreferenceListProperty().get().setAll((int[])getOption(ConfigurationOption.DIALECT_ASSEMBLAGE_PREFERENCE_LIST));
-		languageCoordinate.languageConceptNidProperty().set(getOption(ConfigurationOption.LANGUAGE));
+		languageCoordinate = (ObservableLanguageCoordinateImpl) globalConfig.getDefaultLanguageCoordinate().deepClone();
+		languageCoordinate.setDescriptionTypePreferenceList((int[])getOption(ConfigurationOption.DESCRIPTION_TYPE_PREFERENCE_LIST));
+		languageCoordinate.setDialectAssemblagePreferenceList((int[])getOption(ConfigurationOption.DIALECT_ASSEMBLAGE_PREFERENCE_LIST));
+		languageCoordinate.languageConceptProperty().set(Get.conceptSpecification((Integer) getOption(ConfigurationOption.LANGUAGE)));
 		//languageCoordinate.nextProrityLanguageCoordinateProperty();
 		
 		logicCoordinate = globalConfig.getDefaultLogicCoordinate().deepClone();
@@ -358,10 +359,10 @@ public class UserConfigurationImpl implements UserConfiguration
 						logicCoordinate.descriptionLogicProfileNidProperty().set(getOption(ConfigurationOption.DESCRIPTION_LOGIC_PROFILE));
 						break;
 					case DESCRIPTION_TYPE_PREFERENCE_LIST:
-						languageCoordinate.descriptionTypePreferenceListProperty().get().setAll((int[])getOption(ConfigurationOption.DESCRIPTION_TYPE_PREFERENCE_LIST));
+						languageCoordinate.setDescriptionTypePreferenceList((int[])getOption(ConfigurationOption.DESCRIPTION_TYPE_PREFERENCE_LIST));
 						break;
 					case DIALECT_ASSEMBLAGE_PREFERENCE_LIST:
-						languageCoordinate.dialectAssemblagePreferenceListProperty().get().setAll((int[])getOption(ConfigurationOption.DIALECT_ASSEMBLAGE_PREFERENCE_LIST));
+						languageCoordinate.setDialectAssemblagePreferenceList((int[])getOption(ConfigurationOption.DIALECT_ASSEMBLAGE_PREFERENCE_LIST));
 						break;
 					case EDIT_MODULE:
 						editCoordinate.moduleNidProperty().set(getOption(ConfigurationOption.EDIT_MODULE));
@@ -373,7 +374,7 @@ public class UserConfigurationImpl implements UserConfiguration
 						logicCoordinate.inferredAssemblageNidProperty().set(getOption(ConfigurationOption.INFERRED_ASSEMBLAGE));
 						break;
 					case LANGUAGE:
-						languageCoordinate.languageConceptNidProperty().set(getOption(ConfigurationOption.LANGUAGE));
+						languageCoordinate.setLanguageConceptNid(getOption(ConfigurationOption.LANGUAGE));
 						break;
 					case PREMISE_TYPE:
 						manifoldCoordinate.taxonomyPremiseTypeProperty().set(getOption(ConfigurationOption.PREMISE_TYPE));
@@ -407,10 +408,10 @@ public class UserConfigurationImpl implements UserConfiguration
 						logicCoordinate.descriptionLogicProfileNidProperty().set((Integer)objectValue);
 						break;
 					case DESCRIPTION_TYPE_PREFERENCE_LIST:
-						languageCoordinate.descriptionTypePreferenceListProperty().get().setAll((int[])objectValue);
+						languageCoordinate.setDescriptionTypePreferenceList((int[])objectValue);
 						break;
 					case DIALECT_ASSEMBLAGE_PREFERENCE_LIST:
-						languageCoordinate.dialectAssemblagePreferenceListProperty().get().setAll((int[])objectValue);
+						languageCoordinate.setDialectAssemblagePreferenceList((int[])objectValue);
 						break;
 					case EDIT_MODULE:
 						editCoordinate.moduleNidProperty().set((Integer)objectValue);
@@ -422,7 +423,7 @@ public class UserConfigurationImpl implements UserConfiguration
 						logicCoordinate.inferredAssemblageNidProperty().set((Integer)objectValue);
 						break;
 					case LANGUAGE:
-						languageCoordinate.languageConceptNidProperty().set((Integer)objectValue);
+						languageCoordinate.setLanguageConceptNid((Integer)objectValue);
 						break;
 					case PREMISE_TYPE:
 						manifoldCoordinate.taxonomyPremiseTypeProperty().set((PremiseType)objectValue);

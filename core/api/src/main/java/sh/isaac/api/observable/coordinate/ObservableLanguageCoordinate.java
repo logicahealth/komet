@@ -41,9 +41,10 @@ package sh.isaac.api.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.collections.ObservableIntegerArray;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
@@ -60,14 +61,14 @@ public interface ObservableLanguageCoordinate
     *
     * @return the object property
     */
-   ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty();
+    ListProperty<ConceptSpecification> descriptionTypePreferenceListProperty();
 
    /**
     * Dialect assemblage preference list property.
     *
     * @return the object property
     */
-   ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty();
+   ListProperty<ConceptSpecification> dialectAssemblagePreferenceListProperty();
 
    /**
     * The next priority language coordinate property. 
@@ -80,8 +81,24 @@ public interface ObservableLanguageCoordinate
     *
     * @return the integer property
     */
-   IntegerProperty languageConceptNidProperty();
+    ObjectProperty<ConceptSpecification> languageConceptProperty();
    
+    /**
+     * 
+     * @param dialectAssemblagePreferenceList
+     * @deprecated for backward compatability only. 
+     */
+    @Deprecated
+    void setDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList);
+
+    /**
+     * 
+     * @param descriptionTypePreferenceList 
+     * @deprecated for backward compatability only. 
+     */
+    @Deprecated
+   void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList);
+    
    @Override
    public ObservableLanguageCoordinate deepClone();
 }

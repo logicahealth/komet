@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.collections.ObservableIntegerArray;
+import javafx.collections.ObservableList;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
@@ -156,14 +156,14 @@ public class DefaultCoordinateProvider {
    public void setDefaultDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
       setupDefaults();
 
-      final ObservableIntegerArray descriptionTypeIntegerArray =
+      final ObservableList<ConceptSpecification> descriptionTypeList =
          this.observableLanguageCoordinate.descriptionTypePreferenceListProperty()
                                           .get();
 
-      descriptionTypeIntegerArray.clear();
-      descriptionTypeIntegerArray.addAll(descriptionTypePreferenceList);
-      this.observableLanguageCoordinate.descriptionTypePreferenceListProperty()
-                                       .set(descriptionTypeIntegerArray);
+      descriptionTypeList.clear();
+      for (int nid: descriptionTypePreferenceList) {
+          descriptionTypeList.add(Get.conceptSpecification(nid));
+      }
    }
 
    /**
@@ -174,12 +174,14 @@ public class DefaultCoordinateProvider {
    public void setDefaultDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList) {
       setupDefaults();
 
-      final ObservableIntegerArray dialectAssemblageIntegerArray =
+      final ObservableList<ConceptSpecification> dialectAssemblageList =
          this.observableLanguageCoordinate.dialectAssemblagePreferenceListProperty()
                                           .get();
 
-      dialectAssemblageIntegerArray.clear();
-      dialectAssemblageIntegerArray.addAll(dialectAssemblagePreferenceList);
+      dialectAssemblageList.clear();
+      for (int nid: dialectAssemblagePreferenceList) {
+          dialectAssemblageList.add(Get.conceptSpecification(nid));
+      }
    }
 
    /**
@@ -210,8 +212,8 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultLanguage(int conceptId) {
       setupDefaults();
-      this.observableLanguageCoordinate.languageConceptNidProperty()
-                                       .set(conceptId);
+      this.observableLanguageCoordinate.languageConceptProperty()
+                                       .set(Get.conceptSpecification(conceptId));
    }
 
    /**

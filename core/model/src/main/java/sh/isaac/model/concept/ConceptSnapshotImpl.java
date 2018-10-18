@@ -394,6 +394,11 @@ public class ConceptSnapshotImpl
     public Set<ConceptSpecification> getModuleSpecifications() {
         return this.manifoldCoordinate.getModuleSpecifications();
     }
+
+    @Override
+    public ConceptSpecification getLanguageConcept() {
+        return this.manifoldCoordinate.getLanguageConcept();
+    }
     
 }
 

@@ -47,19 +47,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Status;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -297,36 +290,13 @@ public class ManifoldCoordinateImpl
       return this.uuid;
    }
 
+    @Override
+    public ConceptSpecification getLanguageConcept() {
+        return this.languageCoordinate.getLanguageConcept();
+    }
+
    //~--- inner classes -------------------------------------------------------
 
-   /**
-    * The Class AnyTypeAdapter.
-    */
-   private static class AnyTypeAdapter
-           extends XmlAdapter<Object, Object> {
-      /**
-       * Marshal.
-       *
-       * @param v the v
-       * @return the object
-       */
-      @Override
-      public Object marshal(Object v) {
-         return v;
-      }
-
-      /**
-       * Unmarshal.
-       *
-       * @param v the v
-       * @return the object
-       */
-      @Override
-      public Object unmarshal(Object v) {
-         return v;
-      }
-   }
-   
    @Override
    public ManifoldCoordinateImpl deepClone() {
       ManifoldCoordinateImpl newCoordinate = new ManifoldCoordinateImpl(taxonomyPremiseType,

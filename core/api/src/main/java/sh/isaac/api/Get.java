@@ -58,8 +58,11 @@ import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 import com.lmax.disruptor.dsl.Disruptor;
 import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
 import javafx.concurrent.Task;
+import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import sh.isaac.api.alert.AlertEvent;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.commit.ChangeSetWriterService;
@@ -197,11 +200,14 @@ public class Get
    
    private static PreferencesService preferencesService;
    
+   private static final OpenIntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = new OpenIntObjectHashMap<>();
+    private static CountDownLatch termAuxCacheLatch = new CountDownLatch(1);
+
    
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new gets the.
+    * Instantiates a new Get.
     */
    public Get() {}
 
@@ -464,17 +470,33 @@ public class Get
    }
 
    /**
-    * Note, this method may fail during bootstrap, if concept being requested is not already loaded
+    * Note, this method may fail/lock during bootstrap, if concept being requested is not already loaded
     * into the concept service.
     * @param nid a concept nid
     * @return A concept specification for the corresponding identifier
     */
    public static ConceptSpecification conceptSpecification(int nid) {
-      if (nid >= 0) {
-         throw new IllegalStateException("Nids must be < 0: " + nid);
-      }
-      return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
+       try {
+           if (nid >= 0) {
+               throw new IllegalStateException("Nids must be < 0: " + nid);
+           }
+           if (TERM_AUX_CACHE.isEmpty()) {
+               for (ConceptSpecification conceptSpecification: TermAux.getAllSpecs()) {
+                   TERM_AUX_CACHE.put(conceptSpecification.getNid(), conceptSpecification);
+               }
+               termAuxCacheLatch.countDown();
+           }
+           termAuxCacheLatch.await();
+           if (TERM_AUX_CACHE.containsKey(nid)) {
+               return TERM_AUX_CACHE.get(nid);
+           }
+           return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
+       } catch (InterruptedException ex) {
+           throw new RuntimeException();
+       }
    }
+   
+   
 
    /**
     * Note, this method may fail during bootstrap, if concept being requested is not already loaded
@@ -484,7 +506,7 @@ public class Get
     */
    public static ConceptSpecification conceptSpecification(UUID uuid) {
        int nid = Get.identifierService().getNidForUuids(uuid);
-      return new ConceptProxy(nid);
+      return conceptSpecification(nid);
    }
 
    public static ConceptSpecification conceptSpecification(String uuidString) {
@@ -762,6 +784,8 @@ public class Get
       semanticIndexer                 = null;
       dataStore                       = null;
       preferencesService              = null;
+      TERM_AUX_CACHE.clear();
+      termAuxCacheLatch = new CountDownLatch(1);
    }
 
    public static ScheduledExecutorService scheduledExecutor() {

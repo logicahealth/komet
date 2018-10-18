@@ -50,6 +50,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
@@ -208,6 +209,12 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the language concept nid
     */
    int getLanguageConceptNid();
+
+   /**
+    * 
+    * @return 
+    */
+    ConceptSpecification getLanguageConcept();
 
    /**
     * Gets the latestDescription of type {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}.  Will return empty, if 

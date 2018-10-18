@@ -13,6 +13,7 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.komet.gui.search.flwor.LetItemKey;
 import sh.komet.gui.search.flwor.LetItemPanel;
@@ -40,9 +41,13 @@ public class LetPropertySheet {
     public LetPropertySheet(Manifold manifold){
         this.manifoldForDisplay = manifold;
         items = FXCollections.observableArrayList();
-        MenuItem addStampCoordinate = new MenuItem("Add stamp coordinate...");
+        MenuItem addStampCoordinate = new MenuItem("Add stamp coordinate");
         addStampCoordinate.setOnAction(this::addStampCoordinate);
         addLetClauseButton.getItems().add(addStampCoordinate);
+
+        MenuItem addLanguageCoordinate = new MenuItem("Add language coordinate");
+        addLanguageCoordinate.setOnAction(this::addLanguageCoordinate);
+        addLetClauseButton.getItems().add(addLanguageCoordinate);
 
         AnchorPane.setBottomAnchor(this.propertySheetBorderPane, 0.0);
         AnchorPane.setTopAnchor(this.propertySheetBorderPane, 0.0);
@@ -51,6 +56,20 @@ public class LetPropertySheet {
         
     }
     
+    private void addLanguageCoordinate(ActionEvent action) {
+        LetItemKey newLetItem = new LetItemKey("Language coordinate");
+        this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
+        ObservableLanguageCoordinate languageCoordinate = this.manifoldForDisplay.getLanguageCoordinate().deepClone();
+        letItemObjectMap.put(newLetItem, languageCoordinate);
+        LetItemPanel newLetItemPanel = new LetItemPanel(manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), languageCoordinate);
+        letItemPanelMap.put(newLetItem, newLetItemPanel);
+
+        letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
+        
+        this.letItemsController.getLetListViewletListView().getSelectionModel().select(newLetItem);
+        
+    }
+
     private void addStampCoordinate(ActionEvent action) {
         LetItemKey newLetItem = new LetItemKey("Stamp coordinate");
         this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);

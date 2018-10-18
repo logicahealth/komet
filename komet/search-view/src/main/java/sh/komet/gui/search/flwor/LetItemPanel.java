@@ -23,6 +23,7 @@ import javafx.scene.control.ListView;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampPosition;
 import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
@@ -75,12 +76,24 @@ public class LetItemPanel {
         if (letItem instanceof ObservableStampCoordinate) {
             setupStampCoordinate((ObservableStampCoordinate) letItem);
         }
+        if (letItem instanceof ObservableLanguageCoordinate) {
+            setupLanguageCoordinate((ObservableLanguageCoordinate) letItem);
+        }
     }
     
     public Node getNode() {
         return sheet;
     }
 
+
+    private void setupLanguageCoordinate(ObservableLanguageCoordinate languageCoordinateItem) {
+
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, languageCoordinateItem.languageConceptProperty(), 
+                TermAux.ENGLISH_LANGUAGE.getNid(),TermAux.SPANISH_LANGUAGE.getNid()));
+        this.sheet.getItems().add(new PropertySheetConceptListWrapper(manifold, languageCoordinateItem.dialectAssemblagePreferenceListProperty()));
+        this.sheet.getItems().add(new PropertySheetConceptListWrapper(manifold, languageCoordinateItem.descriptionTypePreferenceListProperty()));
+    }
+    
     private void setupStampCoordinate(ObservableStampCoordinate stampCoordinateItem) {
         this.sheet.getItems().add(new PropertySheetStatusSetWrapper(manifold, stampCoordinateItem.allowedStatesProperty()));
         ObservableStampPosition stampPosition = stampCoordinateItem.stampPositionProperty().get();

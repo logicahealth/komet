@@ -634,7 +634,7 @@ public class MultiParentTreeView
             }
         }
         descriptionTypes = LanguageCoordinates.expandDescriptionTypePreferenceList(descriptionTypes, getManifold());
-        this.manifold.getLanguageCoordinate().descriptionTypePreferenceListProperty().get().setAll(descriptionTypes);
+        this.manifold.getLanguageCoordinate().setDescriptionTypePreferenceList(descriptionTypes);
         this.rootTreeItem.invalidate();
         this.treeView.refresh();
     }
