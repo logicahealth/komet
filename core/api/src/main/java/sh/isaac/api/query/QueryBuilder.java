@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import sh.isaac.api.component.concept.ConceptSpecification;
 
 /**
  *
@@ -50,11 +49,7 @@ public class QueryBuilder  {
       this.forSetSpecification = forSetSpecification;
       return this;
    }
-   
-   public QueryBuilder from(ConceptSpecification assemblageSpecification) {
-      return from(new ForSetSpecification(assemblageSpecification));
-   }
-   
+      
    public QueryBuilder let(String key, Object value) {
       letClauses.put(key, value);
       return this;

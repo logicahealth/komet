@@ -49,7 +49,6 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.coordinate.CoordinateFactory;
 
 //~--- classes ----------------------------------------------------------------
 

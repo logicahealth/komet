@@ -531,6 +531,29 @@ public class ConceptBuilderImpl
         addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(componentUuid), fieldIndex, this, Get.nidForUuids(assemblageUuid)));
         return this;
     }
+
+    @Override
+    public ConceptBuilder addComponentIntSemantic(ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
+        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(component.getNid(), fieldIndex, this, assemblage.getNid()));
+        return this;
+    }
+
+    @Override
+    public ConceptBuilder addComponentSemantic(UUID componentUuid, UUID assemblageUuid) {
+        addSemantic(Get.semanticBuilderService().getComponentSemanticBuilder(Get.nidForUuids(componentUuid), this, Get.nidForUuids(assemblageUuid)));
+        return this;
+    }
+
+    @Override
+    public ConceptBuilder addFieldSemanticConcept(String fieldName, int fieldIndex) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ConceptBuilder addFieldSemanticConcept(UUID conceptUuid, int fieldIndex) {
+        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(conceptUuid), fieldIndex, this, TermAux.SEMANTIC_TYPE.getNid()));
+        return this;
+    }
    
    
 }

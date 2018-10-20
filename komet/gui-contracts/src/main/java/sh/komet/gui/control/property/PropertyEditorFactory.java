@@ -59,10 +59,12 @@ import sh.komet.gui.control.PropertySheetStatusWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.circumstance.CircumstanceEditor;
 import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
+import sh.komet.gui.control.concept.AssemblageListEditor;
 import sh.komet.gui.control.concept.ConceptListEditor;
 import sh.komet.gui.control.concept.ConceptSpecificationEditor;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;
+import sh.komet.gui.control.concept.PropertySheetItemAssemblageListWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapperEditor;
@@ -129,6 +131,8 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return createPasswordEditor(propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetConceptListWrapper) {
             return createConceptListEditor((PropertySheetConceptListWrapper) propertySheetItem);
+        } else if (propertySheetItem instanceof PropertySheetItemAssemblageListWrapper) {
+            return createAssemblageListEditor((PropertySheetItemAssemblageListWrapper) propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetConceptSetWrapper) {
             return createConceptListEditor((PropertySheetConceptSetWrapper) propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetStatusSetWrapper) {
@@ -290,6 +294,12 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
 
     private PropertyEditor<?> createConceptListEditor(PropertySheetConceptListWrapper propertySheetConceptListWrapper) {
         ConceptListEditor editor = new ConceptListEditor(manifoldForDisplay);
+        editor.setValue(propertySheetConceptListWrapper.getValue());
+        return editor;
+    }
+
+    private PropertyEditor<?> createAssemblageListEditor(PropertySheetItemAssemblageListWrapper propertySheetConceptListWrapper) {
+        AssemblageListEditor editor = new AssemblageListEditor(manifoldForDisplay);
         editor.setValue(propertySheetConceptListWrapper.getValue());
         return editor;
     }

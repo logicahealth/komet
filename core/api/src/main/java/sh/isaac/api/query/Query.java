@@ -37,6 +37,7 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import sh.isaac.api.collections.NidSet;
@@ -115,7 +116,7 @@ public abstract class Query {
      * @param assemblageToIterate
      */
     public Query(ConceptSpecification assemblageToIterate) {
-        this(new ForSetSpecification(assemblageToIterate));
+        this(new ForSetSpecification(Arrays.asList(new ConceptSpecification[] { assemblageToIterate })));
     }
 
     public Query(ForSetSpecification forSetSpecification) {

@@ -359,6 +359,8 @@ public enum ObservableFields
    VERSION_TYPE_FOR_ACTION("Version type for action", "Version for action"),
    
    CONCEPT_CONSTRAINTS("Concept constraints"),
+   
+   ASSEMBLAGE_LIST_FOR_QUERY("Assemblage list for query", "For list"),
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */

@@ -158,5 +158,19 @@ public interface ConceptBuilder
     default ConceptBuilder addComponentIntSemantic(ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage) {
         return addComponentIntSemantic(componentUuid.getPrimordialUuid(), fieldIndex, assemblage.getPrimordialUuid());
     }
+    
+    ConceptBuilder addComponentSemantic(UUID componentUuid, UUID assemblageUuid);
+    
+    default ConceptBuilder addComponentSemantic(ConceptSpecification semanticSpecification, ConceptSpecification assemblage) {
+        return addComponentSemantic(semanticSpecification.getPrimordialUuid(), assemblage.getPrimordialUuid());
+    }
+    
+    ConceptBuilder addFieldSemanticConcept(String fieldName, int fieldIndex);
+
+    default ConceptBuilder addFieldSemanticConcept(ConceptSpecification fieldSpecification, int fieldIndex) {
+        return addFieldSemanticConcept(fieldSpecification.getPrimordialUuid(), fieldIndex);
+    }
+
+    ConceptBuilder addFieldSemanticConcept(UUID conceptUuid, int fieldIndex);
 }
 

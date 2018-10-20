@@ -45,6 +45,8 @@ package sh.isaac.api.query;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
@@ -58,19 +60,21 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 public class ForSetSpecification {
 
    //~--- constructors --------------------------------------------------------
-    private ConceptSpecification assemblageSpecificationForSet = TermAux.UNINITIALIZED_COMPONENT_ID;
+    private final List<ConceptSpecification> assemblageSpecificationsForSet;
    /**
     * Instantiates a new for set specification.
     */
-   public ForSetSpecification() {}
+   public ForSetSpecification() {
+       assemblageSpecificationsForSet = new ArrayList<>();
+   }
 
    /**
     * Instantiates a new for set specification.
     *
-    * @param assemblageSpecificationForSet the for collection assemblage
+    * @param assemblageSpecificationsForSet the for collection assemblage
     */
-   public ForSetSpecification(ConceptSpecification assemblageSpecificationForSet) {
-      this.assemblageSpecificationForSet = assemblageSpecificationForSet;
+   public ForSetSpecification(List<ConceptSpecification> assemblageSpecificationsForSet) {
+      this.assemblageSpecificationsForSet = assemblageSpecificationsForSet;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -81,7 +85,7 @@ public class ForSetSpecification {
     * @return the collection
     */
    public NidSet getCollection() {
-      return NidSet.of(Get.identifierService().getNidsForAssemblage(this.assemblageSpecificationForSet));
+      throw new UnsupportedOperationException();
    }
 
    //~--- get methods ---------------------------------------------------------

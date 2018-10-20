@@ -83,12 +83,10 @@ import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
-import sh.isaac.MetaData;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -136,6 +134,8 @@ public class FLWORQueryController
     @FXML                                                                         // fx:id="flowrAccordian"
     private Accordion flowrAccordian;    // Value injected by FXMLLoader
     @FXML                                                                         // fx:id="letPane"
+    private TitledPane forPane;           // Value injected by FXMLLoader
+    @FXML                                                                         // fx:id="letPane"
     private TitledPane letPane;           // Value injected by FXMLLoader
     @FXML                                                                         // fx:id="orderPane"
     private TitledPane orderPane;         // Value injected by FXMLLoader
@@ -164,17 +164,17 @@ public class FLWORQueryController
     @FXML                                                                         // fx:id="languageColumn"
     private TableColumn<ObservableDescriptionVersion, Integer> languageColumn;    // Value injected by FXMLLoader
     @FXML
-    private AnchorPane letAnchorPane;
+    private AnchorPane forAnchorPane;
     @FXML
-    private MenuButton forMenu;
-    private ConceptSpecification forAssemblage;
+    private AnchorPane letAnchorPane;
 
     private TreeItem<QueryClause> root;
     private Manifold manifold;
     private LetPropertySheet letPropertySheet;
+    private ForPanel forPropertySheet;
     
     private LetItemsController letItemsController;
-
+    
     //~--- methods -------------------------------------------------------------
     @Override
     public Node getMenuIcon() {
@@ -228,7 +228,7 @@ public class FLWORQueryController
     @FXML
     void executeQuery(ActionEvent event) {
         QueryBuilder queryBuilder = new QueryBuilder()
-                .from(this.forAssemblage);
+                .from(this.forPropertySheet.getForSetSpecification());
 
         TreeItem<QueryClause> itemToProcess = this.root;
         Clause rootClause = itemToProcess.getValue()
@@ -252,6 +252,7 @@ public class FLWORQueryController
     void initialize() {
         assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert flowrAccordian != null : "fx:id=\"flowrAccordian\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+        assert forPane != null : "fx:id=\"forPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert letPane != null : "fx:id=\"letPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert orderPane != null : "fx:id=\"orderPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert wherePane != null : "fx:id=\"wherePane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
@@ -267,8 +268,8 @@ public class FLWORQueryController
         assert textColumn != null : "fx:id=\"textColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert typeColumn != null : "fx:id=\"typeColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert languageColumn != null : "fx:id=\"languageColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+        assert forAnchorPane != null : "fx:id=\"forAnchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert letAnchorPane != null : "fx:id=\"letAnchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
-        assert forMenu != null : "fx:id=\"forMenu\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         textColumn.setCellValueFactory(
                 (TableColumn.CellDataFeatures<ObservableDescriptionVersion, String> param) -> param.getValue()
                         .textProperty());
@@ -276,60 +277,6 @@ public class FLWORQueryController
                 (TableColumn<ObservableDescriptionVersion, String> stringText) -> new DescriptionTableCell());
         resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
         resultTable.setOnDragDone(new DragDoneEventHandler());
-
-        
-    }
-
-    protected void setupForMenu() {
-        forMenu.getItems().clear();
-        Menu favorites = new Menu("favorites");
-        forMenu.getItems().add(favorites);
-        favorites.getItems().add(makeMenuFromAssemblageNid(MetaData.SOLOR_CONCEPT____SOLOR.getNid()));
-        favorites.getItems().add(makeMenuFromAssemblageNid(MetaData.ENGLISH_LANGUAGE____SOLOR.getNid()));
-        
-        
-        Menu byType = new Menu("by type");
-        forMenu.getItems().add(byType);
-        
-        HashMap<VersionType, Menu> versionTypeMenuMap = new HashMap();
-        for (VersionType versionType : VersionType.values()) {
-            Menu versionTypeMenu = new Menu(versionType.toString());
-            versionTypeMenuMap.put(versionType, versionTypeMenu);
-            byType.getItems().add(versionTypeMenu);
-        }
-        int[] assembalgeNids = Get.assemblageService().getAssemblageConceptNids();
-        LOG.debug("Assemblage nid count: " + assembalgeNids.length + "\n" + org.apache.mahout.math.Arrays.toString(assembalgeNids));
-        
-        Menu byName = new Menu("by name");
-        forMenu.getItems().add(byName);
-        
-        for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
-            MenuItem menu = makeMenuFromAssemblageNid(assemblageNid);
-            byName.getItems().add(menu);
-            
-            MenuItem menu2 = makeMenuFromAssemblageNid(assemblageNid);
-            VersionType versionType = Get.assemblageService().getVersionTypeForAssemblage(assemblageNid);
-            versionTypeMenuMap.get(versionType).getItems().add(menu2);
-        }
-        byName.getItems().sort((o1, o2) -> {
-            return o1.getText().compareTo(o2.getText());
-        });
-        for (Menu menu: versionTypeMenuMap.values()) {
-            menu.getItems().sort((o1, o2) -> {
-                return o1.getText().compareTo(o2.getText()); 
-            });
-        }
-    }
-
-    protected MenuItem makeMenuFromAssemblageNid(int assemblageNid) {
-        MenuItem menu = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
-        menu.setOnAction((event) -> {
-            this.forMenu.setText(manifold.getPreferredDescriptionText(assemblageNid));
-            this.manifold.setFocusedConceptChronology(Get.concept(assemblageNid));
-            this.forAssemblage = Get.conceptSpecification(assemblageNid);
-            
-        });
-        return menu;
     }
 
     private void addChildClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
@@ -702,8 +649,9 @@ public class FLWORQueryController
         letPropertySheet = new LetPropertySheet(this.manifold.deepClone());
         this.letAnchorPane.getChildren()
                 .add(letPropertySheet.getNode());
+        this.forPropertySheet = new ForPanel(manifold);
+        this.forAnchorPane.getChildren().add(this.forPropertySheet.getNode());
         
-        setupForMenu();
     }
 
     //~--- get methods ---------------------------------------------------------

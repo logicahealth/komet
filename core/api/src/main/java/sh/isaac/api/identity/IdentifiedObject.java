@@ -75,7 +75,7 @@ public interface IdentifiedObject {
     */
    default int getNid() throws NoSuchElementException{
       return Get.identifierService()
-                .getNidForUuids(getUuidList());
+                .assignNid(getUuidList().toArray(new UUID[0]));
    }
 
    /**
