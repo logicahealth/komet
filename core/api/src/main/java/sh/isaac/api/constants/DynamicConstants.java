@@ -89,7 +89,6 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 @Service
 @Singleton
 public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
-   /** The cache. */
    private static DynamicConstants cache;
 
 //J-
@@ -457,11 +456,22 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    
    @Override
    public void reset() {
-      cache = null;
+      for (MetadataConceptConstant mcc : getConstantsToCreate()) {
+         recursiveClear(mcc);
+      }
+      for (MetadataConceptConstant mcc : getConstantsForInfoOnly()) {
+          recursiveClear(mcc);
+       }
    }
-
-
-   // ~--- get methods ---------------------------------------------------------
+   
+   private void recursiveClear(MetadataConceptConstant mcc) {
+      mcc.clearCache();
+      if (mcc instanceof MetadataConceptConstantGroup) {
+         for (MetadataConceptConstant nested : ((MetadataConceptConstantGroup)mcc).getChildren()) {
+            recursiveClear(nested);
+         }
+      }
+   }
 
    /**
     * Gets the constants to create.

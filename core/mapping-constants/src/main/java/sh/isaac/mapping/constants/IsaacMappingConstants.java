@@ -105,9 +105,23 @@ public class IsaacMappingConstants implements ModuleProvidedConstants, IsaacCach
    
    @Override
    public void reset() {
-      cache = null;
+      for (MetadataConceptConstant mcc : getConstantsToCreate()) {
+         recursiveClear(mcc);
+      }
+      for (MetadataConceptConstant mcc : getConstantsForInfoOnly()) {
+          recursiveClear(mcc);
+       }
    }
-
+   
+   private void recursiveClear(MetadataConceptConstant mcc) {
+      mcc.clearCache();
+      if (mcc instanceof MetadataConceptConstantGroup) {
+         for (MetadataConceptConstant nested : ((MetadataConceptConstantGroup)mcc).getChildren()) {
+            recursiveClear(nested);
+         }
+      }
+   }
+   
    // This is just used as salt for generating other UUIDs
    public final MetadataConceptConstant MAPPING_NAMESPACE = new MetadataConceptConstant("mapping namespace", 
          UUID.fromString("9b93f811-7b66-5024-bebf-6a7019743e88"),
