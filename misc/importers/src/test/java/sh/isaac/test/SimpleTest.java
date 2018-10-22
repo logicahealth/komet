@@ -44,12 +44,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import javafx.application.Platform;
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.convert.delta.vhat.VHATDeltaImport;
 import sh.isaac.mojo.IndexTermstore;
 import sh.isaac.mojo.LoadTermstore;
+import sh.isaac.utility.Frills;
 
 /**
  * {@link SimpleTest}
@@ -75,7 +77,8 @@ public class SimpleTest
          VHATDeltaImport i = new VHATDeltaImport(
             //new String(Files.readAllBytes(Paths.get("src/test/resources/VHAT XML Update files/Test File 2.xml"))),
             new String(Files.readAllBytes(Paths.get("src/test/resources/VHAT XML Update files/Test File 1.xml"))),
-            TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(), TermAux.DEVELOPMENT_PATH.getPrimordialUuid(),
+            TermAux.USER.getPrimordialUuid(), Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
+            TermAux.DEVELOPMENT_PATH.getPrimordialUuid(),
             null, new File("target"));
       }
       catch(Exception e)

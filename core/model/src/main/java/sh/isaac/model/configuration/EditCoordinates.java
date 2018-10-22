@@ -89,18 +89,4 @@ public class EditCoordinates {
 
       return editCoordinate;
    }
-
-   /**
-    * Gets the default user vhat coordinate.
-    *
-    * @return the default user vhat coordinate
-    */
-   public static EditCoordinate getDefaultUserVHAT() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER.getNid(),
-                                                                   TermAux.VHAT_MODULES.getNid(),
-                                                                   TermAux.DEVELOPMENT_PATH.getNid());
-
-      return editCoordinate;
-   }
 }
-

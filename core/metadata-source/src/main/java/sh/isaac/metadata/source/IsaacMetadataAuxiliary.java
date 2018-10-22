@@ -268,11 +268,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
                createConcept(TermAux.VHAT_MODULES).addDescription("VHAT", TermAux.REGULAR_NAME_DESCRIPTION_TYPE).addDescription("VHA Terminology", TermAux.DEFINITION_DESCRIPTION_TYPE)
                      .addUuids(UUID.fromString("1f201520-960e-11e5-8994-feff819cdc9f"));
-               pushParent(current());
-                  createConcept(TermAux.VHAT_EDIT);
-                  popParent();
-
-               
                createConcept("HL7® v3 modules", "HL7v3").addDescription("Health Level 7 version 3", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("NUCC modules", "NUCC").addDescription("National Uniform Claim Committee", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("CVX modules", "CVX").addDescription("Vaccines Administered", TermAux.DEFINITION_DESCRIPTION_TYPE);

@@ -247,8 +247,6 @@ public class TermAux implements StaticIsaacCache {
    /** ConceptProxy for: "VHAT modules". */
    public static ConceptSpecification VHAT_MODULES = new ConceptProxy("VHAT modules", UUID.fromString("8aa5fda8-33e9-5eaf-88e8-dd8a024d2489"));
 
-   public static ConceptSpecification VHAT_EDIT = new ConceptProxy("VHAT Edit", UUID.fromString("afd3be8f-4a49-5e12-bc51-efed33aacd87"));
-
    /** ConceptProxy for: "SOLOR overlay module". */
    public static ConceptSpecification SOLOR_OVERLAY_MODULE = new ConceptProxy("SOLOR overlay module", UUID.fromString("9ecc154c-e490-5cf8-805d-d2865d62aef3"));
 

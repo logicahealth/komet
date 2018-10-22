@@ -302,7 +302,7 @@ public class ConfigurationTests {
 		
 		uc.setClassifier(ConfigurationStore.DATABASE, TermAux.XOR_QUERY_CLAUSE.getNid());
 		uc.setDescriptionLogicProfile(ConfigurationStore.DATABASE, TermAux.VHAT_MODULES.getNid());
-		uc.setDescriptionTypePreferenceList(ConfigurationStore.DATABASE, new int[] {TermAux.VHAT_EDIT.getNid()});
+		uc.setDescriptionTypePreferenceList(ConfigurationStore.DATABASE, new int[] {TermAux.SCT_CORE_MODULE.getNid()});
 		uc.setDialectAssemblagePreferenceList(ConfigurationStore.DATABASE, new int[] {TermAux.US_GOVERNMENT_WORK.getNid()});
 		uc.setEditModule(ConfigurationStore.DATABASE, TermAux.US_DIALECT_ASSEMBLAGE.getNid());
 		uc.setEditPath(ConfigurationStore.DATABASE, TermAux.UNSPECIFIED_MODULE.getNid());
@@ -316,7 +316,7 @@ public class ConfigurationTests {
 		
 		Assert.assertEquals(TermAux.XOR_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getClassifierNid());
 		Assert.assertEquals(TermAux.VHAT_MODULES.getNid(), uc.getLogicCoordinate().getDescriptionLogicProfileNid());
-		Assert.assertTrue(Arrays.equals(new int[] {TermAux.VHAT_EDIT.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
+		Assert.assertTrue(Arrays.equals(new int[] {TermAux.SCT_CORE_MODULE.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.US_GOVERNMENT_WORK.getNid()}, uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
 		Assert.assertEquals(TermAux.US_DIALECT_ASSEMBLAGE.getNid(), uc.getEditCoordinate().getModuleNid());
 		Assert.assertEquals(TermAux.UNSPECIFIED_MODULE.getNid(), uc.getEditCoordinate().getPathNid());
@@ -341,7 +341,7 @@ public class ConfigurationTests {
 		
 		Assert.assertEquals(TermAux.XOR_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getClassifierNid());
 		Assert.assertEquals(TermAux.VHAT_MODULES.getNid(), uc.getLogicCoordinate().getDescriptionLogicProfileNid());
-		Assert.assertTrue(Arrays.equals(new int[] {TermAux.VHAT_EDIT.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
+		Assert.assertTrue(Arrays.equals(new int[] {TermAux.SCT_CORE_MODULE.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.US_GOVERNMENT_WORK.getNid()}, uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
 		Assert.assertEquals(TermAux.US_DIALECT_ASSEMBLAGE.getNid(), uc.getEditCoordinate().getModuleNid());
 		Assert.assertEquals(TermAux.UNSPECIFIED_MODULE.getNid(), uc.getEditCoordinate().getPathNid());
