@@ -54,9 +54,13 @@ package sh.komet.gui.search.flwor;
 * See the License for the specific language governing permissions and
 * limitations under the License.
  */
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 
 import java.util.*;
+import java.util.logging.Level;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -78,6 +82,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.*;
+import javafx.stage.FileChooser;
 
 //~--- JDK imports ------------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
@@ -190,6 +195,12 @@ public class FLWORQueryController
     @FXML // fx:id="columnNameColumn"
     private TableColumn<ReturnSpecificationRow, String> columnNameColumn; // Value injected by FXMLLoader
 
+    @FXML // fx:id="spacerLabel"
+    private Label spacerLabel; // Value injected by FXMLLoader
+
+    @FXML // fx:id="exportButton"
+    private Button exportButton; // Value injected by FXMLLoader
+
     private TreeItem<QueryClause> root;
     private Manifold manifold;
     private LetPropertySheet letPropertySheet;
@@ -210,7 +221,7 @@ public class FLWORQueryController
         int columnCount = resultTable.getColumns().size();
         tableItems.clear();
         OpenIntIntHashMap fastAssemblageNidToIndexMap = new OpenIntIntHashMap();
-        for (Map.Entry<ConceptSpecification, Integer> entry: assembalgeToIndexMap.entrySet()) {
+        for (Map.Entry<ConceptSpecification, Integer> entry : assembalgeToIndexMap.entrySet()) {
             fastAssemblageNidToIndexMap.put(entry.getKey().getNid(), entry.getValue());
         }
         ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
@@ -236,6 +247,44 @@ public class FLWORQueryController
                 }
             }
             tableItems.add(Arrays.asList(resultRow));
+        }
+        exportButton.setDisable(false);
+    }
+
+    @FXML
+    void exportData(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save results to file");
+        fileChooser.setInitialFileName("export.txt");
+        File selectedFile = fileChooser.showSaveDialog(spacerLabel.getScene().getWindow());
+        if (selectedFile != null) {
+            try (FileWriter writer = new FileWriter(selectedFile)) {
+                int columnCount = resultTable.getColumns().size();
+                for (int i = 0; i < columnCount; i++) {
+                    TableColumn<List<String>, ?> column = resultTable.getColumns().get(i);
+                    writer.append(column.getText());
+                    if (i < columnCount - 1) {
+                        writer.append("\t");
+                    } else {
+                        writer.append("\n");
+                    }
+                }
+                ObservableList<List<String>> tableRows = resultTable.getItems();
+                for (List<String> row : tableRows) {
+                    for (int i = 0; i < columnCount; i++) {
+                        String cellString = row.get(i);
+                        writer.append(cellString);
+                        if (i < columnCount - 1) {
+                            writer.append("\t");
+                        } else {
+                            writer.append("\n");
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+                FxGet.dialogs().showErrorDialog("Error writing results to file", ex);
+            }
+
         }
     }
 
@@ -291,6 +340,8 @@ public class FLWORQueryController
         assert languageColumn != null : "fx:id=\"languageColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert forAnchorPane != null : "fx:id=\"forAnchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert letAnchorPane != null : "fx:id=\"letAnchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+        HBox.setHgrow(exportButton, Priority.ALWAYS);
+        exportButton.setDisable(true);
         resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
         resultTable.setOnDragDone(new DragDoneEventHandler());
 
@@ -626,7 +677,6 @@ public class FLWORQueryController
         this.clausePropertiesColumn.setCellFactory(param -> new WhereParameterCell());
         this.whereTreeTable.setRoot(root);
         this.whereTreeTable.setFixedCellSize(-1);
- 
 
         this.letAnchorPane.getChildren()
                 .add(letPropertySheet.getNode());
@@ -637,20 +687,20 @@ public class FLWORQueryController
         this.returnTable.setItems(this.returnSpecificationController.getReturnSpecificationRows());
     }
 
-    
     public void returnSpecificationListener(ListChangeListener.Change<? extends ReturnSpecificationRow> c) {
         resultTable.getColumns().clear();
         resultColumns.clear();
+        exportButton.setDisable(true);
         int columnIndex = 0;
-        for (ReturnSpecificationRow rowSpecification: c.getList()) {
+        for (ReturnSpecificationRow rowSpecification : c.getList()) {
             if (rowSpecification.includeInResults()) {
                 final int currentIndex = columnIndex++;
-                TableColumn<List<String>, String> column 
+                TableColumn<List<String>, String> column
                         = new TableColumn<>(rowSpecification.getColumnName());
-                 column.setCellValueFactory(param
-                    -> new ReadOnlyObjectWrapper<>(param.getValue().get(currentIndex)));
-                 resultTable.getColumns().add(column);
-                 resultColumns.add(rowSpecification);
+                column.setCellValueFactory(param
+                        -> new ReadOnlyObjectWrapper<>(param.getValue().get(currentIndex)));
+                resultTable.getColumns().add(column);
+                resultColumns.add(rowSpecification);
             }
         }
     }
