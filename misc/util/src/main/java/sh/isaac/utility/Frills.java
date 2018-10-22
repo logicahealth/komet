@@ -254,7 +254,7 @@ public class Frills
          NecessarySet(And(ConceptAssertion(parentConcept, defBuilder)));
 
          final LogicalExpression parentDef = defBuilder.build();
-         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(semanticFQN, null, parentDef, MetaData.CONCEPT_ASSEMBLAGE____SOLOR.getNid());
+         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(semanticFQN, null, parentDef, MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
          DescriptionBuilder<? extends SemanticChronology, ? extends MutableDescriptionVersion> definitionBuilder =
             descriptionBuilderService.getDescriptionBuilder(
                 semanticPreferredTerm,
