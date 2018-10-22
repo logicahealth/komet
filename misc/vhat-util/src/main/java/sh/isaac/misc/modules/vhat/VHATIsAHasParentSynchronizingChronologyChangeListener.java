@@ -195,6 +195,13 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
           // Prevent a memory leak, by scheduling a thread to periodically empty the job list
           sf = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate((() -> waitForJobsToComplete()), 5, 5, TimeUnit.MINUTES);
       }
+      
+      if (!Get.conceptService().hasConcept(VHATConstants.VHAT_HAS_PARENT_ASSOCIATION_TYPE.getNid()))
+      {
+          //If this concept doesn't yet exist, there is no VHAT, and no reason to use this.  Disable it.
+          disable();
+      }
+      
       Get.configurationService().getDBBuildMode().addListener((change) -> 
       {
          if (Get.configurationService().isInDBBuildMode()) {
