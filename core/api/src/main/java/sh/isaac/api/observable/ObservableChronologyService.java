@@ -71,6 +71,8 @@ public interface ObservableChronologyService {
     * @return the ObservableSemanticChronology with the provided id
     */
    ObservableSemanticChronology getObservableSemanticChronology(int id);
+   
+   ObservableChronology getObservableChronology(int id);
    /**
     * 
     * @param manifoldCoordinate the coordinate to determine the latest versions of the snapshot

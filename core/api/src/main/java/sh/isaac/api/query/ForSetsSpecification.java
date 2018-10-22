@@ -46,9 +46,10 @@ package sh.isaac.api.query;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
@@ -57,14 +58,14 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 /**
  * Created by kec on 11/2/14.
  */
-public class ForSetSpecification {
+public class ForSetsSpecification {
 
    //~--- constructors --------------------------------------------------------
     private final List<ConceptSpecification> assemblageSpecificationsForSet;
    /**
     * Instantiates a new for set specification.
     */
-   public ForSetSpecification() {
+   public ForSetsSpecification() {
        assemblageSpecificationsForSet = new ArrayList<>();
    }
 
@@ -73,7 +74,7 @@ public class ForSetSpecification {
     *
     * @param assemblageSpecificationsForSet the for collection assemblage
     */
-   public ForSetSpecification(List<ConceptSpecification> assemblageSpecificationsForSet) {
+   public ForSetsSpecification(List<ConceptSpecification> assemblageSpecificationsForSet) {
       this.assemblageSpecificationsForSet = assemblageSpecificationsForSet;
    }
 
@@ -84,8 +85,22 @@ public class ForSetSpecification {
     *
     * @return the collection
     */
-   public NidSet getCollection() {
-      throw new UnsupportedOperationException();
+   public Map<ConceptSpecification, NidSet> getCollectionMap() {
+       Map<ConceptSpecification, NidSet> collections = new HashMap<>();
+       for (ConceptSpecification assemblage: assemblageSpecificationsForSet) {
+           NidSet assemblageNids = NidSet.of(Get.identifierService().getNidsForAssemblage(assemblage));
+           collections.put(assemblage, assemblageNids);
+       }
+       return collections;
+   }
+   
+   public Map<ConceptSpecification, Integer> getAssembalgeToIndexMap() {
+       Map<ConceptSpecification, Integer> returnValue = new HashMap();
+       for (int i = 0; i < assemblageSpecificationsForSet.size(); i++) {
+           ConceptSpecification spec = assemblageSpecificationsForSet.get(i);
+           returnValue.put(spec, i);
+       }
+       return returnValue;
    }
 
    //~--- get methods ---------------------------------------------------------

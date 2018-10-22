@@ -45,6 +45,8 @@ package sh.isaac.api.query.clauses;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.HashMap;
+import java.util.Map;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -114,14 +116,14 @@ public class FullyQualifiedNameForConcept
      * @return the nid set
      */
     @Override
-    public NidSet computeComponents(NidSet incomingComponents) {
+    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
         final LanguageCoordinate languageCoordinate         = (LanguageCoordinate) getEnclosingQuery().getLetDeclarations().get(this.languageCoordinateKey);
         final StampCoordinate    stampCoordinate            = (StampCoordinate) getEnclosingQuery().getLetDeclarations().get(this.stampCoordinateKey);
         final NidSet             outgoingFullySpecifiedNids = new NidSet();
         
         for (final Clause childClause: getChildren()) {
             final NidSet             childPossibleComponentNids =
-                    childClause.computePossibleComponents(incomingComponents);
+                    childClause.computePossibleComponents(incomingComponents).get(this.getAssemblageForIteration());
             final NidSet conceptNidSet         = NidSet.of(childPossibleComponentNids);
             
             Get.conceptService()
@@ -138,7 +140,9 @@ public class FullyQualifiedNameForConcept
                     });
         }
         
-        return outgoingFullySpecifiedNids;
+      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
+      resultsMap.put(this.getAssemblageForIteration(), outgoingFullySpecifiedNids);
+      return resultsMap;
     }
 
    /**
@@ -148,7 +152,7 @@ public class FullyQualifiedNameForConcept
     * @return the nid set
     */
    @Override
-   public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
+   public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
       return incomingPossibleComponents;
    }
 

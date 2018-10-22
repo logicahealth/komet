@@ -42,11 +42,9 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -73,16 +71,12 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author dylangrald
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsChildOf
         extends LeafClause {
    /** The child of spec key. */
-   @XmlElement
    String childOfSpecKey;
 
    /** The view coordinate key. */
-   @XmlElement
    String viewCoordinateKey;
 
    private ConceptSpecification childOfSpecification;
@@ -117,13 +111,15 @@ public class ConceptIsChildOf
     * @return the nid set
     */
    @Override
-   public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
+   public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
       final int parentNid = this.childOfSpecification.getNid();
       final NidSet childrenOfNidSet =
               NidSet.of(
                       Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getTaxonomyChildConceptNids(parentNid));
       getResultsCache().or(childrenOfNidSet);
-      return getResultsCache();
+      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
+      resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
+      return resultsMap;
    }
 
    //~--- get methods ---------------------------------------------------------

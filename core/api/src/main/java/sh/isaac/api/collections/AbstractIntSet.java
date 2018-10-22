@@ -368,6 +368,9 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
       if (this.readOnly) {
          throw new UnsupportedOperationException("Read only set");
       }
+      if (otherSet == null) {
+         throw new NullPointerException("other set cannot be null");
+      }
 
       this.intSet.or(otherSet.intSet);
       return (T) this;

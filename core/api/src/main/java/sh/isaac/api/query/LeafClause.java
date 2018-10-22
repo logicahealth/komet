@@ -42,15 +42,15 @@ package sh.isaac.api.query;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -62,8 +62,6 @@ import sh.isaac.api.collections.NidSet;
  *
  * @author kec
  */
-@XmlRootElement(name = "leaf")
-@XmlAccessorType(value = XmlAccessType.NONE)
 public abstract class LeafClause
         extends Clause {
    /**
@@ -109,9 +107,11 @@ public abstract class LeafClause
     * @return the nid set
     */
    @Override
-   public NidSet computeComponents(NidSet incomingComponents) {
-      this.resultsCache.and(incomingComponents);
-      return this.resultsCache;
+   public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
+      this.resultsCache.and(incomingComponents.get(this.getAssemblageForIteration()));
+      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
+      resultsMap.put(this.getAssemblageForIteration(), resultsCache);
+      return resultsMap;
    }
 
    //~--- get methods ---------------------------------------------------------

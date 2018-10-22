@@ -158,27 +158,6 @@ public enum ObservableFields
    /** The uuid for taxonomy coordinate. */
    UUID_FOR_TAXONOMY_COORDINATE("UUID for taxonomy coordinate", "Coordinate UUID"),
 
-   /** The status for version. */
-   STATUS_FOR_VERSION("Status for version", "Status for version"),
-
-   /** The time for version. */
-   TIME_FOR_VERSION("Time for version", "Time for version"),
-
-   /** The author nid for version. */
-   AUTHOR_NID_FOR_VERSION("Author nid for version", "Author nid for version"),
-
-   /** The module nid for version. */
-   MODULE_NID_FOR_VERSION("Module nid for version", "Module nid for version"),
-
-   /** The path nid for version. */
-   PATH_NID_FOR_VERSION("Path nid for version", "Path nid for version"),
-
-   /** The committed state for version. */
-   COMMITTED_STATE_FOR_VERSION("Committed state for version", "Committed state for version"),
-
-   /** The stamp nid for version. */
-   STAMP_SEQUENCE_FOR_VERSION("Stamp sequence for version", "Stamp sequence for version"),
-
    /** The case significance concept nid for description. */
    CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION("Case significance concept nid for description", "Case significance"),
 
@@ -202,11 +181,6 @@ public enum ObservableFields
    /** The entry sequence for chronicle. */
    ENTRY_SEQUENCE_FOR_COMPONENT("Entry sequence for component", "Entry ID"),
 
-   /** The assemblage nid for chronicle. */
-   ASSEMBLAGE_NID_FOR_COMPONENT("Assemblage nid for component", "Assemblage for component"),
-
-   /** The referenced component nid for semantic chronicle. */
-   REFERENCED_COMPONENT_NID_FOR_SEMANTIC("Referenced component nid for semantic", "Referenced component id"),
 
    /** The referenced component nid for semantic chronicle. */
    REFERENCED_COMPONENT_UUID_FOR_SEMANTIC("Referenced component UUID for semantic", "Referenced component UUID"),

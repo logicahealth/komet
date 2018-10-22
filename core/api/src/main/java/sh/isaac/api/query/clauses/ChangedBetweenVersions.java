@@ -42,6 +42,7 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.Map;
 
 import sh.isaac.api.bootstrap.TermAux;
 
@@ -129,8 +130,8 @@ public class ChangedBetweenVersions
      * @return the nid set
      */
     @Override
-    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-        this.cache = incomingPossibleComponents;
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+        this.cache = incomingPossibleComponents.get(this.getAssemblageForIteration());
         return incomingPossibleComponents;
     }
 

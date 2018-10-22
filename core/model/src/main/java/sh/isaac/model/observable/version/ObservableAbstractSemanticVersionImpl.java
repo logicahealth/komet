@@ -112,11 +112,11 @@ public abstract class ObservableAbstractSemanticVersionImpl
         super(chronology);
         this.assemblageNidProperty
                 = new CommitAwareIntegerProperty(this,
-                        ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
+                        TermAux.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
                         versionToClone.getAssemblageNid());
         this.referencedComponentNidProperty
                 = new CommitAwareIntegerProperty(this,
-                        ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
+                        TermAux.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
                         versionToClone.getReferencedComponentNid());
         this.setStatus(versionToClone.getStatus());
     }
@@ -132,13 +132,13 @@ public abstract class ObservableAbstractSemanticVersionImpl
             if (this.referencedComponentUuidProperty != null) {
                 this.referencedComponentNidProperty
                     = new CommitAwareIntegerProperty(this,
-                            ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
+                            TermAux.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
                             Get.identifierService().assignNid(this.referencedComponentUuidProperty.get()));
                 
             } else {
             this.referencedComponentNidProperty
                     = new CommitAwareIntegerProperty(this,
-                            ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
+                            TermAux.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
                             getReferencedComponentNid());
             }
         }

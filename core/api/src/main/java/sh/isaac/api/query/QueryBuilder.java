@@ -33,7 +33,7 @@ public class QueryBuilder  {
    
    List<ComponentCollectionTypes> forClause = new ArrayList<>();
    Map<String, Object> letClauses = new HashMap<>();
-   ForSetSpecification forSetSpecification;
+   ForSetsSpecification forSetSpecification;
    List<Object> orderByClauses = new ArrayList<>();
    List<Object> returnClauses = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public class QueryBuilder  {
     * @param forSetSpecification
     * @return 
     */
-   public QueryBuilder from(ForSetSpecification forSetSpecification) {
+   public QueryBuilder from(ForSetsSpecification forSetSpecification) {
       this.forSetSpecification = forSetSpecification;
       return this;
    }

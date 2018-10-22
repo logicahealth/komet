@@ -34,17 +34,12 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
-
-
-
 //~--- non-JDK imports --------------------------------------------------------
-
+import java.util.HashMap;
+import java.util.Map;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -55,7 +50,6 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * Returns components that are in the incoming For set and not in the set
  * returned from the computation of the clauses that are descendents of the
@@ -65,142 +59,148 @@ import sh.isaac.api.coordinate.StampCoordinate;
  */
 public class Not
         extends ParentClause {
-   /** The for set. */
-   NidSet forSet;
 
-   /** The not set. */
-   NidSet notSet;
+    /**
+     * The for set.
+     */
+    NidSet forSet;
+
+    /**
+     * The not set.
+     */
+    NidSet notSet;
     private String stampCoordinateKey;
 
-   //~--- constructors --------------------------------------------------------
+    //~--- constructors --------------------------------------------------------
+    /**
+     * Default no arg constructor for Jaxb.
+     */
+    public Not() {
+        super();
+    }
 
-   /**
-    * Default no arg constructor for Jaxb.
-    */
-   public Not() {
-      super();
-   }
-
-   /**
-    * Instantiates a new not.
-    *
-    * @param enclosingQuery the enclosing query
-    * @param child the child
+    /**
+     * Instantiates a new not.
+     *
+     * @param enclosingQuery the enclosing query
+     * @param child the child
      * @param stampCoordinateKey
-    */
-   public Not(Query enclosingQuery, Clause child, String stampCoordinateKey) {
-      super(enclosingQuery, child);
+     */
+    public Not(Query enclosingQuery, Clause child, String stampCoordinateKey) {
+        super(enclosingQuery, child);
         this.stampCoordinateKey = stampCoordinateKey;
-   }
+    }
 
-   //~--- methods -------------------------------------------------------------
+    //~--- methods -------------------------------------------------------------
+    /**
+     * Compute components.
+     *
+     * @param incomingComponents the incoming components
+     * @return the nid set
+     */
+    @Override
+    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
+        this.forSet = this.enclosingQuery.For().get(this.getAssemblageForIteration());
+        assert this.forSet != null;
 
-   /**
-    * Compute components.
-    *
-    * @param incomingComponents the incoming components
-    * @return the nid set
-    */
-   @Override
-   public NidSet computeComponents(NidSet incomingComponents) {
-      this.forSet = this.enclosingQuery.For();
-      assert this.forSet != null;
+        final NidSet activeSet = new NidSet();
+        StampCoordinate stampCoordinate = (StampCoordinate) getEnclosingQuery().getLetDeclarations().get(stampCoordinateKey);
 
-      final NidSet activeSet = new NidSet();
-      StampCoordinate stampCoordinate = (StampCoordinate) getEnclosingQuery().getLetDeclarations().get(stampCoordinateKey);
+        Get.conceptService().getConceptChronologyStream(incomingComponents.get(this.getAssemblageForIteration())).forEach((ConceptChronology cc) -> {
+            final LatestVersion<ConceptVersion> latestVersion
+                    = cc.getLatestVersion(stampCoordinate);
 
-      Get.conceptService().getConceptChronologyStream(incomingComponents).forEach((ConceptChronology cc) -> {
-                     final LatestVersion<ConceptVersion> latestVersion =
-                        cc.getLatestVersion(stampCoordinate);
-
-                     if (latestVersion.isPresent()) {
-                        activeSet.add(cc.getNid());
-                     }
-                  });
-      getChildren().stream().forEach((c) -> {
-                               this.notSet.or(c.computeComponents(incomingComponents));
-                            });
-      this.forSet = NidSet.of(activeSet);
-      this.forSet.andNot(this.notSet);
-      return this.forSet;
-   }
-
-   /**
-    * Compute possible components.
-    *
-    * @param incomingPossibleComponents the incoming possible components
-    * @return the nid set
-    */
-   @Override
-   public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      this.notSet = new NidSet();
-
-      for (final Clause c: getChildren()) {
-         for (final ClauseComputeType cp: c.getComputePhases()) {
-            switch (cp) {
-            case PRE_ITERATION:
-               this.notSet.or(c.computePossibleComponents(incomingPossibleComponents));
-               break;
-
-            case ITERATION:
-               c.computePossibleComponents(incomingPossibleComponents);
-               break;
-
-            case POST_ITERATION:
-               c.computePossibleComponents(incomingPossibleComponents);
-               break;
+            if (latestVersion.isPresent()) {
+                activeSet.add(cc.getNid());
             }
-         }
-      }
+        });
+        getChildren().stream().forEach((c) -> {
+            this.notSet.or(c.computeComponents(incomingComponents).get(c.getAssemblageForIteration()));
+            setAssemblageForIteration(c.getAssemblageForIteration());
+        });
+        this.forSet = NidSet.of(activeSet);
+        this.forSet.andNot(this.notSet);
+        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
+        resultsMap.put(this.getAssemblageForIteration(), this.forSet);
+        return resultsMap;
+    }
 
-      return incomingPossibleComponents;
-   }
+    /**
+     * Compute possible components.
+     *
+     * @param incomingPossibleComponents the incoming possible components
+     * @return the nid set
+     */
+    @Override
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+        this.notSet = new NidSet();
 
-   //~--- get methods ---------------------------------------------------------
+        for (final Clause c : getChildren()) {
+            for (final ClauseComputeType cp : c.getComputePhases()) {
+                switch (cp) {
+                    case PRE_ITERATION:
+                        this.notSet.or(c.computePossibleComponents(incomingPossibleComponents).get(c.getAssemblageForIteration()));
+                        break;
+
+                    case ITERATION:
+                        c.computePossibleComponents(incomingPossibleComponents);
+                        break;
+
+                    case POST_ITERATION:
+                        c.computePossibleComponents(incomingPossibleComponents);
+                        break;
+                }
+            }
+            setAssemblageForIteration(c.getAssemblageForIteration());
+
+        }
+
+        return incomingPossibleComponents;
+    }
+
+    //~--- get methods ---------------------------------------------------------
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.NOT;
     }
-   
 
-   /**
-    * Gets the where clause.
-    *
-    * @return the where clause
-    */
-   @Override
-   public WhereClause getWhereClause() {
-      final WhereClause whereClause = new WhereClause();
+    /**
+     * Gets the where clause.
+     *
+     * @return the where clause
+     */
+    @Override
+    public WhereClause getWhereClause() {
+        final WhereClause whereClause = new WhereClause();
 
-      whereClause.setSemantic(ClauseSemantic.NOT);
+        whereClause.setSemantic(ClauseSemantic.NOT);
 
-      for (final Clause clause: getChildren()) {
-         whereClause.getChildren()
+        for (final Clause clause : getChildren()) {
+            whereClause.getChildren()
                     .add(clause.getWhereClause());
-      }
+        }
 
-      return whereClause;
-   }
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.NOT_QUERY_CLAUSE;
-   }
+        return whereClause;
+    }
 
+    @Override
+    public ConceptSpecification getClauseConcept() {
+        return TermAux.NOT_QUERY_CLAUSE;
+    }
 
-   @Override
-   public Clause[] getAllowedSubstutitionClauses() {
-      return getParentClauses();
-   }
-   
-   @Override
-   public Clause[] getAllowedChildClauses() {
-      return getAllClauses();
-   }
+    @Override
+    public Clause[] getAllowedSubstutitionClauses() {
+        return getParentClauses();
+    }
 
-   @Override
-   public Clause[] getAllowedSiblingClauses() {
-      return getAllClauses();
-   }
+    @Override
+    public Clause[] getAllowedChildClauses() {
+        return getAllClauses();
+    }
+
+    @Override
+    public Clause[] getAllowedSiblingClauses() {
+        return getAllClauses();
+    }
 
 }
-

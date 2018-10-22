@@ -45,6 +45,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
@@ -169,7 +170,7 @@ public class ObservableSemanticChronologyImpl
    public IntegerProperty referencedComponentNidProperty() {
       if (this.referencedComponentNidProperty == null) {
          this.referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
-                 ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
+                 TermAux.REFERENCED_COMPONENT_NID_FOR_SEMANTIC.toExternalString(),
                  getReferencedComponentNid());
       }
 

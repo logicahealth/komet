@@ -57,11 +57,13 @@ package sh.komet.gui.search.flwor;
 import java.net.URL;
 
 import java.util.*;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ListChangeListener;
 
 import javafx.collections.ObservableList;
 
@@ -71,13 +73,16 @@ import javafx.fxml.FXML;
 
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.*;
 
 //~--- JDK imports ------------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.controlsfx.control.action.Action;
@@ -87,12 +92,12 @@ import org.controlsfx.control.action.ActionUtils;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableSnapshotService;
-import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.query.Clause;
+import sh.isaac.api.query.ForSetsSpecification;
 import sh.isaac.api.query.Or;
 import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
@@ -108,7 +113,6 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.search.control.LetPropertySheet;
 import sh.komet.gui.search.control.WhereParameterCell;
 import sh.komet.gui.style.StyleClasses;
-import sh.komet.gui.table.DescriptionTableCell;
 import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
@@ -156,72 +160,82 @@ public class FLWORQueryController
     @FXML                                                                         // fx:id="cancelButton"
     private Button cancelButton;      // Value injected by FXMLLoader
     @FXML                                                                         // fx:id="resultTable"
-    private TableView<ObservableDescriptionVersion> resultTable;       // Value injected by FXMLLoader
+    private TableView<List<String>> resultTable;       // Value injected by FXMLLoader
     @FXML                                                                         // fx:id="textColumn"
-    private TableColumn<ObservableDescriptionVersion, String> textColumn;        // Value injected by FXMLLoader
+    private TableColumn<List<String>, String> textColumn;        // Value injected by FXMLLoader
     @FXML                                                                         // fx:id="typeColumn"
-    private TableColumn<ObservableDescriptionVersion, Integer> typeColumn;        // Value injected by FXMLLoader
+    private TableColumn<List<String>, Integer> typeColumn;        // Value injected by FXMLLoader
     @FXML                                                                         // fx:id="languageColumn"
-    private TableColumn<ObservableDescriptionVersion, Integer> languageColumn;    // Value injected by FXMLLoader
+    private TableColumn<List<String>, Integer> languageColumn;    // Value injected by FXMLLoader
     @FXML
     private AnchorPane forAnchorPane;
     @FXML
     private AnchorPane letAnchorPane;
 
+    @FXML // fx:id="returnTable"
+    private TableView<ReturnSpecificationRow> returnTable; // Value injected by FXMLLoader
+
+    @FXML // fx:id="includeColumn"
+    private TableColumn<ReturnSpecificationRow, Boolean> includeColumn; // Value injected by FXMLLoader
+
+    @FXML // fx:id="assemblageColumn"
+    private TableColumn<ReturnSpecificationRow, String> assemblageColumn; // Value injected by FXMLLoader
+
+    @FXML // fx:id="propertyNameColumn"
+    private TableColumn<ReturnSpecificationRow, String> propertyNameColumn; // Value injected by FXMLLoader
+
+    @FXML // fx:id="functionColumn"
+    private TableColumn<ReturnSpecificationRow, String> functionColumn; // Value injected by FXMLLoader
+
+    @FXML // fx:id="columnNameColumn"
+    private TableColumn<ReturnSpecificationRow, String> columnNameColumn; // Value injected by FXMLLoader
+
     private TreeItem<QueryClause> root;
     private Manifold manifold;
     private LetPropertySheet letPropertySheet;
     private ForPanel forPropertySheet;
-    
+    private ReturnSpecificationController returnSpecificationController;
+
     private LetItemsController letItemsController;
-    
+    private final List<ReturnSpecificationRow> resultColumns = new ArrayList();
+
     //~--- methods -------------------------------------------------------------
     @Override
     public Node getMenuIcon() {
         return Iconography.FLWOR_SEARCH.getIconographic();
     }
 
-    void displayResults(NidSet resultNids) {
-        ObservableList<ObservableDescriptionVersion> tableItems = resultTable.getItems();
-
+    void displayResults(int[][] resultArray, Map<ConceptSpecification, Integer> assembalgeToIndexMap) {
+        ObservableList<List<String>> tableItems = resultTable.getItems();
+        int columnCount = resultTable.getColumns().size();
         tableItems.clear();
-
+        OpenIntIntHashMap fastAssemblageNidToIndexMap = new OpenIntIntHashMap();
+        for (Map.Entry<ConceptSpecification, Integer> entry: assembalgeToIndexMap.entrySet()) {
+            fastAssemblageNidToIndexMap.put(entry.getKey().getNid(), entry.getValue());
+        }
         ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
-
-//      ObservableSnapshotService snapshot = Get.observableSnapshotService(this.letPropertySheet.getManifold());
-        for (int nid : resultNids.asArray()) {
-            switch (Get.identifierService().getObjectTypeForComponent(nid)) {
-                case CONCEPT: {
-                    // convert to a description. 
-                    LatestVersion<DescriptionVersion> latestDescriptionForConcept = manifold.getDescription(nid, manifold.getManifoldCoordinate());
-                    if (latestDescriptionForConcept.isPresent()) {
-                        LatestVersion<ObservableDescriptionVersion> latestDescription
-                                = (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(
-                                        latestDescriptionForConcept.get().getNid());
-
-                        if (latestDescription.isPresent()) {
-                            tableItems.add(latestDescription.get());
-                        } else {
-                            LOG.error("No latest description for concept: " + Get.conceptDescriptionText(nid));
-                        }
-                    }
+        for (int row = 0; row < resultArray.length; row++) {
+            String[] resultRow = new String[columnCount];
+            LatestVersion[] latestVersionArray = new LatestVersion[resultArray[row].length];
+            Map[] propertyMapArray = new Map[resultArray[row].length];
+            for (int column = 0; column < latestVersionArray.length; column++) {
+                latestVersionArray[column] = snapshot.getObservableVersion(resultArray[row][column]);
+                if (latestVersionArray[column].isPresent()) {
+                    propertyMapArray[column] = ((ObservableVersion) latestVersionArray[column].get()).getPropertyMap();
+                } else {
+                    propertyMapArray[column] = null;
                 }
-                break;
-                case SEMANTIC:
-                    LatestVersion<ObservableDescriptionVersion> latestDescription
-                            = (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(
-                                    nid);
-
-                    if (latestDescription.isPresent()) {
-                        tableItems.add(latestDescription.get());
-                    } else {
-                        LOG.error("No latest description for: " + nid);
-                    }
-                    break;
-                default:
-                    LOG.error("Can't handle type in result display: "
-                            + Get.identifierService().getObjectTypeForComponent(nid) + " for: " + nid);
             }
+            for (int column = 0; column < resultColumns.size(); column++) {
+                ReturnSpecificationRow columnSpecification = resultColumns.get(column);
+                int resultArrayNidIndex = fastAssemblageNidToIndexMap.get(columnSpecification.getAssemblageNid());
+                if (latestVersionArray[resultArrayNidIndex].isPresent()) {
+                    Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap = propertyMapArray[resultArrayNidIndex];
+                    ReadOnlyProperty<?> property = propertyMap.get(columnSpecification.getPropertySpecification());
+                    resultRow[column] = property.getValue().toString();
+                }
+            }
+            tableItems.add(Arrays.asList(resultRow));
         }
     }
 
@@ -241,11 +255,12 @@ public class FLWORQueryController
 
         rootClause.setEnclosingQuery(query);
 
-        NidSet results = query.compute();
+        int[][] resultArray = query.reify();
+        ForSetsSpecification forSet = query.getForSetSpecification();
 
         FxGet.statusMessageService()
-                .reportSceneStatus(anchorPane.getScene(), "Query result count: " + results.size());
-        displayResults(results);
+                .reportSceneStatus(anchorPane.getScene(), "Query result count: " + resultArray.length);
+        displayResults(resultArray, forSet.getAssembalgeToIndexMap());
     }
 
     @FXML  // This method is called by the FXMLLoader when initialization is complete
@@ -261,6 +276,12 @@ public class FLWORQueryController
                 "fx:id=\"clauseNameColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert clausePropertiesColumn != null : "fx:id=\"clausePropertiesColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert returnPane != null : "fx:id=\"returnPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+        assert returnTable != null : "fx:id=\"returnTable\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+        assert includeColumn != null : "fx:id=\"includeColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+        assert assemblageColumn != null : "fx:id=\"assemblageColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+        assert propertyNameColumn != null : "fx:id=\"propertyNameColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+        assert functionColumn != null : "fx:id=\"functionColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
+        assert columnNameColumn != null : "fx:id=\"columnNameColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert executeButton != null : "fx:id=\"executeButton\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert progressBar != null : "fx:id=\"progressBar\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
@@ -270,13 +291,18 @@ public class FLWORQueryController
         assert languageColumn != null : "fx:id=\"languageColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert forAnchorPane != null : "fx:id=\"forAnchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert letAnchorPane != null : "fx:id=\"letAnchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
-        textColumn.setCellValueFactory(
-                (TableColumn.CellDataFeatures<ObservableDescriptionVersion, String> param) -> param.getValue()
-                        .textProperty());
-        textColumn.setCellFactory(
-                (TableColumn<ObservableDescriptionVersion, String> stringText) -> new DescriptionTableCell());
         resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
         resultTable.setOnDragDone(new DragDoneEventHandler());
+
+        returnTable.setEditable(true);
+        includeColumn.setCellValueFactory(new PropertyValueFactory("includeInResults"));
+        includeColumn.setCellFactory(CheckBoxTableCell.forTableColumn(includeColumn));
+        assemblageColumn.setCellValueFactory(new PropertyValueFactory("assemblageName"));
+        propertyNameColumn.setCellValueFactory(new PropertyValueFactory("propertyName"));
+        functionColumn.setCellValueFactory(new PropertyValueFactory("functionName"));
+        columnNameColumn.setCellValueFactory(new PropertyValueFactory("columnName"));
+        columnNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
     }
 
     private void addChildClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
@@ -290,7 +316,7 @@ public class FLWORQueryController
                 .get(CLAUSE);
 
         treeItem.getChildren()
-                .add(new TreeItem<>(new QueryClause(clause, manifold)));
+                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty())));
 
     }
 
@@ -306,7 +332,7 @@ public class FLWORQueryController
 
         treeItem.getParent()
                 .getChildren()
-                .add(new TreeItem<>(new QueryClause(clause, manifold)));
+                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty())));
 
     }
 
@@ -320,7 +346,7 @@ public class FLWORQueryController
         Clause clause = (Clause) conceptAction.getProperties()
                 .get(CLAUSE);
 
-        treeItem.setValue(new QueryClause(clause, manifold));
+        treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty()));
     }
 
     // changeClause->, addSibling->, addChild->,
@@ -556,12 +582,14 @@ public class FLWORQueryController
     //~--- set methods ---------------------------------------------------------
     public void setManifold(Manifold manifold) {
         this.manifold = manifold;
-        this.root = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold));
+        this.letPropertySheet = new LetPropertySheet(this.manifold.deepClone());
+        this.forPropertySheet = new ForPanel(manifold);
+        this.root = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet.getForAssemblagesProperty()));
 
-        TreeItem orTreeItem = new TreeItem<>(new QueryClause(new Or(), manifold));
+        TreeItem orTreeItem = new TreeItem<>(new QueryClause(new Or(), manifold, this.forPropertySheet.getForAssemblagesProperty()));
 
         orTreeItem.getChildren()
-                .add(new TreeItem<>(new QueryClause(new DescriptionLuceneMatch(), manifold)));
+                .add(new TreeItem<>(new QueryClause(new DescriptionLuceneMatch(), manifold, this.forPropertySheet.getForAssemblagesProperty())));
         this.root.getChildren()
                 .add(orTreeItem);
         orTreeItem.setExpanded(true);
@@ -589,7 +617,7 @@ public class FLWORQueryController
                     return cell;
                 });
 
-        // Given the data in the row, return the observable value for the column.
+        // Given the data in the row, return the observable value for the resultArrayNidIndex.
         this.clauseNameColumn.setCellValueFactory(
                 (TreeTableColumn.CellDataFeatures<QueryClause, String> p) -> p.getValue()
                         .getValue().clauseName);
@@ -598,60 +626,33 @@ public class FLWORQueryController
         this.clausePropertiesColumn.setCellFactory(param -> new WhereParameterCell());
         this.whereTreeTable.setRoot(root);
         this.whereTreeTable.setFixedCellSize(-1);
-        this.textColumn.setCellValueFactory(new PropertyValueFactory("text"));
-        this.typeColumn.setCellValueFactory(new PropertyValueFactory("descriptionTypeConceptSequence"));
-        this.typeColumn.setCellFactory(
-                column -> {
-                    return new TableCell<ObservableDescriptionVersion, Integer>() {
-                @Override
-                protected void updateItem(Integer conceptSequence, boolean empty) {
-                    super.updateItem(conceptSequence, empty);
+ 
 
-                    if ((conceptSequence == null) || empty) {
-                        setText(null);
-                        setStyle("");
-                    } else {
-                        setText(manifold.getPreferredDescriptionText(conceptSequence));
-                    }
-                }
-            };
-                });
-        this.languageColumn.setCellValueFactory(new PropertyValueFactory("languageConceptSequence"));
-
-        // TODO: make concept description cell factory...
-        this.languageColumn.setCellFactory(
-                column -> {
-                    return new TableCell<ObservableDescriptionVersion, Integer>() {
-                @Override
-                protected void updateItem(Integer conceptSequence, boolean empty) {
-                    super.updateItem(conceptSequence, empty);
-
-                    if ((conceptSequence == null) || empty) {
-                        setText(null);
-                        setStyle("");
-                    } else {
-                        setText(manifold.getPreferredDescriptionText(conceptSequence));
-                    }
-                }
-            };
-                });
-        resultTable.getSelectionModel()
-                .selectedItemProperty()
-                .addListener(
-                        (obs, oldSelection, newSelection) -> {
-                            if (newSelection != null) {
-                                manifold.setFocusedConceptChronology(
-                                        Get.conceptService()
-                                                .getConceptChronology(newSelection.getReferencedComponentNid()));
-                            }
-                        });
-
-        letPropertySheet = new LetPropertySheet(this.manifold.deepClone());
         this.letAnchorPane.getChildren()
                 .add(letPropertySheet.getNode());
-        this.forPropertySheet = new ForPanel(manifold);
         this.forAnchorPane.getChildren().add(this.forPropertySheet.getNode());
-        
+        this.returnSpecificationController = new ReturnSpecificationController(
+                this.forPropertySheet.getForAssemblagesProperty(), this.manifold);
+        this.returnSpecificationController.addReturnSpecificationListener(this::returnSpecificationListener);
+        this.returnTable.setItems(this.returnSpecificationController.getReturnSpecificationRows());
+    }
+
+    
+    public void returnSpecificationListener(ListChangeListener.Change<? extends ReturnSpecificationRow> c) {
+        resultTable.getColumns().clear();
+        resultColumns.clear();
+        int columnIndex = 0;
+        for (ReturnSpecificationRow rowSpecification: c.getList()) {
+            if (rowSpecification.includeInResults()) {
+                final int currentIndex = columnIndex++;
+                TableColumn<List<String>, String> column 
+                        = new TableColumn<>(rowSpecification.getColumnName());
+                 column.setCellValueFactory(param
+                    -> new ReadOnlyObjectWrapper<>(param.getValue().get(currentIndex)));
+                 resultTable.getColumns().add(column);
+                 resultColumns.add(rowSpecification);
+            }
+        }
     }
 
     //~--- get methods ---------------------------------------------------------

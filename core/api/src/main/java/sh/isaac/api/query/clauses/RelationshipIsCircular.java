@@ -42,12 +42,7 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.concurrent.ExecutionException;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Map;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -71,20 +66,15 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class RelationshipIsCircular
         extends LeafClause {
    /** The rel type key. */
-   @XmlElement
    String relTypeKey;
 
    /** The view coordinate key. */
-   @XmlElement
    String viewCoordinateKey;
 
    /** The rel type subsumption key. */
-   @XmlElement
    String relTypeSubsumptionKey;
 
    /** The rel type set. */
@@ -124,7 +114,7 @@ public class RelationshipIsCircular
     * @return the nid set
     */
    @Override
-   public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
+   public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
       final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);

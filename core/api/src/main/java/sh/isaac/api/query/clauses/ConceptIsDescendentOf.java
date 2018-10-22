@@ -42,12 +42,9 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.concurrent.ExecutionException;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -74,16 +71,12 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author dylangrald
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsDescendentOf
         extends LeafClause {
    /** The descendent of spec key. */
-   @XmlElement
-   String descendentOfSpecKey;
+    String descendentOfSpecKey;
 
    /** The view coordinate key. */
-   @XmlElement
    String viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
@@ -115,7 +108,7 @@ public class ConceptIsDescendentOf
     * @return the nid set
     */
    @Override
-   public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
+   public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
       final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
               .get(this.viewCoordinateKey);
       final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
@@ -123,7 +116,9 @@ public class ConceptIsDescendentOf
       final int parentNid = descendentOfSpec.getNid();
       final int[] descendentOfNidSet = Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyChildConceptNids(parentNid);
       getResultsCache().or(NidSet.of(descendentOfNidSet));
-      return getResultsCache();
+      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
+      resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
+      return resultsMap;
    }
 
    //~--- get methods ---------------------------------------------------------

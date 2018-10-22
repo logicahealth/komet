@@ -42,6 +42,7 @@ package sh.isaac.api.query;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
+import java.util.Map;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -49,6 +50,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -99,7 +101,7 @@ public class QueryExample {
     * @throws IOException Signals that an I/O exception has occurred.
     * @throws Exception the exception
     */
-   public NidSet getResults()
+   public Map<ConceptSpecification, NidSet> getResults()
             throws IOException, Exception {
       return this.query.compute();
    }

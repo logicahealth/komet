@@ -40,6 +40,7 @@ package sh.isaac.api.query;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Map;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
@@ -101,13 +102,11 @@ public abstract class Query {
      */
     private final HashMap<String, Object> letDeclarations = new HashMap<>();
 
-
     /**
      * The concepts, stored as nids in a <code>NidSet</code>, that are
      * considered in the query.
      */
-    private ForSetSpecification forSetSpecification;
-
+    private ForSetsSpecification forSetSpecification;
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -116,10 +115,10 @@ public abstract class Query {
      * @param assemblageToIterate
      */
     public Query(ConceptSpecification assemblageToIterate) {
-        this(new ForSetSpecification(Arrays.asList(new ConceptSpecification[] { assemblageToIterate })));
+        this(new ForSetsSpecification(Arrays.asList(new ConceptSpecification[]{assemblageToIterate})));
     }
 
-    public Query(ForSetSpecification forSetSpecification) {
+    public Query(ForSetsSpecification forSetSpecification) {
         this.forSetSpecification = forSetSpecification;
     }
 
@@ -148,20 +147,45 @@ public abstract class Query {
     public abstract Clause Where();
 
     /**
-     * Constructs the query and computes the set of concepts that match the
+     * Constructs the query and computes the set of components that match the
      * criterion specified in the clauses.
      *
-     * @return the <code>NidSet</code> of nids that meet the criterion of
-     * the query
+     * @return the <code>NidSet</code> of nids that meet the criterion of the
+     * query
      */
-    public NidSet compute() {
+    public Map<ConceptSpecification, NidSet> compute() {
         setup();
         getLetDeclarations();
         this.rootClause[0] = Where();
 
-        final NidSet possibleComponents = this.rootClause[0].computePossibleComponents(For());
+        final Map<ConceptSpecification, NidSet> possibleComponentMap = this.rootClause[0].computePossibleComponents(For());
 
-        return this.rootClause[0].computeComponents(possibleComponents);
+        return this.rootClause[0].computeComponents(possibleComponentMap);
+    }
+
+    public ForSetsSpecification getForSetSpecification() {
+        return forSetSpecification;
+    }
+
+    /**
+     * 
+     * @return an array of component nids in an array...
+     */
+    public int[][] reify() {
+        Map<ConceptSpecification, NidSet> assemlageMapResults = compute();
+        if (assemlageMapResults.size() == 1) {
+            for (Map.Entry<ConceptSpecification, NidSet> entry : assemlageMapResults.entrySet()) {
+                int[][] resultArray = new int[entry.getValue().size()][];
+                int row = 0;
+                for (int nid : entry.getValue().asArray()) {
+                    resultArray[row++] = new int[] { nid };
+                }
+                return resultArray;
+            }
+            throw new IllegalStateException("No entry found, though list is not empty. ");
+        } else {
+            throw new UnsupportedOperationException("Can't handle joins yet");
+        }
     }
 
     /**
@@ -390,8 +414,8 @@ public abstract class Query {
      *
      * @return the <code>NativeIdSetBI</code> of the set that will be queried
      */
-    protected final NidSet For() {
-        return this.forSetSpecification.getCollection();
+    protected final Map<ConceptSpecification, NidSet> For() {
+        return this.forSetSpecification.getCollectionMap();
     }
 
     /**
@@ -623,7 +647,6 @@ public abstract class Query {
     public EnumSet<ClauseComputeType> getComputePhases() {
         return this.computeTypes;
     }
-
 
     /**
      * Gets the let declarations.

@@ -38,12 +38,10 @@ package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.LookupService;
@@ -66,21 +64,17 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionLuceneMatch
         extends LeafClause {
 
     /**
      * The lucene match key.
      */
-    @XmlElement
     String luceneMatchKey;
 
     /**
      * The view coordinate key.
      */
-    @XmlElement
     String viewCoordinateKey;
 
     private String parameterString;
@@ -122,7 +116,7 @@ public class DescriptionLuceneMatch
      * @return the nid set
      */
     @Override
-    public final NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
+    public final Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
         final NidSet nids = new NidSet();
         IndexDescriptionQueryService descriptionIndexer = LookupService.get().getService(IndexDescriptionQueryService.class);
 
@@ -132,15 +126,18 @@ public class DescriptionLuceneMatch
 
         final List<SearchResult> queryResults = descriptionIndexer.query(this.parameterString, 1000);
 
+        NidSet incomingPossibleSet = incomingPossibleComponents.get(this.getAssemblageForIteration());
         queryResults.stream().forEach((s) -> {
-            if (incomingPossibleComponents.contains(s.getNid())) {
+            if (incomingPossibleSet.contains(s.getNid())) {
                 nids.add(s.getNid());
             }
 
         });
 
-        getResultsCache().or(nids);
-        return nids;
+      getResultsCache().or(nids);
+      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
+      resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
+      return resultsMap;
     }
 
     //~--- get methods ---------------------------------------------------------

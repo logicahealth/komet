@@ -473,16 +473,17 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptSpecification KOMET_MODULE = new ConceptProxy("KOMET module", "KOMET module", UUID.fromString("34a6dae3-e5e9-50db-a9ee-69c1067911d8"));
 
 
+   public static ConceptSpecification STATUS_FOR_VERSION = new ConceptProxy("Status for version", "Status for version", UUID.fromString("0608e233-d79d-5076-985b-9b1ea4e14b4c"));
+   public static ConceptSpecification TIME_FOR_VERSION = new ConceptProxy("Time for version", "Time for version", UUID.fromString("a9b0dfb2-f463-5dae-8ba8-7f2e8385571b"));
+   public static ConceptSpecification AUTHOR_NID_FOR_VERSION = new ConceptProxy("Author nid for version", "Author nid for version", UUID.fromString("4eb9de0d-7486-5f18-a9b4-82e3432f4103"));
+   public static ConceptSpecification MODULE_NID_FOR_VERSION = new ConceptProxy("Module nid for version", "Module nid for version", UUID.fromString("67cd64f1-96d7-5110-b847-556c055ac063"));
+   public static ConceptSpecification PATH_NID_FOR_VERSION = new ConceptProxy("Path nid for version", "Path nid for version", UUID.fromString("ad3dd2dd-ddb0-584c-bea4-c6d9b91d461f"));
+   public static ConceptSpecification COMMITTED_STATE_FOR_VERSION = new ConceptProxy("Committed state for version", UUID.fromString("cc1e1cd7-0627-513d-aba6-f2a6a1326906"));
+   public static ConceptSpecification STAMP_SEQUENCE_FOR_VERSION = new ConceptProxy("Stamp sequence for version", "Stamp sequence for version", UUID.fromString("0b026997-e0c6-59b1-871f-8486710f7ac1"));
+   public static ConceptSpecification ASSEMBLAGE_NID_FOR_COMPONENT = new ConceptProxy("Assemblage nid for component", "Assemblage for component", UUID.fromString("3de7b91a-d384-5651-95eb-161f13cde990"));
+   public static ConceptSpecification REFERENCED_COMPONENT_NID_FOR_SEMANTIC = new ConceptProxy("Referenced component nid for semantic", "Referenced component id", UUID.fromString("a9ba4749-c11f-5f35-a991-21796fb89ddc"));
+
     /*
-    public static ConceptSpecification SPEC56 = new ConceptProxy("", "", UUID.fromString("0608e233-d79d-5076-985b-9b1ea4e14b4c"));
-    public static ConceptSpecification SPEC57 = new ConceptProxy("", "", UUID.fromString("a9b0dfb2-f463-5dae-8ba8-7f2e8385571b"));
-    public static ConceptSpecification SPEC58 = new ConceptProxy("", "", UUID.fromString("4eb9de0d-7486-5f18-a9b4-82e3432f4103"));
-    public static ConceptSpecification SPEC59 = new ConceptProxy("", "", UUID.fromString("67cd64f1-96d7-5110-b847-556c055ac063"));
-    public static ConceptSpecification SPEC60 = new ConceptProxy("", "", UUID.fromString("ad3dd2dd-ddb0-584c-bea4-c6d9b91d461f"));
-    public static ConceptSpecification SPEC61 = new ConceptProxy("", "", UUID.fromString("cc1e1cd7-0627-513d-aba6-f2a6a1326906"));
-    public static ConceptSpecification SPEC62 = new ConceptProxy("", "", UUID.fromString("0b026997-e0c6-59b1-871f-8486710f7ac1"));
-    public static ConceptSpecification SPEC63 = new ConceptProxy("", "", UUID.fromString("3de7b91a-d384-5651-95eb-161f13cde990"));
-    public static ConceptSpecification SPEC64 = new ConceptProxy("", "", UUID.fromString("a9ba4749-c11f-5f35-a991-21796fb89ddc"));
     public static ConceptSpecification SPEC65 = new ConceptProxy("", "", UUID.fromString("18fa4f5c-6691-597d-897a-93c6f709ec66"));
     public static ConceptSpecification SPEC66 = new ConceptProxy("", "", UUID.fromString("03004053-c23e-5206-8514-fb551dd328f4"));
     public static ConceptSpecification SPEC67 = new ConceptProxy("", "", UUID.fromString("09f12001-0e4f-51e2-9852-44862a4a0db4"));

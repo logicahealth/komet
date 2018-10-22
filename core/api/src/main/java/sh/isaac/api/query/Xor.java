@@ -34,131 +34,126 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.HashMap;
+import java.util.Map;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * Computes the exclusive disjunction between the result sets of each
  * <code>ChildClause</code>.
  *
  * @author dylangrald
  */
-@XmlRootElement(name = "XOR")
-@XmlAccessorType(value = XmlAccessType.PROPERTY)
 public class Xor
         extends ParentClause {
-   /**
-    * Default no arg constructor for Jaxb.
-    */
-   public Xor() {
-      super();
-   }
 
-   /**
-    * Instantiates a new xor.
-    *
-    * @param enclosingQuery the enclosing query
-    * @param clauses the clauses
-    */
-   public Xor(Query enclosingQuery, Clause... clauses) {
-      super(enclosingQuery, clauses);
-   }
+    /**
+     * Default no arg constructor for Jaxb.
+     */
+    public Xor() {
+        super();
+    }
 
-   //~--- methods -------------------------------------------------------------
+    /**
+     * Instantiates a new xor.
+     *
+     * @param enclosingQuery the enclosing query
+     * @param clauses the clauses
+     */
+    public Xor(Query enclosingQuery, Clause... clauses) {
+        super(enclosingQuery, clauses);
+    }
+
+    //~--- methods -------------------------------------------------------------
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.XOR;
     }
-   
 
-   /**
-    * Compute components.
-    *
-    * @param incomingComponents the incoming components
-    * @return the nid set
-    */
-   @Override
-   public NidSet computeComponents(NidSet incomingComponents) {
-      final NidSet xorSet = new NidSet();
+    /**
+     * Compute components.
+     *
+     * @param incomingComponents the incoming components
+     * @return the nid set
+     */
+    @Override
+    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
+        final NidSet xorSet = new NidSet();
 
-      getChildren().stream().forEach((c) -> {
-                               xorSet.xor(c.computeComponents(incomingComponents));
-                            });
-      return xorSet;
-   }
+        getChildren().stream().forEach((c) -> {
+            xorSet.xor(c.computeComponents(incomingComponents).get(c.getAssemblageForIteration()));
+            setAssemblageForIteration(c.getAssemblageForIteration());
+        });
+        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
+        resultsMap.put(this.getAssemblageForIteration(), xorSet);
+        return resultsMap;
+    }
 
-   /**
-    * Compute possible components.
-    *
-    * @param incomingPossibleComponents the incoming possible components
-    * @return the nid set
-    */
-   @Override
-   public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final NidSet unionSet = new NidSet();
+    /**
+     * Compute possible components.
+     *
+     * @param incomingPossibleComponents the incoming possible components
+     * @return the nid set
+     */
+    @Override
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+        final NidSet unionSet = new NidSet();
 
-      getChildren().stream().forEach((c) -> {
-                               unionSet.or(c.computePossibleComponents(incomingPossibleComponents));
-                            });
-      return unionSet;
-   }
+        getChildren().stream().forEach((c) -> {
+            unionSet.or(c.computePossibleComponents(incomingPossibleComponents).get(c.getAssemblageForIteration()));
+            setAssemblageForIteration(c.getAssemblageForIteration());
+        });
+        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
+        resultsMap.put(this.getAssemblageForIteration(), unionSet);
+        return resultsMap;
+    }
 
-   //~--- get methods ---------------------------------------------------------
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the where clause.
+     *
+     * @return the where clause
+     */
+    @Override
+    public WhereClause getWhereClause() {
+        final WhereClause whereClause = new WhereClause();
 
-   /**
-    * Gets the where clause.
-    *
-    * @return the where clause
-    */
-   @Override
-   public WhereClause getWhereClause() {
-      final WhereClause whereClause = new WhereClause();
+        whereClause.setSemantic(ClauseSemantic.XOR);
 
-      whereClause.setSemantic(ClauseSemantic.XOR);
-
-      for (final Clause clause: getChildren()) {
-         whereClause.getChildren()
+        for (final Clause clause : getChildren()) {
+            whereClause.getChildren()
                     .add(clause.getWhereClause());
-      }
+        }
 
-      return whereClause;
-   }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.XOR_QUERY_CLAUSE;
-   }
+        return whereClause;
+    }
 
-   @Override
-   public Clause[] getAllowedSubstutitionClauses() {
-      return getParentClauses();
-   }
-   
-   @Override
-   public Clause[] getAllowedChildClauses() {
-      return getAllClauses();
-   }
+    @Override
+    public ConceptSpecification getClauseConcept() {
+        return TermAux.XOR_QUERY_CLAUSE;
+    }
 
-   @Override
-   public Clause[] getAllowedSiblingClauses() {
-      return getAllClauses();
-   }
+    @Override
+    public Clause[] getAllowedSubstutitionClauses() {
+        return getParentClauses();
+    }
+
+    @Override
+    public Clause[] getAllowedChildClauses() {
+        return getAllClauses();
+    }
+
+    @Override
+    public Clause[] getAllowedSiblingClauses() {
+        return getAllClauses();
+    }
 
 }
-

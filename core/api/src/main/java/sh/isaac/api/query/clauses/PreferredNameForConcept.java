@@ -42,6 +42,8 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -100,12 +102,14 @@ public class PreferredNameForConcept
     * @return the nid set
     */
    @Override
-   public NidSet computeComponents(NidSet incomingConcepts) {
+   public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingConcepts) {
       final LanguageCoordinate languageCoordinate         = (LanguageCoordinate) getEnclosingQuery().getLetDeclarations().get(this.languageCoordinateKey);
       final StampCoordinate    stampCoordinate            = (StampCoordinate) getEnclosingQuery().getLetDeclarations().get(this.stampCoordinateKey);
       final NidSet             outgoingPreferredNids = new NidSet();
 
-      getChildren().stream().map((childClause) -> childClause.computePossibleComponents(incomingConcepts)).map((childPossibleComponentNids) -> NidSet.of(childPossibleComponentNids)).forEach((conceptNidSet) -> {
+      getChildren().stream().map((childClause) -> 
+              childClause.computePossibleComponents(incomingConcepts).get(this.getAssemblageForIteration()))
+              .map((childPossibleComponentNids) -> NidSet.of(childPossibleComponentNids)).forEach((conceptNidSet) -> {
                                Get.conceptService()
                                   .getConceptChronologyStream(conceptNidSet)
                                   .forEach((conceptChronology) -> {
@@ -120,7 +124,9 @@ public class PreferredNameForConcept
                                               }
                                            });
                             });
-      return outgoingPreferredNids;
+      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingConcepts);
+      resultsMap.put(this.getAssemblageForIteration(), outgoingPreferredNids);
+      return resultsMap;
    }
 
    /**
@@ -130,7 +136,7 @@ public class PreferredNameForConcept
     * @return the nid set
     */
    @Override
-   public NidSet computePossibleComponents(NidSet incomingPossibleConcepts) {
+   public Map<ConceptSpecification, NidSet>  computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleConcepts) {
       return incomingPossibleConcepts;
    }
 
