@@ -22,6 +22,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.collections4.CollectionUtils;
@@ -42,6 +43,7 @@ import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
+import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
@@ -309,6 +311,38 @@ public class QueryProviderTest {
 		Assert.assertEquals(di.query("whis", true, null, null, 1, 125, null).size(), 54);
 		
 		Assert.assertEquals(di.mergeResultsOnConcept(di.query("whis", true, null, null, 1, 125, null)).size(), 25);
+	}
+	
+	
+	/**
+	 * Lazy cheat of a non-query test being shoved into this class, but one that needs the beverage ontology
+	 */
+	@Test
+	public void testExternalDescriptionExpand() {
+		
+		int[] expandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(new int[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()}, null);
+		
+		Assert.assertEquals(4, expandedList.length);
+		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid(), expandedList[0]);
+		HashSet<UUID> expected = new HashSet<>();
+		expected.add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid());
+		expected.add(UUID.fromString("f98669ec-27fb-526d-97f1-5162e11e24e1"));
+		expected.add(UUID.fromString("e00ac5df-d8e4-562e-ba52-105812bdde52"));
+		expected.add(UUID.fromString("26a7bba3-7807-5a9c-a9c1-ebf0934cb5f4"));
+
+		for (int nid : expandedList)
+		{
+			Assert.assertTrue(expected.contains(Get.identifierService().getUuidPrimordialForNid(nid)));
+		}
+		
+		int[] reexpandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(expandedList, null);
+		
+		Assert.assertEquals(4, reexpandedList.length);
+		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid(), reexpandedList[0]);
+		for (int nid : reexpandedList)
+		{
+			Assert.assertTrue(expected.contains(Get.identifierService().getUuidPrimordialForNid(nid)));
+		}
 	}
 	
 	private void printResults(List<SearchResult> result)
