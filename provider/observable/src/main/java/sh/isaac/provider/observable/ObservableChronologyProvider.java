@@ -59,7 +59,7 @@ import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
@@ -272,8 +272,8 @@ public class ObservableChronologyProvider
     }
 
     @Override
-    public ObservableSnapshotService getObservableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
-        return new ObservableSnapshotServiceProvider(manifoldCoordinate);
+    public ObservableSnapshotService getObservableSnapshotService(StampCoordinate stampCoordinate) {
+        return new ObservableSnapshotServiceProvider(stampCoordinate);
     }
 
     @Override
@@ -290,12 +290,12 @@ public class ObservableChronologyProvider
 
     private class ObservableSnapshotServiceProvider implements ObservableSnapshotService {
 
-        final ManifoldCoordinate manifoldCoordinate;
+        final StampCoordinate stampCoordinate;
         final RelativePositionCalculator relativePositionCalculator;
 
-        public ObservableSnapshotServiceProvider(ManifoldCoordinate manifoldCoordinate) {
-            this.manifoldCoordinate = manifoldCoordinate;
-            this.relativePositionCalculator = RelativePositionCalculator.getCalculator(this.manifoldCoordinate);
+        public ObservableSnapshotServiceProvider(StampCoordinate stampCoordinate) {
+            this.stampCoordinate = stampCoordinate;
+            this.relativePositionCalculator = RelativePositionCalculator.getCalculator(this.stampCoordinate);
         }
 
         @Override
@@ -368,8 +368,8 @@ public class ObservableChronologyProvider
         }
 
         @Override
-        public ObservableSnapshotService getObservableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
-            return new ObservableSnapshotServiceProvider(manifoldCoordinate);
+        public ObservableSnapshotService getObservableSnapshotService(StampCoordinate stampCoordinate) {
+            return new ObservableSnapshotServiceProvider(stampCoordinate);
         }
 
     }

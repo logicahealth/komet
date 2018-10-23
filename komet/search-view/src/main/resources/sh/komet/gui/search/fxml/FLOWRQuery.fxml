@@ -68,10 +68,11 @@
                                     <TableView fx:id="returnTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="249.0" prefWidth="646.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                       <columns>
                                         <TableColumn fx:id="includeColumn" prefWidth="31.5" />
-                                          <TableColumn fx:id="assemblageColumn" prefWidth="151.5" text="assemblage" />
-                                        <TableColumn fx:id="propertyNameColumn" prefWidth="166.21371459960938" text="property" />
-                                          <TableColumn fx:id="functionColumn" prefWidth="182.39614868164062" text="function" />
                                           <TableColumn fx:id="columnNameColumn" prefWidth="229.1016845703125" text="column name" />
+                                          <TableColumn fx:id="stampCoordinateColumn" prefWidth="134.0" text="STAMP" />
+                                        <TableColumn fx:id="propertyNameColumn" prefWidth="107.5" text="property" />
+                                          <TableColumn fx:id="functionColumn" prefWidth="182.39614868164062" text="function" />
+                                          <TableColumn fx:id="assemblageColumn" prefWidth="151.5" text="assemblage" />
                                       </columns>
                                     </TableView>
                                  </children></AnchorPane>

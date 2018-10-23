@@ -60,13 +60,13 @@ import java.io.IOException;
 import java.net.URL;
 
 import java.util.*;
-import java.util.logging.Level;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 
 import javafx.collections.ObservableList;
@@ -78,6 +78,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
@@ -98,7 +99,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.query.Clause;
@@ -108,6 +109,7 @@ import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.QueryBuilder;
 import sh.isaac.api.query.clauses.*;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.action.ConceptAction;
@@ -190,10 +192,13 @@ public class FLWORQueryController
     private TableColumn<ReturnSpecificationRow, String> propertyNameColumn; // Value injected by FXMLLoader
 
     @FXML // fx:id="functionColumn"
-    private TableColumn<ReturnSpecificationRow, String> functionColumn; // Value injected by FXMLLoader
+    private TableColumn<ReturnSpecificationRow, CellFunction> functionColumn; // Value injected by FXMLLoader
 
     @FXML // fx:id="columnNameColumn"
     private TableColumn<ReturnSpecificationRow, String> columnNameColumn; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="stampCoordinateColumn"
+    private TableColumn<ReturnSpecificationRow, LetItemKey> stampCoordinateColumn; // Value injected by FXMLLoader
 
     @FXML // fx:id="spacerLabel"
     private Label spacerLabel; // Value injected by FXMLLoader
@@ -209,6 +214,26 @@ public class FLWORQueryController
 
     private LetItemsController letItemsController;
     private final List<ReturnSpecificationRow> resultColumns = new ArrayList();
+    
+    ObservableList<CellFunction> cellFunctions = FXCollections.observableArrayList();
+    {
+        cellFunctions.add(new CellFunction("", (t, u) -> {
+            return t;
+        }));
+        cellFunctions.add(new CellFunction("Primoridal uuid", (t, u) -> {
+            int nid = Integer.parseInt(t);
+            return Get.identifierService().getUuidPrimordialForNid(nid).toString();
+        }));
+        cellFunctions.add(new CellFunction("All uuids", (t, u) -> {
+            int nid = Integer.parseInt(t);
+            return Get.identifierService().getUuidsForNid(nid).toString();
+        }));
+        cellFunctions.add(new CellFunction("Epoch to 8601 date/time", (t, u) -> {
+            long epochTime = Long.parseLong(t);
+            return DateTimeUtil.format(epochTime);
+        }));
+    }
+
 
     //~--- methods -------------------------------------------------------------
     @Override
@@ -216,6 +241,19 @@ public class FLWORQueryController
         return Iconography.FLWOR_SEARCH.getIconographic();
     }
 
+    /*
+    Functions needed: 
+        primordial uuid for nid
+        all uuids for nid
+        time, date time for epochTime
+    
+        // language coordinate
+        fully qualified name for nid
+        preferred name for nid
+        definition for nid
+
+    
+    */
     void displayResults(int[][] resultArray, Map<ConceptSpecification, Integer> assembalgeToIndexMap) {
         ObservableList<List<String>> tableItems = resultTable.getItems();
         int columnCount = resultTable.getColumns().size();
@@ -224,13 +262,22 @@ public class FLWORQueryController
         for (Map.Entry<ConceptSpecification, Integer> entry : assembalgeToIndexMap.entrySet()) {
             fastAssemblageNidToIndexMap.put(entry.getKey().getNid(), entry.getValue());
         }
-        ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
+        //ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
+        ObservableSnapshotService[] snapshotArray = new ObservableSnapshotService[columnCount];
+        for (int column = 0; column < resultColumns.size(); column++) {
+            ReturnSpecificationRow columnSpecification = resultColumns.get(column);
+            if (columnSpecification.getStampCoordinateKey() != null) {
+                StampCoordinate stamp = (StampCoordinate) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampCoordinateKey());
+                snapshotArray[column] = Get.observableSnapshotService(stamp);
+            }
+        }
+
         for (int row = 0; row < resultArray.length; row++) {
             String[] resultRow = new String[columnCount];
             LatestVersion[] latestVersionArray = new LatestVersion[resultArray[row].length];
             Map[] propertyMapArray = new Map[resultArray[row].length];
             for (int column = 0; column < latestVersionArray.length; column++) {
-                latestVersionArray[column] = snapshot.getObservableVersion(resultArray[row][column]);
+                latestVersionArray[column] = snapshotArray[column].getObservableVersion(resultArray[row][column]);
                 if (latestVersionArray[column].isPresent()) {
                     propertyMapArray[column] = ((ObservableVersion) latestVersionArray[column].get()).getPropertyMap();
                 } else {
@@ -243,7 +290,12 @@ public class FLWORQueryController
                 if (latestVersionArray[resultArrayNidIndex].isPresent()) {
                     Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap = propertyMapArray[resultArrayNidIndex];
                     ReadOnlyProperty<?> property = propertyMap.get(columnSpecification.getPropertySpecification());
-                    resultRow[column] = property.getValue().toString();
+                    if (columnSpecification.getCellFunction() != null) {
+                        StampCoordinate sc = (StampCoordinate) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampCoordinateKey());
+                        resultRow[column] = columnSpecification.getCellFunction().apply(property.getValue().toString(), sc);
+                    } else {
+                        resultRow[column] = property.getValue().toString();
+                    }
                 }
             }
             tableItems.add(Arrays.asList(resultRow));
@@ -353,7 +405,7 @@ public class FLWORQueryController
         functionColumn.setCellValueFactory(new PropertyValueFactory("functionName"));
         columnNameColumn.setCellValueFactory(new PropertyValueFactory("columnName"));
         columnNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-
+        
     }
 
     private void addChildClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
@@ -629,11 +681,21 @@ public class FLWORQueryController
     public Manifold getManifold() {
         return this.manifold;
     }
-
+    
     //~--- set methods ---------------------------------------------------------
     public void setManifold(Manifold manifold) {
         this.manifold = manifold;
         this.letPropertySheet = new LetPropertySheet(this.manifold.deepClone());
+        stampCoordinateColumn.setCellValueFactory((param) -> {
+            return param.getValue().stampCoordinateKeyProperty();
+        });
+        stampCoordinateColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(this.letPropertySheet.getStampCoordinateKeys()));
+
+        functionColumn.setCellValueFactory((param) -> {
+            return param.getValue().cellFunctionProperty();
+        });
+        functionColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(cellFunctions));
+        
         this.forPropertySheet = new ForPanel(manifold);
         this.root = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet.getForAssemblagesProperty()));
 
@@ -682,7 +744,9 @@ public class FLWORQueryController
                 .add(letPropertySheet.getNode());
         this.forAnchorPane.getChildren().add(this.forPropertySheet.getNode());
         this.returnSpecificationController = new ReturnSpecificationController(
-                this.forPropertySheet.getForAssemblagesProperty(), this.manifold);
+                this.forPropertySheet.getForAssemblagesProperty(), 
+                this.letPropertySheet.getLetItemObjectMap(), 
+                this.cellFunctions, this.manifold);
         this.returnSpecificationController.addReturnSpecificationListener(this::returnSpecificationListener);
         this.returnTable.setItems(this.returnSpecificationController.getReturnSpecificationRows());
     }

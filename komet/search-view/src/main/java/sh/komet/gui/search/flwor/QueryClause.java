@@ -33,7 +33,7 @@ import sh.komet.gui.manifold.Manifold;
 
 //~--- inner classes -------------------------------------------------------
 public class QueryClause {
-
+ 
     SimpleObjectProperty<Clause> clauseProperty;
     SimpleStringProperty clauseName;
     Manifold manifold;

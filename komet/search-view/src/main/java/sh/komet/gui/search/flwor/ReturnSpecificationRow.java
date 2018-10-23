@@ -30,22 +30,37 @@ public class ReturnSpecificationRow {
     private final SimpleBooleanProperty includeInResults;
     private final SimpleStringProperty assemblageName;
     private final SimpleStringProperty propertyName;
-    private final SimpleStringProperty functionName;
+    private final SimpleObjectProperty<CellFunction> cellFunction;
     private final SimpleStringProperty columnName;
+    private final SimpleObjectProperty<LetItemKey> stampCoordinateKey  = new SimpleObjectProperty();
     private final SimpleIntegerProperty assemblageNid;
     private final SimpleObjectProperty<ConceptSpecification> propertySpecification;
 
     public ReturnSpecificationRow(String assemblageName, String propertyName, 
-            String functionName, String columnName, int assemblageNid,
+            CellFunction cellFunction, String columnName, int assemblageNid,
             ConceptSpecification propertySpecification) {
         this.includeInResults = new SimpleBooleanProperty(false);
         this.assemblageName = new SimpleStringProperty(assemblageName);
         this.propertyName = new SimpleStringProperty(propertyName);
-        this.functionName = new SimpleStringProperty(functionName);
+        this.cellFunction = new SimpleObjectProperty(cellFunction);
         this.columnName = new SimpleStringProperty(columnName);
         this.assemblageNid = new SimpleIntegerProperty(assemblageNid);
         this.propertySpecification = new SimpleObjectProperty(propertySpecification);
     }
+    
+    public LetItemKey getStampCoordinateKey() {
+        return stampCoordinateKey.get();
+    }
+
+    public SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty() {
+        return stampCoordinateKey;
+    }
+
+    public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
+        this.stampCoordinateKey.set(stampCoordinateKey);
+    }
+
+
     public ConceptSpecification getPropertySpecification() {
         return this.propertySpecification.get();
     }
@@ -104,16 +119,16 @@ public class ReturnSpecificationRow {
         this.propertyName.set(propertyName);
     }
 
-    public String getFunctionName() {
-        return functionName.get();
+    public CellFunction getCellFunction() {
+        return cellFunction.get();
     }
 
-    public SimpleStringProperty functionNameProperty() {
-        return functionName;
+    public SimpleObjectProperty<CellFunction> cellFunctionProperty() {
+        return cellFunction;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName.set(functionName);
+    public void setCellFunction(CellFunction cellFunction) {
+        this.cellFunction.set(cellFunction);
     }
 
     public String getColumnName() {

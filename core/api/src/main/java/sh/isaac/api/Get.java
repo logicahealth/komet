@@ -79,6 +79,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
@@ -683,8 +684,8 @@ public class Get
       return observableChronologyService;
    }
 
-   public static ObservableSnapshotService observableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
-      return observableChronologyService().getObservableSnapshotService(manifoldCoordinate);
+   public static ObservableSnapshotService observableSnapshotService(StampCoordinate stampCoordinate) {
+      return observableChronologyService().getObservableSnapshotService(stampCoordinate);
    }
    
 
