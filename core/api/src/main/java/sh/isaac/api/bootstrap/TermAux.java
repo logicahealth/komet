@@ -339,6 +339,7 @@ public class TermAux implements StaticIsaacCache {
          UUID.fromString("f5111e6c-681d-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification ASSOCIATED_PARAMETER_QUERY_CLAUSE = new ConceptProxy("Associated parameter (query clause)", " ↳ ",
          UUID.fromString("a44e673b-14c4-525b-99be-0b5dfa0280c8"));
+    public static ConceptSpecification JOIN_QUERY_CLAUSE = new ConceptProxy("Join query clause", "Join", UUID.fromString("18fa4f5c-6691-597d-897a-93c6f709ec66"));
 
    public static ConceptSpecification STATED_PREMISE_TYPE = new ConceptProxy("Stated premise type", "Stated", UUID.fromString("3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));
 
@@ -484,7 +485,6 @@ public class TermAux implements StaticIsaacCache {
    public static ConceptSpecification REFERENCED_COMPONENT_NID_FOR_SEMANTIC = new ConceptProxy("Referenced component nid for semantic", "Referenced component id", UUID.fromString("a9ba4749-c11f-5f35-a991-21796fb89ddc"));
 
     /*
-    public static ConceptSpecification SPEC65 = new ConceptProxy("", "", UUID.fromString("18fa4f5c-6691-597d-897a-93c6f709ec66"));
     public static ConceptSpecification SPEC66 = new ConceptProxy("", "", UUID.fromString("03004053-c23e-5206-8514-fb551dd328f4"));
     public static ConceptSpecification SPEC67 = new ConceptProxy("", "", UUID.fromString("09f12001-0e4f-51e2-9852-44862a4a0db4"));
     public static ConceptSpecification SPEC68 = new ConceptProxy("", "", UUID.fromString("b17bde5d-98ed-5416-97cf-2d837d75159d"));

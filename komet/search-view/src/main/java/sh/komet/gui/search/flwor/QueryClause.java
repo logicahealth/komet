@@ -125,6 +125,8 @@ public class QueryClause {
                 return new Pane();
             case XOR:
                 return new Pane();
+            case JOIN:
+                return new Pane();
             default:
                 throw new UnsupportedOperationException("Can't handle: " + this.clauseProperty.get().getClauseSemantic());
 

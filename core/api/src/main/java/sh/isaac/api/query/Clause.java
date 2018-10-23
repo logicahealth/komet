@@ -263,7 +263,7 @@ public abstract class Clause implements ConceptSpecification {
             new ConceptIsKindOf(), new DescriptionActiveLuceneMatch(),
             new DescriptionActiveRegexMatch(), new DescriptionLuceneMatch(),
             new DescriptionRegexMatch(), new FullyQualifiedNameForConcept(),
-            new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular()
+            new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular(), new Join()
         };
     }
 
@@ -288,7 +288,7 @@ public abstract class Clause implements ConceptSpecification {
     public abstract Clause[] getAllowedSiblingClauses();
 
     protected static Clause[] getParentClauses() {
-        return new Clause[]{new And(), new AndNot(), new Not(), new Or(), new Xor()};
+        return new Clause[]{new And(), new AndNot(), new Not(), new Or(), new Xor(), new Join()};
     }
 
 }

@@ -996,6 +996,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.REL_RESTRICTION_QUERY_CLAUSE);
                createConcept(TermAux.REL_TYPE_QUERY_CLAUSE);
                createConcept(TermAux.ASSOCIATED_PARAMETER_QUERY_CLAUSE).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.JOIN_QUERY_CLAUSE).setModule(TermAux.KOMET_MODULE);
                createConcept(ASSEMBLAGE_LIST_FOR_QUERY).setModule(TermAux.KOMET_MODULE);
                popParent();
             createConcept("Query clause parameters");
@@ -1003,6 +1004,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("For assemblage");
                createConcept("Query string");
                createConcept("Let item key");
+               createConcept("Join 1 assemblage", "Assemblage 1");
+               createConcept("Join 1 property", "Property 1");
+               createConcept("Join 2 assemblage", "Assemblage 2");
+               createConcept("Join 2 property", "Property 2");
                popParent();
             popParent(); 
          popParent(); // ISAAC root should still be parent on stack...
