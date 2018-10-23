@@ -456,6 +456,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    
    @Override
    public void reset() {
+      cache = null;
       for (MetadataConceptConstant mcc : getConstantsToCreate()) {
          recursiveClear(mcc);
       }

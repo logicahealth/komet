@@ -105,6 +105,7 @@ public class IsaacMappingConstants implements ModuleProvidedConstants, IsaacCach
    
    @Override
    public void reset() {
+      cache = null;
       for (MetadataConceptConstant mcc : getConstantsToCreate()) {
          recursiveClear(mcc);
       }

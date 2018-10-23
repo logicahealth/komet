@@ -322,7 +322,7 @@ public class QueryProviderTest {
 		
 		int[] expandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(new int[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()}, null);
 		
-		Assert.assertEquals(4, expandedList.length);
+		Assert.assertEquals(expandedList.length, 4);
 		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid(), expandedList[0]);
 		HashSet<UUID> expected = new HashSet<>();
 		expected.add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid());
@@ -337,7 +337,7 @@ public class QueryProviderTest {
 		
 		int[] reexpandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(expandedList, null);
 		
-		Assert.assertEquals(4, reexpandedList.length);
+		Assert.assertEquals(reexpandedList.length, 4);
 		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid(), reexpandedList[0]);
 		for (int nid : reexpandedList)
 		{
