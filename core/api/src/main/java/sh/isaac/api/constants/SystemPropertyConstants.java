@@ -38,7 +38,6 @@
 package sh.isaac.api.constants;
 
 import sh.isaac.api.ConfigurationService;
-import sh.isaac.api.GlobalDatastoreConfiguration;
 import sh.isaac.api.LookupService;
 
 /**

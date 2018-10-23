@@ -203,11 +203,11 @@ public abstract class ObservableVersionImpl
         return assemblageNidProperty(getAssemblageNid());
     }
    
-    private final IntegerProperty assemblageNidProperty(int assemblageNid) {
+    private IntegerProperty assemblageNidProperty(int assemblageNid) {
         if (this.assemblageNidProperty == null) {
             this.assemblageNidProperty = 
                     new CommitAwareIntegerProperty(this, 
-                            ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(), 
+                            TermAux.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(), 
                             assemblageNid);
         }
         return this.assemblageNidProperty;
@@ -236,13 +236,13 @@ public abstract class ObservableVersionImpl
       if (this.stampedVersionProperty == null && this.authorNidProperty == null) {
         this.authorNidProperty = new CommitAwareIntegerProperty(
                  this,
-                 ObservableFields.AUTHOR_NID_FOR_VERSION.toExternalString(),
+                 TermAux.AUTHOR_NID_FOR_VERSION.toExternalString(),
                  0);
       }
       if (this.authorNidProperty == null) {
          this.authorNidProperty = new CommitAwareIntegerProperty(
                  this,
-                 ObservableFields.AUTHOR_NID_FOR_VERSION.toExternalString(),
+                 TermAux.AUTHOR_NID_FOR_VERSION.toExternalString(),
                  getAuthorNid());
          this.authorNidProperty.addListener(
                  (observable, oldValue, newValue) -> {
@@ -283,7 +283,7 @@ public abstract class ObservableVersionImpl
       if (this.stampedVersionProperty == null && this.commitStateProperty == null) {
          this.commitStateProperty = new SimpleObjectProperty(
                  this,
-                 ObservableFields.COMMITTED_STATE_FOR_VERSION.toExternalString(),
+                 TermAux.COMMITTED_STATE_FOR_VERSION.toExternalString(),
                  CommitStates.UNCOMMITTED);
       }
       if (this.commitStateProperty == null) {
@@ -306,7 +306,7 @@ public abstract class ObservableVersionImpl
          });
          this.commitStateProperty = new SimpleObjectProperty(
                  this,
-                 ObservableFields.COMMITTED_STATE_FOR_VERSION.toExternalString(),
+                 TermAux.COMMITTED_STATE_FOR_VERSION.toExternalString(),
                  this.commitStateBinding.get());
          this.commitStateProperty.bind(this.commitStateBinding);
       }
@@ -324,13 +324,13 @@ public abstract class ObservableVersionImpl
       if (this.stampedVersionProperty == null && this.moduleNidProperty == null) {
          this.moduleNidProperty = new CommitAwareIntegerProperty(
                  this,
-                 ObservableFields.MODULE_NID_FOR_VERSION.toExternalString(),
+                 TermAux.MODULE_NID_FOR_VERSION.toExternalString(),
                  0);
       }
       if (this.moduleNidProperty == null) {
          this.moduleNidProperty = new CommitAwareIntegerProperty(
                  this,
-                 ObservableFields.MODULE_NID_FOR_VERSION.toExternalString(),
+                 TermAux.MODULE_NID_FOR_VERSION.toExternalString(),
                  getModuleNid());
          this.moduleNidProperty.addListener(
                  (observable, oldValue, newValue) -> {
@@ -355,13 +355,13 @@ public abstract class ObservableVersionImpl
       if (this.stampedVersionProperty == null && this.pathNidProperty == null) {
          this.pathNidProperty = new CommitAwareIntegerProperty(
                  this,
-                 ObservableFields.PATH_NID_FOR_VERSION.toExternalString(),
+                 TermAux.PATH_NID_FOR_VERSION.toExternalString(),
                  0);
       }
       if (this.pathNidProperty == null) {
          this.pathNidProperty = new CommitAwareIntegerProperty(
                  this,
-                 ObservableFields.PATH_NID_FOR_VERSION.toExternalString(),
+                 TermAux.PATH_NID_FOR_VERSION.toExternalString(),
                  getPathNid());
          this.pathNidProperty.addListener(
                  (observable, oldValue, newValue) -> {
@@ -389,7 +389,7 @@ public abstract class ObservableVersionImpl
       if (this.stampSequenceProperty == null) {
          this.stampSequenceProperty = new CommitAwareIntegerProperty(
                  this,
-                 ObservableFields.STAMP_SEQUENCE_FOR_VERSION.toExternalString(),
+                 TermAux.STAMP_SEQUENCE_FOR_VERSION.toExternalString(),
                  getStampSequence());
          this.stampSequenceProperty.addListener(
                  (observable, oldValue, newValue) -> {
@@ -419,13 +419,13 @@ public abstract class ObservableVersionImpl
       if (this.stampedVersionProperty == null && this.stateProperty == null) {
          this.stateProperty = new CommitAwareObjectProperty<>(
                  this,
-                 ObservableFields.STATUS_FOR_VERSION.toExternalString(),
+                 TermAux.STATUS_FOR_VERSION.toExternalString(),
                  Status.PRIMORDIAL);
       }
       if (this.stateProperty == null) {
          this.stateProperty = new CommitAwareObjectProperty<>(
                  this,
-                 ObservableFields.STATUS_FOR_VERSION.toExternalString(),
+                 TermAux.STATUS_FOR_VERSION.toExternalString(),
                  getStatus());
          this.stateProperty.addListener(
                  (observable, oldValue, newValue) -> {
@@ -450,13 +450,13 @@ public abstract class ObservableVersionImpl
       if (this.stampedVersionProperty == null && this.timeProperty == null) {
          this.timeProperty = new CommitAwareLongProperty(
                  this,
-                 ObservableFields.TIME_FOR_VERSION.toExternalString(),
+                 TermAux.TIME_FOR_VERSION.toExternalString(),
                  Long.MAX_VALUE);
       }
       if (this.timeProperty == null) {
          this.timeProperty = new CommitAwareLongProperty(
                  this,
-                 ObservableFields.TIME_FOR_VERSION.toExternalString(),
+                 TermAux.TIME_FOR_VERSION.toExternalString(),
                  getTime());
          this.timeProperty.addListener(
                  (observable, oldValue, newValue) -> {

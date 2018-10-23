@@ -17,10 +17,13 @@
 package sh.isaac.model.coordinate;
 
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
@@ -101,8 +104,13 @@ public class StampCoordinateImmutableWrapper implements StampCoordinate {
     }
 
     @Override
-    public int[] getModulePreferenceListForVersions() {
-        return stampCoordinate.getModulePreferenceListForVersions();
+    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
+        return stampCoordinate.getModulePreferenceOrderForVersions();
+    }
+
+    @Override
+    public Set<ConceptSpecification> getModuleSpecifications() {
+        return stampCoordinate.getModuleSpecifications();
     }
     
 }

@@ -16,11 +16,12 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.solor.ExportLookUpCache;
+import sh.isaac.solor.utility.ExportLookUpCache;
 import sh.komet.gui.manifold.Manifold;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 public class RF2ExportHelper {
 
@@ -53,6 +54,23 @@ public class RF2ExportHelper {
                 .append(getModuleString(stampNid) + "\t");     //moduleId
     }
 
+    public StringBuilder getRF2CommonElements(Chronology chronology, UUID uuid){
+
+        int stampNid = 0;
+
+        if(chronology instanceof ConceptChronology)
+            stampNid = snapshotService.getObservableConceptVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
+        else if(chronology instanceof SemanticChronology)
+            stampNid = snapshotService.getObservableSemanticVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
+
+
+        return new StringBuilder()
+                .append(uuid.toString() + "\t")       //id
+                .append(getTimeString(stampNid) + "\t")        //time
+                .append(getActiveString(stampNid) + "\t")      //active
+                .append(getModuleString(stampNid) + "\t");     //moduleId
+    }
+
     String getIdString(Chronology chronology){
 
         if (ExportLookUpCache.isSCTID(chronology)) {
@@ -66,6 +84,21 @@ public class RF2ExportHelper {
         } else {
             return UuidT5Generator.makeSolorIdFromUuid(chronology.getPrimordialUuid());
         }
+    }
+
+    String getIdString(int nID){
+
+        Chronology chronology = null;
+        switch (Get.identifierService().getObjectTypeForComponent(nID)){
+            case CONCEPT:
+                chronology = Get.concept(nID);
+                break;
+            case SEMANTIC:
+                chronology = Get.assemblageService().getSemanticChronology(nID);
+                break;
+        }
+
+        return chronology != null? getIdString(chronology) : "null_chronology";
     }
 
     private String getTimeString(int stampNid){

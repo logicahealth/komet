@@ -73,7 +73,7 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
         bindProperties();
 
     }
-
+    
     public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
             ObjectProperty<? extends ConceptSpecification> conceptProperty) {
         this(manifoldForDisplay, name, conceptProperty, (ConceptSpecification[]) new ConceptSpecification[0]);

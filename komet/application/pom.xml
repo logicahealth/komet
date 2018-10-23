@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.54</version>
+      <version>4.57</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>application</artifactId>
@@ -16,8 +16,8 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <mainClass>sh.komet.fx.stage.MainApp</mainClass>
       <log4j.version>2.8.1</log4j.version>
-      <solor.db.version>1.19</solor.db.version>
-      <solor.snap.db.version>1.20</solor.snap.db.version>
+      <solor.db.version>1.21</solor.db.version>
+      <solor.snap.db.version>1.21</solor.snap.db.version>
    </properties>
 
    <organization>

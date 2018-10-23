@@ -69,6 +69,7 @@ import javafx.collections.ObservableList;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
@@ -737,7 +738,7 @@ public abstract class ObservableChronologyImpl
      */
     public IntegerProperty assemblageNidProperty() {
         if (this.assemblageNidProperty == null) {
-            this.assemblageNidProperty = new CommitAwareIntegerProperty(this, ObservableFields.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(), getAssemblageNid());
+            this.assemblageNidProperty = new CommitAwareIntegerProperty(this, TermAux.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(), getAssemblageNid());
         }
         return this.assemblageNidProperty;
     }

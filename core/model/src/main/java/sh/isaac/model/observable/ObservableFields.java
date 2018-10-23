@@ -81,12 +81,21 @@ public enum ObservableFields
    /** The language nid for language coordinate. */
    LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("Language nid for language coordinate", "Language nid for language coordinate"),
 
+   /** The language nid for language coordinate. */
+   LANGUAGE_FOR_LANGUAGE_COORDINATE("Language specification for language coordinate", "Language"),
+
    /** The dialect assemblage nid preference list for language coordinate. */
    DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
       "Dialect assemblage nid preference list for language coordinate", "Dialect preferences"),
    
+   DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
+      "Dialect assemblage preference list for language coordinate", "Dialect order"),
+   
    MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE(
-      "Module nid preference list for stamp coordinate", "Mofule for version preferences"),
+      "Module nid preference list for stamp coordinate", "Module nids for version preferences"),
+   
+   MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE(
+      "Module preference order for stamp coordinate", "Module order"),
    
    
    NEXT_PRIORITY_LANGUAGE_COORDINATE(
@@ -94,7 +103,7 @@ public enum ObservableFields
 
    /** The description type nid preference list for language coordinate. */
    DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
-      "Description type nid preference list for language coordinate", "Type preferences"),
+      "Description type nid preference list for language coordinate", "Type order"),
 
    /** The stated assemblage nid for logic coordinate. */
    STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Stated assemblage nid for logic coordinate", "Stated assemblage"),
@@ -116,6 +125,8 @@ public enum ObservableFields
 
    /** The module nid array for stamp coordinate. */
    MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("Module nid array for stamp coordinate", "Modules for stamp coordinates"),
+   
+   MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Module specification set for stamp coordinate", "Module set"),
 
    /** The allowed states for stamp coordinate. */
    ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),
@@ -147,27 +158,6 @@ public enum ObservableFields
    /** The uuid for taxonomy coordinate. */
    UUID_FOR_TAXONOMY_COORDINATE("UUID for taxonomy coordinate", "Coordinate UUID"),
 
-   /** The status for version. */
-   STATUS_FOR_VERSION("Status for version", "Status for version"),
-
-   /** The time for version. */
-   TIME_FOR_VERSION("Time for version", "Time for version"),
-
-   /** The author nid for version. */
-   AUTHOR_NID_FOR_VERSION("Author nid for version", "Author nid for version"),
-
-   /** The module nid for version. */
-   MODULE_NID_FOR_VERSION("Module nid for version", "Module nid for version"),
-
-   /** The path nid for version. */
-   PATH_NID_FOR_VERSION("Path nid for version", "Path nid for version"),
-
-   /** The committed state for version. */
-   COMMITTED_STATE_FOR_VERSION("Committed state for version", "Committed state for version"),
-
-   /** The stamp nid for version. */
-   STAMP_SEQUENCE_FOR_VERSION("Stamp sequence for version", "Stamp sequence for version"),
-
    /** The case significance concept nid for description. */
    CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION("Case significance concept nid for description", "Case significance"),
 
@@ -191,11 +181,6 @@ public enum ObservableFields
    /** The entry sequence for chronicle. */
    ENTRY_SEQUENCE_FOR_COMPONENT("Entry sequence for component", "Entry ID"),
 
-   /** The assemblage nid for chronicle. */
-   ASSEMBLAGE_NID_FOR_COMPONENT("Assemblage nid for component", "Assemblage for component"),
-
-   /** The referenced component nid for semantic chronicle. */
-   REFERENCED_COMPONENT_NID_FOR_SEMANTIC("Referenced component nid for semantic", "Referenced component id"),
 
    /** The referenced component nid for semantic chronicle. */
    REFERENCED_COMPONENT_UUID_FOR_SEMANTIC("Referenced component UUID for semantic", "Referenced component UUID"),
@@ -348,6 +333,8 @@ public enum ObservableFields
    VERSION_TYPE_FOR_ACTION("Version type for action", "Version for action"),
    
    CONCEPT_CONSTRAINTS("Concept constraints"),
+   
+   ASSEMBLAGE_LIST_FOR_QUERY("Assemblage list for query", "For list"),
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */

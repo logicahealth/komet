@@ -42,12 +42,15 @@ package sh.isaac.api.query;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
+import java.util.Map;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -69,21 +72,18 @@ public class QueryExample {
    public QueryExample() {
       
       this.query =
-         new Query(Get.coordinateFactory().createDefaultInferredManifoldCoordinate()) {
-         @Override
-         protected ForSetSpecification ForSetSpecification() {
-            return new ForSetSpecification(ComponentCollectionTypes.ALL_CONCEPTS);
-         }
+         new Query(TermAux.SOLOR_CONCEPT_ASSEMBLAGE) {
          @Override
          public void Let() {
             let("allergic-asthma", new ConceptProxy("Allergic asthma", "531abe20-8324-3db9-9104-8bcdbf251ac7"));
             let("asthma", new ConceptProxy("Asthma (disorder)", "c265cf22-2a11-3488-b71e-296ec0317f96"));
             let("mild asthma", new ConceptProxy("Mild asthma (disorder)", "51971ecc-9a54-3584-9c36-d647ab00b47f"));
+            let("stamp coordinate", Get.defaultCoordinate());
          }
          @Override
          public Clause Where() {
             return And(ConceptIsKindOf("asthma"),
-                       Not(ConceptIsChildOf("allergic-asthma")),
+                       Not(ConceptIsChildOf("allergic-asthma"), "stamp coordinate"),
                        ConceptIs("allergic-asthma"));
 
 //          Union(ConceptIsKindOf("allergic-asthma"),
@@ -101,7 +101,7 @@ public class QueryExample {
     * @throws IOException Signals that an I/O exception has occurred.
     * @throws Exception the exception
     */
-   public NidSet getResults()
+   public Map<ConceptSpecification, NidSet> getResults()
             throws IOException, Exception {
       return this.query.compute();
    }

@@ -44,4 +44,6 @@ public interface ObservableSnapshotService {
     */
    LatestVersion<? extends ObservableSemanticVersion> getObservableSemanticVersion(int id);
 
+   LatestVersion<? extends ObservableVersion> getObservableVersion(int id);
+
 }

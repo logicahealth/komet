@@ -9,6 +9,7 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.WhereClause;
 
 import java.util.EnumSet;
+import java.util.Map;
 import sh.isaac.api.query.ClauseSemantic;
 
 public class AssociatedParameter extends LeafClause {
@@ -30,7 +31,7 @@ public class AssociatedParameter extends LeafClause {
     }
 
     @Override
-    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
         return null;
     }
 

@@ -59,7 +59,6 @@ import static sh.isaac.api.commit.StampService.FIRST_STAMP_SEQUENCE;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 /**

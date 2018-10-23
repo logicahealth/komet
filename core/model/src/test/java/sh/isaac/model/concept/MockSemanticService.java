@@ -100,7 +100,7 @@ public class MockSemanticService
          this.componentSemanticMap.get(semanticChronicle.getReferencedComponentNid())
                                 .add(semanticChronicle.getNid());
       } else {
-         final NidSet set = NidSet.of(semanticChronicle.getNid());
+         final NidSet set = NidSet.of(new int[] { semanticChronicle.getNid() });
 
          this.componentSemanticMap.put(semanticChronicle.getReferencedComponentNid(), set);
       }

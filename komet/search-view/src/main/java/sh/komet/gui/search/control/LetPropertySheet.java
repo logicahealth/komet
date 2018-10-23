@@ -1,239 +1,162 @@
 package sh.komet.gui.search.control;
 
-import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
-import sh.komet.gui.control.concept.ConceptForControlWrapper;
-import javafx.beans.value.ObservableValue;
+import java.util.HashMap;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableIntegerArray;
+import javafx.collections.ListChangeListener;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
+import javafx.collections.ObservableMap;
+import javafx.event.ActionEvent;
 import javafx.scene.layout.AnchorPane;
 import org.controlsfx.control.PropertySheet;
-import org.controlsfx.property.editor.AbstractPropertyEditor;
-import org.controlsfx.property.editor.Editors;
-import org.controlsfx.property.editor.PropertyEditor;
-import sh.isaac.MetaData;
-import sh.isaac.api.Get;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.control.*;
 import sh.komet.gui.manifold.Manifold;
-import tornadofx.control.DateTimePicker;
-
-import java.time.LocalDateTime;
-import java.util.*;
-import sh.isaac.api.TaxonomySnapshot;
+import javafx.scene.Node;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ToolBar;
+import javafx.scene.layout.BorderPane;
+import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.komet.gui.search.flwor.LetItemKey;
+import sh.komet.gui.search.flwor.LetItemPanel;
+import sh.komet.gui.search.flwor.LetItemsController;
 
 /**
  *
  * @author aks8m
  */
 
-public class LetPropertySheet{
+public class LetPropertySheet {
 
-    private PropertySheet propertySheet;
-    private ObservableList<PropertySheet.Item> items;
-    private Manifold manifoldForDisplay;
-    private Manifold manifoldForModification;
-
-    private static final String LANGUAGE = "Language";
-    private static final String CLASSIFIER = "Classifier";
-    private static final String DESCRIPTION_LOGIC = "Logic";
-    private static final String DESCRIPTION_TYPE = "Type";
-    private static final String DIALECT = "Dialect";
-    private static final String TIME = "Time";
-    private static final String MODULE = "Module";
-    private static final String PATH = "Path";
-
+    private final BorderPane propertySheetBorderPane = new BorderPane();
+    private final ObservableList<PropertySheet.Item> items;
+    private final Manifold manifoldForDisplay;
+    private final MenuButton addLetClauseButton = new MenuButton("Add let clause...");
+    private final ToolBar letToolbar = new ToolBar(addLetClauseButton);
+    { 
+        propertySheetBorderPane.setTop(letToolbar);
+    }
+    private LetItemsController letItemsController;
+    private final HashMap<LetItemKey, LetItemPanel> letItemPanelMap = new HashMap();
+    private final ObservableMap<LetItemKey, Object> letItemObjectMap = FXCollections.observableHashMap();
+    
+    private final ObservableList<LetItemKey> stampCoordinateKeys = FXCollections.observableArrayList();
+    private final ObservableList<LetItemKey> languageCoordinateKeys = FXCollections.observableArrayList();
+    
     public LetPropertySheet(Manifold manifold){
-        this.manifoldForModification = manifold.deepClone();
         this.manifoldForDisplay = manifold;
         items = FXCollections.observableArrayList();
+        MenuItem addStampCoordinate = new MenuItem("Add stamp coordinate");
+        addStampCoordinate.setOnAction(this::addStampCoordinate);
+        addLetClauseButton.getItems().add(addStampCoordinate);
 
-        buildPropertySheetItems();
+        MenuItem addLanguageCoordinate = new MenuItem("Add language coordinate");
+        addLanguageCoordinate.setOnAction(this::addLanguageCoordinate);
+        addLetClauseButton.getItems().add(addLanguageCoordinate);
 
-        this.propertySheet = new PropertySheet(this.items);
-        this.propertySheet.setMode(PropertySheet.Mode.NAME);
-        this.propertySheet.setSearchBoxVisible(false);
-        this.propertySheet.setModeSwitcherVisible(false);
+        AnchorPane.setBottomAnchor(this.propertySheetBorderPane, 0.0);
+        AnchorPane.setTopAnchor(this.propertySheetBorderPane, 0.0);
+        AnchorPane.setLeftAnchor(this.propertySheetBorderPane, 0.0);
+        AnchorPane.setRightAnchor(this.propertySheetBorderPane, 0.0);
+        
+        letItemObjectMap.addListener(this::letItemsChanged);
+    }
 
-        AnchorPane.setBottomAnchor(this.propertySheet, 0.0);
-        AnchorPane.setTopAnchor(this.propertySheet, 0.0);
-        AnchorPane.setLeftAnchor(this.propertySheet, 0.0);
-        AnchorPane.setRightAnchor(this.propertySheet, 0.0);
+    public ObservableList<LetItemKey> getStampCoordinateKeys() {
+        return stampCoordinateKeys;
+    }
 
-        this.propertySheet.setPropertyEditorFactory(prop -> {
-            switch (prop.getName()){
-                case PATH:
-                    return createCustomChoiceEditor(MetaData.PATH____SOLOR, prop);
-                case LANGUAGE:
-                    return createCustomChoiceEditor(MetaData.LANGUAGE____SOLOR, prop);
-                case CLASSIFIER:
-                    return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_CLASSIFIER____SOLOR, prop);
-                case DESCRIPTION_LOGIC:
-                    return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_PROFILE____SOLOR, prop);
-                case MODULE:
-                    PropertyEditor<?> multiselectPropertyEditor = new AbstractPropertyEditor<ObservableList<ConceptForControlWrapper>,
-                            ListView<ConceptForControlWrapper>>(prop, new ListView<>()) {
+    public ObservableList<LetItemKey> getLanguageCoordinateKeys() {
+        return languageCoordinateKeys;
+    }
+    
+    private void letItemsChanged(MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) {
+        LetItemKey key = change.getKey();
+        if (change.wasRemoved()) {
+            stampCoordinateKeys.remove(key);
+            languageCoordinateKeys.remove(key);
+        }
+        if (change.wasAdded()) {
+          if (change.getValueAdded() instanceof StampCoordinate) {
+              if (!stampCoordinateKeys.contains(key)) {
+                  stampCoordinateKeys.add(key);
+              }
+          }
+          if (change.getValueAdded() instanceof LanguageCoordinate) {
+              if (!languageCoordinateKeys.contains(key)) {
+                  languageCoordinateKeys.add(key);
+              }
+          }
+        }
+    }
+    
+    private void addLanguageCoordinate(ActionEvent action) {
+        LetItemKey newLetItem = new LetItemKey("Language coordinate");
+        this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
+        ObservableLanguageCoordinate languageCoordinate = this.manifoldForDisplay.getLanguageCoordinate().deepClone();
+        letItemObjectMap.put(newLetItem, languageCoordinate);
+        LetItemPanel newLetItemPanel = new LetItemPanel(manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), languageCoordinate);
+        letItemPanelMap.put(newLetItem, newLetItemPanel);
 
-                        {
-                            PropertySheetItemListViewWrapper listViewWrapper = ((PropertySheetItemListViewWrapper) prop);
-                            super.getEditor().setId(UUID.randomUUID().toString());
-                            super.getEditor().setItems((ObservableList<ConceptForControlWrapper>) listViewWrapper.getValue());
-                            super.getEditor().setPrefHeight(((((ObservableList) listViewWrapper.getValue())
-                                    .size() * 26) + 2));
-                            listViewWrapper.createCustomListListener(super.getEditor().getSelectionModel().getSelectedItems());
-                            super.getEditor().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-                        }
+        letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
+        
+        this.letItemsController.getLetListViewletListView().getSelectionModel().select(newLetItem);
+        
+    }
 
-                        @Override
-                        protected ObservableValue<ObservableList<ConceptForControlWrapper>> getObservableValue() {
-                            return getEditor().itemsProperty();
-                        }
-
-                        @Override
-                        public void setValue(ObservableList<ConceptForControlWrapper> value) {
-                            getEditor().setItems(value);
-                        }
-                    };
-
-                    return multiselectPropertyEditor;
-                case DESCRIPTION_TYPE:
-                case DIALECT:
-                    PropertyEditor<?> preferencePropertyEditor = new AbstractPropertyEditor<ObservableList<ConceptForControlWrapper>,
-                            ListView<ConceptForControlWrapper>>(prop, new ListView<>()) {
-
-                        {
-                            PropertySheetItemListViewWrapper listViewWrapper = ((PropertySheetItemListViewWrapper) prop);
-
-                            super.getEditor().setId(UUID.randomUUID().toString());
-                            super.getEditor().setItems((ObservableList<ConceptForControlWrapper>) listViewWrapper.getValue());
-                            super.getEditor().setPrefHeight(((((ObservableList) listViewWrapper.getValue())
-                                    .size() * 26) + 2));
-                            super.getEditor().setCellFactory(cell -> new CellConceptForDragDropControlWrapper());
-                            listViewWrapper.createCustomListListener(super.getEditor().getItems());
-                        }
-
-                        @Override
-                        protected ObservableValue<ObservableList<ConceptForControlWrapper>> getObservableValue() {
-                            return getEditor().itemsProperty();
-                        }
-
-                        @Override
-                        public void setValue(ObservableList<ConceptForControlWrapper> value) {
-                            getEditor().setItems(value);
-                        }
-                    };
-
-                    return preferencePropertyEditor;
-                case TIME:
-                    PropertySheetItemDateTimeWrapper dateTimeWrapper = ((PropertySheetItemDateTimeWrapper) prop);
-                    PropertyEditor<?> dateTimePropertyEditor = new AbstractPropertyEditor<LocalDateTime, DateTimePicker>
-                            (prop, new DateTimePicker()) {
-
-                        {
-                            super.getEditor().setDateTimeValue((LocalDateTime)dateTimeWrapper.getValue());
-                        }
-
-                        @Override
-                        protected ObservableValue<LocalDateTime> getObservableValue() {
-                            return getEditor().dateTimeValueProperty();
-                        }
-
-                        @Override
-                        public void setValue(LocalDateTime value) {
-                            getEditor().setDateTimeValue(value);
-                        }
-                    };
-
-                    return dateTimePropertyEditor;
+    private void addStampCoordinate(ActionEvent action) {
+        int sequence = 1;
+        String keyName = "STAMP " + sequence;
+        boolean unique = false;
+        TRY_NEXT: while (!unique) {
+            keyName = "STAMP " + sequence++;
+            for (LetItemKey key: letItemObjectMap.keySet()) {
+                if (key.getItemName().equalsIgnoreCase(keyName)) {
+                    continue TRY_NEXT;
+                }
             }
+            unique = true;
+        }
+        
+        LetItemKey newLetItem = new LetItemKey(keyName);
+        this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
+        ObservableStampCoordinate stampCoordinate = this.manifoldForDisplay.getStampCoordinate().deepClone();
+        letItemObjectMap.put(newLetItem, stampCoordinate);
 
-            return Editors.createTextEditor(prop);
-        });
+        LetItemPanel newLetItemPanel = new LetItemPanel(manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), stampCoordinate);
+        letItemPanelMap.put(newLetItem, newLetItemPanel);
+
+        letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
+        
+        this.letItemsController.getLetListViewletListView().getSelectionModel().select(newLetItem);
     }
 
-
-    public PropertySheet getPropertySheet() {
-        return propertySheet;
+    public ObservableMap<LetItemKey, Object> getLetItemObjectMap() {
+        return letItemObjectMap;
     }
 
-    public Manifold getManifold() {
-        return manifoldForModification;
+    public Node getNode() {
+        return this.propertySheetBorderPane;
     }
 
-
-    private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item prop){
-       Collection<ConceptForControlWrapper> collection = new ArrayList<>();
-       ConceptChronology concept = Get.concept(conceptSpecification.getNid());
-       TaxonomySnapshot taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);
-       for (int i: taxonomySnapshot.getTaxonomyChildConceptNids(concept.getNid())) {
-          ConceptForControlWrapper propertySheetItemConceptWrapper =
-                  new ConceptForControlWrapper(this.manifoldForDisplay, i);
-          collection.add(propertySheetItemConceptWrapper);
-       }
-       return Editors.createChoiceEditor(prop, collection);
+    public void setLetItemsController(LetItemsController letItemsController) {
+        this.propertySheetBorderPane.setCenter(letItemsController.getNode());
+        this.letItemsController = letItemsController;
+        this.letItemsController.getLetListViewletListView().getSelectionModel().getSelectedIndices().addListener(this::handleSelectionChange);
     }
-
-    /**
-     * Add to the items Observable list of PropertySheet Items
-     */
-    private void buildPropertySheetItems() {
-
-        this.items.add(new PropertySheetItemDateTimeWrapper(TIME, this.manifoldForModification.getStampCoordinate()
-                .stampPositionProperty().get().timeProperty()));
-        this.items.add(new PropertySheetItemListViewWrapper(
-                this.manifoldForModification.getStampCoordinate().moduleNidsProperty().get(),
-                MODULE,
-                this.manifoldForModification, buildListOfAllModules()));
-        this.items.add(new PropertySheetItemConceptNidWrapper(this.manifoldForDisplay,
-                PATH,
-                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathNidProperty()
-        ));
-        this.items.add(new PropertySheetItemConceptNidWrapper(this.manifoldForDisplay,
-                LANGUAGE,
-                this.manifoldForModification.getLanguageCoordinate().languageConceptNidProperty()
-        ));
-        this.items.add(new PropertySheetItemListViewWrapper(
-                this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get(),
-                DIALECT,
-                this.manifoldForDisplay,
-                this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get().toArray(null)));
-        this.items.add(new PropertySheetItemListViewWrapper(
-                this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty().get(),
-                DESCRIPTION_TYPE,
-                this.manifoldForDisplay,
-                this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty().get().toArray(null)));
-        this.items.add(new PropertySheetItemConceptNidWrapper(this.manifoldForDisplay,
-                CLASSIFIER,
-                this.manifoldForModification.getLogicCoordinate().classifierNidProperty()
-        ));
-        this.items.add(new PropertySheetItemConceptNidWrapper(this.manifoldForDisplay,
-                DESCRIPTION_LOGIC,
-                this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileNidProperty()
-        ));
-
+    
+    private void handleSelectionChange(ListChangeListener.Change<? extends Integer> c) {
+        if (c.getList().isEmpty()) {
+            letItemsController.getLetItemBorderPane().setCenter(null);
+        } else {
+            LetItemKey selectedLetItem = this.letItemsController.getLetListViewletListView().getItems().get(c.getList().get(0));
+            Node letNode = letItemPanelMap.get(selectedLetItem).getNode();
+            if (letNode != letItemsController.getLetItemBorderPane().getCenter()) {
+                letItemsController.getLetItemBorderPane().setCenter(letNode);
+            }
+            
+        }
     }
-
-    private int[] buildListOfAllModules(){
-       int[] arrayOfModules;
-       ObservableIntegerArray manifoldModules = this.manifoldForDisplay.getManifoldCoordinate().getStampCoordinate()
-               .moduleNidsProperty().get();
-       if (manifoldModules.size() == 0) {
-          ArrayList<Integer> moduleNIDs = new ArrayList<>();
-          TaxonomySnapshot taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay);
-          for (int i : taxonomySnapshot.getTaxonomyChildConceptNids(MetaData.MODULE____SOLOR.getNid())) {
-             moduleNIDs.add(i);
-          }
-          arrayOfModules = new int[moduleNIDs.size()];
-          for (int i = 0; i < arrayOfModules.length; i++) {
-             arrayOfModules[i] = moduleNIDs.get(i);
-          }
-       } else {
-          arrayOfModules = manifoldModules.toArray(null);
-       }
-       return arrayOfModules;
-    }
-
 }

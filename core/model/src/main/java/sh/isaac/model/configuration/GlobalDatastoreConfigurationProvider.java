@@ -50,6 +50,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.GlobalDatastoreConfiguration;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.RemoteServiceInfo;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.PremiseType;
@@ -267,9 +268,9 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	}
 
 	@Override
-	public void setDefaultPath(int conceptId)
+	public void setDefaultPath(ConceptSpecification pathSpecification)
 	{
-		write(ConfigurationOption.EDIT_PATH, conceptId);
+		write(ConfigurationOption.EDIT_PATH, pathSpecification);
 	}
 
 	@Override
@@ -332,7 +333,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultModule(dcp.getDefaultEditCoordinate().getModuleNid());
 					break;
 				case EDIT_PATH:
-					defaultCoordinateProvider.setDefaultPath(dcp.getDefaultEditCoordinate().getPathNid());
+					defaultCoordinateProvider.setDefaultPath(dcp.getDefaultEditCoordinate().getPath());
 					break;
 				case STATED_ASSEMBLAGE:
 					defaultCoordinateProvider.setDefaultStatedAssemblage(dcp.getDefaultLogicCoordinate().getStatedAssemblageNid());
@@ -381,7 +382,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultModule((int)data);
 					break;
 				case EDIT_PATH:
-					defaultCoordinateProvider.setDefaultPath((int)data);
+					defaultCoordinateProvider.setDefaultPath((ConceptSpecification) data);
 					break;
 				case STATED_ASSEMBLAGE:
 					defaultCoordinateProvider.setDefaultStatedAssemblage((int)data);
@@ -444,7 +445,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultModule((int)dataStore.get(option.name()));
 					break;
 				case EDIT_PATH:
-					defaultCoordinateProvider.setDefaultPath((int)dataStore.get(option.name()));
+					defaultCoordinateProvider.setDefaultPath((ConceptSpecification) dataStore.get(option.name()));
 					break;
 				case STATED_ASSEMBLAGE:
 					defaultCoordinateProvider.setDefaultStatedAssemblage((int)dataStore.get(option.name()));

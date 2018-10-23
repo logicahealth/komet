@@ -42,19 +42,22 @@ package sh.isaac.model.observable.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.Set;
 import javafx.beans.InvalidationListener;
+import javafx.beans.property.ListProperty;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableIntegerArray;
+import javafx.collections.ObservableList;
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
@@ -82,7 +85,7 @@ public class ObservableStampCoordinateImpl
    ObjectProperty<ObservableStampPosition> stampPositionProperty;
 
    /** The module nids property. */
-   ObjectProperty<ObservableIntegerArray> moduleNidsProperty;
+   SimpleSetProperty<ConceptSpecification> moduleSpecificationsProperty;
 
    /** The allowed states. */
    SetProperty<Status> allowedStates;
@@ -155,22 +158,16 @@ public class ObservableStampCoordinateImpl
       return new ObservableStampCoordinateImpl(analog);
    }
 
-   /**
-    * module nids property.
-    *
-    * @return the object property
-    */
+   
    @Override
-   public ObjectProperty<ObservableIntegerArray> moduleNidsProperty() {
-      if (this.moduleNidsProperty == null) {
-         this.moduleNidsProperty = new SimpleObjectProperty<>(this,
-               ObservableFields.MODULE_NID_ARRAY_FOR_STAMP_COORDINATE.toExternalString(),
-               FXCollections.observableIntegerArray(getModuleNids().asArray()));
-         addListenerReference(this.stampCoordinate.setModuleSequencesProperty(this.moduleNidsProperty));
-         this.moduleNidsProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
-      }
-
-      return this.moduleNidsProperty;
+   public SetProperty<ConceptSpecification> moduleSpecificationsProperty() {
+       if (this.moduleSpecificationsProperty == null) {
+           this.moduleSpecificationsProperty = new SimpleSetProperty(this,
+           ObservableFields.MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE.toExternalString(),
+                   FXCollections.observableSet(this.stampCoordinate.getModuleSpecifications()));
+           this.stampCoordinate.setModuleSpecifications(moduleSpecificationsProperty.get());
+       }
+       return this.moduleSpecificationsProperty;
    }
 
    /**
@@ -238,11 +235,6 @@ public class ObservableStampCoordinateImpl
     */
    @Override
    public NidSet getModuleNids() {
-      if (this.moduleNidsProperty != null) {
-         return NidSet.of(this.moduleNidsProperty.get()
-               .toArray(new int[0]));
-      }
-
       return this.stampCoordinate.getModuleNids();
    }
 
@@ -287,39 +279,32 @@ public class ObservableStampCoordinateImpl
     }
 
     @Override
-    public int[] getModulePreferenceListForVersions() {
-        return this.stampCoordinate.getModulePreferenceListForVersions();
+    public ObservableList<ConceptSpecification> getModulePreferenceOrderForVersions() {
+        return this.modulePreferenceListForVersionsProperty().get();
     }
     /**
      * The dialect assemblage preference list property.
      */
-    ObjectProperty<ObservableIntegerArray> modulePreferenceListForVersionsProperty = null;
+    SimpleListProperty<ConceptSpecification> modulePreferenceOrderForVersionsProperty = null;
 
     @Override
-    public ObjectProperty<ObservableIntegerArray> modulePreferenceListForVersionsProperty() {
-        if (this.modulePreferenceListForVersionsProperty == null) {
-            ObservableIntegerArray preferenceList = FXCollections.observableIntegerArray(getModulePreferenceListForVersions());
-            preferenceList.addListener(this::modulePreferenceListForVersionsChanged);
-            this.modulePreferenceListForVersionsProperty = new SimpleObjectProperty<>(this,
-                    ObservableFields.MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE.toExternalString(),
+    public ListProperty<ConceptSpecification> modulePreferenceListForVersionsProperty() {
+        if (this.modulePreferenceOrderForVersionsProperty == null) {
+            ObservableList<ConceptSpecification> preferenceList = FXCollections.observableArrayList(this.stampCoordinate.getModulePreferenceOrderForVersions());
+            this.modulePreferenceOrderForVersionsProperty = new SimpleListProperty(this,
+                    ObservableFields.MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE.toExternalString(),
                     preferenceList);
-            this.modulePreferenceListForVersionsProperty.addListener(this::modulePreferenceListForVersionsChanged);
-            
+            this.stampCoordinate.setModulePreferenceListForVersions(preferenceList);
         }
 
-        return this.modulePreferenceListForVersionsProperty;
+        return this.modulePreferenceOrderForVersionsProperty;
     }
- 
-    
-    private void modulePreferenceListForVersionsChanged(ObservableValue<? extends ObservableIntegerArray> observable, ObservableIntegerArray oldValue, ObservableIntegerArray newValue) {
-        this.stampCoordinate.setModulePreferenceListForVersions(newValue.toArray(new int[newValue.size()]));
-        newValue.addListener(this::modulePreferenceListForVersionsChanged);
+
+    @Override
+    public Set<ConceptSpecification> getModuleSpecifications() {
+        return this.stampCoordinate.getModuleSpecifications();
     }
-    
-    private void modulePreferenceListForVersionsChanged(ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) {
-        this.stampCoordinate.setModulePreferenceListForVersions(observableArray.toArray(new int[observableArray.size()]));
-    }
-    
+
 
     
 }

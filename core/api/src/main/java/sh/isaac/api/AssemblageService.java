@@ -294,6 +294,15 @@ public interface AssemblageService
            Class<V> versionType,
            StampCoordinate stampCoordinate);
 
+   default <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(
+           ConceptSpecification assemblageConcept,
+           Class<V> versionType,
+           StampCoordinate stampCoordinate) {
+       return getSingleAssemblageSnapshot(assemblageConcept.getNid(),
+           versionType,
+           stampCoordinate);
+   }
+
    /**
     * Use in circumstances when not all semantics may have been loaded to find out if a semantic is present,
     * without incurring the overhead of reading back the object. 

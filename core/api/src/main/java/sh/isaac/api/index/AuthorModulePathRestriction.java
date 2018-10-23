@@ -94,7 +94,7 @@ public class AuthorModulePathRestriction {
       AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.authors = NidSet.EMPTY;
       ar.modules = mc.getModuleNids();
-      ar.paths = NidSet.of(mc.getStampCoordinate().getStampPosition().getStampPathNid());
+      ar.paths = NidSet.of(new int[] { mc.getStampCoordinate().getStampPosition().getStampPathSpecification().getNid() });
       return ar;
    }
    
@@ -107,7 +107,7 @@ public class AuthorModulePathRestriction {
       AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.authors = NidSet.EMPTY;
       ar.modules = sc.getModuleNids();
-      ar.paths = NidSet.of(sc.getStampPosition().getStampPathNid());
+      ar.paths = NidSet.of(new int[] { sc.getStampPosition().getStampPathSpecification().getNid() });
       return ar;
    }
 

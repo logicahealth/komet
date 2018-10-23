@@ -110,6 +110,7 @@ import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
 import sh.isaac.api.TaxonomySnapshot;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.tree.TaxonomyLinkage;
 
 //~--- classes ----------------------------------------------------------------
@@ -373,11 +374,11 @@ public class TaxonomyProvider
     }
 
     @Override
-    public TaxonomySnapshot getStatedLatestSnapshot(int pathNid, NidSet modules, EnumSet<Status> allowedStates) {
+    public TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, EnumSet<Status> allowedStates) {
         return getSnapshot(new ManifoldCoordinateImpl(
                 new StampCoordinateImpl(StampPrecedence.TIME,
                         new StampPositionImpl(Long.MAX_VALUE, pathNid),
-                        modules, new int[0], allowedStates), null));
+                        modules, new ArrayList(), allowedStates), null));
     }
 
     @Override

@@ -44,13 +44,8 @@ package sh.isaac.model.coordinate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
@@ -58,8 +53,8 @@ import sh.isaac.api.Get;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Status;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -75,8 +70,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author kec
  */
-@XmlRootElement(name = "manifoldCoordinate")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class ManifoldCoordinateImpl
          implements ManifoldCoordinate {
 
@@ -84,15 +77,12 @@ public class ManifoldCoordinateImpl
    PremiseType taxonomyPremiseType;
 
    /** The stamp coordinate. */
-   @XmlJavaTypeAdapter(AnyTypeAdapter.class)
    StampCoordinate stampCoordinate;
 
    /** The language coordinate. */
-   @XmlJavaTypeAdapter(AnyTypeAdapter.class)
    LanguageCoordinate languageCoordinate;
 
    /** The logic coordinate. */
-   @XmlJavaTypeAdapter(AnyTypeAdapter.class)
    LogicCoordinate logicCoordinate;
 
    /** The uuid. */
@@ -300,36 +290,13 @@ public class ManifoldCoordinateImpl
       return this.uuid;
    }
 
+    @Override
+    public ConceptSpecification getLanguageConcept() {
+        return this.languageCoordinate.getLanguageConcept();
+    }
+
    //~--- inner classes -------------------------------------------------------
 
-   /**
-    * The Class AnyTypeAdapter.
-    */
-   private static class AnyTypeAdapter
-           extends XmlAdapter<Object, Object> {
-      /**
-       * Marshal.
-       *
-       * @param v the v
-       * @return the object
-       */
-      @Override
-      public Object marshal(Object v) {
-         return v;
-      }
-
-      /**
-       * Unmarshal.
-       *
-       * @param v the v
-       * @return the object
-       */
-      @Override
-      public Object unmarshal(Object v) {
-         return v;
-      }
-   }
-   
    @Override
    public ManifoldCoordinateImpl deepClone() {
       ManifoldCoordinateImpl newCoordinate = new ManifoldCoordinateImpl(taxonomyPremiseType,
@@ -355,8 +322,13 @@ public class ManifoldCoordinateImpl
     }
 
     @Override
-    public int[] getModulePreferenceListForVersions() {
-        return stampCoordinate.getModulePreferenceListForVersions();
+    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
+        return stampCoordinate.getModulePreferenceOrderForVersions();
+    }
+
+    @Override
+    public Set<ConceptSpecification> getModuleSpecifications() {
+        return stampCoordinate.getModuleSpecifications();
     }
     
     

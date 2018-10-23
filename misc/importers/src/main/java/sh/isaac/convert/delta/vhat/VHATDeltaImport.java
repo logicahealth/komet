@@ -78,8 +78,8 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommitTask;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
@@ -243,14 +243,14 @@ public class VHATDeltaImport extends ConverterBaseMojo
 
 			try
 			{
-				NidSet modulesToRead = new NidSet();
-				modulesToRead.add(MetaData.MODULE____SOLOR.getNid());
-				modulesToRead.add(MetaData.VHAT_MODULES____SOLOR.getNid());
+				HashSet<ConceptSpecification> modulesToRead = new HashSet();
+				modulesToRead.add(MetaData.MODULE____SOLOR);
+				modulesToRead.add(MetaData.VHAT_MODULES____SOLOR);
 				Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, false, StampCoordinates.getDevelopmentLatest())
-						.forEach(i -> modulesToRead.add(i));
+						.forEach(i -> modulesToRead.add(Get.conceptSpecification(i)));
 
 				this.readCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid()),
-						modulesToRead, new int[0], Status.ANY_STATUS_SET);
+						modulesToRead, new ArrayList(), Status.ANY_STATUS_SET);
 				this.editCoordinate = new EditCoordinateImpl(Get.identifierService().getNidForUuids(author), Get.identifierService().getNidForUuids(module),
 						Get.identifierService().getNidForUuids(path));
 

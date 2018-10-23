@@ -39,7 +39,6 @@ package sh.isaac.model.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.model.taxonomy.TaxonomyFlag;
 import java.util.EnumSet;
 import java.util.Optional;
 import sh.isaac.api.Status;
@@ -50,7 +49,6 @@ import sh.isaac.api.collections.NidSet;
 
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.model.collections.SpinedIntIntArrayMap;
 
 //~--- classes ----------------------------------------------------------------
 

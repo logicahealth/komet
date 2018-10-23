@@ -201,4 +201,5 @@ public enum Status {
    
    public static EnumSet<Status> ACTIVE_ONLY_SET = EnumSet.of(Status.ACTIVE);
    public static EnumSet<Status> ANY_STATUS_SET = EnumSet.allOf(Status.class);
+   public static EnumSet<Status> INACTIVE_STATUS_SET = EnumSet.of(Status.INACTIVE, Status.CANCELED, Status.WITHDRAWN);
 }

@@ -42,6 +42,7 @@ package sh.isaac.api.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.time.Instant;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -66,7 +67,7 @@ public interface StampPosition
          return comparison;
       }
 
-      return Integer.compare(this.getStampPathNid(), o.getStampPathNid());
+      return this.getStampPathSpecification().getPrimordialUuid().compareTo(o.getStampPathSpecification().getPrimordialUuid());
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -83,7 +84,7 @@ public interface StampPosition
     *
     * @return the stamp path concept nid
     */
-   int getStampPathNid();
+    ConceptSpecification getStampPathSpecification();
 
    /**
     * Gets the time.

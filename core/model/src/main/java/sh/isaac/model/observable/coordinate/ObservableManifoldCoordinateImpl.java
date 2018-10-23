@@ -44,6 +44,7 @@ package sh.isaac.model.observable.coordinate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -53,6 +54,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -350,8 +352,18 @@ public class ObservableManifoldCoordinateImpl
     }
 
     @Override
-    public int[] getModulePreferenceListForVersions() {
-        return manifoldCoordinate.getModulePreferenceListForVersions();
+    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
+        return manifoldCoordinate.getModulePreferenceOrderForVersions();
+    }
+
+    @Override
+    public Set<ConceptSpecification> getModuleSpecifications() {
+        return manifoldCoordinate.getModuleSpecifications();
+    }
+
+    @Override
+    public ConceptSpecification getLanguageConcept() {
+        return manifoldCoordinate.getLanguageConcept();
     }
     
     

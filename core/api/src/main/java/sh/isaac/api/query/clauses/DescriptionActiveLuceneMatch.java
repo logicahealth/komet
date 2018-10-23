@@ -42,11 +42,10 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -58,6 +57,7 @@ import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -66,8 +66,6 @@ import sh.isaac.api.chronicle.Chronology;
  *
  * @author dylangrald
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionActiveLuceneMatch
         extends DescriptionLuceneMatch {
 
@@ -110,10 +108,10 @@ public class DescriptionActiveLuceneMatch
     * @return the nid set
     */
    @Override
-   public final NidSet computeComponents(NidSet incomingComponents) {
+   public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
 
-      getResultsCache().and(incomingComponents);
-      incomingComponents.stream().forEach((nid) -> {
+      getResultsCache().and(incomingComponents.get(this.getAssemblageForIteration()));
+      incomingComponents.get(this.getAssemblageForIteration()).stream().forEach((nid) -> {
                                     final Optional<? extends Chronology> chronology =
                                        Get.identifiedObjectService()
                                           .getChronology(nid);
@@ -127,7 +125,9 @@ public class DescriptionActiveLuceneMatch
                                        getResultsCache().remove(nid);
                                     }
                                  });
-      return getResultsCache();
+      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
+      resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
+      return resultsMap;
    }
 
    //~--- get methods ---------------------------------------------------------

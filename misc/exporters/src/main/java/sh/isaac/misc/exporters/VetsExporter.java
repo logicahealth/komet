@@ -137,7 +137,7 @@ public class VetsExporter {
       this.fullExportMode = fullExportMode;
 
       STAMP_COORDINATES = new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(endDate, MetaData.DEVELOPMENT_PATH____SOLOR.getNid()),
-            NidSet.EMPTY, new int[0], Status.ANY_STATUS_SET);
+            new HashSet(), new ArrayList(), Status.ANY_STATUS_SET);
       
       tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(STAMP_COORDINATES, null));
 

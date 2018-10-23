@@ -54,6 +54,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -385,8 +386,18 @@ public class ConceptSnapshotImpl
     }
 
     @Override
-    public int[] getModulePreferenceListForVersions() {
-        return this.manifoldCoordinate.getModulePreferenceListForVersions();
+    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
+        return this.manifoldCoordinate.getModulePreferenceOrderForVersions();
+    }
+
+    @Override
+    public Set<ConceptSpecification> getModuleSpecifications() {
+        return this.manifoldCoordinate.getModuleSpecifications();
+    }
+
+    @Override
+    public ConceptSpecification getLanguageConcept() {
+        return this.manifoldCoordinate.getLanguageConcept();
     }
     
 }

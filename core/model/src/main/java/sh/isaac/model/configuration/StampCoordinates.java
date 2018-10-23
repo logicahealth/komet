@@ -41,9 +41,10 @@ package sh.isaac.model.configuration;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
@@ -65,12 +66,12 @@ public class StampCoordinates {
     */
    public static StampCoordinate getDevelopmentLatest() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.DEVELOPMENT_PATH.getNid());
+                                                                TermAux.DEVELOPMENT_PATH);
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     new NidSet(),
-                                     new int[0],
+                                     new HashSet(),
+                                     new ArrayList(),
                                      Status.makeAnyStateSet());
    }
 
@@ -81,12 +82,12 @@ public class StampCoordinates {
     */
    public static StampCoordinate getDevelopmentLatestActiveOnly() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.DEVELOPMENT_PATH.getNid());
+                                                                TermAux.DEVELOPMENT_PATH);
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     new NidSet(),
-                                     new int[0],
+                                     new HashSet(),
+                                     new ArrayList(),
                                      Status.makeActiveOnlySet());
    }
 
@@ -97,12 +98,12 @@ public class StampCoordinates {
     */
    public static StampCoordinate getMasterLatest() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.MASTER_PATH.getNid());
+                                                                TermAux.MASTER_PATH);
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     new NidSet(),
-                                     new int[0],
+                                     new HashSet(),
+                                     new ArrayList(),
                                      Status.makeAnyStateSet());
    }
 
@@ -113,12 +114,12 @@ public class StampCoordinates {
     */
    public static StampCoordinate getMasterLatestActiveOnly() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                                TermAux.MASTER_PATH.getNid());
+                                                                TermAux.MASTER_PATH);
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
-                                     new NidSet(),
-                                     new int[0],
+                                     new HashSet(),
+                                     new ArrayList(),
                                      Status.makeActiveOnlySet());
    }
 }

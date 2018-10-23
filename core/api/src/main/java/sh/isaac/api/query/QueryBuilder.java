@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
  *
@@ -30,30 +29,27 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 public class QueryBuilder  {
    public static final String DEFAULT_MANIFOLD_COORDINATE_KEY = "DEFAULT_MANIFOLD_COORDINATE_KEY";
    int sequence = 0;
-   ManifoldCoordinate manifoldCoordinate;
    ParentClause root;
    
    List<ComponentCollectionTypes> forClause = new ArrayList<>();
    Map<String, Object> letClauses = new HashMap<>();
-   List<?> whereClauses = new ArrayList<>();
+   ForSetsSpecification forSetSpecification;
    List<Object> orderByClauses = new ArrayList<>();
    List<Object> returnClauses = new ArrayList<>();
 
-   public QueryBuilder(ManifoldCoordinate manifoldCoordinate) {
-      this.manifoldCoordinate = manifoldCoordinate;
-      letClauses.put(DEFAULT_MANIFOLD_COORDINATE_KEY, manifoldCoordinate);
+   public QueryBuilder() {
    }
    
    /**
     * From instead of for, since for is a reserved word...
-    * @param forClause
+    * @param forSetSpecification
     * @return 
     */
-   public QueryBuilder from(ComponentCollectionTypes forClause) {
-      this.forClause.add(forClause);
+   public QueryBuilder from(ForSetsSpecification forSetSpecification) {
+      this.forSetSpecification = forSetSpecification;
       return this;
    }
-   
+      
    public QueryBuilder let(String key, Object value) {
       letClauses.put(key, value);
       return this;
@@ -91,7 +87,7 @@ public class QueryBuilder  {
    
    public Query build() {
       
-      QueryBuilderQuery query = new QueryBuilderQuery(this.manifoldCoordinate);
+      QueryBuilderQuery query = new QueryBuilderQuery();
       
       
       
@@ -106,8 +102,8 @@ public class QueryBuilder  {
    class QueryBuilderQuery extends Query {
 
 
-      public QueryBuilderQuery(ManifoldCoordinate manifoldCoordinate) {
-         super(manifoldCoordinate);
+      public QueryBuilderQuery() {
+         super(QueryBuilder.this.forSetSpecification);
          getLetDeclarations().putAll(letClauses);
       }
       
@@ -121,14 +117,7 @@ public class QueryBuilder  {
       @Override
       public Clause Where() {
          return root;
-      }
-
-      @Override
-      protected ForSetSpecification ForSetSpecification() {
-         return new ForSetSpecification(forCollectionTypes.toArray(new ComponentCollectionTypes[forCollectionTypes.size()]));
-      }
-      
-      
+      }      
    }
    
 }

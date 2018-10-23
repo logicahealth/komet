@@ -77,7 +77,8 @@ public class SimpleSearchService extends Service<NidSet> {
                 
                 
                 descriptionLuceneMatch.setParameterString(queryString);
-                results.addAll(descriptionLuceneMatch.computePossibleComponents(null));
+                // TODO fixMe...
+                // results.addAll(descriptionLuceneMatch.computePossibleComponents(null));
 //                if (results.isEmpty()) {
                 if (true) {
                     

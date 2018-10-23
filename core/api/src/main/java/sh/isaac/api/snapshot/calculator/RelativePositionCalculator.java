@@ -396,13 +396,13 @@ public class RelativePositionCalculator implements StaticIsaacCache {
          ConcurrentSkipListSet<Integer> precedingSegments) {
       final Segment segment = new Segment(
                                   segmentSequence.getAndIncrement(),
-                                  destination.getStampPathNid(),
+                                  destination.getStampPathSpecification().getNid(),
                                   destination.getTime(),
                                   precedingSegments);
 
       // precedingSegments is cumulative, each recursive call adds another
       precedingSegments.add(segment.segmentSequence);
-      pathNidSegmentMap.put(destination.getStampPathNid(), segment);
+      pathNidSegmentMap.put(destination.getStampPathSpecification().getNid(), segment);
       destination.getStampPath()
                  .getPathOrigins()
                  .stream()

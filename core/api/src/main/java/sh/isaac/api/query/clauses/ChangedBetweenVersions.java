@@ -42,11 +42,8 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -69,9 +66,7 @@ import sh.isaac.api.query.WhereClause;
  *
  * @author dylangrald
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
-public class ChangedFromPreviousVersion
+public class ChangedBetweenVersions
         extends LeafClause {
    /**
     * Cached set of incoming components. Used to optimize speed in
@@ -80,17 +75,21 @@ public class ChangedFromPreviousVersion
    NidSet cache = new NidSet();
 
    /**
-    * The <code>ViewCoordinate</code> used to specify the previous version.
+    * The <code>StampCoordinate</code> used to specify version one.
     */
-   @XmlElement
-   String previousViewCoordinateKey;
+   String stampCoordinateOneKey;
+
+   /**
+    * The <code>StampCoordinate</code> used to specify version two.
+    */
+   String stampCoordinateTwoKey;
 
    //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new changed from previous version.
     */
-   public ChangedFromPreviousVersion() {}
+   public ChangedBetweenVersions() {}
 
    /**
     * Creates an instance of a ChangedFromPreviousVersion <code>Clause</code>
@@ -98,27 +97,43 @@ public class ChangedFromPreviousVersion
     * <code>ViewCoordinate</code>.
     *
     * @param enclosingQuery the enclosing query
-    * @param previousViewCoordinateKey the previous view coordinate key
+    * @param stampCoordinateOneKey the first stamp version to compare
+    * @param stampCoordinateTwoKey the second stamp version to compare
     */
-   public ChangedFromPreviousVersion(Query enclosingQuery, String previousViewCoordinateKey) {
+   public ChangedBetweenVersions(Query enclosingQuery, String stampCoordinateOneKey, String stampCoordinateTwoKey) {
       super(enclosingQuery);
-      this.previousViewCoordinateKey = previousViewCoordinateKey;
+      this.stampCoordinateOneKey = stampCoordinateOneKey;
+      this.stampCoordinateTwoKey = stampCoordinateTwoKey;
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Compute possible components.
-    *
-    * @param incomingPossibleComponents the incoming possible components
-    * @return the nid set
-    */
-   @Override
-   public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-//    System.out.println(incomingPossibleComponents.size());
-      this.cache = incomingPossibleComponents;
-      return incomingPossibleComponents;
+   public String getStampCoordinateOneKey() {
+      return stampCoordinateOneKey;
    }
+
+    public void setStampCoordinateOneKey(String stampCoordinateOneKey) {
+        this.stampCoordinateOneKey = stampCoordinateOneKey;
+    }
+
+    public String getStampCoordinateTwoKey() {
+        return stampCoordinateTwoKey;
+    }
+
+    //~--- methods -------------------------------------------------------------
+    public void setStampCoordinateTwoKey(String stampCoordinateTwoKey) {
+        this.stampCoordinateTwoKey = stampCoordinateTwoKey;
+    }
+
+    /**
+     * Compute possible components.
+     *
+     * @param incomingPossibleComponents the incoming possible components
+     * @return the nid set
+     */
+    @Override
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+        this.cache = incomingPossibleComponents.get(this.getAssemblageForIteration());
+        return incomingPossibleComponents;
+    }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -136,12 +151,11 @@ public class ChangedFromPreviousVersion
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       this.enclosingQuery.getLetDeclarations()
-                         .get(this.previousViewCoordinateKey);
+                         .get(this.stampCoordinateOneKey);
       throw new UnsupportedOperationException();
 
       // TODO FIX BACK UP
@@ -170,7 +184,7 @@ public class ChangedFromPreviousVersion
 
       whereClause.setSemantic(ClauseSemantic.CHANGED_FROM_PREVIOUS_VERSION);
       whereClause.getLetKeys()
-                 .add(this.previousViewCoordinateKey);
+                 .add(this.stampCoordinateOneKey);
       return whereClause;
    }
    

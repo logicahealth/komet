@@ -77,6 +77,7 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
@@ -228,19 +229,24 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       return providerUuid;
    }
    
-   private static NidSet getVHATModules(StampCoordinate coord) {
+   private static Set<ConceptSpecification> getVHATModules(StampCoordinate coord) {
       // Initialize VHAT module nids cache
       if (VHAT_MODULES == null || VHAT_MODULES.size() == 0) { // Should be unnecessary
-         VHAT_MODULES = NidSet.of(Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, coord));
+         VHAT_MODULES = NidSet.of(Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, coord).toArray(new Integer[0]));
       }
-      return VHAT_MODULES;
+      HashSet<ConceptSpecification> vhatModules = new HashSet<>();
+      for (int nid: VHAT_MODULES.asArray()) {
+          vhatModules.add(Get.conceptSpecification(nid));
+      }
+      return vhatModules;
    }
    
    private static StampCoordinate getVHATDevelopmentLatestStampCoordinate() {
       if (VHAT_STAMP_COORDINATE == null) {
          StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
+         
          VHAT_STAMP_COORDINATE = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, getVHATModules(StampCoordinates.getDevelopmentLatest()),
-               new int[0], Status.ANY_STATUS_SET);
+               new ArrayList(), Status.ANY_STATUS_SET);
       }
 
       return VHAT_STAMP_COORDINATE;

@@ -41,8 +41,9 @@ package sh.isaac.api.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
+import javafx.beans.property.ObjectProperty;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 import sh.isaac.api.coordinate.StampPosition;
 
@@ -60,7 +61,7 @@ public interface ObservableStampPosition
     *
     * @return the integer property
     */
-   IntegerProperty stampPathNidProperty();
+    ObjectProperty<ConceptSpecification> stampPathConceptSpecificationProperty();
 
    /**
     * Time property.

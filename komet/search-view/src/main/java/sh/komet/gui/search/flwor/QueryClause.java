@@ -16,25 +16,34 @@
  */
 package sh.komet.gui.search.flwor;
 
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import org.controlsfx.control.PropertySheet;
+import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.Clause;
+import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.concept.PropertySheetItemConceptWrapperNoSearch;
+import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.manifold.Manifold;
 
 //~--- inner classes -------------------------------------------------------
 public class QueryClause {
-
+ 
     SimpleObjectProperty<Clause> clauseProperty;
     SimpleStringProperty clauseName;
     Manifold manifold;
-
+    SimpleListProperty<ConceptSpecification> forList;
+    SimpleObjectProperty<ConceptSpecification> forSpecProperty = new SimpleObjectProperty<>(this, MetaData.FOR_ASSEMBLAGE____SOLOR.toExternalString()); 
+ 
     //~--- constructors -----------------------------------------------------
-    protected QueryClause(Clause clause, Manifold manifold) {
+    protected QueryClause(Clause clause, Manifold manifold, SimpleListProperty<ConceptSpecification> forList) {
         this.manifold = manifold;
+        this.forList = forList;
         this.clauseProperty = new SimpleObjectProperty<>(this, "clauseProperty", clause);
         this.clauseName = new SimpleStringProperty(this, clause.getClauseConcept().toExternalString(), manifold.getManifoldCoordinate().getPreferredDescriptionText(clause.getClauseConcept()));
         this.clauseProperty.addListener(
@@ -45,8 +54,10 @@ public class QueryClause {
     //~--- methods ----------------------------------------------------------
     public Node getPropertySheet() {
                 PropertySheet clausePropertySheet = new PropertySheet();
+                clausePropertySheet.getStyleClass().setAll("clause-properties");
                 clausePropertySheet.setSearchBoxVisible(false);
                 clausePropertySheet.setModeSwitcherVisible(false);
+                clausePropertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
         switch (this.clauseProperty.get().getClauseSemantic()) {
             case AND:
                 return new Pane();
@@ -78,9 +89,24 @@ public class QueryClause {
                 return new Pane();
             case DESCRIPTION_ACTIVE_REGEX_MATCH:
                  return new Pane();
-           case DESCRIPTION_LUCENE_MATCH:
-                clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold, clauseName));
+            case DESCRIPTION_LUCENE_MATCH: {
+                DescriptionLuceneMatch descriptionLuceneMatch = (DescriptionLuceneMatch) clauseProperty.get();
+                
+                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "For each", 
+                forSpecProperty, forList));
+                forSpecProperty.addListener((observable, oldValue, newValue) -> {
+                    descriptionLuceneMatch.setAssemblageForIteration(newValue);
+                });
+               
+                
+                SimpleStringProperty queryText = new SimpleStringProperty(this, MetaData.QUERY_STRING____SOLOR.toExternalString());
+                queryText.addListener((observable, oldValue, newValue) -> {
+                    descriptionLuceneMatch.setParameterString(newValue);
+                });
+
+                clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold, queryText));
                 return clausePropertySheet;
+            }
             case DESCRIPTION_REGEX_MATCH:
                 return new Pane();
             case FULLY_QUALIFIED_NAME_FOR_CONCEPT:
@@ -98,6 +124,8 @@ public class QueryClause {
             case REL_TYPE:
                 return new Pane();
             case XOR:
+                return new Pane();
+            case JOIN:
                 return new Pane();
             default:
                 throw new UnsupportedOperationException("Can't handle: " + this.clauseProperty.get().getClauseSemantic());
