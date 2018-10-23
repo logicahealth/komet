@@ -148,7 +148,7 @@ public class DescriptionIndexer extends LuceneIndexer
          //Because we are only indexing descriptions, we will assume the referencedComponentNid is a concept.
          String key = pathNid + ":" + semanticChronology.getReferencedComponentNid();
          try
-         {
+         { 
             isMetadata = isMetadataCache.get(key, pathAndRefComp -> {
             //cache doesn't have the answer, needs to calculate.  We construct a snapshot of latest time, the path, and any module, active only.
             TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
