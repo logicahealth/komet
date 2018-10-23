@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.57-SNAPSHOT</version>
+        <version>4.58-SNAPSHOT</version>
     </parent>
     <artifactId>provider</artifactId>
     <packaging>pom</packaging>
