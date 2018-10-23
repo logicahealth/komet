@@ -4,12 +4,12 @@
     <parent>
     <artifactId>komet</artifactId>
     <groupId>sh.isaac</groupId>
-    <version>4.56-SNAPSHOT</version>
+    <version>4.57-SNAPSHOT</version>
   </parent>
 
     <groupId>sh.isaac.komet</groupId>
     <artifactId>changeset-view</artifactId>
-    <version>4.56-SNAPSHOT</version>
+    <version>4.57-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>ISAAC’s KOMET: Changeset view</name>
