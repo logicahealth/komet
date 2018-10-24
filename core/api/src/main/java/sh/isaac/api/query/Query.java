@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
@@ -173,6 +174,7 @@ public abstract class Query {
      */
     public int[][] reify() {
         Map<ConceptSpecification, NidSet> assemlageMapResults = compute();
+        assemlageMapResults.remove(TermAux.UNINITIALIZED_COMPONENT_ID); // TODO remove cause, not the symptom...
         if (assemlageMapResults.size() == 1) {
             for (Map.Entry<ConceptSpecification, NidSet> entry : assemlageMapResults.entrySet()) {
                 int[][] resultArray = new int[entry.getValue().size()][];
@@ -184,7 +186,7 @@ public abstract class Query {
             }
             throw new IllegalStateException("No entry found, though list is not empty. ");
         } else {
-            throw new UnsupportedOperationException("Can't handle joins yet");
+            throw new UnsupportedOperationException("Can't handle joins yet" + assemlageMapResults);
         }
     }
 

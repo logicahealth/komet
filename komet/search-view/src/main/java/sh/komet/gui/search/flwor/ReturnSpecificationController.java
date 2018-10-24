@@ -16,8 +16,10 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.component.concept.ConceptSpecificationWithLabel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -25,11 +27,14 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -43,6 +48,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class ReturnSpecificationController {
 
+    final ObservableList<ConceptSpecification> joinProperties;
     final SimpleListProperty<ConceptSpecification> forAssemblagesProperty;
     final ObservableList<ReturnSpecificationRow> returnSpecificationRows
             = FXCollections.observableArrayList(returnSpecificationRow
@@ -58,12 +64,14 @@ public class ReturnSpecificationController {
     public ReturnSpecificationController(SimpleListProperty<ConceptSpecification> forAssemblagesProperty,
             ObservableMap<LetItemKey, Object> letItemObjectMap,
             ObservableList<CellFunction> cellFunctions,
+            ObservableList<ConceptSpecification> joinProperties,
             Manifold manifold) {
         this.forAssemblagesProperty = forAssemblagesProperty;
         this.forAssemblagesProperty.addListener(this::forAssemblagesListener);
         this.letItemObjectMap = letItemObjectMap;
         this.letItemObjectMap.addListener(this::letItemsListener);
         this.cellFunctions = cellFunctions;
+        this.joinProperties = joinProperties;
         this.manifold = manifold;
     }
 
@@ -135,8 +143,15 @@ public class ReturnSpecificationController {
         return returnSpecificationRows;
     }
 
+    public ObservableList<ConceptSpecification> getJoinProperties() {
+        return joinProperties;
+    }
+
     private void forAssemblagesListener(ListChangeListener.Change<? extends ConceptSpecification> change) {
         returnSpecificationRows.clear();
+        joinProperties.clear();
+        
+        
         SingleAssemblageSnapshot<Nid1_Int2_Version> snapshot
                 = Get.assemblageService().getSingleAssemblageSnapshot(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS, Nid1_Int2_Version.class, manifold);
         for (ConceptSpecification assemblageSpec : change.getList()) {
@@ -152,10 +167,11 @@ public class ReturnSpecificationController {
                             }),
                             manifold.getPreferredDescriptionText(assemblageSpec) + ":"
                             + manifold.getPreferredDescriptionText(property.getSpec()),
-                            assemblageSpec.getNid(), property.getSpec()
+                            assemblageSpec.getNid(), property.getSpec(), property.getIndex()
                     );
                     row.setStampCoordinateKey(lastStampCoordinateKey);
                     returnSpecificationRows.add(row);
+                    joinProperties.add(new ConceptSpecificationWithLabel(row.getPropertySpecification(), row.getColumnName()));
                 }
             }
             List<LatestVersion<Nid1_Int2_Version>> semanticFields
@@ -174,7 +190,15 @@ public class ReturnSpecificationController {
                 }
                 return manifold.getPreferredDescriptionText(o1.getNid1()).compareTo(manifold.getPreferredDescriptionText(o2.getNid1()));
             });
+            Optional<SemanticChronology> optionalSemanticType = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(assemblageSpec.getNid(), MetaData.SEMANTIC_TYPE____SOLOR.getNid()).findFirst();
 
+            if (optionalSemanticType.isPresent()) {
+                //TODO, this won't work when there is more than one additional field of a type. 
+                LatestVersion<ComponentNidVersion> componentNidVersion = optionalSemanticType.get().getLatestVersion(manifold);
+                
+            }
+            
+            
             for (Nid1_Int2_Version semanticField : sortedActiveSemanticFields) {
                 // add a sort...
                 // add extra fields (STAMP)
@@ -186,9 +210,11 @@ public class ReturnSpecificationController {
                         }),
                         manifold.getPreferredDescriptionText(assemblageSpec) + ":"
                         + manifold.getPreferredDescriptionText(semanticField.getNid1()),
-                        assemblageSpec.getNid(), Get.conceptSpecification(semanticField.getNid1())
+                        assemblageSpec.getNid(), Get.conceptSpecification(semanticField.getNid1()),
+                        PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex() + semanticField.getInt2()
                 );
                 returnSpecificationRows.add(row);
+                joinProperties.add(new ConceptSpecificationWithLabel(row.getPropertySpecification(), row.getColumnName()));
             }
         }
     }

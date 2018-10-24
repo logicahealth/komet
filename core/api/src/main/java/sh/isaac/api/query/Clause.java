@@ -92,10 +92,6 @@ public abstract class Clause implements ConceptSpecification {
      */
     protected static final EnumSet<ClauseComputeType> POST_ITERATION = EnumSet.of(ClauseComputeType.POST_ITERATION);
 
-    private static Clause Or() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     //~--- fields --------------------------------------------------------------
     /**
      * The parent clause.
@@ -263,7 +259,8 @@ public abstract class Clause implements ConceptSpecification {
             new ConceptIsKindOf(), new DescriptionActiveLuceneMatch(),
             new DescriptionActiveRegexMatch(), new DescriptionLuceneMatch(),
             new DescriptionRegexMatch(), new FullyQualifiedNameForConcept(),
-            new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular(), new Join()
+            new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular(), new Join(),
+            new ComponentIsActive()
         };
     }
 

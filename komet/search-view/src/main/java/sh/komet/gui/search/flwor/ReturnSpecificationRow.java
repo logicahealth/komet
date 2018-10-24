@@ -35,10 +35,11 @@ public class ReturnSpecificationRow {
     private final SimpleObjectProperty<LetItemKey> stampCoordinateKey  = new SimpleObjectProperty();
     private final SimpleIntegerProperty assemblageNid;
     private final SimpleObjectProperty<ConceptSpecification> propertySpecification;
+    private final SimpleIntegerProperty propertyIndex;
 
     public ReturnSpecificationRow(String assemblageName, String propertyName, 
             CellFunction cellFunction, String columnName, int assemblageNid,
-            ConceptSpecification propertySpecification) {
+            ConceptSpecification propertySpecification, int propertyIndex) {
         this.includeInResults = new SimpleBooleanProperty(false);
         this.assemblageName = new SimpleStringProperty(assemblageName);
         this.propertyName = new SimpleStringProperty(propertyName);
@@ -46,6 +47,7 @@ public class ReturnSpecificationRow {
         this.columnName = new SimpleStringProperty(columnName);
         this.assemblageNid = new SimpleIntegerProperty(assemblageNid);
         this.propertySpecification = new SimpleObjectProperty(propertySpecification);
+        this.propertyIndex = new SimpleIntegerProperty(propertyIndex);
     }
     
     public LetItemKey getStampCoordinateKey() {
@@ -60,7 +62,6 @@ public class ReturnSpecificationRow {
         this.stampCoordinateKey.set(stampCoordinateKey);
     }
 
-
     public ConceptSpecification getPropertySpecification() {
         return this.propertySpecification.get();
     }
@@ -70,6 +71,17 @@ public class ReturnSpecificationRow {
     
     public SimpleObjectProperty<ConceptSpecification> propertySpecificationProperty() {
         return this.propertySpecification;
+    }
+
+    public Integer getPropertyIndex() {
+        return this.propertyIndex.get();
+    }
+    public void setPropertyIndex(Integer propertyIndex) {
+        this.propertyIndex.set(propertyIndex);
+    }
+    
+    public SimpleIntegerProperty propertyIndexProperty() {
+        return this.propertyIndex;
     }
 
     public int getAssemblageNid() {

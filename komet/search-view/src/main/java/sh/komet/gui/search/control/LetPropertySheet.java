@@ -93,7 +93,25 @@ public class LetPropertySheet {
     }
     
     private void addLanguageCoordinate(ActionEvent action) {
-        LetItemKey newLetItem = new LetItemKey("Language coordinate");
+        int sequence = 1;
+        String keyName = null;
+        boolean unique = false;
+        TRY_NEXT: while (!unique) {
+            if (sequence > 1) {
+                keyName = "[US, UK] English " + sequence++;
+            } else {
+                keyName = "[US, UK] English";
+                sequence++;
+            }
+            for (LetItemKey key: letItemObjectMap.keySet()) {
+                if (key.getItemName().equalsIgnoreCase(keyName)) {
+                    continue TRY_NEXT;
+                }
+            }
+            unique = true;
+        }
+        LetItemKey newLetItem = new LetItemKey(keyName);
+
         this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
         ObservableLanguageCoordinate languageCoordinate = this.manifoldForDisplay.getLanguageCoordinate().deepClone();
         letItemObjectMap.put(newLetItem, languageCoordinate);

@@ -27,13 +27,13 @@ import sh.isaac.api.query.JoinSpecification;
  */
 public class JoinSpecificationObservable implements JoinSpecification {
     SimpleObjectProperty<ConceptSpecification> assemblageToJoin 
-            = new SimpleObjectProperty<ConceptSpecification>(this, MetaData.ASSEMBLAGE_TO_JOIN____SOLOR.toExternalString());
+            = new SimpleObjectProperty<>(this, MetaData.ASSEMBLAGE_TO_JOIN____SOLOR.toExternalString());
     
     SimpleObjectProperty<ConceptSpecification> joinField 
-            = new SimpleObjectProperty<ConceptSpecification>(this, MetaData.FIELD_TO_JOIN____SOLOR.toExternalString());
+            = new SimpleObjectProperty<>(this, MetaData.FIELD_TO_JOIN____SOLOR.toExternalString());
     
     SimpleObjectProperty<ConceptSpecification> sourceField 
-            = new SimpleObjectProperty<ConceptSpecification>(this, MetaData.FOR_ASSEMBLAGE_FIELD_TO_JOIN____SOLOR.toExternalString());
+            = new SimpleObjectProperty<>(this, MetaData.FOR_ASSEMBLAGE_FIELD_TO_JOIN____SOLOR.toExternalString());
     
     @Override
     public ConceptSpecification getAssemblageToJoin() {

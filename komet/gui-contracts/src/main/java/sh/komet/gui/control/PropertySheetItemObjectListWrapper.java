@@ -18,43 +18,43 @@ package sh.komet.gui.control;
 
 import java.util.List;
 import java.util.Optional;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.Status;
 import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
-public class PropertySheetItemStringListWrapper implements PropertySheet.Item {
+public class PropertySheetItemObjectListWrapper<T extends Object> implements PropertySheet.Item {
 
    private final String name;
-   private final StringProperty stringSelectionProperty;
-   private final List<String> allowedValues;
+   private final ObjectProperty<T> selectionProperty;
+   private final ObservableList<T> allowedValues;
    
 
-   public PropertySheetItemStringListWrapper(String name, StringProperty stringSelectionProperty, List<String> allowedValues) {
+   public PropertySheetItemObjectListWrapper(String name, ObjectProperty<T> selectionProperty, ObservableList<T> allowedValues) {
       this.name = name;
-      this.stringSelectionProperty = stringSelectionProperty;
+      this.selectionProperty = selectionProperty;
       this.allowedValues = allowedValues;
    }
 
-   public PropertySheetItemStringListWrapper(Manifold manifold, StringProperty stringSelectionProperty, List<String> allowedValues) {
-      this.name = manifold.getPreferredDescriptionText(new ConceptProxy(stringSelectionProperty.getName()), stringSelectionProperty.getName());
-      this.stringSelectionProperty = stringSelectionProperty;
+   public PropertySheetItemObjectListWrapper(Manifold manifold, ObjectProperty<T> selectionProperty, ObservableList<T> allowedValues) {
+      this.name = manifold.getPreferredDescriptionText(new ConceptProxy(selectionProperty.getName()), selectionProperty.getName());
+      this.selectionProperty = selectionProperty;
       this.allowedValues = allowedValues;
    }
 
-    public List<String> getAllowedValues() {
+    public List<?> getAllowedValues() {
         return allowedValues;
     }
 
    @Override
    public Class<?> getType() {
-      return String.class;
+      return Object.class;
    }
 
    @Override
@@ -69,22 +69,22 @@ public class PropertySheetItemStringListWrapper implements PropertySheet.Item {
 
    @Override
    public String getDescription() {
-      return "Select the status for the version you wish to create";
+      return "Select the object you wish";
    }
 
    @Override
-   public String getValue() {
-      return stringSelectionProperty.get();
+   public Object getValue() {
+      return selectionProperty.get();
    }
 
    @Override
    public void setValue(Object value) {
-      stringSelectionProperty.setValue((String) value);
+      selectionProperty.set((T) value);
    }
 
    @Override
    public Optional<ObservableValue<? extends Object>> getObservableValue() {
-      return Optional.of(stringSelectionProperty);
+      return Optional.of(selectionProperty);
    }
    
 }

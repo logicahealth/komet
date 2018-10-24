@@ -215,6 +215,8 @@ public class FLWORQueryController
     private LetItemsController letItemsController;
     private final List<ReturnSpecificationRow> resultColumns = new ArrayList();
     
+    ObservableList<ConceptSpecification> joinProperties = FXCollections.observableArrayList();
+    
     ObservableList<CellFunction> cellFunctions = FXCollections.observableArrayList();
     {
         cellFunctions.add(new CellFunction("", (t, u) -> {
@@ -275,21 +277,21 @@ public class FLWORQueryController
         for (int row = 0; row < resultArray.length; row++) {
             String[] resultRow = new String[columnCount];
             LatestVersion[] latestVersionArray = new LatestVersion[resultArray[row].length];
-            Map[] propertyMapArray = new Map[resultArray[row].length];
+            List[] propertyListArray = new List[resultArray[row].length];
             for (int column = 0; column < latestVersionArray.length; column++) {
                 latestVersionArray[column] = snapshotArray[column].getObservableVersion(resultArray[row][column]);
                 if (latestVersionArray[column].isPresent()) {
-                    propertyMapArray[column] = ((ObservableVersion) latestVersionArray[column].get()).getPropertyMap();
+                    propertyListArray[column] = ((ObservableVersion) latestVersionArray[column].get()).getProperties();
                 } else {
-                    propertyMapArray[column] = null;
+                    propertyListArray[column] = null;
                 }
             }
             for (int column = 0; column < resultColumns.size(); column++) {
                 ReturnSpecificationRow columnSpecification = resultColumns.get(column);
                 int resultArrayNidIndex = fastAssemblageNidToIndexMap.get(columnSpecification.getAssemblageNid());
                 if (latestVersionArray[resultArrayNidIndex].isPresent()) {
-                    Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap = propertyMapArray[resultArrayNidIndex];
-                    ReadOnlyProperty<?> property = propertyMap.get(columnSpecification.getPropertySpecification());
+                    List<ReadOnlyProperty<?>> propertyList = propertyListArray[resultArrayNidIndex];
+                    ReadOnlyProperty<?> property = propertyList.get(columnSpecification.getPropertyIndex());
                     if (columnSpecification.getCellFunction() != null) {
                         StampCoordinate sc = (StampCoordinate) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampCoordinateKey());
                         resultRow[column] = columnSpecification.getCellFunction().apply(property.getValue().toString(), sc);
@@ -345,6 +347,7 @@ public class FLWORQueryController
         QueryBuilder queryBuilder = new QueryBuilder()
                 .from(this.forPropertySheet.getForSetSpecification());
 
+        // TODO, add let items...
         TreeItem<QueryClause> itemToProcess = this.root;
         Clause rootClause = itemToProcess.getValue()
                 .getClause();
@@ -419,7 +422,8 @@ public class FLWORQueryController
                 .get(CLAUSE);
 
         treeItem.getChildren()
-                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty())));
+                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(), 
+                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
 
     }
 
@@ -435,7 +439,8 @@ public class FLWORQueryController
 
         treeItem.getParent()
                 .getChildren()
-                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty())));
+                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(), 
+                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
 
     }
 
@@ -449,7 +454,8 @@ public class FLWORQueryController
         Clause clause = (Clause) conceptAction.getProperties()
                 .get(CLAUSE);
 
-        treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty()));
+        treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(), 
+                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
     }
 
     // changeClause->, addSibling->, addChild->,
@@ -512,6 +518,8 @@ public class FLWORQueryController
             } else if (clause.getClass().equals(RelationshipIsCircular.class)) {
 
             } else if (clause.getClass().equals(RelRestriction.class)) {
+
+            } else if (clause.getClass().equals(ComponentIsActive.class)) {
 
             } else {
                 System.out.println("Missed a clause!");
@@ -697,12 +705,15 @@ public class FLWORQueryController
         functionColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(cellFunctions));
         
         this.forPropertySheet = new ForPanel(manifold);
-        this.root = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet.getForAssemblagesProperty()));
+        this.root = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet.getForAssemblagesProperty(), 
+                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
 
-        TreeItem orTreeItem = new TreeItem<>(new QueryClause(new Or(), manifold, this.forPropertySheet.getForAssemblagesProperty()));
+        TreeItem orTreeItem = new TreeItem<>(new QueryClause(new Or(), manifold, this.forPropertySheet.getForAssemblagesProperty(), 
+                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
 
         orTreeItem.getChildren()
-                .add(new TreeItem<>(new QueryClause(new DescriptionLuceneMatch(), manifold, this.forPropertySheet.getForAssemblagesProperty())));
+                .add(new TreeItem<>(new QueryClause(new DescriptionLuceneMatch(), manifold, this.forPropertySheet.getForAssemblagesProperty(), 
+                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
         this.root.getChildren()
                 .add(orTreeItem);
         orTreeItem.setExpanded(true);
@@ -746,7 +757,7 @@ public class FLWORQueryController
         this.returnSpecificationController = new ReturnSpecificationController(
                 this.forPropertySheet.getForAssemblagesProperty(), 
                 this.letPropertySheet.getLetItemObjectMap(), 
-                this.cellFunctions, this.manifold);
+                this.cellFunctions, joinProperties, this.manifold);
         this.returnSpecificationController.addReturnSpecificationListener(this::returnSpecificationListener);
         this.returnTable.setItems(this.returnSpecificationController.getReturnSpecificationRows());
     }

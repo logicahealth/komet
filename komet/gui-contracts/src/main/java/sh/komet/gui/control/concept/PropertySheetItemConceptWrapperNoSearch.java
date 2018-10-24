@@ -34,6 +34,7 @@ import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.ConceptSpecificationWithLabel;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -78,7 +79,11 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
             protected void updateItem(ConceptSpecification item, boolean empty) {
                 super.updateItem(item, empty); 
                 if (!empty) {
-                    this.setText(manifoldForDisplay.getPreferredDescriptionText(item));
+                    if (item instanceof ConceptSpecificationWithLabel) {
+                        this.setText(((ConceptSpecificationWithLabel) item).toString());
+                    } else {
+                        this.setText(manifoldForDisplay.getPreferredDescriptionText(item));
+                    }
                 } else {
                     this.setText("");
                 }
@@ -90,7 +95,11 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
             protected void updateItem(ConceptSpecification item, boolean empty) {
                 super.updateItem(item, empty); 
                 if (!empty) {
-                    this.setText(manifoldForDisplay.getPreferredDescriptionText(item));
+                    if (item instanceof ConceptSpecificationWithLabel) {
+                        this.setText(((ConceptSpecificationWithLabel) item).toString());
+                    } else {
+                        this.setText(manifoldForDisplay.getPreferredDescriptionText(item));
+                    }
                 } else {
                     this.setText("");
                 }

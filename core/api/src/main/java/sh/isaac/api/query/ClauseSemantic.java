@@ -180,5 +180,7 @@ public enum ClauseSemantic {
     * Join two assemblages in the result set when criterion are met 
     */
    JOIN,
+   
+   COMPONENT_IS_ACTIVE
 }
 
