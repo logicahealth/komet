@@ -41,6 +41,8 @@ package sh.isaac.api.query;
 
 /**
  * Implementation classes for the query module.
+ * TODO move the query functions with its own Metadata dependency. 
+ * TODO move all query Metadata to it's own module. 
  */
 
 

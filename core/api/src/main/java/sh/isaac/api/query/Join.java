@@ -16,7 +16,9 @@
  */
 package sh.isaac.api.query;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
@@ -30,6 +32,8 @@ import static sh.isaac.api.query.Clause.getParentClauses;
 public class Join 
         extends ParentClause {
 
+    List<JoinSpecificationSimple> joinSpecifications = new ArrayList<>();
+    
     /**
      * Default no arg constructor for Jaxb.
      */
@@ -65,6 +69,14 @@ public class Join
         HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
         resultsMap.put(this.getAssemblageForIteration(), results);
         return resultsMap;
+    }
+
+    public List<JoinSpecificationSimple> getJoinSpecifications() {
+        return joinSpecifications;
+    }
+
+    public void setJoinSpecifications(List<JoinSpecificationSimple> joinSpecifications) {
+        this.joinSpecifications = joinSpecifications;
     }
 
     /**
