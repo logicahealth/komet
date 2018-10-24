@@ -1004,10 +1004,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("For assemblage");
                createConcept("Query string");
                createConcept("Let item key");
-               createConcept("Join 1 assemblage", "Assemblage 1");
-               createConcept("Join 1 property", "Property 1");
-               createConcept("Join 2 assemblage", "Assemblage 2");
-               createConcept("Join 2 property", "Property 2");
+               createConcept("Assemblage to join", "Join assemblage");
+               createConcept("Field to join", "Join field");
+               createConcept("For assemblage field to join", "Source field");
                popParent();
             popParent(); 
          popParent(); // ISAAC root should still be parent on stack...
