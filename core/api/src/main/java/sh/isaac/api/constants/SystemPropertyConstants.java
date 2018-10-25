@@ -97,5 +97,11 @@ public class SystemPropertyConstants {
     * Used to specify the location of the ibdf import folder, This value should be read via {@link ConfigurationService#getIBDFImportPath()}
     */
    public static final String IMPORT_FOLDER_LOCATION = "IMPORT_FOLDER_LOCATION";
+
+   /** 
+    * Used to specify behavior for change set provider Database identity mismatch. This value should be read via {@link ConfigurationService#failOnChangeSetDbIdConflict()}
+    */
+   public static final String FAIL_ON_DATABASE_IDENTITY_MISMATCH = "FAIL_ON_DATABASE_IDENTITY_MISMATCH";
+
 }
 

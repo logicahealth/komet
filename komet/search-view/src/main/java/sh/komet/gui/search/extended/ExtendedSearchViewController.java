@@ -53,6 +53,7 @@ import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -220,6 +221,14 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         }
     }
 
+    void selectionChanged(ListChangeListener.Change<? extends CompositeSearchResult> c) {
+        while (c.next()) {
+            if (!c.getAddedSubList().isEmpty()) {
+                CompositeSearchResult result = c.getAddedSubList().get(0);
+                outsideManifold.setFocusedConceptChronology(result.getContainingConcept());
+            }
+        }
+    }
     @FXML
     public void initialize() {
         assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
@@ -234,6 +243,8 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         assert stampCriteriaLabel != null : "fx:id=\"stampCriteriaLabel\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
         assert stampCriteriaTooltip != null : "fx:id=\"stampCriteriaTooltip\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
         assert adjustStampButton != null : "fx:id=\"adjustStampButton\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
+        
+        searchResults.getSelectionModel().getSelectedItems().addListener(this::selectionChanged);
 
         borderPane.getStylesheets().add(ExtendedSearchViewController.class.getResource("/styles/extendedSearch.css").toString());
 

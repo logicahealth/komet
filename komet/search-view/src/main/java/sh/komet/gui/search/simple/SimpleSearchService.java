@@ -1,5 +1,7 @@
 package sh.komet.gui.search.simple;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import javafx.beans.property.SimpleListProperty;
@@ -25,6 +27,8 @@ import sh.isaac.provider.query.search.SearchHandler;
 
 import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.TaxonomySnapshot;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 /**
  * @author aks8m
@@ -75,12 +79,15 @@ public class SimpleSearchService extends Service<NidSet> {
                     queryString = queryString.substring(0, queryString.length() -2);
                 }
                 
-                
                 descriptionLuceneMatch.setParameterString(queryString);
-                // TODO fixMe...
-                // results.addAll(descriptionLuceneMatch.computePossibleComponents(null));
-//                if (results.isEmpty()) {
-                if (true) {
+                
+                Map<ConceptSpecification, NidSet> incomingPossibleComponents = new HashMap<>();
+                incomingPossibleComponents.put(TermAux.ENGLISH_LANGUAGE, NidSet.of(Get.identifierService().getNidsForAssemblage(TermAux.ENGLISH_LANGUAGE)));
+                descriptionLuceneMatch.setAssemblageForIteration(TermAux.ENGLISH_LANGUAGE);
+                
+                Map<ConceptSpecification, NidSet> resultsMap = descriptionLuceneMatch.computePossibleComponents(incomingPossibleComponents);
+                results.addAll(resultsMap.get(TermAux.ENGLISH_LANGUAGE));
+                if (results.isEmpty()) {
                     
                     try {
                         CountDownLatch searchComplete = new CountDownLatch(1);

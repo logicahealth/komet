@@ -254,7 +254,11 @@ public class ChangeSetLoadProvider
                 msg.append("Database identity mismatch!  ChronicleDbId: ").append(chronicleDbId);
                 msg.append(" SemanticDbId: ").append(semanticDbId);
                 msg.append(" Changsets DbId: ").append(changesetsDbId);
-                throw new RuntimeException(msg.toString());
+                    if (LookupService.getService(ConfigurationService.class).failOnChangeSetDbIdConflict()) {
+                        throw new RuntimeException(msg.toString());
+                    } else {
+                        LOG.warn(msg.toString());
+                    }
             }
 
             if (changesetsDbId == null) {
@@ -282,12 +286,21 @@ public class ChangeSetLoadProvider
                     msg.append("Database identity mismatch!  ChronicleDbId: ").append(chronicleDbId);
                     msg.append(" SemanticDbId: ").append(semanticDbId);
                     msg.append(" Changsets DbId: ").append(changesetsDbId);
-                    throw new RuntimeException(msg.toString());
+                    if (LookupService.getService(ConfigurationService.class).failOnChangeSetDbIdConflict()) {
+                        throw new RuntimeException(msg.toString());
+                    } else {
+                        LOG.warn(msg.toString());
+                    }
                 }
             }
 
             //Its possible that during initial startup, there will won't be a semantic ID at this point.  The lookupservice startup sequence 
             //will resolve this later.
+            StringBuilder msg = new StringBuilder();
+            msg.append("Database identities at startup:\n   ChronicleDbId: ").append(chronicleDbId);
+            msg.append("\n   SemanticDbId: ").append(semanticDbId);
+            msg.append("\n   Changsets DbId: ").append(changesetsDbId);
+            LOG.info(msg.toString());
         } catch (final IOException | RuntimeException e) {
             LOG.error("Error ", e);
             LookupService.getService(SystemStatusService.class)
@@ -318,6 +331,38 @@ public class ChangeSetLoadProvider
     @PreDestroy
     private void stopMe() {
         LOG.info("Finished ChangeSet Load Provider pre-destory.");
+        final UUID chronicleDbId = Get.conceptService()
+                .getDataStoreId().orElse(null);
+        UUID changesetsDbId = null;
+        final Path changesetsIdPath = this.changesetPath.resolve(CHANGESETS_ID);
+
+        if (changesetsIdPath.toFile()
+                .exists()) {
+            try {
+                changesetsDbId = UUID.fromString(new String(Files.readAllBytes(changesetsIdPath)));
+            } catch (final IOException e) {
+                LOG.warn("The " + CHANGESETS_ID + " file does not contain a valid UUID!", e);
+            }
+        }
+
+        UUID semanticDbId = readSemanticDbId();
         this.processedChangesets = null;
+        if (semanticDbId == null) {
+            semanticDbId = readSemanticDbId();
+
+            if ((semanticDbId != null && !semanticDbId.equals(chronicleDbId)) || changesetsDbId != null && !changesetsDbId.equals(chronicleDbId)) {
+                StringBuilder msg = new StringBuilder();
+                msg.append("Database identity mismatch!  ChronicleDbId: ").append(chronicleDbId);
+                msg.append(" SemanticDbId: ").append(semanticDbId);
+                msg.append(" Changsets DbId: ").append(changesetsDbId);
+                LOG.warn(msg.toString());
+            }
+        }
+
+        StringBuilder msg = new StringBuilder();
+        msg.append("Database identities at shutdown:\n   ChronicleDbId: ").append(chronicleDbId);
+        msg.append("\n   SemanticDbId: ").append(semanticDbId);
+        msg.append("\n   Changsets DbId: ").append(changesetsDbId);
+        LOG.info(msg.toString());
     }
 }

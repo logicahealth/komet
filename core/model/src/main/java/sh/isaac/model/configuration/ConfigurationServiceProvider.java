@@ -422,6 +422,15 @@ public class ConfigurationServiceProvider
       dbImplementation = implementation;
    }
 
+    @Override
+    public boolean failOnChangeSetDbIdConflict() {
+        String failSetting = System.getProperty(SystemPropertyConstants.FAIL_ON_DATABASE_IDENTITY_MISMATCH);
+        if (failSetting == null) {
+            failSetting = "true";
+        } 
+        return Boolean.valueOf(failSetting);
+    }
+
    /**
     * {@inheritDoc}
     */

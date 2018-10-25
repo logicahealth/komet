@@ -141,7 +141,7 @@ public interface ConfigurationService {
     * @return the object property that will notify if build mode is started
     */
    public default ReadOnlyObjectProperty<BuildMode> getDBBuildMode() {
-      return new SimpleObjectProperty<BuildMode>(null);
+      return new SimpleObjectProperty<>(null);
    }
 
    /**
@@ -272,4 +272,14 @@ public interface ConfigurationService {
     * @param implementation the new implementation
     */
    public void setDatabaseImplementation(DatabaseImplementation implementation);
+   
+   /**
+    * Defines behavior for change set provider Database identity mismatch. There are
+    * some use cases, e.g. multiple collaborators with independent databases collaborating
+    * on a specific aspect of content. 
+    * @return true if the service should throw a fatal exception when the change set folder 
+    * database uuid does not match the chronicle database uuid. 
+    * 
+    */
+   public boolean failOnChangeSetDbIdConflict();
 }
