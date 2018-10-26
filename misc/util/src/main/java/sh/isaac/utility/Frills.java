@@ -511,9 +511,13 @@ public class Frills
          final LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
          NecessarySet(And(ConceptAssertion(termTypeConcept, defBuilder)));
          
+         //TODO switch this over to the observable create / commit pattern
          try {
-            return Get.conceptBuilderService().getDefaultConceptBuilder(termTypeFQN, ConceptProxy.METADATA_SEMANTIC_TAG, defBuilder.build(), 
+            int nid = Get.conceptBuilderService().getDefaultConceptBuilder(termTypeFQN, ConceptProxy.METADATA_SEMANTIC_TAG, defBuilder.build(), 
                  MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE).get().getNid();
+             commitCheck(Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
+                 "creating new edit module for terminology type " + Get.conceptDescriptionText(termTypeConcept)));
+             return nid;
          }
          catch (Exception e) {
             throw new RuntimeException("Failed to create concept", e);
