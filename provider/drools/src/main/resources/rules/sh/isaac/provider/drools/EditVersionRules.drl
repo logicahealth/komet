@@ -64,6 +64,18 @@ then
    propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
+rule "Given a AddEditVersionMenuItems, with VersionType.Nid1_Int2, add editing options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.Nid1_Int2);
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("component", MetaData.COMPONENT_ID_1____SOLOR, PropertyEditorType.CONCEPT);
+end
+
 rule "Given a AddEditVersionMenuItems, with VersionType.LONG, add editing options"
    lock-on-active true
 when
