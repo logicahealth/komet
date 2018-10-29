@@ -74,6 +74,7 @@ then
    propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
    propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
    propertySheetMenuItem.addPropertyToEdit("component", MetaData.COMPONENT_ID_1____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("int value", MetaData.INTEGER_2____SOLOR, PropertyEditorType.INTEGER);
 end
 
 rule "Given a AddEditVersionMenuItems, with VersionType.LONG, add editing options"

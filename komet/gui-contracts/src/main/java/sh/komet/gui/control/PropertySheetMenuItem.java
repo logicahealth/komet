@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.ExecutionException;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ObjectProperty;
@@ -234,6 +235,27 @@ public class PropertySheetMenuItem
        wrapper.setSpecification(propertyConceptSpecification);
       return wrapper;
    }
+   
+   private PropertySheetItemIntegerWrapper getIntegerProperty(ConceptSpecification propertyConceptSpecification,
+           String nameForProperty) {
+      ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
+      if (property == null) {
+          int assemblageNid = observableVersion.getAssemblageNid();
+          OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
+                  propertyConceptSpecification.getNid(), 
+                  assemblageNid, manifold);
+          if (propertyIndex.isPresent()) {
+              property = observableVersion.getProperties().get(propertyIndex.getAsInt());
+          }
+          getPropertyMap().put(propertyConceptSpecification, property);
+      }
+       IntegerProperty integerProperty = (IntegerProperty) property;
+
+      PropertySheetItemIntegerWrapper wrapper = new PropertySheetItemIntegerWrapper(nameForProperty,
+              integerProperty);
+       wrapper.setSpecification(propertyConceptSpecification);
+      return wrapper;
+   }
 
    public Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {
       if (propertyMap == null) {
@@ -270,6 +292,12 @@ public class PropertySheetMenuItem
                     case TEXT:
                        items.add(
                                addItem(getTextProperty(
+                                       propertySpec.propertyConceptSpecification,
+                                       propertySpec.nameOnPropertySheet)));
+                       break;
+                    case INTEGER:
+                       items.add(
+                               addItem(getIntegerProperty(
                                        propertySpec.propertyConceptSpecification,
                                        propertySpec.nameOnPropertySheet)));
                        break;
