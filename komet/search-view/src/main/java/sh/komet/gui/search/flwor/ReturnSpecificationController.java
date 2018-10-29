@@ -27,6 +27,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.scene.control.MenuItem;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.SingleAssemblageSnapshot;
@@ -50,11 +51,13 @@ public class ReturnSpecificationController {
 
     final ObservableList<ConceptSpecification> joinProperties;
     final SimpleListProperty<ConceptSpecification> forAssemblagesProperty;
+    
+    final ObservableList<MenuItem> addFieldItems;
+
     final ObservableList<ReturnSpecificationRow> returnSpecificationRows
             = FXCollections.observableArrayList(returnSpecificationRow
                     -> new Observable[]{
-                returnSpecificationRow.includeInResultsProperty(),
-                returnSpecificationRow.columnNameProperty(),});
+                returnSpecificationRow.columnNameProperty()});
     final Manifold manifold;
 
     final ObservableMap<LetItemKey, Object> letItemObjectMap;
@@ -65,6 +68,7 @@ public class ReturnSpecificationController {
             ObservableMap<LetItemKey, Object> letItemObjectMap,
             ObservableList<CellFunction> cellFunctions,
             ObservableList<ConceptSpecification> joinProperties,
+            ObservableList<MenuItem> addFieldItems,
             Manifold manifold) {
         this.forAssemblagesProperty = forAssemblagesProperty;
         this.forAssemblagesProperty.addListener(this::forAssemblagesListener);
@@ -72,9 +76,15 @@ public class ReturnSpecificationController {
         this.letItemObjectMap.addListener(this::letItemsListener);
         this.cellFunctions = cellFunctions;
         this.joinProperties = joinProperties;
+        this.addFieldItems = addFieldItems;
         this.manifold = manifold;
     }
 
+    public ObservableList<MenuItem> getAddFieldItems() {
+        return addFieldItems;
+    }
+    
+    
     private void letItemsListener(MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) {
         LetItemKey key = change.getKey();
         if (change.wasRemoved()) {
@@ -150,6 +160,7 @@ public class ReturnSpecificationController {
     private void forAssemblagesListener(ListChangeListener.Change<? extends ConceptSpecification> change) {
         returnSpecificationRows.clear();
         joinProperties.clear();
+        addFieldItems.clear();
         
         
         SingleAssemblageSnapshot<Nid1_Int2_Version> snapshot
@@ -170,7 +181,9 @@ public class ReturnSpecificationController {
                             assemblageSpec.getNid(), property.getSpec(), property.getIndex()
                     );
                     row.setStampCoordinateKey(lastStampCoordinateKey);
-                    returnSpecificationRows.add(row);
+                
+                    addFieldItems.add(new ReturnSpecificationMenuItem("Add " + manifold.getPreferredDescriptionText(assemblageSpec) + ":"
+                        + manifold.getPreferredDescriptionText(property.getSpec()), row, returnSpecificationRows));
                     joinProperties.add(new ConceptSpecificationWithLabel(row.getPropertySpecification(), row.getColumnName()));
                 }
             }
@@ -213,7 +226,9 @@ public class ReturnSpecificationController {
                         assemblageSpec.getNid(), Get.conceptSpecification(semanticField.getNid1()),
                         PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex() + semanticField.getInt2()
                 );
-                returnSpecificationRows.add(row);
+                
+                addFieldItems.add(new ReturnSpecificationMenuItem("Add " + manifold.getPreferredDescriptionText(assemblageSpec) + ":"
+                        + manifold.getPreferredDescriptionText(semanticField.getNid1()), row, returnSpecificationRows));
                 joinProperties.add(new ConceptSpecificationWithLabel(row.getPropertySpecification(), row.getColumnName()));
             }
         }

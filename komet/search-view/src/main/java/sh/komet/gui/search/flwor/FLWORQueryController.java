@@ -179,24 +179,27 @@ public class FLWORQueryController
     @FXML
     private AnchorPane letAnchorPane;
 
+    @FXML
+    private MenuButton addRowButton;
+
+    @FXML
+    private Button upButton;
+
+    @FXML
+    private Button downButton;
+
+    @FXML
+    private Button trashButton;
+
     @FXML // fx:id="returnTable"
     private TableView<ReturnSpecificationRow> returnTable; // Value injected by FXMLLoader
-
-    @FXML // fx:id="includeColumn"
-    private TableColumn<ReturnSpecificationRow, Boolean> includeColumn; // Value injected by FXMLLoader
-
-    @FXML // fx:id="assemblageColumn"
-    private TableColumn<ReturnSpecificationRow, String> assemblageColumn; // Value injected by FXMLLoader
-
-    @FXML // fx:id="propertyNameColumn"
-    private TableColumn<ReturnSpecificationRow, String> propertyNameColumn; // Value injected by FXMLLoader
 
     @FXML // fx:id="functionColumn"
     private TableColumn<ReturnSpecificationRow, CellFunction> functionColumn; // Value injected by FXMLLoader
 
     @FXML // fx:id="columnNameColumn"
     private TableColumn<ReturnSpecificationRow, String> columnNameColumn; // Value injected by FXMLLoader
-    
+
     @FXML // fx:id="stampCoordinateColumn"
     private TableColumn<ReturnSpecificationRow, LetItemKey> stampCoordinateColumn; // Value injected by FXMLLoader
 
@@ -214,10 +217,11 @@ public class FLWORQueryController
 
     private LetItemsController letItemsController;
     private final List<ReturnSpecificationRow> resultColumns = new ArrayList();
-    
+
     ObservableList<ConceptSpecification> joinProperties = FXCollections.observableArrayList();
-    
+
     ObservableList<CellFunction> cellFunctions = FXCollections.observableArrayList();
+
     {
         cellFunctions.add(new CellFunction("", (t, u) -> {
             return t;
@@ -235,7 +239,6 @@ public class FLWORQueryController
             return DateTimeUtil.format(epochTime);
         }));
     }
-
 
     //~--- methods -------------------------------------------------------------
     @Override
@@ -255,7 +258,7 @@ public class FLWORQueryController
         definition for nid
 
     
-    */
+     */
     void displayResults(int[][] resultArray, Map<ConceptSpecification, Integer> assembalgeToIndexMap) {
         ObservableList<List<String>> tableItems = resultTable.getItems();
         int columnCount = resultTable.getColumns().size();
@@ -381,9 +384,6 @@ public class FLWORQueryController
         assert clausePropertiesColumn != null : "fx:id=\"clausePropertiesColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert returnPane != null : "fx:id=\"returnPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert returnTable != null : "fx:id=\"returnTable\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
-        assert includeColumn != null : "fx:id=\"includeColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
-        assert assemblageColumn != null : "fx:id=\"assemblageColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
-        assert propertyNameColumn != null : "fx:id=\"propertyNameColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert functionColumn != null : "fx:id=\"functionColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert columnNameColumn != null : "fx:id=\"columnNameColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert executeButton != null : "fx:id=\"executeButton\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
@@ -401,14 +401,36 @@ public class FLWORQueryController
         resultTable.setOnDragDone(new DragDoneEventHandler());
 
         returnTable.setEditable(true);
-        includeColumn.setCellValueFactory(new PropertyValueFactory("includeInResults"));
-        includeColumn.setCellFactory(CheckBoxTableCell.forTableColumn(includeColumn));
-        assemblageColumn.setCellValueFactory(new PropertyValueFactory("assemblageName"));
-        propertyNameColumn.setCellValueFactory(new PropertyValueFactory("propertyName"));
         functionColumn.setCellValueFactory(new PropertyValueFactory("functionName"));
         columnNameColumn.setCellValueFactory(new PropertyValueFactory("columnName"));
         columnNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        
+
+        this.upButton.setGraphic(Iconography.ARROW_UP.getIconographic());
+        this.upButton.setOnAction((event) -> {
+            int rowIndex = returnTable.getSelectionModel().getSelectedIndex();
+            if (rowIndex > 0) {
+                ReturnSpecificationRow row = returnTable.getItems().remove(rowIndex);
+                returnTable.getItems().add(rowIndex - 1, row);
+                returnTable.getSelectionModel().select(rowIndex - 1);
+            }
+        });
+
+        this.downButton.setGraphic(Iconography.ARROW_DOWN.getIconographic());
+        this.downButton.setOnAction((event) -> {
+            int rowIndex = returnTable.getSelectionModel().getSelectedIndex();
+            if (rowIndex < returnTable.getItems().size() - 1) {
+                ReturnSpecificationRow row = returnTable.getItems().remove(rowIndex);
+                returnTable.getItems().add(rowIndex + 1, row);
+                returnTable.getSelectionModel().select(rowIndex + 1);
+            }
+        });
+        this.trashButton.setGraphic(Iconography.DELETE_TRASHCAN.getIconographic());
+        this.trashButton.setOnAction((event) -> {
+            int rowIndex = returnTable.getSelectionModel().getSelectedIndex();
+            returnTable.getItems().remove(rowIndex);
+            returnTable.getSelectionModel().select(rowIndex);
+        });
+
     }
 
     private void addChildClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
@@ -422,7 +444,7 @@ public class FLWORQueryController
                 .get(CLAUSE);
 
         treeItem.getChildren()
-                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(), 
+                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
                         joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
 
     }
@@ -439,7 +461,7 @@ public class FLWORQueryController
 
         treeItem.getParent()
                 .getChildren()
-                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(), 
+                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
                         joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
 
     }
@@ -454,8 +476,8 @@ public class FLWORQueryController
         Clause clause = (Clause) conceptAction.getProperties()
                 .get(CLAUSE);
 
-        treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(), 
-                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
+        treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
+                joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
     }
 
     // changeClause->, addSibling->, addChild->,
@@ -689,7 +711,7 @@ public class FLWORQueryController
     public Manifold getManifold() {
         return this.manifold;
     }
-    
+
     //~--- set methods ---------------------------------------------------------
     public void setManifold(Manifold manifold) {
         this.manifold = manifold;
@@ -703,16 +725,16 @@ public class FLWORQueryController
             return param.getValue().cellFunctionProperty();
         });
         functionColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(cellFunctions));
-        
-        this.forPropertySheet = new ForPanel(manifold);
-        this.root = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet.getForAssemblagesProperty(), 
-                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
 
-        TreeItem orTreeItem = new TreeItem<>(new QueryClause(new Or(), manifold, this.forPropertySheet.getForAssemblagesProperty(), 
-                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
+        this.forPropertySheet = new ForPanel(manifold);
+        this.root = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet.getForAssemblagesProperty(),
+                joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
+
+        TreeItem orTreeItem = new TreeItem<>(new QueryClause(new Or(), manifold, this.forPropertySheet.getForAssemblagesProperty(),
+                joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
 
         orTreeItem.getChildren()
-                .add(new TreeItem<>(new QueryClause(new DescriptionLuceneMatch(), manifold, this.forPropertySheet.getForAssemblagesProperty(), 
+                .add(new TreeItem<>(new QueryClause(new DescriptionLuceneMatch(), manifold, this.forPropertySheet.getForAssemblagesProperty(),
                         joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
         this.root.getChildren()
                 .add(orTreeItem);
@@ -755,9 +777,11 @@ public class FLWORQueryController
                 .add(letPropertySheet.getNode());
         this.forAnchorPane.getChildren().add(this.forPropertySheet.getNode());
         this.returnSpecificationController = new ReturnSpecificationController(
-                this.forPropertySheet.getForAssemblagesProperty(), 
-                this.letPropertySheet.getLetItemObjectMap(), 
-                this.cellFunctions, joinProperties, this.manifold);
+                this.forPropertySheet.getForAssemblagesProperty(),
+                this.letPropertySheet.getLetItemObjectMap(),
+                this.cellFunctions, joinProperties,
+                this.addRowButton.getItems(),
+                this.manifold);
         this.returnSpecificationController.addReturnSpecificationListener(this::returnSpecificationListener);
         this.returnTable.setItems(this.returnSpecificationController.getReturnSpecificationRows());
     }
@@ -768,15 +792,13 @@ public class FLWORQueryController
         exportButton.setDisable(true);
         int columnIndex = 0;
         for (ReturnSpecificationRow rowSpecification : c.getList()) {
-            if (rowSpecification.includeInResults()) {
-                final int currentIndex = columnIndex++;
-                TableColumn<List<String>, String> column
-                        = new TableColumn<>(rowSpecification.getColumnName());
-                column.setCellValueFactory(param
-                        -> new ReadOnlyObjectWrapper<>(param.getValue().get(currentIndex)));
-                resultTable.getColumns().add(column);
-                resultColumns.add(rowSpecification);
-            }
+            final int currentIndex = columnIndex++;
+            TableColumn<List<String>, String> column
+                    = new TableColumn<>(rowSpecification.getColumnName());
+            column.setCellValueFactory(param
+                    -> new ReadOnlyObjectWrapper<>(param.getValue().get(currentIndex)));
+            resultTable.getColumns().add(column);
+            resultColumns.add(rowSpecification);
         }
     }
 

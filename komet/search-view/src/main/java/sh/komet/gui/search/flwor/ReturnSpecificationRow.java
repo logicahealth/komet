@@ -27,7 +27,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  * @author kec
  */
 public class ReturnSpecificationRow {
-    private final SimpleBooleanProperty includeInResults;
     private final SimpleStringProperty assemblageName;
     private final SimpleStringProperty propertyName;
     private final SimpleObjectProperty<CellFunction> cellFunction;
@@ -37,10 +36,19 @@ public class ReturnSpecificationRow {
     private final SimpleObjectProperty<ConceptSpecification> propertySpecification;
     private final SimpleIntegerProperty propertyIndex;
 
+    public ReturnSpecificationRow(ReturnSpecificationRow another) {
+        this.assemblageName = new SimpleStringProperty(another.assemblageName.get());
+        this.propertyName = new SimpleStringProperty(another.propertyName.get());
+        this.cellFunction = new SimpleObjectProperty(another.cellFunction.get());
+        this.columnName = new SimpleStringProperty(another.columnName.get());
+        this.assemblageNid = new SimpleIntegerProperty(another.assemblageNid.get());
+        this.propertySpecification = new SimpleObjectProperty(another.propertySpecification.get());
+        this.propertyIndex = new SimpleIntegerProperty(another.propertyIndex.get());
+    }
+    
     public ReturnSpecificationRow(String assemblageName, String propertyName, 
             CellFunction cellFunction, String columnName, int assemblageNid,
             ConceptSpecification propertySpecification, int propertyIndex) {
-        this.includeInResults = new SimpleBooleanProperty(false);
         this.assemblageName = new SimpleStringProperty(assemblageName);
         this.propertyName = new SimpleStringProperty(propertyName);
         this.cellFunction = new SimpleObjectProperty(cellFunction);
@@ -93,18 +101,6 @@ public class ReturnSpecificationRow {
     
     public SimpleIntegerProperty assemblageNidProperty() {
         return this.assemblageNid;
-    }
-    
-    public boolean includeInResults() {
-        return includeInResults.get();
-    }
-
-    public SimpleBooleanProperty includeInResultsProperty() {
-        return includeInResults;
-    }
-
-    public void setIncludeInResults(boolean includeInResults) {
-        this.includeInResults.set(includeInResults);
     }
 
     public String getAssemblageName() {
