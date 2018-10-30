@@ -137,7 +137,7 @@ public class StampCoordinateImpl
                               StampPosition stampPosition,
                               Set<ConceptSpecification> moduleSpecifications,
                               EnumSet<Status> allowedStates) {
-      this(stampPrecedence, stampPosition, moduleSpecifications, new ArrayList(), allowedStates);
+      this(stampPrecedence, stampPosition, moduleSpecifications, new ArrayList<>(), allowedStates);
    }
 
    /**
@@ -157,7 +157,7 @@ public class StampCoordinateImpl
                               EnumSet<Status> allowedStates) {
       this(stampPrecedence,
            stampPosition,
-           new HashSet(moduleSpecifications),
+           new HashSet<>(moduleSpecifications),
            moduleSpecificationPriorities,
            allowedStates);
    }
@@ -188,25 +188,30 @@ public class StampCoordinateImpl
             return false;
         }
         
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof StampCoordinate)) {
             return false;
         }
         
-        final StampCoordinateImpl other = (StampCoordinateImpl) obj;
+        final StampCoordinate other = (StampCoordinate) obj;
         
-        if (this.stampPrecedence != other.stampPrecedence) {
+        if (this.stampPrecedence != other.getStampPrecedence()) {
             return false;
         }
         
-        if (!Objects.equals(this.stampPosition, other.stampPosition)) {
+        if (!Objects.equals(this.stampPosition, other.getStampPosition())) {
             return false;
         }
         
-        if (!this.allowedStates.equals(other.allowedStates)) {
+        if (!this.allowedStates.equals(other.getAllowedStates())) {
             return false;
         }
         
-        return this.moduleSpecifications.equals(other.moduleSpecifications);
+        if ((modulePriorityList == null && other.getModulePreferenceOrderForVersions() != null) 
+                || (modulePriorityList != null && other.getModulePreferenceOrderForVersions() == null)
+                || modulePriorityList != null && !this.modulePriorityList.equals(other.getModulePreferenceOrderForVersions())) {
+             return false;
+        }
+        return this.moduleSpecifications.equals(other.getModuleSpecifications());
     }
 
    @Override
@@ -231,6 +236,7 @@ public class StampCoordinateImpl
       hash = 11 * hash + Objects.hashCode(this.stampPosition);
       hash = 11 * hash + Objects.hashCode(this.moduleSpecifications);
       hash = 11 * hash + Objects.hashCode(this.allowedStates);
+      hash = 11 * hash + (this.modulePriorityList == null ? 0 : Objects.hashCode(this.modulePriorityList));
       return hash;
    }
 
@@ -432,8 +438,8 @@ public class StampCoordinateImpl
    public StampCoordinateImpl deepClone() {
       StampCoordinateImpl newCoordinate = new StampCoordinateImpl(stampPrecedence,
                               stampPosition.deepClone(),
-                              new HashSet(moduleSpecifications),
-                              new ArrayList(this.modulePriorityList),
+                              new HashSet<>(moduleSpecifications),
+                              new ArrayList<>(this.modulePriorityList),
                               EnumSet.copyOf(allowedStates));
       return newCoordinate;
    }
@@ -446,6 +452,4 @@ public class StampCoordinateImpl
     public void setModulePreferenceListForVersions(List<ConceptSpecification> modulePriorityList) {
         this.modulePriorityList = modulePriorityList;
     }
-   
 }
-

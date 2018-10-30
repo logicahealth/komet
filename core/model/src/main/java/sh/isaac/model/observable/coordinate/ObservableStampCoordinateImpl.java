@@ -271,8 +271,13 @@ public class ObservableStampCoordinateImpl
    public int hashCode() {
       return this.stampCoordinate.hashCode();
    }
-
    
+   @Override
+   public boolean equals(Object obj)
+   {
+      return this.stampCoordinate.equals(obj);
+   }
+
    @Override
    public ObservableStampCoordinateImpl deepClone() {
       return new ObservableStampCoordinateImpl(stampCoordinate.deepClone());
