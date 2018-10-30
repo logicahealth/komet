@@ -458,7 +458,7 @@ public class LanguageCoordinates {
       
       if (equivalentTypes.isEmpty()) {
          //this method is a noop
-         LOG.debug("Expanded description types call is a noop in {}ms", System.currentTimeMillis() - time);
+         LOG.trace("Expanded description types call is a noop in {}ms", System.currentTimeMillis() - time);
          return descriptionTypePreferenceList;
       }
       
