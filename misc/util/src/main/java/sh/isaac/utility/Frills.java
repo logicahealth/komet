@@ -489,7 +489,7 @@ public class Frills
          final LanguageCoordinate fqnCoord = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
          
          //iterate the children, find one that has a FQN than ends with "Edit (SOLOR)"
-         int[] termTypeChildren = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(stamp, fqnCoord)).getTaxonomyChildConceptNids(termTypeConcept);
+         int[] termTypeChildren = Get.taxonomyService().getSnapshotNoTree(new ManifoldCoordinateImpl(stamp, fqnCoord)).getTaxonomyChildConceptNids(termTypeConcept);
          for (int nid : termTypeChildren) {
             String fqn = fqnCoord.getFullyQualifiedName(nid, stamp).orElseGet(() -> "");
             int index = fqn.indexOf("Edit (" + ConceptProxy.METADATA_SEMANTIC_TAG + ")"); 
@@ -543,7 +543,7 @@ public class Frills
          }
       }
       
-      int[] parents = Get.taxonomyService().getSnapshot(
+      int[] parents = Get.taxonomyService().getSnapshotNoTree(
             new ManifoldCoordinateImpl(stampToUse, LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
             .getTaxonomyParentConceptNids(conceptModuleNid);
       for (int current : parents)
@@ -1106,7 +1106,7 @@ public class Frills
     */
    public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
       
-      TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(
+      TaxonomySnapshot tss = Get.taxonomyService().getSnapshotNoTree(
             new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp),
                   LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()));
       
@@ -2139,9 +2139,9 @@ public class Frills
       HashSet<Integer> terminologyTypes = new HashSet<>();
       
       TaxonomySnapshot tss = Get.taxonomyService().getStatedLatestSnapshot(
-            (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathSpecification().getNid() : stamp.getStampPosition().getStampPathSpecification().getNid()),
-            (stamp == null ? new HashSet<>() : stamp.getModuleSpecifications()),
-            (stamp == null ? Status.ACTIVE_ONLY_SET : stamp.getAllowedStates()));
+              (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathSpecification().getNid() : stamp.getStampPosition().getStampPathSpecification().getNid()),
+              (stamp == null ? new HashSet<>() : stamp.getModuleSpecifications()),
+              (stamp == null ? Status.ACTIVE_ONLY_SET : stamp.getAllowedStates()), false);
 
       if (stamp == null) {
          for (int stampSequence : oc.getVersionStampSequences()) {

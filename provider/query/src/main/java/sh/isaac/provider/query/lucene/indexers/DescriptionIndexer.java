@@ -154,7 +154,7 @@ public class DescriptionIndexer extends LuceneIndexer
             try 
             {
                //cache doesn't have the answer, needs to calculate.  We construct a snapshot of latest time, the path, and any module, active only.
-               TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
+               TaxonomySnapshot tss = Get.taxonomyService().getSnapshotNoTree(new ManifoldCoordinateImpl(
                      new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, pathNid), new HashSet<>(), new ArrayList<>(), Status.ACTIVE_ONLY_SET), null));
                return tss.isKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
             }
