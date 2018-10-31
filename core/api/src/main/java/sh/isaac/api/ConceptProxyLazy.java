@@ -81,4 +81,33 @@ public class ConceptProxyLazy implements ConceptSpecification
 	{
 		return Get.defaultCoordinate().getLanguageCoordinate().getRegularName(nid, Get.defaultCoordinate());
 	}
+
+	@Override
+	public int hashCode()
+	{
+		return nid;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+		if (obj == null)
+		{
+			return false;
+		}
+		if (!(obj instanceof ConceptSpecification))
+		{
+			return false;
+		}
+		ConceptSpecification other = (ConceptSpecification) obj;
+		if (nid != other.getNid())
+		{
+			return false;
+		}
+		return true;
+	}
 }

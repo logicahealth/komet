@@ -58,6 +58,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
 
 import javafx.collections.SetChangeListener;
+import sh.isaac.api.ConceptProxyLazy;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -138,6 +139,24 @@ public class StampCoordinateImpl
                               Set<ConceptSpecification> moduleSpecifications,
                               EnumSet<Status> allowedStates) {
       this(stampPrecedence, stampPosition, moduleSpecifications, new ArrayList<>(), allowedStates);
+   }
+   
+   /**
+    * Instantiates a new stamp coordinate impl, with an empty modulePriority list.
+    *
+    * @param stampPrecedence the stamp precedence
+    * @param stampPosition the stamp position
+    * @param moduleNids the modules to include in the version computation
+    * @param allowedStates the allowed states
+    */
+   public StampCoordinateImpl(StampPrecedence stampPrecedence,
+                              StampPosition stampPosition,
+                              NidSet moduleNids,
+                              EnumSet<Status> allowedStates) {
+      this(stampPrecedence, stampPosition, null, new ArrayList<>(), allowedStates);
+      if (moduleNids != null) {
+          moduleNids.stream().forEach(nid -> moduleSpecifications.add(new ConceptProxyLazy(nid)));
+      }
    }
 
    /**
