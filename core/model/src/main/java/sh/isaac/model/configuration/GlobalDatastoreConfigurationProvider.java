@@ -46,11 +46,11 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.Rank;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.ConceptProxyLazy;
 import sh.isaac.api.Get;
 import sh.isaac.api.GlobalDatastoreConfiguration;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.RemoteServiceInfo;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.PremiseType;
@@ -268,9 +268,9 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	}
 
 	@Override
-	public void setDefaultPath(ConceptSpecification pathSpecification)
+	public void setDefaultPath(int pathConceptId)
 	{
-		write(ConfigurationOption.EDIT_PATH, pathSpecification);
+		write(ConfigurationOption.EDIT_PATH, pathConceptId);
 	}
 
 	@Override
@@ -382,7 +382,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultModule((int)data);
 					break;
 				case EDIT_PATH:
-					defaultCoordinateProvider.setDefaultPath((ConceptSpecification) data);
+					defaultCoordinateProvider.setDefaultPath(new ConceptProxyLazy((int)data));
 					break;
 				case STATED_ASSEMBLAGE:
 					defaultCoordinateProvider.setDefaultStatedAssemblage((int)data);
@@ -445,7 +445,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultModule((int)dataStore.get(option.name()));
 					break;
 				case EDIT_PATH:
-					defaultCoordinateProvider.setDefaultPath((ConceptSpecification) dataStore.get(option.name()));
+					defaultCoordinateProvider.setDefaultPath(new ConceptProxyLazy((int) dataStore.get(option.name())));
 					break;
 				case STATED_ASSEMBLAGE:
 					defaultCoordinateProvider.setDefaultStatedAssemblage((int)dataStore.get(option.name()));
