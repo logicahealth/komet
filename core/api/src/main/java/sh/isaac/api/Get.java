@@ -602,7 +602,7 @@ public class Get
     * @return a nid
     */
    public static int nidForUuids(UUID... uuids) {
-       return identifierService().assignNid(uuids);
+       return identifierService().getNidForUuids(uuids);
    }
 
    /**

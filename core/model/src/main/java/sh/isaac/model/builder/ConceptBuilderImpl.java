@@ -527,20 +527,14 @@ public class ConceptBuilderImpl
    }
 
     @Override
-    public ConceptBuilder addComponentIntSemantic(UUID componentUuid, int fieldIndex, UUID assemblageUuid) {
-        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(componentUuid), fieldIndex, this, Get.nidForUuids(assemblageUuid)));
-        return this;
-    }
-
-    @Override
     public ConceptBuilder addComponentIntSemantic(ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
         addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(component.getNid(), fieldIndex, this, assemblage.getNid()));
         return this;
     }
 
     @Override
-    public ConceptBuilder addComponentSemantic(UUID componentUuid, UUID assemblageUuid) {
-        addSemantic(Get.semanticBuilderService().getComponentSemanticBuilder(Get.nidForUuids(componentUuid), this, Get.nidForUuids(assemblageUuid)));
+    public ConceptBuilder addComponentSemantic(ConceptSpecification component, ConceptSpecification assemblage) {
+        addSemantic(Get.semanticBuilderService().getComponentSemanticBuilder(component.getNid(), this, assemblage.getNid()));
         return this;
     }
 

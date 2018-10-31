@@ -153,17 +153,9 @@ public interface ConceptBuilder
      * @param assemblageUuid
      * @return the ConceptBuilder for a fluent interface. 
      */
-    ConceptBuilder addComponentIntSemantic(UUID componentUuid, int fieldIndex, UUID assemblageUuid);
+    ConceptBuilder addComponentIntSemantic(ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage);
     
-    default ConceptBuilder addComponentIntSemantic(ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage) {
-        return addComponentIntSemantic(componentUuid.getPrimordialUuid(), fieldIndex, assemblage.getPrimordialUuid());
-    }
-    
-    ConceptBuilder addComponentSemantic(UUID componentUuid, UUID assemblageUuid);
-    
-    default ConceptBuilder addComponentSemantic(ConceptSpecification semanticSpecification, ConceptSpecification assemblage) {
-        return addComponentSemantic(semanticSpecification.getPrimordialUuid(), assemblage.getPrimordialUuid());
-    }
+    ConceptBuilder addComponentSemantic(ConceptSpecification semanticSpecification, ConceptSpecification assemblage);
     
     ConceptBuilder addFieldSemanticConcept(String fieldName, int fieldIndex);
 

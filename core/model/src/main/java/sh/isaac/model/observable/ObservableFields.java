@@ -43,8 +43,11 @@ package sh.isaac.model.observable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import sh.isaac.api.Get;
+import sh.isaac.api.StaticIsaacCache;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -345,6 +348,7 @@ public enum ObservableFields
    /** The description. */
    String fullyQualifiedDescription;
    String regularDescription;
+   private int cachedNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -408,6 +412,21 @@ public enum ObservableFields
    public UUID getUuid() {
       return UuidT5Generator.get(namespace, name());
    }
+   
+   @Override
+   public int getNid() throws NoSuchElementException {
+      if (cachedNid == 0) {
+         try {
+            cachedNid = Get.identifierService().getNidForUuids(getPrimordialUuid());
+         }
+         catch (NoSuchElementException e) {
+            //This it to help me bootstrap the system... normally, all metadata will be pre-assigned by the IdentifierProvider upon startup.
+            //But some code will need nids prior to it being put into the store, or coming out of a builder, where they would typically be assigned.
+            cachedNid = Get.identifierService().assignNid(getUuids());
+         }
+      }
+      return cachedNid;
+   }
 
    /**
     * Gets the uuid list.
@@ -423,6 +442,18 @@ public enum ObservableFields
    public Optional<String> getRegularName() {
       return Optional.ofNullable(regularDescription);
    }
-
+   
+   @Override
+   public void clearCache() {
+      cachedNid = 0;
+   }
+   
+   public class ObservableFieldsCleanup implements StaticIsaacCache {
+      @Override
+      public void reset() {
+         for (ObservableFields of : ObservableFields.values()) {
+            of.clearCache();
+         }
+      }
+   }
 }
-
