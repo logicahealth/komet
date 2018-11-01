@@ -2139,9 +2139,9 @@ public class Frills
       HashSet<Integer> terminologyTypes = new HashSet<>();
       
       TaxonomySnapshot tss = Get.taxonomyService().getStatedLatestSnapshot(
-              (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathSpecification().getNid() : stamp.getStampPosition().getStampPathSpecification().getNid()),
-              (stamp == null ? new HashSet<>() : stamp.getModuleSpecifications()),
-              (stamp == null ? Status.ACTIVE_ONLY_SET : stamp.getAllowedStates()), false);
+            (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathSpecification().getNid() : stamp.getStampPosition().getStampPathSpecification().getNid()),
+            (stamp == null ? new HashSet<>() : stamp.getModuleSpecifications()),
+            (stamp == null ? Status.ACTIVE_ONLY_SET : stamp.getAllowedStates()), false);
 
       if (stamp == null) {
          for (int stampSequence : oc.getVersionStampSequences()) {

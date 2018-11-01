@@ -899,6 +899,7 @@ public class TaxonomyProvider
         public Tree getTaxonomyTree() {
             throw new UnsupportedOperationException("Need to call getSnapshot(), rather than getSnapshotNoTree()");
         }
+
         @Override
         public TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate) {
             return TaxonomyProvider.this.getSnapshot(manifoldCoordinate);
