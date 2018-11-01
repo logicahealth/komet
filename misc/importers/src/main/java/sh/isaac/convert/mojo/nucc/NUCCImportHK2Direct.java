@@ -34,39 +34,23 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+package sh.isaac.convert.mojo.nucc;
 
-package sh.isaac.convert.mojo.mvx.propertyTypes;
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.convert.directUtils.DirectConverter;
 
-import sh.isaac.convert.mojo.mvx.MVXFieldsV1;
-import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Annotations;
-import sh.isaac.converters.sharedUtils.propertyTypes.Property;
-
-public class PT_Annotations extends BPT_Annotations
+/**
+ * {@link NUCCImportHK2Direct}
+ *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ */
+@PerLookup
+@Service
+public class NUCCImportHK2Direct extends NUCCImportMojoDirect implements DirectConverter
 {
-	public enum Attribute
+	private NUCCImportHK2Direct()
 	{
-		MVX_CODE(MVXFieldsV1.MVX_CODE, true);
-
-		private final Property property_;
-
-		private Attribute(MVXFieldsV1 fieldName, boolean isIdentifier)
-		{
-			// Don't know the owner yet - will be autofilled when we add this to the parent, below.
-			property_ = new Property(fieldName.toString(), null, null, isIdentifier);
-		}
-
-		public Property getProperty()
-		{
-			return property_;
-		}
-	}
-
-	public PT_Annotations()
-	{
-		super("MVX");
-		for (Attribute attr : Attribute.values())
-		{
-			addProperty(attr.getProperty());
-		}
+		//For HK2
 	}
 }

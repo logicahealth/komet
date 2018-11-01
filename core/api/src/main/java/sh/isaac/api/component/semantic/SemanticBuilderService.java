@@ -118,8 +118,8 @@ public interface SemanticBuilderService<C extends SemanticChronology> {
      */
     SemanticBuilder<? extends SemanticChronology> getDescriptionBuilder(
             int caseSignificanceConceptNid,
-            int descriptionTypeConceptNid,
             int languageConceptNid,
+            int descriptionTypeConceptNid,
             String text,
             IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent);
 

@@ -67,7 +67,7 @@ public class StatusCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 			setText("");
 			setGraphic(null);
 		}
-		else if (item != null)
+		else
 		{
 			String tooltipText = "";
 			StackPane sp = new StackPane();

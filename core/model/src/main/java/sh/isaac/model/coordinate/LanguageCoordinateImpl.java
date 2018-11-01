@@ -47,6 +47,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
+import sh.isaac.api.ConceptProxyLazy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCoordinateService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -111,6 +112,19 @@ public class LanguageCoordinateImpl
                                  int[] dialectAssemblagePreferenceList,
                                  int[] descriptionTypePreferenceList) {
       this(languageConcept, dialectAssemblagePreferenceList, descriptionTypePreferenceList, new int[] {});
+   }
+   
+   /**
+    * Instantiates a new language coordinate impl, with an unspecified set of modulePreferences.
+    *
+    * @param languageConcept the language concept
+    * @param dialectAssemblagePreferenceList the dialect assemblage preference list
+    * @param descriptionTypePreferenceList the description type preference list
+    */
+   public LanguageCoordinateImpl(int languageConcept,
+                                 int[] dialectAssemblagePreferenceList,
+                                 int[] descriptionTypePreferenceList) {
+      this(new ConceptProxyLazy(languageConcept), dialectAssemblagePreferenceList, descriptionTypePreferenceList, new int[] {});
    }
 
     @Override

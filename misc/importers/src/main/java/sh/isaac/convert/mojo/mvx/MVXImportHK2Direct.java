@@ -34,21 +34,23 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+package sh.isaac.convert.mojo.mvx;
 
-package sh.isaac.convert.mojo.cvx;
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.convert.directUtils.DirectConverter;
 
 /**
- * 
- * {@link CVXConstants}
+ * {@link MVXImportHK2Direct}
  *
- * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
- *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class CVXConstants
+@PerLookup
+@Service
+public class MVXImportHK2Direct extends MVXImportMojoDirect implements DirectConverter
 {
-	private CVXConstants()
+	private MVXImportHK2Direct()
 	{
+		//For HK2
 	}
-
-	public final static String TERMINOLOGY_NAME = "CVX";
 }

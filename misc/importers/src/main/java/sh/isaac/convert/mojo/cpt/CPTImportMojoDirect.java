@@ -38,6 +38,10 @@ package sh.isaac.convert.mojo.cpt;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +50,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.zip.ZipFile;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -63,6 +70,7 @@ import sh.isaac.convert.mojo.cpt.TextReader.CPTFileType;
 import sh.isaac.converters.sharedUtils.ComponentReference;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 
 /**
@@ -79,26 +87,26 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 public class CPTImportMojoDirect extends DirectConverterBaseMojo implements DirectConverter
 {
 	/**
-	 * This constructor is for maven and HK2 and should not be used at runtime.
+	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
+	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
 	 */
 	public CPTImportMojoDirect()
 	{
 		
 	}
 	
-	/**
-	 * A constructor for runtime usage
-	 * @param outputDirectory - optional - if provided, debug info will be written here
-	 * @param inputFolder - the folder to search for the source file
-	 * @param converterSourceArtifactVersion - the version number of the source file being passed in
-	 * @param stampCoordinate - the coordinate to use for readback in cases where content merges into existing content
-	 */
-	public CPTImportMojoDirect(File outputDirectory, File inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	@Override
+	public ConverterOptionParam[] getConverterOptions()
 	{
-		this();
-		configure(outputDirectory, inputFolder, converterSourceArtifactVersion, stampCoordinate);
+		return new ConverterOptionParam[] {};
 	}
-	
+
+	@Override
+	public void setConverterOption(String internalName, String... values)
+	{
+		//noop, we don't require any.
+	}
+
 	/**
 	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
 	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
@@ -106,10 +114,10 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampCoordinate)
 	 */
 	@Override
-	public void configure(File outputDirectory, File inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
 	{
 		this.outputDirectory = outputDirectory;
-		this.inputFileLocation = inputFolder;
+		this.inputFileLocationPath = inputFolder;
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
 		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
@@ -122,11 +130,11 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent()
-	 * @see DirectConverter#convertContent()
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer))
+	 * @see DirectConverter#convertContent(Consumer))
 	 */
 	@Override
-	public void convertContent() throws IOException 
+	public void convertContent(Consumer<String> statusUpdates) throws IOException 
 	{
 		long contentTime;
 		try
@@ -139,66 +147,91 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			throw new RuntimeException("Failed to parse year from " + converterSourceArtifactVersion);
 		}
 
-		File zipFile = null;
-		for (File f : inputFileLocation.listFiles())
+		final AtomicReference<Path> zipFile = new AtomicReference<>();
+		
+		Files.walk(inputFileLocationPath, new FileVisitOption[] {}).forEach(path ->
 		{
-			if (f.getName().toLowerCase().endsWith(".zip"))
+			if (path.toString().toLowerCase().endsWith(".zip"))
 			{
-				if (zipFile != null)
+				if (zipFile.get() != null)
 				{
-					throw new RuntimeException("Only expected to find one zip file in the folder " + inputFileLocation.getCanonicalPath());
+					throw new RuntimeException("Only expected to find one zip file in the folder " + inputFileLocationPath.normalize());
 				}
-				zipFile = f;
+				zipFile.set(path);
+			}
+		});
+
+		if (zipFile.get() == null)
+		{
+			throw new RuntimeException("Did not find a zip file in " + inputFileLocationPath.normalize());
+		}
+		HashMap<String, CPTData> data = new HashMap<>();
+		try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile.get(), StandardOpenOption.READ)))
+		{
+			ZipEntry ze = zis.getNextEntry();
+			int read1 = 0;
+			int read2 = 0;
+			int read3 = 0;
+			while (ze != null)
+			{
+				if (ze.getName().equals("LONGULT.txt"))
+				{
+					log.info("Reading LONGULT.txt");
+					statusUpdates.accept("Reading LONGULT.txt");
+					read1 = TextReader.read(zis, data, CPTFileType.LONGULT);
+				}
+				else if (ze.getName().equals("SHORTU.txt"))
+				{
+					log.info("Reading SHORTU.txt");
+					statusUpdates.accept("Reading SHORTU.txt");
+					read2 = TextReader.read(zis, data, CPTFileType.SHORTU);
+				}
+				else if (ze.getName().equals("MEDU.txt"))
+				{
+					log.info("Reading MEDU.txt");
+					statusUpdates.accept("Reading MEDU.txt");
+					read3 = TextReader.read(zis, data, CPTFileType.MEDU);
+				}
+				if (read1 > 0 && read2 > 0 && read3 > 0)
+				{
+					break;
+				}
+				zis.closeEntry();
+				ze = zis.getNextEntry();
+			}
+			if (read1 != read2 || read1 != read3)
+			{
+				throw new RuntimeException("Didn't find the same number of codes in all 3 files!");
 			}
 		}
 
-		if (zipFile == null)
-		{
-			throw new RuntimeException("Did not find a zip file in " + inputFileLocation.getCanonicalPath());
-		}
-
-		ZipFile zf = new ZipFile(zipFile);
-
-		HashMap<String, CPTData> data = new HashMap<>();
-
-		log.info("Reading LONGULT.txt");
-		int read1 = TextReader.read(zf.getInputStream(zf.getEntry("LONGULT.txt")), data, CPTFileType.LONGULT);
-		log.info("Reading MEDU.txt");
-		int read2 = TextReader.read(zf.getInputStream(zf.getEntry("MEDU.txt")), data, CPTFileType.MEDU);
-		log.info("Reading SHORTU.txt");
-		int read3 = TextReader.read(zf.getInputStream(zf.getEntry("SHORTU.txt")), data, CPTFileType.SHORTU);
-
-		zf.close();
-
-		if (read1 != read2 || read1 != read3)
-		{
-			throw new RuntimeException("Didn't find the same number of codes in all 3 files!");
-		}
+		statusUpdates.accept("Setting up metadata");
 		
 		//Right now, we are configured for the CPT grouping modules nid
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, "CPT");
+		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+				"CPT", false);
 		
 		setupModule("CPT", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), contentTime);
 		
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept("LONGULT", "Long Description Upper/Lower Case",
-				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), contentTime);
+		dwh.makeDescriptionTypeConcept(null, "LONGULT", null, "Long Description Upper/Lower Case",
+				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept("MEDU", "Medium Description Upper Case",
-				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), contentTime);
+		dwh.makeDescriptionTypeConcept(null, "MEDU", null, "Medium Description Upper Case",
+				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept("SHORTU", "Short Description Upper Case",
-				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), contentTime);
+		dwh.makeDescriptionTypeConcept(null, "SHORTU", null, "Short Description Upper Case",
+				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept("All CPT Concepts", null, contentTime);
+		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept(null, "All CPT Concepts", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-		final UUID cptRootConcept = dwh.makeConceptEnNoDialect("CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		final UUID cptRootConcept = dwh.makeConceptEnNoDialect(null, "CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 
 		log.info("Metadata load stats");
@@ -208,6 +241,8 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		}
 		
 		dwh.clearLoadStats();
+		
+		statusUpdates.accept("Loading content");
 
 		String firstThree = "";
 		ComponentReference parent = null;
@@ -233,7 +268,7 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			{
 				// Make a new grouping concept
 				firstThree = d.code.substring(0, 3);
-				parent = ComponentReference.fromConcept(dwh.makeConceptEnNoDialect(firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				parent = ComponentReference.fromConcept(dwh.makeConceptEnNoDialect(null, firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {cptRootConcept}, Status.ACTIVE, contentTime));
 				dwh.makeDescriptionEnNoDialect(parent.getPrimordialUuid(), "Grouping concept for all codes that start with " + firstThree, 
 						MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, contentTime);
@@ -248,6 +283,7 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			{
 				advanceProgressLine();
 				log.info("Processed " + cptConCount + " concepts");
+				statusUpdates.accept("Processed " + cptConCount + " concepts");
 			}
 			
 			UUID concept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(d.code), Status.ACTIVE, contentTime);
@@ -285,11 +321,11 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		log.info("Created " + groupingConCount + " Grouping Concepts");
 
 		// this could be removed from final release. Just added to help debug editor problems.
-		log.info("Dumping UUID Debug File");
 		if (outputDirectory != null)
 		{
+			log.info("Dumping UUID Debug File");
 			converterUUID.dump(outputDirectory, "cptUuid");
 		}
-		converterUUID.clearCache();		
+		converterUUID.clearCache();
 	}
 }

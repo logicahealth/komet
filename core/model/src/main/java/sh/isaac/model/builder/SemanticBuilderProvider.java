@@ -125,8 +125,8 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDescriptionBuilder(
            int caseSignificanceConceptSequence,
-           int descriptionTypeConceptSequence,
            int languageConceptNid,
+           int descriptionTypeConceptSequence,
            String text,
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent) {
       return new SemanticBuilderImpl(referencedComponent,

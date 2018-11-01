@@ -37,10 +37,13 @@
 
 package sh.isaac.convert.mojo.nucc.data;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * 
@@ -60,42 +63,35 @@ public class EnumValidatedTableDataReader<COLUMNS extends Enum<COLUMNS>>
 
 	private EnumValidatedTableData<COLUMNS> terminology = new EnumValidatedTableData<>();
 
-	public EnumValidatedTableDataReader(File inputFileOrDirectory, Class<COLUMNS> columnsEnumClass) throws IOException
+	public EnumValidatedTableDataReader(Path inputFileOrDirectory, Class<COLUMNS> columnsEnumClass) throws IOException
 	{
 		this(inputFileOrDirectory, columnsEnumClass, true, true);
 	}
 
-	public EnumValidatedTableDataReader(File inputFileOrDirectory, Class<COLUMNS> columnsEnumClass, boolean headerExists,
+	public EnumValidatedTableDataReader(Path inputFileOrDirectory, Class<COLUMNS> columnsEnumClass, boolean headerExists,
 			boolean validateHeaderAgainstColumnsEnum) throws IOException
 	{
-		File file = null;
-		if (inputFileOrDirectory.isDirectory())
+		final AtomicReference<Path> file = new AtomicReference<>();
+		Files.walk(inputFileOrDirectory, new FileVisitOption[] {}).forEach(path ->
 		{
-			ArrayList<File> files = new ArrayList<File>();
-			for (File f : inputFileOrDirectory.listFiles())
+			if (path.toString().toLowerCase().endsWith(".csv"))
 			{
-				if (f.isFile() && (f.getName().toLowerCase().endsWith(".csv")))
+				if (file.get() != null)
 				{
-					files.add(f);
+					throw new RuntimeException("Only expected to find one csv file in the folder " + inputFileOrDirectory.normalize());
 				}
+				file.set(path);
 			}
+		});
 
-			if (files.size() != 1)
-			{
-				throw new RuntimeException(files.size() + " csv files were found inside of " + inputFileOrDirectory.getAbsolutePath()
-						+ " but this implementation requires 1 and only 1 csv file to be present.");
-			}
-
-			file = files.get(0);
-		}
-		else
+		if (file.get() == null)
 		{
-			file = inputFileOrDirectory;
+			throw new IOException("Failed to locate the csv file in " + inputFileOrDirectory);
 		}
 
-		System.out.println("Prepared to process: " + file.getAbsolutePath());
+		LogManager.getLogger().info("Prepared to process: " + file.get());
 
-		this.fileReader = new EnumValidatedCsvFileReader<>(file, columnsEnumClass, headerExists, validateHeaderAgainstColumnsEnum);
+		this.fileReader = new EnumValidatedCsvFileReader<>(file.get(), columnsEnumClass, headerExists, validateHeaderAgainstColumnsEnum);
 	}
 
 	public EnumValidatedTableData<COLUMNS> process() throws IOException

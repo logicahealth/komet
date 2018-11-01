@@ -103,13 +103,6 @@ public interface CoordinateFactory
    /**
     * Creates a new Coordinate object.
     *
-    * @return the edits the coordinate
-    */
-   EditCoordinate createDefaultUserVHATEditCoordinate();
-
-   /**
-    * Creates a new Coordinate object.
-    *
     * @return a {@code StampCoordinate} representing the latest active version on the development path
     * of components in all modules. Inactive versions are not included in computed results.
     */

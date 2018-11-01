@@ -397,7 +397,7 @@ public class Get
                                    .getText();
       }
 
-      return "No desc for: " + conceptNid;
+      return "No desc for: " + conceptNid + " " + Get.identifierService.getUuidPrimoridalStringForNid(conceptNid);
    }
    
    public static String conceptDescriptionText(ConceptSpecification conceptSpec) {
@@ -602,7 +602,7 @@ public class Get
     * @return a nid
     */
    public static int nidForUuids(UUID... uuids) {
-       return identifierService().assignNid(uuids);
+       return identifierService().getNidForUuids(uuids);
    }
 
    /**

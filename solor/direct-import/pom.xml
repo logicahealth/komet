@@ -6,7 +6,7 @@
       <artifactId>solor</artifactId>
       <version>4.59-SNAPSHOT</version>
    </parent>
-	
+   
    <groupId>sh.isaac.solor</groupId>
    <artifactId>direct-import</artifactId>
    <packaging>jar</packaging>
@@ -30,6 +30,10 @@
          <groupId>sh.isaac.misc</groupId>
          <artifactId>util</artifactId>
          <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>commons-io</groupId>
+         <artifactId>commons-io</artifactId>
       </dependency>
       <!-- When mojos execute, route all logging through log4j2 -->
       <dependency>

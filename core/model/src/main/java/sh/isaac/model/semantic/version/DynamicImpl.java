@@ -39,12 +39,14 @@
 
 package sh.isaac.model.semantic.version;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import javax.naming.InvalidNameException;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -61,6 +63,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.constants.DynamicConstants;
 
 /**
  * {@link DynamicImpl}.
@@ -272,21 +275,36 @@ public class DynamicImpl
     * {@inheritDoc}
     */
    @Override
-   public void setData(DynamicData[] data) {
+   public List<BooleanSupplier> setData(DynamicData[] data, boolean delayValidation) {
       if (this.data != null) {
          checkUncommitted();
       }
 
-      if (!Get.configurationService().isInDBBuildMode(BuildMode.IBDF)) {  // We can't run the validators when we are building the initial system.
-         final DynamicUsageDescription dsud = DynamicUsageDescriptionImpl.read(getAssemblageNid());
-
-         LookupService.get()
-                      .getService(DynamicUtility.class)
-                      .validate(dsud, data, getReferencedComponentNid(), referencedComponentVersionType, getStampSequence());
+      final int assemblageNid = getAssemblageNid();
+      if (getReferencedComponentNid() == DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid() 
+            || getReferencedComponentNid() == DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid()) {
+         //The first is unvalidateable, because it must be validated against itself, the second it loaded prior to the first, which also means
+         //it can't be validated.  
+         this.data = (data == null) ? new DynamicData[] {} : data;
+         return new ArrayList<>();
       }
-
-      this.data = (data == null) ? new DynamicData[] {}
-                                  : data;
+      else
+      {
+         List<BooleanSupplier> delayedValidations = LookupService.get().getService(DynamicUtility.class)
+               .validate(() -> DynamicUsageDescriptionImpl.read(assemblageNid), data, getReferencedComponentNid(),referencedComponentVersionType, 
+                     getStampSequence(), delayValidation);
+         
+         this.data = (data == null) ? new DynamicData[] {} : data;
+         if (delayValidation) {
+            return delayedValidations;
+         }
+         else {
+            for (BooleanSupplier bs : delayedValidations) {
+               bs.getAsBoolean();
+            }
+            return new ArrayList<>();
+         }
+      }
    }
 
    /**

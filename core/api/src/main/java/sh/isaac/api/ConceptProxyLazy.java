@@ -35,52 +35,79 @@
  *
  */
 
-package sh.isaac.convert.mojo.mvx.propertyTypes;
+package sh.isaac.api;
 
-import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Descriptions;
-import sh.isaac.converters.sharedUtils.propertyTypes.Property;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 /**
- * 
- * {@link PT_Descriptions}
+ * Used mostly to boot strap parts of the system that may come up with nids, prior to the other services being ready
+ * {@link ConceptProxyLazy}
  *
- * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
- *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class PT_Descriptions extends BPT_Descriptions
+public class ConceptProxyLazy implements ConceptSpecification 
 {
-	public enum Descriptions
+	private int nid;
+	
+	public ConceptProxyLazy(int conceptId) 
 	{
-		ManufacturerName("Manufacturer Name", FULLY_QUALIFIED_NAME);
-
-		private final int descriptionType_;
-		private final String niceName_;
-		private Property property_;
-
-		private Descriptions(String niceName, int descriptionType)
-		{
-			descriptionType_ = descriptionType;
-			niceName_ = niceName;
-		}
-
-		public int getDescriptionType()
-		{
-			return descriptionType_;
-		}
-
-		public Property getProperty()
-		{
-			return property_;
-		}
+		this.nid = conceptId;
+	}
+	
+	@Override
+	public int getNid() throws NoSuchElementException
+	{
+		return nid;
 	}
 
-	public PT_Descriptions()
+	@Override
+	public List<UUID> getUuidList()
 	{
-		super("MVX");
+		return Get.identifierService().getUuidsForNid(nid);
+	}
 
-		for (Descriptions description : Descriptions.values())
+	@Override
+	public String getFullyQualifiedName()
+	{
+		return Get.defaultCoordinate().getLanguageCoordinate().getFullyQualifiedName(nid, Get.defaultCoordinate()).get();
+	}
+
+	@Override
+	public Optional<String> getRegularName()
+	{
+		return Get.defaultCoordinate().getLanguageCoordinate().getRegularName(nid, Get.defaultCoordinate());
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return nid;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
 		{
-			description.property_ = addProperty(description.niceName_, description.getDescriptionType());
+			return true;
 		}
+		if (obj == null)
+		{
+			return false;
+		}
+		if (!(obj instanceof ConceptSpecification))
+		{
+			return false;
+		}
+		ConceptSpecification other = (ConceptSpecification) obj;
+		if (nid != other.getNid())
+		{
+			return false;
+		}
+		return true;
 	}
 }

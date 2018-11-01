@@ -176,16 +176,6 @@ public class CoordinateFactoryProvider
         return EditCoordinates.getDefaultUserSolorOverlay();
     }
 
-   /**
-    * Creates the default user veterans administration extension edit coordinate.
-    *
-    * @return the edits the coordinate
-    */
-   @Override
-   public EditCoordinate createDefaultUserVHATEditCoordinate() {
-      return EditCoordinates.getDefaultUserVHAT();
-   }
-
     /**
      * Creates the development latest active only stamp coordinate.
      *

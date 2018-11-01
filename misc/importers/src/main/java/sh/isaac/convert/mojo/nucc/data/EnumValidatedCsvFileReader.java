@@ -38,16 +38,16 @@
 package sh.isaac.convert.mojo.nucc.data;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.input.BOMInputStream;
 import com.opencsv.CSVReader;
-import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
 /**
  * 
@@ -72,7 +72,7 @@ public class EnumValidatedCsvFileReader<COLUMNS extends Enum<COLUMNS>>
 	 * @param columnsEnumClass - COLUMNS Enum class against which to validate number of columns and, optionally, headers
 	 * @throws IOException
 	 */
-	public EnumValidatedCsvFileReader(File f, Class<COLUMNS> columnsEnumClass) throws IOException
+	public EnumValidatedCsvFileReader(Path f, Class<COLUMNS> columnsEnumClass) throws IOException
 	{
 		this(f, columnsEnumClass, true, true);
 	}
@@ -88,14 +88,12 @@ public class EnumValidatedCsvFileReader<COLUMNS extends Enum<COLUMNS>>
 	 * 
 	 * @throws IOException, IllegalArgumentException
 	 */
-	public EnumValidatedCsvFileReader(File f, Class<COLUMNS> columnsEnumClass, boolean headerExists, boolean validateHeaderAgainstColumnsEnum)
+	public EnumValidatedCsvFileReader(Path f, Class<COLUMNS> columnsEnumClass, boolean headerExists, boolean validateHeaderAgainstColumnsEnum)
 			throws IOException
 	{
 		this.columnsEnumClass = columnsEnumClass;
 
-		ConsoleUtil.println("Using data directory " + f.getAbsolutePath());
-
-		this.reader = new CSVReader(new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(f)))));
+		this.reader = new CSVReader(new BufferedReader(new InputStreamReader(new BOMInputStream(Files.newInputStream(f, StandardOpenOption.READ)))));
 
 		if (headerExists)
 		{
@@ -109,7 +107,7 @@ public class EnumValidatedCsvFileReader<COLUMNS extends Enum<COLUMNS>>
 			{
 				if (headerRow == null)
 				{
-					throw new RuntimeException("Invalid (null) header row in file " + f.getAbsolutePath());
+					throw new RuntimeException("Invalid (null) header row in file " + f);
 				}
 				for (int i = 0; i < headerRow.length; ++i)
 				{

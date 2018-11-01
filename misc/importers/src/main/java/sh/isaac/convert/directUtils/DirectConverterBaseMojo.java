@@ -42,8 +42,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,12 +85,19 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	protected DirectWriteHelper dwh;
 
 	//Variables for the progress printer
-	private boolean runningInMaven = false;
+	protected boolean runningInMaven = false;
 	private boolean disableFancyConsoleProgress = (System.console() == null);
 	private int printsSinceReturn = 0;
 	private int lastStatus;
 	
 	protected StampCoordinate readbackCoordinate;
+	
+	/**
+	 * A optional function that can be specified by a concrete subclass, which when called, will provide a set of nids that will be passed
+	 * into {@link DataWriteListenerImpl#DataWriteListenerImpl(Path, java.util.Set)} as the assemblage types to ignore.
+	 * This function will be executed AFTER isaac is started.
+	 */
+	protected Supplier<HashSet<Integer>> toIgnore = null;
 
 	/**
 	 * Location to write the output file.
@@ -100,7 +110,11 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	 * directory.
 	 */
 	@Parameter(required = true)
-	protected File inputFileLocation;
+	private File inputFileLocation;
+	
+	//The file version, above, gets populated by maven, but we need to work with the Path version, to make things happy with both
+	//maven and the GUI impl
+	protected Path inputFileLocationPath;
 
 	/**
 	 * Output artifactId.
@@ -156,6 +170,10 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	public void execute() throws MojoExecutionException
 	{
 		runningInMaven = true;
+		if (inputFileLocation != null)
+		{
+			inputFileLocationPath = inputFileLocation.toPath();
+		}
 		try
 		{
 			// Set up the output
@@ -208,16 +226,18 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 				ibs.setEnabled(false);
 			}
 
-			DataWriteListenerImpl listener = new DataWriteListenerImpl(ibdfFileToWrite, null);
+			DataWriteListenerImpl listener = new DataWriteListenerImpl(ibdfFileToWrite, toIgnore == null ? null : toIgnore.get());
 
 			// we register this after the metadata has already been written.
 			LookupService.get().getService(DataStore.class).registerDataWriteListener(listener);
 
-			convertContent();
+			convertContent(string -> {});
 
 			LookupService.shutdownSystem();
 
 			listener.close();
+			
+			log.info("Conversion complete");
 		}
 		catch (Exception ex)
 		{
@@ -227,9 +247,10 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 
 	/**
 	 * Where the logic should be implemented to actually do the conversion
+	 * @param statusUpdates - the converter should post status updates here.
 	 * @throws IOException 
 	 */
-	protected abstract void convertContent() throws IOException;
+	protected abstract void convertContent(Consumer<String> statusUpdates) throws IOException;
 	
 	/**
 	 * Create the version specific module concept, and add the loader metadata to it.
@@ -283,31 +304,6 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	{
 		if (runningInMaven)
 		{
-			char c;
-
-			switch (lastStatus)
-			{
-				case 0:
-					c = '/';
-					break;
-
-				case 1:
-					c = '-';
-					break;
-
-				case 2:
-					c = '\\';
-					break;
-
-				case 3:
-					c = '|';
-					break;
-
-				default :  // shouldn't be used
-					c = '-';
-					break;
-			}
-
 			lastStatus++;
 
 			if (lastStatus > 3)
@@ -327,6 +323,30 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 			}
 			else
 			{
+				char c;
+
+				switch (lastStatus)
+				{
+					case 0:
+						c = '/';
+						break;
+
+					case 1:
+						c = '-';
+						break;
+
+					case 2:
+						c = '\\';
+						break;
+
+					case 3:
+						c = '|';
+						break;
+
+					default :  // shouldn't be used
+						c = '-';
+						break;
+				}
 				if (printsSinceReturn == 0)
 				{
 					System.out.print(c);

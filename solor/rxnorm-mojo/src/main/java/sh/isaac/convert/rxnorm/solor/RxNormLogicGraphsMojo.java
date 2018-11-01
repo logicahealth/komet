@@ -109,6 +109,7 @@ import sh.isaac.api.component.semantic.version.DynamicVersion;
  * The Class RxNormLogicGraphsMojo.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * @deprecated this code was never properly ported, only left as (possibly) and example for future solar import work
  */
 @Service(name = "convert-rxnorm-to-solor-ibdf")
 public class RxNormLogicGraphsMojo

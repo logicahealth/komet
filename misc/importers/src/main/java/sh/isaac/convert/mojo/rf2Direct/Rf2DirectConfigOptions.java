@@ -58,15 +58,19 @@ public class Rf2DirectConfigOptions implements ConfigOptionsDescriptor
    public ConverterOptionParam[] getConfigOptions() {
       return new ConverterOptionParam[] { 
             new ConverterOptionParam("Classifiers to process", ContentConverterCreator.CLASSIFIERS_OPTION,
-                  "The classifiers to process.  Defaults to 'Snapshot, Full'", 
+                  "The classifiers to process.  Defaults to 'Snapshot, Full' in pom mode.  Defaults to 'Snapshot' in direct mode", 
                   true, 
                   true,
+                  false,
+                  new String[] {"Snapshot"},
                   new ConverterOptionParamSuggestedValue("Snapshot", "Process the Snapshot portion of the RF2 content"),
                   new ConverterOptionParamSuggestedValue("Full", "Process the Full portion of the RF2 content"),
                   new ConverterOptionParamSuggestedValue("Snapshot-Active-Only", "Process the Snapshot portion of the RF2 content, and only maintain the active components")
             )};
    }
 
+   
+   
    @Override
    public String getName()
    {

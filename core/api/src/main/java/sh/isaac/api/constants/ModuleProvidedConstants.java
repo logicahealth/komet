@@ -51,7 +51,7 @@ import org.jvnet.hk2.annotations.Contract;
  * {@link ExportTaxonomy} mojo.
  */
 @Contract
-public interface ModuleProvidedConstants {
+public interface ModuleProvidedConstants extends Comparable<ModuleProvidedConstants> {
    /**
     * When providing concepts for this method, any top-level concept returned should have specified a parent
     * via a setParent(..) call.  Otherwise, it will be attached to the ISAAC root concept.
@@ -74,6 +74,25 @@ public interface ModuleProvidedConstants {
    default public MetadataConceptConstant[] getConstantsForInfoOnly()
    {
       return new MetadataConceptConstant[] {};
+   }
+   
+   /**
+    * To pass validation, some module provided constants need to be loaded prior to others.  Override this, if 
+    * your module constants need to be loaded earlier than others.
+    * The default value returns 0
+    */
+   default public int getModuleRank()
+   {
+      return 0;
+   }
+
+   /**
+    * This sort returns the highest first, as it is based on the {@link #getModuleRank()}
+    * @see java.lang.Comparable#compareTo(java.lang.Object)
+    */
+   @Override
+   default int compareTo(ModuleProvidedConstants o) {
+      return Integer.compare(o.getModuleRank(), this.getModuleRank());
    }
 }
 

@@ -42,6 +42,7 @@ package sh.isaac.model.concept;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -320,6 +321,11 @@ public class ConceptSnapshotImpl
    @Override
    public ManifoldCoordinate makeCoordinateAnalog(PremiseType taxonomyType) {
       return this.manifoldCoordinate.makeCoordinateAnalog(taxonomyType);
+   }
+
+   @Override
+   public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+      return this.manifoldCoordinate.makeModuleAnalog(modules, add);
    }
 
    @Override

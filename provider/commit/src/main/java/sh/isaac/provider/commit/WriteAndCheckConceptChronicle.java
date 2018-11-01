@@ -109,7 +109,9 @@ public class WriteAndCheckConceptChronicle
       this.uncommittedTracking = uncommittedTracking;
       updateTitle("Write and check concept");
 
-      updateMessage("writing " + Get.conceptDescriptionText(cc.getNid()));
+      updateMessage("writing " + cc.getNid());  //It is NOT safe to try to print a concept description here, as the semantic might be 
+      //in the middle of being written on another thread, and some of the data store providers don't cleanly handle the read back of a partially 
+      //written item.
       updateProgress(-1, Long.MAX_VALUE);           // Indeterminate progress
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -164,7 +166,7 @@ public class WriteAndCheckConceptChronicle
          this.uncommittedTracking.accept(this.cc, true);
 
          updateProgress(3, 4);
-         updateMessage("notifying: " + Get.conceptDescriptionText(cc.getNid()));  
+         updateMessage("notifying: " + cc.getNid());  
          this.changeListeners.forEach((listenerRef) -> {
             final ChronologyChangeListener listener = listenerRef.get();
 
@@ -176,7 +178,7 @@ public class WriteAndCheckConceptChronicle
          });
          updateProgress(4, 4);
 
-         updateMessage("Write and check complete: " + Get.conceptDescriptionText(cc.getNid())); 
+         updateMessage("Write and check complete: " + cc.getNid()); 
          return null;
       } finally {
          this.writeSemaphore.release();

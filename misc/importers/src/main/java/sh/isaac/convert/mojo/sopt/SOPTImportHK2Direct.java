@@ -34,36 +34,23 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+package sh.isaac.convert.mojo.sopt;
 
-package sh.isaac.convert.mojo.sopt.propertyTypes;
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.convert.directUtils.DirectConverter;
 
-import sh.isaac.MetaData;
-import sh.isaac.convert.mojo.sopt.data.SOPTDataColumnsV1;
-import sh.isaac.convert.mojo.sopt.data.SOPTValueSetColumnsV1;
-import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Annotations;
-import sh.isaac.converters.sharedUtils.propertyTypes.Property;
-
-public class PT_Annotations extends BPT_Annotations
+/**
+ * {@link SOPTImportHK2Direct}
+ *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ */
+@PerLookup
+@Service
+public class SOPTImportHK2Direct extends SOPTImportMojoDirect implements DirectConverter
 {
-	public PT_Annotations()
+	private SOPTImportHK2Direct()
 	{
-		super("SOPT");
-		indexByAltNames();
-		addProperty(SOPTDataColumnsV1.CodeSystemOID.name());
-		addProperty(SOPTDataColumnsV1.CodeSystemVersion.name());
-		Property p = new Property(MetaData.CODE____SOLOR, true);  //three different columns mapped here... not sure if I need to track that mapping anywhere. 
-		p.setSourcePropertyAltName(SOPTDataColumnsV1.CodeSystemCode.name());
-		addProperty(p);
-		addPropertyAltName(p, SOPTDataColumnsV1.ConceptCode.name());
-		addProperty(SOPTDataColumnsV1.HL7Table0396Code.name(), true);
-		addProperty(SOPTDataColumnsV1.PreferredAlternateCode.name(), true);
-		
-		
-		addPropertyAltName(p, SOPTValueSetColumnsV1.ValueSetCode.name());
-		addProperty(SOPTValueSetColumnsV1.ValueSetOID.name());
-		addProperty(SOPTValueSetColumnsV1.ValueSetReleaseComments.name());
-		addProperty(SOPTValueSetColumnsV1.ValueSetStatus.name());
-		addProperty(SOPTValueSetColumnsV1.ValueSetUpdatedDate.name());
-		addProperty(SOPTValueSetColumnsV1.ValueSetVersion.name());
+		//For HK2
 	}
 }

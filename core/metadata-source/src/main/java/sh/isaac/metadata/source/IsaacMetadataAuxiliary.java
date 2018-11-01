@@ -268,11 +268,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
                createConcept(TermAux.VHAT_MODULES).addDescription("VHAT", TermAux.REGULAR_NAME_DESCRIPTION_TYPE).addDescription("VHA Terminology", TermAux.DEFINITION_DESCRIPTION_TYPE)
                      .addUuids(UUID.fromString("1f201520-960e-11e5-8994-feff819cdc9f"));
-               pushParent(current());
-                  createConcept(TermAux.VHAT_EDIT);
-                  popParent();
-
-               
                createConcept("HL7® v3 modules", "HL7v3").addDescription("Health Level 7 version 3", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("NUCC modules", "NUCC").addDescription("National Uniform Claim Committee", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("CVX modules", "CVX").addDescription("Vaccines Administered", TermAux.DEFINITION_DESCRIPTION_TYPE);
@@ -466,18 +461,16 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
 
                   // addPathOrigin(pathOrigins, developmentPath, masterPath);
                   popParent();
-               createConcept("SOLOR assemblage").setPrimordialUuid("7a9b495e-69c1-53e5-a2d5-41be2429c146");
-               createConcept("SOLOR Content Metadata");
-               pushParent(current());
-                  createConcept(TermAux.DATABASE_UUID);
-                  createConcept("Source Artifact Version");
-                  createConcept("Source Release Date");
-                  createConcept("Converter Version");
-                  createConcept("Converted IBDF Artifact Version");
-                  createConcept("Converted IBDF Artifact Classifier");
-                  popParent();
                popParent();
-               
+            createConcept("Content Metadata");
+            pushParent(current());
+               createConcept(TermAux.DATABASE_UUID);
+               createConcept("Source Artifact Version");
+               createConcept("Source Release Date");
+               createConcept("Converter Version");
+               createConcept("Converted IBDF Artifact Version");
+               createConcept("Converted IBDF Artifact Classifier");
+               popParent();
             createConcept(TermAux.LANGUAGE);
             pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 
             //confusing than necessary, also, making 2 parents, one of language, the other under assemblage.
@@ -598,7 +591,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                
                final ConceptBuilder syn = createConcept(TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
-               syn.addDescription("Synonyn", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
+               syn.addDescription("Synonym", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                createConcept(TermAux.DEFINITION_DESCRIPTION_TYPE);
                popParent();
             createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // LOINC and RxNorm description types are created under this node

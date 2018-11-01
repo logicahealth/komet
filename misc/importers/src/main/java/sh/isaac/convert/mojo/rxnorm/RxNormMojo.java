@@ -705,7 +705,7 @@ public class RxNormMojo extends ConverterBaseMojo {
           this.importUtil.createConcept(
               "RxNorm Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG,
               true,
-              MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid()));
+              MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid()));
       loadMetaData();
       this.importUtil.loadTerminologyMetadataAttributes(
           this.converterSourceArtifactVersion,

@@ -133,6 +133,7 @@ import sh.isaac.model.semantic.types.DynamicUUIDImpl;
  * CREATE INDEX IDX_TYPE_ID ON TYPE(ID);
  * CREATE INDEX IDX_PROPERTY_ENTITY_ID ON PROPERTY(ENTITY_ID);
  * CREATE INDEX IDX_PROPERTY_CONCEPTENTITY_ID ON PROPERTY(CONCEPTENTITY_ID);
+ * @deprecated this was never completed, and the VA work it requires doesn't exist right now.
  */
 @Mojo(name = "convert-VHAT-SQL-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class VHATSQLImportMojo extends ConverterBaseMojo
@@ -205,7 +206,7 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 			refsets_.addProperty(VHATConstants.VHAT_ALL_CONCEPTS.getRegularName().get());
 
 			ComponentReference vhatMetadata = ComponentReference.fromConcept(
-					createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(), "VHAT Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
+					createType(MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid(), "VHAT Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			importUtil_.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,
 					Optional.ofNullable(converterOutputArtifactClassifier), converterVersion);
@@ -727,17 +728,13 @@ public class VHATSQLImportMojo extends ConverterBaseMojo
 			importUtil_.addAssociation(concept, null, refsets_.getPropertyTypeUUID(), associations_.getProperty("has_parent").getUUID(), Status.ACTIVE,
 					concept.getTime(), null);
 
-			importUtil_.addAssociation(concept, null, refsets_.getAltMetaDataParentUUID(), associations_.getProperty("has_parent").getUUID(), Status.ACTIVE,
-					null, null);
-
 			importUtil_.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 					associations_.getProperty("has_parent").getUUID(), Status.ACTIVE, null, null);
 
 			Get.service(ConverterUUID.class).setUUIDMapState(true);
 
 			// Place it in three places - refsets under VHAT Metadata, vhat refsets under SOLOR Refsets, and the dynamic semantic mapping semantic type.
-			NecessarySet(And(new Assertion[] { ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getAltMetaDataParentUUID()), leb),
-					ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getPropertyTypeUUID()), leb),
+			NecessarySet(And(new Assertion[] {ConceptAssertion(Get.identifierService().getNidForUuids(refsets_.getPropertyTypeUUID()), leb),
 					ConceptAssertion(
 							Get.identifierService().getNidForUuids(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid()),
 							leb) }));

@@ -207,7 +207,7 @@ public class ConceptBuilderImpl
          throw new IllegalStateException("language and dialect are required if a concept name is provided");
       }
 
-      if (!this.conceptName.equals(value)) {
+      if (!value.equals(this.conceptName)) {
          this.descriptionBuilders.add(LookupService.getService(DescriptionBuilderService.class)
                  .getDescriptionBuilder(value, this, descriptionType, this.defaultLanguageForDescriptions)
                  .addAcceptableInDialectAssemblage(this.defaultDialectAssemblageForDescriptions));
@@ -360,7 +360,7 @@ public class ConceptBuilderImpl
             
       Optional<String> temp = conceptSpec.getRegularName();
       
-      if (temp.isPresent() && !this.conceptName.equals(temp.get())) {
+      if (temp.isPresent() && !temp.get().equals(this.conceptName)) {
          addDescription(temp.get(), TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
       }
 
@@ -527,20 +527,14 @@ public class ConceptBuilderImpl
    }
 
     @Override
-    public ConceptBuilder addComponentIntSemantic(UUID componentUuid, int fieldIndex, UUID assemblageUuid) {
-        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(componentUuid), fieldIndex, this, Get.nidForUuids(assemblageUuid)));
-        return this;
-    }
-
-    @Override
     public ConceptBuilder addComponentIntSemantic(ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
         addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(component.getNid(), fieldIndex, this, assemblage.getNid()));
         return this;
     }
 
     @Override
-    public ConceptBuilder addComponentSemantic(UUID componentUuid, UUID assemblageUuid) {
-        addSemantic(Get.semanticBuilderService().getComponentSemanticBuilder(Get.nidForUuids(componentUuid), this, Get.nidForUuids(assemblageUuid)));
+    public ConceptBuilder addComponentSemantic(ConceptSpecification component, ConceptSpecification assemblage) {
+        addSemantic(Get.semanticBuilderService().getComponentSemanticBuilder(component.getNid(), this, assemblage.getNid()));
         return this;
     }
 

@@ -312,7 +312,7 @@ public class LoincImportMojo extends ConverterBaseMojo {
 
          // Set up a meta-data root concept
          final ComponentReference metadata = ComponentReference.fromConcept(
-               this.importUtil.createConcept("LOINC Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG, true, MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid()));
+               this.importUtil.createConcept("LOINC Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG, true, MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid()));
 
          this.importUtil.loadTerminologyMetadataAttributes(this.converterSourceArtifactVersion, Optional.of(loincData.getReleaseDate()),
                this.converterOutputArtifactVersion, Optional.ofNullable(this.converterOutputArtifactClassifier), this.converterVersion);

@@ -458,17 +458,21 @@ public class LanguageCoordinates {
       
       if (equivalentTypes.isEmpty()) {
          //this method is a noop
-         LOG.debug("Expanded description types call is a noop in {}ms", System.currentTimeMillis() - time);
+         LOG.trace("Expanded description types call is a noop in {}ms", System.currentTimeMillis() - time);
          return descriptionTypePreferenceList;
       }
       
       ArrayList<Integer> result = new ArrayList<>();
       for (int coreTypeNid : descriptionTypePreferenceList) {
-         result.add(coreTypeNid);
+         if (!result.contains(coreTypeNid)) {
+            result.add(coreTypeNid);
+         }
          NidSet nonCoreTypes = equivalentTypes.get(coreTypeNid);
          if (nonCoreTypes != null) {
             for (int type: nonCoreTypes.asArray()) {
-               result.add(type);
+               if (!result.contains(type)) {
+                  result.add(type);
+               }
             }
          }
       }

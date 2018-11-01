@@ -34,55 +34,23 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+package sh.isaac.convert.mojo.icd10;
 
-package sh.isaac.convert.mojo.icd10.propertyTypes;
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.convert.directUtils.DirectConverter;
 
-import sh.isaac.MetaData;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Annotations;
-import sh.isaac.converters.sharedUtils.propertyTypes.Property;
-
-public class PT_Annotations extends BPT_Annotations
+/**
+ * {@link ICD10ImportHK2Direct}
+ *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ */
+@PerLookup
+@Service
+public class ICD10ImportHK2Direct extends ICD10ImportMojoDirect implements DirectConverter
 {
-	public enum Attribute
+	private ICD10ImportHK2Direct()
 	{
-		CODE(MetaData.CODE____SOLOR), ORDER("ICD-10 Order Number");
-
-		private final Property property;
-		private final String p;
-
-		private Attribute(String niceName)
-		{
-			// Don't know the owner yet - will be autofilled when we add this to the parent, below.
-			property = new Property(null, niceName);
-			p = niceName;
-		}
-
-		private Attribute(ConceptSpecification cs)
-		{
-			// Don't know the owner yet - will be autofilled when we add this to the parent, below.
-			p = cs.getRegularName().get();
-			property = new Property(null, cs);
-		}
-
-		public Property getProperty()
-		{
-			return property;
-		}
-
-		public String get()
-		{
-			return p;
-		}
-	}
-
-	public PT_Annotations(String type)
-	{
-		super("ICD-10-" + type.toUpperCase());
-		indexByAltNames();
-		for (Attribute attr : Attribute.values())
-		{
-			addProperty(attr.getProperty());
-		}
+		//For HK2
 	}
 }
