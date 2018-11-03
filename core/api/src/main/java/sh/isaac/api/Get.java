@@ -491,7 +491,7 @@ public class Get
            if (TERM_AUX_CACHE.containsKey(nid)) {
                return TERM_AUX_CACHE.get(nid);
            }
-           return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
+           return new ConceptProxyLazy(nid);
        } catch (InterruptedException ex) {
            throw new RuntimeException();
        }
