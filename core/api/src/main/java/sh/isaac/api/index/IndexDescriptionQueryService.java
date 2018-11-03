@@ -82,8 +82,8 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
     *           will be passed the nids of chronologies which met all other search criteria. To include the chronology in the result, return
     *           true, or false, to have the item excluded.
     * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
-    * @param metadataOnly - Only search descriptions on concepts which are part of the {@link MetaData#ISAAC_METADATA} tree when true,
-           otherwise, search all descriptions.  Note that when metadataOnly is set to true, it will return results that are metadata on SOME
+    * @param metadataOnly - Only search descriptions on concepts which have a commit on the module {@link MetaData#CORE_METADATA_MODULE____SOLOR}
+    *      when true, otherwise, search all descriptions.  Note that when metadataOnly is set to true, it will return results that are metadata on SOME
            stamp, not necessarily the passed in AuthorModulePathRestriction.  If you only want results that are metadata on your current coordinate, 
            you will have to post-filter the result. 
     * @param descriptionTypes - optional - if specified, will only match descriptions of the specified type(s).
