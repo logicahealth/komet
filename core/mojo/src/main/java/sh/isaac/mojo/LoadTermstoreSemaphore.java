@@ -197,6 +197,10 @@ public class LoadTermstoreSemaphore
 
         try {
             for (final File f : temp) {
+                if (f.length() == 0) {
+                    getLog().info("Skipping empty file: " + f.getCanonicalPath());
+                    continue;
+                }
                 getLog().info("Loading termstore from " + f.getCanonicalPath());
 
                 int duplicateCount = 0;
