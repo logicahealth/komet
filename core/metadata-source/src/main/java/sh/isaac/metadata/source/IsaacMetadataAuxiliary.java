@@ -181,7 +181,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
     *             the unsupported encoding exception
     */
    public IsaacMetadataAuxiliary() throws NoSuchAlgorithmException, UnsupportedEncodingException, Exception {
-      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.SOLOR_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.SOLOR_MODULE.getPrimordialUuid());
+      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.CORE_METADATA_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.CORE_METADATA_MODULE.getPrimordialUuid());
 
 //J-
       createConcept(TermAux.SOLOR_ROOT);
@@ -243,7 +243,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 popParent();
             createConcept("Module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
             pushParent(current());
-               createConcept(TermAux.KOMET_MODULE).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.METADATA_MODULES);
+               pushParent(current());
+                  createConcept(TermAux.CORE_METADATA_MODULE);
+                  createConcept(TermAux.KOMET_MODULE).setModule(TermAux.KOMET_MODULE);
+                  popParent();
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                pushParent(current());
                   createConcept("SOLOR quality assurance rule module");

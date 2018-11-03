@@ -54,6 +54,7 @@ import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -286,10 +287,17 @@ public class ConceptBuilderImpl
          conceptChronology.addAdditionalUuids(uuids[i]);
       }
 
+      if (getModule().isPresent()) {
+         Stamp requested = Get.stampService().getStamp(stampCoordinate);
+         stampCoordinate = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
+      }
+      
+      final int finalStamp = stampCoordinate;
+      
       conceptChronology.createMutableVersion(stampCoordinate);
       builtObjects.add(conceptChronology);
-      getDescriptionBuilders().forEach((builder) -> builder.build(stampCoordinate, builtObjects));
-      getSemanticBuilders().forEach((builder) -> builder.build(stampCoordinate, builtObjects));
+      getDescriptionBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
+      getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
       return conceptChronology;
    }
 
