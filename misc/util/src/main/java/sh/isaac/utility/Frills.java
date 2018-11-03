@@ -138,6 +138,7 @@ import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.model.coordinate.EditCoordinateImpl;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
@@ -514,7 +515,8 @@ public class Frills
          //TODO switch this over to the observable create / commit pattern
          try {
             int nid = Get.conceptBuilderService().getDefaultConceptBuilder(termTypeFQN, ConceptProxy.METADATA_SEMANTIC_TAG, defBuilder.build(), 
-                 MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE).get().getNid();
+                 MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).build(
+                       new EditCoordinateImpl(TermAux.USER.getNid(),  TermAux.CORE_METADATA_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid()), ChangeCheckerMode.ACTIVE).get().getNid();
              commitCheck(Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
                  "creating new edit module for terminology type " + Get.conceptDescriptionText(termTypeConcept)));
              return nid;
@@ -537,9 +539,9 @@ public class Frills
       
       if (stamp!= null) {
          //ensure the provided stamp includes the metadata module
-         if (stamp.getModuleNids().size() > 0 && !stamp.getModuleNids().contains(MetaData.SOLOR_MODULE____SOLOR.getNid()))
+         if (stamp.getModuleNids().size() > 0 && !stamp.getModuleNids().contains(MetaData.CORE_METADATA_MODULE____SOLOR.getNid()))
          {
-            stampToUse = stamp.makeModuleAnalog(Arrays.asList(new ConceptSpecification[] {MetaData.SOLOR_MODULE____SOLOR}), true);
+            stampToUse = stamp.makeModuleAnalog(Arrays.asList(new ConceptSpecification[] {MetaData.CORE_METADATA_MODULE____SOLOR}), true);
          }
       }
       
