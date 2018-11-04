@@ -68,6 +68,11 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
+         <artifactId>postgresql-datastore</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
          <artifactId>logic</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>

@@ -284,7 +284,7 @@ public enum VersionType {
          return Str1_Str2_Str3_Str4_Str5_Str6_Str7;
          
       default:
-         throw new UnsupportedOperationException("d Can't handle: " + token);
+         return UNKNOWN;
       }
    }
 

@@ -66,7 +66,10 @@ public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
 	private static final String dbType = "dbType.txt";
 	
 	private DataStoreSubService dataStore;
-	
+        
+	public DataStoreSubService getImpl() {
+            return this.dataStore;
+        }
 	/**
 	 * Start me.
 	 */

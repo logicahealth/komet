@@ -44,5 +44,7 @@
         <module>memory-managment</module>
         <module>datastore-locator</module>
         <module>identifier</module>
+        <module>datastore-postgres</module>
+        <module>postgress</module>
     </modules>
 </project>
