@@ -18,7 +18,6 @@ package sh.isaac.provider.postgres;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Path;
@@ -40,13 +39,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.BinaryOperator;
 import java.util.stream.IntStream;
-import javax.inject.Singleton;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
-import org.glassfish.hk2.api.Rank;
-import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
@@ -55,9 +51,6 @@ import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.api.memory.HeapUseTicker;
-import sh.isaac.api.progress.ActiveTasksTicker;
-import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.ModelGet;
@@ -69,10 +62,6 @@ import sh.isaac.model.semantic.version.SemanticVersionImpl;
  *
  * @author kec
  */
-@Service(name = "POSTGRES") // :NYI: "FILESYSTEM" | "POSTGRESQL"
-@Singleton
-@Rank(value = -8)
-//@RunLevel(value = LookupService.SL_L2) // :???: _L1, _L0
 public class PostgresProvider
     implements DataStoreSubService, IdentifierService { // ExtendedStore
 
@@ -85,21 +74,6 @@ public class PostgresProvider
     public PostgresProvider() {
         //Construct with HK2 only
         LOG.info("Contructor PostgresProvider()");
-    }
-
-    public void wipSetup() throws Exception {
-        LOG.info("WIP Setup");
-        RecursiveDelete.delete(new File("target/_datastore"));
-        Get.configurationService().setDataStoreFolderPath(new File("target/_datastore").toPath());
-        LookupService.startupPreferenceProvider();
-
-        LOG.info("termstore folder path exists: " + Get.configurationService().getDataStoreFolderPath().toFile().exists());
-
-        LookupService.startupIsaac();
-        ActiveTasksTicker.start(10);
-        HeapUseTicker.start(10);
-
-        // Allocate 
     }
 
     //
@@ -421,6 +395,14 @@ public class PostgresProvider
             int[] versionStampSequences = chronology.getVersionStampSequences();
             List<byte[]> dataList = getDataList(chronology);
 
+            // :DEBUG:BEGIN:
+            StringBuilder sb = new StringBuilder();
+            dataList.forEach((dv) -> {
+                sb.append(DatatypeConverter.printHexBinary(dv)).append(" * ");
+            });
+            LOG.debug("--+ :" + chronologyNid + ":BYTECHECK:PUT: " + sb.toString());
+            // :DEBUG:END:
+
             if (chronology instanceof ConceptChronologyImpl) {
                 ConceptChronologyImpl concept = (ConceptChronologyImpl) chronology;
                 try (
@@ -436,6 +418,8 @@ public class PostgresProvider
                             stmt.setInt(3, versionStampSequences[i - 1]);
                         }
                         stmt.setBytes(4, bytes);   // version_data
+                        LOG.debug(":SQL: " + stmt.toString() + "; -- '"
+                            + DatatypeConverter.printHexBinary(bytes) + "'::bytea");
                         stmt.addBatch();
                     }
                     int[] updateCounts = stmt.executeBatch();
@@ -459,6 +443,8 @@ public class PostgresProvider
                             stmt.setInt(4, versionStampSequences[i - 1]);
                         }
                         stmt.setBytes(5, bytes);   // version_data
+                        LOG.debug(":SQL: " + stmt.toString() + "; -- '"
+                            + DatatypeConverter.printHexBinary(bytes) + "'::bytea");
                         stmt.addBatch();
                     }
                     int[] updateCounts = stmt.executeBatch();
@@ -603,6 +589,16 @@ public class PostgresProvider
 
         byteBuffer.putInt(0); // x00000000 termination 
         byteBuffer.rewind();
+
+        // :DEBUG:BEGIN:
+        StringBuilder sb = new StringBuilder();
+        dataList.forEach((dv) -> {
+            sb.append(DatatypeConverter.printHexBinary(dv)).append(" * ");
+        });
+        LOG.debug("--+ :" + nid + ":BYTECHECK:GET: " + sb.toString());
+        byte[] byteBufferBytes = byteBuffer.getData();
+        LOG.debug("--+ :" + nid + ":BYTECHECK-GET: " + DatatypeConverter.printHexBinary(byteBufferBytes));
+        // :DEBUG:END:
 
         // if (byteBuffer.getUsed() != size) { // used for x00000000 header|termination
         if (byteBuffer.getUsed() != size + 4) {
