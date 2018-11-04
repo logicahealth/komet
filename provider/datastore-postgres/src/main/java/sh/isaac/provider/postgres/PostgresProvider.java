@@ -18,8 +18,6 @@ package sh.isaac.provider.postgres;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -662,10 +660,8 @@ public class PostgresProvider
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     byte[] taxonomyBytes = resultSet.getBytes(1);
-                    ByteBuffer byteBuffer = ByteBuffer.allocate(taxonomyBytes.length);
-                    byteBuffer.put(taxonomyBytes);
-                    IntBuffer intBuffer = byteBuffer.asIntBuffer();
-                    int[] taxonomyData = intBuffer.array();
+                     ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(taxonomyBytes);
+                    int[] taxonomyData = byteBuffer.getIntArray();
                     return taxonomyData;
                 }
             }
@@ -681,10 +677,10 @@ public class PostgresProvider
             stmt.setInt(1, conceptNid); // t_nid
             stmt.setInt(2, assemblageNid); // assemblage_nid
 
-            ByteBuffer byteBuffer = ByteBuffer.allocate(taxonomyData.length * 4);
-            IntBuffer intBuffer = byteBuffer.asIntBuffer();
-            intBuffer.put(taxonomyData);
-            byte[] taxonomyBytes = byteBuffer.array();
+            ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer((taxonomyData.length * 4) + 4); // 4 bytes per element + 4 bytes for length of array. 
+            byteBuffer.putIntArray(taxonomyData);
+            
+            byte[] taxonomyBytes = byteBuffer.getData();
 
             stmt.setBytes(3, taxonomyBytes); // taxonomy_data
             stmt.setBytes(4, taxonomyBytes); // taxonomy_data
