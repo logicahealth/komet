@@ -343,6 +343,22 @@ public class ManifoldCoordinateImpl
         return stampCoordinate.getModuleSpecifications();
     }
     
+
+    @Override
+    public ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
+        return languageCoordinate.getDialectAssemblageSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
+        return languageCoordinate.getDescriptionTypeSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
+        return languageCoordinate.getModuleSpecPreferenceListForLanguage();
+    }
+    
     
 }
 

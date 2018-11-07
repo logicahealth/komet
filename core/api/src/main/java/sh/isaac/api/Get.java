@@ -438,6 +438,24 @@ public class Get
 
       return "[]";
    }
+   public static String conceptDescriptionTextList(ConceptSpecification[] conceptSpecs) {
+      if ((conceptSpecs != null) && (conceptSpecs.length > 0)) {
+         final StringBuilder builder = new StringBuilder();
+
+         builder.append("[");
+         Arrays.stream(conceptSpecs)
+               .forEach(
+                   (conceptSpec) -> {
+                      builder.append(conceptDescriptionText(conceptSpec));
+                      builder.append(", ");
+                   });
+         builder.delete(builder.length() - 2, builder.length());
+         builder.append("]");
+         return builder.toString();
+      }
+
+      return "[]";
+   }
 
    /**
     * Concept description text list.
@@ -491,7 +509,7 @@ public class Get
            if (TERM_AUX_CACHE.containsKey(nid)) {
                return TERM_AUX_CACHE.get(nid);
            }
-           return new ConceptProxyLazy(nid);
+           return new ConceptProxy(nid);
        } catch (InterruptedException ex) {
            throw new RuntimeException();
        }

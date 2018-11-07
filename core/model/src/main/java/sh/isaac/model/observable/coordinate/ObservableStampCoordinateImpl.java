@@ -73,6 +73,7 @@ import sh.isaac.model.observable.ObservableFields;
  *
  * @author kec
  */
+
 public class ObservableStampCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableStampCoordinate {
@@ -105,6 +106,13 @@ public class ObservableStampCoordinateImpl
          this.stampCoordinate = (StampCoordinateImpl) stampCoordinate;
       }
    }
+
+   @Override
+   public StampCoordinateImpl getStampCoordinate() {
+        return stampCoordinate;
+   }
+   
+   
 
    //~--- methods -------------------------------------------------------------
 

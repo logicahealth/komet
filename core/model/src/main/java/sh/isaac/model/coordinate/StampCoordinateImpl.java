@@ -58,7 +58,13 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
 
 import javafx.collections.SetChangeListener;
-import sh.isaac.api.ConceptProxyLazy;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import sh.isaac.api.ConceptProxy;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -73,6 +79,8 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.observable.coordinate.ObservableStampPosition;
+import sh.isaac.model.xml.ConceptWrapper;
+import sh.isaac.model.xml.StampPositionAdaptor;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -81,6 +89,10 @@ import sh.isaac.api.observable.coordinate.ObservableStampPosition;
  *
  * @author kec
  */
+@XmlRootElement(name = "StampCoordinate")
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlType(propOrder={"stampPosition","allowedStatesForJaxb", 
+    "stampPrecedenceForJaxb", "moduleSpecificationsForJaxb", "modulePreferenceOrderForVersionsForJaxb"})
 public class StampCoordinateImpl
          implements StampCoordinate {
    /** The stamp precedence. */
@@ -98,6 +110,12 @@ public class StampCoordinateImpl
    List<ConceptSpecification> modulePriorityList;
    
    private StampCoordinateImmutableWrapper stampCoordinateImmutable = null;
+   
+    /**
+     * No arg constructor for JAXB. 
+     */
+    public StampCoordinateImpl() {
+    }
 
    /**
     * Instantiates a new stamp coordinate impl.
@@ -155,7 +173,7 @@ public class StampCoordinateImpl
                               EnumSet<Status> allowedStates) {
       this(stampPrecedence, stampPosition, null, new ArrayList<>(), allowedStates);
       if (moduleNids != null) {
-          moduleNids.stream().forEach(nid -> moduleSpecifications.add(new ConceptProxyLazy(nid)));
+          moduleNids.stream().forEach(nid -> moduleSpecifications.add(new ConceptProxy(nid)));
       }
    }
 
@@ -233,10 +251,17 @@ public class StampCoordinateImpl
         return this.moduleSpecifications.equals(other.getModuleSpecifications());
     }
 
-   @Override
+    @Override
     public Set<ConceptSpecification> getModuleSpecifications() {
         return moduleSpecifications;
     }
+    
+    @XmlElement(name = "modules")
+    ConceptWrapper getModuleSpecificationsForJaxb() {
+        return new ConceptWrapper(moduleSpecifications);
+    }
+    
+    
 
     public void setModuleSpecifications(Set<ConceptSpecification> moduleSpecifications) {
         this.moduleSpecifications = moduleSpecifications;
@@ -355,6 +380,10 @@ public class StampCoordinateImpl
    public EnumSet<Status> getAllowedStates() {
       return this.allowedStates;
    }
+    @XmlElement(name = "allowedStates")
+    ConceptWrapper getAllowedStatesForJaxb() {
+        return new ConceptWrapper(allowedStates);
+    }
 
    //~--- set methods ---------------------------------------------------------
 
@@ -399,6 +428,8 @@ public class StampCoordinateImpl
     * @return the stamp position
     */
    @Override
+   @XmlElement(name = "stampPosition")
+   @XmlJavaTypeAdapter(StampPositionAdaptor.class)
    public StampPosition getStampPosition() {
       return this.stampPosition;
    }
@@ -431,6 +462,11 @@ public class StampCoordinateImpl
    @Override
    public StampPrecedence getStampPrecedence() {
       return this.stampPrecedence;
+   }
+
+   @XmlElement(name = "stampPrecedence")
+   public ConceptWrapper getStampPrecedenceForJaxb() {
+      return new ConceptWrapper(this.stampPrecedence.getSpecifyingConcept());
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -466,6 +502,11 @@ public class StampCoordinateImpl
     @Override
     public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
         return this.modulePriorityList;
+    }
+   
+    @XmlElement(name = "modulePreferenceOrder")
+    public ConceptWrapper getModulePreferenceOrderForVersionsForJaxb() {
+        return new ConceptWrapper(this.modulePriorityList);
     }
    
     public void setModulePreferenceListForVersions(List<ConceptSpecification> modulePriorityList) {

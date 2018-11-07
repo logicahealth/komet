@@ -28,6 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.GlobalDatastoreConfiguration;
 import sh.isaac.api.LookupService;
@@ -148,7 +149,7 @@ public class ConfigurationTests {
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultInferredAssemblage(-5);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultLanguage( TermAux.ENGLISH_LANGUAGE.getNid() );
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultModule(-7);
-		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPath(-8);
+		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPath(MetaData.DEVELOPMENT_PATH____SOLOR.getNid());
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPremiseType(PremiseType.STATED);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultStatedAssemblage(-9);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultTime(10);
@@ -169,7 +170,7 @@ public class ConfigurationTests {
 		Assert.assertEquals(-5, c.getDefaultLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.ENGLISH_LANGUAGE.getNid(), c.getDefaultLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(-7, c.getDefaultEditCoordinate().getModuleNid());
-		Assert.assertEquals(-8, c.getDefaultEditCoordinate().getPathNid());
+		Assert.assertEquals(MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), c.getDefaultEditCoordinate().getPathNid());
 		Assert.assertEquals(PremiseType.STATED, c.getDefaultManifoldCoordinate().getTaxonomyPremiseType());
 		Assert.assertEquals(-9, c.getDefaultLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(10, c.getDefaultStampCoordinate().getStampPosition().getTime());
@@ -184,7 +185,7 @@ public class ConfigurationTests {
 		Assert.assertEquals(-5, uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.ENGLISH_LANGUAGE.getNid(), uc.getLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(-7, uc.getEditCoordinate().getModuleNid());
-		Assert.assertEquals(-8, uc.getEditCoordinate().getPathNid());
+		Assert.assertEquals(MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), uc.getEditCoordinate().getPathNid());
 		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getTaxonomyPremiseType());
 		Assert.assertEquals(-9, uc.getLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(10, uc.getStampCoordinate().getStampPosition().getTime());

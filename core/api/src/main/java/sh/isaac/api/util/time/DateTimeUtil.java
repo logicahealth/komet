@@ -17,6 +17,7 @@
 package sh.isaac.api.util.time;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -57,6 +58,15 @@ public class DateTimeUtil {
             return "Canceled";
         }
        return FORMATTER.format(Instant.ofEpochMilli(epochMilliSecond).atZone(ZoneOffset.UTC));
+    }
+    public static long parse(String dateTime) {
+        if (dateTime.equalsIgnoreCase("Latest")) {
+            return Long.MAX_VALUE;
+        }
+        if (dateTime.equalsIgnoreCase("Canceled")) {
+            return Long.MIN_VALUE;
+        }
+        return LocalDateTime.parse(dateTime, FORMATTER).atZone(ZoneOffset.UTC).toEpochSecond();
     }
     
     public static String format(Instant instant) {

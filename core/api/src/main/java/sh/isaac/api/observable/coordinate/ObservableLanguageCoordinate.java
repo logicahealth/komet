@@ -43,7 +43,6 @@ package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 
@@ -56,6 +55,12 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
  */
 public interface ObservableLanguageCoordinate
         extends LanguageCoordinate, ObservableCoordinate {
+    /**
+     * 
+     * @return the language coordinate that this observable wraps. 
+     */
+     LanguageCoordinate getLanguageCoordinate();
+   
    /**
     * Description type preference list property.
     *

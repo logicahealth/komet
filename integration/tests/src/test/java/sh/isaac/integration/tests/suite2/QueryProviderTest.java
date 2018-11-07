@@ -21,7 +21,6 @@ package sh.isaac.integration.tests.suite2;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +35,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
@@ -320,28 +320,28 @@ public class QueryProviderTest {
 	@Test
 	public void testExternalDescriptionExpand() {
 		
-		int[] expandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(new int[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()}, null);
+		ConceptSpecification[] expandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR}, null);
 		
 		Assert.assertEquals(expandedList.length, 4);
-		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid(), expandedList[0]);
+		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, expandedList[0]);
 		HashSet<UUID> expected = new HashSet<>();
 		expected.add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid());
 		expected.add(UUID.fromString("f98669ec-27fb-526d-97f1-5162e11e24e1"));
 		expected.add(UUID.fromString("e00ac5df-d8e4-562e-ba52-105812bdde52"));
 		expected.add(UUID.fromString("26a7bba3-7807-5a9c-a9c1-ebf0934cb5f4"));
 
-		for (int nid : expandedList)
+		for (ConceptSpecification spec : expandedList)
 		{
-			Assert.assertTrue(expected.contains(Get.identifierService().getUuidPrimordialForNid(nid)));
+			Assert.assertTrue(expected.contains(spec.getPrimordialUuid()));
 		}
 		
-		int[] reexpandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(expandedList, null);
+		ConceptSpecification[] reexpandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(expandedList, null);
 		
 		Assert.assertEquals(reexpandedList.length, 4);
-		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid(), reexpandedList[0]);
-		for (int nid : reexpandedList)
+		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, reexpandedList[0]);
+		for (ConceptSpecification spec : reexpandedList)
 		{
-			Assert.assertTrue(expected.contains(Get.identifierService().getUuidPrimordialForNid(nid)));
+			Assert.assertTrue(expected.contains(spec.getPrimordialUuid()));
 		}
 	}
 	

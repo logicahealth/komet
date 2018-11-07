@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.util.ArrayUtil;
 
 /**
  * An extended query interface that supports very specific querying of semantics - especially with dynamic and/or multi-column semantic data
@@ -109,4 +111,29 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);
+   
+   default List<SearchResult> query(String query,
+         boolean prefixSearch,
+         int[] assemblageConcepts,
+         Predicate<Integer> filter,
+         AuthorModulePathRestriction amp,
+         boolean metadataOnly,
+         ConceptSpecification[] descriptionTypes,
+         ConceptSpecification[] extendedDescriptionTypes,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration) {
+       
+       return query(query,
+         prefixSearch,
+         assemblageConcepts,
+         filter,
+         amp,
+         metadataOnly,
+         ArrayUtil.toNidArray(descriptionTypes),
+         ArrayUtil.toNidArray(extendedDescriptionTypes),
+         pageNum,
+         sizeLimit,
+         targetGeneration);
+   }
 }

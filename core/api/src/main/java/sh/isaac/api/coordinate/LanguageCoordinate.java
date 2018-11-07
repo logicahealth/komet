@@ -141,6 +141,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the latestDescription type preference list
     */
    int[] getDescriptionTypePreferenceList();
+   ConceptSpecification[] getDescriptionTypeSpecPreferenceList();
 
    /**
     * Gets the dialect assemblage preference list.
@@ -148,6 +149,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the dialect assemblage preference list
     */
    int[] getDialectAssemblagePreferenceList();
+   ConceptSpecification[] getDialectAssemblageSpecPreferenceList();
    
    /**
     * Gets the module preference list. Used to adjudicate which component to 
@@ -158,6 +160,7 @@ public interface LanguageCoordinate extends Coordinate {
     */
 
    int[] getModulePreferenceListForLanguage();
+   ConceptSpecification[] getModuleSpecPreferenceListForLanguage();
    /**
     * Convenience method - returns true if FQN is at the top of the latestDescription list.
     *

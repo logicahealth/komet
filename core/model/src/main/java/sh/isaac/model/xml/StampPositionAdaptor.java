@@ -39,7 +39,7 @@ public class StampPositionAdaptor extends XmlAdapter<StampPositionImpl, StampPos
         }
         if (v instanceof ObservableStampPositionImpl) {
             ObservableStampPositionImpl ov = (ObservableStampPositionImpl) v;
-            //return ov.getStampPosition();
+            return ov.getStampPosition();
         }
         throw new UnsupportedOperationException("Can't handle: " + v);
     }

@@ -46,6 +46,11 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -56,6 +61,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.model.xml.StampPathAdaptor;
+import sh.isaac.model.xml.StampTimeAdaptor;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -64,6 +71,8 @@ import sh.isaac.api.coordinate.StampPosition;
  *
  * @author kec
  */
+@XmlRootElement(name = "StampPosition")
+@XmlAccessorType(XmlAccessType.NONE)
 public class StampPositionImpl
          implements StampPosition, Comparable<StampPosition> {
    /** The time. */
@@ -187,9 +196,11 @@ public class StampPositionImpl
     *
     * @return the stamp path
     */
-   @Override
-   public StampPath getStampPath() {
-      return new StampPathImpl(this.stampPathConceptSpecification.getNid());
+    @Override
+    @XmlElement(name = "path")
+    @XmlJavaTypeAdapter(StampPathAdaptor.class)
+    public StampPath getStampPath() {
+      return new StampPathImpl(this.stampPathConceptSpecification);
    }
 
    /**
@@ -229,6 +240,12 @@ public class StampPositionImpl
     */
    @Override
    public long getTime() {
+      return this.time;
+   }
+
+   @XmlElement(name = "time")
+   @XmlJavaTypeAdapter(StampTimeAdaptor.class)
+   public Long getLongTime() {
       return this.time;
    }
 

@@ -270,9 +270,9 @@
                         <!-- Let JUnit annotations decide -->
                         <include>**/*.class</include>
                     </includes>
-                    <!--systemPropertyVariables> 
+                    <!-- <systemPropertyVariables> 
                         <org.ihtsdo.otf.tcc.query.lucene-root-location>${project.build.directory}</org.ihtsdo.otf.tcc.query.lucene-root-location> 
-                    </systemPropertyVariables-->
+                    </systemPropertyVariables> -->
                 </configuration>
             </plugin>
             <plugin>

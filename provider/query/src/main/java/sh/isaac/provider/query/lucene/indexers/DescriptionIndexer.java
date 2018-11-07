@@ -387,7 +387,7 @@ public class DescriptionIndexer extends LuceneIndexer
          Integer sizeLimit,
          Long targetGeneration) {
       
-      return query(query, prefixSearch, assemblageConcepts, filter, amp, false, null, null, pageNum, sizeLimit, targetGeneration);
+      return query(query, prefixSearch, assemblageConcepts, filter, amp, false, (int[]) null, null, pageNum, sizeLimit, targetGeneration);
    }
    
    public int getDescriptionExtendedTypeNid()

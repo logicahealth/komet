@@ -16,16 +16,16 @@
  */
 package sh.isaac.model.xml;
 
-import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.model.configuration.DefaultCoordinateProvider;
+import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.observable.coordinate.ObservableStampCoordinateImpl;
 
 /**
  *
@@ -36,7 +36,7 @@ public class TestJaxb {
     public static void main(String[] args) throws Exception {
         
         
-        JAXBContext jc = JAXBContext.newInstance(StampCoordinateImpl.class, ConceptProxy.class);
+        JAXBContext jc = JAXBContext.newInstance(StampCoordinateImpl.class, ConceptProxy.class, LanguageCoordinateImpl.class, JaxbMap.class);
 
 
         Marshaller marshaller = jc.createMarshaller();
@@ -44,9 +44,17 @@ public class TestJaxb {
         marshaller.marshal(TermAux.ISAAC_UUID, System.out);
         
         DefaultCoordinateProvider defaultCoordinateProvider = new DefaultCoordinateProvider();
-    
 
-        marshaller.marshal(defaultCoordinateProvider.getDefaultStampCoordinate(), System.out);
+        marshaller.marshal(defaultCoordinateProvider.getDefaultStampCoordinate().getStampCoordinate(), System.out);
+
+        marshaller.marshal(defaultCoordinateProvider.getDefaultLanguageCoordinate().getLanguageCoordinate(), System.out);
+        
+        Map<String, Object> letMap = new HashMap();
+        letMap.put("stamp1", defaultCoordinateProvider.getDefaultStampCoordinate().getStampCoordinate());
+        letMap.put("language", defaultCoordinateProvider.getDefaultLanguageCoordinate().getLanguageCoordinate());
+
+        JaxbMap jaxbMap = JaxbMap.of(letMap);
+        marshaller.marshal(jaxbMap, System.out);
 
         Unmarshaller unmarshaller = jc.createUnmarshaller();
         //File xml = new File("src/forum13178824/input.xml");

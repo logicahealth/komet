@@ -350,7 +350,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 					SearchHandle ssh = SearchHandler.search(() -> 
 					{
 						return Get.service(IndexDescriptionQueryService.class).query(text, true, null, null, 
-								AuthorModulePathRestriction.restrict(manifoldCoord.get()), metadataOnly, null, null, 1, 5, null);
+								AuthorModulePathRestriction.restrict(manifoldCoord.get()), metadataOnly, (int[]) null, null, 1, 5, null);
 					},
 					(searchHandle) -> {this.taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());},
 					id,

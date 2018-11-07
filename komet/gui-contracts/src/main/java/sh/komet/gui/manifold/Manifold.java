@@ -457,6 +457,21 @@ public class Manifold
     public ConceptSpecification getLanguageConcept() {
         return this.observableManifoldCoordinate.getLanguageConcept();
     }
+
+    @Override
+    public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
+        return this.observableManifoldCoordinate.getDescriptionTypeSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
+        return this.observableManifoldCoordinate.getDialectAssemblageSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
+        return this.observableManifoldCoordinate.getModuleSpecPreferenceListForLanguage();
+    }
     
     
 }

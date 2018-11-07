@@ -406,5 +406,19 @@ public class ConceptSnapshotImpl
         return this.manifoldCoordinate.getLanguageConcept();
     }
     
+    @Override
+    public ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
+        return manifoldCoordinate.getDialectAssemblageSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
+        return manifoldCoordinate.getDescriptionTypeSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
+        return manifoldCoordinate.getModuleSpecPreferenceListForLanguage();
+    }
 }
 

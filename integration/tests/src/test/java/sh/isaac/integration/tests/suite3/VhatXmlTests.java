@@ -643,7 +643,7 @@ public class VhatXmlTests
 //         
 //         if (nid.isPresent())
 //         {
-//            int cs = Get.conceptSpecification(nid.get()).getNid();
+//            int cs = Get.specifyingConcept(nid.get()).getNid();
 //            Assert.assertTrue(Get.conceptActiveService().isConceptActive(cs, activeStampCoord));
 //            NidSet css = new NidSet();
 //            css.add(cs);
@@ -714,7 +714,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               Assert.assertTrue(descriptionExistsForConcept((ConceptChronology) cc, activeStampCoord, defUsLangCoord, "AA SQA IMMUN PROCEDURE"));
@@ -851,7 +851,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               @SuppressWarnings("rawtypes")
@@ -1044,7 +1044,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1105,7 +1105,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1300,7 +1300,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1373,7 +1373,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1412,7 +1412,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1480,7 +1480,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -2207,7 +2207,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               Assert.assertTrue(descriptionExistsForConcept((ConceptChronology) cc, stampCoord, null, "A1 AAA COOL TEST"));
@@ -2287,7 +2287,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               Assert.assertTrue(descriptionExistsForConcept((ConceptChronology) cc, stampCoord, null, "A1 AAA COOL TEST"));
@@ -2399,7 +2399,7 @@ public class VhatXmlTests
 //         
 //         if (nid.isPresent())
 //         {
-//            int cs = Get.conceptSpecification(nid.get()).getNid();
+//            int cs = Get.specifyingConcept(nid.get()).getNid();
 //            Assert.assertTrue(Get.conceptActiveService().isConceptActive(cs, stampCoord));
 //            NidSet css = new NidSet();
 //            css.add(cs);
@@ -2418,7 +2418,7 @@ public class VhatXmlTests
 //         
 //         if (nid.isPresent())
 //         {
-//            int cs = Get.conceptSpecification(nid.get()).getNid();
+//            int cs = Get.specifyingConcept(nid.get()).getNid();
 //            Assert.assertTrue(Get.conceptActiveService().isConceptActive(cs, stampCoord));
 //            NidSet css = new NidSet();
 //            css.add(cs);
