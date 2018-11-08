@@ -309,7 +309,7 @@ public class PostgresProvider
     }
 
     String sqlReadNidsForAssemblage() {
-        return "SELECT o_nid FROM semantics_table WHERE assemblage_nid = ?; ";
+        return "SELECT o_nid FROM identified_objects_table WHERE assemblage_nid = ?; ";
     }
 
     String sqlReadUuidPrimordialForNid() {
@@ -685,8 +685,8 @@ public class PostgresProvider
             stmt.setBytes(3, taxonomyBytes); // taxonomy_data
             stmt.setBytes(4, taxonomyBytes); // taxonomy_data
 
-            System.out.println(Arrays.toString(taxonomyData)); // :DEBUG:
-            System.out.println(Arrays.toString(taxonomyBytes)); // :DEBUG:
+            //System.out.println(":DEBUG:taxonomyData:" + Arrays.toString(taxonomyData)); // :DEBUG:
+            //System.out.println(":DEBUG:taxonomyBytes:" + Arrays.toString(taxonomyBytes)); // :DEBUG:
 
             LOG.debug(":SQL: " + stmt.toString());
             stmt.executeUpdate();
