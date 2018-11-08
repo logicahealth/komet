@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.model.xml;
+package sh.isaac.api.xml;
 
 import java.util.HashMap;
 import java.util.Map;

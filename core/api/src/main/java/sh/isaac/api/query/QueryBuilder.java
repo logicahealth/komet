@@ -87,8 +87,8 @@ public class QueryBuilder  {
    
    public Query build() {
       
-      QueryBuilderQuery query = new QueryBuilderQuery();
-      
+      Query query = new Query(QueryBuilder.this.forSetSpecification);
+      query.getLetDeclarations().putAll(letClauses);
       
       
       return query;
@@ -98,28 +98,7 @@ public class QueryBuilder  {
    public int getSequence() {
       return sequence++;
    }
-   
-   class QueryBuilderQuery extends Query {
-
-
-      public QueryBuilderQuery() {
-         super(QueryBuilder.this.forSetSpecification);
-         getLetDeclarations().putAll(letClauses);
-      }
       
-      
-
-      @Override
-      public void Let() {
-         // TODO
-      }
-
-      @Override
-      public Clause Where() {
-         return root;
-      }      
-   }
-   
 }
    
 

@@ -40,7 +40,14 @@ package sh.isaac.api.query;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -62,6 +69,8 @@ import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
 import sh.isaac.api.query.clauses.AssemblageContainsString;
 import sh.isaac.api.query.clauses.AssemblageLuceneMatch;
 import sh.isaac.api.query.clauses.RelRestriction;
+import sh.isaac.api.xml.ConceptSpecificationAdaptor;
+import sh.isaac.api.xml.JaxbMap;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -70,7 +79,10 @@ import sh.isaac.api.query.clauses.RelRestriction;
  *
  * @author kec
  */
-public abstract class Query {
+@XmlRootElement(name = "Query")
+@XmlAccessorType(XmlAccessType.NONE)
+//@XmlType(propOrder={"fullyQualfiedName", "uuids"})
+public class Query {
 
     /**
      * The Constant CURRENT_TAXONOMY_RESULT.
@@ -108,8 +120,15 @@ public abstract class Query {
      * considered in the query.
      */
     private ForSetsSpecification forSetSpecification;
-
+    
     //~--- constructors --------------------------------------------------------
+
+    /**
+     * For jaxb. 
+     */
+    public Query() {
+    }
+
     /**
      * Constructor for <code>Query</code>.
      *
@@ -125,9 +144,11 @@ public abstract class Query {
 
     //~--- methods -------------------------------------------------------------
     /**
-     * Let.
+     * Override to set let clauses. 
      */
-    public abstract void Let();
+    public void Let() {
+        
+    }
 
     /**
      * Not.
@@ -145,7 +166,17 @@ public abstract class Query {
      *
      * @return root <code>Clause</code> in the query
      */
-    public abstract Clause Where();
+    public Clause Where() {
+        return this.rootClause[0];
+    }
+
+    public ParentClause getRoot() {
+        return (ParentClause) this.rootClause[0];
+    }
+
+    public void setRoot(ParentClause root) {
+        this.rootClause[0] = root;
+    }
 
     /**
      * Constructs the query and computes the set of components that match the
@@ -164,12 +195,21 @@ public abstract class Query {
         return this.rootClause[0].computeComponents(possibleComponentMap);
     }
 
+    
     public ForSetsSpecification getForSetSpecification() {
         return forSetSpecification;
     }
+    
+    @XmlElement(name = "Concept")
+    @XmlElementWrapper(name = "For")
+    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
+    protected List<ConceptSpecification> getForSet() {
+        return forSetSpecification.getForSet();
+    }
+    
 
     /**
-     * 
+     *
      * @return an array of component nids in an array...
      */
     public int[][] reify() {
@@ -180,7 +220,7 @@ public abstract class Query {
                 int[][] resultArray = new int[entry.getValue().size()][];
                 int row = 0;
                 for (int nid : entry.getValue().asArray()) {
-                    resultArray[row++] = new int[] { nid };
+                    resultArray[row++] = new int[]{nid};
                 }
                 return resultArray;
             }
@@ -657,6 +697,11 @@ public abstract class Query {
      */
     public HashMap<String, Object> getLetDeclarations() {
         return this.letDeclarations;
+    }
+    
+    @XmlElement(name = "Let")
+    protected JaxbMap getLetMap() {
+        return JaxbMap.of(this.letDeclarations);
     }
 
     /**

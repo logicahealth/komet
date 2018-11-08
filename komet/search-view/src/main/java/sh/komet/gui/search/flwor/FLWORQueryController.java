@@ -60,6 +60,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import java.util.*;
+import java.util.logging.Level;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -84,6 +85,9 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 //~--- JDK imports ------------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
@@ -94,6 +98,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
+import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -111,6 +116,9 @@ import sh.isaac.api.query.QueryBuilder;
 import sh.isaac.api.query.clauses.*;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.model.coordinate.LanguageCoordinateImpl;
+import sh.isaac.model.coordinate.StampCoordinateImpl;
+import sh.isaac.api.xml.JaxbMap;
 
 import sh.komet.gui.action.ConceptAction;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
@@ -206,8 +214,11 @@ public class FLWORQueryController
     @FXML // fx:id="spacerLabel"
     private Label spacerLabel; // Value injected by FXMLLoader
 
-    @FXML // fx:id="exportButton"
-    private Button exportButton; // Value injected by FXMLLoader
+    @FXML
+    private MenuItem exportFlwor;
+
+    @FXML
+    private MenuItem exportResults;
 
     private TreeItem<QueryClause> root;
     private Manifold manifold;
@@ -305,7 +316,44 @@ public class FLWORQueryController
             }
             tableItems.add(Arrays.asList(resultRow));
         }
-        exportButton.setDisable(false);
+    }
+
+    @FXML
+    void exportFlwor(ActionEvent event) {
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save FLWOR specification to file");
+            fileChooser.setInitialFileName("query.flwor");
+            File selectedFile = fileChooser.showSaveDialog(spacerLabel.getScene().getWindow());
+
+            JAXBContext jc = JAXBContext.newInstance(StampCoordinateImpl.class, 
+                    ConceptProxy.class, LanguageCoordinateImpl.class, 
+                    JaxbMap.class, Query.class);
+
+            Marshaller marshaller = jc.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(TermAux.ISAAC_UUID, System.out);
+
+            QueryBuilder queryBuilder = new QueryBuilder()
+                    .from(this.forPropertySheet.getForSetSpecification());
+
+            TreeItem<QueryClause> itemToProcess = this.root;
+            Clause rootClause = itemToProcess.getValue()
+                    .getClause();
+
+            queryBuilder.setWhereRoot((ParentClause) rootClause);
+            processQueryTreeItem(itemToProcess, queryBuilder);
+
+            Query query = queryBuilder.build();
+
+            rootClause.setEnclosingQuery(query);
+
+            marshaller.marshal(query, System.out);
+
+        } catch (JAXBException ex) {
+            java.util.logging.Logger.getLogger(FLWORQueryController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     @FXML
@@ -341,7 +389,6 @@ public class FLWORQueryController
             } catch (IOException ex) {
                 FxGet.dialogs().showErrorDialog("Error writing results to file", ex);
             }
-
         }
     }
 
@@ -395,8 +442,6 @@ public class FLWORQueryController
         assert languageColumn != null : "fx:id=\"languageColumn\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert forAnchorPane != null : "fx:id=\"forAnchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
         assert letAnchorPane != null : "fx:id=\"letAnchorPane\" was not injected: check your FXML file 'FLOWRQuery.fxml'.";
-        HBox.setHgrow(exportButton, Priority.ALWAYS);
-        exportButton.setDisable(true);
         resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
         resultTable.setOnDragDone(new DragDoneEventHandler());
 
@@ -789,7 +834,6 @@ public class FLWORQueryController
     public void returnSpecificationListener(ListChangeListener.Change<? extends ReturnSpecificationRow> c) {
         resultTable.getColumns().clear();
         resultColumns.clear();
-        exportButton.setDisable(true);
         int columnIndex = 0;
         for (ReturnSpecificationRow rowSpecification : c.getList()) {
             final int currentIndex = columnIndex++;

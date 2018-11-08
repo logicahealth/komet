@@ -42,6 +42,8 @@ package sh.isaac.api.component.concept;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.util.StringUtils;
 
@@ -52,6 +54,7 @@ import sh.isaac.api.util.StringUtils;
  *
  * @author kec
  */
+@XmlSeeAlso({ConceptProxy.class})
 public interface ConceptSpecification
         extends IdentifiedObject {
    /** The Constant FIELD_SEPARATOR.  '◽' */
