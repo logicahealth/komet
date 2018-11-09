@@ -45,6 +45,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -69,15 +73,19 @@ import sh.isaac.api.query.WhereClause;
  *
  * @author kec
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionRegexMatch
         extends LeafClause {
    /** The cache. */
    NidSet cache = new NidSet();
 
    /** The regex key. */
+   @XmlElement
    String regexKey;
 
    /** The view coordinate key. */
+   @XmlElement
    String viewCoordinateKey;
 
    private String parameterString;

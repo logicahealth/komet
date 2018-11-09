@@ -93,6 +93,7 @@ public class QueryBuilder  {
       
       Query query = new Query(QueryBuilder.this.forSetSpecification);
       query.getLetDeclarations().putAll(letClauses);
+      query.setRoot(root);
       
       
       return query;

@@ -44,6 +44,11 @@ package sh.isaac.api.query.clauses;
 import java.util.EnumSet;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
@@ -67,21 +72,28 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author dylangrald
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class RelRestriction
         extends LeafClause {
    /** The rel type key. */
+   @XmlElement
    String relTypeKey;
 
    /** The destination spec key. */
+   @XmlElement
    String destinationSpecKey;
 
    /** The view coordinate key. */
+   @XmlElement
    String viewCoordinateKey;
 
    /** The destination subsumption key. */
+   @XmlElement
    String destinationSubsumptionKey;
 
    /** The rel type subsumption key. */
+   @XmlElement
    String relTypeSubsumptionKey;
 
    /** The destination set. */

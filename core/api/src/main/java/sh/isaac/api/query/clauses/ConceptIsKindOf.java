@@ -45,6 +45,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
@@ -68,12 +72,15 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author kec
  */
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsKindOf
         extends LeafClause {
    /** The kind of spec key. */
+   @XmlElement
    String kindOfSpecKey;
 
    /** The view coordinate key. */
+   @XmlElement
    String viewCoordinateKey;
 
    private ConceptSpecification kindOfSpecification;

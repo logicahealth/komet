@@ -44,6 +44,10 @@ package sh.isaac.api.query.clauses;
 import java.util.EnumSet;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -65,12 +69,16 @@ import sh.isaac.api.query.WhereClause;
  *
  * @author dylangrald
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class AssemblageLuceneMatch
         extends LeafClause {
    /** The lucene match key. */
+   @XmlElement
    String luceneMatchKey;
 
    /** The view coordinate key. */
+   @XmlElement
    String viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------

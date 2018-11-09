@@ -170,6 +170,11 @@ public class Query {
         return this.rootClause[0];
     }
 
+    @XmlElement(name = "Where")
+    protected Clause getWhereForJaxb() {
+        return this.rootClause[0];
+    }
+
     public ParentClause getRoot() {
         return (ParentClause) this.rootClause[0];
     }

@@ -42,6 +42,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -61,6 +64,8 @@ import sh.isaac.api.query.clauses.*;
  *
  * @author kec
  */
+@XmlRootElement(name = "Clause")
+@XmlAccessorType(XmlAccessType.NONE)
 public abstract class Clause implements ConceptSpecification {
 
     /**

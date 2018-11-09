@@ -37,6 +37,9 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.Map;
 import sh.isaac.api.bootstrap.TermAux;
@@ -52,6 +55,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author dylangrald
  */
+@XmlRootElement(name = "XOR")
+@XmlAccessorType(value = XmlAccessType.PROPERTY)
 public class Xor
         extends ParentClause {
 

@@ -37,6 +37,11 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 //~--- non-JDK imports --------------------------------------------------------
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +62,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
  *
  * @author kec
  */
+@XmlRootElement()
 public class Not
         extends ParentClause {
 

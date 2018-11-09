@@ -108,12 +108,17 @@ import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.query.And;
+import sh.isaac.api.query.AndNot;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ForSetsSpecification;
+import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.Not;
 import sh.isaac.api.query.Or;
 import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.QueryBuilder;
+import sh.isaac.api.query.Xor;
 import sh.isaac.api.query.clauses.*;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
@@ -325,12 +330,39 @@ public class FLWORQueryController
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save FLWOR specification to file");
             fileChooser.setInitialFileName("query.flwor");
-            File selectedFile = fileChooser.showSaveDialog(spacerLabel.getScene().getWindow());
+            //File selectedFile = fileChooser.showSaveDialog(spacerLabel.getScene().getWindow());
 
             JAXBContext jc = JAXBContext.newInstance(StampCoordinateImpl.class, 
                     ConceptSpecification.class,
                     ConceptProxy.class, LanguageCoordinateImpl.class, 
-                    JaxbMap.class, Query.class);
+                    JaxbMap.class, Query.class, 
+                    Clause.class, Or.class,
+                    And.class,
+                    AndNot.class,
+                    LeafClause.class,
+                    Not.class,
+                    Or.class,
+                    Xor.class,
+                    AssemblageContainsConcept.class,
+                    AssemblageContainsKindOfConcept.class,
+                    AssemblageContainsString.class,
+                    AssemblageLuceneMatch.class,
+                    ChangedBetweenVersions.class,
+                    ComponentIsActive.class,
+                    ConceptForComponent.class,
+                    ConceptIs.class,
+                    ConceptIsChildOf.class,
+                    ConceptIsDescendentOf.class,
+                    ConceptIsKindOf.class,
+                    DescriptionActiveLuceneMatch.class,
+                    DescriptionActiveRegexMatch.class,
+                    DescriptionLuceneMatch.class,
+                    DescriptionRegexMatch.class,
+                    FullyQualifiedNameForConcept.class,
+                    PreferredNameForConcept.class,
+                    RelRestriction.class,
+                    RelationshipIsCircular.class
+                    );
 
             Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

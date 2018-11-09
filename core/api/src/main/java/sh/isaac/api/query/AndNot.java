@@ -37,6 +37,8 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.Map;
 import sh.isaac.api.bootstrap.TermAux;
@@ -51,6 +53,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author dylangrald
  */
+@XmlRootElement()
 public class AndNot
         extends ParentClause {
 

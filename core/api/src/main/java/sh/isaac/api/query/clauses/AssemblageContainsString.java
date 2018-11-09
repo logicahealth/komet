@@ -44,6 +44,10 @@ package sh.isaac.api.query.clauses;
 import java.util.EnumSet;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -69,18 +73,23 @@ import sh.isaac.api.query.WhereClause;
  *
  * @author dylangrald
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class AssemblageContainsString
         extends LeafClause {
    /** The query text. */
+   @XmlElement
    String queryText;
 
    /** The view coordinate key. */
+   @XmlElement
    String viewCoordinateKey;
 
    /** The cache. */
    NidSet cache;
 
    /** The refset spec key. */
+   @XmlElement
    String refsetSpecKey;
 
    //~--- constructors --------------------------------------------------------
