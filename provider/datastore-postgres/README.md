@@ -1,8 +1,8 @@
 # ISAAC PostgreSQL Notes
 
 <a id="toc"></a>
-[Setup](#Resources) •
-[Running Application](#Resources) • 
+[Setup](#Setup) •
+[Run KOMET Application](#RunApp) • 
 [Resources](#Resources) 
 
 > The example below are based on a macOS High Sierra computer which has [Java SE JDK 1.8](https://www.oracle.com/technetwork/java/javase/downloads/index.html), [Apache Maven 3.5.4](https://maven.apache.org/download.cgi) and [Netbeans IDE 8.2](https://netbeans.org/downloads/) installed.  The [Postgres.app](https://postgresapp.com/) is shown as the PostgreSQL installation.
@@ -105,7 +105,7 @@ isaac_db=#\i psql/drop_all.sql
 
 Clone to download the [OSEHRA/ISAAC](https://github.com/OSEHRA/ISAAC) git repository to the local machine.
 
-## Running Application <a id="Resources">[▴](#toc)</a>
+## Run KOMET Application <a id="RunApp">[▴](#toc)</a>
 
 **Step B.1. Clean & Build ISAAC: (MMP) Informatics Analytic Architecture**
 
@@ -144,9 +144,18 @@ cd /PATH_TO/KOMET
 mvn --errors clean install
 ```
 
-Run ISAAC KOMET.
+Run ISAAC KOMET application.
 
 ![](README_files/images/Netbeans.03.png)
+
+If launch from the command line or script the PostgreSQL database name, username and user password can be passed in a properties.
+
+``` ini
+-DISAAC_PSQL_DB=isaac_db
+-DISAAC_PSQL_UNAME=isaac_user
+-DISAAC_PSQL_UPWD=isaac_pwd
+```
+
 
 > Note: For full logging of java generated SQL statements, find and set `LOG_SQL_FLAG` to true and rebuild.
 > 

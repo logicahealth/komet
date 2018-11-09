@@ -65,12 +65,13 @@ public class PostgresProvider
 
     private static final Logger LOG = LogManager.getLogger();
     private static final boolean LOG_SQL_FLAG = false;
+    private static final boolean LOG_BYTECHECK_FLAG = false;
 
     private void logSqlBytea(Statement stmt, byte[] bytes) {
         if (LOG_SQL_FLAG) {
-            LOG.debug(":SQL: " + stmt.toString() 
+            LOG.debug(":SQL: " + stmt.toString()
                 + "; -- '"
-                + DatatypeConverter.printHexBinary(bytes) 
+                + DatatypeConverter.printHexBinary(bytes)
                 + "'::bytea");
         }
     }
@@ -111,11 +112,16 @@ public class PostgresProvider
         LOG.info("Starting PostgresProvider proceeding to (or at) runlevel: {}", LookupService.getProceedingToRunLevel());
 
         try {
+            String isaacDb = System.getProperty("ISAAC_PSQL_DB", "isaac_db");
+            String isaacDbUri = "jdbc:postgresql://localhost/" + isaacDb;
+            String isaacUsername = System.getProperty("ISAAC_PSQL_UNAME", "isaac_user");
+            String isaacUserpwd = System.getProperty("ISAAC_PSQL_UPWD", "isaac_pwd");
+
             HikariConfig config = new HikariConfig();
             // ::NYI: pass in setJdbcUrl as parameter instead of being hardcoded.
-            config.setJdbcUrl("jdbc:postgresql://localhost/isaac_db");
-            config.setUsername("isaac_user");
-            config.setPassword("isaac_pwd");
+            config.setJdbcUrl(isaacDbUri);
+            config.setUsername(isaacUsername);
+            config.setPassword(isaacUserpwd);
             config.addDataSourceProperty("cachePrepStmts", "true");
             config.addDataSourceProperty("prepStmtCacheSize", "250");
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
@@ -417,11 +423,13 @@ public class PostgresProvider
             List<byte[]> dataList = getDataList(chronology);
 
             // :DEBUG:BEGIN:
-            StringBuilder sb = new StringBuilder();
-            dataList.forEach((dv) -> {
-                sb.append(DatatypeConverter.printHexBinary(dv)).append(" * ");
-            });
-            LOG.debug("--+ :" + chronologyNid + ":BYTECHECK:PUT: " + sb.toString());
+            if (LOG_BYTECHECK_FLAG) {
+                StringBuilder sb = new StringBuilder();
+                dataList.forEach((dv) -> {
+                    sb.append(DatatypeConverter.printHexBinary(dv)).append(" * ");
+                });
+                LOG.debug("--+ :" + chronologyNid + ":BYTECHECK:PUT: " + sb.toString());
+            }
             // :DEBUG:END:
 
             if (chronology instanceof ConceptChronologyImpl) {
@@ -610,13 +618,15 @@ public class PostgresProvider
         byteBuffer.rewind();
 
         // :DEBUG:BEGIN:
-        StringBuilder sb = new StringBuilder();
-        dataList.forEach((dv) -> {
-            sb.append(DatatypeConverter.printHexBinary(dv)).append(" * ");
-        });
-        LOG.debug("--+ :" + nid + ":BYTECHECK:GET: " + sb.toString());
-        byte[] byteBufferBytes = byteBuffer.getData();
-        LOG.debug("--+ :" + nid + ":BYTECHECK-GET: " + DatatypeConverter.printHexBinary(byteBufferBytes));
+        if (LOG_BYTECHECK_FLAG) {
+            StringBuilder sb = new StringBuilder();
+            dataList.forEach((dv) -> {
+                sb.append(DatatypeConverter.printHexBinary(dv)).append(" * ");
+            });
+            LOG.debug("--+ :" + nid + ":BYTECHECK:GET: " + sb.toString());
+            byte[] byteBufferBytes = byteBuffer.getData();
+            LOG.debug("--+ :" + nid + ":BYTECHECK-GET: " + DatatypeConverter.printHexBinary(byteBufferBytes));
+        }
         // :DEBUG:END:
 
         // if (byteBuffer.getUsed() != size) { // used for x00000000 header|termination
