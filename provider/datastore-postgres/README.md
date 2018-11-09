@@ -148,7 +148,7 @@ Run ISAAC KOMET application.
 
 ![](README_files/images/Netbeans.03.png)
 
-If launch from the command line or script the PostgreSQL database name, username and user password can be passed in a properties.
+If launch from the command line or script the PostgreSQL database name, username and user password can be passed in a properties.  The database URL has the format "jdbc:postgresql://host:port/database".
 
 ``` ini
 -DISAAC_PSQL_URL="jdbc:postgresql://localhost/isaac_db"
