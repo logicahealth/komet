@@ -47,6 +47,7 @@ import javafx.beans.value.WeakChangeListener;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import sh.isaac.api.ConceptProxy;
@@ -63,7 +64,6 @@ import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.util.ArrayUtil;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
-import sh.isaac.model.xml.ConceptWrapper;
 
 /**
  * The Class LanguageCoordinateImpl.
@@ -72,8 +72,8 @@ import sh.isaac.model.xml.ConceptWrapper;
  */
 @XmlRootElement(name = "LanguageCoordinate")
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlType(propOrder={"languageConceptForJaxb","dialectAssemblageSpecPreferenceListForJaxb", 
-    "descriptionTypeSpecPreferenceListForJaxb", "moduleSpecPreferenceListForLanguageForJaxb"})
+@XmlType(propOrder={"languageConceptForJaxb","dialectAssemblageSpecPreferenceList", 
+    "descriptionTypeSpecPreferenceList", "moduleSpecPreferenceListForLanguage"})
 public class LanguageCoordinateImpl
         implements LanguageCoordinate {
 
@@ -170,9 +170,10 @@ public class LanguageCoordinateImpl
         return languageConcept;
     }
 
-    @XmlElement(name = "language")
-    public ConceptWrapper getLanguageConceptForJaxb() {
-        return new ConceptWrapper(languageConcept);
+    @XmlElement(name = "Concept", type=ConceptProxy.class)
+    @XmlElementWrapper(name = "language") 
+    protected ConceptSpecification[] getLanguageConceptForJaxb() {
+        return new ConceptSpecification[] { languageConcept };
     }
 
     /**
@@ -347,34 +348,24 @@ public class LanguageCoordinateImpl
     }
 
     @Override
+    @XmlElement(name = "Concept", type=ConceptProxy.class)
+    @XmlElementWrapper(name = "dialectPreference") 
     public ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
         return dialectAssemblageSpecPreferenceList;
     }
-
-    @XmlElement(name = "dialectPreferenceList")
-    public ConceptWrapper getDialectAssemblageSpecPreferenceListForJaxb() {
-        return new ConceptWrapper(getDialectAssemblageSpecPreferenceList());
-    }
-
-    @XmlElement(name = "descriptionTypePreferenceList")
-    ConceptWrapper getDescriptionTypeSpecPreferenceListForJaxb() {
-        return new ConceptWrapper(getDescriptionTypeSpecPreferenceList());
-    }
-    
     
     @Override
+    @XmlElement(name = "Concept", type=ConceptProxy.class)
+    @XmlElementWrapper(name = "typePreference") 
     public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
         return descriptionTypeSpecPreferenceList;
     }
 
     @Override
+    @XmlElement(name = "Concept", type=ConceptProxy.class)
+    @XmlElementWrapper(name = "modulePreference") 
     public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
         return moduleSpecPreferenceList;
-    }
-    
-    @XmlElement(name = "modulePreferenceList")
-    ConceptWrapper getModuleSpecPreferenceListForLanguageForJaxb() {
-        return new ConceptWrapper(moduleSpecPreferenceList);
     }
 
     @Override

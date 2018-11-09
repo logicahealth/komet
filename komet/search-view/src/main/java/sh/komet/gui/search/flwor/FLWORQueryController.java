@@ -78,7 +78,6 @@ import javafx.fxml.FXML;
 
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -107,6 +106,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ForSetsSpecification;
 import sh.isaac.api.query.Or;
@@ -327,6 +328,7 @@ public class FLWORQueryController
             File selectedFile = fileChooser.showSaveDialog(spacerLabel.getScene().getWindow());
 
             JAXBContext jc = JAXBContext.newInstance(StampCoordinateImpl.class, 
+                    ConceptSpecification.class,
                     ConceptProxy.class, LanguageCoordinateImpl.class, 
                     JaxbMap.class, Query.class);
 
@@ -336,6 +338,15 @@ public class FLWORQueryController
 
             QueryBuilder queryBuilder = new QueryBuilder()
                     .from(this.forPropertySheet.getForSetSpecification());
+            for (LetItemKey key: this.letPropertySheet.getLetItemObjectMap().keySet()) {
+                Object value = this.letPropertySheet.getLetItemObjectMap().get(key);
+                if (value instanceof ObservableStampCoordinate) {
+                    value = ((ObservableStampCoordinate) value).getStampCoordinate();
+                } else if (value instanceof ObservableLanguageCoordinate) {
+                    value = ((ObservableLanguageCoordinate) value).getLanguageCoordinate();
+                }
+                queryBuilder.let(key.getItemName(), value);
+            }
 
             TreeItem<QueryClause> itemToProcess = this.root;
             Clause rootClause = itemToProcess.getValue()

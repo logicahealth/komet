@@ -34,7 +34,13 @@ public class ConceptSpecificationAdaptor extends XmlAdapter<ConceptProxy, Concep
     @Override
     public ConceptProxy marshal(ConceptSpecification spec) throws Exception {
         if (spec instanceof ConceptProxy) {
-            return (ConceptProxy) spec;
+            // ensure proxy is fully populated. 
+            ConceptProxy proxy = (ConceptProxy) spec; 
+            proxy.getFullyQualifiedName();
+            proxy.getPrimordialUuid();
+            proxy.getUuids();
+            proxy.getRegularName();
+            return proxy;
         }
         return new ConceptProxy(spec.getFullyQualifiedName(), spec.getPrimordialUuid());
     }

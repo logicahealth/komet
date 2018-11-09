@@ -55,6 +55,10 @@ public class QueryBuilder  {
       return this;
    }
 
+    public Map<String, Object> getLetClauses() {
+        return letClauses;
+    }
+
 
    /**
     * Ordered list of ordering statements, where primary sort 

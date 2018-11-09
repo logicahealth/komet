@@ -34,7 +34,7 @@ public class StampPathAdaptor extends XmlAdapter<ConceptProxy, StampPath> {
 
     @Override
     public ConceptProxy marshal(StampPath v) throws Exception {
-        return (ConceptProxy) v.getPathConcept();
+        return new ConceptProxy(v.getPathConcept());
     }
     
 }

@@ -64,6 +64,29 @@ public class PostgresProvider
     implements DataStoreSubService, IdentifierService { // ExtendedStore
 
     private static final Logger LOG = LogManager.getLogger();
+    private static final boolean LOG_SQL_FLAG = false;
+
+    private void logSqlBytea(Statement stmt, byte[] bytes) {
+        if (LOG_SQL_FLAG) {
+            LOG.debug(":SQL: " + stmt.toString() 
+                + "; -- '"
+                + DatatypeConverter.printHexBinary(bytes) 
+                + "'::bytea");
+        }
+    }
+
+    private void logSqlStmt(Statement stmt) {
+        if (LOG_SQL_FLAG) {
+            logSqlString(stmt.toString());
+        }
+    }
+
+    private void logSqlString(String sql) {
+        if (LOG_SQL_FLAG) {
+            LOG.debug(":SQL: " + sql);
+        }
+    }
+
     private UUID datastoreId = null; // :???: verify not `static`
     private PostgresIdentifierProvider identifierProvider;
 
@@ -90,9 +113,9 @@ public class PostgresProvider
         try {
             HikariConfig config = new HikariConfig();
             // ::NYI: pass in setJdbcUrl as parameter instead of being hardcoded.
-            config.setJdbcUrl("jdbc:postgresql://localhost/isaac");
-            config.setUsername("kec");
-            config.setPassword("");
+            config.setJdbcUrl("jdbc:postgresql://localhost/isaac_db");
+            config.setUsername("isaac_user");
+            config.setPassword("isaac_pwd");
             config.addDataSourceProperty("cachePrepStmts", "true");
             config.addDataSourceProperty("prepStmtCacheSize", "250");
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
@@ -113,12 +136,12 @@ public class PostgresProvider
                 try (Statement stmt = conn.createStatement()) {
                     String sqlCreate = "CREATE TABLE IF NOT EXISTS datastore_id_table "
                         + "( datastore_puid uuid, PRIMARY KEY (datastore_puid) ); ";
-                    LOG.debug(":SQL: " + sqlCreate);
+                    logSqlString(sqlCreate);
                     stmt.execute(sqlCreate);
                 }
 
                 try (Statement stmt = conn.createStatement()) {
-                    LOG.debug(":SQL: " + sqlReadDatastoreId());
+                    logSqlString(sqlReadDatastoreId());
                     ResultSet resultSet = stmt.executeQuery(sqlReadDatastoreId());
 
                     if (resultSet.next()) {
@@ -127,12 +150,12 @@ public class PostgresProvider
                         String sql = "INSERT INTO datastore_id_table (datastore_puid) VALUES (?) ; ";
                         try (PreparedStatement stmt1 = conn.prepareStatement(sql)) {
                             stmt1.setObject(1, UUID.randomUUID());
-                            LOG.debug(":SQL: " + stmt1.toString());
+                            logSqlStmt(stmt1);
                             stmt1.execute();
                         }
 
                         try (Statement stmt2 = conn.createStatement()) {
-                            LOG.debug(":SQL: " + sqlReadDatastoreId());
+                            logSqlString(sqlReadDatastoreId());
                             resultSet = stmt2.executeQuery(sqlReadDatastoreId());
                             if (resultSet.next()) {
                                 datastoreId = resultSet.getObject(1, UUID.class);
@@ -156,14 +179,14 @@ public class PostgresProvider
                         + " version_stamp INTEGER," // -1 for the first record
                         + " version_data bytea,"
                         + " PRIMARY KEY (o_nid, version_stamp) ); ";
-                    LOG.debug(":SQL: " + sqlCreate);
+                    logSqlString(sqlCreate);
                     stmt.execute(sqlCreate);
                 }
 
                 try (Statement stmt = conn.createStatement()) {
                     String sqlCreate = "CREATE TABLE IF NOT EXISTS concepts_table "
                         + "() INHERITS (identified_objects_table); ";
-                    LOG.debug(":SQL: " + sqlCreate);
+                    logSqlString(sqlCreate);
                     stmt.execute(sqlCreate);
                 }
 
@@ -171,7 +194,7 @@ public class PostgresProvider
                     String sqlCreate = "CREATE TABLE IF NOT EXISTS semantics_table "
                         + "(referenced_component_nid INTEGER) "
                         + "INHERITS (identified_objects_table); ";
-                    LOG.debug(":SQL: " + sqlCreate);
+                    logSqlString(sqlCreate);
                     stmt.execute(sqlCreate);
                 }
 
@@ -181,7 +204,7 @@ public class PostgresProvider
                         + " assemblage_type_token INTEGER,"
                         + " version_type_token INTEGER,"
                         + " PRIMARY KEY(assemblage_nid) ); ";
-                    LOG.debug(":SQL: " + sqlCreate);
+                    logSqlString(sqlCreate);
                     stmt.execute(sqlCreate);
                 }
 
@@ -192,7 +215,7 @@ public class PostgresProvider
                         + " taxonomy_data bytea,"
                         + " CONSTRAINT taxonomy_data_pk UNIQUE (t_nid,assemblage_nid),"
                         + " PRIMARY KEY(t_nid, assemblage_nid) ); ";
-                    LOG.debug(":SQL: " + sqlCreate);
+                    logSqlString(sqlCreate);
                     stmt.execute(sqlCreate);
                 }
             }
@@ -416,8 +439,7 @@ public class PostgresProvider
                             stmt.setInt(3, versionStampSequences[i - 1]);
                         }
                         stmt.setBytes(4, bytes);   // version_data
-                        LOG.debug(":SQL: " + stmt.toString() + "; -- '"
-                            + DatatypeConverter.printHexBinary(bytes) + "'::bytea");
+                        logSqlBytea(stmt, bytes);
                         stmt.addBatch();
                     }
                     int[] updateCounts = stmt.executeBatch();
@@ -441,8 +463,7 @@ public class PostgresProvider
                             stmt.setInt(4, versionStampSequences[i - 1]);
                         }
                         stmt.setBytes(5, bytes);   // version_data
-                        LOG.debug(":SQL: " + stmt.toString() + "; -- '"
-                            + DatatypeConverter.printHexBinary(bytes) + "'::bytea");
+                        logSqlBytea(stmt, bytes);
                         stmt.addBatch();
                     }
                     int[] updateCounts = stmt.executeBatch();
@@ -472,7 +493,7 @@ public class PostgresProvider
         IntArrayList results = new IntArrayList();
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadAssemblageNids())) {
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             ResultSet resultsSet = stmt.executeQuery();
 
             while (resultsSet.next()) {
@@ -491,7 +512,7 @@ public class PostgresProvider
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadAssemblageType())) {
             stmt.setInt(1, assemblageNid);
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     return IsaacObjectType.fromToken((byte) resultSet.getInt(1));
@@ -510,7 +531,7 @@ public class PostgresProvider
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadAssemblageNidsForAssemblageType())) {
             stmt.setInt(1, type.getToken());
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     results.add(resultSet.getInt(1));
@@ -530,7 +551,7 @@ public class PostgresProvider
             stmt.setInt(2, type.getToken()); // assemblage_type_token
             stmt.setInt(3, VersionType.UNKNOWN.getVersionTypeToken()); // version_type_token
             stmt.setInt(4, type.getToken()); // assemblage_type_token
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             stmt.executeUpdate();
         } catch (SQLException ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
@@ -547,7 +568,7 @@ public class PostgresProvider
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadIdentifiedObjectData())) {
             stmt.setInt(1, nid);
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 byte[] bytes = resultSet.getBytes(1);
@@ -612,7 +633,7 @@ public class PostgresProvider
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadSemanticNidsForComponent())) {
             stmt.setInt(1, componentNid);
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     results.add(resultSet.getInt(1));
@@ -632,7 +653,7 @@ public class PostgresProvider
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadAssemblageNidForObjectNid())) {
             stmt.setInt(1, nid);
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     return OptionalInt.of(resultSet.getInt(1));
@@ -655,12 +676,12 @@ public class PostgresProvider
             PreparedStatement stmt = conn.prepareStatement(sqlReadTaxonomyData())) {
             stmt.setInt(1, conceptNid); // t_nid
             stmt.setInt(2, assemblageNid); // assemblage_nid
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
 
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     byte[] taxonomyBytes = resultSet.getBytes(1);
-                     ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(taxonomyBytes);
+                    ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(taxonomyBytes);
                     int[] taxonomyData = byteBuffer.getIntArray();
                     return taxonomyData;
                 }
@@ -679,7 +700,7 @@ public class PostgresProvider
 
             ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer((taxonomyData.length * 4) + 4); // 4 bytes per element + 4 bytes for length of array. 
             byteBuffer.putIntArray(taxonomyData);
-            
+
             byte[] taxonomyBytes = byteBuffer.getData();
 
             stmt.setBytes(3, taxonomyBytes); // taxonomy_data
@@ -687,8 +708,7 @@ public class PostgresProvider
 
             //System.out.println(":DEBUG:taxonomyData:" + Arrays.toString(taxonomyData)); // :DEBUG:
             //System.out.println(":DEBUG:taxonomyBytes:" + Arrays.toString(taxonomyBytes)); // :DEBUG:
-
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             stmt.executeUpdate();
         } catch (SQLException ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
@@ -726,7 +746,7 @@ public class PostgresProvider
         try (Connection conn = this.ds.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement(sqlReadUuidPrimordialForNid())) {
                 stmt.setInt(1, nid);
-                LOG.debug(":SQL: " + stmt.toString());
+                logSqlStmt(stmt);
                 try (ResultSet resultSet = stmt.executeQuery()) {
                     while (resultSet.next()) {
                         UUID uuidOid = resultSet.getObject(1, UUID.class);
@@ -745,7 +765,7 @@ public class PostgresProvider
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadVersionTypeForAssemblage())) {
             stmt.setInt(1, assemblageNid);
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     return VersionType.getFromToken((byte) resultSet.getInt(1));
@@ -765,7 +785,7 @@ public class PostgresProvider
             stmt.setInt(2, IsaacObjectType.UNKNOWN.getToken()); // assemblage_type_token
             stmt.setInt(3, type.getVersionTypeToken()); // version_type_token
             stmt.setInt(4, type.getVersionTypeToken());
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             stmt.executeUpdate();
         } catch (SQLException ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
@@ -792,7 +812,7 @@ public class PostgresProvider
                 try (Connection conn = this.ds.getConnection();
                     PreparedStatement stmt = conn.prepareStatement(sqlReadConceptVersions())) {
                     stmt.setInt(1, nid);
-                    LOG.debug(":SQL: " + stmt.toString());
+                    logSqlStmt(stmt);
                     try (ResultSet resultSet = stmt.executeQuery()) {
                         return resultSet.next();
                     }
@@ -805,7 +825,7 @@ public class PostgresProvider
                 try (Connection conn = this.ds.getConnection();
                     PreparedStatement stmt = conn.prepareStatement(sqlReadSemanticVersions())) {
                     stmt.setInt(1, nid);
-                    LOG.debug(":SQL: " + stmt.toString());
+                    logSqlStmt(stmt);
                     try (ResultSet resultSet = stmt.executeQuery()) {
                         return resultSet.next();
                     }
@@ -836,7 +856,7 @@ public class PostgresProvider
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadNidsForAssemblage())) {
             stmt.setInt(1, assemblageNid);
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     results.add(resultSet.getInt(1));
@@ -961,6 +981,5 @@ public class PostgresProvider
     public void setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) throws IllegalStateException {
         this.identifierProvider.setupNid(nid, assemblageNid, objectType, versionType);
     }
-    
-    
+
 }
