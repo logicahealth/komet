@@ -112,14 +112,13 @@ public class PostgresProvider
         LOG.info("Starting PostgresProvider proceeding to (or at) runlevel: {}", LookupService.getProceedingToRunLevel());
 
         try {
-            String isaacDb = System.getProperty("ISAAC_PSQL_DB", "isaac_db");
-            String isaacDbUri = "jdbc:postgresql://localhost/" + isaacDb;
+            String isaacDbUrl = System.getProperty("ISAAC_PSQL_URL", "jdbc:postgresql://localhost/isaac_db");
             String isaacUsername = System.getProperty("ISAAC_PSQL_UNAME", "isaac_user");
             String isaacUserpwd = System.getProperty("ISAAC_PSQL_UPWD", "isaac_pwd");
 
             HikariConfig config = new HikariConfig();
             // ::NYI: pass in setJdbcUrl as parameter instead of being hardcoded.
-            config.setJdbcUrl(isaacDbUri);
+            config.setJdbcUrl(isaacDbUrl);
             config.setUsername(isaacUsername);
             config.setPassword(isaacUserpwd);
             config.addDataSourceProperty("cachePrepStmts", "true");

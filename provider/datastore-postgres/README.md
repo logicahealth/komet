@@ -151,9 +151,9 @@ Run ISAAC KOMET application.
 If launch from the command line or script the PostgreSQL database name, username and user password can be passed in a properties.
 
 ``` ini
--DISAAC_PSQL_DB=isaac_db
--DISAAC_PSQL_UNAME=isaac_user
--DISAAC_PSQL_UPWD=isaac_pwd
+-DISAAC_PSQL_URL="jdbc:postgresql://localhost/isaac_db"
+-DISAAC_PSQL_UNAME="isaac_user"
+-DISAAC_PSQL_UPWD="isaac_pwd"
 ```
 
 
