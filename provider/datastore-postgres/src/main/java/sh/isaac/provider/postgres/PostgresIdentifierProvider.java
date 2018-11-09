@@ -62,6 +62,20 @@ public class PostgresIdentifierProvider
     implements IdentifierService {
 
     private static final Logger LOG = LogManager.getLogger();
+    private static final boolean LOG_SQL_FLAG = false;
+
+    private void logSqlStmt(Statement stmt) {
+        if (LOG_SQL_FLAG) {
+            logSqlString(stmt.toString());
+        }
+    }
+
+    private void logSqlString(String sql) {
+        if (LOG_SQL_FLAG) {
+            LOG.debug(":SQL: " + sql);
+        }
+    }
+
     //~--- fields --------------------------------------------------------------
     /*
         nid -> assemblage nid
@@ -129,7 +143,7 @@ public class PostgresIdentifierProvider
                         + "ouid uuid, "
                         + "UNIQUE (ouid), "
                         + "PRIMARY KEY (u_nid, ouid) ); ";
-                    LOG.debug(":SQL: " + sqlCreate);
+                    logSqlString(sqlCreate);
                     stmt.execute(sqlCreate);
                 }
 
@@ -137,25 +151,25 @@ public class PostgresIdentifierProvider
                     String sqlCreate = "CREATE TABLE IF NOT EXISTS uuid_primordial_table ( "
                         + "UNIQUE (u_nid) "
                         + ") INHERITS (uuid_table); ";
-                    LOG.debug(":SQL: " + sqlCreate);
+                    logSqlString(sqlCreate);
                     stmt.execute(sqlCreate);
                 }
 
                 try (Statement stmt = conn.createStatement()) {
                     String sqlCreate = "CREATE TABLE IF NOT EXISTS uuid_additional_table ( "
                         + ") INHERITS (uuid_table); ";
-                    LOG.debug(":SQL: " + sqlCreate);
+                    logSqlString(sqlCreate);
                     stmt.execute(sqlCreate);
                 }
 
                 try (Statement stmt = conn.createStatement()) {
                     String sqlCreate = "CREATE SEQUENCE IF NOT EXISTS nid_sequence "
                         + "AS INTEGER  MINVALUE -2147483647 START WITH -2147483647; ";
-                    LOG.debug(":SQL: " + sqlCreate);
+                    logSqlString(sqlCreate);
                     boolean result = stmt.execute(sqlCreate);
                     if (result) {
                         String sqlSetVal = "SELECT setval('nid_sequence', -2147483647, false); ";
-                        LOG.debug(":SQL: " + sqlSetVal);
+                        logSqlString(sqlSetVal);
                         stmt.execute(sqlSetVal);
                         // Next `nextval` will return -2147483647
                     }
@@ -178,7 +192,7 @@ public class PostgresIdentifierProvider
         finally {
             LOG.info("Connection closed.");
         }
-        
+
     }
 
     /**
@@ -317,7 +331,7 @@ public class PostgresIdentifierProvider
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadUuidPrimordialForNid())) {
             stmt.setInt(1, nid);
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 UUID uuid = resultSet.getObject(1, UUID.class);
@@ -337,7 +351,7 @@ public class PostgresIdentifierProvider
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadUuidAdditionalForNid())) {
             stmt.setInt(1, nid);
-            LOG.debug(":SQL: " + stmt.toString());
+            logSqlStmt(stmt);
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 UUID uuid = resultSet.getObject(1, UUID.class);
@@ -453,7 +467,7 @@ public class PostgresIdentifierProvider
             try (Connection conn = this.ds.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sqlReadUuidToNid())) {
                 stmt.setObject(1, keyUuid);
-                LOG.debug(":SQL: " + stmt.toString());
+                logSqlStmt(stmt);
                 ResultSet resultSet = stmt.executeQuery();
                 while (resultSet.next()) {
                     return true;
@@ -469,7 +483,7 @@ public class PostgresIdentifierProvider
             try (Connection conn = this.ds.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sqlReadNidToUuid())) {
                 stmt.setInt(1, value);
-                LOG.debug(":SQL: " + stmt.toString());
+                logSqlStmt(stmt);
                 ResultSet resultSet = stmt.executeQuery();
                 while (resultSet.next()) {
                     return true;
@@ -490,7 +504,7 @@ public class PostgresIdentifierProvider
                 try (PreparedStatement stmt = conn.prepareStatement(sqlCreateUuidPrimordial())) {
                     stmt.setInt(1, nid);
                     stmt.setObject(2, uuidKey);
-                    LOG.debug(":SQL: " + stmt.toString());
+                    logSqlStmt(stmt);
                     int count = stmt.executeUpdate();
                     if (count > 0) {
                         return true;
@@ -499,7 +513,7 @@ public class PostgresIdentifierProvider
                 try (PreparedStatement stmt = conn.prepareStatement(sqlCreateUuidAdditional())) {
                     stmt.setInt(1, nid);
                     stmt.setObject(2, uuidKey);
-                    LOG.debug(":SQL: " + stmt.toString());
+                    logSqlStmt(stmt);
                     int count = stmt.executeUpdate();
                     if (count > 0) {
                         return true;
@@ -524,7 +538,7 @@ public class PostgresIdentifierProvider
             try (Connection conn = this.ds.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sqlReadUuidToNid())) {
                 stmt.setObject(1, keyUuid);
-                LOG.debug(":SQL: " + stmt.toString());
+                logSqlStmt(stmt);
                 ResultSet resultSet = stmt.executeQuery();
                 while (resultSet.next()) {
                     return OptionalInt.of(resultSet.getInt(1));
@@ -546,7 +560,7 @@ public class PostgresIdentifierProvider
             String sqlSequenceNextval = "SELECT nextval('nid_sequence'); ";
             try (Connection conn = this.ds.getConnection();
                 Statement stmt = conn.createStatement()) {
-                LOG.debug(":SQL: " + sqlSequenceNextval);
+                logSqlString(sqlSequenceNextval);
                 ResultSet resultSet = stmt.executeQuery(sqlSequenceNextval);
                 while (resultSet.next()) {
                     int nextNidProvider = resultSet.getInt(1);
@@ -568,7 +582,7 @@ public class PostgresIdentifierProvider
             String sqlSequenceLastValue = "SELECT last_value FROM nid_sequence; ";
             try (Connection conn = this.ds.getConnection();
                 Statement stmt = conn.createStatement()) {
-                LOG.debug(":SQL: " + sqlSequenceLastValue);
+                logSqlString(sqlSequenceLastValue);
                 ResultSet resultSet = stmt.executeQuery(sqlSequenceLastValue);
                 while (resultSet.next()) {
                     int nextNidProvider = resultSet.getInt(1);
@@ -601,7 +615,7 @@ public class PostgresIdentifierProvider
                 PreparedStatement stmt = conn.prepareStatement(sqlCreateUuidPrimordial())) {
                 stmt.setInt(1, nidNew);
                 stmt.setObject(2, uuidKey);
-                LOG.debug(":SQL: " + stmt.toString());
+                logSqlStmt(stmt);
                 stmt.execute();
             } catch (SQLException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
@@ -615,7 +629,7 @@ public class PostgresIdentifierProvider
 //            try (Connection conn = this.ds.getConnection();
 //                PreparedStatement stmt = conn.prepareStatement(sqlReadNidToUuid())) {
 //                stmt.setInt(1, nid);
-//                LOG.debug(":SQL: " + stmt.toString());
+//                logSqlStmt(stmt);
 //                ResultSet resultSet = stmt.executeQuery();
 //                while (resultSet.next()) {
 //                    UUID uuid = resultSet.getObject(1, UUID.class);
