@@ -16,6 +16,9 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.AttributeFunction;
+import sh.isaac.api.query.LetItemKey;
+import sh.isaac.api.query.AttributeReturnSpecification;
 import sh.isaac.api.component.concept.ConceptSpecificationWithLabel;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,19 +57,19 @@ public class ReturnSpecificationController {
     
     final ObservableList<MenuItem> addFieldItems;
 
-    final ObservableList<ReturnSpecificationRow> returnSpecificationRows
+    final ObservableList<AttributeReturnSpecification> returnSpecificationRows
             = FXCollections.observableArrayList(returnSpecificationRow
                     -> new Observable[]{
                 returnSpecificationRow.columnNameProperty()});
     final Manifold manifold;
 
     final ObservableMap<LetItemKey, Object> letItemObjectMap;
-    final ObservableList<CellFunction> cellFunctions;
+    final ObservableList<AttributeFunction> attributeFunctions;
     LetItemKey lastStampCoordinateKey = null;
 
     public ReturnSpecificationController(SimpleListProperty<ConceptSpecification> forAssemblagesProperty,
             ObservableMap<LetItemKey, Object> letItemObjectMap,
-            ObservableList<CellFunction> cellFunctions,
+            ObservableList<AttributeFunction> cellFunctions,
             ObservableList<ConceptSpecification> joinProperties,
             ObservableList<MenuItem> addFieldItems,
             Manifold manifold) {
@@ -74,7 +77,7 @@ public class ReturnSpecificationController {
         this.forAssemblagesProperty.addListener(this::forAssemblagesListener);
         this.letItemObjectMap = letItemObjectMap;
         this.letItemObjectMap.addListener(this::letItemsListener);
-        this.cellFunctions = cellFunctions;
+        this.attributeFunctions = cellFunctions;
         this.joinProperties = joinProperties;
         this.addFieldItems = addFieldItems;
         this.manifold = manifold;
@@ -91,22 +94,22 @@ public class ReturnSpecificationController {
             if (key == lastStampCoordinateKey) {
                 lastStampCoordinateKey = null;
             }
-            for (ReturnSpecificationRow row : returnSpecificationRows) {
+            for (AttributeReturnSpecification row : returnSpecificationRows) {
                 if (row.getStampCoordinateKey().equals(key)) {
                     row.setStampCoordinateKey(null);
                 }
             }
-            ArrayList<CellFunction> toDelete = new ArrayList();
-            for (CellFunction cellFunction: cellFunctions) {
-                if (key.getItemName().startsWith(cellFunction.functionName)) {
-                    toDelete.add(cellFunction);
+            ArrayList<AttributeFunction> toDelete = new ArrayList();
+            for (AttributeFunction attributeFunction: attributeFunctions) {
+                if (key.getItemName().startsWith(attributeFunction.getFunctionName())) {
+                    toDelete.add(attributeFunction);
                 }
             }
-            cellFunctions.removeAll(toDelete);
+            attributeFunctions.removeAll(toDelete);
         }
         if (change.wasAdded()) {
             if (change.getValueAdded() instanceof StampCoordinate) {
-                for (ReturnSpecificationRow row : returnSpecificationRows) {
+                for (AttributeReturnSpecification row : returnSpecificationRows) {
                     this.lastStampCoordinateKey = key;
                     if (row.getStampCoordinateKey() == null) {
                         row.setStampCoordinateKey(key);
@@ -115,7 +118,7 @@ public class ReturnSpecificationController {
             }
             if (change.getValueAdded() instanceof LanguageCoordinate) {
                 LanguageCoordinate lc = (LanguageCoordinate) change.getValueAdded();
-                cellFunctions.add(new CellFunction(key.getItemName() + " preferred name", (t, u) -> {
+                attributeFunctions.add(new AttributeFunction(key.getItemName() + " preferred name", (t, u) -> {
                     int nid = Integer.parseInt(t);
                     LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(nid, u);
                     if (description.isPresent()) {
@@ -124,7 +127,7 @@ public class ReturnSpecificationController {
                     return "No current preferred name";
                     
                 }));
-                cellFunctions.add(new CellFunction(key.getItemName() + " FQN", (t, u) -> {
+                attributeFunctions.add(new AttributeFunction(key.getItemName() + " FQN", (t, u) -> {
                     int nid = Integer.parseInt(t);
                     LatestVersion<DescriptionVersion> description = lc.getFullySpecifiedDescription(nid, u);
                     if (description.isPresent()) {
@@ -134,7 +137,7 @@ public class ReturnSpecificationController {
                     
                 }));
 
-                cellFunctions.add(new CellFunction(key.getItemName() + " definition", (t, u) -> {
+                attributeFunctions.add(new AttributeFunction(key.getItemName() + " definition", (t, u) -> {
                     int nid = Integer.parseInt(t);
                     LatestVersion<DescriptionVersion> description = lc.getDefinitionDescription(Get.concept(nid).getConceptDescriptionList(), u);
                     if (description.isPresent()) {
@@ -149,7 +152,7 @@ public class ReturnSpecificationController {
 
     }
 
-    public ObservableList<ReturnSpecificationRow> getReturnSpecificationRows() {
+    public ObservableList<AttributeReturnSpecification> getReturnSpecificationRows() {
         return returnSpecificationRows;
     }
 
@@ -170,10 +173,8 @@ public class ReturnSpecificationController {
             for (int i = 0; i < PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex(); i++) {
                 PROPERTY_INDEX property = PROPERTY_INDEX.values()[i];
                 if (property != PROPERTY_INDEX.COMMITTED_STATE) {
-                    ReturnSpecificationRow row = new ReturnSpecificationRow(
-                            manifold.getPreferredDescriptionText(assemblageSpec),
-                            manifold.getPreferredDescriptionText(property.getSpec()),
-                            new CellFunction("", (t, u) -> {
+                    AttributeReturnSpecification row = new AttributeReturnSpecification(
+                            new AttributeFunction("", (t, u) -> {
                                 return t;
                             }),
                             manifold.getPreferredDescriptionText(assemblageSpec) + ":"
@@ -215,10 +216,8 @@ public class ReturnSpecificationController {
             for (Nid1_Int2_Version semanticField : sortedActiveSemanticFields) {
                 // add a sort...
                 // add extra fields (STAMP)
-                ReturnSpecificationRow row = new ReturnSpecificationRow(
-                        manifold.getPreferredDescriptionText(assemblageSpec),
-                        manifold.getPreferredDescriptionText(semanticField.getNid1()),
-                        new CellFunction("", (t, u) -> {
+                AttributeReturnSpecification row = new AttributeReturnSpecification(
+                        new AttributeFunction("", (t, u) -> {
                             return t;
                         }),
                         manifold.getPreferredDescriptionText(assemblageSpec) + ":"
@@ -234,11 +233,11 @@ public class ReturnSpecificationController {
         }
     }
 
-    public void addReturnSpecificationListener(ListChangeListener<? super ReturnSpecificationRow> listener) {
+    public void addReturnSpecificationListener(ListChangeListener<? super AttributeReturnSpecification> listener) {
         returnSpecificationRows.addListener(listener);
     }
 
-    public void removeReturnSpecificationListener(ListChangeListener<? super ReturnSpecificationRow> listener) {
+    public void removeReturnSpecificationListener(ListChangeListener<? super AttributeReturnSpecification> listener) {
         returnSpecificationRows.removeListener(listener);
     }
 

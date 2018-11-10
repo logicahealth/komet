@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.AttributeReturnSpecification;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.MenuItem;
@@ -25,10 +26,10 @@ import javafx.scene.control.MenuItem;
  * @author kec
  */
 public class ReturnSpecificationMenuItem extends MenuItem {
-    final ReturnSpecificationRow rowToAdd;
-    final ObservableList<ReturnSpecificationRow> returnSpecificationRows;
+    final AttributeReturnSpecification rowToAdd;
+    final ObservableList<AttributeReturnSpecification> returnSpecificationRows;
 
-    public ReturnSpecificationMenuItem(String menuText, ReturnSpecificationRow rowToAdd, ObservableList<ReturnSpecificationRow> returnSpecificationRows) {
+    public ReturnSpecificationMenuItem(String menuText, AttributeReturnSpecification rowToAdd, ObservableList<AttributeReturnSpecification> returnSpecificationRows) {
         super(menuText);
         this.rowToAdd = rowToAdd;
         this.returnSpecificationRows = returnSpecificationRows;
@@ -36,7 +37,7 @@ public class ReturnSpecificationMenuItem extends MenuItem {
     }
     
     private void addRow(ActionEvent action) {
-        this.returnSpecificationRows.add(new ReturnSpecificationRow(rowToAdd));
+        this.returnSpecificationRows.add(new AttributeReturnSpecification(rowToAdd));
     }
     
 }

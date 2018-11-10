@@ -37,6 +37,7 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
@@ -81,7 +83,7 @@ import sh.isaac.api.xml.JaxbMap;
  */
 @XmlRootElement(name = "Query")
 @XmlAccessorType(XmlAccessType.NONE)
-//@XmlType(propOrder={"fullyQualfiedName", "uuids"})
+@XmlType(propOrder={"forSet", "letMap", "whereForJaxb", "returnAttributeList"})
 public class Query {
 
     /**
@@ -120,6 +122,9 @@ public class Query {
      * considered in the query.
      */
     private ForSetsSpecification forSetSpecification;
+    
+    List<AttributeReturnSpecification> attributeReturnSpecifications = new ArrayList();
+
     
     //~--- constructors --------------------------------------------------------
 
@@ -212,7 +217,16 @@ public class Query {
         return forSetSpecification.getForSet();
     }
     
-
+    @XmlElement(name = "AttributeSpecification")
+    @XmlElementWrapper(name = "Return")
+    public List<AttributeReturnSpecification> getReturnAttributeList() {
+        return attributeReturnSpecifications;
+    }
+    
+    public void setReturnAttributeList(List<AttributeReturnSpecification> attributeReturnSpecifications) {
+        this.attributeReturnSpecifications = attributeReturnSpecifications;
+    }
+    
     /**
      *
      * @return an array of component nids in an array...

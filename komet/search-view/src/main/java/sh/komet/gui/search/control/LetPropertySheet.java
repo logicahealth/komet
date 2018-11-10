@@ -19,7 +19,7 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.komet.gui.search.flwor.LetItemKey;
+import sh.isaac.api.query.LetItemKey;
 import sh.komet.gui.search.flwor.LetItemPanel;
 import sh.komet.gui.search.flwor.LetItemsController;
 

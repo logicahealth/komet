@@ -14,38 +14,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.search.flwor;
+package sh.isaac.api.query;
 
 import java.util.Objects;
-import java.util.function.BiFunction;
-import sh.isaac.api.coordinate.StampCoordinate;
+import java.util.UUID;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author kec
  */
-public class CellFunction {
-    final String functionName;
-    final BiFunction<String,StampCoordinate, String> function;
-
-    public CellFunction(String functionName, BiFunction<String, StampCoordinate, String> function) {
-        this.functionName = functionName;
-        this.function = function;
-    }
-    
-    public String apply(String dataIn, StampCoordinate stampCoordinate) {
-        return function.apply(dataIn, stampCoordinate);
+@XmlRootElement(name = "LetItemKey")
+public class LetItemKey {
+    UUID itemId;
+    String itemName;
+    /**
+     * No arg constructor for Jaxb. 
+     */
+    public LetItemKey() {
     }
 
-    @Override
-    public String toString() {
-        return functionName;
+    public LetItemKey(String itemName) {
+        this.itemId = UUID.randomUUID();
+        this.itemName = itemName;
+    }
+
+    public UUID getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(UUID itemId) {
+        this.itemId = itemId;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
     }
 
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 23 * hash + Objects.hashCode(this.functionName);
+        hash = 67 * hash + Objects.hashCode(this.itemId);
         return hash;
     }
 
@@ -60,11 +73,13 @@ public class CellFunction {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final CellFunction other = (CellFunction) obj;
-        if (!Objects.equals(this.functionName, other.functionName)) {
-            return false;
-        }
-        return true;
+        final LetItemKey other = (LetItemKey) obj;
+        return Objects.equals(this.itemId, other.itemId);
+    }
+
+    @Override
+    public String toString() {
+        return itemName;
     }
     
     

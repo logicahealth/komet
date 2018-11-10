@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.LetItemKey;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;

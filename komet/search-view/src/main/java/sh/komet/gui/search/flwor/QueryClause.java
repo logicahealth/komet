@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.LetItemKey;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;

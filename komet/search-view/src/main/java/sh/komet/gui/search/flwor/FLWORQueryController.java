@@ -54,13 +54,15 @@ package sh.komet.gui.search.flwor;
 * See the License for the specific language governing permissions and
 * limitations under the License.
  */
+import sh.isaac.api.query.AttributeFunction;
+import sh.isaac.api.query.LetItemKey;
+import sh.isaac.api.query.AttributeReturnSpecification;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 
 import java.util.*;
-import java.util.logging.Level;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -87,6 +89,8 @@ import javafx.stage.FileChooser;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.ValidationEvent;
+import javax.xml.bind.ValidationEventHandler;
 
 //~--- JDK imports ------------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
@@ -206,16 +210,16 @@ public class FLWORQueryController
     private Button trashButton;
 
     @FXML // fx:id="returnTable"
-    private TableView<ReturnSpecificationRow> returnTable; // Value injected by FXMLLoader
+    private TableView<AttributeReturnSpecification> returnTable; // Value injected by FXMLLoader
 
     @FXML // fx:id="functionColumn"
-    private TableColumn<ReturnSpecificationRow, CellFunction> functionColumn; // Value injected by FXMLLoader
+    private TableColumn<AttributeReturnSpecification, AttributeFunction> functionColumn; // Value injected by FXMLLoader
 
     @FXML // fx:id="columnNameColumn"
-    private TableColumn<ReturnSpecificationRow, String> columnNameColumn; // Value injected by FXMLLoader
+    private TableColumn<AttributeReturnSpecification, String> columnNameColumn; // Value injected by FXMLLoader
 
     @FXML // fx:id="stampCoordinateColumn"
-    private TableColumn<ReturnSpecificationRow, LetItemKey> stampCoordinateColumn; // Value injected by FXMLLoader
+    private TableColumn<AttributeReturnSpecification, LetItemKey> stampCoordinateColumn; // Value injected by FXMLLoader
 
     @FXML // fx:id="spacerLabel"
     private Label spacerLabel; // Value injected by FXMLLoader
@@ -233,25 +237,25 @@ public class FLWORQueryController
     private ReturnSpecificationController returnSpecificationController;
 
     private LetItemsController letItemsController;
-    private final List<ReturnSpecificationRow> resultColumns = new ArrayList();
+    private final List<AttributeReturnSpecification> resultColumns = new ArrayList();
 
     ObservableList<ConceptSpecification> joinProperties = FXCollections.observableArrayList();
 
-    ObservableList<CellFunction> cellFunctions = FXCollections.observableArrayList();
+    ObservableList<AttributeFunction> cellFunctions = FXCollections.observableArrayList();
 
     {
-        cellFunctions.add(new CellFunction("", (t, u) -> {
+        cellFunctions.add(new AttributeFunction("", (t, u) -> {
             return t;
         }));
-        cellFunctions.add(new CellFunction("Primoridal uuid", (t, u) -> {
+        cellFunctions.add(new AttributeFunction("Primoridal uuid", (t, u) -> {
             int nid = Integer.parseInt(t);
             return Get.identifierService().getUuidPrimordialForNid(nid).toString();
         }));
-        cellFunctions.add(new CellFunction("All uuids", (t, u) -> {
+        cellFunctions.add(new AttributeFunction("All uuids", (t, u) -> {
             int nid = Integer.parseInt(t);
             return Get.identifierService().getUuidsForNid(nid).toString();
         }));
-        cellFunctions.add(new CellFunction("Epoch to 8601 date/time", (t, u) -> {
+        cellFunctions.add(new AttributeFunction("Epoch to 8601 date/time", (t, u) -> {
             long epochTime = Long.parseLong(t);
             return DateTimeUtil.format(epochTime);
         }));
@@ -287,7 +291,7 @@ public class FLWORQueryController
         //ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
         ObservableSnapshotService[] snapshotArray = new ObservableSnapshotService[columnCount];
         for (int column = 0; column < resultColumns.size(); column++) {
-            ReturnSpecificationRow columnSpecification = resultColumns.get(column);
+            AttributeReturnSpecification columnSpecification = resultColumns.get(column);
             if (columnSpecification.getStampCoordinateKey() != null) {
                 StampCoordinate stamp = (StampCoordinate) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampCoordinateKey());
                 snapshotArray[column] = Get.observableSnapshotService(stamp);
@@ -307,14 +311,14 @@ public class FLWORQueryController
                 }
             }
             for (int column = 0; column < resultColumns.size(); column++) {
-                ReturnSpecificationRow columnSpecification = resultColumns.get(column);
+                AttributeReturnSpecification columnSpecification = resultColumns.get(column);
                 int resultArrayNidIndex = fastAssemblageNidToIndexMap.get(columnSpecification.getAssemblageNid());
                 if (latestVersionArray[resultArrayNidIndex].isPresent()) {
                     List<ReadOnlyProperty<?>> propertyList = propertyListArray[resultArrayNidIndex];
                     ReadOnlyProperty<?> property = propertyList.get(columnSpecification.getPropertyIndex());
-                    if (columnSpecification.getCellFunction() != null) {
+                    if (columnSpecification.getAttributeFunction() != null) {
                         StampCoordinate sc = (StampCoordinate) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampCoordinateKey());
-                        resultRow[column] = columnSpecification.getCellFunction().apply(property.getValue().toString(), sc);
+                        resultRow[column] = columnSpecification.getAttributeFunction().apply(property.getValue().toString(), sc);
                     } else {
                         resultRow[column] = property.getValue().toString();
                     }
@@ -330,71 +334,89 @@ public class FLWORQueryController
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save FLWOR specification to file");
             fileChooser.setInitialFileName("query.flwor");
-            //File selectedFile = fileChooser.showSaveDialog(spacerLabel.getScene().getWindow());
+            File selectedFile = fileChooser.showSaveDialog(spacerLabel.getScene().getWindow());
+            if (selectedFile != null) {
 
-            JAXBContext jc = JAXBContext.newInstance(StampCoordinateImpl.class, 
-                    ConceptSpecification.class,
-                    ConceptProxy.class, LanguageCoordinateImpl.class, 
-                    JaxbMap.class, Query.class, 
-                    Clause.class, Or.class,
-                    And.class,
-                    AndNot.class,
-                    LeafClause.class,
-                    Not.class,
-                    Or.class,
-                    Xor.class,
-                    AssemblageContainsConcept.class,
-                    AssemblageContainsKindOfConcept.class,
-                    AssemblageContainsString.class,
-                    AssemblageLuceneMatch.class,
-                    ChangedBetweenVersions.class,
-                    ComponentIsActive.class,
-                    ConceptForComponent.class,
-                    ConceptIs.class,
-                    ConceptIsChildOf.class,
-                    ConceptIsDescendentOf.class,
-                    ConceptIsKindOf.class,
-                    DescriptionActiveLuceneMatch.class,
-                    DescriptionActiveRegexMatch.class,
-                    DescriptionLuceneMatch.class,
-                    DescriptionRegexMatch.class,
-                    FullyQualifiedNameForConcept.class,
-                    PreferredNameForConcept.class,
-                    RelRestriction.class,
-                    RelationshipIsCircular.class
-                    );
+                JAXBContext jc = JAXBContext.newInstance(StampCoordinateImpl.class,
+                        ConceptSpecification.class,
+                        ConceptProxy.class, LanguageCoordinateImpl.class,
+                        JaxbMap.class, Query.class,
+                        Clause.class, Or.class,
+                        And.class,
+                        AndNot.class,
+                        LeafClause.class,
+                        Not.class,
+                        Or.class,
+                        Xor.class,
+                        AssemblageContainsConcept.class,
+                        AssemblageContainsKindOfConcept.class,
+                        AssemblageContainsString.class,
+                        AssemblageLuceneMatch.class,
+                        ChangedBetweenVersions.class,
+                        ComponentIsActive.class,
+                        ConceptForComponent.class,
+                        ConceptIs.class,
+                        ConceptIsChildOf.class,
+                        ConceptIsDescendentOf.class,
+                        ConceptIsKindOf.class,
+                        DescriptionActiveLuceneMatch.class,
+                        DescriptionActiveRegexMatch.class,
+                        DescriptionLuceneMatch.class,
+                        DescriptionRegexMatch.class,
+                        FullyQualifiedNameForConcept.class,
+                        PreferredNameForConcept.class,
+                        RelRestriction.class,
+                        RelationshipIsCircular.class,
+                        LetItemKey.class,
+                        AttributeReturnSpecification.class
+                );
 
-            Marshaller marshaller = jc.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(TermAux.ISAAC_UUID, System.out);
+                Marshaller marshaller = jc.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+                marshaller.marshal(TermAux.ISAAC_UUID, System.out);
 
-            QueryBuilder queryBuilder = new QueryBuilder()
-                    .from(this.forPropertySheet.getForSetSpecification());
-            for (LetItemKey key: this.letPropertySheet.getLetItemObjectMap().keySet()) {
-                Object value = this.letPropertySheet.getLetItemObjectMap().get(key);
-                if (value instanceof ObservableStampCoordinate) {
-                    value = ((ObservableStampCoordinate) value).getStampCoordinate();
-                } else if (value instanceof ObservableLanguageCoordinate) {
-                    value = ((ObservableLanguageCoordinate) value).getLanguageCoordinate();
+                QueryBuilder queryBuilder = new QueryBuilder()
+                        .from(this.forPropertySheet.getForSetSpecification());
+                for (LetItemKey key : this.letPropertySheet.getLetItemObjectMap().keySet()) {
+                    Object value = this.letPropertySheet.getLetItemObjectMap().get(key);
+                    if (value instanceof ObservableStampCoordinate) {
+                        value = ((ObservableStampCoordinate) value).getStampCoordinate();
+                    } else if (value instanceof ObservableLanguageCoordinate) {
+                        value = ((ObservableLanguageCoordinate) value).getLanguageCoordinate();
+                    }
+                    queryBuilder.let(key.getItemName(), value);
                 }
-                queryBuilder.let(key.getItemName(), value);
+
+                TreeItem<QueryClause> itemToProcess = this.root;
+                Clause rootClause = itemToProcess.getValue()
+                        .getClause();
+
+                queryBuilder.setWhereRoot((ParentClause) rootClause);
+                processQueryTreeItem(itemToProcess, queryBuilder);
+
+                Query query = queryBuilder.build();
+                query.getReturnAttributeList().addAll(resultColumns);
+
+                rootClause.setEnclosingQuery(query);
+                
+                marshaller.setEventHandler((ValidationEvent event1) -> {
+                    System.out.println(event1);
+                    return true;
+                });
+
+                marshaller.marshal(query, System.out);
+                
+                marshaller.marshal(query, new FileWriter(selectedFile));
             }
 
-            TreeItem<QueryClause> itemToProcess = this.root;
-            Clause rootClause = itemToProcess.getValue()
-                    .getClause();
-
-            queryBuilder.setWhereRoot((ParentClause) rootClause);
-            processQueryTreeItem(itemToProcess, queryBuilder);
-
-            Query query = queryBuilder.build();
-
-            rootClause.setEnclosingQuery(query);
-
-            marshaller.marshal(query, System.out);
-
-        } catch (JAXBException ex) {
-            java.util.logging.Logger.getLogger(FLWORQueryController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JAXBException | IOException ex) {
+            LOG.error(ex.getLocalizedMessage(), ex);
+//            if (ex instanceof IllegalAnnotationsException) {
+//                IllegalAnnotationsException illegalAnnotationsException = (IllegalAnnotationsException) ex;
+//                for (IllegalAnnotationException exception:illegalAnnotationsException.getErrors()) {
+//                   LOG.error(exception.getLocalizedMessage(), exception);
+//                }
+//            }
         }
 
     }
@@ -497,7 +519,7 @@ public class FLWORQueryController
         this.upButton.setOnAction((event) -> {
             int rowIndex = returnTable.getSelectionModel().getSelectedIndex();
             if (rowIndex > 0) {
-                ReturnSpecificationRow row = returnTable.getItems().remove(rowIndex);
+                AttributeReturnSpecification row = returnTable.getItems().remove(rowIndex);
                 returnTable.getItems().add(rowIndex - 1, row);
                 returnTable.getSelectionModel().select(rowIndex - 1);
             }
@@ -507,7 +529,7 @@ public class FLWORQueryController
         this.downButton.setOnAction((event) -> {
             int rowIndex = returnTable.getSelectionModel().getSelectedIndex();
             if (rowIndex < returnTable.getItems().size() - 1) {
-                ReturnSpecificationRow row = returnTable.getItems().remove(rowIndex);
+                AttributeReturnSpecification row = returnTable.getItems().remove(rowIndex);
                 returnTable.getItems().add(rowIndex + 1, row);
                 returnTable.getSelectionModel().select(rowIndex + 1);
             }
@@ -810,7 +832,7 @@ public class FLWORQueryController
         stampCoordinateColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(this.letPropertySheet.getStampCoordinateKeys()));
 
         functionColumn.setCellValueFactory((param) -> {
-            return param.getValue().cellFunctionProperty();
+            return param.getValue().attributeFunctionProperty();
         });
         functionColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(cellFunctions));
 
@@ -874,11 +896,11 @@ public class FLWORQueryController
         this.returnTable.setItems(this.returnSpecificationController.getReturnSpecificationRows());
     }
 
-    public void returnSpecificationListener(ListChangeListener.Change<? extends ReturnSpecificationRow> c) {
+    public void returnSpecificationListener(ListChangeListener.Change<? extends AttributeReturnSpecification> c) {
         resultTable.getColumns().clear();
         resultColumns.clear();
         int columnIndex = 0;
-        for (ReturnSpecificationRow rowSpecification : c.getList()) {
+        for (AttributeReturnSpecification rowSpecification : c.getList()) {
             final int currentIndex = columnIndex++;
             TableColumn<List<String>, String> column
                     = new TableColumn<>(rowSpecification.getColumnName());
