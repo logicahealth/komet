@@ -39,6 +39,8 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.EnumSet;
 import java.util.NoSuchElementException;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlType;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
@@ -49,6 +51,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author kec
  */
+@XmlType(name = "Status")
+@XmlEnum
 public enum Status {
    /**
     * Currently inactive.

@@ -312,7 +312,7 @@ public class ObservableStampCoordinateImpl
             this.modulePreferenceOrderForVersionsProperty = new SimpleListProperty(this,
                     ObservableFields.MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE.toExternalString(),
                     preferenceList);
-            this.stampCoordinate.setModulePreferenceListForVersions(preferenceList);
+            this.stampCoordinate.setModulePreferenceOrderForVersions(preferenceList);
         }
 
         return this.modulePreferenceOrderForVersionsProperty;

@@ -126,7 +126,7 @@ public class Query {
      */
     private ForSetsSpecification forSetSpecification;
     
-    List<AttributeReturnSpecification> attributeReturnSpecifications = new ArrayList();
+    List<AttributeSpecification> attributeReturnSpecifications = new ArrayList();
 
     
     //~--- constructors --------------------------------------------------------
@@ -234,11 +234,11 @@ public class Query {
     
     @XmlElement(name = "AttributeSpecification")
     @XmlElementWrapper(name = "Return")
-    public List<AttributeReturnSpecification> getReturnAttributeList() {
+    public List<AttributeSpecification> getReturnAttributeList() {
         return attributeReturnSpecifications;
     }
     
-    public void setReturnAttributeList(List<AttributeReturnSpecification> attributeReturnSpecifications) {
+    public void setReturnAttributeList(List<AttributeSpecification> attributeReturnSpecifications) {
         this.attributeReturnSpecifications = attributeReturnSpecifications;
     }
     

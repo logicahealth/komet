@@ -49,7 +49,7 @@ public class SimpleSearchService extends Service<NidSet> {
 
     public SimpleSearchService() {
         this.query = new Query(TermAux.ENGLISH_LANGUAGE);
-        this.descriptionLuceneMatch = new DescriptionLuceneMatch();
+        this.descriptionLuceneMatch = new DescriptionLuceneMatch(this.query);
         query.setRoot(descriptionLuceneMatch);
     }
 

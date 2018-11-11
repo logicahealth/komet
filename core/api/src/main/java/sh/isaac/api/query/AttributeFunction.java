@@ -16,14 +16,18 @@
  */
 package sh.isaac.api.query;
 
+import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.util.time.DateTimeUtil;
 
 /**
  *
@@ -32,8 +36,9 @@ import sh.isaac.api.coordinate.StampCoordinate;
 @XmlRootElement(name = "AttributeFunction")
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class AttributeFunction {
+
     String functionName;
-    BiFunction<String,StampCoordinate, String> function;
+    AttributeTriFunction<String, StampCoordinate, Query, String> function;
 
     /**
      * No arg constructor for Jaxb
@@ -41,13 +46,13 @@ public class AttributeFunction {
     public AttributeFunction() {
     }
 
-    public AttributeFunction(String functionName, BiFunction<String, StampCoordinate, String> function) {
+    public AttributeFunction(String functionName) {
         this.functionName = functionName;
-        this.function = function;
+        setFunctionName(functionName);
     }
-    
-    public String apply(String dataIn, StampCoordinate stampCoordinate) {
-        return function.apply(dataIn, stampCoordinate);
+
+    public String apply(String dataIn, StampCoordinate stampCoordinate, Query query) {
+        return function.apply(dataIn, stampCoordinate, query);
     }
 
     @Override
@@ -56,12 +61,102 @@ public class AttributeFunction {
     }
 
     @XmlAttribute
-     public String getFunctionName() {
+    public String getFunctionName() {
         return functionName;
     }
 
     public void setFunctionName(String functionName) {
         this.functionName = functionName;
+        switch (functionName) {
+            case "":
+                this.functionName = "Identity";
+                this.function = (string, stampCoordinate, query) -> {
+                    return string;
+                };
+                break;
+            case "Identity":
+                this.function = (string, stampCoordinate, query) -> {
+                    return string;
+                };
+                break;
+            case "Primoridal uuid":
+                this.function = (string, stampCoordinate, query) -> {
+                    int nid = Integer.parseInt(string);
+                    return Get.identifierService().getUuidPrimordialForNid(nid).toString();
+                };
+                break;
+            case "All uuids":
+                this.function = (string, stampCoordinate, query) -> {
+                    int nid = Integer.parseInt(string);
+                    return Get.identifierService().getUuidsForNid(nid).toString();
+                };
+                break;
+            case "Epoch to 8601 date/time":
+                this.function = (string, stampCoordinate, query) -> {
+                    long epochTime = Long.parseLong(string);
+                    return DateTimeUtil.format(epochTime);
+                };
+                break;
+            default:
+                if (this.functionName.endsWith(" preferred name")) {
+                    this.function = (string, stampCoordinate, query) -> {
+                        LanguageCoordinate lc = null;
+                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
+                            if (this.functionName.startsWith(entry.getKey().getItemName())) {
+                                lc = (LanguageCoordinate) entry.getValue();
+                                break;
+                            }
+                        }
+                        if (lc != null) {
+                            int nid = Integer.parseInt(string);
+                            LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(nid, stampCoordinate);
+                            if (description.isPresent()) {
+                                return description.get().getText();
+                            }
+                            return "No current preferred name";
+                        }
+                        throw new IllegalStateException("Cannot find LetItemKey for " + this.functionName);
+                    };
+                } else if (this.functionName.endsWith(" FQN")) {
+                    this.function = (string, stampCoordinate, query) -> {
+                        LanguageCoordinate lc = null;
+                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
+                            if (this.functionName.startsWith(entry.getKey().getItemName())) {
+                                lc = (LanguageCoordinate) entry.getValue();
+                                break;
+                            }
+                        }
+                        if (lc != null) {
+                            int nid = Integer.parseInt(string);
+                            LatestVersion<DescriptionVersion> description = lc.getFullySpecifiedDescription(nid, stampCoordinate);
+                            if (description.isPresent()) {
+                                return description.get().getText();
+                            }
+                            return "No current FQN";
+                        }
+                        throw new IllegalStateException("Cannot find LetItemKey for " + this.functionName);
+                    };
+                } else if (this.functionName.endsWith(" definition")) {
+                    this.function = (string, stampCoordinate, query) -> {
+                        LanguageCoordinate lc = null;
+                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
+                            if (this.functionName.startsWith(entry.getKey().getItemName())) {
+                                lc = (LanguageCoordinate) entry.getValue();
+                                break;
+                            }
+                        }
+                        if (lc != null) {
+                            int nid = Integer.parseInt(string);
+                            LatestVersion<DescriptionVersion> description = lc.getDefinitionDescription(Get.concept(nid).getConceptDescriptionList(), stampCoordinate);
+                            if (description.isPresent()) {
+                                return description.get().getText();
+                            }
+                            return "No current definition";
+                        }
+                        throw new IllegalStateException("Cannot find LetItemKey for " + this.functionName);
+                    };
+                }
+        }
     }
 
     @Override
@@ -83,11 +178,7 @@ public class AttributeFunction {
             return false;
         }
         final AttributeFunction other = (AttributeFunction) obj;
-        if (!Objects.equals(this.functionName, other.functionName)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.functionName, other.functionName);
     }
-    
-    
+
 }

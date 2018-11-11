@@ -16,17 +16,17 @@
  */
 package sh.isaac.model.xml;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.query.And;
 import sh.isaac.api.query.AndNot;
-import sh.isaac.api.query.AttributeReturnSpecification;
+import sh.isaac.api.query.AttributeSpecification;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.LetItemKey;
@@ -97,7 +97,10 @@ public class Jaxb {
                     RelRestriction.class,
                     RelationshipIsCircular.class,
                     LetItemKey.class,
-                    AttributeReturnSpecification.class            
+                    AttributeSpecification.class,
+                    StampPrecedence.class,
+                    Status.class,
+                    StatusEnumSetAdaptor.class
             );
         } catch (JAXBException ex) {
             throw new RuntimeException(ex);

@@ -72,7 +72,7 @@ import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
  */
 @XmlRootElement(name = "LanguageCoordinate")
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlType(propOrder={"languageConceptForJaxb","dialectAssemblageSpecPreferenceList", 
+@XmlType(propOrder={"languageConcept","dialectAssemblageSpecPreferenceList", 
     "descriptionTypeSpecPreferenceList", "moduleSpecPreferenceListForLanguage"})
 public class LanguageCoordinateImpl
         implements LanguageCoordinate {
@@ -166,14 +166,9 @@ public class LanguageCoordinateImpl
     }
 
     @Override
+    @XmlElement(name = "language", type=ConceptProxy.class)
     public ConceptSpecification getLanguageConcept() {
         return languageConcept;
-    }
-
-    @XmlElement(name = "Concept", type=ConceptProxy.class)
-    @XmlElementWrapper(name = "language") 
-    protected ConceptSpecification[] getLanguageConceptForJaxb() {
-        return new ConceptSpecification[] { languageConcept };
     }
 
     /**
@@ -354,11 +349,18 @@ public class LanguageCoordinateImpl
         return dialectAssemblageSpecPreferenceList;
     }
     
+    public void setDialectAssemblageSpecPreferenceList(ConceptSpecification[] dialectAssemblageSpecPreferenceList) {
+        this.dialectAssemblageSpecPreferenceList = dialectAssemblageSpecPreferenceList;
+    }
+    
     @Override
     @XmlElement(name = "Concept", type=ConceptProxy.class)
     @XmlElementWrapper(name = "typePreference") 
     public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
         return descriptionTypeSpecPreferenceList;
+    }
+    public void setDescriptionTypeSpecPreferenceList(ConceptSpecification[] descriptionTypeSpecPreferenceList) {
+        this.descriptionTypeSpecPreferenceList = descriptionTypeSpecPreferenceList;
     }
 
     @Override
@@ -366,6 +368,10 @@ public class LanguageCoordinateImpl
     @XmlElementWrapper(name = "modulePreference") 
     public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
         return moduleSpecPreferenceList;
+    }
+
+    public void setModuleSpecPreferenceListForLanguage(ConceptSpecification[] moduleSpecPreferenceList) {
+        this.moduleSpecPreferenceList = moduleSpecPreferenceList;
     }
 
     @Override

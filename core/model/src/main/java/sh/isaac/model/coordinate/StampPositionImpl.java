@@ -197,8 +197,6 @@ public class StampPositionImpl
     * @return the stamp path
     */
     @Override
-    @XmlElement(name = "path")
-    @XmlJavaTypeAdapter(StampPathAdaptor.class)
     public StampPath getStampPath() {
       return new StampPathImpl(this.stampPathConceptSpecification);
    }
@@ -207,8 +205,13 @@ public class StampPositionImpl
     * {@inheritDoc}
     */
    @Override
+   @XmlElement(name = "path")
    public ConceptSpecification getStampPathSpecification() {
       return this.stampPathConceptSpecification;
+   }
+
+   public void setStampPathSpecification(ConceptSpecification stampPathConceptSpecification) {
+      this.stampPathConceptSpecification = stampPathConceptSpecification;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -247,6 +250,10 @@ public class StampPositionImpl
    @XmlJavaTypeAdapter(StampTimeAdaptor.class)
    public Long getLongTime() {
       return this.time;
+   }
+
+   public void setLongTime(Long time) {
+      this.time = time;
    }
 
    //~--- set methods ---------------------------------------------------------

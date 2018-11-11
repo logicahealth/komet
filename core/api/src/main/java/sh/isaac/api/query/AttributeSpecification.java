@@ -30,140 +30,148 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 
 /**
- * The AttributeReturnSpecification provides the data necessary to convert a
+ * The AttributeSpecification provides the data necessary to convert a
  component nid into format for inclusion in a results table. The query 
  returns an array of 1 or more nids for each row, which needs to be processed into 
- * the result set. Each nid is a member of an assemblage
- that was specified in FOR clause of the query. A list of AttributeReturnSpecification 
+ the result set. Each nid is a member of an assemblage
+ that was specified in FOR clause of the query. A list of AttributeSpecification 
  elements will expand the array of nids into an array of Strings to populate a row in the
  result set. 
  * 
  * @author kec
  */
-@XmlRootElement(name = "AttributeReturnSpecification")
+@XmlRootElement(name = "AttributeSpecification")
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class AttributeReturnSpecification {
+public class AttributeSpecification {
      /**
      * The index of the property on the version of the chronology to 
      * process for this function. The property index is based on the ordered 
      * list of properties provided by the ObservableVersion.getProperties() method. 
      */
-    private final SimpleIntegerProperty propertyIndex;
+    private final SimpleIntegerProperty propertyIndexProperty;
 
     /**
      * The name of the column to include in the results. 
      */
-    private final SimpleStringProperty columnName;
+    private final SimpleStringProperty columnNameProperty;
     
     /**
      * The key for the stamp coordinate from which to determine the version of the 
      * chronology to process. The nid is obtained by finding the nid in the nid array 
      * which is a member of the specified assemblage. 
      */
-    private final SimpleObjectProperty<LetItemKey> stampCoordinateKey  = new SimpleObjectProperty();
+    private final SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty  = new SimpleObjectProperty();
 
     /**
      * The assemblage from which the nid to process must be an element of. 
      */
-    private final SimpleIntegerProperty assemblageNid;
+    private final SimpleIntegerProperty assemblageNidProperty;
     /**
      * Possibly null cell function to apply to the property value to generate the 
      * result value. 
      */
     
-    private final SimpleObjectProperty<AttributeFunction> attributeFunction;
+    private final SimpleObjectProperty<AttributeFunction> attributeFunctionProperty;
     
     /**
      * The concept that specifies the property on the version of the chronology to 
      * process for this function. Not used in result set generation. 
      */
-    private final SimpleObjectProperty<ConceptSpecification> propertySpecification;
+    private final SimpleObjectProperty<ConceptSpecification> propertySpecificationProperty;
 
     /**
      * No arg constructor for Jaxb. 
      */
-    public AttributeReturnSpecification() {
-        this.attributeFunction = new SimpleObjectProperty();
-        this.columnName = new SimpleStringProperty();
-        this.assemblageNid = new SimpleIntegerProperty();
-        this.propertySpecification = new SimpleObjectProperty();
-        this.propertyIndex = new SimpleIntegerProperty();
+    public AttributeSpecification() {
+        this.attributeFunctionProperty = new SimpleObjectProperty();
+        this.columnNameProperty = new SimpleStringProperty();
+        this.assemblageNidProperty = new SimpleIntegerProperty();
+        this.propertySpecificationProperty = new SimpleObjectProperty();
+        this.propertyIndexProperty = new SimpleIntegerProperty();
     }
     
-    public AttributeReturnSpecification(AttributeReturnSpecification another) {
-        this.attributeFunction = new SimpleObjectProperty(another.attributeFunction.get());
-        this.columnName = new SimpleStringProperty(another.columnName.get());
+    public AttributeSpecification(AttributeSpecification another) {
+        this.attributeFunctionProperty = new SimpleObjectProperty(another.attributeFunctionProperty.get());
+        this.columnNameProperty = new SimpleStringProperty(another.columnNameProperty.get());
         
         /**
          * The assemblage from which to select the nid to process. 
          */
-        this.assemblageNid = new SimpleIntegerProperty(another.assemblageNid.get());
-        this.propertySpecification = new SimpleObjectProperty(another.propertySpecification.get());
-        this.propertyIndex = new SimpleIntegerProperty(another.propertyIndex.get());
+        this.assemblageNidProperty = new SimpleIntegerProperty(another.assemblageNidProperty.get());
+        this.propertySpecificationProperty = new SimpleObjectProperty(another.propertySpecificationProperty.get());
+        this.propertyIndexProperty = new SimpleIntegerProperty(another.propertyIndexProperty.get());
     }
     
-    public AttributeReturnSpecification(
+    public AttributeSpecification(
             AttributeFunction attributeFunction, String columnName, int assemblageNid,
             ConceptSpecification propertySpecification, int propertyIndex) {
-        this.attributeFunction = new SimpleObjectProperty(attributeFunction);
-        this.columnName = new SimpleStringProperty(columnName);
-        this.assemblageNid = new SimpleIntegerProperty(assemblageNid);
-        this.propertySpecification = new SimpleObjectProperty(propertySpecification);
-        this.propertyIndex = new SimpleIntegerProperty(propertyIndex);
+        this.attributeFunctionProperty = new SimpleObjectProperty(attributeFunction);
+        this.columnNameProperty = new SimpleStringProperty(columnName);
+        this.assemblageNidProperty = new SimpleIntegerProperty(assemblageNid);
+        this.propertySpecificationProperty = new SimpleObjectProperty(propertySpecification);
+        this.propertyIndexProperty = new SimpleIntegerProperty(propertyIndex);
     }
     
-    @XmlElement(name = "stampCoordinateKey")
+    @XmlElement
     public LetItemKey getStampCoordinateKey() {
-        return stampCoordinateKey.get();
-    }
-
-    public SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty() {
-        return stampCoordinateKey;
+        return stampCoordinateKeyProperty.get();
     }
 
     public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
-        this.stampCoordinateKey.set(stampCoordinateKey);
+        this.stampCoordinateKeyProperty.set(stampCoordinateKey);
     }
 
-    @XmlElement(name = "propertySpecification")
+    public SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty() {
+        return stampCoordinateKeyProperty;
+    }
+
+    @XmlElement
+    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
     public ConceptSpecification getPropertySpecification() {
-        return this.propertySpecification.get();
+        return this.propertySpecificationProperty.get();
     }
     public void setPropertySpecification(ConceptSpecification propertySpecification) {
-        this.propertySpecification.set(propertySpecification);
+        this.propertySpecificationProperty.set(propertySpecification);
     }
     
     public SimpleObjectProperty<ConceptSpecification> propertySpecificationProperty() {
-        return this.propertySpecification;
+        return this.propertySpecificationProperty;
     }
 
-    @XmlAttribute(name = "propertyIndex")
+    @XmlAttribute
     public Integer getPropertyIndex() {
-        return this.propertyIndex.get();
+        return this.propertyIndexProperty.get();
     }
     public void setPropertyIndex(Integer propertyIndex) {
-        this.propertyIndex.set(propertyIndex);
+        this.propertyIndexProperty.set(propertyIndex);
     }
     
     public SimpleIntegerProperty propertyIndexProperty() {
-        return this.propertyIndex;
+        return this.propertyIndexProperty;
     }
 
     public int getAssemblageNid() {
-        return this.assemblageNid.get();
+        return this.assemblageNidProperty.get();
     }
     public void setAssemblageNid(int assemblageNid) {
-        this.assemblageNid.set(assemblageNid);
+        this.assemblageNidProperty.set(assemblageNid);
     }
     
     public SimpleIntegerProperty assemblageNidProperty() {
-        return this.assemblageNid;
+        return this.assemblageNidProperty;
     }
     
-    @XmlElement(name = "assemblage")
+    @XmlElement
     @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
      public ConceptSpecification getAssemblage() {
-        return new ConceptProxy(this.assemblageNid.get());
+         if (this.assemblageNidProperty.get() == 0) {
+             return null;
+         }
+        return new ConceptProxy(this.assemblageNidProperty.get());
+    }
+     public void setAssemblage(ConceptSpecification specification) {
+         this.assemblageNidProperty.set(specification.getNid());
+        
     }
 
     public void setAssemblageUuid(ConceptSpecification assemblageConceptSpecification) {
@@ -172,27 +180,27 @@ public class AttributeReturnSpecification {
 
     @XmlElement(name = "attributeFunction")
     public AttributeFunction getAttributeFunction() {
-        return attributeFunction.get();
+        return attributeFunctionProperty.get();
     }
 
     public SimpleObjectProperty<AttributeFunction> attributeFunctionProperty() {
-        return attributeFunction;
+        return attributeFunctionProperty;
     }
 
     public void setAttributeFunction(AttributeFunction attributeFunction) {
-        this.attributeFunction.set(attributeFunction);
+        this.attributeFunctionProperty.set(attributeFunction);
     }
 
     @XmlAttribute(name = "columnName")
     public String getColumnName() {
-        return columnName.get();
+        return columnNameProperty.get();
     }
 
     public SimpleStringProperty columnNameProperty() {
-        return columnName;
+        return columnNameProperty;
     }
 
     public void setColumnName(String columnName) {
-        this.columnName.set(columnName);
+        this.columnNameProperty.set(columnName);
     }
 }
