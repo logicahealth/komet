@@ -98,7 +98,7 @@ public class Query {
     /**
      * The root clause.
      */
-    protected Clause[] rootClause = new Clause[1];
+    protected Clause rootClause;
 
     /**
      * Number of Components output in the returnResultSet method.
@@ -158,8 +158,8 @@ public class Query {
      * preparation for re-execution or other re-use of the query. 
      */
     public void reset() {
-        if (this.rootClause[0] != null) {
-            this.rootClause[0].reset();
+        if (this.rootClause != null) {
+            this.rootClause.reset();
         }
     }
     /**
@@ -186,20 +186,24 @@ public class Query {
      * @return root <code>Clause</code> in the query
      */
     public Clause Where() {
-        return this.rootClause[0];
+        return this.rootClause;
     }
 
     @XmlElement(name = "Where")
     protected Clause getWhereForJaxb() {
-        return this.rootClause[0];
+        return this.rootClause;
     }
 
-    public ParentClause getRoot() {
-        return (ParentClause) this.rootClause[0];
+    protected void setWhereForJaxb(Clause clause) {
+        this.rootClause = clause;
+    }
+
+    public Clause getRoot() {
+        return this.rootClause;
     }
 
     public void setRoot(Clause root) {
-        this.rootClause[0] = root;
+        this.rootClause = root;
         root.setEnclosingQuery(this);
     }
 
@@ -213,11 +217,11 @@ public class Query {
     public Map<ConceptSpecification, NidSet> compute() {
         setup();
         getLetDeclarations();
-        this.rootClause[0] = Where();
+        this.rootClause = Where();
 
-        final Map<ConceptSpecification, NidSet> possibleComponentMap = this.rootClause[0].computePossibleComponents(For());
+        final Map<ConceptSpecification, NidSet> possibleComponentMap = this.rootClause.computePossibleComponents(For());
 
-        return this.rootClause[0].computeComponents(possibleComponentMap);
+        return this.rootClause.computeComponents(possibleComponentMap);
     }
 
     
@@ -279,7 +283,7 @@ public class Query {
      */
     public void setup() {
         getLetDeclarations();
-        this.rootClause[0] = Where();
+        this.rootClause = Where();
     }
 
     /**

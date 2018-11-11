@@ -124,8 +124,17 @@ public abstract class ParentClause
       return Collections.unmodifiableList(this.children);
    }
    public final void addChild(Clause child) {
-         child.setParent(this);
-         child.setEnclosingQuery(enclosingQuery);
+         child.parent = this;
+         child.enclosingQuery = this.enclosingQuery;
+         if (!this.children.contains(child)) {
+             this.children.add(child);
+         }
+         
+   }
+   public final void removeChild(Clause child) {
+         child.parent = null;
+         child.enclosingQuery = null;
+         this.children.remove(child);
    }
 
    //~--- set methods ---------------------------------------------------------

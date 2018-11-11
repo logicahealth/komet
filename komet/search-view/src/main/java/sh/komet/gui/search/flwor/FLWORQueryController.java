@@ -220,7 +220,7 @@ public class FLWORQueryController
     @FXML
     private MenuItem exportResults;
 
-    private TreeItem<QueryClause> root;
+    private ClauseTreeItem root;
     private Manifold manifold;
     private LetPropertySheet letPropertySheet;
     private ForPanel forPropertySheet;
@@ -233,7 +233,6 @@ public class FLWORQueryController
     ObservableList<ConceptSpecification> joinProperties = FXCollections.observableArrayList();
 
     ObservableList<AttributeFunction> cellFunctions = FXCollections.observableArrayList();
-    
 
     {
         cellFunctions.add(new AttributeFunction(""));
@@ -334,7 +333,7 @@ public class FLWORQueryController
                     this.query.let(key, value);
                 }
 
-                TreeItem<QueryClause> itemToProcess = this.root;
+                ClauseTreeItem itemToProcess = this.root;
                 Clause rootClause = itemToProcess.getValue()
                         .getClause();
 
@@ -343,17 +342,17 @@ public class FLWORQueryController
                 query.getReturnAttributeList().addAll(resultColumns);
 
                 rootClause.setEnclosingQuery(query);
-                
+
                 marshaller.setEventHandler((ValidationEvent event1) -> {
                     System.out.println(event1);
                     return true;
                 });
-                
+
                 StringWriter stringWriter1 = new StringWriter();
                 marshaller.marshal(query, stringWriter1);
                 String xml1 = stringWriter1.toString();
                 System.out.println(xml1);
-                
+
                 Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
                 Object obj = unmarshaller.unmarshal(new StringReader(xml1));
 
@@ -362,9 +361,7 @@ public class FLWORQueryController
                 String xml2 = stringWriter2.toString();
                 System.out.println("Strings equal: " + xml1.equals(xml2));
                 System.out.println(xml2);
-                
-                
-                
+
                 marshaller.marshal(query, new FileWriter(selectedFile));
             }
 
@@ -420,7 +417,7 @@ public class FLWORQueryController
     void executeQuery(ActionEvent event) {
         this.query.reset();
         // TODO, add let items...
-        TreeItem<QueryClause> itemToProcess = this.root;
+        ClauseTreeItem itemToProcess = this.root;
         Clause rootClause = itemToProcess.getValue()
                 .getClause();
 
@@ -497,20 +494,20 @@ public class FLWORQueryController
     }
 
     private void addChildClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
-        TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
+        ClauseTreeItem treeItem = (ClauseTreeItem) rowValue.getTreeItem();
 
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()
                 .get(CLAUSE);
 
         treeItem.getChildren()
-                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
+                .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
                         joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
 
     }
 
     private void addSiblingClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
-        TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
+        ClauseTreeItem treeItem = (ClauseTreeItem) rowValue.getTreeItem();
 
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()
@@ -518,13 +515,13 @@ public class FLWORQueryController
 
         treeItem.getParent()
                 .getChildren()
-                .add(new TreeItem<>(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
+                .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
                         joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
 
     }
 
     private void changeClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
-        TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
+        ClauseTreeItem treeItem = (ClauseTreeItem) rowValue.getTreeItem();
 
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()
@@ -536,7 +533,7 @@ public class FLWORQueryController
 
     // changeClause->, addSibling->, addChild->,
     private void deleteClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
-        TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
+        ClauseTreeItem treeItem = (ClauseTreeItem) rowValue.getTreeItem();
 
         treeItem.getParent()
                 .getChildren()
@@ -552,7 +549,7 @@ public class FLWORQueryController
     private Collection<? extends Action> setupContextMenu(final TreeTableRow<QueryClause> rowValue) {
         // Firstly, create a list of Actions
         ArrayList<Action> actionList = new ArrayList<>();
-        final TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
+        final ClauseTreeItem treeItem = (ClauseTreeItem) rowValue.getTreeItem();
 
         if (treeItem != null) {
             QueryClause clause = treeItem.getValue();
@@ -656,25 +653,27 @@ public class FLWORQueryController
                 }
             }
 
-            TreeItem<QueryClause> rowItem = nodeToStyle.getTreeTableRow()
+            ClauseTreeItem rowItem = (ClauseTreeItem) nodeToStyle.getTreeTableRow()
                     .getTreeItem();
 
             if (rowItem != null) {
                 TreeItem<QueryClause> parentItem = rowItem.getParent();
-                ConceptSpecification parentConcept = parentItem.getValue()
-                        .getClause()
-                        .getClauseConcept();
+                if (parentItem != null) {
+                    ConceptSpecification parentConcept = parentItem.getValue()
+                            .getClause()
+                            .getClauseConcept();
 
-                if (parentConcept.equals(TermAux.AND_QUERY_CLAUSE)) {
-                    ttr.getStyleClass()
-                            .remove(StyleClasses.OR_CLAUSE_CHILD.toString());
-                    ttr.getStyleClass()
-                            .add(StyleClasses.AND_CLAUSE_CHILD.toString());
-                } else if (parentConcept.equals(TermAux.OR_QUERY_CLAUSE)) {
-                    ttr.getStyleClass()
-                            .add(StyleClasses.OR_CLAUSE_CHILD.toString());
-                    ttr.getStyleClass()
-                            .remove(StyleClasses.AND_CLAUSE_CHILD.toString());
+                    if (parentConcept.equals(TermAux.AND_QUERY_CLAUSE)) {
+                        ttr.getStyleClass()
+                                .remove(StyleClasses.OR_CLAUSE_CHILD.toString());
+                        ttr.getStyleClass()
+                                .add(StyleClasses.AND_CLAUSE_CHILD.toString());
+                    } else if (parentConcept.equals(TermAux.OR_QUERY_CLAUSE)) {
+                        ttr.getStyleClass()
+                                .add(StyleClasses.OR_CLAUSE_CHILD.toString());
+                        ttr.getStyleClass()
+                                .remove(StyleClasses.AND_CLAUSE_CHILD.toString());
+                    }
                 }
             }
         }
@@ -711,18 +710,15 @@ public class FLWORQueryController
 
         this.forPropertySheet = new ForPanel(manifold);
         this.query = new Query(forPropertySheet.getForSetSpecification());
-        this.root = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet.getForAssemblagesProperty(),
+        this.root = new ClauseTreeItem(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet.getForAssemblagesProperty(),
                 joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
 
-        TreeItem orTreeItem = new TreeItem<>(new QueryClause(new Or(), manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
+        this.root.getValue().getClause().setEnclosingQuery(this.query);
 
-        orTreeItem.getChildren()
-                .add(new TreeItem<>(new QueryClause(new DescriptionLuceneMatch(this.query), manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
         this.root.getChildren()
-                .add(orTreeItem);
-        orTreeItem.setExpanded(true);
+                .add(new ClauseTreeItem(new QueryClause(new DescriptionLuceneMatch(this.query), manifold, this.forPropertySheet.getForAssemblagesProperty(),
+                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
+        this.root.setExpanded(true);
         this.clauseNameColumn.setCellFactory(
                 (TreeTableColumn<QueryClause, String> p) -> {
                     TreeTableCell<QueryClause, String> cell = new TreeTableCell<QueryClause, String>() {

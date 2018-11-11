@@ -245,6 +245,14 @@ public abstract class Clause implements ConceptSpecification {
     public void setParent(Clause parent) {
         this.parent = parent;
         this.enclosingQuery = parent.getEnclosingQuery();
+        ParentClause parentClause = (ParentClause) parent;
+        parentClause.addChild(this);
+    }
+   public void removeParent(Clause parent) {
+        this.parent = null;
+        this.enclosingQuery = null;
+        ParentClause parentClause = (ParentClause) parent;
+        parentClause.removeChild(this);
     }
 
     //~--- get methods ---------------------------------------------------------

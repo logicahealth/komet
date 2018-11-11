@@ -45,7 +45,7 @@
                            <content>
                               <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-padding: 0em;">
                                  <children>
-                                    <TreeTableView fx:id="whereTreeTable" editable="true" prefHeight="442.0" prefWidth="578.0" showRoot="false">
+                                    <TreeTableView fx:id="whereTreeTable" editable="true" prefHeight="442.0" prefWidth="578.0">
                                       <columns>
                                         <TreeTableColumn fx:id="clauseNameColumn" maxWidth="3000.0" minWidth="20.0" prefWidth="260.0" sortType="DESCENDING" sortable="false" text="clause" />
                                         <TreeTableColumn fx:id="clausePropertiesColumn" prefWidth="522.0" sortable="false" text="clause properties" />
