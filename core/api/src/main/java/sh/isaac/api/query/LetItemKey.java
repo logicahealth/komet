@@ -18,13 +18,19 @@ package sh.isaac.api.query;
 
 import java.util.Objects;
 import java.util.UUID;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  *
  * @author kec
  */
-@XmlRootElement(name = "LetItemKey")
+@XmlRootElement(name = "LetKey")
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlType(propOrder={"itemName", "itemId"})
 public class LetItemKey {
     UUID itemId;
     String itemName;
@@ -39,6 +45,12 @@ public class LetItemKey {
         this.itemName = itemName;
     }
 
+    public LetItemKey(String itemName, UUID itemId) {
+        this.itemId = itemId;
+        this.itemName = itemName;
+    }
+
+    @XmlAttribute(name = "uuid")
     public UUID getItemId() {
         return itemId;
     }
@@ -47,6 +59,7 @@ public class LetItemKey {
         this.itemId = itemId;
     }
 
+    @XmlAttribute(name = "name")
     public String getItemName() {
         return itemName;
     }

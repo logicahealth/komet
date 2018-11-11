@@ -43,6 +43,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -87,9 +88,11 @@ import sh.isaac.api.xml.JaxbMap;
 public class Query {
 
     /**
-     * The Constant CURRENT_TAXONOMY_RESULT.
+     * The Constant DEFAULT_MANIFOLD_COORDINATE_KEY.
      */
-    public static final String CURRENT_TAXONOMY_RESULT = "Current taxonomy coordinate";
+    public static final LetItemKey DEFAULT_MANIFOLD_COORDINATE_KEY 
+            = new LetItemKey("Default manifold coordinate key", 
+                    UUID.fromString("cd405b9d-3d41-4310-9228-68bd97c5b9b7"));
 
     //~--- fields --------------------------------------------------------------
     /**
@@ -115,7 +118,7 @@ public class Query {
     /**
      * The let declarations.
      */
-    private final HashMap<String, Object> letDeclarations = new HashMap<>();
+    private final HashMap<LetItemKey, Object> letDeclarations = new HashMap<>();
 
     /**
      * The concepts, stored as nids in a <code>NidSet</code>, that are
@@ -132,6 +135,7 @@ public class Query {
      * For jaxb. 
      */
     public Query() {
+        this.forSetSpecification = new ForSetsSpecification();
     }
 
     /**
@@ -148,6 +152,16 @@ public class Query {
     }
 
     //~--- methods -------------------------------------------------------------
+    
+    /**
+     * Erase all intermediate results, caches, and results from the clauses in 
+     * preparation for re-execution or other re-use of the query. 
+     */
+    public void reset() {
+        if (this.rootClause[0] != null) {
+            this.rootClause[0].reset();
+        }
+    }
     /**
      * Override to set let clauses. 
      */
@@ -162,7 +176,7 @@ public class Query {
      * @param stampCoordinateKey
      * @return the not
      */
-    public Not Not(Clause clause, String stampCoordinateKey) {
+    public Not Not(Clause clause, LetItemKey stampCoordinateKey) {
         return new Not(this, clause, stampCoordinateKey);
     }
 
@@ -184,8 +198,9 @@ public class Query {
         return (ParentClause) this.rootClause[0];
     }
 
-    public void setRoot(ParentClause root) {
+    public void setRoot(Clause root) {
         this.rootClause[0] = root;
+        root.setEnclosingQuery(this);
     }
 
     /**
@@ -255,7 +270,7 @@ public class Query {
      * @param key the key
      * @param object the object
      */
-    public void let(String key, Object object) {
+    public void let(LetItemKey key, Object object) {
         this.letDeclarations.put(key, object);
     }
 
@@ -294,7 +309,7 @@ public class Query {
      * @param stampVersionTwoKey
      * @return the changed from previous version
      */
-    protected ChangedBetweenVersions ChangedFromPreviousVersion(String stampVersionOneKey, String stampVersionTwoKey) {
+    protected ChangedBetweenVersions ChangedFromPreviousVersion(LetItemKey stampVersionOneKey, LetItemKey stampVersionTwoKey) {
         return new ChangedBetweenVersions(this, stampVersionOneKey, stampVersionTwoKey);
     }
 
@@ -314,8 +329,8 @@ public class Query {
      * @param conceptSpecKey the concept spec key
      * @return the concept is
      */
-    protected ConceptIs ConceptIs(String conceptSpecKey) {
-        return new ConceptIs(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+    protected ConceptIs ConceptIs(LetItemKey conceptSpecKey) {
+        return new ConceptIs(this, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -326,7 +341,7 @@ public class Query {
      * @param viewCoordinateKey the view coordinate key
      * @return the concept is
      */
-    protected ConceptIs ConceptIs(String conceptSpecKey, String viewCoordinateKey) {
+    protected ConceptIs ConceptIs(LetItemKey conceptSpecKey, LetItemKey viewCoordinateKey) {
         return new ConceptIs(this, conceptSpecKey, viewCoordinateKey);
     }
 
@@ -336,8 +351,8 @@ public class Query {
      * @param conceptSpecKey the concept spec key
      * @return the concept is child of
      */
-    protected ConceptIsChildOf ConceptIsChildOf(String conceptSpecKey) {
-        return new ConceptIsChildOf(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+    protected ConceptIsChildOf ConceptIsChildOf(LetItemKey conceptSpecKey) {
+        return new ConceptIsChildOf(this, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -348,7 +363,7 @@ public class Query {
      * @param viewCoordinateKey the view coordinate key
      * @return the concept is child of
      */
-    protected ConceptIsChildOf ConceptIsChildOf(String conceptSpecKey, String viewCoordinateKey) {
+    protected ConceptIsChildOf ConceptIsChildOf(LetItemKey conceptSpecKey, LetItemKey viewCoordinateKey) {
         return new ConceptIsChildOf(this, conceptSpecKey, viewCoordinateKey);
     }
 
@@ -358,8 +373,8 @@ public class Query {
      * @param conceptSpecKey the concept spec key
      * @return the concept is descendent of
      */
-    protected ConceptIsDescendentOf ConceptIsDescendentOf(String conceptSpecKey) {
-        return new ConceptIsDescendentOf(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+    protected ConceptIsDescendentOf ConceptIsDescendentOf(LetItemKey conceptSpecKey) {
+        return new ConceptIsDescendentOf(this, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -370,7 +385,7 @@ public class Query {
      * @param viewCoordinateKey the view coordinate key
      * @return the concept is descendent of
      */
-    protected ConceptIsDescendentOf ConceptIsDescendentOf(String conceptSpecKey, String viewCoordinateKey) {
+    protected ConceptIsDescendentOf ConceptIsDescendentOf(LetItemKey conceptSpecKey, LetItemKey viewCoordinateKey) {
         return new ConceptIsDescendentOf(this, conceptSpecKey, viewCoordinateKey);
     }
 
@@ -381,8 +396,8 @@ public class Query {
      * @param conceptSpecKey the concept spec key
      * @return the concept is kind of
      */
-    protected ConceptIsKindOf ConceptIsKindOf(String conceptSpecKey) {
-        return new ConceptIsKindOf(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+    protected ConceptIsKindOf ConceptIsKindOf(LetItemKey conceptSpecKey) {
+        return new ConceptIsKindOf(this, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -393,7 +408,7 @@ public class Query {
      * @param viewCoordinateKey the view coordinate key
      * @return the concept is kind of
      */
-    protected ConceptIsKindOf ConceptIsKindOf(String conceptSpecKey, String viewCoordinateKey) {
+    protected ConceptIsKindOf ConceptIsKindOf(LetItemKey conceptSpecKey, LetItemKey viewCoordinateKey) {
         return new ConceptIsKindOf(this, conceptSpecKey, viewCoordinateKey);
     }
 
@@ -403,8 +418,8 @@ public class Query {
      * @param queryTextKey the query text key
      * @return the description active lucene match
      */
-    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(String queryTextKey) {
-        return new DescriptionActiveLuceneMatch(this, queryTextKey, CURRENT_TAXONOMY_RESULT);
+    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(LetItemKey queryTextKey) {
+        return new DescriptionActiveLuceneMatch(this, queryTextKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -414,7 +429,7 @@ public class Query {
      * @param viewCoordinateKey the view coordinate key
      * @return the description active lucene match
      */
-    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(String queryTextKey, String viewCoordinateKey) {
+    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(LetItemKey queryTextKey, LetItemKey viewCoordinateKey) {
         return new DescriptionActiveLuceneMatch(this, queryTextKey, viewCoordinateKey);
     }
 
@@ -424,8 +439,8 @@ public class Query {
      * @param regexKey the regex key
      * @return the description active regex match
      */
-    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(String regexKey) {
-        return new DescriptionActiveRegexMatch(this, regexKey, CURRENT_TAXONOMY_RESULT);
+    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(LetItemKey regexKey) {
+        return new DescriptionActiveRegexMatch(this, regexKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -435,7 +450,7 @@ public class Query {
      * @param viewCoordinateKey the view coordinate key
      * @return the description active regex match
      */
-    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(String regexKey, String viewCoordinateKey) {
+    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(LetItemKey regexKey, LetItemKey viewCoordinateKey) {
         return new DescriptionActiveRegexMatch(this, regexKey, viewCoordinateKey);
     }
 
@@ -445,8 +460,8 @@ public class Query {
      * @param queryTextKey the query text key
      * @return the description lucene match
      */
-    protected DescriptionLuceneMatch DescriptionLuceneMatch(String queryTextKey) {
-        return new DescriptionLuceneMatch(this, queryTextKey, CURRENT_TAXONOMY_RESULT);
+    protected DescriptionLuceneMatch DescriptionLuceneMatch(LetItemKey queryTextKey) {
+        return new DescriptionLuceneMatch(this, queryTextKey);
     }
 
     /**
@@ -455,8 +470,8 @@ public class Query {
      * @param regexKey the regex key
      * @return the description regex match
      */
-    protected DescriptionRegexMatch DescriptionRegexMatch(String regexKey) {
-        return new DescriptionRegexMatch(this, regexKey, CURRENT_TAXONOMY_RESULT);
+    protected DescriptionRegexMatch DescriptionRegexMatch(LetItemKey regexKey) {
+        return new DescriptionRegexMatch(this, regexKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -466,7 +481,7 @@ public class Query {
      * @param viewCoordinateKey the view coordinate key
      * @return the description regex match
      */
-    protected DescriptionRegexMatch DescriptionRegexMatch(String regexKey, String viewCoordinateKey) {
+    protected DescriptionRegexMatch DescriptionRegexMatch(LetItemKey regexKey, LetItemKey viewCoordinateKey) {
         return new DescriptionRegexMatch(this, regexKey, viewCoordinateKey);
     }
 
@@ -487,7 +502,7 @@ public class Query {
      * @param languageCoordinateKey
      * @return the fully specified name for concept
      */
-    protected FullyQualifiedNameForConcept FullySpecifiedNameForConcept(Clause clause, String stampCoordinateKey, String languageCoordinateKey) {
+    protected FullyQualifiedNameForConcept FullySpecifiedNameForConcept(Clause clause, LetItemKey stampCoordinateKey, LetItemKey languageCoordinateKey) {
         return new FullyQualifiedNameForConcept(this, clause, stampCoordinateKey, languageCoordinateKey);
     }
 
@@ -519,7 +534,7 @@ public class Query {
      * @param languageCoordinateKey
      * @return the preferred name for concept
      */
-    protected PreferredNameForConcept PreferredNameForConcept(Clause clause, String stampCoordinateKey, String languageCoordinateKey) {
+    protected PreferredNameForConcept PreferredNameForConcept(Clause clause, LetItemKey stampCoordinateKey, LetItemKey languageCoordinateKey) {
         return new PreferredNameForConcept(this, clause, stampCoordinateKey, languageCoordinateKey);
     }
 
@@ -530,8 +545,8 @@ public class Query {
      * @param conceptSpecKey the concept spec key
      * @return the refset contains concept
      */
-    protected AssemblageContainsConcept RefsetContainsConcept(String refsetSpecKey, String conceptSpecKey) {
-        return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+    protected AssemblageContainsConcept AssemblageContainsConcept(LetItemKey refsetSpecKey, LetItemKey conceptSpecKey) {
+        return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -542,21 +557,21 @@ public class Query {
      * @param viewCoordinateKey the view coordinate key
      * @return the refset contains concept
      */
-    protected AssemblageContainsConcept RefsetContainsConcept(String refsetSpecKey,
-            String conceptSpecKey,
-            String viewCoordinateKey) {
+    protected AssemblageContainsConcept AssemblageContainsConcept(LetItemKey refsetSpecKey,
+            LetItemKey conceptSpecKey,
+            LetItemKey viewCoordinateKey) {
         return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
     }
 
     /**
      * Refset contains kind of concept.
      *
-     * @param refsetSpecKey the refset spec key
+     * @param assemblageSpecKey the refset spec key
      * @param conceptSpecKey the concept spec key
      * @return the refset contains kind of concept
      */
-    protected AssemblageContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey, String conceptSpecKey) {
-        return new AssemblageContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+    protected AssemblageContainsKindOfConcept AssemblageContainsKindOfConcept(LetItemKey assemblageSpecKey, LetItemKey conceptSpecKey) {
+        return new AssemblageContainsKindOfConcept(this, assemblageSpecKey, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -567,9 +582,9 @@ public class Query {
      * @param viewCoordinateKey the view coordinate key
      * @return the refset contains kind of concept
      */
-    protected AssemblageContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey,
-            String conceptSpecKey,
-            String viewCoordinateKey) {
+    protected AssemblageContainsKindOfConcept AssemblageContainsKindOfConcept(LetItemKey refsetSpecKey,
+            LetItemKey conceptSpecKey,
+            LetItemKey viewCoordinateKey) {
         return new AssemblageContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
     }
 
@@ -580,8 +595,8 @@ public class Query {
      * @param stringMatchKey the string match key
      * @return the refset contains string
      */
-    protected AssemblageContainsString RefsetContainsString(String refsetSpecKey, String stringMatchKey) {
-        return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, CURRENT_TAXONOMY_RESULT);
+    protected AssemblageContainsString AssemblageContainsString(LetItemKey refsetSpecKey, LetItemKey stringMatchKey) {
+        return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -592,9 +607,9 @@ public class Query {
      * @param viewCoordinateKey the view coordinate key
      * @return the refset contains string
      */
-    protected AssemblageContainsString RefsetContainsString(String refsetSpecKey,
-            String stringMatchKey,
-            String viewCoordinateKey) {
+    protected AssemblageContainsString AssemblageContainsString(LetItemKey refsetSpecKey,
+            LetItemKey stringMatchKey,
+            LetItemKey viewCoordinateKey) {
         return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, viewCoordinateKey);
     }
 
@@ -604,8 +619,8 @@ public class Query {
      * @param queryString the query string
      * @return the refset lucene match
      */
-    protected AssemblageLuceneMatch RefsetLuceneMatch(String queryString) {
-        return new AssemblageLuceneMatch(this, queryString, CURRENT_TAXONOMY_RESULT);
+    protected AssemblageLuceneMatch AssemblageLuceneMatch(LetItemKey queryString) {
+        return new AssemblageLuceneMatch(this, queryString, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -615,8 +630,8 @@ public class Query {
      * @param destinationSpecKey the destination spec key
      * @return the rel restriction
      */
-    protected RelRestriction RelRestriction(String relTypeKey, String destinationSpecKey) {
-        return new RelRestriction(this, relTypeKey, destinationSpecKey, CURRENT_TAXONOMY_RESULT, null, null);
+    protected RelRestriction RelRestriction(LetItemKey relTypeKey, LetItemKey destinationSpecKey) {
+        return new RelRestriction(this, relTypeKey, destinationSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY, null, null);
     }
 
     /**
@@ -627,9 +642,9 @@ public class Query {
      * @param key the key
      * @return the rel restriction
      */
-    protected RelRestriction RelRestriction(String relTypeKey, String destinationSpecKey, String key) {
+    protected RelRestriction RelRestriction(LetItemKey relTypeKey, LetItemKey destinationSpecKey, LetItemKey key) {
         if (this.letDeclarations.get(key) instanceof Boolean) {
-            return new RelRestriction(this, relTypeKey, destinationSpecKey, CURRENT_TAXONOMY_RESULT, key, null);
+            return new RelRestriction(this, relTypeKey, destinationSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY, key, null);
         } else {
             return new RelRestriction(this, relTypeKey, destinationSpecKey, key, null, null);
         }
@@ -644,14 +659,14 @@ public class Query {
      * @param targetSubsumptionKey the target subsumption key
      * @return the rel restriction
      */
-    protected RelRestriction RelRestriction(String relTypeKey,
-            String destinatonSpecKey,
-            String relTypeSubsumptionKey,
-            String targetSubsumptionKey) {
+    protected RelRestriction RelRestriction(LetItemKey relTypeKey,
+            LetItemKey destinatonSpecKey,
+            LetItemKey relTypeSubsumptionKey,
+            LetItemKey targetSubsumptionKey) {
         return new RelRestriction(this,
                 relTypeKey,
                 destinatonSpecKey,
-                CURRENT_TAXONOMY_RESULT,
+                DEFAULT_MANIFOLD_COORDINATE_KEY,
                 relTypeSubsumptionKey,
                 targetSubsumptionKey);
     }
@@ -666,11 +681,11 @@ public class Query {
      * @param targetSubsumptionKey the target subsumption key
      * @return the rel restriction
      */
-    protected RelRestriction RelRestriction(String relTypeKey,
-            String destinationSpecKey,
-            String viewCoordinateKey,
-            String relTypeSubsumptionKey,
-            String targetSubsumptionKey) {
+    protected RelRestriction RelRestriction(LetItemKey relTypeKey,
+            LetItemKey destinationSpecKey,
+            LetItemKey viewCoordinateKey,
+            LetItemKey relTypeSubsumptionKey,
+            LetItemKey targetSubsumptionKey) {
         return new RelRestriction(this,
                 relTypeKey,
                 destinationSpecKey,
@@ -714,13 +729,18 @@ public class Query {
      *
      * @return the let declarations
      */
-    public HashMap<String, Object> getLetDeclarations() {
+    public HashMap<LetItemKey, Object> getLetDeclarations() {
         return this.letDeclarations;
     }
     
     @XmlElement(name = "Let")
     protected JaxbMap getLetMap() {
         return JaxbMap.of(this.letDeclarations);
+    }
+
+    protected void setLetMap(JaxbMap letMap) {
+        this.letDeclarations.clear();
+        this.letDeclarations.putAll(letMap.getMap());
     }
 
     /**

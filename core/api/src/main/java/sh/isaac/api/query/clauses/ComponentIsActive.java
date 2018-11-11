@@ -110,6 +110,10 @@ public class ComponentIsActive extends LeafClause {
     }
 
     //~--- get methods ---------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
     /**
      * Gets the compute phases.
      *

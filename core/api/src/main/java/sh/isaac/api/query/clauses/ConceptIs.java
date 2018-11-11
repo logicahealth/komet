@@ -59,6 +59,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 
@@ -76,11 +77,11 @@ public class ConceptIs
         extends LeafClause {
    /** The concept spec string. */
    @XmlElement
-   String conceptSpecString;
+   LetItemKey conceptSpecString;
 
    /** The view coordinate key. */
    @XmlElement
-   String viewCoordinateKey;
+   LetItemKey viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -96,13 +97,17 @@ public class ConceptIs
     * @param conceptSpec the concept spec
     * @param viewCoordinateKey the view coordinate key
     */
-   public ConceptIs(Query enclosingQuery, String conceptSpec, String viewCoordinateKey) {
+   public ConceptIs(Query enclosingQuery, LetItemKey conceptSpec, LetItemKey viewCoordinateKey) {
       super(enclosingQuery);
       this.conceptSpecString = conceptSpec;
       this.viewCoordinateKey = viewCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
 
    /**
     * Compute possible components.

@@ -65,6 +65,7 @@ import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,8 +78,8 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class PreferredNameForConcept
         extends ParentClause {
-    private String languageCoordinateKey;
-    private String stampCoordinateKey;
+    private LetItemKey languageCoordinateKey;
+    private LetItemKey stampCoordinateKey;
 
     /**
     * Instantiates a new preferred name for concept.
@@ -93,12 +94,16 @@ public class PreferredNameForConcept
      * @param stampCoordinateKey
      * @param languageCoordinateKey
     */
-   public PreferredNameForConcept(Query enclosingQuery, Clause child, String stampCoordinateKey, String languageCoordinateKey) {
+   public PreferredNameForConcept(Query enclosingQuery, Clause child, LetItemKey stampCoordinateKey, LetItemKey languageCoordinateKey) {
       super(enclosingQuery, child);
       this.languageCoordinateKey = languageCoordinateKey;
       this.stampCoordinateKey = stampCoordinateKey;
    }
    //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
 
    /**
     * Compute components.
@@ -108,8 +113,8 @@ public class PreferredNameForConcept
     */
    @Override
    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingConcepts) {
-      final LanguageCoordinate languageCoordinate         = (LanguageCoordinate) getEnclosingQuery().getLetDeclarations().get(this.languageCoordinateKey);
-      final StampCoordinate    stampCoordinate            = (StampCoordinate) getEnclosingQuery().getLetDeclarations().get(this.stampCoordinateKey);
+      final LanguageCoordinate languageCoordinate         = getLetItem(this.languageCoordinateKey);
+      final StampCoordinate    stampCoordinate            = getLetItem(this.stampCoordinateKey);
       final NidSet             outgoingPreferredNids = new NidSet();
 
       getChildren().stream().map((childClause) -> 

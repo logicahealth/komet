@@ -89,6 +89,10 @@ public class ConceptForComponent
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
 
    /**
     * Compute components.

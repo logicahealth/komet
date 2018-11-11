@@ -62,6 +62,7 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,15 +78,15 @@ public class RelationshipIsCircular
         extends LeafClause {
    /** The rel type key. */
    @XmlElement
-   String relTypeKey;
+   LetItemKey relTypeKey;
 
    /** The view coordinate key. */
    @XmlElement
-   String viewCoordinateKey;
+   LetItemKey viewCoordinateKey;
 
    /** The rel type subsumption key. */
    @XmlElement
-   String relTypeSubsumptionKey;
+   LetItemKey relTypeSubsumptionKey;
 
    /** The rel type set. */
    NidSet relTypeSet;
@@ -106,9 +107,9 @@ public class RelationshipIsCircular
     * @param relTypeSubsumptionKey the rel type subsumption key
     */
    public RelationshipIsCircular(Query enclosingQuery,
-                                 String relTypeKey,
-                                 String viewCoordinateKey,
-                                 String relTypeSubsumptionKey) {
+                                 LetItemKey relTypeKey,
+                                 LetItemKey viewCoordinateKey,
+                                 LetItemKey relTypeSubsumptionKey) {
       super(enclosingQuery);
       this.relTypeKey            = relTypeKey;
       this.viewCoordinateKey     = viewCoordinateKey;
@@ -116,6 +117,10 @@ public class RelationshipIsCircular
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
 
    /**
     * Compute possible components.

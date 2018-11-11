@@ -27,12 +27,11 @@ import java.util.Map;
  * @author kec
  */
 public class QueryBuilder  {
-   public static final String DEFAULT_MANIFOLD_COORDINATE_KEY = "DEFAULT_MANIFOLD_COORDINATE_KEY";
    int sequence = 0;
    ParentClause root;
    
    List<ComponentCollectionTypes> forClause = new ArrayList<>();
-   Map<String, Object> letClauses = new HashMap<>();
+   Map<LetItemKey, Object> letClauses = new HashMap<>();
    ForSetsSpecification forSetSpecification;
    List<Object> orderByClauses = new ArrayList<>();
    List<Object> returnClauses = new ArrayList<>();
@@ -50,12 +49,12 @@ public class QueryBuilder  {
       return this;
    }
       
-   public QueryBuilder let(String key, Object value) {
+   public QueryBuilder let(LetItemKey key, Object value) {
       letClauses.put(key, value);
       return this;
    }
 
-    public Map<String, Object> getLetClauses() {
+    public Map<LetItemKey, Object> getLetClauses() {
         return letClauses;
     }
 

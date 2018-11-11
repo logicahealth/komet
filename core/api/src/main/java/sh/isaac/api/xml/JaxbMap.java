@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.query.LetItemKey;
 
 /**
  *
@@ -29,25 +30,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement (name="Let")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JaxbMap {
-    private Map<String, Object> map = new HashMap();
+    private Map<LetItemKey, Object> map = new HashMap();
 
     public JaxbMap() {
     }
  
-    public JaxbMap(Map<String, Object> map) {
+    public JaxbMap(Map<LetItemKey, Object> map) {
         this.map = map;
     }
  
     
-    public Map<String, Object> getMap() {
+    public Map<LetItemKey, Object> getMap() {
         return map;
     }
  
-    public void setMap(Map<String, Object> map) {
+    public void setMap(Map<LetItemKey, Object> map) {
         this.map = map;
     }
     
-    public static JaxbMap of(Map<String, Object> map) {
+    public static JaxbMap of(Map<LetItemKey, Object> map) {
         return new JaxbMap(map);
     }
 }

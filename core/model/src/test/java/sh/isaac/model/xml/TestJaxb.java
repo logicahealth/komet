@@ -24,6 +24,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.model.configuration.DefaultCoordinateProvider;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
@@ -50,9 +51,9 @@ public class TestJaxb {
 
         marshaller.marshal(defaultCoordinateProvider.getDefaultLanguageCoordinate().getLanguageCoordinate(), System.out);
         
-        Map<String, Object> letMap = new HashMap();
-        letMap.put("stamp1", defaultCoordinateProvider.getDefaultStampCoordinate().getStampCoordinate());
-        letMap.put("language", defaultCoordinateProvider.getDefaultLanguageCoordinate().getLanguageCoordinate());
+        Map<LetItemKey, Object> letMap = new HashMap();
+        letMap.put(new LetItemKey("stamp1"), defaultCoordinateProvider.getDefaultStampCoordinate().getStampCoordinate());
+        letMap.put(new LetItemKey("language"), defaultCoordinateProvider.getDefaultLanguageCoordinate().getLanguageCoordinate());
 
         JaxbMap jaxbMap = JaxbMap.of(letMap);
         marshaller.marshal(jaxbMap, System.out);

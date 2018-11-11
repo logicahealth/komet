@@ -155,5 +155,9 @@ public class AndNot
     public Clause[] getAllowedSiblingClauses() {
         return getAllClauses();
     }
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
 
 }

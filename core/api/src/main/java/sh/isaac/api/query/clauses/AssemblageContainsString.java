@@ -63,6 +63,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 
@@ -79,18 +80,18 @@ public class AssemblageContainsString
         extends LeafClause {
    /** The query text. */
    @XmlElement
-   String queryText;
+   LetItemKey queryTextKey;
 
-   /** The view coordinate key. */
+   /** The stamp coordinate key. */
    @XmlElement
-   String viewCoordinateKey;
+   LetItemKey stampCoordinateKey = Query.DEFAULT_MANIFOLD_COORDINATE_KEY;
 
    /** The cache. */
    NidSet cache;
 
    /** The refset spec key. */
    @XmlElement
-   String refsetSpecKey;
+   LetItemKey assemblageSpecKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -103,18 +104,22 @@ public class AssemblageContainsString
     * Instantiates a new refset contains string.
     *
     * @param enclosingQuery the enclosing query
-    * @param refsetSpecKey the refset spec key
-    * @param queryText the query text
-    * @param viewCoordinateKey the view coordinate key
+    * @param assemblageSpecKey the refset spec key
+    * @param queryTextKey the query text
+    * @param stampCoordinateKey the view coordinate key
     */
-   public AssemblageContainsString(Query enclosingQuery, String refsetSpecKey, String queryText, String viewCoordinateKey) {
+   public AssemblageContainsString(Query enclosingQuery, LetItemKey assemblageSpecKey, LetItemKey queryTextKey, LetItemKey stampCoordinateKey) {
       super(enclosingQuery);
-      this.refsetSpecKey     = refsetSpecKey;
-      this.queryText         = queryText;
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.assemblageSpecKey     = assemblageSpecKey;
+      this.queryTextKey         = queryTextKey;
+      this.stampCoordinateKey = stampCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        this.cache = null; 
+    }
 
    /**
     * Compute possible components.
@@ -127,8 +132,8 @@ public class AssemblageContainsString
       throw new UnsupportedOperationException();
 
       // TODO FIX BACK UP
-//    ManifoldCoordinate manifoldCoordinate = (manifoldCoordinate) this.enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
-//    ConceptSpec refsetSpec = (ConceptSpec) this.enclosingQuery.getLetDeclarations().get(refsetSpecKey);
+//    ManifoldCoordinate manifoldCoordinate = (manifoldCoordinate) this.enclosingQuery.getLetDeclarations().get(stampCoordinateKey);
+//    ConceptSpec refsetSpec = (ConceptSpec) this.enclosingQuery.getLetDeclarations().get(assemblageSpecKey);
 //
 //    int refsetNid = refsetSpec.getNid();
 //    ConceptVersionBI conceptVersion = Ts.get().getConceptVersion(viewCoordinate, refsetNid);
@@ -140,7 +145,7 @@ public class AssemblageContainsString
 //            case CID_CID_STR:
 //            case STR:
 //                RefexStringVersionBI rsv = (RefexStringVersionBI) rm;
-//                if (rsv.getString1().toLowerCase().contains(queryText.toLowerCase())) {
+//                if (rsv.getString1().toLowerCase().contains(queryTextKey.toLowerCase())) {
 //                    getResultsCache().add(refsetNid);
 //                }
 //            default:
@@ -168,7 +173,6 @@ public class AssemblageContainsString
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {}
@@ -189,11 +193,11 @@ public class AssemblageContainsString
 
       whereClause.setSemantic(ClauseSemantic.ASSEMBLAGE_CONTAINS_STRING);
       whereClause.getLetKeys()
-                 .add(this.refsetSpecKey);
+                 .add(this.assemblageSpecKey);
       whereClause.getLetKeys()
-                 .add(this.queryText);
+                 .add(this.queryTextKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.stampCoordinateKey);
       return whereClause;
    }
    
@@ -201,6 +205,30 @@ public class AssemblageContainsString
    public ConceptSpecification getClauseConcept() {
       return TermAux.ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE;
    }
+
+    public LetItemKey getQueryTextKey() {
+        return queryTextKey;
+    }
+
+    public void setQueryTextKey(LetItemKey queryTextKey) {
+        this.queryTextKey = queryTextKey;
+    }
+
+    public LetItemKey getStampCoordinateKey() {
+        return stampCoordinateKey;
+    }
+
+    public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
+        this.stampCoordinateKey = stampCoordinateKey;
+    }
+
+    public LetItemKey getAssemblageSpecKey() {
+        return assemblageSpecKey;
+    }
+
+    public void setAssemblageSpecKey(LetItemKey assemblageSpecKey) {
+        this.assemblageSpecKey = assemblageSpecKey;
+    }
 
 }
 

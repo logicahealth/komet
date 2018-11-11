@@ -59,8 +59,8 @@ import sh.isaac.api.query.clauses.*;
 /**
  * Statements that are used to retrieve desired components in a
  * <code>Query</code>. Clauses in a Query are organized into a tree and computed
- * using a depth-first search. The root node in a Query must be an instance of a
- * <code>ParentClause</code>.
+ using a depth-first search. The root node in a Query must be an instance of a
+ <code>ParentClause</code>.
  *
  * @author kec
  */
@@ -124,9 +124,21 @@ public abstract class Clause implements ConceptSpecification {
      * @param enclosingQuery the enclosing query
      */
     public Clause(Query enclosingQuery) {
+        if (enclosingQuery == null) {
+            throw new NullPointerException("Enclosing query cannot be null. ");
+        }
         this.enclosingQuery = enclosingQuery;
         enclosingQuery.getComputePhases().addAll(getComputePhases());
     }
+    
+    public void reset() {
+        resetResults();
+        for (Clause child: getChildren()) {
+            child.reset();
+        }
+    }
+    
+    public abstract void resetResults();
 
     public ConceptSpecification getAssemblageForIteration() {
         return assemblageForIteration;
@@ -170,7 +182,14 @@ public abstract class Clause implements ConceptSpecification {
     public int getNid() {
         return Get.identifierService().getNidForUuids(getPrimordialUuid());
     }
+    
+    public <T extends Object> T getLetItem(LetItemKey key) {
+        return (T) enclosingQuery.getLetDeclarations().get(key);
+    }
 
+    public void let(LetItemKey key, Object value) {
+        enclosingQuery.getLetDeclarations().put(key, value);
+    }
     //~--- methods -------------------------------------------------------------
     /**
      * Compute final results based on possible components, and any cached query
@@ -225,6 +244,7 @@ public abstract class Clause implements ConceptSpecification {
      */
     public void setParent(Clause parent) {
         this.parent = parent;
+        this.enclosingQuery = parent.getEnclosingQuery();
     }
 
     //~--- get methods ---------------------------------------------------------

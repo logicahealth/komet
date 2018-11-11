@@ -116,7 +116,8 @@ public class QueryClause {
                 
                 SimpleStringProperty queryText = new SimpleStringProperty(this, MetaData.QUERY_STRING____SOLOR.toExternalString());
                 queryText.addListener((observable, oldValue, newValue) -> {
-                    descriptionLuceneMatch.setParameterString(newValue);
+                    descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), newValue);
+                    
                 });
 
                 clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold, queryText));

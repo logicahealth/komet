@@ -60,6 +60,8 @@ import sh.isaac.api.query.AttributeReturnSpecification;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 
 import java.util.*;
@@ -86,11 +88,10 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.ValidationEvent;
-import javax.xml.bind.ValidationEventHandler;
 
 //~--- JDK imports ------------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
@@ -101,7 +102,6 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
-import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -112,23 +112,16 @@ import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.api.query.And;
-import sh.isaac.api.query.AndNot;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ForSetsSpecification;
-import sh.isaac.api.query.LeafClause;
-import sh.isaac.api.query.Not;
 import sh.isaac.api.query.Or;
 import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.QueryBuilder;
-import sh.isaac.api.query.Xor;
 import sh.isaac.api.query.clauses.*;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.model.coordinate.LanguageCoordinateImpl;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.api.xml.JaxbMap;
+import sh.isaac.model.xml.Jaxb;
 
 import sh.komet.gui.action.ConceptAction;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
@@ -337,41 +330,7 @@ public class FLWORQueryController
             File selectedFile = fileChooser.showSaveDialog(spacerLabel.getScene().getWindow());
             if (selectedFile != null) {
 
-                JAXBContext jc = JAXBContext.newInstance(StampCoordinateImpl.class,
-                        ConceptSpecification.class,
-                        ConceptProxy.class, LanguageCoordinateImpl.class,
-                        JaxbMap.class, Query.class,
-                        Clause.class, Or.class,
-                        And.class,
-                        AndNot.class,
-                        LeafClause.class,
-                        Not.class,
-                        Or.class,
-                        Xor.class,
-                        AssemblageContainsConcept.class,
-                        AssemblageContainsKindOfConcept.class,
-                        AssemblageContainsString.class,
-                        AssemblageLuceneMatch.class,
-                        ChangedBetweenVersions.class,
-                        ComponentIsActive.class,
-                        ConceptForComponent.class,
-                        ConceptIs.class,
-                        ConceptIsChildOf.class,
-                        ConceptIsDescendentOf.class,
-                        ConceptIsKindOf.class,
-                        DescriptionActiveLuceneMatch.class,
-                        DescriptionActiveRegexMatch.class,
-                        DescriptionLuceneMatch.class,
-                        DescriptionRegexMatch.class,
-                        FullyQualifiedNameForConcept.class,
-                        PreferredNameForConcept.class,
-                        RelRestriction.class,
-                        RelationshipIsCircular.class,
-                        LetItemKey.class,
-                        AttributeReturnSpecification.class
-                );
-
-                Marshaller marshaller = jc.createMarshaller();
+                Marshaller marshaller = Jaxb.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
                 marshaller.marshal(TermAux.ISAAC_UUID, System.out);
 
@@ -384,7 +343,7 @@ public class FLWORQueryController
                     } else if (value instanceof ObservableLanguageCoordinate) {
                         value = ((ObservableLanguageCoordinate) value).getLanguageCoordinate();
                     }
-                    queryBuilder.let(key.getItemName(), value);
+                    queryBuilder.let(key, value);
                 }
 
                 TreeItem<QueryClause> itemToProcess = this.root;
@@ -403,8 +362,22 @@ public class FLWORQueryController
                     System.out.println(event1);
                     return true;
                 });
+                
+                StringWriter stringWriter1 = new StringWriter();
+                marshaller.marshal(query, stringWriter1);
+                String xml1 = stringWriter1.toString();
+                System.out.println(xml1);
+                
+                Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
+                Object obj = unmarshaller.unmarshal(new StringReader(xml1));
 
-                marshaller.marshal(query, System.out);
+                StringWriter stringWriter2 = new StringWriter();
+                marshaller.marshal(obj, stringWriter2);
+                String xml2 = stringWriter2.toString();
+                System.out.println("Strings equal: " + xml1.equals(xml2));
+                System.out.println(xml2);
+                
+                
                 
                 marshaller.marshal(query, new FileWriter(selectedFile));
             }
@@ -546,9 +519,6 @@ public class FLWORQueryController
     private void addChildClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
         TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
 
-        System.out.println(event.getSource()
-                .getClass());
-
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()
                 .get(CLAUSE);
@@ -561,9 +531,6 @@ public class FLWORQueryController
 
     private void addSiblingClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
         TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
-
-        System.out.println(event.getSource()
-                .getClass());
 
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()
@@ -578,9 +545,6 @@ public class FLWORQueryController
 
     private void changeClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
         TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
-
-        System.out.println(event.getSource()
-                .getClass());
 
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()

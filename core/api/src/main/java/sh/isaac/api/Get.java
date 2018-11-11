@@ -401,6 +401,9 @@ public class Get
    }
    
    public static String conceptDescriptionText(ConceptSpecification conceptSpec) {
+       if (conceptSpec == null) {
+           throw new NullPointerException("conceptSpec cannot be null.");
+       }
        return conceptDescriptionText(conceptSpec.getNid());
    }
 

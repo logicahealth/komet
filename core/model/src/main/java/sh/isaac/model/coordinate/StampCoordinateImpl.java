@@ -349,7 +349,7 @@ public class StampCoordinateImpl
              .append(this.stampPosition)
              .append(", modules: ");
 
-      if (this.moduleSpecifications.isEmpty()) {
+      if (this.moduleSpecifications == null || this.moduleSpecifications.isEmpty()) {
          builder.append("all, ");
       } else {
          builder.append(Get.conceptDescriptionTextListFromSpecList(this.moduleSpecifications))

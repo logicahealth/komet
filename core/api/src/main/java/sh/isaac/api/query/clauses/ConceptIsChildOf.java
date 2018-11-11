@@ -63,6 +63,7 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -81,11 +82,11 @@ public class ConceptIsChildOf
         extends LeafClause {
    /** The child of spec key. */
    @XmlElement
-   String childOfSpecKey;
+   LetItemKey childOfSpecKey;
 
    /** The view coordinate key. */
    @XmlElement
-   String viewCoordinateKey;
+   LetItemKey viewCoordinateKey;
 
    private ConceptSpecification childOfSpecification;
    private ManifoldCoordinate manifoldCoordinate;
@@ -104,13 +105,17 @@ public class ConceptIsChildOf
     * @param kindOfSpecKey the kind of spec key
     * @param viewCoordinateKey the view coordinate key
     */
-   public ConceptIsChildOf(Query enclosingQuery, String kindOfSpecKey, String viewCoordinateKey) {
+   public ConceptIsChildOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey viewCoordinateKey) {
       super(enclosingQuery);
       this.childOfSpecKey    = kindOfSpecKey;
       this.viewCoordinateKey = viewCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
 
    /**
     * Compute possible components.

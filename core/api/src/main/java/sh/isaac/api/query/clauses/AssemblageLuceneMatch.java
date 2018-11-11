@@ -58,6 +58,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 //import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
@@ -75,33 +76,37 @@ public class AssemblageLuceneMatch
         extends LeafClause {
    /** The lucene match key. */
    @XmlElement
-   String luceneMatchKey;
+   LetItemKey luceneMatchKey;
 
    /** The view coordinate key. */
    @XmlElement
-   String viewCoordinateKey;
+   LetItemKey viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new refset lucene match.
+    * Instantiates a new assemblage lucene match.
     */
    public AssemblageLuceneMatch() {}
 
    /**
-    * Instantiates a new refset lucene match.
+    * Instantiates a new assemblage lucene match.
     *
     * @param enclosingQuery the enclosing query
     * @param luceneMatchKey the lucene match key
     * @param viewCoordinateKey the view coordinate key
     */
-   public AssemblageLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
+   public AssemblageLuceneMatch(Query enclosingQuery, LetItemKey luceneMatchKey, LetItemKey viewCoordinateKey) {
       super(enclosingQuery);
       this.luceneMatchKey    = luceneMatchKey;
       this.viewCoordinateKey = viewCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
 
    /**
     * Compute possible components.
@@ -164,7 +169,6 @@ public class AssemblageLuceneMatch
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {}

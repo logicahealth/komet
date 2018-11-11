@@ -62,6 +62,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 
@@ -82,11 +83,11 @@ public class DescriptionRegexMatch
 
    /** The regex key. */
    @XmlElement
-   String regexKey;
+   LetItemKey regexKey;
 
    /** The view coordinate key. */
    @XmlElement
-   String viewCoordinateKey;
+   LetItemKey viewCoordinateKey;
 
    private String parameterString;
    private ManifoldCoordinate manifoldCoordinate;
@@ -105,7 +106,7 @@ public class DescriptionRegexMatch
     * @param regexKey the regex key
     * @param viewCoordinateKey the view coordinate key
     */
-   public DescriptionRegexMatch(Query enclosingQuery, String regexKey, String viewCoordinateKey) {
+   public DescriptionRegexMatch(Query enclosingQuery, LetItemKey regexKey, LetItemKey viewCoordinateKey) {
       super(enclosingQuery);
       this.viewCoordinateKey = viewCoordinateKey;
       this.regexKey          = regexKey;
@@ -129,6 +130,10 @@ public class DescriptionRegexMatch
 
    //~--- get methods ---------------------------------------------------------
 
+    @Override
+    public void resetResults() {
+        this.cache = null;
+    }
 
    public void setParameterString(String parameterString) {
       this.parameterString = parameterString;

@@ -40,7 +40,6 @@ package sh.isaac.api.query;
 
 
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 //~--- non-JDK imports --------------------------------------------------------
 import java.util.HashMap;
@@ -75,7 +74,7 @@ public class Not
      * The not set.
      */
     NidSet notSet;
-    private String stampCoordinateKey;
+    private LetItemKey stampCoordinateKey;
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -92,12 +91,17 @@ public class Not
      * @param child the child
      * @param stampCoordinateKey
      */
-    public Not(Query enclosingQuery, Clause child, String stampCoordinateKey) {
+    public Not(Query enclosingQuery, Clause child, LetItemKey stampCoordinateKey) {
         super(enclosingQuery, child);
         this.stampCoordinateKey = stampCoordinateKey;
     }
 
     //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        this.forSet = null;
+        this.notSet = null;
+    }
     /**
      * Compute components.
      *

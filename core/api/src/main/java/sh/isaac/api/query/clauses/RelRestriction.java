@@ -62,6 +62,7 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -78,23 +79,23 @@ public class RelRestriction
         extends LeafClause {
    /** The rel type key. */
    @XmlElement
-   String relTypeKey;
+   LetItemKey relTypeKey;
 
    /** The destination spec key. */
    @XmlElement
-   String destinationSpecKey;
+   LetItemKey destinationSpecKey;
 
    /** The view coordinate key. */
    @XmlElement
-   String viewCoordinateKey;
+   LetItemKey viewCoordinateKey;
 
    /** The destination subsumption key. */
    @XmlElement
-   String destinationSubsumptionKey;
+   LetItemKey destinationSubsumptionKey;
 
    /** The rel type subsumption key. */
    @XmlElement
-   String relTypeSubsumptionKey;
+   LetItemKey relTypeSubsumptionKey;
 
    /** The destination set. */
    NidSet destinationSet;
@@ -120,11 +121,11 @@ public class RelRestriction
     * @param relTypeSubsumptionKey the rel type subsumption key
     */
    public RelRestriction(Query enclosingQuery,
-                         String relTypeKey,
-                         String destinationSpecKey,
-                         String viewCoordinateKey,
-                         String destinationSubsumptionKey,
-                         String relTypeSubsumptionKey) {
+                         LetItemKey relTypeKey,
+                         LetItemKey destinationSpecKey,
+                         LetItemKey viewCoordinateKey,
+                         LetItemKey destinationSubsumptionKey,
+                         LetItemKey relTypeSubsumptionKey) {
       super(enclosingQuery);
       this.destinationSpecKey        = destinationSpecKey;
       this.relTypeKey                = relTypeKey;
@@ -182,6 +183,12 @@ public class RelRestriction
    }
 
    //~--- get methods ---------------------------------------------------------
+    @Override
+    public void resetResults() {
+        this.relTypeSet = null;
+        this.destinationSet = null;
+        
+    }
 
    /**
     * Gets the compute phases.

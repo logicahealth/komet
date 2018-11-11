@@ -76,6 +76,10 @@ public class Or
     }
 
     //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
     /**
      * Compute components.
      *

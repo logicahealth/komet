@@ -58,6 +58,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 
@@ -84,13 +85,13 @@ public class ChangedBetweenVersions
     * The <code>StampCoordinate</code> used to specify version one.
     */
    @XmlElement
-   String stampCoordinateOneKey;
+   LetItemKey stampCoordinateOneKey;
 
    /**
     * The <code>StampCoordinate</code> used to specify version two.
     */
    @XmlElement
-   String stampCoordinateTwoKey;
+   LetItemKey stampCoordinateTwoKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -108,26 +109,30 @@ public class ChangedBetweenVersions
     * @param stampCoordinateOneKey the first stamp version to compare
     * @param stampCoordinateTwoKey the second stamp version to compare
     */
-   public ChangedBetweenVersions(Query enclosingQuery, String stampCoordinateOneKey, String stampCoordinateTwoKey) {
+   public ChangedBetweenVersions(Query enclosingQuery, LetItemKey stampCoordinateOneKey, LetItemKey stampCoordinateTwoKey) {
       super(enclosingQuery);
       this.stampCoordinateOneKey = stampCoordinateOneKey;
       this.stampCoordinateTwoKey = stampCoordinateTwoKey;
    }
+    @Override
+    public void resetResults() {
+        this.cache.clear();
+    }
 
-   public String getStampCoordinateOneKey() {
+   public LetItemKey getStampCoordinateOneKey() {
       return stampCoordinateOneKey;
    }
 
-    public void setStampCoordinateOneKey(String stampCoordinateOneKey) {
+    public void setStampCoordinateOneKey(LetItemKey stampCoordinateOneKey) {
         this.stampCoordinateOneKey = stampCoordinateOneKey;
     }
 
-    public String getStampCoordinateTwoKey() {
+    public LetItemKey getStampCoordinateTwoKey() {
         return stampCoordinateTwoKey;
     }
 
     //~--- methods -------------------------------------------------------------
-    public void setStampCoordinateTwoKey(String stampCoordinateTwoKey) {
+    public void setStampCoordinateTwoKey(LetItemKey stampCoordinateTwoKey) {
         this.stampCoordinateTwoKey = stampCoordinateTwoKey;
     }
 

@@ -162,4 +162,10 @@ public class And
         return getAllClauses();
     }
 
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
+
+    
 }

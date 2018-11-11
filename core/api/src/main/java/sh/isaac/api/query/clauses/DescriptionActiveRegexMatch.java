@@ -52,6 +52,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.query.ClauseSemantic;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 
@@ -79,7 +80,7 @@ public class DescriptionActiveRegexMatch
     * @param regexKey the regex key
     * @param viewCoordinateKey the view coordinate key
     */
-   public DescriptionActiveRegexMatch(Query enclosingQuery, String regexKey, String viewCoordinateKey) {
+   public DescriptionActiveRegexMatch(Query enclosingQuery, LetItemKey regexKey, LetItemKey viewCoordinateKey) {
       super(enclosingQuery, regexKey, viewCoordinateKey);
    }
 

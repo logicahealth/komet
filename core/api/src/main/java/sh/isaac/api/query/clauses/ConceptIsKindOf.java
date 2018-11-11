@@ -61,7 +61,7 @@ import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,14 +77,11 @@ public class ConceptIsKindOf
         extends LeafClause {
    /** The kind of spec key. */
    @XmlElement
-   String kindOfSpecKey;
+   LetItemKey kindOfSpecKey;
 
    /** The view coordinate key. */
    @XmlElement
-   String viewCoordinateKey;
-
-   private ConceptSpecification kindOfSpecification;
-   private ManifoldCoordinate manifoldCoordinate;
+   LetItemKey viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -102,22 +99,18 @@ public class ConceptIsKindOf
     * @param kindOfSpecKey the kind of spec key
     * @param viewCoordinateKey the view coordinate key
     */
-   public ConceptIsKindOf(Query enclosingQuery, String kindOfSpecKey, String viewCoordinateKey) {
+   public ConceptIsKindOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey viewCoordinateKey) {
       super(enclosingQuery);
       this.kindOfSpecKey     = kindOfSpecKey;
       this.viewCoordinateKey = viewCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
 
-
-   public void setKindOfSpecification(ConceptSpecification kindOfSpecification) {
-      this.kindOfSpecification = kindOfSpecification;
-   }
-
-   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
-      this.manifoldCoordinate = manifoldCoordinate;
-   }
 
    /**
     * Compute possible components.
@@ -127,8 +120,8 @@ public class ConceptIsKindOf
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-      final int                parentNid         = this.kindOfSpecification.getNid();
-      final NidSet kindOfNidSet = Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getKindOfConceptNidSet(parentNid);
+      final int                parentNid         = ((ConceptSpecification) getLetItem(kindOfSpecKey)).getNid();
+      final NidSet kindOfNidSet = Get.taxonomyService().getSnapshot(getLetItem(viewCoordinateKey)).getKindOfConceptNidSet(parentNid);
       getResultsCache().or(kindOfNidSet);
       HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
       resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
