@@ -84,9 +84,9 @@ public class ConceptIsChildOf
    @XmlElement
    LetItemKey childOfSpecKey;
 
-   /** The view coordinate key. */
+   /** the manifold coordinate key. */
    @XmlElement
-   LetItemKey viewCoordinateKey;
+   LetItemKey manifoldCoordinateKey;
 
    private ConceptSpecification childOfSpecification;
    private ManifoldCoordinate manifoldCoordinate;
@@ -103,12 +103,12 @@ public class ConceptIsChildOf
     *
     * @param enclosingQuery the enclosing query
     * @param kindOfSpecKey the kind of spec key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public ConceptIsChildOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey viewCoordinateKey) {
+   public ConceptIsChildOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
       this.childOfSpecKey    = kindOfSpecKey;
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.manifoldCoordinateKey = manifoldCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -184,7 +184,7 @@ public class ConceptIsChildOf
       whereClause.getLetKeys()
                  .add(this.childOfSpecKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
    

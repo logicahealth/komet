@@ -83,7 +83,7 @@ public class AssemblageContainsKindOfConcept
    @XmlElement
    LetItemKey conceptSpecKey;
 
-   /** The view coordinate key. */
+   /** the manifold coordinate key. */
    @XmlElement
    LetItemKey stampCoordinateKey;
 
@@ -100,7 +100,7 @@ public class AssemblageContainsKindOfConcept
     * @param enclosingQuery the enclosing query
     * @param assemblageSpecKey the refset spec key
     * @param conceptSpecKey the concept spec key
-    * @param stampCoordinateKey the view coordinate key
+    * @param stampCoordinateKey the manifold coordinate key
     */
    public AssemblageContainsKindOfConcept(Query enclosingQuery,
                                       LetItemKey assemblageSpecKey,

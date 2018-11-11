@@ -80,9 +80,9 @@ public class RelationshipIsCircular
    @XmlElement
    LetItemKey relTypeKey;
 
-   /** The view coordinate key. */
+   /** the manifold coordinate key. */
    @XmlElement
-   LetItemKey viewCoordinateKey;
+   LetItemKey manifoldCoordinateKey;
 
    /** The rel type subsumption key. */
    @XmlElement
@@ -103,16 +103,16 @@ public class RelationshipIsCircular
     *
     * @param enclosingQuery the enclosing query
     * @param relTypeKey the rel type key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     * @param relTypeSubsumptionKey the rel type subsumption key
     */
    public RelationshipIsCircular(Query enclosingQuery,
                                  LetItemKey relTypeKey,
-                                 LetItemKey viewCoordinateKey,
+                                 LetItemKey manifoldCoordinateKey,
                                  LetItemKey relTypeSubsumptionKey) {
       super(enclosingQuery);
       this.relTypeKey            = relTypeKey;
-      this.viewCoordinateKey     = viewCoordinateKey;
+      this.manifoldCoordinateKey     = manifoldCoordinateKey;
       this.relTypeSubsumptionKey = relTypeSubsumptionKey;
    }
 
@@ -132,7 +132,7 @@ public class RelationshipIsCircular
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
       final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                            .get(this.viewCoordinateKey);
+                                                                                            .get(this.manifoldCoordinateKey);
       final ConceptSpecification relType = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
                                                                                      .get(this.relTypeKey);
       Boolean relTypeSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
@@ -175,7 +175,7 @@ public class RelationshipIsCircular
       throw new UnsupportedOperationException();
 
       /*
-       * ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
+       * ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) enclosingQuery.getLetDeclarations().get(manifoldCoordinateKey);
        * Get.taxonomyService().getAllRelationshipDestinationSequencesOfType(
        *       conceptVersion.getChronology().getConceptSequence(), relTypeSet, viewCoordinate)
        *       .forEach((destinationSequence) -> {
@@ -204,7 +204,7 @@ public class RelationshipIsCircular
       whereClause.getLetKeys()
                  .add(this.relTypeKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       whereClause.getLetKeys()
                  .add(this.relTypeSubsumptionKey);
 

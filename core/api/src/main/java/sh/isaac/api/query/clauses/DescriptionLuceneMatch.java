@@ -78,7 +78,7 @@ public class DescriptionLuceneMatch
                     UUID.fromString("dd11c59a-9afd-4a15-a4a9-32fb414f3299"));
     
     /**
-     * The view coordinate key.
+     * the manifold coordinate key.
      */
 
     private LetItemKey queryStringKey = DEFAULT_QUERY_STRING_KEY;

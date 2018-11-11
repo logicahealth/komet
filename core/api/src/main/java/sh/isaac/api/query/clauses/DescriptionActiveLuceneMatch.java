@@ -91,7 +91,7 @@ public class DescriptionActiveLuceneMatch
     *
     * @param enclosingQuery the enclosing query
     * @param queryStringKey the lucene match key
-    * @param stampCoordinateKey the view coordinate key
+    * @param stampCoordinateKey the manifold coordinate key
     */
    public DescriptionActiveLuceneMatch(Query enclosingQuery, LetItemKey queryStringKey, LetItemKey stampCoordinateKey) {
       super(enclosingQuery, queryStringKey);

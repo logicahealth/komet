@@ -79,9 +79,9 @@ public class ConceptIsKindOf
    @XmlElement
    LetItemKey kindOfSpecKey;
 
-   /** The view coordinate key. */
+   /** the manifold coordinate key. */
    @XmlElement
-   LetItemKey viewCoordinateKey;
+   LetItemKey manifoldCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -97,12 +97,12 @@ public class ConceptIsKindOf
     *
     * @param enclosingQuery the enclosing query
     * @param kindOfSpecKey the kind of spec key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public ConceptIsKindOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey viewCoordinateKey) {
+   public ConceptIsKindOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
       this.kindOfSpecKey     = kindOfSpecKey;
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.manifoldCoordinateKey = manifoldCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -121,7 +121,7 @@ public class ConceptIsKindOf
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
       final int                parentNid         = ((ConceptSpecification) getLetItem(kindOfSpecKey)).getNid();
-      final NidSet kindOfNidSet = Get.taxonomyService().getSnapshot(getLetItem(viewCoordinateKey)).getKindOfConceptNidSet(parentNid);
+      final NidSet kindOfNidSet = Get.taxonomyService().getSnapshot(getLetItem(manifoldCoordinateKey)).getKindOfConceptNidSet(parentNid);
       getResultsCache().or(kindOfNidSet);
       HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
       resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
@@ -168,7 +168,7 @@ public class ConceptIsKindOf
       whereClause.getLetKeys()
                  .add(this.kindOfSpecKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
    

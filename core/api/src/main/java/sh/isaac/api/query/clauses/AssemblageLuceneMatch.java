@@ -76,11 +76,11 @@ public class AssemblageLuceneMatch
         extends LeafClause {
    /** The lucene match key. */
    @XmlElement
-   LetItemKey luceneMatchKey;
+   LetItemKey queryStringKey;
 
-   /** The view coordinate key. */
+   /** the manifold coordinate key. */
    @XmlElement
-   LetItemKey viewCoordinateKey;
+   LetItemKey manifoldCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -93,13 +93,13 @@ public class AssemblageLuceneMatch
     * Instantiates a new assemblage lucene match.
     *
     * @param enclosingQuery the enclosing query
-    * @param luceneMatchKey the lucene match key
-    * @param viewCoordinateKey the view coordinate key
+    * @param queryStringKey the lucene match key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public AssemblageLuceneMatch(Query enclosingQuery, LetItemKey luceneMatchKey, LetItemKey viewCoordinateKey) {
+   public AssemblageLuceneMatch(Query enclosingQuery, LetItemKey queryStringKey, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
-      this.luceneMatchKey    = luceneMatchKey;
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.queryStringKey    = queryStringKey;
+      this.manifoldCoordinateKey = manifoldCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -117,9 +117,9 @@ public class AssemblageLuceneMatch
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
       this.enclosingQuery.getLetDeclarations()
-                         .get(this.viewCoordinateKey);
+                         .get(this.manifoldCoordinateKey);
       this.enclosingQuery.getLetDeclarations()
-                         .get(this.luceneMatchKey);
+                         .get(this.queryStringKey);
 
       final NidSet        nids = new NidSet();
       throw new UnsupportedOperationException();
@@ -189,7 +189,7 @@ public class AssemblageLuceneMatch
 
       whereClause.setSemantic(ClauseSemantic.ASSEMBLAGE_LUCENE_MATCH);
       whereClause.getLetKeys()
-                 .add(this.luceneMatchKey);
+                 .add(this.queryStringKey);
       return whereClause;
    }
    

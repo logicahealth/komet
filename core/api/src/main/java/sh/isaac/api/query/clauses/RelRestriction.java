@@ -85,9 +85,9 @@ public class RelRestriction
    @XmlElement
    LetItemKey destinationSpecKey;
 
-   /** The view coordinate key. */
+   /** the manifold coordinate key. */
    @XmlElement
-   LetItemKey viewCoordinateKey;
+   LetItemKey manifoldCoordinateKey;
 
    /** The destination subsumption key. */
    @XmlElement
@@ -116,20 +116,20 @@ public class RelRestriction
     * @param enclosingQuery the enclosing query
     * @param relTypeKey the rel type key
     * @param destinationSpecKey the destination spec key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     * @param destinationSubsumptionKey the destination subsumption key
     * @param relTypeSubsumptionKey the rel type subsumption key
     */
    public RelRestriction(Query enclosingQuery,
                          LetItemKey relTypeKey,
                          LetItemKey destinationSpecKey,
-                         LetItemKey viewCoordinateKey,
+                         LetItemKey manifoldCoordinateKey,
                          LetItemKey destinationSubsumptionKey,
                          LetItemKey relTypeSubsumptionKey) {
       super(enclosingQuery);
       this.destinationSpecKey        = destinationSpecKey;
       this.relTypeKey                = relTypeKey;
-      this.viewCoordinateKey         = viewCoordinateKey;
+      this.manifoldCoordinateKey         = manifoldCoordinateKey;
       this.relTypeSubsumptionKey     = relTypeSubsumptionKey;
       this.destinationSubsumptionKey = destinationSubsumptionKey;
    }
@@ -146,7 +146,7 @@ public class RelRestriction
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
       final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                            .get(this.viewCoordinateKey);
+                                                                                            .get(this.manifoldCoordinateKey);
       final ConceptSpecification destinationSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
                                                                                              .get(this.destinationSpecKey);
       final ConceptSpecification relType = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
@@ -208,7 +208,7 @@ public class RelRestriction
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                            .get(this.viewCoordinateKey);
+                                                                                            .get(this.manifoldCoordinateKey);
 
       throw new UnsupportedOperationException("Reimplement with new taxonomy service. ");
 //      for (int destinationSequence: Get.taxonomyService()
@@ -243,7 +243,7 @@ public class RelRestriction
       whereClause.getLetKeys()
                  .add(this.destinationSpecKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       whereClause.getLetKeys()
                  .add(this.destinationSubsumptionKey);
       whereClause.getLetKeys()

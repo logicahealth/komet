@@ -85,9 +85,9 @@ public class DescriptionRegexMatch
    @XmlElement
    LetItemKey regexKey;
 
-   /** The view coordinate key. */
+   /** the manifold coordinate key. */
    @XmlElement
-   LetItemKey viewCoordinateKey;
+   LetItemKey manifoldCoordinateKey;
 
    private String parameterString;
    private ManifoldCoordinate manifoldCoordinate;
@@ -104,11 +104,11 @@ public class DescriptionRegexMatch
     *
     * @param enclosingQuery the enclosing query
     * @param regexKey the regex key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public DescriptionRegexMatch(Query enclosingQuery, LetItemKey regexKey, LetItemKey viewCoordinateKey) {
+   public DescriptionRegexMatch(Query enclosingQuery, LetItemKey regexKey, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.manifoldCoordinateKey = manifoldCoordinateKey;
       this.regexKey          = regexKey;
    }
 
@@ -202,7 +202,7 @@ public class DescriptionRegexMatch
       whereClause.getLetKeys()
                  .add(this.regexKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
 }

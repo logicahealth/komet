@@ -84,9 +84,9 @@ public class ConceptIsDescendentOf
    @XmlElement
    LetItemKey descendentOfSpecKey;
 
-   /** The view coordinate key. */
+   /** the manifold coordinate key. */
    @XmlElement
-   LetItemKey viewCoordinateKey;
+   LetItemKey manifoldCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -100,12 +100,12 @@ public class ConceptIsDescendentOf
     *
     * @param enclosingQuery the enclosing query
     * @param kindOfSpecKey the kind of spec key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public ConceptIsDescendentOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey viewCoordinateKey) {
+   public ConceptIsDescendentOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
       this.descendentOfSpecKey = kindOfSpecKey;
-      this.viewCoordinateKey   = viewCoordinateKey;
+      this.manifoldCoordinateKey   = manifoldCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -123,7 +123,7 @@ public class ConceptIsDescendentOf
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
       final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-              .get(this.viewCoordinateKey);
+              .get(this.manifoldCoordinateKey);
       final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
               .get(this.descendentOfSpecKey);
       final int parentNid = descendentOfSpec.getNid();
@@ -174,7 +174,7 @@ public class ConceptIsDescendentOf
       whereClause.getLetKeys()
                  .add(this.descendentOfSpecKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
    

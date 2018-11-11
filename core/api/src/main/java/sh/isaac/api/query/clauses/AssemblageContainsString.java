@@ -106,7 +106,7 @@ public class AssemblageContainsString
     * @param enclosingQuery the enclosing query
     * @param assemblageSpecKey the refset spec key
     * @param queryTextKey the query text
-    * @param stampCoordinateKey the view coordinate key
+    * @param stampCoordinateKey the manifold coordinate key
     */
    public AssemblageContainsString(Query enclosingQuery, LetItemKey assemblageSpecKey, LetItemKey queryTextKey, LetItemKey stampCoordinateKey) {
       super(enclosingQuery);

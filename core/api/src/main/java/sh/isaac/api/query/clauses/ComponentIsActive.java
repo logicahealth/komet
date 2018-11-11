@@ -45,7 +45,7 @@ import sh.isaac.api.query.WhereClause;
 public class ComponentIsActive extends LeafClause {
 
     /**
-     * The view coordinate key.
+     * the manifold coordinate key.
      */
     StampCoordinate stampCoordinate;
 
@@ -60,7 +60,7 @@ public class ComponentIsActive extends LeafClause {
      * Instantiates a new component is active clause.
      *
      * @param enclosingQuery the enclosing query
-     * @param stampCoordinate the view coordinate key
+     * @param stampCoordinate the manifold coordinate key
      */
     public ComponentIsActive(Query enclosingQuery, StampCoordinate stampCoordinate) {
         super(enclosingQuery);

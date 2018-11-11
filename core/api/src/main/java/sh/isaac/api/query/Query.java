@@ -338,11 +338,11 @@ public class Query {
      * <code>ViewCoordinate</code>.
      *
      * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the concept is
      */
-    protected ConceptIs ConceptIs(LetItemKey conceptSpecKey, LetItemKey viewCoordinateKey) {
-        return new ConceptIs(this, conceptSpecKey, viewCoordinateKey);
+    protected ConceptIs ConceptIs(LetItemKey conceptSpecKey, LetItemKey manifoldCoordinateKey) {
+        return new ConceptIs(this, conceptSpecKey, manifoldCoordinateKey);
     }
 
     /**
@@ -360,11 +360,11 @@ public class Query {
      * <code>ViewCoordinate</code>.
      *
      * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the concept is child of
      */
-    protected ConceptIsChildOf ConceptIsChildOf(LetItemKey conceptSpecKey, LetItemKey viewCoordinateKey) {
-        return new ConceptIsChildOf(this, conceptSpecKey, viewCoordinateKey);
+    protected ConceptIsChildOf ConceptIsChildOf(LetItemKey conceptSpecKey, LetItemKey manifoldCoordinateKey) {
+        return new ConceptIsChildOf(this, conceptSpecKey, manifoldCoordinateKey);
     }
 
     /**
@@ -382,11 +382,11 @@ public class Query {
      * <code>ViewCoordinate</code>.
      *
      * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the concept is descendent of
      */
-    protected ConceptIsDescendentOf ConceptIsDescendentOf(LetItemKey conceptSpecKey, LetItemKey viewCoordinateKey) {
-        return new ConceptIsDescendentOf(this, conceptSpecKey, viewCoordinateKey);
+    protected ConceptIsDescendentOf ConceptIsDescendentOf(LetItemKey conceptSpecKey, LetItemKey manifoldCoordinateKey) {
+        return new ConceptIsDescendentOf(this, conceptSpecKey, manifoldCoordinateKey);
     }
 
     /**
@@ -405,11 +405,11 @@ public class Query {
      * <code>ViewCoordinate</code>.
      *
      * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the concept is kind of
      */
-    protected ConceptIsKindOf ConceptIsKindOf(LetItemKey conceptSpecKey, LetItemKey viewCoordinateKey) {
-        return new ConceptIsKindOf(this, conceptSpecKey, viewCoordinateKey);
+    protected ConceptIsKindOf ConceptIsKindOf(LetItemKey conceptSpecKey, LetItemKey manifoldCoordinateKey) {
+        return new ConceptIsKindOf(this, conceptSpecKey, manifoldCoordinateKey);
     }
 
     /**
@@ -426,11 +426,11 @@ public class Query {
      * Description active lucene match.
      *
      * @param queryTextKey the query text key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the description active lucene match
      */
-    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(LetItemKey queryTextKey, LetItemKey viewCoordinateKey) {
-        return new DescriptionActiveLuceneMatch(this, queryTextKey, viewCoordinateKey);
+    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(LetItemKey queryTextKey, LetItemKey manifoldCoordinateKey) {
+        return new DescriptionActiveLuceneMatch(this, queryTextKey, manifoldCoordinateKey);
     }
 
     /**
@@ -447,11 +447,11 @@ public class Query {
      * Description active regex match.
      *
      * @param regexKey the regex key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the description active regex match
      */
-    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(LetItemKey regexKey, LetItemKey viewCoordinateKey) {
-        return new DescriptionActiveRegexMatch(this, regexKey, viewCoordinateKey);
+    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(LetItemKey regexKey, LetItemKey manifoldCoordinateKey) {
+        return new DescriptionActiveRegexMatch(this, regexKey, manifoldCoordinateKey);
     }
 
     /**
@@ -478,11 +478,11 @@ public class Query {
      * Description regex match.
      *
      * @param regexKey the regex key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the description regex match
      */
-    protected DescriptionRegexMatch DescriptionRegexMatch(LetItemKey regexKey, LetItemKey viewCoordinateKey) {
-        return new DescriptionRegexMatch(this, regexKey, viewCoordinateKey);
+    protected DescriptionRegexMatch DescriptionRegexMatch(LetItemKey regexKey, LetItemKey manifoldCoordinateKey) {
+        return new DescriptionRegexMatch(this, regexKey, manifoldCoordinateKey);
     }
 
     /**
@@ -554,13 +554,13 @@ public class Query {
      *
      * @param refsetSpecKey the refset spec key
      * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the refset contains concept
      */
     protected AssemblageContainsConcept AssemblageContainsConcept(LetItemKey refsetSpecKey,
             LetItemKey conceptSpecKey,
-            LetItemKey viewCoordinateKey) {
-        return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
+            LetItemKey manifoldCoordinateKey) {
+        return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, manifoldCoordinateKey);
     }
 
     /**
@@ -579,13 +579,13 @@ public class Query {
      *
      * @param refsetSpecKey the refset spec key
      * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the refset contains kind of concept
      */
     protected AssemblageContainsKindOfConcept AssemblageContainsKindOfConcept(LetItemKey refsetSpecKey,
             LetItemKey conceptSpecKey,
-            LetItemKey viewCoordinateKey) {
-        return new AssemblageContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
+            LetItemKey manifoldCoordinateKey) {
+        return new AssemblageContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, manifoldCoordinateKey);
     }
 
     /**
@@ -604,13 +604,13 @@ public class Query {
      *
      * @param refsetSpecKey the refset spec key
      * @param stringMatchKey the string match key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the refset contains string
      */
     protected AssemblageContainsString AssemblageContainsString(LetItemKey refsetSpecKey,
             LetItemKey stringMatchKey,
-            LetItemKey viewCoordinateKey) {
-        return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, viewCoordinateKey);
+            LetItemKey manifoldCoordinateKey) {
+        return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, manifoldCoordinateKey);
     }
 
     /**
@@ -676,20 +676,20 @@ public class Query {
      *
      * @param relTypeKey the rel type key
      * @param destinationSpecKey the destination spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @param relTypeSubsumptionKey the rel type subsumption key
      * @param targetSubsumptionKey the target subsumption key
      * @return the rel restriction
      */
     protected RelRestriction RelRestriction(LetItemKey relTypeKey,
             LetItemKey destinationSpecKey,
-            LetItemKey viewCoordinateKey,
+            LetItemKey manifoldCoordinateKey,
             LetItemKey relTypeSubsumptionKey,
             LetItemKey targetSubsumptionKey) {
         return new RelRestriction(this,
                 relTypeKey,
                 destinationSpecKey,
-                viewCoordinateKey,
+                manifoldCoordinateKey,
                 relTypeSubsumptionKey,
                 targetSubsumptionKey);
     }

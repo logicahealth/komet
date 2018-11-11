@@ -79,9 +79,9 @@ public class ConceptIs
    @XmlElement
    LetItemKey conceptSpecString;
 
-   /** The view coordinate key. */
+   /** the manifold coordinate key. */
    @XmlElement
-   LetItemKey viewCoordinateKey;
+   LetItemKey manifoldCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -95,12 +95,12 @@ public class ConceptIs
     *
     * @param enclosingQuery the enclosing query
     * @param conceptSpec the concept spec
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public ConceptIs(Query enclosingQuery, LetItemKey conceptSpec, LetItemKey viewCoordinateKey) {
+   public ConceptIs(Query enclosingQuery, LetItemKey conceptSpec, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
       this.conceptSpecString = conceptSpec;
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.manifoldCoordinateKey = manifoldCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -164,7 +164,7 @@ public class ConceptIs
       whereClause.getLetKeys()
                  .add(this.conceptSpecString);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
    

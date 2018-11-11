@@ -78,10 +78,10 @@ public class DescriptionActiveRegexMatch
     *
     * @param enclosingQuery the enclosing query
     * @param regexKey the regex key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public DescriptionActiveRegexMatch(Query enclosingQuery, LetItemKey regexKey, LetItemKey viewCoordinateKey) {
-      super(enclosingQuery, regexKey, viewCoordinateKey);
+   public DescriptionActiveRegexMatch(Query enclosingQuery, LetItemKey regexKey, LetItemKey manifoldCoordinateKey) {
+      super(enclosingQuery, regexKey, manifoldCoordinateKey);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -125,7 +125,7 @@ public class DescriptionActiveRegexMatch
       whereClause.getLetKeys()
                  .add(this.regexKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
 }
