@@ -118,7 +118,7 @@ public class Query {
     /**
      * The let declarations.
      */
-    private final HashMap<LetItemKey, Object> letDeclarations = new HashMap<>();
+    private Map<LetItemKey, Object> letDeclarations = new HashMap<>();
 
     /**
      * The concepts, stored as nids in a <code>NidSet</code>, that are
@@ -227,6 +227,10 @@ public class Query {
     
     public ForSetsSpecification getForSetSpecification() {
         return forSetSpecification;
+    }
+    
+    public void setForSetSpecification(ForSetsSpecification forSetSpecification) {
+        this.forSetSpecification = forSetSpecification;
     }
     
     @XmlElement(name = "Concept")
@@ -733,8 +737,12 @@ public class Query {
      *
      * @return the let declarations
      */
-    public HashMap<LetItemKey, Object> getLetDeclarations() {
+    public Map<LetItemKey, Object> getLetDeclarations() {
         return this.letDeclarations;
+    }
+    
+    public void setLetDeclarations(Map<LetItemKey, Object> letDeclarations) {
+        this.letDeclarations = letDeclarations;
     }
     
     @XmlElement(name = "Let")

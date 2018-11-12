@@ -45,6 +45,7 @@ import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -195,7 +196,13 @@ public class DescriptionLuceneMatch
         this.queryStringKey = queryStringKey;
     }
 
+    @XmlElement
     public LetItemKey getQueryStringKey() {
         return this.queryStringKey;
+    }    
+    
+    public String getQueryText() {
+        return getLetItem(queryStringKey);
     }
+    
 }

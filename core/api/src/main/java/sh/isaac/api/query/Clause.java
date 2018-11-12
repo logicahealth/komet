@@ -44,7 +44,9 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -54,6 +56,7 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.clauses.*;
+import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -140,6 +143,8 @@ public abstract class Clause implements ConceptSpecification {
     
     public abstract void resetResults();
 
+    @XmlElement
+    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)    
     public ConceptSpecification getAssemblageForIteration() {
         return assemblageForIteration;
     }

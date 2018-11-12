@@ -49,6 +49,9 @@ public class LetItemsController {
 
     }
 
+    public void reset() {
+        letListViewletListView.getItems().clear();
+    }
     public ListView<LetItemKey> getLetListViewletListView() {
         return letListViewletListView;
     }

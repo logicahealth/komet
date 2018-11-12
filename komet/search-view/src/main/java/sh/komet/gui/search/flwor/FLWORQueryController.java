@@ -58,6 +58,7 @@ import sh.isaac.api.query.AttributeFunction;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.AttributeSpecification;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
@@ -114,7 +115,6 @@ import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ForSetsSpecification;
-import sh.isaac.api.query.Or;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.clauses.*;
 import sh.isaac.komet.iconography.Iconography;
@@ -215,6 +215,9 @@ public class FLWORQueryController
     private Label spacerLabel; // Value injected by FXMLLoader
 
     @FXML
+    private MenuItem importFlwor;
+
+    @FXML
     private MenuItem exportFlwor;
 
     @FXML
@@ -309,6 +312,24 @@ public class FLWORQueryController
     }
 
     @FXML
+    void importFlwor(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import FLWOR specification from file");
+        fileChooser.setInitialFileName("query.flwor");
+        File selectedFile = fileChooser.showOpenDialog(spacerLabel.getScene().getWindow());
+        if (selectedFile != null) {
+            try (FileReader reader = new FileReader(selectedFile)) {
+                Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
+                Query queryFromDisk = (Query) unmarshaller.unmarshal(reader);
+                queryFromDisk.getRoot().setEnclosingQuery(queryFromDisk);
+                setQuery(queryFromDisk);
+            } catch (JAXBException | IOException ex) {
+                FxGet.dialogs().showErrorDialog("Error importing " + selectedFile.getName(), ex);
+            }
+        }
+    }
+
+    @FXML
     void exportFlwor(ActionEvent event) {
         try {
             FileChooser fileChooser = new FileChooser();
@@ -367,12 +388,6 @@ public class FLWORQueryController
 
         } catch (JAXBException | IOException ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
-//            if (ex instanceof IllegalAnnotationsException) {
-//                IllegalAnnotationsException illegalAnnotationsException = (IllegalAnnotationsException) ex;
-//                for (IllegalAnnotationException exception:illegalAnnotationsException.getErrors()) {
-//                   LOG.error(exception.getLocalizedMessage(), exception);
-//                }
-//            }
         }
 
     }
@@ -694,6 +709,50 @@ public class FLWORQueryController
         return this.manifold;
     }
 
+    void setQuery(Query query) {
+        this.query = query;
+        this.joinProperties.clear();
+        forPropertySheet.getForAssemblagesProperty().clear();
+        for (ConceptSpecification assemblageSpec : this.query.getForSetSpecification().getForSet()) {
+            forPropertySheet.getForAssemblagesProperty().add(assemblageSpec);
+        }
+        this.query.setForSetSpecification(forPropertySheet.getForSetSpecification());
+        this.letPropertySheet.reset();
+        for (Map.Entry<LetItemKey, Object> entry : this.query.getLetDeclarations().entrySet()) {
+            this.letPropertySheet.addItem(entry.getKey(), entry.getValue());
+        }
+        this.query.setLetDeclarations(this.letPropertySheet.getLetItemObjectMap());
+
+        QueryClause rootQueryClause = new QueryClause(this.query.getRoot(), this.manifold,
+                this.forPropertySheet.getForAssemblagesProperty(),
+                this.joinProperties,
+                letPropertySheet.getStampCoordinateKeys(),
+                letPropertySheet.getLetItemObjectMap());
+        this.root = new ClauseTreeItem(rootQueryClause);
+        addChildren(this.query.getRoot(), this.root);
+        this.root.setExpanded(true);
+        this.whereTreeTable.setRoot(root);
+
+        // add return specifications
+        this.returnSpecificationController.getReturnSpecificationRows().clear();
+        for (AttributeSpecification attributeSpecification : query.getReturnAttributeList()) {
+            this.returnSpecificationController.getReturnSpecificationRows().add(attributeSpecification);
+        }
+    }
+
+    private void addChildren(Clause parent, ClauseTreeItem parentTreeItem) {
+        for (Clause child : parent.getChildren()) {
+            QueryClause childQueryClause = new QueryClause(child, this.manifold,
+                    this.forPropertySheet.getForAssemblagesProperty(),
+                    this.joinProperties,
+                    letPropertySheet.getStampCoordinateKeys(),
+                    letPropertySheet.getLetItemObjectMap());
+            ClauseTreeItem childTreeItem = new ClauseTreeItem(childQueryClause);
+            parentTreeItem.getChildren().add(childTreeItem);
+            addChildren(child, childTreeItem);
+        }
+    }
+
     //~--- set methods ---------------------------------------------------------
     public void setManifold(Manifold manifold) {
         this.manifold = manifold;
@@ -718,6 +777,7 @@ public class FLWORQueryController
         this.root.getChildren()
                 .add(new ClauseTreeItem(new QueryClause(new DescriptionLuceneMatch(this.query), manifold, this.forPropertySheet.getForAssemblagesProperty(),
                         joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
+        this.root.getValue().getClause().setEnclosingQuery(this.query);
         this.root.setExpanded(true);
         this.clauseNameColumn.setCellFactory(
                 (TreeTableColumn<QueryClause, String> p) -> {

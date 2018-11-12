@@ -115,6 +115,7 @@ public class QueryClause {
                
                 
                 SimpleStringProperty queryText = new SimpleStringProperty(this, MetaData.QUERY_STRING____SOLOR.toExternalString());
+                queryText.setValue(descriptionLuceneMatch.getQueryText());
                 queryText.addListener((observable, oldValue, newValue) -> {
                     descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), newValue);
                     
