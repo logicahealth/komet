@@ -87,8 +87,8 @@ public enum NodeSemantic {
    /** The literal boolean. */
    LITERAL_BOOLEAN(),
 
-   /** The literal float. */
-   LITERAL_FLOAT(),
+   /** The literal double. */
+   LITERAL_DOUBLE(),
 
    /** The literal instant. */
    LITERAL_INSTANT(),

@@ -94,7 +94,7 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.DoubleLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import sh.isaac.api.index.IndexQueryService;

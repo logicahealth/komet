@@ -249,7 +249,7 @@ public interface LogicalExpressionBuilder {
     * @param builder the builder
     * @return the float literal
     */
-   static DoubleLiteral FloatLiteral(float literal, LogicalExpressionBuilder builder) {
+   static DoubleLiteral DoubleLiteral(double literal, LogicalExpressionBuilder builder) {
       return builder.doubleLiteral(literal);
    }
 

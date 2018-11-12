@@ -674,7 +674,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept("Literal value");
             pushParent(current());
                createConcept("Boolean literal").setPrimordialUuid(NodeSemantic.LITERAL_BOOLEAN.getSemanticUuid());
-               createConcept("Float literal").setPrimordialUuid(NodeSemantic.LITERAL_FLOAT.getSemanticUuid());
+               createConcept("Float literal").setPrimordialUuid(NodeSemantic.LITERAL_DOUBLE.getSemanticUuid());
                createConcept("Instant literal").setPrimordialUuid(NodeSemantic.LITERAL_INSTANT.getSemanticUuid());
                createConcept("Integer literal").setPrimordialUuid(NodeSemantic.LITERAL_INTEGER.getSemanticUuid());
                createConcept("String literal").setPrimordialUuid(NodeSemantic.LITERAL_STRING.getSemanticUuid());

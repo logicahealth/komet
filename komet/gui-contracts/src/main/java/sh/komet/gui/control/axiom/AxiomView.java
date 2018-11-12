@@ -445,7 +445,7 @@ public class AxiomView {
                                 builder.append(node.getLiteralValue());
                                 break;
                             }
-                            case LITERAL_FLOAT: {
+                            case LITERAL_DOUBLE: {
                                 LiteralNodeDouble node = (LiteralNodeDouble) featureChildNode;
                                 builder.append(node.getLiteralValue());
                                 break;
@@ -581,7 +581,7 @@ public class AxiomView {
               }
                     break;
                 }
-                case LITERAL_FLOAT: {
+                case LITERAL_DOUBLE: {
                     LiteralNodeDouble literalNodeFloat = (LiteralNodeDouble) logicNode;
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_LITERAL.toString());

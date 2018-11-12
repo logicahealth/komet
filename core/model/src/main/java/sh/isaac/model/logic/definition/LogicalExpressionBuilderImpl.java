@@ -416,7 +416,7 @@ public class LogicalExpressionBuilderImpl
    public DoubleLiteral doubleLiteral(double doubleLiteral) {
       checkNotBuilt();
 
-      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_FLOAT, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_DOUBLE, this);
 
       this.axiomParameters.put(axiom.getIndex(), doubleLiteral);
       return axiom;
@@ -819,7 +819,7 @@ public class LogicalExpressionBuilderImpl
 
          return definition.BooleanLiteral(booleanLiteral);
 
-      case LITERAL_FLOAT:
+      case LITERAL_DOUBLE:
          final float floatLiteral = (Float) this.axiomParameters.get(axiom.getIndex());
 
          return definition.FloatLiteral(floatLiteral);
@@ -982,7 +982,7 @@ public class LogicalExpressionBuilderImpl
 
          return booleanLiteral(literalNodeBoolean.getLiteralValue());
 
-      case LITERAL_FLOAT:
+      case LITERAL_DOUBLE:
          final LiteralNodeDouble literalNodeFloat = (LiteralNodeDouble) logicNode;
 
          return doubleLiteral(literalNodeFloat.getLiteralValue());

@@ -265,7 +265,7 @@ public class LogicalExpressionImpl
                         BooleanLiteral(dataInputStream);
                         break;
 
-                    case LITERAL_FLOAT:
+                    case LITERAL_DOUBLE:
                         FloatLiteral(dataInputStream);
                         break;
 
@@ -1458,7 +1458,7 @@ public class LogicalExpressionImpl
                     results[i] = BooleanLiteral(((LiteralNodeBoolean) oldLogicNode).getLiteralValue());
                     break;
 
-                case LITERAL_FLOAT:
+                case LITERAL_DOUBLE:
                     results[i] = FloatLiteral(((LiteralNodeDouble) oldLogicNode).getLiteralValue());
                     break;
 
