@@ -1689,7 +1689,7 @@ public class LogicalExpressionImpl
      */
     @Override
     public final RootNode getRoot() {
-        if (this.logicNodes.isEmpty()) {
+        if (this.logicNodes.isEmpty() || this.rootNodeIndex == -1) {
             return Root();
         }
 
