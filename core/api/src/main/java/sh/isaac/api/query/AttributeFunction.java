@@ -134,7 +134,7 @@ public class AttributeFunction {
                             }
                             return "No current FQN";
                         }
-                        throw new IllegalStateException("Cannot find LetItemKey for " + this.functionName);
+                        throw new IllegalStateException("Cannot find LetItemKey for " + this.functionName + " " + query.getLetDeclarations().entrySet());
                     };
                 } else if (this.functionName.endsWith(" definition")) {
                     this.function = (string, stampCoordinate, query) -> {

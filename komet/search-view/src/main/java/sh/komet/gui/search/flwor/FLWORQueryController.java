@@ -364,24 +364,24 @@ public class FLWORQueryController
 
                 rootClause.setEnclosingQuery(query);
 
-                marshaller.setEventHandler((ValidationEvent event1) -> {
-                    System.out.println(event1);
-                    return true;
-                });
-
-                StringWriter stringWriter1 = new StringWriter();
-                marshaller.marshal(query, stringWriter1);
-                String xml1 = stringWriter1.toString();
-                System.out.println(xml1);
-
-                Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
-                Object obj = unmarshaller.unmarshal(new StringReader(xml1));
-
-                StringWriter stringWriter2 = new StringWriter();
-                marshaller.marshal(obj, stringWriter2);
-                String xml2 = stringWriter2.toString();
-                System.out.println("Strings equal: " + xml1.equals(xml2));
-                System.out.println(xml2);
+//                marshaller.setEventHandler((ValidationEvent event1) -> {
+//                    System.out.println(event1);
+//                    return true;
+//                });
+//
+//                StringWriter stringWriter1 = new StringWriter();
+//                marshaller.marshal(query, stringWriter1);
+//                String xml1 = stringWriter1.toString();
+//                System.out.println(xml1);
+//
+//                Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
+//                Object obj = unmarshaller.unmarshal(new StringReader(xml1));
+//
+//                StringWriter stringWriter2 = new StringWriter();
+//                marshaller.marshal(obj, stringWriter2);
+//                String xml2 = stringWriter2.toString();
+//                System.out.println("Strings equal: " + xml1.equals(xml2));
+//                System.out.println(xml2);
 
                 marshaller.marshal(query, new FileWriter(selectedFile));
             }
@@ -431,7 +431,7 @@ public class FLWORQueryController
     @FXML
     void executeQuery(ActionEvent event) {
         this.query.reset();
-        // TODO, add let items...
+        this.query.getLetDeclarations().putAll(this.letPropertySheet.getLetItemObjectMap());
         ClauseTreeItem itemToProcess = this.root;
         Clause rootClause = itemToProcess.getValue()
                 .getClause();
@@ -537,6 +537,8 @@ public class FLWORQueryController
 
     private void changeClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
         ClauseTreeItem treeItem = (ClauseTreeItem) rowValue.getTreeItem();
+        ClauseTreeItem parent = (ClauseTreeItem) treeItem.getParent();
+        treeItem.getValue().getClause().removeParent(parent.getValue().getClause());
 
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()
@@ -550,9 +552,12 @@ public class FLWORQueryController
     private void deleteClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
         ClauseTreeItem treeItem = (ClauseTreeItem) rowValue.getTreeItem();
 
-        treeItem.getParent()
-                .getChildren()
-                .remove(treeItem);
+        ClauseTreeItem parent = (ClauseTreeItem) treeItem.getParent();
+        
+        parent.getChildren().remove(treeItem);
+        
+        Clause parentClause = parent.getValue().getClause();
+        treeItem.getValue().getClause().removeParent(parentClause);
     }
 
     private void outputStyleInfo(String prefix, TreeTableCell nodeToStyle) {
