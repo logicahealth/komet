@@ -266,7 +266,7 @@ public class LogicalExpressionImpl
                         break;
 
                     case LITERAL_DOUBLE:
-                        FloatLiteral(dataInputStream);
+                        DoubleLiteral(dataInputStream);
                         break;
 
                     case LITERAL_INSTANT:
@@ -628,7 +628,7 @@ public class LogicalExpressionImpl
      * @param dataInputStream the data input stream
      * @return the literal node float
      */
-    public final LiteralNodeDouble FloatLiteral(ByteArrayDataBuffer dataInputStream) {
+    public final LiteralNodeDouble DoubleLiteral(ByteArrayDataBuffer dataInputStream) {
         return new LiteralNodeDouble(this, dataInputStream);
     }
 
@@ -638,7 +638,7 @@ public class LogicalExpressionImpl
      * @param literalValue the literal value
      * @return the literal node float
      */
-    public LiteralNodeDouble FloatLiteral(double literalValue) {
+    public LiteralNodeDouble DoubleLiteral(double literalValue) {
         commitStateProperty.set(CommitStates.UNCOMMITTED);
         return new LiteralNodeDouble(this, literalValue);
     }
@@ -1459,7 +1459,7 @@ public class LogicalExpressionImpl
                     break;
 
                 case LITERAL_DOUBLE:
-                    results[i] = FloatLiteral(((LiteralNodeDouble) oldLogicNode).getLiteralValue());
+                    results[i] = DoubleLiteral(((LiteralNodeDouble) oldLogicNode).getLiteralValue());
                     break;
 
                 case LITERAL_INSTANT:

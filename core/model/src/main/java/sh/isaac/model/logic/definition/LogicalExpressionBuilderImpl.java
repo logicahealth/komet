@@ -822,7 +822,7 @@ public class LogicalExpressionBuilderImpl
       case LITERAL_DOUBLE:
          final float floatLiteral = (Float) this.axiomParameters.get(axiom.getIndex());
 
-         return definition.FloatLiteral(floatLiteral);
+         return definition.DoubleLiteral(floatLiteral);
 
       case LITERAL_INSTANT:
          final Instant instantLiteral = (Instant) this.axiomParameters.get(axiom.getIndex());
