@@ -86,6 +86,7 @@ import sh.isaac.api.logic.assertions.substitution.StringSubstitution;
 import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
+import sh.isaac.model.logic.node.ConnectorNode;
 import sh.isaac.model.logic.node.LiteralNodeBoolean;
 import sh.isaac.model.logic.node.LiteralNodeDouble;
 import sh.isaac.model.logic.node.LiteralNodeInstant;
@@ -503,14 +504,14 @@ public class LogicalExpressionBuilderImpl
    }
 
    /**
-    * Necessary set.
-    *
-    * @param connector the connector
-    * @return the necessary set
+    * @see sh.isaac.api.logic.LogicalExpressionBuilder#necessarySet(sh.isaac.api.logic.assertions.connectors.Connector)
     */
    @Override
-   public NecessarySet necessarySet(Connector... connector) {
+   public NecessarySet necessarySet(Connector connector) {
       checkNotBuilt();
+      if (!(connector instanceof And || connector instanceof Or)) {
+         throw new RuntimeException("Only expect And or Or as a connector on a necessary set");
+      }
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.NECESSARY_SET, this);
 
@@ -622,14 +623,14 @@ public class LogicalExpressionBuilderImpl
    }
 
    /**
-    * Sufficient set.
-    *
-    * @param connector the connector
-    * @return the sufficient set
+    * @see sh.isaac.api.logic.LogicalExpressionBuilder#sufficientSet(sh.isaac.api.logic.assertions.connectors.Connector)
     */
    @Override
-   public SufficientSet sufficientSet(Connector... connector) {
+   public SufficientSet sufficientSet(Connector connector) {
       checkNotBuilt();
+      if (!(connector instanceof And || connector instanceof Or)) {
+          throw new RuntimeException("Only expect And or Or as a connector on a sufficient set");
+       }
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUFFICIENT_SET, this);
 
@@ -701,17 +702,27 @@ public class LogicalExpressionBuilderImpl
 
       switch (axiom.getSemantic()) {
       case NECESSARY_SET:
-         newNode = definition.NecessarySet(getChildren(axiom, definition));
+      {
+         AbstractLogicNode[] children = getChildren(axiom, definition);
+         if (children.length != 1) {
+            throw new IllegalStateException("Incorrect necessary set construction - try adding an and or or node");
+         }
+         newNode = definition.NecessarySet((ConnectorNode)children[0]);
          definition.getRoot()
                    .addChildren(newNode);
          return newNode;
-
+      }
       case SUFFICIENT_SET:
-         newNode = definition.SufficientSet(getChildren(axiom, definition));
+      {
+         AbstractLogicNode[] children = getChildren(axiom, definition);
+          if (children.length != 1) {
+             throw new IllegalStateException("Incorrect necessary set construction - try adding an and or or node");
+          }
+         newNode = definition.SufficientSet((ConnectorNode)children[0]);
          definition.getRoot()
                    .addChildren(newNode);
          return newNode;
-
+      }
       case AND:
          return definition.And(getChildren(axiom, definition));
 
@@ -942,11 +953,21 @@ public class LogicalExpressionBuilderImpl
          break;
 
       case NECESSARY_SET:
-         return necessarySet(makeAssertionsFromNodeDescendants(logicNode).toArray(new Connector[0]));
-
+      {
+         List<? extends Assertion> assertions = makeAssertionsFromNodeDescendants(logicNode);
+         if (assertions.size() != 1) {
+            throw new RuntimeException("Invalid construction");
+         }
+         return necessarySet((Connector)assertions.get(0));
+      }
       case SUFFICIENT_SET:
-         return sufficientSet(makeAssertionsFromNodeDescendants(logicNode).toArray(new Connector[0]));
-
+      {
+          List<? extends Assertion> assertions = makeAssertionsFromNodeDescendants(logicNode);
+          if (assertions.size() != 1) {
+             throw new RuntimeException("Invalid construction");
+          }
+         return sufficientSet((Connector)assertions.get(0));
+      }
       case AND:
          return and(makeAssertionsFromNodeDescendants(logicNode).toArray(new Assertion[0]));
 

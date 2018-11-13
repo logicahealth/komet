@@ -66,6 +66,7 @@ import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.logic.assertions.connectors.And;
 import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.logic.node.AbstractLogicNode;
@@ -754,12 +755,12 @@ public class LogicalExpressionImpl
     /**
      * Necessary set.
      *
-     * @param children the children
+     * @param child the {@link AndNode} or {@link OrNode} node
      * @return the necessary set node
      */
-    public final NecessarySetNode NecessarySet(AbstractLogicNode... children) {
+    public final NecessarySetNode NecessarySet(ConnectorNode child) {
         commitStateProperty.set(CommitStates.UNCOMMITTED);
-        return new NecessarySetNode(this, children);
+        return new NecessarySetNode(this, child);
     }
 
     /**
@@ -898,12 +899,12 @@ public class LogicalExpressionImpl
     /**
      * Sufficient set.
      *
-     * @param children the children
+     * @param child the {@link AndNode} or {@link OrNode} node
      * @return the sufficient set node
      */
-    public final SufficientSetNode SufficientSet(AbstractLogicNode... children) {
+    public final SufficientSetNode SufficientSet(ConnectorNode child) {
         commitStateProperty.set(CommitStates.UNCOMMITTED);
-        return new SufficientSetNode(this, children);
+        return new SufficientSetNode(this, child);
     }
 
     /**
@@ -1357,25 +1358,33 @@ public class LogicalExpressionImpl
                     break;
 
                 case NECESSARY_SET:
-                    results[i] = NecessarySet((AbstractLogicNode[]) addNodesWithMap(another,
-                            solution,
-                            anotherToThisNodeIdMap,
-                            oldLogicNode.getChildStream()
-                                    .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                                    .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
-                                    .toArray()));
+                {   
+                   LogicNode[] nodes = addNodesWithMap(another,
+                        solution,
+                        anotherToThisNodeIdMap,
+                        oldLogicNode.getChildStream()
+                                .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                                .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray());
+                    if (nodes.length != 1) {
+                       throw new RuntimeException("Illegal construction");
+                    }
+                    results[i] = NecessarySet((ConnectorNode) nodes[0]); 
                     break;
-
+                }
                 case SUFFICIENT_SET:
-                    results[i] = SufficientSet((AbstractLogicNode[]) addNodesWithMap(another,
-                            solution,
-                            anotherToThisNodeIdMap,
-                            oldLogicNode.getChildStream()
-                                    .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                                    .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
-                                    .toArray()));
+                {
+                    LogicNode[] nodes = addNodesWithMap(another,
+                         solution,
+                         anotherToThisNodeIdMap,
+                         oldLogicNode.getChildStream()
+                                 .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                                 .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray());
+                    if (nodes.length != 1) {
+                       throw new RuntimeException("Illegal construction");
+                    }
+                    results[i] = SufficientSet((ConnectorNode) nodes[0]);
                     break;
-
+                }
                 case AND:
                     results[i] = And((AbstractLogicNode[]) addNodesWithMap(another,
                             solution,
