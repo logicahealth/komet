@@ -145,7 +145,7 @@ mvn --errors clean install
 ```
 Change the configuration of ISAAC KOMET to `postgres-datastore`.
 
-![](README_files/images/Netbeans.04.png =100x20)
+![](README_files/images/Netbeans.04.png)
 
 Run ISAAC KOMET application.
 
