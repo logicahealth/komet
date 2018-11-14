@@ -143,6 +143,7 @@ The ISAAC KOMET application module can can be built without requiring a full bui
 cd /PATH_TO/KOMET
 mvn --errors clean install
 ```
+Change the configuration of ISAAC KOMET to `postgres-datastore`.
 
 Run ISAAC KOMET application.
 
