@@ -127,27 +127,12 @@ public class LanguageCoordinateImpl
      */
     public LanguageCoordinateImpl(ConceptSpecification languageConcept,
             int[] dialectAssemblagePreferenceList,
-            int[] descriptionTypePreferenceList,
+            ConceptSpecification[] descriptionTypePreferenceList,
             int[] modulePreferenceList) {
         this(languageConcept,
                 ArrayUtil.toSpecificationArray(dialectAssemblagePreferenceList),
-                ArrayUtil.toSpecificationArray(descriptionTypePreferenceList),
+                descriptionTypePreferenceList,
                 ArrayUtil.toSpecificationArray(modulePreferenceList));
-    }
-
-    /**
-     * Instantiates a new language coordinate impl, with an unspecified set of
-     * modulePreferences.
-     *
-     * @param languageConcept the language concept
-     * @param dialectAssemblagePreferenceList the dialect assemblage preference
-     * list
-     * @param descriptionTypePreferenceList the description type preference list
-     */
-    public LanguageCoordinateImpl(ConceptSpecification languageConcept,
-            int[] dialectAssemblagePreferenceList,
-            int[] descriptionTypePreferenceList) {
-        this(languageConcept, dialectAssemblagePreferenceList, descriptionTypePreferenceList, new int[]{});
     }
 
     /**
@@ -161,7 +146,7 @@ public class LanguageCoordinateImpl
      */
     public LanguageCoordinateImpl(int languageConcept,
             int[] dialectAssemblagePreferenceList,
-            int[] descriptionTypePreferenceList) {
+            ConceptSpecification[] descriptionTypePreferenceList) {
         this(new ConceptProxy(languageConcept), dialectAssemblagePreferenceList, descriptionTypePreferenceList, new int[]{});
     }
 

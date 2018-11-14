@@ -57,7 +57,6 @@ import sh.isaac.api.LanguageCoordinateService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
@@ -439,7 +438,7 @@ public class LanguageCoordinates {
          ConceptProxy coreType = new ConceptProxy(Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID()));
          HashSet<ConceptSpecification> mapped = equivalentTypes.get(coreType);
          if (mapped == null) {
-            mapped = new HashSet();
+            mapped = new HashSet<>();
             equivalentTypes.put(coreType, mapped);
          }
          mapped.add(new ConceptProxy(sc.getReferencedComponentNid()));
