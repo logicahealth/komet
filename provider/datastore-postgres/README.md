@@ -17,7 +17,8 @@ Configure `$PATH` in a terminal window:
 
 ``` sh
 sudo mkdir -p /etc/paths.d &&
-echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp
+echo /Applications/Postgres.app/Contents/Versions/latest/bin | \
+sudo tee /etc/paths.d/postgresapp
 ```
 
 Close and reopen the terminal window for the `$PATH` change to take effect. Verify `$PATH` to `psql` in the new terminal window.
@@ -154,9 +155,9 @@ Run ISAAC KOMET application.
 If launch from the command line or script the PostgreSQL database name, username and user password can be passed in a properties.  The database URL has the format "jdbc:postgresql://host:port/database".
 
 ``` ini
--DISAAC_PSQL_URL="jdbc:postgresql://localhost/isaac_db"
--DISAAC_PSQL_UNAME="isaac_user"
--DISAAC_PSQL_UPWD="isaac_pwd"
+-DISAAC_PSQL_URL='jdbc:postgresql://localhost/isaac_db'
+-DISAAC_PSQL_UNAME='isaac_user'
+-DISAAC_PSQL_UPWD='isaac_pwd'
 ```
 
 
