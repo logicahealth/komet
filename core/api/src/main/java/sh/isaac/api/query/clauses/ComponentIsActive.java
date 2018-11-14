@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -33,6 +34,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 
@@ -47,7 +49,7 @@ public class ComponentIsActive extends LeafClause {
     /**
      * the manifold coordinate key.
      */
-    StampCoordinate stampCoordinate;
+    LetItemKey stampCoordinateKey;
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -60,17 +62,18 @@ public class ComponentIsActive extends LeafClause {
      * Instantiates a new component is active clause.
      *
      * @param enclosingQuery the enclosing query
-     * @param stampCoordinate the manifold coordinate key
+     * @param stampCoordinateKey the manifold coordinate key
      */
-    public ComponentIsActive(Query enclosingQuery, StampCoordinate stampCoordinate) {
+    public ComponentIsActive(Query enclosingQuery, LetItemKey stampCoordinateKey) {
         super(enclosingQuery);
-        this.stampCoordinate = stampCoordinate;
+        this.stampCoordinateKey = stampCoordinateKey;
     }
 
     //~--- methods -------------------------------------------------------------
     @Override
     public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-
+        StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
+        
         getResultsCache().and(incomingComponents.get(this.getAssemblageForIteration()));
                 
         getResultsCache().stream().forEach((nid) -> {
@@ -157,11 +160,12 @@ public class ComponentIsActive extends LeafClause {
         return TermAux.ACTIVE_QUERY_CLAUSE;
     }
 
-    public StampCoordinate getStampCoordinate() {
-        return stampCoordinate;
+    @XmlElement
+    public LetItemKey getStampCoordinateKey() {
+        return stampCoordinateKey;
     }
 
-    public void setStampCoordinate(StampCoordinate stampCoordinate) {
-        this.stampCoordinate = stampCoordinate;
+    public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
+        this.stampCoordinateKey = stampCoordinateKey;
     }
 }

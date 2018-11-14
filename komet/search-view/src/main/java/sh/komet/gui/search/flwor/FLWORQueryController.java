@@ -115,6 +115,7 @@ import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ForSetsSpecification;
+import sh.isaac.api.query.Or;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.clauses.*;
 import sh.isaac.komet.iconography.Iconography;
@@ -323,7 +324,7 @@ public class FLWORQueryController
                 Query queryFromDisk = (Query) unmarshaller.unmarshal(reader);
                 queryFromDisk.getRoot().setEnclosingQuery(queryFromDisk);
                 setQuery(queryFromDisk);
-            } catch (JAXBException | IOException ex) {
+            } catch (Throwable ex) {
                 FxGet.dialogs().showErrorDialog("Error importing " + selectedFile.getName(), ex);
             }
         }
@@ -360,7 +361,7 @@ public class FLWORQueryController
 
                 this.query.setRoot(rootClause);
 
-                query.getReturnAttributeList().addAll(resultColumns);
+                query.setReturnAttributeList(resultColumns);
 
                 rootClause.setEnclosingQuery(query);
 
@@ -427,7 +428,20 @@ public class FLWORQueryController
             }
         }
     }
+    @FXML
+    void newFlwor(ActionEvent event) {
+        this.forPropertySheet.reset();
+        this.letItemsController.reset();
+        this.returnSpecificationController.reset();
+        this.resultTable.getItems().clear();
+        this.resultColumns.clear();
+        
+        Query q = new Query(forPropertySheet.getForSetSpecification());
+        q.setRoot(new Or(q));
+        this.setQuery(q);
 
+    }
+    
     @FXML
     void executeQuery(ActionEvent event) {
         this.query.reset();
@@ -715,6 +729,8 @@ public class FLWORQueryController
     }
 
     void setQuery(Query query) {
+        this.resultTable.getItems().clear();
+        this.resultTable.getColumns().clear();
         this.query = query;
         this.joinProperties.clear();
         forPropertySheet.getForAssemblagesProperty().clear();
@@ -743,6 +759,7 @@ public class FLWORQueryController
         for (AttributeSpecification attributeSpecification : query.getReturnAttributeList()) {
             this.returnSpecificationController.getReturnSpecificationRows().add(attributeSpecification);
         }
+        query.setReturnAttributeList(this.returnSpecificationController.getReturnSpecificationRows());
     }
 
     private void addChildren(Clause parent, ClauseTreeItem parentTreeItem) {
@@ -832,17 +849,21 @@ public class FLWORQueryController
     }
 
     public void returnSpecificationListener(ListChangeListener.Change<? extends AttributeSpecification> c) {
-        resultTable.getColumns().clear();
-        resultColumns.clear();
-        int columnIndex = 0;
-        for (AttributeSpecification rowSpecification : c.getList()) {
-            final int currentIndex = columnIndex++;
-            TableColumn<List<String>, String> column
-                    = new TableColumn<>(rowSpecification.getColumnName());
-            column.setCellValueFactory(param
-                    -> new ReadOnlyObjectWrapper<>(param.getValue().get(currentIndex)));
-            resultTable.getColumns().add(column);
-            resultColumns.add(rowSpecification);
+        try {
+            resultTable.getColumns().clear();
+            resultColumns.clear();
+            int columnIndex = 0;
+            for (AttributeSpecification rowSpecification : c.getList()) {
+                final int currentIndex = columnIndex++;
+                TableColumn<List<String>, String> column
+                        = new TableColumn<>(rowSpecification.getColumnName());
+                column.setCellValueFactory(param
+                        -> new ReadOnlyObjectWrapper<>(param.getValue().get(currentIndex)));
+                resultTable.getColumns().add(column);
+                resultColumns.add(rowSpecification);
+            }
+        } catch (Exception e) {
+            FxGet.dialogs().showErrorDialog("Error modifying return specifications.", e);
         }
     }
 

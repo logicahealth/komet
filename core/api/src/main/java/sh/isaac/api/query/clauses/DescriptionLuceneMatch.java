@@ -138,7 +138,6 @@ public class DescriptionLuceneMatch
             if (incomingPossibleSet.contains(s.getNid())) {
                 nids.add(s.getNid());
             }
-
         });
 
       getResultsCache().or(nids);

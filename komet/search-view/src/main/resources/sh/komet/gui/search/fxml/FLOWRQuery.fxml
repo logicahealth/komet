@@ -113,6 +113,7 @@
                                     <MenuItem fx:id="exportResults" mnemonicParsing="false" onAction="#exportData" text="Export results..." />
                                 </items>
                               </MenuButton>
+                              <Button mnemonicParsing="false" onAction="#newFlwor" text="new FLWOR" />
                           </items>
                         </ToolBar>
                         <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">

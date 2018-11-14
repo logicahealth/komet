@@ -47,6 +47,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -70,6 +72,7 @@ import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 @XmlRootElement(name = "Clause")
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class Clause implements ConceptSpecification {
+    private static final Logger LOG = LogManager.getLogger();
 
     /**
      * The Constant PRE_AND_POST_ITERATION.
@@ -151,7 +154,9 @@ public abstract class Clause implements ConceptSpecification {
 
     public void setAssemblageForIteration(ConceptSpecification assemblageForIteration) {
         if (assemblageForIteration == null) {
-            throw new NullPointerException("assemblageForIteration cannot be null.");
+            LOG.error("assemblage for iteration attempt to set to null for class: " + 
+                    this.getClass().getSimpleName());
+            assemblageForIteration = TermAux.UNINITIALIZED_COMPONENT_ID;
         }
         this.assemblageForIteration = assemblageForIteration;
     }

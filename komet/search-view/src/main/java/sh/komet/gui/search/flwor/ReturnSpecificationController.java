@@ -212,4 +212,13 @@ public class ReturnSpecificationController {
         returnSpecificationRows.removeListener(listener);
     }
 
+    void reset() {
+        this.returnSpecificationRows.clear();
+        this.addFieldItems.clear();
+        this.forAssemblagesProperty.clear();
+        this.joinProperties.clear();
+        this.lastStampCoordinateKey = null;
+        this.letItemObjectMap.clear();
+    }
+
 }

@@ -38,6 +38,7 @@ import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapperNoSearch;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 //~--- inner classes -------------------------------------------------------
 public class QueryClause {
@@ -110,7 +111,12 @@ public class QueryClause {
                 clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "For each", 
                 forSpecProperty, forList));
                 forSpecProperty.addListener((observable, oldValue, newValue) -> {
-                    descriptionLuceneMatch.setAssemblageForIteration(newValue);
+                    
+                    try {
+                        descriptionLuceneMatch.setAssemblageForIteration(newValue);
+                    } catch (Exception e) {
+                        FxGet.dialogs().showErrorDialog("Error updating after forSpecProperty change.", e);
+                    }
                 });
                
                 
@@ -168,9 +174,10 @@ public class QueryClause {
                 
                 clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("Stamp", 
                 stampKeyProperty, stampCoordinateKeys));
+                stampKeyProperty.setValue(componentIsActive.getStampCoordinateKey());
                 
                 stampKeyProperty.addListener((observable, oldValue, newValue) -> {
-                    componentIsActive.setStampCoordinate((StampCoordinate) letItemObjectMap.get(newValue));
+                    componentIsActive.setStampCoordinateKey((LetItemKey) newValue);
                 });
                 return clausePropertySheet;
                 
