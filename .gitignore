@@ -11,3 +11,4 @@ komet/application/data/*
 /komet/application/target-full/
 *.iml
 /komet/application/target copy/
+PostgresProviderPath/
