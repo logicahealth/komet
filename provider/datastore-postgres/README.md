@@ -2,8 +2,8 @@
 
 <a id="toc"></a>
 [Setup](#Setup) •
-[Run KOMET Application](#RunApp) • 
-[Resources](#Resources) 
+[Run KOMET Application](#RunApp) •
+[Resources](#Resources)
 
 > The example below are based on a macOS High Sierra computer which has [Java SE JDK 1.8](https://www.oracle.com/technetwork/java/javase/downloads/index.html), [Apache Maven 3.5.4](https://maven.apache.org/download.cgi) and [Netbeans IDE 8.2](https://netbeans.org/downloads/) installed.  The [Postgres.app](https://postgresapp.com/) is shown as the PostgreSQL installation.
 
@@ -16,7 +16,7 @@ Download [Postgres.app](https://postgresapp.com/downloads.html) with PostgreSQL 
 Configure `$PATH` in a terminal window:
 
 ``` sh
-sudo mkdir -p /etc/paths.d && 
+sudo mkdir -p /etc/paths.d &&
 echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp
 ```
 
@@ -29,7 +29,7 @@ psql --version
 # psql (PostgreSQL) 10.5
 ```
 
-Launch Postgres.app. 
+Launch Postgres.app.
 
 ![](README_files/images/PostgresApp.01.png)
 
@@ -82,7 +82,7 @@ Edit `~/.m2/settings.xml` with `nano` or some other [plain text editor](https://
 
 **Step A.3. Install SQL Scripts**
 
-Place the SQL scripts _[drop_all.sql](README_files/sql_scripts/drop_all.sql)_ and _[stats.sql](README_files/sql_scripts/stats.sql)_ somewhere convenient for command line use, for example `~/psql`. The `~/psql` directory is used in the following examples.  
+Place the SQL scripts _[drop_all.sql](README_files/sql_scripts/drop_all.sql)_ and _[stats.sql](README_files/sql_scripts/stats.sql)_ somewhere convenient for command line use, for example `~/psql`. The `~/psql` directory is used in the following examples.
 
 ``` sh
 mkdir ~/psql
@@ -97,8 +97,8 @@ psql -p5432 --username=isaac_user --dbname=isaac_db
 #psql (10.5)
 #Type "help" for help.
 
-isaac_db=#\i psql/stat.sql 
-isaac_db=#\i psql/drop_all.sql 
+isaac_db=#\i psql/stat.sql
+isaac_db=#\i psql/drop_all.sql
 ```
 
 **Step A.4. Setup ISAAC Project**
@@ -145,6 +145,8 @@ mvn --errors clean install
 ```
 Change the configuration of ISAAC KOMET to `postgres-datastore`.
 
+![](README_files/images/Netbeans.04.png)
+
 Run ISAAC KOMET application.
 
 ![](README_files/images/Netbeans.03.png)
@@ -159,7 +161,7 @@ If launch from the command line or script the PostgreSQL database name, username
 
 
 > Note: For full logging of java generated SQL statements, find and set `LOG_SQL_FLAG` to true and rebuild.
-> 
+>
 > ``` java
 > private static final boolean LOG_SQL_FLAG = false;
 > ```
@@ -174,4 +176,4 @@ If launch from the command line or script the PostgreSQL database name, username
 * [Oracle Java SE JDK ⇗](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
 * [GitHub: OSEHRA/ISAAC ⇗](https://github.com/OSEHRA/ISAAC)
 * [Postgres.app ⇗](https://postgresapp.com/)
-  
+
