@@ -63,10 +63,13 @@ public class NecessarySetNode
     * Instantiates a new necessary set node.
     *
     * @param logicGraphVersion the logic graph version
-    * @param children the children
+    * @param child the {@link AndNode} or {@link OrNode} node
     */
-   public NecessarySetNode(LogicalExpressionImpl logicGraphVersion, AbstractLogicNode... children) {
-      super(logicGraphVersion, children);
+   public NecessarySetNode(LogicalExpressionImpl logicGraphVersion, ConnectorNode child) {
+      super(logicGraphVersion, child);
+      if (!(child instanceof AndNode || child instanceof OrNode)) {
+          throw new RuntimeException("Illegal construction");
+      }
    }
 
    /**

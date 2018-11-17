@@ -192,10 +192,10 @@ then
    System.out.println($addEditLogicalNode.getNodeSemantic());
 end
 
-rule "LITERAL_FLOAT items"
+rule "LITERAL_DOUBLE items"
    lock-on-active true
 when
-   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.LITERAL_FLOAT);
+   $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.LITERAL_DOUBLE);
 then
    System.out.println($addEditLogicalNode.getNodeSemantic());
 end

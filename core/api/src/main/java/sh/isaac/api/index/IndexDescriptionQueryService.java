@@ -112,6 +112,9 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
          Integer sizeLimit,
          Long targetGeneration);
    
+   /**
+    * See {@link #query(String, boolean, int[], Predicate, AuthorModulePathRestriction, boolean, int[], int[], Integer, Integer, Long)}
+    */
    default List<SearchResult> query(String query,
          boolean prefixSearch,
          int[] assemblageConcepts,

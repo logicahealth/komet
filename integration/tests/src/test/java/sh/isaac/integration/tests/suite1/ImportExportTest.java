@@ -88,7 +88,7 @@ import sh.isaac.model.logic.definition.LogicalExpressionBuilderProvider;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.DoubleLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
@@ -166,7 +166,7 @@ public class ImportExportTest {
       final LogicalExpressionBuilder defBuilder = this.builderProvider.getLogicalExpressionBuilder();
 
       SufficientSet(And(SomeRole(MetaData.ROLE_GROUP____SOLOR,
-                                 And(Feature(MetaData.INGREDIENT_STRENGTH____SOLOR, FloatLiteral(1.2345F, defBuilder)),
+                                 And(Feature(MetaData.INGREDIENT_STRENGTH____SOLOR, DoubleLiteral(1.2345F, defBuilder)),
                                      ConceptAssertion(MetaData.MASTER_PATH____SOLOR, defBuilder)))));
 
       final LogicalExpression              logicGraphDef    = defBuilder.build();

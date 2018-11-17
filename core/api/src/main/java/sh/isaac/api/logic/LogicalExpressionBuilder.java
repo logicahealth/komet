@@ -249,7 +249,7 @@ public interface LogicalExpressionBuilder {
     * @param builder the builder
     * @return the float literal
     */
-   static DoubleLiteral FloatLiteral(float literal, LogicalExpressionBuilder builder) {
+   static DoubleLiteral DoubleLiteral(double literal, LogicalExpressionBuilder builder) {
       return builder.doubleLiteral(literal);
    }
 
@@ -314,12 +314,12 @@ public interface LogicalExpressionBuilder {
    /**
     * Necessary set.
     *
-    * @param connectors the connectors
+    * @param connector the {@link And} or {@link Or} node
     * @return the necessary set
     */
-   static NecessarySet NecessarySet(Connector... connectors) {
-      return connectors[0].getBuilder()
-                          .necessarySet(connectors);
+   static NecessarySet NecessarySet(Connector connector) {
+      return connector.getBuilder()
+                          .necessarySet(connector);
    }
 
    /**
@@ -395,12 +395,12 @@ public interface LogicalExpressionBuilder {
    /**
     * Sufficient set.
     *
-    * @param connectors the connectors
+    * @param connector the {@link And} or {@link Or} node
     * @return the sufficient set
     */
-   static SufficientSet SufficientSet(Connector... connectors) {
-      return connectors[0].getBuilder()
-                          .sufficientSet(connectors);
+   static SufficientSet SufficientSet(Connector connector) {
+      return connector.getBuilder()
+                          .sufficientSet(connector);
    }
 
    /**
@@ -616,10 +616,10 @@ public interface LogicalExpressionBuilder {
    /**
     * Necessary set.
     *
-    * @param connector the connector
+    * @param connector the connector - expected to be an AND or a OR node
     * @return the necessary set
     */
-   NecessarySet necessarySet(Connector... connector);
+   NecessarySet necessarySet(Connector connector);
 
    /**
     * Or.
@@ -675,10 +675,10 @@ public interface LogicalExpressionBuilder {
    /**
     * Sufficient set.
     *
-    * @param connector the connector
+    * @param connector the connector - expected to be an And or an OR node
     * @return the sufficient set
     */
-   SufficientSet sufficientSet(Connector... connector);
+   SufficientSet sufficientSet(Connector connector);
 
    /**
     * Template.

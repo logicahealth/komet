@@ -214,7 +214,7 @@ public class LiteralNodeDouble
     */
    @Override
    public NodeSemantic getNodeSemantic() {
-      return NodeSemantic.LITERAL_FLOAT;
+      return NodeSemantic.LITERAL_DOUBLE;
    }
 }
 

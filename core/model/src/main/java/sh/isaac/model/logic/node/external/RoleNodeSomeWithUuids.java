@@ -46,9 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataOutput;
-import java.io.IOException;
-
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
