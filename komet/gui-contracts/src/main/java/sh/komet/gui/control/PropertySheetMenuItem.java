@@ -60,11 +60,9 @@ import org.controlsfx.control.PropertySheet.Item;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
-import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommitTask;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
@@ -72,7 +70,6 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.komet.gui.interfaces.EditInFlight;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.model.observable.CommitAwareConceptSpecificationProperty;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
@@ -91,16 +88,13 @@ public class PropertySheetMenuItem
    private final ArrayList<ChangeListener<CommitStates>> completionListeners = new ArrayList<>();
    Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap;
    ObservableVersion observableVersion;
-   boolean makeAnalogOnExecute;
    Manifold manifold;
 
    //~--- constructors --------------------------------------------------------
    public PropertySheetMenuItem(Manifold manifold,
-           ObservableCategorizedVersion categorizedVersion,
-           boolean makeAnalogOnExecute) {
+           ObservableCategorizedVersion categorizedVersion) {
       this.manifold = manifold;
       this.observableVersion = categorizedVersion;
-      this.makeAnalogOnExecute = makeAnalogOnExecute;
       this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
       this.propertySheet.setMode(PropertySheet.Mode.NAME);
       this.propertySheet.setSearchBoxVisible(false);
@@ -151,18 +145,7 @@ public class PropertySheetMenuItem
    }
 
    public void prepareToExecute() {
-      if (makeAnalogOnExecute) {
-         this.observableVersion = this.observableVersion.makeAnalog(FxGet.editCoordinate());
-
-         if (this.observableVersion.getChronology()
-                 .getVersionType() == VersionType.CONCEPT) {
-            Get.commitService()
-                    .addUncommitted((ConceptChronology) this.observableVersion.getChronology());
-         } else {
-            Get.commitService()
-                    .addUncommitted((SemanticChronology) this.observableVersion.getChronology());
-         }
-      }
+      this.observableVersion = this.observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
 
       Platform.runLater(() -> {
         FxGet.rulesDrivenKometService()

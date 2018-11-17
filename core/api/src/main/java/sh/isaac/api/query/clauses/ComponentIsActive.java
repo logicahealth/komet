@@ -75,27 +75,14 @@ public class ComponentIsActive extends LeafClause {
     @Override
     public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
         StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
-       
-/*
-71d04cd0-2cbc-469c-aeb9-4069429f28dc	25	789f4850-7600-4942-8464-5debd4de6deb	Pathology - anatomic
-d0820ca3-1afe-49c2-a20d-bdb441d49aa8	25	3f5bc57e-5570-4626-96ab-5f2010e9a915	Pathology - clinical
-*/
-        HashSet<UUID> watchList = new HashSet();
-        watchList.add(UUID.fromString("71d04cd0-2cbc-469c-aeb9-4069429f28dc"));
-        watchList.add(UUID.fromString("d0820ca3-1afe-49c2-a20d-bdb441d49aa8"));
         
         getResultsCache().and(incomingComponents.get(this.getAssemblageForIteration()));
                 
-        getResultsCache().stream().forEach((nid) -> {
+        NidSet.of(getResultsCache()).stream().forEach((nid) -> {
             final Optional<? extends Chronology> chronology
                     = Get.identifiedObjectService()
                             .getChronology(nid);
-
             if (chronology.isPresent()) {
-                if (watchList.contains(chronology.get().getPrimordialUuid())) {
-                    System.out.println("Found watch: " + chronology.get());
-                }
-
                 if (!chronology.get()
                         .isLatestVersionActive(stampCoordinate)) {
                     getResultsCache().remove(nid);
@@ -129,7 +116,7 @@ d0820ca3-1afe-49c2-a20d-bdb441d49aa8	25	3f5bc57e-5570-4626-96ab-5f2010e9a915	Pat
     //~--- get methods ---------------------------------------------------------
     @Override
     public void resetResults() {
-        // no cached data in task. 
+        this.getResultsCache().clear();
     }
     /**
      * Gets the compute phases.
