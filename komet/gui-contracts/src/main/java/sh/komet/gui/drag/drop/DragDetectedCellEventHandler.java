@@ -61,94 +61,94 @@ import sh.komet.gui.interfaces.DraggableWithImage;
  */
 public class DragDetectedCellEventHandler
         implements EventHandler<MouseEvent> {
-   private static final Logger LOG = LogManager.getLogger();
-   
-   private IntSupplier nidSupplier;
 
-   public DragDetectedCellEventHandler() {
-   }
-   
-   public DragDetectedCellEventHandler(IntSupplier nidSupplier) {
-      this.nidSupplier = nidSupplier;
-   }
+    private static final Logger LOG = LogManager.getLogger();
 
-   //~--- methods -------------------------------------------------------------
-   /**
-    * @param event
-    * @see javafx.event.EventHandler#handle(javafx.event.Event)
-    */
-   @Override
-   public void handle(MouseEvent event) {
-      /* drag was detected, start a drag-and-drop gesture */
-      /* allow any transfer mode */
-      Node eventNode = null;
-      IdentifiedObject identifiedObject = null;
+    private IntSupplier nidSupplier;
 
-      if (nidSupplier != null) {
-         identifiedObject = Get.identifiedObjectService().getChronology(nidSupplier.getAsInt()).get();
-         if (event.getSource() instanceof Node) {
-            eventNode = (Node)event.getSource();
-         }
-         else {
-            LOG.warn("Non node source of drag? {}", event.getSource());
-         }
-      }
+    public DragDetectedCellEventHandler() {
+    }
 
-      else if (event.getSource() instanceof TreeCell) {
-         eventNode = (TreeCell<IdentifiedObject>) event.getSource();
-         identifiedObject = ((TreeCell<IdentifiedObject>) event.getSource()).getItem();
-      } else if (event.getSource() instanceof TableCell) {
-         eventNode = (TableCell) event.getSource();
-         Object item = ((TableCell) eventNode).getItem();
-         if (item instanceof String) {
-            identifiedObject = (IdentifiedObject) ((TableCell) eventNode).getTableRow().getItem();
-         }
-      } else if (event.getSource() instanceof TableView) {
-         TableView<IdentifiedObject> tableView = (TableView) event.getSource();
+    public DragDetectedCellEventHandler(IntSupplier nidSupplier) {
+        this.nidSupplier = nidSupplier;
+    }
 
-         identifiedObject = tableView.getSelectionModel()
-                 .getSelectedItem();
-         eventNode = event.getPickResult()
-                 .getIntersectedNode();
-         eventNode = eventNode.getParent();
-      }
-      else {
-        LOG.warn("unhandled event source {}" + event.getSource());
-      }
+    //~--- methods -------------------------------------------------------------
+    /**
+     * @param event
+     * @see javafx.event.EventHandler#handle(javafx.event.Event)
+     */
+    @Override
+    public void handle(MouseEvent event) {
+        /* drag was detected, start a drag-and-drop gesture */
+ /* allow any transfer mode */
+        Node eventNode = null;
+        IdentifiedObject identifiedObject = null;
 
-      if (eventNode != null) {
-
-         Dragboard db = eventNode.startDragAndDrop(TransferMode.COPY);
-
-         if (eventNode instanceof DraggableWithImage) {
-            DraggableWithImage draggableWithImageNode = (DraggableWithImage) eventNode;
-            Image dragImage = draggableWithImageNode.getDragImage();
-            double xOffset = ((dragImage.getWidth() / 2) + draggableWithImageNode.getDragViewOffsetX()) - event.getX();
-            double yOffset = event.getY() - (dragImage.getHeight() / 2);
-
-            db.setDragView(dragImage, xOffset, yOffset);
-         } else {
-            DragImageMaker dragImageMaker = new DragImageMaker(eventNode);
-            Image dragImage = dragImageMaker.getDragImage();
-            double xOffset = ((dragImage.getWidth() / 2) + dragImageMaker.getDragViewOffsetX()) - event.getX();
-            double yOffset = event.getY() - (dragImage.getHeight() / 2);
-
-            db.setDragView(dragImage, xOffset, yOffset);
-         }
-
-         /* Put a string on a dragboard */
-         if (identifiedObject != null) {
-            String drag = identifiedObject.getPrimordialUuid()
-                    .toString();
-
-            if ((drag != null) && (drag.length() > 0)) {
-               IsaacClipboard content = new IsaacClipboard(identifiedObject);
-
-               db.setContent(content);
-               DragRegistry.dragStart();
-               event.consume();
+        if (nidSupplier != null) {
+            identifiedObject = Get.identifiedObjectService().getChronology(nidSupplier.getAsInt()).get();
+            if (event.getSource() instanceof Node) {
+                eventNode = (Node) event.getSource();
+            } else {
+                LOG.warn("Non node source of drag? {}", event.getSource());
             }
-         }
-      }
-   }
+        } else if (event.getSource() instanceof TreeCell) {
+            eventNode = (TreeCell<IdentifiedObject>) event.getSource();
+            identifiedObject = ((TreeCell<IdentifiedObject>) event.getSource()).getItem();
+        } else if (event.getSource() instanceof TableCell) {
+            eventNode = (TableCell) event.getSource();
+            Object item = ((TableCell) eventNode).getItem();
+            if (item instanceof String) {
+                identifiedObject = (IdentifiedObject) ((TableCell) eventNode).getTableRow().getItem();
+            }
+        } else if (event.getSource() instanceof TableView) {
+            TableView<IdentifiedObject> tableView = (TableView) event.getSource();
+
+            if (tableView.getSelectionModel()
+                    .getSelectedItem() instanceof IdentifiedObject) {
+                identifiedObject = tableView.getSelectionModel()
+                        .getSelectedItem();
+                eventNode = event.getPickResult()
+                        .getIntersectedNode();
+                eventNode = eventNode.getParent();
+            }
+        } else {
+            LOG.warn("unhandled event source {}" + event.getSource());
+        }
+
+        if (eventNode != null) {
+
+            Dragboard db = eventNode.startDragAndDrop(TransferMode.COPY);
+
+            if (eventNode instanceof DraggableWithImage) {
+                DraggableWithImage draggableWithImageNode = (DraggableWithImage) eventNode;
+                Image dragImage = draggableWithImageNode.getDragImage();
+                double xOffset = ((dragImage.getWidth() / 2) + draggableWithImageNode.getDragViewOffsetX()) - event.getX();
+                double yOffset = event.getY() - (dragImage.getHeight() / 2);
+
+                db.setDragView(dragImage, xOffset, yOffset);
+            } else {
+                DragImageMaker dragImageMaker = new DragImageMaker(eventNode);
+                Image dragImage = dragImageMaker.getDragImage();
+                double xOffset = ((dragImage.getWidth() / 2) + dragImageMaker.getDragViewOffsetX()) - event.getX();
+                double yOffset = event.getY() - (dragImage.getHeight() / 2);
+
+                db.setDragView(dragImage, xOffset, yOffset);
+            }
+
+            /* Put a string on a dragboard */
+            if (identifiedObject != null) {
+                String drag = identifiedObject.getPrimordialUuid()
+                        .toString();
+
+                if ((drag != null) && (drag.length() > 0)) {
+                    IsaacClipboard content = new IsaacClipboard(identifiedObject);
+
+                    db.setContent(content);
+                    DragRegistry.dragStart();
+                    event.consume();
+                }
+            }
+        }
+    }
 }

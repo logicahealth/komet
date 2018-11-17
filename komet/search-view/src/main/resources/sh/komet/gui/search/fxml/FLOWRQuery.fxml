@@ -3,6 +3,7 @@
 <?import java.net.URL?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
@@ -124,6 +125,14 @@
                                   <TableColumn fx:id="typeColumn" editable="false" minWidth="0.0" prefWidth="124.0" text="type" />
                                     <TableColumn fx:id="languageColumn" editable="false" prefWidth="155.0" text="language" />
                                 </columns>
+                                 <contextMenu>
+                                    <ContextMenu fx:id="resultTableContextMenu">
+                                      <items>
+                                        <MenuItem mnemonicParsing="false" onAction="#copyCellToClipboard" text="Copy cell" />
+                                          <MenuItem mnemonicParsing="false" onAction="#copyRowToClipboard" text="Copy row" />
+                                      </items>
+                                    </ContextMenu>
+                                 </contextMenu>
                               </TableView>
                            </content>
                         </ScrollPane>
