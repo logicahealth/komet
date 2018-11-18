@@ -81,278 +81,282 @@ import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
  */
 public class PropertySheetMenuItem
         implements EditInFlight {
+
     protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
 
-   PropertySheet propertySheet = new PropertySheet();
-   List<PropertySpec> propertiesToEdit = new ArrayList<>();
-   private final ArrayList<ChangeListener<CommitStates>> completionListeners = new ArrayList<>();
-   Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap;
-   ObservableVersion observableVersion;
-   Manifold manifold;
+    PropertySheet propertySheet = new PropertySheet();
+    List<PropertySpec> propertiesToEdit = new ArrayList<>();
+    private final ArrayList<ChangeListener<CommitStates>> completionListeners = new ArrayList<>();
+    Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap;
+    ObservableVersion observableVersion;
+    Manifold manifold;
 
-   //~--- constructors --------------------------------------------------------
-   public PropertySheetMenuItem(Manifold manifold,
-           ObservableCategorizedVersion categorizedVersion) {
-      this.manifold = manifold;
-      this.observableVersion = categorizedVersion;
-      this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
-      this.propertySheet.setMode(PropertySheet.Mode.NAME);
-      this.propertySheet.setSearchBoxVisible(false);
-      this.propertySheet.setModeSwitcherVisible(false);
-   }
+    //~--- constructors --------------------------------------------------------
+    public PropertySheetMenuItem(Manifold manifold,
+            ObservableCategorizedVersion categorizedVersion) {
+        this.manifold = manifold;
+        this.observableVersion = categorizedVersion;
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        this.propertySheet.setMode(PropertySheet.Mode.NAME);
+        this.propertySheet.setSearchBoxVisible(false);
+        this.propertySheet.setModeSwitcherVisible(false);
+    }
 
-   //~--- methods -------------------------------------------------------------
-   @Override
-   public void addCompletionListener(ChangeListener<CommitStates> listener) {
-      completionListeners.add(listener);
-   }
+    //~--- methods -------------------------------------------------------------
+    @Override
+    public void addCompletionListener(ChangeListener<CommitStates> listener) {
+        completionListeners.add(listener);
+    }
 
-   /**
-    * Drools, or some other service, populates which properties to edit. A later call to prepareToExecute will then set
-    * the constraints on a property editor using rules.
-    *
-    * @param nameOnPropertySheet
-    * @param propertySpecification
-    * @param propertyEditorType
-    */
-   public void addPropertyToEdit(String nameOnPropertySheet,
-           ConceptSpecification propertySpecification,
-           PropertyEditorType propertyEditorType) {
-      this.propertiesToEdit.add(new PropertySpec(nameOnPropertySheet, propertySpecification, propertyEditorType));
-   }
+    /**
+     * Drools, or some other service, populates which properties to edit. A
+     * later call to prepareToExecute will then set the constraints on a
+     * property editor using rules.
+     *
+     * @param nameOnPropertySheet
+     * @param propertySpecification
+     * @param propertyEditorType
+     */
+    public void addPropertyToEdit(String nameOnPropertySheet,
+            ConceptSpecification propertySpecification,
+            PropertyEditorType propertyEditorType) {
+        this.propertiesToEdit.add(new PropertySpec(nameOnPropertySheet, propertySpecification, propertyEditorType));
+    }
 
-   @Override
-   public void cancel() {
-      completionListeners.forEach((listener) -> {
-         listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.CANCELED);
-      });
-      completionListeners.clear();
-   }
+    @Override
+    public void cancel() {
+        completionListeners.forEach((listener) -> {
+            listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.CANCELED);
+        });
+        completionListeners.clear();
+    }
 
-   public void commit() {
-       try {
-           CommitTask commitTask = Get.commitService()
-                   .commit(FxGet.editCoordinate(), "temporary comment", getVersionInFlight());
-           Optional<CommitRecord> optionalCommitRecord = commitTask.get();
-           completionListeners.forEach((listener) -> {
-               listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.COMMITTED);
-           });
-           completionListeners.clear();
-       } catch (InterruptedException | ExecutionException ex) {
-           LOG.error(ex.getLocalizedMessage(), ex);
-           FxGet.dialogs().showErrorDialog(ex.getLocalizedMessage(), ex);
-       }
-   }
+    public void commit() {
+        try {
+            CommitTask commitTask = Get.commitService()
+                    .commit(FxGet.editCoordinate(), "temporary comment", getVersionInFlight());
+            Optional<CommitRecord> optionalCommitRecord = commitTask.get();
+            completionListeners.forEach((listener) -> {
+                listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.COMMITTED);
+            });
+            completionListeners.clear();
+        } catch (InterruptedException | ExecutionException ex) {
+            LOG.error(ex.getLocalizedMessage(), ex);
+            FxGet.dialogs().showErrorDialog(ex.getLocalizedMessage(), ex);
+        }
+    }
 
-   public void prepareToExecute() {
-      this.observableVersion = this.observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+    public void prepareToExecute() {
+        if (Platform.isFxApplicationThread()) {
+            FxGet.rulesDrivenKometService()
+                    .populatePropertySheetEditors(this);
+        } else {
+            Platform.runLater(() -> {
+                FxGet.rulesDrivenKometService()
+                        .populatePropertySheetEditors(this);
+            });
+        }
+        this.manifold.addEditInFlight(this);
+    }
 
-      Platform.runLater(() -> {
-        FxGet.rulesDrivenKometService()
-              .populatePropertySheetEditors(this);
-      });
-      this.manifold.addEditInFlight(this);
-   }
+    private Item addItem(Item item) {
+        propertySheet.getItems()
+                .add(item);
+        return item;
+    }
 
-   private Item addItem(Item item) {
-      propertySheet.getItems()
-              .add(item);
-      return item;
-   }
-   
+    //~--- get methods ---------------------------------------------------------
+    private PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
+            String nameForProperty) {
+        ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
+        if (property == null) {
+            int assemblageNid = observableVersion.getAssemblageNid();
+            OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
+                    propertyConceptSpecification.getNid(),
+                    assemblageNid, manifold);
+            if (propertyIndex.isPresent()) {
+                property = observableVersion.getProperties().get(propertyIndex.getAsInt());
+            }
+        }
+        ObjectProperty<ConceptSpecification> conceptProperty = null;
+        if (property instanceof ObjectProperty) {
+            conceptProperty = (ObjectProperty<ConceptSpecification>) property;
+        } else if (property instanceof CommitAwareIntegerProperty) {
+            CommitAwareIntegerProperty intProperty = (CommitAwareIntegerProperty) property;
+            conceptProperty = new CommitAwareConceptSpecificationProperty(intProperty);
+        }
+        if (conceptProperty == null) {
+            throw new IllegalStateException("No property for: " + propertyConceptSpecification);
+        }
+        PropertySheetItemConceptWrapper item = new PropertySheetItemConceptWrapper(
+                manifold,
+                nameForProperty,
+                conceptProperty);
+        item.setSpecification(propertyConceptSpecification);
+        return item;
+    }
 
-   //~--- get methods ---------------------------------------------------------
-   private PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
-           String nameForProperty) {
-      ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
-      if (property == null) {
-          int assemblageNid = observableVersion.getAssemblageNid();
-          OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
-                  propertyConceptSpecification.getNid(), 
-                  assemblageNid, manifold);
-          if (propertyIndex.isPresent()) {
-              property = observableVersion.getProperties().get(propertyIndex.getAsInt());
-          }
-      }
-      ObjectProperty<ConceptSpecification> conceptProperty = null;
-      if (property instanceof ObjectProperty) {
-          conceptProperty = (ObjectProperty<ConceptSpecification>) property;
-      } else if (property instanceof CommitAwareIntegerProperty) {
-          CommitAwareIntegerProperty intProperty = (CommitAwareIntegerProperty) property;
-          conceptProperty = new CommitAwareConceptSpecificationProperty(intProperty);
-      }
-      if (conceptProperty == null) {
-         throw new IllegalStateException("No property for: " + propertyConceptSpecification);
-      }
-      PropertySheetItemConceptWrapper item = new PropertySheetItemConceptWrapper(
-              manifold,
-              nameForProperty,
-              conceptProperty);
-      item.setSpecification(propertyConceptSpecification);
-      return item;
-   }
+    private PropertySheetStatusWrapper getStatusProperty(ConceptSpecification propertyConceptSpecification,
+            String nameForProperty) {
+        return new PropertySheetStatusWrapper(nameForProperty,
+                (ObjectProperty<Status>) getPropertyMap().get(propertyConceptSpecification));
+    }
 
-   private PropertySheetStatusWrapper getStatusProperty(ConceptSpecification propertyConceptSpecification,
-           String nameForProperty) {
-      return new PropertySheetStatusWrapper(nameForProperty,
-              (ObjectProperty<Status>) getPropertyMap().get(propertyConceptSpecification));
-   }
+    private PropertySheetTextWrapper getTextProperty(ConceptSpecification propertyConceptSpecification,
+            String nameForProperty) {
+        ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
+        if (property == null) {
+            int assemblageNid = observableVersion.getAssemblageNid();
+            OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
+                    propertyConceptSpecification.getNid(),
+                    assemblageNid, manifold);
+            if (propertyIndex.isPresent()) {
+                property = observableVersion.getProperties().get(propertyIndex.getAsInt());
+            }
+            getPropertyMap().put(propertyConceptSpecification, property);
+        }
+        StringProperty stringProperty = (StringProperty) property;
 
-   private PropertySheetTextWrapper getTextProperty(ConceptSpecification propertyConceptSpecification,
-           String nameForProperty) {
-      ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
-      if (property == null) {
-          int assemblageNid = observableVersion.getAssemblageNid();
-          OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
-                  propertyConceptSpecification.getNid(), 
-                  assemblageNid, manifold);
-          if (propertyIndex.isPresent()) {
-              property = observableVersion.getProperties().get(propertyIndex.getAsInt());
-          }
-          getPropertyMap().put(propertyConceptSpecification, property);
-      }
-      StringProperty stringProperty = (StringProperty) property;
+        PropertySheetTextWrapper wrapper = new PropertySheetTextWrapper(nameForProperty,
+                stringProperty);
+        wrapper.setSpecification(propertyConceptSpecification);
+        return wrapper;
+    }
 
-      PropertySheetTextWrapper wrapper = new PropertySheetTextWrapper(nameForProperty,
-              stringProperty);
-       wrapper.setSpecification(propertyConceptSpecification);
-      return wrapper;
-   }
-   
-   private PropertySheetItemIntegerWrapper getIntegerProperty(ConceptSpecification propertyConceptSpecification,
-           String nameForProperty) {
-      ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
-      if (property == null) {
-          int assemblageNid = observableVersion.getAssemblageNid();
-          OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
-                  propertyConceptSpecification.getNid(), 
-                  assemblageNid, manifold);
-          if (propertyIndex.isPresent()) {
-              property = observableVersion.getProperties().get(propertyIndex.getAsInt());
-          }
-          getPropertyMap().put(propertyConceptSpecification, property);
-      }
-       IntegerProperty integerProperty = (IntegerProperty) property;
+    private PropertySheetItemIntegerWrapper getIntegerProperty(ConceptSpecification propertyConceptSpecification,
+            String nameForProperty) {
+        ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
+        if (property == null) {
+            int assemblageNid = observableVersion.getAssemblageNid();
+            OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
+                    propertyConceptSpecification.getNid(),
+                    assemblageNid, manifold);
+            if (propertyIndex.isPresent()) {
+                property = observableVersion.getProperties().get(propertyIndex.getAsInt());
+            }
+            getPropertyMap().put(propertyConceptSpecification, property);
+        }
+        IntegerProperty integerProperty = (IntegerProperty) property;
 
-      PropertySheetItemIntegerWrapper wrapper = new PropertySheetItemIntegerWrapper(nameForProperty,
-              integerProperty);
-       wrapper.setSpecification(propertyConceptSpecification);
-      return wrapper;
-   }
+        PropertySheetItemIntegerWrapper wrapper = new PropertySheetItemIntegerWrapper(nameForProperty,
+                integerProperty);
+        wrapper.setSpecification(propertyConceptSpecification);
+        return wrapper;
+    }
 
-   public Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {
-      if (propertyMap == null) {
-         propertyMap = observableVersion.getPropertyMap();
-      }
+    public Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {
+        if (propertyMap == null) {
+            propertyMap = observableVersion.getPropertyMap();
+        }
 
-      return propertyMap;
-   }
+        return propertyMap;
+    }
 
-   public PropertySheet getPropertySheet() {
-      return propertySheet;
-   }
+    public PropertySheet getPropertySheet() {
+        return propertySheet;
+    }
 
-   public List<Item> getPropertySheetItems() {
-      List<Item> items = new ArrayList<>();
+    public List<Item> getPropertySheetItems() {
+        List<Item> items = new ArrayList<>();
 
-      propertiesToEdit.forEach(
-              (propertySpec) -> {
-                 switch (propertySpec.propertyEditorType) {
-                    case CONCEPT:
-                       items.add(
-                               addItem(
-                                       getConceptProperty(
-                                               propertySpec.propertyConceptSpecification,
-                                               propertySpec.nameOnPropertySheet)));
-                       break;
-                    case STATUS:
-                       items.add(
-                               addItem(getStatusProperty(
-                                       propertySpec.propertyConceptSpecification,
-                                       propertySpec.nameOnPropertySheet)));
-                       break;
+        propertiesToEdit.forEach(
+                (propertySpec) -> {
+                    switch (propertySpec.propertyEditorType) {
+                        case CONCEPT:
+                            items.add(
+                                    addItem(
+                                            getConceptProperty(
+                                                    propertySpec.propertyConceptSpecification,
+                                                    propertySpec.nameOnPropertySheet)));
+                            break;
+                        case STATUS:
+                            items.add(
+                                    addItem(getStatusProperty(
+                                            propertySpec.propertyConceptSpecification,
+                                            propertySpec.nameOnPropertySheet)));
+                            break;
 
-                    case TEXT:
-                       items.add(
-                               addItem(getTextProperty(
-                                       propertySpec.propertyConceptSpecification,
-                                       propertySpec.nameOnPropertySheet)));
-                       break;
-                    case INTEGER:
-                       items.add(
-                               addItem(getIntegerProperty(
-                                       propertySpec.propertyConceptSpecification,
-                                       propertySpec.nameOnPropertySheet)));
-                       break;
-                    default:
-                       throw new RuntimeException("an Can't handle: " + propertySpec);
-                 }
-              });
-      return items;
-   }
+                        case TEXT:
+                            items.add(
+                                    addItem(getTextProperty(
+                                            propertySpec.propertyConceptSpecification,
+                                            propertySpec.nameOnPropertySheet)));
+                            break;
+                        case INTEGER:
+                            items.add(
+                                    addItem(getIntegerProperty(
+                                            propertySpec.propertyConceptSpecification,
+                                            propertySpec.nameOnPropertySheet)));
+                            break;
+                        default:
+                            throw new RuntimeException("an Can't handle: " + propertySpec);
+                    }
+                });
+        return items;
+    }
 
-   @Override
-   public ObservableVersion getVersionInFlight() {
-      return this.observableVersion;
-   }
+    @Override
+    public ObservableVersion getVersionInFlight() {
+        return this.observableVersion;
+    }
 
-   public void setVersionInFlight(ObservableVersion version) {
-      this.observableVersion = version;
-   }
-   //~--- inner classes -------------------------------------------------------
+    public void setVersionInFlight(ObservableVersion version) {
+        this.observableVersion = version;
+    }
+    //~--- inner classes -------------------------------------------------------
 
-   private static class PropertySpec {
+    private static class PropertySpec {
 
-      final String nameOnPropertySheet;
-      final ConceptSpecification propertyConceptSpecification;
-      final PropertyEditorType propertyEditorType;
+        final String nameOnPropertySheet;
+        final ConceptSpecification propertyConceptSpecification;
+        final PropertyEditorType propertyEditorType;
 
-      //~--- constructors -----------------------------------------------------
-      public PropertySpec(String propertySheetName,
-              ConceptSpecification propertyConceptSpecification,
-              PropertyEditorType propertyEditorType) {
-         this.nameOnPropertySheet = propertySheetName;
-         this.propertyConceptSpecification = propertyConceptSpecification;
-         this.propertyEditorType = propertyEditorType;
-      }
+        //~--- constructors -----------------------------------------------------
+        public PropertySpec(String propertySheetName,
+                ConceptSpecification propertyConceptSpecification,
+                PropertyEditorType propertyEditorType) {
+            this.nameOnPropertySheet = propertySheetName;
+            this.propertyConceptSpecification = propertyConceptSpecification;
+            this.propertyEditorType = propertyEditorType;
+        }
 
-      //~--- methods ----------------------------------------------------------
-      @Override
-      public boolean equals(Object obj) {
-         if (this == obj) {
-            return true;
-         }
+        //~--- methods ----------------------------------------------------------
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
 
-         if (obj == null) {
-            return false;
-         }
+            if (obj == null) {
+                return false;
+            }
 
-         if (getClass() != obj.getClass()) {
-            return false;
-         }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
 
-         final PropertySpec other = (PropertySpec) obj;
+            final PropertySpec other = (PropertySpec) obj;
 
-         if (!Objects.equals(this.nameOnPropertySheet, other.nameOnPropertySheet)) {
-            return false;
-         }
+            if (!Objects.equals(this.nameOnPropertySheet, other.nameOnPropertySheet)) {
+                return false;
+            }
 
-         return this.propertyEditorType == other.propertyEditorType;
-      }
+            return this.propertyEditorType == other.propertyEditorType;
+        }
 
-      @Override
-      public int hashCode() {
-         int hash = 5;
+        @Override
+        public int hashCode() {
+            int hash = 5;
 
-         hash = 79 * hash + Objects.hashCode(this.nameOnPropertySheet);
-         hash = 79 * hash + Objects.hashCode(this.propertyEditorType);
-         return hash;
-      }
+            hash = 79 * hash + Objects.hashCode(this.nameOnPropertySheet);
+            hash = 79 * hash + Objects.hashCode(this.propertyEditorType);
+            return hash;
+        }
 
-      @Override
-      public String toString() {
-         return "PropertySpec{" + "propertySheetName=" + nameOnPropertySheet + ", propertyConceptSpecification="
-                 + propertyConceptSpecification + ", propertyEditorType=" + propertyEditorType + '}';
-      }
-   }
+        @Override
+        public String toString() {
+            return "PropertySpec{" + "propertySheetName=" + nameOnPropertySheet + ", propertyConceptSpecification="
+                    + propertyConceptSpecification + ", propertyEditorType=" + propertyEditorType + '}';
+        }
+    }
 }
