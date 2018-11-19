@@ -65,44 +65,37 @@ public class AttributeFunction {
         return functionName;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
+    public static AttributeTriFunction<String, StampCoordinate, Query, String> getFunctionFromName(String functionName) {
         switch (functionName) {
             case "":
-                this.functionName = "Identity";
-                this.function = (string, stampCoordinate, query) -> {
+                return (string, stampCoordinate, query) -> {
                     return string;
                 };
-                break;
             case "Identity":
-                this.function = (string, stampCoordinate, query) -> {
+                return (string, stampCoordinate, query) -> {
                     return string;
                 };
-                break;
             case "Primoridal uuid":
-                this.function = (string, stampCoordinate, query) -> {
+                return (string, stampCoordinate, query) -> {
                     int nid = Integer.parseInt(string);
                     return Get.identifierService().getUuidPrimordialForNid(nid).toString();
                 };
-                break;
             case "All uuids":
-                this.function = (string, stampCoordinate, query) -> {
+                return (string, stampCoordinate, query) -> {
                     int nid = Integer.parseInt(string);
                     return Get.identifierService().getUuidsForNid(nid).toString();
                 };
-                break;
             case "Epoch to 8601 date/time":
-                this.function = (string, stampCoordinate, query) -> {
+                return (string, stampCoordinate, query) -> {
                     long epochTime = Long.parseLong(string);
                     return DateTimeUtil.format(epochTime);
                 };
-                break;
             default:
-                if (this.functionName.endsWith(" preferred name")) {
-                    this.function = (string, stampCoordinate, query) -> {
+                if (functionName.endsWith(" preferred name")) {
+                    return (string, stampCoordinate, query) -> {
                         LanguageCoordinate lc = null;
                         for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
-                            if (this.functionName.startsWith(entry.getKey().getItemName())) {
+                            if (functionName.startsWith(entry.getKey().getItemName())) {
                                 lc = (LanguageCoordinate) entry.getValue();
                                 break;
                             }
@@ -115,13 +108,13 @@ public class AttributeFunction {
                             }
                             return "No current preferred name";
                         }
-                        throw new IllegalStateException("Cannot find LetItemKey for " + this.functionName);
+                        throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
                     };
-                } else if (this.functionName.endsWith(" FQN")) {
-                    this.function = (string, stampCoordinate, query) -> {
+                } else if (functionName.endsWith(" FQN")) {
+                    return (string, stampCoordinate, query) -> {
                         LanguageCoordinate lc = null;
                         for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
-                            if (this.functionName.startsWith(entry.getKey().getItemName())) {
+                            if (functionName.startsWith(entry.getKey().getItemName())) {
                                 lc = (LanguageCoordinate) entry.getValue();
                                 break;
                             }
@@ -134,13 +127,13 @@ public class AttributeFunction {
                             }
                             return "No current FQN";
                         }
-                        throw new IllegalStateException("Cannot find LetItemKey for " + this.functionName + " " + query.getLetDeclarations().entrySet());
+                        throw new IllegalStateException("Cannot find LetItemKey for " + functionName + " " + query.getLetDeclarations().entrySet());
                     };
-                } else if (this.functionName.endsWith(" definition")) {
-                    this.function = (string, stampCoordinate, query) -> {
+                } else if (functionName.endsWith(" definition")) {
+                    return (string, stampCoordinate, query) -> {
                         LanguageCoordinate lc = null;
                         for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
-                            if (this.functionName.startsWith(entry.getKey().getItemName())) {
+                            if (functionName.startsWith(entry.getKey().getItemName())) {
                                 lc = (LanguageCoordinate) entry.getValue();
                                 break;
                             }
@@ -153,10 +146,20 @@ public class AttributeFunction {
                             }
                             return "No current definition";
                         }
-                        throw new IllegalStateException("Cannot find LetItemKey for " + this.functionName);
+                        throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
                     };
                 }
+        }    
+        throw new IllegalStateException("No function for " + functionName);
+    }
+    
+    public final void setFunctionName(String functionName) {
+        this.functionName = functionName;
+        if (this.functionName.isEmpty()) {
+            this.functionName = "Identity";
         }
+        this.function = getFunctionFromName(this.functionName);
+
     }
 
     @Override

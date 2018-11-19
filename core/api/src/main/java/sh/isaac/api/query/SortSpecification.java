@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development includeProperty the
+ * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,11 @@
  */
 package sh.isaac.api.query;
 
+import java.util.OptionalInt;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.TableColumn;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -26,23 +28,29 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 
 /**
- * The AttributeSpecification provides the data necessary to convert a
- component nid into format for inclusion in a results table. The query 
+ * The SortSpecification provides the data necessary to convert a
+ component nid into format for sorting results. The query 
  returns an array of 1 or more nids for each row, which needs to be processed into 
  the result set. Each nid is a member of an assemblage
- that was specified in FOR clause of the query. A list of AttributeSpecification 
- elements will expand the array of nids into an array of Strings to populate a row in the
- result set. 
+ that was specified in FOR clause of the query. A list of SortSpecification 
+ elements will expand the array of nids into an array of Strings that will be 
+ * used to sort the rows prior to applying the attribute functions. 
  * 
  * @author kec
  */
-@XmlRootElement(name = "AttributeSpecification")
+@XmlRootElement(name = "SortSpecification")
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class AttributeSpecification implements QueryFieldSpecification {
+public class SortSpecification implements QueryFieldSpecification {
      /**
      * The index of the property on the version of the chronology to 
      * process for this function. The property index is based on the ordered 
@@ -78,20 +86,23 @@ public class AttributeSpecification implements QueryFieldSpecification {
      * process for this function. Not used in result set generation. 
      */
     private final SimpleObjectProperty<ConceptSpecification> propertySpecificationProperty;
+    
+    private final SimpleObjectProperty<TableColumn.SortType> sortTypeProperty;
 
     /**
      * No arg constructor for Jaxb. 
      */
-    public AttributeSpecification() {
+    public SortSpecification() {
         this.attributeFunctionProperty = new SimpleObjectProperty();
         this.columnNameProperty = new SimpleStringProperty();
         this.assemblageNidProperty = new SimpleIntegerProperty();
         this.propertySpecificationProperty = new SimpleObjectProperty();
         this.propertyIndexProperty = new SimpleIntegerProperty();
+        this.sortTypeProperty = new SimpleObjectProperty<>(TableColumn.SortType.ASCENDING);
         this.stampCoordinateKeyProperty  = new SimpleObjectProperty();
     }
     
-    public AttributeSpecification(AttributeSpecification another) {
+    public SortSpecification(SortSpecification another) {
         this.attributeFunctionProperty = new SimpleObjectProperty(another.attributeFunctionProperty.get());
         this.columnNameProperty = new SimpleStringProperty(another.columnNameProperty.get());
         
@@ -101,17 +112,19 @@ public class AttributeSpecification implements QueryFieldSpecification {
         this.assemblageNidProperty = new SimpleIntegerProperty(another.assemblageNidProperty.get());
         this.propertySpecificationProperty = new SimpleObjectProperty(another.propertySpecificationProperty.get());
         this.propertyIndexProperty = new SimpleIntegerProperty(another.propertyIndexProperty.get());
+        this.sortTypeProperty = new SimpleObjectProperty<>(another.sortTypeProperty.get());
         this.stampCoordinateKeyProperty  = new SimpleObjectProperty(another.getStampCoordinateKey());
     }
     
-    public AttributeSpecification(
+    public SortSpecification(
             AttributeFunction attributeFunction, String columnName, int assemblageNid,
-            ConceptSpecification propertySpecification, 
+            ConceptSpecification propertySpecification, TableColumn.SortType sortType, 
             LetItemKey stampCoordinateKey, int propertyIndex) {
         this.attributeFunctionProperty = new SimpleObjectProperty(attributeFunction);
         this.columnNameProperty = new SimpleStringProperty(columnName);
         this.assemblageNidProperty = new SimpleIntegerProperty(assemblageNid);
         this.propertySpecificationProperty = new SimpleObjectProperty(propertySpecification);
+        this.sortTypeProperty = new SimpleObjectProperty<>(sortType);
         this.propertyIndexProperty = new SimpleIntegerProperty(propertyIndex);
         this.stampCoordinateKeyProperty = new SimpleObjectProperty(stampCoordinateKey);
     }
@@ -131,6 +144,20 @@ public class AttributeSpecification implements QueryFieldSpecification {
     public SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty() {
         return stampCoordinateKeyProperty;
     }
+
+    public SimpleObjectProperty<TableColumn.SortType> sortTypeProperty() {
+        return sortTypeProperty;
+    }
+
+    @XmlElement
+    public TableColumn.SortType getSortType() {
+        return sortTypeProperty.get();
+    }
+
+    public void setSortType(TableColumn.SortType sortType) {
+        sortTypeProperty.set(sortType);
+    }
+
 
     @XmlElement
     @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
@@ -228,4 +255,41 @@ public class AttributeSpecification implements QueryFieldSpecification {
     public void setColumnName(String columnName) {
         this.columnNameProperty.set(columnName);
     }
+
+    public int compare(int[] o1, int[] o2, Query q) {
+        // Get index...
+        int comparisonIndex = 0;
+        if (o1.length != 1) {
+            for (int i = 0; i < o1.length; i++) {
+                OptionalInt optionalAssemblageNid = Get.identifierService().getAssemblageNid(o1[i]);
+                if (optionalAssemblageNid.isPresent() &&
+                        optionalAssemblageNid.getAsInt() == getAssemblageNid()) {
+                    comparisonIndex = i;
+                    break;
+                }
+            }
+        }
+        StampCoordinate stampCoordinate = (StampCoordinate) q.getLetDeclarations().get(getStampCoordinateKey());
+        
+        ObservableChronology o1Chronology = Get.observableChronologyService().getObservableChronology(o1[comparisonIndex]);
+        LatestVersion<? extends ObservableVersion>  o1LatestVersion = o1Chronology.getLatestVersion(stampCoordinate);
+
+        ObservableChronology o2Chronology = Get.observableChronologyService().getObservableChronology(o2[comparisonIndex]);
+        LatestVersion<? extends ObservableVersion>  o2LatestVersion = o2Chronology.getLatestVersion(stampCoordinate);
+
+        String o1String = getAttributeFunction().apply(
+                o1LatestVersion.get().getProperties().get(getPropertyIndex()).getValue().toString(), 
+                stampCoordinate, q);
+        String o2String = getAttributeFunction().apply(
+                o2LatestVersion.get().getProperties().get(getPropertyIndex()).getValue().toString(), 
+                stampCoordinate, q);
+        
+        int comparison = NaturalOrder.compareStrings(o1String, o2String);
+        if (getSortType() == TableColumn.SortType.ASCENDING) {
+            return comparison;
+        }
+        return -comparison;
+    }
+    
+    
 }

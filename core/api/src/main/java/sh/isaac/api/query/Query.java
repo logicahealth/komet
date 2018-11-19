@@ -39,6 +39,7 @@ package sh.isaac.api.query;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +85,7 @@ import sh.isaac.api.xml.JaxbMap;
  */
 @XmlRootElement(name = "Query")
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlType(propOrder={"forSet", "letMap", "whereForJaxb", "returnAttributeList"})
+@XmlType(propOrder={"forSet", "letMap", "whereForJaxb", "sortAttributeList", "returnAttributeList"})
 public class Query {
 
     /**
@@ -128,7 +129,8 @@ public class Query {
     
     List<AttributeSpecification> attributeReturnSpecifications = new ArrayList();
 
-    
+    List<SortSpecification> sortReturnSpecifications = new ArrayList<>();
+
     //~--- constructors --------------------------------------------------------
 
     /**
@@ -250,6 +252,20 @@ public class Query {
         this.attributeReturnSpecifications = attributeReturnSpecifications;
     }
     
+     
+    @XmlElement(name = "SortSpecification")
+    @XmlElementWrapper(name = "Order")
+    public List<SortSpecification> getSortAttributeList() {
+        return sortReturnSpecifications;
+    }
+    
+    public void setSortAttributeList(List<SortSpecification> sortReturnSpecifications) {
+        this.sortReturnSpecifications = sortReturnSpecifications;
+    }
+    
+    
+    
+    
     /**
      *
      * @return an array of component nids in an array...
@@ -264,12 +280,29 @@ public class Query {
                 for (int nid : entry.getValue().asArray()) {
                     resultArray[row++] = new int[]{nid};
                 }
-                return resultArray;
+                return sort(resultArray);
             }
             throw new IllegalStateException("No entry found, though list is not empty. ");
         } else {
             throw new UnsupportedOperationException("Can't handle joins yet" + assemlageMapResults);
         }
+    }
+
+    private int[][] sort(int[][] resultArray) {
+        if (sortReturnSpecifications.isEmpty()) {
+            return resultArray;
+        }
+        Arrays.sort(resultArray, (int[] o1, int[] o2) -> {
+            int comparison = 0;
+            for (SortSpecification sortSpecification: sortReturnSpecifications) {
+                comparison = sortSpecification.compare(o1, o2, this);
+                if (comparison != 0) {
+                    return comparison;
+                }
+            }
+            return comparison;            
+        });
+        return resultArray;
     }
 
     /**

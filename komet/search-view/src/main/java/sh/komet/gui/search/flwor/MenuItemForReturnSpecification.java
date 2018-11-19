@@ -25,11 +25,11 @@ import javafx.scene.control.MenuItem;
  *
  * @author kec
  */
-public class ReturnSpecificationMenuItem extends MenuItem {
+public class MenuItemForReturnSpecification extends MenuItem {
     final AttributeSpecification rowToAdd;
     final ObservableList<AttributeSpecification> returnSpecificationRows;
 
-    public ReturnSpecificationMenuItem(String menuText, AttributeSpecification rowToAdd, ObservableList<AttributeSpecification> returnSpecificationRows) {
+    public MenuItemForReturnSpecification(String menuText, AttributeSpecification rowToAdd, ObservableList<AttributeSpecification> returnSpecificationRows) {
         super(menuText);
         this.rowToAdd = rowToAdd;
         this.returnSpecificationRows = returnSpecificationRows;
