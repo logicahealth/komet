@@ -451,7 +451,10 @@ public class LanguageCoordinates {
       }
       
       ArrayList<ConceptSpecification> result = new ArrayList<>();
+      ArrayList<Integer> startNids = new ArrayList<>();
+      ArrayList<Integer> endNids = new ArrayList<>();
       for (ConceptSpecification coreType : descriptionTypePreferenceList) {
+         startNids.add(coreType.getNid());
          if (!result.contains(coreType)) {
             result.add(coreType);
          }
@@ -460,16 +463,12 @@ public class LanguageCoordinates {
             for (ConceptSpecification type: nonCoreTypes) {
                if (!result.contains(type)) {
                   result.add(type);
+                  endNids.add(type.getNid());
                }
             }
          }
       }
-      ConceptSpecification[] finalResult = new ConceptSpecification[result.size()];
-      int i = 0;
-      for (ConceptSpecification r : result) {
-         finalResult[i++] = r;  
-      }
-      LOG.info("Expanded language type list from {} to {} in {}ms", descriptionTypePreferenceList, finalResult, System.currentTimeMillis() - time);
-      return finalResult;
+      LOG.info("Expanded language type list from {} to {} in {}ms", startNids, endNids, System.currentTimeMillis() - time);
+      return result.toArray(new ConceptSpecification[result.size()]);
    }
 }
