@@ -363,7 +363,7 @@ public class KometStageController
                         try {
                             TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
                             timd.configure(null, beer.toPath(),"0.8", null);
-                            timd.convertContent(update -> {});
+                            timd.convertContent(update -> {}, (work, totalWork) -> {});
                             Get.indexDescriptionService().refreshQueryEngine();
                             Platform.runLater(() -> {
                                 Alert alert = new Alert(AlertType.INFORMATION);

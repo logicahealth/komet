@@ -74,7 +74,7 @@ public class QueryProviderTest {
 
 		TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
 		timd.configure(null, Paths.get(QueryProviderTest.class.getResource("/turtle/bevontology-0.8.ttl").toURI()), "0.8", null);
-		timd.convertContent(update -> {});
+		timd.convertContent(update -> {}, (work, total) ->{});
 		
 		di = LookupService.get().getService(DescriptionIndexer.class);
 		di.forceMerge();  //Just a way to force the query readers to refresh more quickly than they would

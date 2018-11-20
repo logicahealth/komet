@@ -41,10 +41,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +54,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import sh.isaac.MetaData;
@@ -59,6 +62,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.datastore.DataStore;
@@ -66,6 +70,7 @@ import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.mojo.LoadTermstore;
 
 /**
  *
@@ -225,13 +230,26 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 			{
 				ibs.setEnabled(false);
 			}
-
+			
+			File[] filesToPreload = getIBDFFilesToPreload();
+			if (filesToPreload != null && filesToPreload.length > 0)
+			{
+				log.info("Preloading IBDF files");
+				LoadTermstore lt = new LoadTermstore();
+				lt.dontSetDBMode();
+				lt.setLog(new SystemStreamLog());
+				lt.setibdfFiles(filesToPreload);
+				lt.setActiveOnly(IBDFPreloadActiveOnly());
+				lt.skipVersionTypes(getIBDFSkipTypes());
+				lt.execute();
+			}
+			
 			DataWriteListenerImpl listener = new DataWriteListenerImpl(ibdfFileToWrite, toIgnore == null ? null : toIgnore.get());
 
 			// we register this after the metadata has already been written.
 			LookupService.get().getService(DataStore.class).registerDataWriteListener(listener);
 
-			convertContent(string -> {});
+			convertContent(statusUpdate -> {}, (workDone, workTotal) -> {});
 
 			LookupService.shutdownSystem();
 
@@ -248,9 +266,45 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	/**
 	 * Where the logic should be implemented to actually do the conversion
 	 * @param statusUpdates - the converter should post status updates here.
+	 * @param progresUpdates - optional - if provided, the converter should post progress on workDone here, the first argument
+	 * is work done, the second argument is work total.
 	 * @throws IOException 
 	 */
-	protected abstract void convertContent(Consumer<String> statusUpdates) throws IOException;
+	protected abstract void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
+	
+	
+	/**
+	 * Implementors should override this method, if they have IBDF files that should be pre-loaded, prior to the callback to 
+	 * {@link #convertContent(Consumer)}, and prior to the injection of the IBDF change set listener.
+	 * 
+	 * This is only used by loaders that cannot execute without having another terminology preloaded - such as snomed extensions
+	 * that need to do snomed lookups, or loinc tech preview, which requires snomed, and loinc, for example.
+	 * @return
+	 */
+	protected File[] getIBDFFilesToPreload()
+	{
+		return new File[0];
+	}
+	
+	/**
+	 * Subclasses may override this, if they want to change the behavior.  The default behavior is to preload only active concepts
+	 * and semantics
+	 * @return
+	 */
+	protected boolean IBDFPreloadActiveOnly()
+	{
+		return true;
+	}
+	
+	/**
+	 * Subclasses may override this, if they want to change the behavior.  If a subclass provides a return that includes
+	 * {@link VersionType#COMPONENT_NID}, for example, then that type will be skipped when encountered during IBDF preload
+	 * @return
+	 */
+	protected Collection<VersionType> getIBDFSkipTypes()
+	{
+		return new HashSet<>(0);
+	}
 	
 	/**
 	 * Create the version specific module concept, and add the loader metadata to it.

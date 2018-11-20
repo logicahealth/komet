@@ -18,43 +18,31 @@ package sh.isaac.convert.mojo.turtle;
 import java.io.File;
 import java.io.IOException;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.codehaus.plexus.util.FileUtils;
 import javafx.application.Platform;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.constants.DatabaseInitialization;
 
 /**
  * Just a main for running the Turtle import in eclipse, so it launches with a logging config
  * 
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
-public class TurtleImportRunner
+public class TurtleMojoRunner extends TurtleImportMojoDirect
 {
 
+	/**
+	 * @param args
+	 * @throws MojoExecutionException
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws MojoExecutionException, IOException
 	{
-		try
-		{
-			File file = new File("target", "isaac-turtle.data");
-			// make sure this is empty
-			FileUtils.deleteDirectory(file);
-
-			Get.configurationService().setDataStoreFolderPath(file.toPath());
-
-			Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
-
-			LookupService.startupIsaac();
-
-			TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
-			timd.configure(null, new File("../../integration/tests/src/test/resources/turtle/bevontology-0.8.ttl").toPath(), "0.8", null);
-			timd.convertContent(update -> {});
-		}
-		finally
-		{
-			LookupService.shutdownSystem();
-			Platform.exit();
-		}
+		TurtleMojoRunner i = new TurtleMojoRunner();
+		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
+		i.inputFileLocationPath = new File("../../integration/tests/src/test/resources/turtle/").toPath();
+		i.converterOutputArtifactVersion = "turtle-0.8";
+		i.converterVersion = "SNAPSHOT";
+		i.converterSourceArtifactVersion = "0.8";
+		i.execute();
+		Platform.exit();
 	}
 
 }

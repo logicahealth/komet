@@ -55,6 +55,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
@@ -235,7 +236,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 	 * @throws IOException 
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates) throws IOException
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		init();
 		
@@ -499,7 +500,8 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 								}
 							}
 						}
-						dwh.makeAssociationTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null, null, null, additionalParents, 
+						dwh.makeAssociationTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null, null, 
+								null, null, additionalParents, 
 								releaseTime);
 					}
 				}
@@ -531,8 +533,8 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 						//Add the relationships parent
 						additionalParents.add(dwh.getRelationTypesNode().get());
 						
-						dwh.makeAssociationTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null, null, null, additionalParents, 
-								releaseTime);
+						dwh.makeAssociationTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null, 
+								null, null, null, additionalParents, releaseTime);
 						possibleAssociations.put(entry.getKey(), entry.getValue());
 					}
 				}

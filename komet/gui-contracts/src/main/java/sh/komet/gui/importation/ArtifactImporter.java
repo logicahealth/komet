@@ -146,7 +146,7 @@ public class ArtifactImporter
 							}
 						}
 						
-						dc.convertContent(string -> updateTitle(string));
+						dc.convertContent(string -> updateTitle(string), (work, total) -> updateProgress(work, total));
 						fs.close();
 						Get.indexDescriptionService().refreshQueryEngine();
 

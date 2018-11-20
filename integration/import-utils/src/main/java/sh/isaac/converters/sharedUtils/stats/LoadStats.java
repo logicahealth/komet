@@ -269,16 +269,20 @@ public class LoadStats {
          result.add("Relationship '" + value.getKey() + "': " + value.getValue());
       }
 
-      result.add("Relationships Total: " + sum);
-      sum = 0;
+      if (sum > 0) {
+         result.add("Relationships Total: " + sum);
+         sum = 0;
+      }
 
       for (final Map.Entry<String, Integer> value: this.associations.entrySet()) {
          sum += value.getValue();
          result.add("Association '" + value.getKey() + "': " + value.getValue());
       }
 
-      result.add("Associations Total: " + sum);
-      sum = 0;
+      if (sum > 0) {
+         result.add("Associations Total: " + sum);
+         sum = 0;
+      }
 
       for (final Map.Entry<String, Integer> value: this.descriptions.entrySet()) {
          sum += value.getValue();

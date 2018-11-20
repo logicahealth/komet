@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -131,7 +132,7 @@ public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	}
 
 	@Override
-	public void convertContent(Consumer<String> messages) throws IOException
+	public void convertContent(Consumer<String> messages, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		try
 		{
