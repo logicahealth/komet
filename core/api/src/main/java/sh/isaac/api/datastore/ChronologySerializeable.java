@@ -20,46 +20,57 @@ import sh.isaac.api.chronicle.Chronology;
 
 /**
  * Serialization mechanisms for a Chronology
- * 
+ *
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
-public interface ChronologySerializeable extends Chronology
-{
-	/**
-	 * A method to support serialization of the data.
-	 * 
-	 * Get data to write to datastore - chronology and version data.
-	 *
-	 * @return the data to write. Implementations of {@link DataStore#getChronologyVersionData(int)} need to know how to construct themselves
-	 *         from this data.
-	 */
-	public byte[] getChronologyVersionDataToWrite();
+public interface ChronologySerializeable extends Chronology {
 
-	/**
-	 * A method to support serialization of the data.
-	 * 
-	 * An alternative to the {@link #getChronologyVersionDataToWrite} mechanism, where the store is allowed to get the
-	 * chronology info separate from the version info. See {@link #getVersionDataToWrite()}
-	 * 
-	 * Backing stores should only store the underlying bytes, and not attempt to serialize the ByteArrayDataBuffer.
-	 * 
-	 * @return The buffer that contains the chronology bytes to write. Implementations of {@link DataStore#getChronologyVersionData(int)}
-	 *         should return these bytes + all of the bytes provided by {@link #getVersionDataToWrite()}
-	 */
-	public byte[] getChronologyDataToWrite();
+    /**
+     * A method to support serialization of the data.
+     *
+     * Get data to write to datastore - chronology and version data.
+     *
+     * @return the data to write. Implementations of
+     * {@link DataStore#getChronologyVersionData(int)} need to know how to
+     * construct themselves from this data.
+     */
+    byte[] getChronologyVersionDataToWrite();
 
-	/**
-	 * A method to support serialization of the data.
-	 * 
-	 * An alternative to the {@link #getChronologyVersionDataToWrite} mechanism, where the store is allowed to get the
-	 * chronology info separate from the version info. See {@link #getChronologyDataToWrite()}
-	 * 
-	 * Backing stores should only store the underlying bytes, and not attempt to serialize the ByteArrayDataBuffer.
-	 * 
-	 * @return The versions to be written. Backing stores may ignore any versions they already have stored.
-	 *         Implementations of {@link DataStore#getChronologyVersionData(int)}
-	 *         should return all of the bytes provided by {@link #getChronologyDataToWrite()} + all of the bytes from each item
-	 *         in the list (with no additional list / item marker bytes).
-	 */
-	public List<byte[]> getVersionDataToWrite();
+    /**
+     * A method to support serialization of the data.
+     *
+     * An alternative to the {@link #getChronologyVersionDataToWrite} mechanism,
+     * where the store is allowed to get the chronology info separate from the
+     * version info. See {@link #getVersionDataToWrite()}
+     *
+     * Backing stores should only store the underlying bytes, and not attempt to
+     * serialize the ByteArrayDataBuffer.
+     *
+     * @return The buffer that contains the chronology bytes to write.
+     * Implementations of {@link DataStore#getChronologyVersionData(int)} should
+     * return these bytes + all of the bytes provided by
+     * {@link #getVersionDataToWrite()}
+     */
+    byte[] getChronologyDataToWrite();
+
+    /**
+     * A method to support serialization of the data.
+     *
+     * An alternative to the {@link #getChronologyVersionDataToWrite} mechanism,
+     * where the store is allowed to get the chronology info separate from the
+     * version info. See {@link #getChronologyDataToWrite()}
+     *
+     * Backing stores should only store the underlying bytes, and not attempt to
+     * serialize the ByteArrayDataBuffer.
+     *
+     * @return The versions to be written. Backing stores may ignore any
+     * versions they already have stored. Implementations of
+     * {@link DataStore#getChronologyVersionData(int)} should return all of the
+     * bytes provided by {@link #getChronologyDataToWrite()} + all of the bytes
+     * from each item in the list (with no additional list / item marker bytes).
+     */
+    List<byte[]> getVersionDataToWrite();
+
+
 }
+

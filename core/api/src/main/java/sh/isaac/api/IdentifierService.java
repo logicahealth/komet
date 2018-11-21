@@ -120,6 +120,11 @@ public interface IdentifierService
     */
    IntStream getNidsForAssemblage(int assemblageNid);
    
+   /**
+    * TODO: add a method that gets all nids, not just nids for assemblage. 
+    * @param assemblageSpecification
+    * @return 
+    */
    default IntStream getNidsForAssemblage(ConceptSpecification assemblageSpecification) {
        return getNidsForAssemblage(assemblageSpecification.getNid());
    }

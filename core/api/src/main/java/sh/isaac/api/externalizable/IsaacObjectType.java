@@ -163,9 +163,7 @@ public enum IsaacObjectType {
          throw new UnsupportedOperationException("Logical Expression deprecated: " + token);
 
       default:
-         UnsupportedOperationException ex = new UnsupportedOperationException("i Can't handle: " + token);
-         ex.printStackTrace();
-         throw ex;
+         return UNKNOWN;
       }
    }
 
