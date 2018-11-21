@@ -131,7 +131,7 @@ public class LetPropertySheet {
         }
     }
     
-    private void addLanguageCoordinate(ActionEvent action) {
+    public void addLanguageCoordinate(ActionEvent action) {
         int sequence = 1;
         String keyName = null;
         boolean unique = false;
@@ -153,7 +153,7 @@ public class LetPropertySheet {
         addLanguageCoordinate(newLetItem, this.manifoldForDisplay.getLanguageCoordinate().deepClone());
     }
 
-    private void addStampCoordinate(ActionEvent action) {
+    public void addStampCoordinate(ActionEvent action) {
         int sequence = 1;
         String keyName = "STAMP " + sequence;
         boolean unique = false;

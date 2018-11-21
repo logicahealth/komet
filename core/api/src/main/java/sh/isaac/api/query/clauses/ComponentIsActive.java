@@ -18,8 +18,10 @@ package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -76,11 +78,10 @@ public class ComponentIsActive extends LeafClause {
         
         getResultsCache().and(incomingComponents.get(this.getAssemblageForIteration()));
                 
-        getResultsCache().stream().forEach((nid) -> {
+        NidSet.of(getResultsCache()).stream().forEach((nid) -> {
             final Optional<? extends Chronology> chronology
                     = Get.identifiedObjectService()
                             .getChronology(nid);
-
             if (chronology.isPresent()) {
                 if (!chronology.get()
                         .isLatestVersionActive(stampCoordinate)) {
@@ -115,7 +116,7 @@ public class ComponentIsActive extends LeafClause {
     //~--- get methods ---------------------------------------------------------
     @Override
     public void resetResults() {
-        // no cached data in task. 
+        this.getResultsCache().clear();
     }
     /**
      * Gets the compute phases.

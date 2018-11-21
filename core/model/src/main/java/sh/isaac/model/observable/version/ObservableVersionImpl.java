@@ -184,7 +184,11 @@ public abstract class ObservableVersionImpl
      * @param chronology the chronology
      */
     public ObservableVersionImpl(Version stampedVersion, ObservableChronology chronology) {
-        this.stampedVersionProperty = new SimpleObjectProperty<>((VersionImpl) stampedVersion);
+        if (stampedVersion instanceof VersionImpl) {
+            this.stampedVersionProperty = new SimpleObjectProperty<>((VersionImpl) stampedVersion);
+        } else {
+            this.stampedVersionProperty = null;
+        }
         this.chronology = chronology;
         this.versionType = stampedVersion.getSemanticType();
     }
@@ -490,7 +494,10 @@ public abstract class ObservableVersionImpl
 
     @Override
     public String toString() {
-        return "ObservableVersionImpl{" + stampedVersionProperty.get() + '}';
+        if (stampedVersionProperty != null) {
+            return "ObservableVersionImpl{" + stampedVersionProperty.get() + '}';
+        }
+        return "ObservableVersionImpl{ no wrapped version }";
     }
 
     /**

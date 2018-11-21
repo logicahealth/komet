@@ -82,7 +82,7 @@ public class AddAttachmentMenuItems {
     }
 
     public PropertySheetMenuItem makePropertySheetMenuItem(String menuText, ConceptSpecification assemblageSpecification) {
-        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion, false);
+        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion);
         MenuItem menuItem = new MenuItem(menuText);
         menuItem.setOnAction((event) -> {
             try {
