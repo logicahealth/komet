@@ -168,6 +168,7 @@ public class PostgresIdentifierProvider
                     logSqlString(sqlCreate);
                     boolean result = stmt.execute(sqlCreate);
                     if (result) {
+                        // is_called false: nextval will return -2147483647 before advancing
                         String sqlSetVal = "SELECT setval('nid_sequence', -2147483647, false); ";
                         logSqlString(sqlSetVal);
                         stmt.execute(sqlSetVal);
