@@ -18,6 +18,7 @@ package sh.isaac.model.observable;
 
 import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 /**
@@ -30,7 +31,12 @@ public class CommitAwareConceptSpecificationProperty extends SimpleObjectPropert
     public CommitAwareConceptSpecificationProperty(CommitAwareIntegerProperty commitAwareIntegerProperty) {
         super(commitAwareIntegerProperty.getBean(), commitAwareIntegerProperty.getName());
         this.commitAwareIntegerProperty = commitAwareIntegerProperty;
-        this.setValue(Get.conceptSpecification(commitAwareIntegerProperty.intValue()));
+        if (commitAwareIntegerProperty.intValue() == 0) {
+            commitAwareIntegerProperty.setValue(TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
+            this.setValue(TermAux.UNINITIALIZED_COMPONENT_ID);
+        } else {
+            this.setValue(Get.conceptSpecification(commitAwareIntegerProperty.intValue()));
+        }
         
         this.commitAwareIntegerProperty.addListener((observable, oldValue, newValue) -> {
             this.set(Get.conceptSpecification(newValue.intValue()));
