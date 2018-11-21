@@ -26,7 +26,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 public class ArrayUtil {
     public static ConceptSpecification[] toSpecificationArray(int[] nidArray) {
         if (nidArray == null) {
-            return new ConceptSpecification[] {};
+            return null;
         }
         ConceptSpecification[] specArray = new ConceptSpecification[nidArray.length];
         for (int i = 0; i < specArray.length; i++) {
@@ -36,7 +36,7 @@ public class ArrayUtil {
     }
     public static int[] toNidArray(ConceptSpecification[] specArray) {
         if (specArray == null) {
-            return new int[] {};
+           return null;
         }
         int[] nidArray = new int[specArray.length];
         for (int i = 0; i < specArray.length; i++) {
@@ -44,6 +44,4 @@ public class ArrayUtil {
         }
         return nidArray;
     }
-    
-    
 }

@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javax.xml.bind.JAXBException;
 import org.apache.commons.lang3.StringUtils;
@@ -123,11 +124,11 @@ public class MVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer))
-	 * @see DirectConverter#convertContent(Consumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates) throws IOException 
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
 	{
 
 		// There is no global release date for mvx - but each item has its own date. This date will only be used for metadata.

@@ -56,8 +56,9 @@ import java.util.zip.ZipFile;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.io.input.BOMInputStream;
-
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -180,7 +181,8 @@ public class LoincExpressionReader {
     */
    private void init(InputStream is)
             throws IOException {
-      this.reader = new CSVReader(new BufferedReader(new InputStreamReader(new BOMInputStream(is))), '\t');
+      this.reader = new CSVReaderBuilder(new BufferedReader(new InputStreamReader(new BOMInputStream(is)))).withCSVParser(
+            new CSVParserBuilder().withSeparator('\t').build()).build();
       this.header = readLine();
    }
 

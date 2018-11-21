@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -67,10 +68,12 @@ public interface DirectConverter
 
 	/**
 	 * Run the actual conversion
-	 * @param statusUpdates - optional - if provided, the the converter should post status updates here.
+	 * @param statusUpdates - optional - if provided, the converter should post status updates here.
+	 * @param progresUpdates - optional - if provided, the converter should post progress on workDone here, the first argument
+	 * is work done, the second argument is work total.
 	 * @throws IOException
 	 */
-	public void convertContent(Consumer<String> statusUpdates) throws IOException;
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
 	
 	/**
 	 * @return the type of content this converter can handle

@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
@@ -133,11 +134,11 @@ public class SOPTImportMojoDirect extends DirectConverterBaseMojo implements Dir
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer))
-	 * @see DirectConverter#convertContent(Consumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates) throws IOException 
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
 	{
 		statusUpdates.accept("Reading content");
 

@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -130,11 +131,11 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer))
-	 * @see DirectConverter#convertContent(Consumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates) throws IOException 
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdates) throws IOException 
 	{
 		long contentTime;
 		try

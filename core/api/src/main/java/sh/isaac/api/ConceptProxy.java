@@ -53,6 +53,8 @@ import javax.xml.bind.annotation.XmlType;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UUIDUtil;
@@ -231,6 +233,9 @@ public class ConceptProxy
     */
    @Override
    public String toString() {
+      if (this.cachedNid != 0 && LookupService.isIsaacStarted()) {
+         return getFullyQualifiedName() + Arrays.toString(getUuids());
+      }
       if (this.getUuids() != null) {
           StringBuilder builder = new StringBuilder();
           builder.append("ConceptProxy(\"");
@@ -262,7 +267,7 @@ public class ConceptProxy
    @Override
    public String getFullyQualifiedName() {
       if (this.fullyQualfiedName == null) {
-         this.fullyQualfiedName = Get.defaultCoordinate().getFullySpecifiedDescriptionText(this);
+         this.fullyQualfiedName = Get.defaultCoordinate().getFullyQualifiedName(this.getNid(), Get.defaultCoordinate()).orElse(null);
       }
       return this.fullyQualfiedName;
    }
