@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane fx:id="topBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="875.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/8.0.152" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.fx.stage.KometStageController">
+<BorderPane fx:id="topBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="600" prefHeight="875.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/8.0.152" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.fx.stage.KometStageController">
    <bottom>
       <HBox fx:id="bottomBorderBox" prefHeight="0.0" prefWidth="866.0" BorderPane.alignment="CENTER">
          <children>
