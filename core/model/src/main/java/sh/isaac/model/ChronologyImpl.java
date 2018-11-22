@@ -1169,4 +1169,64 @@ public abstract class ChronologyImpl
         });
 
     }
+    
+
+    /**
+     * Get the data as a list of immutable byte arrays. With an append only data
+     * model, these records are safe for concurrent writes without destroying
+     * data per the duplicate data model in Berkley DB and Xodus.
+     *
+     * The chronology record starts with an integer of 0 to differentiate from
+     * version records, and then is followed by a byte for the object type, and
+     * a byte for the data format version... The object type byte is always > 0,
+     * and the version byte is always > 0...
+     *
+     * Each byte[] for a version starts with an integer length of the version
+     * data. The minimum size of a version is 4 bytes (an integer stamp
+     * sequence).
+     *
+     * @param chronology the chronology to turn into a byte[] list...
+     * @return a byte[] list
+     */
+    public static List<byte[]> getDataList(ChronologySerializeable chronology) {
+
+        List<byte[]> dataArray = new ArrayList<>();
+
+        byte[] dataToSplit = chronology.getChronologyVersionDataToWrite();
+        int versionStartPosition = ((ChronologyImpl)chronology).getVersionStartPosition();
+        if (versionStartPosition < 0) {
+            throw new IllegalStateException("versionStartPosition is not set");
+        }
+        byte[] chronicleBytes = new byte[versionStartPosition + 4]; // +4 for the zero integer to start.
+        for (int i = 0; i < chronicleBytes.length; i++) {
+            if (i < 4) {
+                chronicleBytes[i] = 0;
+            } else {
+                chronicleBytes[i] = dataToSplit[i - 4];
+            }
+        }
+        dataArray.add(chronicleBytes);
+
+        int versionStart = versionStartPosition;
+        int versionSize = (((dataToSplit[versionStart]) << 24) | ((dataToSplit[versionStart + 1] & 0xff) << 16)
+                | ((dataToSplit[versionStart + 2] & 0xff) << 8) | ((dataToSplit[versionStart + 3] & 0xff)));
+
+        while (versionSize != 0) {
+            int versionTo = versionStart + versionSize;
+            int newLength = versionTo - versionStart;
+            if (versionTo < 0) {
+                LOG.error("Error versionTo: " + versionTo);
+            }
+            if (newLength < 0) {
+                LOG.error("Error newLength: " + newLength);
+            }
+            dataArray.add(Arrays.copyOfRange(dataToSplit, versionStart, versionTo));
+            versionStart = versionStart + versionSize;
+            versionSize = (((dataToSplit[versionStart]) << 24) | ((dataToSplit[versionStart + 1] & 0xff) << 16)
+                    | ((dataToSplit[versionStart + 2] & 0xff) << 8) | ((dataToSplit[versionStart + 3] & 0xff)));
+        }
+
+        return dataArray;
+    }
+    
 }

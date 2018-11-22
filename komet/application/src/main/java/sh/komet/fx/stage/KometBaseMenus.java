@@ -24,6 +24,7 @@ import java.util.Optional;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javax.inject.Singleton;
 import javax.naming.AuthenticationException;
@@ -186,9 +187,15 @@ public class KometBaseMenus implements MenuProvider {
                     });
                 });
                 
+                MenuItem exportNative = new MenuItem("Export in native format to file...");
+                exportNative.setOnAction(this::exportNative);
+
+                MenuItem importNative = new MenuItem("Import from native format file...");
+                importNative.setOnAction(this::importNative);
+
                 
                 return new MenuItem[]{selectiveImport, selectiveExport, importTransformFull,
-                    importSourcesFull, synchronize};
+                    importSourcesFull, synchronize, exportNative, importNative};
             }
 
             case TOOLS: {
@@ -249,6 +256,31 @@ public class KometBaseMenus implements MenuProvider {
         }
 
         return new MenuItem[]{};
+    }
+    private void exportNative(ActionEvent event) {
+        
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Specify zip file to export into");
+        fileChooser.setInitialFileName("native-export.zip");
+        File zipFile = fileChooser.showSaveDialog(null);
+        if (zipFile != null) {
+            NativeExport export = new NativeExport(zipFile);
+            Get.executor().submit(export);
+        }
+         
+    }
+    
+    private void importNative(ActionEvent event) {
+        
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Specify zip file to import from");
+        fileChooser.setInitialFileName("native-export.zip");
+        File zipFile = fileChooser.showOpenDialog(null);
+        if (zipFile != null) {
+            NativeImport importFile = new NativeImport(zipFile);
+            Get.executor().submit(importFile);
+        }
+         
     }
 
 }
