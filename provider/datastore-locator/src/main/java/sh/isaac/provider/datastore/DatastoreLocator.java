@@ -101,12 +101,13 @@ public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
 				case BDB:
 				case XODUS:
 				case MV:
+				case EXTERNAL:
 				case FILESYSTEM:
-					dataStore = LookupService.get().getService(DataStoreSubService.class, di.name());
+					dataStore = LookupService.get().getService(DataStoreSubService.class, di.getServiceName());
 					break;
 				case DEFAULT:
 					di = DatabaseImplementation.FILESYSTEM;
-					dataStore = LookupService.get().getService(DataStoreSubService.class, di.name());
+					dataStore = LookupService.get().getService(DataStoreSubService.class, di.getServiceName());
 					break;
 				default :
 					throw new RuntimeException("Oops");
