@@ -37,6 +37,7 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -44,7 +45,11 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.UUID;
+import javafx.beans.property.ReadOnlyProperty;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -52,10 +57,16 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
+import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.observable.ObservableSnapshotService;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.query.clauses.ChangedBetweenVersions;
 import sh.isaac.api.query.clauses.ConceptForComponent;
 import sh.isaac.api.query.clauses.ConceptIs;
@@ -264,7 +275,9 @@ public class Query {
     }
     
     
-    
+    public static Query fromXml(Reader reader) throws Exception {
+        return Get.service(QueryFromXml.class).fromXml(reader);
+    }
     
     /**
      *
@@ -817,5 +830,54 @@ public class Query {
         this.resultSetLimit = limit;
     }
 
-    //~--- get methods ---------------------------------------------------------
+    public List<List<String>> executeQuery() throws NoSuchElementException {
+        int[][] resultArray = reify();
+
+        List<List<String>> results = new ArrayList<>();
+        List<AttributeSpecification> resultColumns = getReturnAttributeList();
+        int columnCount = resultColumns.size();
+        
+        OpenIntIntHashMap fastAssemblageNidToIndexMap = new OpenIntIntHashMap();
+        for (Map.Entry<ConceptSpecification, Integer> entry : getForSetSpecification().getAssembalgeToIndexMap().entrySet()) {
+            fastAssemblageNidToIndexMap.put(entry.getKey().getNid(), entry.getValue());
+        }
+        ObservableSnapshotService[] snapshotArray = new ObservableSnapshotService[columnCount];
+        for (int column = 0; column < resultColumns.size(); column++) {
+            AttributeSpecification columnSpecification = resultColumns.get(column);
+            if (columnSpecification.getStampCoordinateKey() != null) {
+                StampCoordinate stamp = (StampCoordinate) getLetDeclarations().get(columnSpecification.getStampCoordinateKey());
+                snapshotArray[column] = Get.observableSnapshotService(stamp);
+            }
+        }
+        
+        for (int row = 0; row < resultArray.length; row++) {
+            String[] resultRow = new String[columnCount];
+            LatestVersion[] latestVersionArray = new LatestVersion[resultArray[row].length];
+            List[] propertyListArray = new List[resultArray[row].length];
+            for (int column = 0; column < latestVersionArray.length; column++) {
+                latestVersionArray[column] = snapshotArray[column].getObservableVersion(resultArray[row][column]);
+                if (latestVersionArray[column].isPresent()) {
+                    propertyListArray[column] = ((ObservableVersion) latestVersionArray[column].get()).getProperties();
+                } else {
+                    propertyListArray[column] = null;
+                }
+            }
+            for (int column = 0; column < columnCount; column++) {
+                AttributeSpecification columnSpecification = resultColumns.get(column);
+                int resultArrayNidIndex = fastAssemblageNidToIndexMap.get(columnSpecification.getAssemblageNid());
+                if (latestVersionArray[resultArrayNidIndex].isPresent()) {
+                    List<ReadOnlyProperty<?>> propertyList = propertyListArray[resultArrayNidIndex];
+                    ReadOnlyProperty<?> property = propertyList.get(columnSpecification.getPropertyIndex());
+                    if (columnSpecification.getAttributeFunction() != null) {
+                        StampCoordinate sc = (StampCoordinate) getLetDeclarations().get(columnSpecification.getStampCoordinateKey());
+                        resultRow[column] = columnSpecification.getAttributeFunction().apply(property.getValue().toString(), sc, this);
+                    } else {
+                        resultRow[column] = property.getValue().toString();
+                    }
+                }
+            }
+            results.add(Arrays.asList(resultRow));
+        }
+        return results;
+    }
 }

@@ -16,10 +16,13 @@
 package sh.komet.fx.stage;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Menu;
@@ -28,6 +31,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javax.inject.Singleton;
 import javax.naming.AuthenticationException;
+import javax.xml.bind.Unmarshaller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -37,6 +41,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.RemoteServiceInfo;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.query.Query;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
@@ -49,8 +54,10 @@ import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.isaac.komet.gui.exporter.ExportView;
+import sh.isaac.model.xml.Jaxb;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -59,12 +66,13 @@ import sh.komet.gui.manifold.Manifold;
 @Service
 @Singleton
 public class KometBaseMenus implements MenuProvider {
-   private static final Logger LOG = LogManager.getLogger();
+
+    private static final Logger LOG = LogManager.getLogger();
 
     private final HashMap<Manifold.ManifoldGroup, Manifold> manifolds = new HashMap<>();
 
     public KometBaseMenus() {
-       for (Manifold.ManifoldGroup mg : Manifold.ManifoldGroup.values()) {
+        for (Manifold.ManifoldGroup mg : Manifold.ManifoldGroup.values()) {
             manifolds.put(mg, Manifold.make(mg));
         }
     }
@@ -100,9 +108,9 @@ public class KometBaseMenus implements MenuProvider {
                     DirectImporter importerFull = new DirectImporter(ImportType.FULL);
                     Get.executor().submit(importerFull);
                 });
-                
+
                 Menu synchronize = new Menu("Synchronize");
-                
+
                 MenuItem initializeLocal = new MenuItem("Initialize local");
                 synchronize.getItems().add(initializeLocal);
                 initializeLocal.setOnAction((ActionEvent event) -> {
@@ -124,12 +132,11 @@ public class KometBaseMenus implements MenuProvider {
                             LOG.error(ex.getLocalizedMessage(), ex);
                         }
                     }
-                    
-                    
+
                     LOG.info("Sync folder: " + changeSetFolder + " configured: " + syncService.isRootLocationConfiguredForSCM());
-                    
+
                 });
-                
+
                 MenuItem initializeFromRemote = new MenuItem("Initialize from remote...");
                 synchronize.getItems().add(initializeFromRemote);
                 initializeFromRemote.setOnAction((event) -> {
@@ -143,13 +150,12 @@ public class KometBaseMenus implements MenuProvider {
                         try {
                             syncService.linkAndFetchFromRemote(t.getURL(), t.getUsername(), t.getPassword());
                         } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
-                           LOG.error(ex.getLocalizedMessage(), ex);
-                         }
+                            LOG.error(ex.getLocalizedMessage(), ex);
+                        }
                     });
-                    
-                    
+
                 });
-                
+
                 MenuItem pullFromRemote = new MenuItem("Pull...");
                 synchronize.getItems().add(pullFromRemote);
                 pullFromRemote.setOnAction((event) -> {
@@ -158,16 +164,16 @@ public class KometBaseMenus implements MenuProvider {
                     Path dataPath = configurationService.getDataStoreFolderPath();
                     File changeSetFolder = new File(dataPath.toFile(), "changesets");
                     syncService.setRootLocation(changeSetFolder);
-                     Optional<RemoteServiceInfo> gitConfigOptional = Get.configurationService().getGlobalDatastoreConfiguration().getGitConfiguration();
+                    Optional<RemoteServiceInfo> gitConfigOptional = Get.configurationService().getGlobalDatastoreConfiguration().getGitConfiguration();
                     gitConfigOptional.ifPresent((t) -> {
                         try {
                             syncService.updateFromRemote(t.getUsername(), t.getPassword(), MergeFailOption.KEEP_LOCAL);
                         } catch (IllegalArgumentException | IOException | MergeFailure | AuthenticationException ex) {
-                           LOG.error(ex.getLocalizedMessage(), ex);
-                         }
+                            LOG.error(ex.getLocalizedMessage(), ex);
+                        }
                     });
                 });
-                
+
                 MenuItem pushToRemote = new MenuItem("Push...");
                 synchronize.getItems().add(pushToRemote);
                 pushToRemote.setOnAction((event) -> {
@@ -178,24 +184,26 @@ public class KometBaseMenus implements MenuProvider {
                     syncService.setRootLocation(changeSetFolder);
                     Optional<RemoteServiceInfo> gitConfigOptional = Get.configurationService().getGlobalDatastoreConfiguration().getGitConfiguration();
                     gitConfigOptional.ifPresent((t) -> {
-                        
+
                         try {
                             syncService.updateCommitAndPush("User push", t.getUsername(), t.getPassword(), MergeFailOption.KEEP_LOCAL, (String[]) null);
                         } catch (IllegalArgumentException | IOException | MergeFailure | AuthenticationException ex) {
-                           LOG.error(ex.getLocalizedMessage(), ex);
-                         }
+                            LOG.error(ex.getLocalizedMessage(), ex);
+                        }
                     });
                 });
-                
+
                 MenuItem exportNative = new MenuItem("Export in native format to file...");
                 exportNative.setOnAction(this::exportNative);
 
                 MenuItem importNative = new MenuItem("Import from native format file...");
                 importNative.setOnAction(this::importNative);
 
-                
+                MenuItem executeFlwor = new MenuItem("Execute FLWOR...");
+                executeFlwor.setOnAction(this::executeFlwor);
+
                 return new MenuItem[]{selectiveImport, selectiveExport, importTransformFull,
-                    importSourcesFull, synchronize, exportNative, importNative};
+                    importSourcesFull, synchronize, exportNative, importNative, executeFlwor};
             }
 
             case TOOLS: {
@@ -257,8 +265,9 @@ public class KometBaseMenus implements MenuProvider {
 
         return new MenuItem[]{};
     }
+
     private void exportNative(ActionEvent event) {
-        
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Specify zip file to export into");
         fileChooser.setInitialFileName("native-export.zip");
@@ -267,11 +276,11 @@ public class KometBaseMenus implements MenuProvider {
             NativeExport export = new NativeExport(zipFile);
             Get.executor().submit(export);
         }
-         
+
     }
-    
+
     private void importNative(ActionEvent event) {
-        
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Specify zip file to import from");
         fileChooser.setInitialFileName("native-export.zip");
@@ -280,7 +289,44 @@ public class KometBaseMenus implements MenuProvider {
             NativeImport importFile = new NativeImport(zipFile);
             Get.executor().submit(importFile);
         }
-         
+
     }
 
+    private void executeFlwor(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open FLWOR query...");
+        fileChooser.setInitialFileName("query.flwor");
+        File flworFile = fileChooser.showOpenDialog(null);
+        if (flworFile != null) {
+            try (FileReader reader = new FileReader(flworFile)) {
+                Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
+                Query queryFromDisk = (Query) unmarshaller.unmarshal(reader);
+                queryFromDisk.getRoot().setEnclosingQuery(queryFromDisk);
+
+                fileChooser.setTitle("Specify query result file");
+                fileChooser.setInitialFileName("results.txt");
+                File resultsFile = fileChooser.showSaveDialog(null);
+                
+                List<List<String>> results = queryFromDisk.executeQuery();
+                
+                try (FileWriter writer = new FileWriter(resultsFile)) {
+                    for (List<String> row: results) {
+                        for (int i = 0; i < row.size(); i++) {
+                            writer.append(row.get(i));
+                            if (i < row.size() -1) {
+                                writer.append("\t");
+                            } else {
+                                writer.append("\n");
+                            }
+                        }
+                    }
+                }
+
+            } catch (Throwable ex) {
+                FxGet.dialogs().showErrorDialog("Error importing " + flworFile.getName(), ex);
+            }
+
+        }
+
+    }
 }
