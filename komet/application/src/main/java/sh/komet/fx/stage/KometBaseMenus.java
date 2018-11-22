@@ -299,9 +299,7 @@ public class KometBaseMenus implements MenuProvider {
         File flworFile = fileChooser.showOpenDialog(null);
         if (flworFile != null) {
             try (FileReader reader = new FileReader(flworFile)) {
-                Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
-                Query queryFromDisk = (Query) unmarshaller.unmarshal(reader);
-                queryFromDisk.getRoot().setEnclosingQuery(queryFromDisk);
+                Query queryFromDisk = Query.fromXml(reader);
 
                 fileChooser.setTitle("Specify query result file");
                 fileChooser.setInitialFileName("results.txt");
