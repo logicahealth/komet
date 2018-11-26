@@ -171,8 +171,6 @@ public class PostgresStampProvider
 
     public HikariDataSource ds;
     private DataStore dataStore = null;
-    //private ExtendedStoreData<Integer, Stamp> sequenceToStamp;
-    //private ExtendedStoreData<Integer, UncommittedStamp> sequenceToUncommittedStamp;
 
     //~--- constructors --------------------------------------------------------
 
@@ -184,32 +182,9 @@ public class PostgresStampProvider
     private PostgresStampProvider()
         throws IOException {
         ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
-        Path dataStorePath = configurationService.getDataStoreFolderPath();
 
-        // :!!!: setup sequenceToStamp
-        // :!!!: setup sequenceToUncommittedStamp
-        // :!!!: initialize `ds`
         this.cacheStampSequenceToStampObjectMap = new ConcurrentHashMap<>();
-
-        // // -- if (Get.dataStore().implementsExtendedStoreAPI()) --
         dataStore = Get.dataStore();
-        //sequenceToStamp = dataStore.<Integer, byte[], Stamp>getStore(
-        //    "stampProviderSequenceToStamp",
-        //    (toSerialize) -> toSerialize == null ? null : DataToBytesUtils.getBytes(toSerialize::write),
-        //    (toDeserialize) -> {
-        //        try {
-        //            return toDeserialize == null ? null : new Stamp(DataToBytesUtils.getDataInput(toDeserialize));
-        //        }
-        //    });
-
-        //sequenceToUncommittedStamp = dataStore.<Integer, byte[], UncommittedStamp>getStore(
-        //    "stampProviderSequenceToUncommittedStamp",
-        //    (toSerialize) -> toSerialize == null ? null : DataToBytesUtils.getBytes(toSerialize::write),
-        //    (toDeserialize) -> {
-        //        try {
-        //            return toDeserialize == null ? null : new UncommittedStamp(DataToBytesUtils.getDataInput(toDeserialize));
-        //        }
-        //    });
     }
 
     protected byte[] convertStampToBytes(Stamp stamp) {
@@ -272,7 +247,7 @@ public class PostgresStampProvider
      *
      * @param pendingStamps the pending stamps
      */
-    @Override // :TODO:
+    @Override
     synchronized public void addPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps) {
         for (Map.Entry<UncommittedStamp, Integer> entry : pendingStamps.entrySet()) {
             cacheUncommittedStampToStampSequenceMap.get().remove(entry.getKey());
@@ -285,7 +260,7 @@ public class PostgresStampProvider
      * @param stamp the stamp
      * @param stampSequence the stamp sequence
      */
-    @Override // :TODO:
+    @Override
     public void addStamp(Stamp stamp, int stampSequence) {
         this.cacheStampObjectToStampSequenceMap.put(stamp, stampSequence);
         this.cacheStampSequenceToStampObjectMap.put(stampSequence, stamp);
@@ -299,7 +274,7 @@ public class PostgresStampProvider
      * @param authorNid the author nid
      * @return the task
      */
-    @Override // :TODO:
+    @Override
     public synchronized Task<Void> cancel(int authorNid) {
         Map<UncommittedStamp, Integer> map = cacheUncommittedStampToStampSequenceMap.get();
 
@@ -322,7 +297,7 @@ public class PostgresStampProvider
 
         // TODO make asynchronous with a actual task.
         final Task<Void> task = new TimedTask<Void>() {
-            @Override // :TODO:
+            @Override
             protected Void call()
                 throws Exception {
                 Get.activeTasks()
@@ -345,7 +320,7 @@ public class PostgresStampProvider
      * @param stampSequence the stamp sequence
      * @return the string
      */
-    @Override // :TODO:
+    @Override
     public String describeStampSequence(int stampSequence) {
         if (stampSequence == -1) {
             return "{Stamp≤CANCELED≥}";
@@ -387,7 +362,7 @@ public class PostgresStampProvider
         return sb.toString();
     }
 
-    @Override // :TODO:
+    @Override
     public String describeStampSequenceForTooltip(int stampSequence, ManifoldCoordinate manifoldCoordinate) {
         if (stampSequence == -1) {
             return "CANCELED";
@@ -467,7 +442,7 @@ public class PostgresStampProvider
      * @param stampSequence2 the stamp sequence 2
      * @return true, if successful
      */
-    @Override // :TODO:
+    @Override
     public boolean stampSequencesEqualExceptAuthorAndTime(int stampSequence1, int stampSequence2) {
         if (getModuleNidForStamp(stampSequence1) != getModuleNidForStamp(stampSequence2)) {
             return false;
@@ -480,7 +455,7 @@ public class PostgresStampProvider
         return getStatusForStamp(stampSequence1) == getStatusForStamp(stampSequence2);
     }
 
-    @Override // :TODO:
+    @Override
     public Future<?> sync() {
         return Get.executor().submit(() -> {
             writeData();
@@ -500,7 +475,7 @@ public class PostgresStampProvider
         String isaacUserpwd = System.getProperty("ISAAC_PSQL_UPWD", "isaac_pwd");
 
         HikariConfig config = new HikariConfig();
-        // ::NYI: pass in setJdbcUrl as parameter instead of being hardcoded.
+
         config.setJdbcUrl(isaacDbUrl);
         config.setUsername(isaacUsername);
         config.setPassword(isaacUserpwd);
@@ -552,7 +527,6 @@ public class PostgresStampProvider
             LOG.info("Connection closed.");
         }
 
-        // :REVIEWED_TO_HERE:
         LOG.debug("Looking for data store based stamp data");
         // :CACHE:
         this.nextStampSequence.set(FIRST_STAMP_SEQUENCE);
@@ -585,7 +559,6 @@ public class PostgresStampProvider
             this.ds.close();
         }
 
-        // :REVIEWED_TO_HERE:
         writeData();
 
         this.nextStampSequence.set(FIRST_STAMP_SEQUENCE);
@@ -596,7 +569,6 @@ public class PostgresStampProvider
         this.cacheStampSequenceToPathNidMap.clear();
         this.cacheStampSequenceToStampObjectMap.clear();
 
-        // :NYI: close management of not-yet 
     }
 
     private void writeData() throws RuntimeException {
@@ -619,7 +591,7 @@ public class PostgresStampProvider
      * @param stampSequence the stamp sequence
      * @return the activated stamp sequence
      */
-    @Override // :TODO:
+    @Override
     public int getActivatedStampSequence(int stampSequence) {
         return getStampSequence(
             Status.ACTIVE,
@@ -635,7 +607,7 @@ public class PostgresStampProvider
      * @param stampSequence the stamp sequence
      * @return the author nid for stamp
      */
-    @Override // :TODO:
+    @Override
     public int getAuthorNidForStamp(int stampSequence) {
         if (stampSequence < 0) {
             return TermAux.USER.getNid();
@@ -656,7 +628,7 @@ public class PostgresStampProvider
         throw new NoSuchElementException("No stampSequence found: " + stampSequence);
     }
 
-    @Override // :TODO:
+    @Override
     public Optional<UUID> getDataStoreId() {
         return dataStore.getDataStoreId();
     }
@@ -666,7 +638,7 @@ public class PostgresStampProvider
      *
      * @return the database folder
      */
-    @Override // :TODO:
+    @Override
     public Path getDataStorePath() {
         return dataStore.getDataStorePath();
     }
@@ -676,7 +648,7 @@ public class PostgresStampProvider
      *
      * @return the database validity status
      */
-    @Override // :TODO:
+    @Override
     public DataStoreStartState getDataStoreStartState() {
         return dataStore.getDataStoreStartState();
     }
@@ -687,7 +659,7 @@ public class PostgresStampProvider
      * @param stampSequence the stamp sequence
      * @return the module nid for stamp
      */
-    @Override // :TODO:
+    @Override
     public int getModuleNidForStamp(int stampSequence) {
         if (stampSequence < 0) {
             return TermAux.UNSPECIFIED_MODULE.getNid();
@@ -714,7 +686,7 @@ public class PostgresStampProvider
      * @param stamp the stamp
      * @return true, if not canceled
      */
-    @Override // :TODO:
+    @Override
     public boolean isNotCanceled(int stamp) {
         if (stamp < 0) {
             return false;
@@ -729,7 +701,7 @@ public class PostgresStampProvider
      * @param stampSequence the stamp sequence
      * @return the path nid for stamp
      */
-    @Override // :TODO:
+    @Override
     public int getPathNidForStamp(int stampSequence) {
         if (stampSequence < 0) {
             return TermAux.DEVELOPMENT_PATH.getNid();
@@ -760,7 +732,7 @@ public class PostgresStampProvider
      *
      * @return the pending stamps for commit
      */
-    @Override // :TODO:
+    @Override
     public ConcurrentHashMap<UncommittedStamp, Integer> getPendingStampsForCommit() {
         ConcurrentHashMap<UncommittedStamp, Integer> pendingStampsForCommit
             = cacheUncommittedStampToStampSequenceMap.get();
@@ -780,7 +752,7 @@ public class PostgresStampProvider
      * @param stampSequence the stamp sequence
      * @return the retired stamp sequence
      */
-    @Override // :TODO:
+    @Override
     public int getRetiredStampSequence(int stampSequence) {
         return getStampSequence(
             Status.INACTIVE,
@@ -800,7 +772,7 @@ public class PostgresStampProvider
      * @param pathSequence the path nid
      * @return the stamp sequence
      */
-    @Override // :TODO:
+    @Override
     public int getStampSequence(Status status, long time, int authorSequence, int moduleSequence, int pathSequence) {
         if (status == Status.PRIMORDIAL) {
             throw new UnsupportedOperationException(status + " is not an assignable value.");
@@ -867,7 +839,7 @@ public class PostgresStampProvider
      *
      * @return the stamp sequences
      */
-    @Override // :TODO:
+    @Override
     public IntStream getStampSequences() {
         return IntStream.rangeClosed(FIRST_STAMP_SEQUENCE, this.nextStampSequence.get())
             .filter((stampSequence) -> this.cacheStampSequenceToStampObjectMap.containsKey(stampSequence));
@@ -879,7 +851,7 @@ public class PostgresStampProvider
      * @param stampSequence the stamp sequence
      * @return the status for stamp
      */
-    @Override // :TODO:
+    @Override
     public Status getStatusForStamp(int stampSequence) {
         if (stampSequence < 0) {
             return Status.CANCELED;
@@ -916,12 +888,11 @@ public class PostgresStampProvider
      * @param stampSequence the stamp sequence
      * @return the time for stamp
      */
-    @Override // :TODO:!!!:
+    @Override
     public long getTimeForStamp(int stampSequence) {
         if (stampSequence < 0) {
             return Long.MIN_VALUE;
         }
-        // :REVIEWED_TO_HERE:
 
         if (this.cacheStampSequenceToStampObjectMap.containsKey(stampSequence)) {
             return this.cacheStampSequenceToStampObjectMap.get(stampSequence)
@@ -994,7 +965,7 @@ public class PostgresStampProvider
 
     }
 
-    @Override // :TODO::!!!:
+    @Override
     public Stamp getStamp(int stampSequence) {
         if (stampSequence < 0) {
             return new Stamp(
@@ -1005,7 +976,6 @@ public class PostgresStampProvider
                 TermAux.DEVELOPMENT_PATH.getNid());  // pathNid
         }
 
-        // :REVIEWED_TO_HERE:
         // stampSequence int --> Stamp
         if (this.cacheStampSequenceToStampObjectMap.containsKey(stampSequence)) {
             return this.cacheStampSequenceToStampObjectMap.get(stampSequence);
