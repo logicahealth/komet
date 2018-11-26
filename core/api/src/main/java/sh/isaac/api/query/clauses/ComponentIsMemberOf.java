@@ -17,19 +17,17 @@
 package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -44,56 +42,44 @@ import sh.isaac.api.query.WhereClause;
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class ComponentIsActive extends LeafClause {
+public class ComponentIsMemberOf
+        extends LeafClause {
 
     /**
-     * the manifold coordinate key.
+     * the stamp coordinate key.
      */
+    @XmlElement
     LetItemKey stampCoordinateKey;
+
+    /**
+     * The assemblage spec key.
+     */
+    //
+    @XmlElement
+    LetItemKey assemblageSpecKey;
 
     //~--- constructors --------------------------------------------------------
     /**
-     * Instantiates a new component is active clause.
      */
-    public ComponentIsActive() {
+    public ComponentIsMemberOf() {
     }
 
     /**
-     * Instantiates a new component is active clause.
+     * Instantiates a component is member of assemblage.
      *
      * @param enclosingQuery the enclosing query
+     * @param assemblageSpecKey the assemblage spec key
      * @param stampCoordinateKey the manifold coordinate key
      */
-    public ComponentIsActive(Query enclosingQuery, LetItemKey stampCoordinateKey) {
+    public ComponentIsMemberOf(Query enclosingQuery,
+            LetItemKey assemblageSpecKey,
+            LetItemKey stampCoordinateKey) {
         super(enclosingQuery);
+        this.assemblageSpecKey = assemblageSpecKey;
         this.stampCoordinateKey = stampCoordinateKey;
     }
 
     //~--- methods -------------------------------------------------------------
-    @Override
-    public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
-        
-        getResultsCache().and(incomingComponents.get(this.getAssemblageForIteration()));
-                
-        NidSet.of(getResultsCache()).stream().forEach((nid) -> {
-            final Optional<? extends Chronology> chronology
-                    = Get.identifiedObjectService()
-                            .getChronology(nid);
-            if (chronology.isPresent()) {
-                if (!chronology.get()
-                        .isLatestVersionActive(stampCoordinate)) {
-                    getResultsCache().remove(nid);
-                }
-            } else {
-                getResultsCache().remove(nid);
-            }
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
-        return resultsMap;
-    }
-
     /**
      * Compute possible components.
      *
@@ -101,13 +87,25 @@ public class ComponentIsActive extends LeafClause {
      * @return the nid set
      */
     @Override
-    public final Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        NidSet possibleComponents = NidSet.of(Get.identifierService().getNidsForAssemblage(this.getAssemblageForIteration()));
-            getResultsCache().or(possibleComponents);
-        if (incomingPossibleComponents.get(this.getAssemblageForIteration()) != null) {
-            getResultsCache().or(incomingPossibleComponents.get(this.getAssemblageForIteration()));
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+
+        StampCoordinate stampCoordinate = (StampCoordinate) this.enclosingQuery.getLetDeclarations().get(stampCoordinateKey);
+        ConceptSpecification assemblageSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(assemblageSpecKey);
+
+        int assemblageNid = assemblageSpec.getNid();
+        for (int nid : incomingPossibleComponents.get(getAssemblageForIteration()).asArray()) {
+            NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(nid, assemblageNid);
+            if (!semanticNids.isEmpty()) {
+                for (int semanticNid : semanticNids.asArray()) {
+                    SemanticChronology semantic = Get.assemblageService().getSemanticChronology(semanticNid);
+                    if (semantic.isLatestVersionActive(stampCoordinate)) {
+                        getResultsCache().add(nid);
+                    }
+                }
+            }
         }
-        incomingPossibleComponents.put(this.getAssemblageForIteration(), getResultsCache());
+
+        incomingPossibleComponents.put(getAssemblageForIteration(), getResultsCache());
         return incomingPossibleComponents;
     }
 
@@ -120,7 +118,23 @@ public class ComponentIsActive extends LeafClause {
      */
     @Override
     public EnumSet<ClauseComputeType> getComputePhases() {
-        return ITERATION;
+        return PRE_ITERATION;
+    }
+
+    public LetItemKey getStampCoordinateKey() {
+        return stampCoordinateKey;
+    }
+
+    public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
+        this.stampCoordinateKey = stampCoordinateKey;
+    }
+
+    public LetItemKey getAssemblageSpecKey() {
+        return assemblageSpecKey;
+    }
+
+    public void setAssemblageSpecKey(LetItemKey assemblageSpecKey) {
+        this.assemblageSpecKey = assemblageSpecKey;
     }
 
     /**
@@ -130,12 +144,12 @@ public class ComponentIsActive extends LeafClause {
      */
     @Override
     public void getQueryMatches(ConceptVersion conceptVersion) {
-        getResultsCache();
+        // Nothing to do here...
     }
 
     @Override
     public ClauseSemantic getClauseSemantic() {
-        return ClauseSemantic.COMPONENT_IS_ACTIVE;
+        return ClauseSemantic.COMPONENT_IS_MEMBER_OF;
     }
 
     /**
@@ -147,21 +161,17 @@ public class ComponentIsActive extends LeafClause {
     public WhereClause getWhereClause() {
         final WhereClause whereClause = new WhereClause();
 
-        whereClause.setSemantic(ClauseSemantic.COMPONENT_IS_ACTIVE);
+        whereClause.setSemantic(ClauseSemantic.COMPONENT_IS_MEMBER_OF);
+        whereClause.getLetKeys()
+                .add(this.assemblageSpecKey);
+        whereClause.getLetKeys()
+                .add(this.stampCoordinateKey);
         return whereClause;
     }
 
     @Override
     public ConceptSpecification getClauseConcept() {
-        return TermAux.ACTIVE_QUERY_CLAUSE;
+        return TermAux.COMPONENT_IS_MEMBER_OF;
     }
 
-    @XmlElement
-    public LetItemKey getStampCoordinateKey() {
-        return stampCoordinateKey;
-    }
-
-    public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
-        this.stampCoordinateKey = stampCoordinateKey;
-    }
 }

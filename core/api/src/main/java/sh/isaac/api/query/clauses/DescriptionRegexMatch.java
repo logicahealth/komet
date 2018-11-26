@@ -78,8 +78,6 @@ import sh.isaac.api.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionRegexMatch
         extends LeafClause {
-   /** The cache. */
-   NidSet cache = new NidSet();
 
    /** The regex key. */
    @XmlElement
@@ -122,18 +120,13 @@ public class DescriptionRegexMatch
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-      this.cache = incomingPossibleComponents.get(this.getAssemblageForIteration());
+      this.getResultsCache().or(incomingPossibleComponents.get(this.getAssemblageForIteration()));
       HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-      resultsMap.put(this.getAssemblageForIteration(), this.cache);
+      resultsMap.put(this.getAssemblageForIteration(), this.getResultsCache());
       return resultsMap;
    }
 
    //~--- get methods ---------------------------------------------------------
-
-    @Override
-    public void resetResults() {
-        this.cache = null;
-    }
 
    public void setParameterString(String parameterString) {
       this.parameterString = parameterString;
@@ -171,7 +164,7 @@ public class DescriptionRegexMatch
       conceptChronology.getConceptDescriptionList()
                        .forEach(
                            (description) -> {
-                              if (this.cache.contains(description.getNid())) {
+                              if (this.getResultsCache().contains(description.getNid())) {
                                  description.getVersionList()
                                             .forEach(
                                                   (dv) -> {

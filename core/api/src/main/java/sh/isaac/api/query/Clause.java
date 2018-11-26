@@ -295,15 +295,20 @@ public abstract class Clause implements ConceptSpecification {
      */
     public static Clause[] getAllClauses() {
         return new Clause[]{new And(), new AndNot(), new Not(), new Or(), new Xor(),
-            new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
-            new AssemblageContainsString(), new AssemblageLuceneMatch(),
-            new ChangedBetweenVersions(), new ConceptForComponent(),
-            new ConceptIs(), new ConceptIsChildOf(), new ConceptIsDescendentOf(),
-            new ConceptIsKindOf(), new DescriptionActiveLuceneMatch(),
-            new DescriptionActiveRegexMatch(), new DescriptionLuceneMatch(),
-            new DescriptionRegexMatch(), new FullyQualifiedNameForConcept(),
-            new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular(), new Join(),
-            new ComponentIsActive()
+            new Join(),
+            new ComponentIsActive(),
+            new ComponentIsInactive(),
+            new ReferencedComponentIsActive(),
+            new ReferencedComponentIsInactive(),
+            
+//            new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
+//            new AssemblageContainsString(), new AssemblageLuceneMatch(),
+//            new ChangedBetweenVersions(), new ConceptForComponent(),
+//            new ConceptIs(), new ConceptIsChildOf(), new ConceptIsDescendentOf(),
+//            new ConceptIsKindOf(), new DescriptionActiveLuceneMatch(),
+//            new DescriptionActiveRegexMatch(), new DescriptionLuceneMatch(),
+//            new DescriptionRegexMatch(), new FullyQualifiedNameForConcept(),
+//            new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular(), 
         };
     }
 

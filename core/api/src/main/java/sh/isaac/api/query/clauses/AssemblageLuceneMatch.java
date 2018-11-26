@@ -103,10 +103,6 @@ public class AssemblageLuceneMatch
    }
 
    //~--- methods -------------------------------------------------------------
-    @Override
-    public void resetResults() {
-        // no cached data in task. 
-    }
 
    /**
     * Compute possible components.

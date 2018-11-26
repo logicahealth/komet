@@ -153,7 +153,7 @@ public class QueryClause {
                 join.setJoinSpecifications(FXCollections.observableArrayList());
                 JoinSpecificationObservable joinCriterion = new JoinSpecificationObservable();
                 join.getJoinSpecifications().add(joinCriterion);
-                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "Join", 
+                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "join", 
                 forSpecProperty, forList));
                 clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "with", 
                 joinCriterion.assemblageToJoin, forList));

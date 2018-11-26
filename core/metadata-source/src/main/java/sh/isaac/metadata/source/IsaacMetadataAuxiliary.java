@@ -977,6 +977,18 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                createConcept(TermAux.ACTIVE_QUERY_CLAUSE);
                createConcept(TermAux.INACTIVE_QUERY_CLAUSE);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_ACTIVE);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_INACTIVE);
+               
+               createConcept(TermAux.REFERENCED_COMPONENT_IS);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_MEMBER_OF);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_NOT_MEMBER_OF);
+
+               createConcept(TermAux.COMPONENT_IS_MEMBER_OF);
+               createConcept(TermAux.COMPONENT_IS_NOT_MEMBER_OF);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_KIND_OF);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_NOT_KIND_OF);
+               
                createConcept(TermAux.AND_QUERY_CLAUSE);
          
                createConcept(TermAux.NOT_QUERY_CLAUSE);

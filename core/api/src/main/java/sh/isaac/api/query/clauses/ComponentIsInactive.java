@@ -44,7 +44,7 @@ import sh.isaac.api.query.WhereClause;
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class ComponentIsActive extends LeafClause {
+public class ComponentIsInactive extends LeafClause {
 
     /**
      * the manifold coordinate key.
@@ -55,7 +55,7 @@ public class ComponentIsActive extends LeafClause {
     /**
      * Instantiates a new component is active clause.
      */
-    public ComponentIsActive() {
+    public ComponentIsInactive() {
     }
 
     /**
@@ -64,7 +64,7 @@ public class ComponentIsActive extends LeafClause {
      * @param enclosingQuery the enclosing query
      * @param stampCoordinateKey the manifold coordinate key
      */
-    public ComponentIsActive(Query enclosingQuery, LetItemKey stampCoordinateKey) {
+    public ComponentIsInactive(Query enclosingQuery, LetItemKey stampCoordinateKey) {
         super(enclosingQuery);
         this.stampCoordinateKey = stampCoordinateKey;
     }
@@ -81,7 +81,7 @@ public class ComponentIsActive extends LeafClause {
                     = Get.identifiedObjectService()
                             .getChronology(nid);
             if (chronology.isPresent()) {
-                if (!chronology.get()
+                if (chronology.get()
                         .isLatestVersionActive(stampCoordinate)) {
                     getResultsCache().remove(nid);
                 }
@@ -135,7 +135,7 @@ public class ComponentIsActive extends LeafClause {
 
     @Override
     public ClauseSemantic getClauseSemantic() {
-        return ClauseSemantic.COMPONENT_IS_ACTIVE;
+        return ClauseSemantic.COMPONENT_IS_INACTIVE;
     }
 
     /**
@@ -147,13 +147,13 @@ public class ComponentIsActive extends LeafClause {
     public WhereClause getWhereClause() {
         final WhereClause whereClause = new WhereClause();
 
-        whereClause.setSemantic(ClauseSemantic.COMPONENT_IS_ACTIVE);
+        whereClause.setSemantic(ClauseSemantic.COMPONENT_IS_INACTIVE);
         return whereClause;
     }
 
     @Override
     public ConceptSpecification getClauseConcept() {
-        return TermAux.ACTIVE_QUERY_CLAUSE;
+        return TermAux.INACTIVE_QUERY_CLAUSE;
     }
 
     @XmlElement

@@ -53,8 +53,6 @@ import javax.xml.bind.annotation.XmlType;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UUIDUtil;

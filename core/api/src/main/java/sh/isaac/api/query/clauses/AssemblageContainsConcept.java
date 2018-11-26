@@ -75,9 +75,6 @@ import sh.isaac.api.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class AssemblageContainsConcept
         extends LeafClause {
-   /** The cache. */
-   NidSet cache;
-
    /** The concept spec key. */
    @XmlElement
    LetItemKey conceptSpecKey;
@@ -146,10 +143,6 @@ public class AssemblageContainsConcept
    }
 
    //~--- get methods ---------------------------------------------------------
-    @Override
-    public void resetResults() {
-        this.cache = null;
-    }
 
    /**
     * Gets the compute phases.

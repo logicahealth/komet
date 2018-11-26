@@ -112,10 +112,6 @@ public class ConceptIsChildOf
    }
 
    //~--- methods -------------------------------------------------------------
-    @Override
-    public void resetResults() {
-        // no cached data in task. 
-    }
 
    /**
     * Compute possible components.

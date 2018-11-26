@@ -156,6 +156,11 @@ public abstract class LeafClause
    public Clause[] getAllowedSiblingClauses() {
       return new Clause[0];
    }
+
+    @Override
+    public final void resetResults() {
+        this.resultsCache.clear();
+    }
    
    
 }

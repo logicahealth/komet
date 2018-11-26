@@ -1,8 +1,9 @@
-/* 
+/*
+ * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- *
- * You may not use this file except in compliance with the License.
- *
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -10,52 +11,23 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
- *
- * US Veterans Health Administration contributions by government employees
- * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
- * Contribution by contractors to the US Veterans Health Administration
- * during this period are contractually contributed under the
- * Apache License, Version 2.0.
- *
- * See: https://www.usa.gov/government-works
- * 
- * Contributions prior to 2013:
- *
- * Copyright (C) International Health Terminology Standards Development Organisation.
- * Licensed under the Apache License, Version 2.0.
- *
  */
-
-
-
 package sh.isaac.api.query.clauses;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
@@ -63,44 +35,37 @@ import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
- * An identity function that obtains the concept from the input
- * <code>ConceptSpec</code>.
  *
- * @author dylangrald
+ * @author kec
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class ConceptIs
+public class ReferencedComponentIs         
         extends LeafClause {
-   /** The concept spec string. */
-   @XmlElement
-   LetItemKey conceptSpecString;
 
-   /** the manifold coordinate key. */
+   /** The concept spec key. */
    @XmlElement
-   LetItemKey manifoldCoordinateKey;
+   LetItemKey conceptSpecKey;
+
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new concept is.
+    * Instantiates a new refset contains concept.
     */
-   public ConceptIs() {}
+   public ReferencedComponentIs() {}
 
    /**
-    * Instantiates a new concept is.
+    * Instantiates a new assemblage contains concept.
     *
     * @param enclosingQuery the enclosing query
-    * @param conceptSpec the concept spec
-    * @param manifoldCoordinateKey the manifold coordinate key
+    * @param conceptSpecKey the concept spec key
     */
-   public ConceptIs(Query enclosingQuery, LetItemKey conceptSpec, LetItemKey manifoldCoordinateKey) {
+   public ReferencedComponentIs(Query enclosingQuery,
+                                LetItemKey conceptSpecKey) {
       super(enclosingQuery);
-      this.conceptSpecString = conceptSpec;
-      this.manifoldCoordinateKey = manifoldCoordinateKey;
+      this.conceptSpecKey    = conceptSpecKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -113,11 +78,18 @@ public class ConceptIs
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-      getResultsCache().add(((ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-            .get(this.conceptSpecString)).getNid());
-      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-      resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
-      return resultsMap;
+    getResultsCache().clear();
+    ConceptSpecification conceptSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(conceptSpecKey);
+
+    int conceptNid = conceptSpec.getNid();
+    for (int nid: Get.assemblageService().getSemanticNidsFromAssemblage(getAssemblageForIteration().getNid()).asArray()) {
+        SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
+        if (sc.getReferencedComponentNid() == conceptNid) {
+            getResultsCache().add(nid);
+        }
+    }
+    incomingPossibleComponents.put(getAssemblageForIteration(), getResultsCache());
+    return incomingPossibleComponents;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -132,6 +104,14 @@ public class ConceptIs
       return PRE_ITERATION;
    }
 
+    public LetItemKey getConceptSpecKey() {
+        return conceptSpecKey;
+    }
+
+    public void setConceptSpecKey(LetItemKey conceptSpecKey) {
+        this.conceptSpecKey = conceptSpecKey;
+    }
+
    /**
     * Gets the query matches.
     *
@@ -143,7 +123,7 @@ public class ConceptIs
    }
     @Override
     public ClauseSemantic getClauseSemantic() {
-        return ClauseSemantic.CONCEPT_IS;
+        return ClauseSemantic.REFERENCED_COMPONENT_IS;
     }
    
 
@@ -156,17 +136,15 @@ public class ConceptIs
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();
 
-      whereClause.setSemantic(ClauseSemantic.CONCEPT_IS);
+      whereClause.setSemantic(ClauseSemantic.REFERENCED_COMPONENT_IS);
       whereClause.getLetKeys()
-                 .add(this.conceptSpecString);
-      whereClause.getLetKeys()
-                 .add(this.manifoldCoordinateKey);
+                 .add(this.conceptSpecKey);
       return whereClause;
    }
    
       @Override
    public ConceptSpecification getClauseConcept() {
-      return TermAux.CONCEPT_IS_QUERY_CLAUSE;
+      return TermAux.REFERENCED_COMPONENT_IS;
    }
 
 }

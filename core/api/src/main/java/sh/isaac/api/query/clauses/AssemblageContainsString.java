@@ -86,9 +86,6 @@ public class AssemblageContainsString
    @XmlElement
    LetItemKey stampCoordinateKey = Query.DEFAULT_MANIFOLD_COORDINATE_KEY;
 
-   /** The cache. */
-   NidSet cache;
-
    /** The refset spec key. */
    @XmlElement
    LetItemKey assemblageSpecKey;
@@ -116,10 +113,6 @@ public class AssemblageContainsString
    }
 
    //~--- methods -------------------------------------------------------------
-    @Override
-    public void resetResults() {
-        this.cache = null; 
-    }
 
    /**
     * Compute possible components.

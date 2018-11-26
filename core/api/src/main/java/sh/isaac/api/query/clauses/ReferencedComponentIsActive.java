@@ -30,6 +30,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -44,7 +45,7 @@ import sh.isaac.api.query.WhereClause;
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class ComponentIsActive extends LeafClause {
+public class ReferencedComponentIsActive extends LeafClause {
 
     /**
      * the manifold coordinate key.
@@ -55,7 +56,7 @@ public class ComponentIsActive extends LeafClause {
     /**
      * Instantiates a new component is active clause.
      */
-    public ComponentIsActive() {
+    public ReferencedComponentIsActive() {
     }
 
     /**
@@ -64,7 +65,7 @@ public class ComponentIsActive extends LeafClause {
      * @param enclosingQuery the enclosing query
      * @param stampCoordinateKey the manifold coordinate key
      */
-    public ComponentIsActive(Query enclosingQuery, LetItemKey stampCoordinateKey) {
+    public ReferencedComponentIsActive(Query enclosingQuery, LetItemKey stampCoordinateKey) {
         super(enclosingQuery);
         this.stampCoordinateKey = stampCoordinateKey;
     }
@@ -80,8 +81,13 @@ public class ComponentIsActive extends LeafClause {
             final Optional<? extends Chronology> chronology
                     = Get.identifiedObjectService()
                             .getChronology(nid);
-            if (chronology.isPresent()) {
-                if (!chronology.get()
+            if (chronology.isPresent() && chronology.get() instanceof SemanticChronology) {
+                SemanticChronology semanticChronology = (SemanticChronology) chronology.get();
+                Optional<? extends Chronology> referencedComponentChronology
+                    = Get.identifiedObjectService()
+                            .getChronology(semanticChronology.getReferencedComponentNid());
+                if (referencedComponentChronology.isPresent() &&
+                        !referencedComponentChronology.get()
                         .isLatestVersionActive(stampCoordinate)) {
                     getResultsCache().remove(nid);
                 }
@@ -135,7 +141,7 @@ public class ComponentIsActive extends LeafClause {
 
     @Override
     public ClauseSemantic getClauseSemantic() {
-        return ClauseSemantic.COMPONENT_IS_ACTIVE;
+        return ClauseSemantic.REFERENCED_COMPONENT_IS_ACTIVE;
     }
 
     /**
@@ -147,13 +153,13 @@ public class ComponentIsActive extends LeafClause {
     public WhereClause getWhereClause() {
         final WhereClause whereClause = new WhereClause();
 
-        whereClause.setSemantic(ClauseSemantic.COMPONENT_IS_ACTIVE);
+        whereClause.setSemantic(ClauseSemantic.REFERENCED_COMPONENT_IS_ACTIVE);
         return whereClause;
     }
 
     @Override
     public ConceptSpecification getClauseConcept() {
-        return TermAux.ACTIVE_QUERY_CLAUSE;
+        return TermAux.REFERENCED_COMPONENT_IS_ACTIVE;
     }
 
     @XmlElement

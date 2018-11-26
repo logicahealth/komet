@@ -75,11 +75,6 @@ import sh.isaac.api.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ChangedBetweenVersions
         extends LeafClause {
-   /**
-    * Cached set of incoming components. Used to optimize speed in
-    * getQueryMatches method.
-    */
-   NidSet cache = new NidSet();
 
    /**
     * The <code>StampCoordinate</code> used to specify version one.
@@ -114,10 +109,6 @@ public class ChangedBetweenVersions
       this.stampCoordinateOneKey = stampCoordinateOneKey;
       this.stampCoordinateTwoKey = stampCoordinateTwoKey;
    }
-    @Override
-    public void resetResults() {
-        this.cache.clear();
-    }
 
    public LetItemKey getStampCoordinateOneKey() {
       return stampCoordinateOneKey;
@@ -144,7 +135,7 @@ public class ChangedBetweenVersions
      */
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        this.cache = incomingPossibleComponents.get(this.getAssemblageForIteration());
+        this.getResultsCache().or(incomingPossibleComponents.get(this.getAssemblageForIteration()));
         return incomingPossibleComponents;
     }
 

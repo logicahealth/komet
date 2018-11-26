@@ -106,10 +106,6 @@ public class ConceptIsKindOf
    }
 
    //~--- methods -------------------------------------------------------------
-    @Override
-    public void resetResults() {
-        // no cached data in task. 
-    }
 
 
    /**

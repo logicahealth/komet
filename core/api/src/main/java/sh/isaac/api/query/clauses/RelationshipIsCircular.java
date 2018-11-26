@@ -117,11 +117,6 @@ public class RelationshipIsCircular
    }
 
    //~--- methods -------------------------------------------------------------
-    @Override
-    public void resetResults() {
-        // no cached data in task. 
-    }
-
    /**
     * Compute possible components.
     *

@@ -183,13 +183,6 @@ public class RelRestriction
    }
 
    //~--- get methods ---------------------------------------------------------
-    @Override
-    public void resetResults() {
-        this.relTypeSet = null;
-        this.destinationSet = null;
-        
-    }
-
    /**
     * Gets the compute phases.
     *
