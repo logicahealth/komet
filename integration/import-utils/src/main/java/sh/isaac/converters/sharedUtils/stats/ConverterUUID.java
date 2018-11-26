@@ -292,19 +292,26 @@ public class ConverterUUID
 	 */
 	public void dump(File outputDirectory, String prefix) throws IOException
 	{
-		outputDirectory.mkdirs();
-		try (BufferedWriter br = new BufferedWriter(new FileWriter(new File(outputDirectory, prefix + "DebugMap.txt")));)
+		if (outputDirectory != null)
 		{
-			if (disableUUIDMap)
+			outputDirectory.mkdirs();
+			try (BufferedWriter br = new BufferedWriter(new FileWriter(new File(outputDirectory, prefix + "DebugMap.txt")));)
 			{
-				LOG.info("UUID Debug map was disabled");
-				br.write("Note - the UUID debug feature was disabled, this file is incomplete" + System.lineSeparator());
+				if (disableUUIDMap)
+				{
+					LOG.info("UUID Debug map was disabled");
+					br.write("Note - the UUID debug feature was disabled, this file is incomplete" + System.lineSeparator());
+				}
+	
+				for (final Map.Entry<UUID, String> entry : masterUUIDMap.entrySet())
+				{
+					br.write(entry.getKey() + " - " + entry.getValue() + System.lineSeparator());
+				}
 			}
-
-			for (final Map.Entry<UUID, String> entry : masterUUIDMap.entrySet())
-			{
-				br.write(entry.getKey() + " - " + entry.getValue() + System.lineSeparator());
-			}
+		}
+		else
+		{
+			LOG.info("Can't write debug output, as no output directory is specified");
 		}
 	}
 

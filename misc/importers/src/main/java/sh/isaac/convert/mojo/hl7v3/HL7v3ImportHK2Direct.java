@@ -34,21 +34,23 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
 package sh.isaac.convert.mojo.hl7v3;
 
-/**
- * 
- * {@link HL7v3Constants}
- *
- * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
- *
- */
-public class HL7v3Constants
-{
-	private HL7v3Constants()
-	{
-	}
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.convert.directUtils.DirectConverter;
 
-	public final static String TERMINOLOGY_NAME = "HL7v3";
+/**
+ * {@link HL7v3ImportHK2Direct}
+ *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ */
+@PerLookup
+@Service
+public class HL7v3ImportHK2Direct extends HL7v3ImportMojoDirect implements DirectConverter
+{
+	private HL7v3ImportHK2Direct()
+	{
+		//For HK2
+	}
 }

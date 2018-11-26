@@ -116,6 +116,7 @@ public class DirectWriteHelper
 	private HashMap<String, UUID> otherTypesNode = new HashMap<>();
 
 	private HashSet<UUID> associations = new HashSet<>();
+	private HashSet<UUID> refsets = new HashSet<>();
 
 	//maintain a mapping of _all_ applied description labels to the UUID created for it.
 	private HashMap<String, UUID> createdDescriptionTypes = new HashMap<>();
@@ -180,9 +181,9 @@ public class DirectWriteHelper
 	 *            {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
 	 *            or {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, or a properly specified third-party description type
 	 * @param parents - optional list of parent(s) to add
-	 * @param status the status for the description
-	 * @param time the time for the description
-	 * @return the UUID of the created description
+	 * @param status the status for the content
+	 * @param time the time for the content
+	 * @return the UUID of the created concept
 	 */
 	public UUID makeConceptEnNoDialect(UUID concept, String name, UUID descriptionType, UUID[] parents, Status status, long time)
 	{
@@ -262,6 +263,20 @@ public class DirectWriteHelper
 		loadStats.addRefsetMember(getOriginStringForUuid(assemblageConcept));
 		return refsetMemberToWrite.getPrimordialUuid();
 	}
+	
+	/**
+	 * This creates a semantic type of {@link VersionType#DYNAMIC} with the specified data column.
+	 * 
+	 * @param assemblageConcept The type of refset member to create
+	 * @param referencedComponent the referenced component this dynamic semantic entry is being added to
+	 * @param data optional - The data column for this dynamic semantic entry
+	 * @param time The time to use for the entry
+	 * @return The UUID of the object created
+	 */
+	public UUID makeDynamicSemantic(UUID assemblageConcept, UUID referencedComponent, DynamicData data, long time)
+	{
+		return makeDynamicSemantic(assemblageConcept, referencedComponent, data == null ? null : new DynamicData[] {data}, time, null);
+	}
 
 	/**
 	 * This creates a semantic type of {@link VersionType#DYNAMIC} with the specified data columns.
@@ -313,6 +328,10 @@ public class DirectWriteHelper
 		if (associations.contains(assemblageConcept))
 		{
 			loadStats.addAssociation(getOriginStringForUuid(assemblageConcept));
+		}
+		else if (refsets.contains(assemblageConcept))
+		{
+			loadStats.addRefsetMember(getOriginStringForUuid(assemblageConcept));
 		}
 		else
 		{
@@ -1021,6 +1040,45 @@ public class DirectWriteHelper
 		makeParentGraph(concept, parents, Status.ACTIVE, time);
 		return concept;
 	}
+	
+	/**
+	 * Creates a new concept to represent an attribute type, which can store one value of data. Adds parents of
+	 * {@link #getAttributeTypesNode()} and {@link MetaData#IDENTIFIER_SOURCE____SOLOR} (if {isIdentifier} is true)
+	 * 
+	 * @param uuid optional - the UUID to use for the concept.  Created from the FQN, if not provided
+	 * @param name The name to use for the FQN and Regular Name
+	 * @param preferredName - optional - if provided, this is the preferred regular name, and the {name} value will be an acceptable regular name.
+	 * If not provided, the {name} will also be used as the preferred regular name.
+	 * @param altName - optional - additional regular name to add
+	 * @param description - optional - used as the dynamic assemblage configuration description if provided, otherwise, the altName or name is used.
+	 * @param dataTypeColumns - optional the column descriptor for each column to to store in the annotation. This gets passed along to
+	 *     {@link #configureConceptAsDynamicAssemblage(UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
+	 * @param referencedComponentTypeRestriction - optional - 
+	 *     see {@link #configureConceptAsDynamicAssemblage(UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
+	 * @param additionalParents - optional - if this concept should have more parents, supply them here
+	 * @param time - the commit time
+	 * @return the UUID of the created concept.
+	 */
+	public UUID makeAttributeTypeConcept(UUID uuid, String name, String preferredName, String altName, String description, 
+			DynamicColumnInfo[] dataTypeColumns, IsaacObjectType referencedComponentTypeRestriction, List<UUID> additionalParents, long time)
+	{
+		UUID concept = makeTypeConcept(uuid, name, preferredName, altName, (fName, fConcept) -> createdAttributeTypes.put(fName, fConcept), time);
+		ArrayList<UUID> parents = new ArrayList<>();
+		parents.add(getAttributeTypesNode().get());
+		if (dataTypeColumns != null)
+		{
+			configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
+					dataTypeColumns, referencedComponentTypeRestriction, null, time);
+		}
+		
+		if (additionalParents != null)
+		{
+			parents.addAll(additionalParents);
+		}
+
+		makeParentGraph(concept, parents, Status.ACTIVE, time);
+		return concept;
+	}
 
 	/**
 	 * Update the logic graph of an already existing concept, to add another parent to it, and add another FQN to it, that includes a semantic
@@ -1104,6 +1162,7 @@ public class DirectWriteHelper
 		configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(altName) ? name : altName, new DynamicColumnInfo[] {}, null, null, time);
 
 		makeParentGraph(concept, parents, Status.ACTIVE, time);
+		refsets.add(concept);
 		return concept;
 	}
 
@@ -1375,7 +1434,8 @@ public class DirectWriteHelper
 	 */
 	public UUID getOtherType(UUID otherMetadataGroup, String otherName)
 	{
-		return otherTypes.get(otherMetadataGroup).get(otherName);
+		HashMap<String, UUID> map = otherTypes.get(otherMetadataGroup);
+		return map == null ? null : map.get(otherName);
 	}
 
 	/**
