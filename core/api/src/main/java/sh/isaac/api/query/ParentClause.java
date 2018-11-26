@@ -43,6 +43,7 @@ package sh.isaac.api.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -120,7 +121,20 @@ public abstract class ParentClause
     */
    @Override
    public List<Clause> getChildren() {
-      return this.children;
+      return Collections.unmodifiableList(this.children);
+   }
+   public final void addChild(Clause child) {
+         child.parent = this;
+         child.enclosingQuery = this.enclosingQuery;
+         if (!this.children.contains(child)) {
+             this.children.add(child);
+         }
+         
+   }
+   public final void removeChild(Clause child) {
+         child.parent = null;
+         child.enclosingQuery = null;
+         this.children.remove(child);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -135,6 +149,7 @@ public abstract class ParentClause
 
       children.forEach((child) -> {
          child.setParent(this);
+         child.setEnclosingQuery(enclosingQuery);
       });
    }
 

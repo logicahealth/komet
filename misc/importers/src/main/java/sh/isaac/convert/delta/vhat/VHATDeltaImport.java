@@ -107,6 +107,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
+import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.ComponentReference;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.IBDFCreationUtility;
@@ -159,7 +160,7 @@ import sh.isaac.utility.Frills;
 
 /**
  * Goal which converts VHAT data into the workbench jbin format
- * 
+ * @deprecated will possibly be used in the future, but needs to be converted to extend {@link DirectConverterBaseMojo}
  */
 public class VHATDeltaImport extends ConverterBaseMojo
 {
@@ -2254,15 +2255,12 @@ public class VHATDeltaImport extends ConverterBaseMojo
 
 						importUtil.addAssociation(concept, null, this.subsets.getPropertyTypeUUID(), this.associations.getProperty("has_parent").getUUID(),
 								Status.ACTIVE, null, null);
-						importUtil.addAssociation(concept, null, this.subsets.getAltMetaDataParentUUID(), this.associations.getProperty("has_parent").getUUID(),
-								Status.ACTIVE, null, null);
 						importUtil.addAssociation(concept, null, IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(),
 								this.associations.getProperty("has_parent").getUUID(), Status.ACTIVE, null, null);
 
 						LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
 
 						NecessarySet(And(new Assertion[] {
-								ConceptAssertion(Get.identifierService().getNidForUuids(this.subsets.getAltMetaDataParentUUID()), leb),
 								ConceptAssertion(Get.identifierService().getNidForUuids(this.subsets.getPropertyTypeUUID()), leb),
 								ConceptAssertion(Get.identifierService()
 										.getNidForUuids(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid()), leb) }));

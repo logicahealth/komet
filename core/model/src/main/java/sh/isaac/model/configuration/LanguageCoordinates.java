@@ -41,20 +41,23 @@ package sh.isaac.model.configuration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Locale;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.api.ConceptProxy;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCoordinateService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
@@ -212,44 +215,34 @@ public class LanguageCoordinates {
    public static int iso639toDescriptionAssemblageNid(String iso639text) {
       switch (iso639text.toLowerCase(Locale.ENGLISH)) {
       case "en":
-         return Get.identifierService()
-                   .getNidForUuids(TermAux.ENGLISH_LANGUAGE.getUuids());
+         return TermAux.ENGLISH_LANGUAGE.getNid();
 
       case "es":
-         return Get.identifierService()
-                   .getNidForUuids(TermAux.SPANISH_LANGUAGE.getUuids());
+         return TermAux.SPANISH_LANGUAGE.getNid();
 
       case "fr":
-         return Get.identifierService()
-                   .getNidForUuids(TermAux.FRENCH_LANGUAGE.getUuids());
+         return TermAux.FRENCH_LANGUAGE.getNid();
 
       case "da":
-         return Get.identifierService()
-                   .getNidForUuids(TermAux.DANISH_LANGUAGE.getUuids());
+         return TermAux.DANISH_LANGUAGE.getNid();
 
       case "pl":
-         return Get.identifierService()
-                   .getNidForUuids(TermAux.POLISH_LANGUAGE.getUuids());
+         return TermAux.POLISH_LANGUAGE.getNid();
 
       case "nl":
-         return Get.identifierService()
-                   .getNidForUuids(TermAux.DUTCH_LANGUAGE.getUuids());
+         return TermAux.DUTCH_LANGUAGE.getNid();
 
       case "lt":
-         return Get.identifierService()
-                   .getNidForUuids(TermAux.LITHUANIAN_LANGUAGE.getUuids());
+         return TermAux.LITHUANIAN_LANGUAGE.getNid();
 
       case "zh":
-         return Get.identifierService()
-                   .getNidForUuids(TermAux.CHINESE_LANGUAGE.getUuids());
+         return TermAux.CHINESE_LANGUAGE.getNid();
 
       case "ja":
-         return Get.identifierService()
-                   .getNidForUuids(TermAux.JAPANESE_LANGUAGE.getUuids());
+         return TermAux.JAPANESE_LANGUAGE.getNid();
 
       case "sv":
-         return Get.identifierService()
-                   .getNidForUuids(TermAux.SWEDISH_LANGUAGE.getUuids());
+         return TermAux.SWEDISH_LANGUAGE.getNid();
 
       default:
          throw new UnsupportedOperationException("Can't handle: " + iso639text);
@@ -264,13 +257,12 @@ public class LanguageCoordinates {
     * @return the gb english language fully specified name coordinate
     */
    public static LanguageCoordinate getGbEnglishLanguageFullySpecifiedNameCoordinate() {
-      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
-      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getNid(),
-                                                                TermAux.US_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, null);
+      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.GB_DIALECT_ASSEMBLAGE,
+                                                                TermAux.US_DIALECT_ASSEMBLAGE };
+      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, TermAux.REGULAR_NAME_DESCRIPTION_TYPE}, null);
 
-      final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
+      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
       return new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
@@ -283,13 +275,12 @@ public class LanguageCoordinates {
     * @return the gb english language preferred term coordinate
     */
    public static LanguageCoordinate getGbEnglishLanguagePreferredTermCoordinate() {
-      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
-      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getNid(),
-                                                                TermAux.US_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, null);
+      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.GB_DIALECT_ASSEMBLAGE,
+                                                                TermAux.US_DIALECT_ASSEMBLAGE };
+      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE, TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, null);
 
-      final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
+      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
       return new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
@@ -302,13 +293,12 @@ public class LanguageCoordinates {
     * @return the us english language fully specified name coordinate
     */
    public static LanguageCoordinate getUsEnglishLanguageFullySpecifiedNameCoordinate() {
-      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
-      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getNid(),
-                                                                TermAux.GB_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-            new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, null);
+      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.US_DIALECT_ASSEMBLAGE,
+                                                                TermAux.GB_DIALECT_ASSEMBLAGE };
+      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+            new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, TermAux.REGULAR_NAME_DESCRIPTION_TYPE}, null);
 
-      final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
+      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
@@ -325,13 +315,12 @@ public class LanguageCoordinates {
     * @return the us english language preferred term coordinate
     */
    public static LanguageCoordinate getUsEnglishLanguagePreferredTermCoordinate() {
-      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getNid();
-      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getNid(),
-                                                                TermAux.GB_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, null);
+      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.US_DIALECT_ASSEMBLAGE,
+                                                                TermAux.GB_DIALECT_ASSEMBLAGE };
+      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE, TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, null);
 
-      final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
+      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
@@ -341,12 +330,11 @@ public class LanguageCoordinates {
       return coordinate;
    }
    public static LanguageCoordinate getSpanishLanguageFullySpecifiedNameCoordinate() {
-      final int languageSequence = TermAux.SPANISH_LANGUAGE.getNid();
-      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, null);
+      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE };
+      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE,TermAux.REGULAR_NAME_DESCRIPTION_TYPE}, null);
 
-      final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
+      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.SPANISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
@@ -361,12 +349,11 @@ public class LanguageCoordinates {
     * @return the us english language preferred term coordinate
     */
    public static LanguageCoordinate getSpanishLanguagePreferredTermCoordinate() {
-      final int languageSequence = TermAux.SPANISH_LANGUAGE.getNid();
-      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE.getNid() };
-      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, null);
+      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE };
+      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE, TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, null);
 
-      final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
+      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.SPANISH_LANGUAGE,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
@@ -387,16 +374,15 @@ public class LanguageCoordinates {
     * type
     */
    public static LanguageCoordinate getRegularNameCoordinate() {
-      final int languageSequence = TermAux.LANGUAGE.getNid();
-      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new int[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), 
-                    TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(), 
-                    TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()}, 
+      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
+                    TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, 
+                    TermAux.DEFINITION_DESCRIPTION_TYPE}, 
               null);
 
-      final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
+      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.LANGUAGE,
-                                        new int[] {},
+                                        new ConceptProxy[] {},
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
       return coordinate;
@@ -413,16 +399,15 @@ public class LanguageCoordinates {
     * type
     */
    public static LanguageCoordinate getFullyQualifiedCoordinate() {
-      final int languageSequence = TermAux.LANGUAGE.getNid();
-      final int[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new int[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid(),
-                    TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid(), 
-                    TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()}, 
+      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+              new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE,
+                    TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
+                    TermAux.DEFINITION_DESCRIPTION_TYPE}, 
               null);
 
-      final int[] modulePreferenceList = new int[] { TermAux.SCT_CORE_MODULE.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.SOLOR_MODULE.getNid()};
+      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.LANGUAGE,
-                                        new int[] {},
+                                        new ConceptProxy[] {},
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
       return coordinate;
@@ -437,47 +422,53 @@ public class LanguageCoordinates {
     * @param stampCoordinate - optional - if not provided, uses {@link StampCoordinates#getDevelopmentLatestActiveOnly()}
     * @return the initial list, plus any equivalent non-core types in the appropriate order.  See {@link DynamicConstants#DYNAMIC_DESCRIPTION_CORE_TYPE}
     */
-   public static int[] expandDescriptionTypePreferenceList(int[] descriptionTypePreferenceList, StampCoordinate stampCoordinate) {
+   public static ConceptSpecification[] expandDescriptionTypePreferenceList(ConceptSpecification[] descriptionTypePreferenceList, StampCoordinate stampCoordinate) {
+      if (!LookupService.isIsaacStarted()) {
+           return descriptionTypePreferenceList;
+      }
       long time = System.currentTimeMillis();
       StampCoordinate stamp = stampCoordinate == null ? StampCoordinates.getDevelopmentLatestActiveOnly() : stampCoordinate;
-      HashMap<Integer, NidSet> equivalentTypes = new HashMap<>();
+      HashMap<ConceptSpecification, HashSet<ConceptSpecification>> equivalentTypes = new HashMap<>();
       
       //Collect the mappings from core types -> non core types
       Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(sc -> 
       {
          @SuppressWarnings("unchecked")
          DynamicVersion<? extends Version> dv = (DynamicVersion<? extends Version>)sc.getLatestVersion(stamp).get();
-         int coreTypeNid = Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID());
-         NidSet mapped = equivalentTypes.get(coreTypeNid);
+         ConceptProxy coreType = new ConceptProxy(Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID()));
+         HashSet<ConceptSpecification> mapped = equivalentTypes.get(coreType);
          if (mapped == null) {
-            mapped = new NidSet();
-            equivalentTypes.put(coreTypeNid, mapped);
+            mapped = new HashSet<>();
+            equivalentTypes.put(coreType, mapped);
          }
-         mapped.add(sc.getReferencedComponentNid());
+         mapped.add(new ConceptProxy(sc.getReferencedComponentNid()));
       });
       
       if (equivalentTypes.isEmpty()) {
          //this method is a noop
-         LOG.debug("Expanded description types call is a noop in {}ms", System.currentTimeMillis() - time);
+         LOG.trace("Expanded description types call is a noop in {}ms", System.currentTimeMillis() - time);
          return descriptionTypePreferenceList;
       }
       
-      ArrayList<Integer> result = new ArrayList<>();
-      for (int coreTypeNid : descriptionTypePreferenceList) {
-         result.add(coreTypeNid);
-         NidSet nonCoreTypes = equivalentTypes.get(coreTypeNid);
+      ArrayList<ConceptSpecification> result = new ArrayList<>();
+      ArrayList<Integer> startNids = new ArrayList<>();
+      ArrayList<Integer> endNids = new ArrayList<>();
+      for (ConceptSpecification coreType : descriptionTypePreferenceList) {
+         startNids.add(coreType.getNid());
+         if (!result.contains(coreType)) {
+            result.add(coreType);
+         }
+         HashSet<ConceptSpecification> nonCoreTypes = equivalentTypes.get(coreType);
          if (nonCoreTypes != null) {
-            for (int type: nonCoreTypes.asArray()) {
-               result.add(type);
+            for (ConceptSpecification type: nonCoreTypes) {
+               if (!result.contains(type)) {
+                  result.add(type);
+                  endNids.add(type.getNid());
+               }
             }
          }
       }
-      int[] finalResult = new int[result.size()];
-      int i = 0;
-      for (int r : result) {
-         finalResult[i++] = r;  
-      }
-      LOG.info("Expanded language type list from {} to {} in {}ms", descriptionTypePreferenceList, finalResult, System.currentTimeMillis() - time);
-      return finalResult;
+      LOG.info("Expanded language type list from {} to {} in {}ms", startNids, endNids, System.currentTimeMillis() - time);
+      return result.toArray(new ConceptSpecification[result.size()]);
    }
 }

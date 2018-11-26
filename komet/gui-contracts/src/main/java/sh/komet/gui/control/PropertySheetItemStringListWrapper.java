@@ -54,7 +54,7 @@ public class PropertySheetItemStringListWrapper implements PropertySheet.Item {
 
    @Override
    public Class<?> getType() {
-      return Status.class;
+      return String.class;
    }
 
    @Override

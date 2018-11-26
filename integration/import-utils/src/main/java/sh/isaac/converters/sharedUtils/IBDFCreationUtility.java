@@ -1632,7 +1632,7 @@ public class IBDFCreationUtility
             }
             if (p.isFromConceptSpec())
             {
-               //This came from a conceptSpecification (metadata in ISAAC), and we don't need to create it.
+               //This came from a specifyingConcept (metadata in ISAAC), and we don't need to create it.
                //Just need to add one relationship to the existing concept.
                addParent(ComponentReference.fromConcept(p.getUUID()), pt.getPropertyTypeUUID());
 

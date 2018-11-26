@@ -148,7 +148,7 @@ public class ConfigurationTests {
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultInferredAssemblage(-5);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultLanguage( TermAux.ENGLISH_LANGUAGE.getNid() );
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultModule(-7);
-		//Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPath(TermAux.DEVELOPMENT_PATH);
+		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPath(-8);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPremiseType(PremiseType.STATED);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultStatedAssemblage(-9);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultTime(10);
@@ -169,7 +169,7 @@ public class ConfigurationTests {
 		Assert.assertEquals(-5, c.getDefaultLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.ENGLISH_LANGUAGE.getNid(), c.getDefaultLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(-7, c.getDefaultEditCoordinate().getModuleNid());
-		//Assert.assertEquals(TermAux.DEVELOPMENT_PATH.getNid(), c.getDefaultEditCoordinate().getPathNid());
+		Assert.assertEquals(-8, c.getDefaultEditCoordinate().getPathNid());
 		Assert.assertEquals(PremiseType.STATED, c.getDefaultManifoldCoordinate().getTaxonomyPremiseType());
 		Assert.assertEquals(-9, c.getDefaultLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(10, c.getDefaultStampCoordinate().getStampPosition().getTime());
@@ -184,7 +184,7 @@ public class ConfigurationTests {
 		Assert.assertEquals(-5, uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.ENGLISH_LANGUAGE.getNid(), uc.getLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(-7, uc.getEditCoordinate().getModuleNid());
-		//Assert.assertEquals(TermAux.DEVELOPMENT_PATH.getNid(), uc.getEditCoordinate().getPathNid());
+		Assert.assertEquals(-8, uc.getEditCoordinate().getPathNid());
 		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getTaxonomyPremiseType());
 		Assert.assertEquals(-9, uc.getLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(10, uc.getStampCoordinate().getStampPosition().getTime());
@@ -302,7 +302,7 @@ public class ConfigurationTests {
 		
 		uc.setClassifier(ConfigurationStore.DATABASE, TermAux.XOR_QUERY_CLAUSE.getNid());
 		uc.setDescriptionLogicProfile(ConfigurationStore.DATABASE, TermAux.VHAT_MODULES.getNid());
-		uc.setDescriptionTypePreferenceList(ConfigurationStore.DATABASE, new int[] {TermAux.VHAT_EDIT.getNid()});
+		uc.setDescriptionTypePreferenceList(ConfigurationStore.DATABASE, new int[] {TermAux.SCT_CORE_MODULE.getNid()});
 		uc.setDialectAssemblagePreferenceList(ConfigurationStore.DATABASE, new int[] {TermAux.US_GOVERNMENT_WORK.getNid()});
 		uc.setEditModule(ConfigurationStore.DATABASE, TermAux.US_DIALECT_ASSEMBLAGE.getNid());
 		uc.setEditPath(ConfigurationStore.DATABASE, TermAux.UNSPECIFIED_MODULE.getNid());
@@ -316,7 +316,7 @@ public class ConfigurationTests {
 		
 		Assert.assertEquals(TermAux.XOR_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getClassifierNid());
 		Assert.assertEquals(TermAux.VHAT_MODULES.getNid(), uc.getLogicCoordinate().getDescriptionLogicProfileNid());
-		Assert.assertTrue(Arrays.equals(new int[] {TermAux.VHAT_EDIT.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
+		Assert.assertTrue(Arrays.equals(new int[] {TermAux.SCT_CORE_MODULE.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.US_GOVERNMENT_WORK.getNid()}, uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
 		Assert.assertEquals(TermAux.US_DIALECT_ASSEMBLAGE.getNid(), uc.getEditCoordinate().getModuleNid());
 		Assert.assertEquals(TermAux.UNSPECIFIED_MODULE.getNid(), uc.getEditCoordinate().getPathNid());
@@ -341,7 +341,7 @@ public class ConfigurationTests {
 		
 		Assert.assertEquals(TermAux.XOR_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getClassifierNid());
 		Assert.assertEquals(TermAux.VHAT_MODULES.getNid(), uc.getLogicCoordinate().getDescriptionLogicProfileNid());
-		Assert.assertTrue(Arrays.equals(new int[] {TermAux.VHAT_EDIT.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
+		Assert.assertTrue(Arrays.equals(new int[] {TermAux.SCT_CORE_MODULE.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.US_GOVERNMENT_WORK.getNid()}, uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
 		Assert.assertEquals(TermAux.US_DIALECT_ASSEMBLAGE.getNid(), uc.getEditCoordinate().getModuleNid());
 		Assert.assertEquals(TermAux.UNSPECIFIED_MODULE.getNid(), uc.getEditCoordinate().getPathNid());

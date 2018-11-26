@@ -53,6 +53,7 @@ import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
 
 import javafx.collections.FXCollections;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.observable.coordinate.ObservableStampPath;
@@ -179,5 +180,10 @@ public class ObservableStampPathImpl
                            .map((origin) -> new ObservableStampPositionImpl(origin))
                            .collect(Collectors.toList());
    }
+
+    @Override
+    public ConceptSpecification getPathConcept() {
+        return this.stampPath.getPathConcept();
+    }
 }
 

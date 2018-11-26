@@ -42,6 +42,9 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -60,6 +63,7 @@ import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,11 +72,13 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
  *
  * @author dylangrald
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class FullyQualifiedNameForConcept
         extends ParentClause {
 
-    private String languageCoordinateKey;
-    private String stampCoordinateKey;
+    private LetItemKey languageCoordinateKey;
+    private LetItemKey stampCoordinateKey;
    /**
     * Instantiates a new fully specified name for concept.
     */
@@ -86,26 +92,31 @@ public class FullyQualifiedNameForConcept
      * @param stampCoordinateKey
      * @param languageCoordinateKey
     */
-   public FullyQualifiedNameForConcept(Query enclosingQuery, Clause child, String stampCoordinateKey, String languageCoordinateKey) {
+   public FullyQualifiedNameForConcept(Query enclosingQuery, Clause child, LetItemKey stampCoordinateKey, LetItemKey languageCoordinateKey) {
       super(enclosingQuery, child);
         this.languageCoordinateKey = languageCoordinateKey;
         this.stampCoordinateKey = stampCoordinateKey;
    }
 
-   public String getLanguageCoordinateKey() {
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
+
+    public LetItemKey getLanguageCoordinateKey() {
       return languageCoordinateKey;
    }
 
-    public void setLanguageCoordinateKey(String languageCoordinateKey) {
+    public void setLanguageCoordinateKey(LetItemKey languageCoordinateKey) {
         this.languageCoordinateKey = languageCoordinateKey;
     }
 
-    public String getStampCoordinateKey() {
+    public LetItemKey getStampCoordinateKey() {
         return stampCoordinateKey;
     }
 
     //~--- methods -------------------------------------------------------------
-    public void setStampCoordinateKey(String stampCoordinateKey) {
+    public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
         this.stampCoordinateKey = stampCoordinateKey;
     }
 
@@ -117,8 +128,8 @@ public class FullyQualifiedNameForConcept
      */
     @Override
     public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        final LanguageCoordinate languageCoordinate         = (LanguageCoordinate) getEnclosingQuery().getLetDeclarations().get(this.languageCoordinateKey);
-        final StampCoordinate    stampCoordinate            = (StampCoordinate) getEnclosingQuery().getLetDeclarations().get(this.stampCoordinateKey);
+        final LanguageCoordinate languageCoordinate         = getLetItem(this.languageCoordinateKey);
+        final StampCoordinate    stampCoordinate            = getLetItem(this.stampCoordinateKey);
         final NidSet             outgoingFullySpecifiedNids = new NidSet();
         
         for (final Clause childClause: getChildren()) {

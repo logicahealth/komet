@@ -24,7 +24,9 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.scene.control.MenuItem;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -58,10 +60,13 @@ public class AddEditVersionMenuItems {
       return categorizedVersion.getSemanticType();
    }
    public PropertySheetMenuItem makePropertySheetMenuItem(String menuText) {
-      PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion, true);
+      PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion);
       MenuItem menuItem = new MenuItem(menuText);
       menuItem.setOnAction((event) -> {
-         propertySheetMenuItem.prepareToExecute();
+         // create version to edit here
+        ObservableVersion uncommittedVersion = categorizedVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+        propertySheetMenuItem.setVersionInFlight(uncommittedVersion);
+        propertySheetMenuItem.prepareToExecute();
          propertySheetConsumer.accept(propertySheetMenuItem);
       });
       menuItems.add(menuItem);

@@ -45,6 +45,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -58,6 +62,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 
@@ -69,16 +74,18 @@ import sh.isaac.api.query.WhereClause;
  *
  * @author kec
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionRegexMatch
         extends LeafClause {
-   /** The cache. */
-   NidSet cache = new NidSet();
 
    /** The regex key. */
-   String regexKey;
+   @XmlElement
+   LetItemKey regexKey;
 
-   /** The view coordinate key. */
-   String viewCoordinateKey;
+   /** the manifold coordinate key. */
+   @XmlElement
+   LetItemKey manifoldCoordinateKey;
 
    private String parameterString;
    private ManifoldCoordinate manifoldCoordinate;
@@ -95,11 +102,11 @@ public class DescriptionRegexMatch
     *
     * @param enclosingQuery the enclosing query
     * @param regexKey the regex key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public DescriptionRegexMatch(Query enclosingQuery, String regexKey, String viewCoordinateKey) {
+   public DescriptionRegexMatch(Query enclosingQuery, LetItemKey regexKey, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.manifoldCoordinateKey = manifoldCoordinateKey;
       this.regexKey          = regexKey;
    }
 
@@ -113,14 +120,13 @@ public class DescriptionRegexMatch
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-      this.cache = incomingPossibleComponents.get(this.getAssemblageForIteration());
+      this.getResultsCache().or(incomingPossibleComponents.get(this.getAssemblageForIteration()));
       HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-      resultsMap.put(this.getAssemblageForIteration(), this.cache);
+      resultsMap.put(this.getAssemblageForIteration(), this.getResultsCache());
       return resultsMap;
    }
 
    //~--- get methods ---------------------------------------------------------
-
 
    public void setParameterString(String parameterString) {
       this.parameterString = parameterString;
@@ -158,7 +164,7 @@ public class DescriptionRegexMatch
       conceptChronology.getConceptDescriptionList()
                        .forEach(
                            (description) -> {
-                              if (this.cache.contains(description.getNid())) {
+                              if (this.getResultsCache().contains(description.getNid())) {
                                  description.getVersionList()
                                             .forEach(
                                                   (dv) -> {
@@ -189,7 +195,7 @@ public class DescriptionRegexMatch
       whereClause.getLetKeys()
                  .add(this.regexKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
 }

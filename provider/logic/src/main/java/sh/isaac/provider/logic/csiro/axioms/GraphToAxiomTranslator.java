@@ -223,7 +223,7 @@ public class GraphToAxiomTranslator {
          throw new UnsupportedOperationException("Supported, but not yet implemented.");
 
       case LITERAL_BOOLEAN:
-      case LITERAL_FLOAT:
+      case LITERAL_DOUBLE:
       case LITERAL_INSTANT:
       case LITERAL_INTEGER:
       case LITERAL_STRING:
@@ -253,7 +253,7 @@ public class GraphToAxiomTranslator {
 
          return Optional.of(Factory.createBooleanLiteral(literalNodeBoolean.getLiteralValue()));
 
-      case LITERAL_FLOAT:
+      case LITERAL_DOUBLE:
          final LiteralNodeDouble literalNodeFloat = (LiteralNodeDouble) logicNode;
 
          return Optional.of(Factory.createFloatLiteral((float) literalNodeFloat.getLiteralValue()));

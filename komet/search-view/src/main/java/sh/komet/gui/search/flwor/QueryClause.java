@@ -16,20 +16,29 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.LetItemKey;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.Clause;
+import sh.isaac.api.query.Join;
+import sh.isaac.api.query.clauses.ComponentIsActive;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
+import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapperNoSearch;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 //~--- inner classes -------------------------------------------------------
 public class QueryClause {
@@ -39,9 +48,13 @@ public class QueryClause {
     Manifold manifold;
     SimpleListProperty<ConceptSpecification> forList;
     SimpleObjectProperty<ConceptSpecification> forSpecProperty = new SimpleObjectProperty<>(this, MetaData.FOR_ASSEMBLAGE____SOLOR.toExternalString()); 
- 
+    SimpleObjectProperty<LetItemKey> stampKeyProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE____SOLOR.toExternalString()); 
+    ObservableList<ConceptSpecification> joinProperties;
+    ObservableList<LetItemKey> stampCoordinateKeys;
+    ObservableMap<LetItemKey, Object> letItemObjectMap;
     //~--- constructors -----------------------------------------------------
-    protected QueryClause(Clause clause, Manifold manifold, SimpleListProperty<ConceptSpecification> forList) {
+    protected QueryClause(Clause clause, Manifold manifold, SimpleListProperty<ConceptSpecification> forList, ObservableList<ConceptSpecification> joinProperties,
+            ObservableList<LetItemKey> stampCoordinateKeys, ObservableMap<LetItemKey, Object> letItemObjectMap) {
         this.manifold = manifold;
         this.forList = forList;
         this.clauseProperty = new SimpleObjectProperty<>(this, "clauseProperty", clause);
@@ -49,6 +62,9 @@ public class QueryClause {
         this.clauseProperty.addListener(
                 (javafx.beans.value.ObservableValue<? extends sh.isaac.api.query.Clause> ov, sh.isaac.api.query.Clause oldClause, sh.isaac.api.query.Clause newClause)
                 -> this.clauseName.setValue(manifold.getManifoldCoordinate().getPreferredDescriptionText(newClause.getClauseConcept())));
+        this.joinProperties = joinProperties;
+        this.stampCoordinateKeys = stampCoordinateKeys;
+        this.letItemObjectMap = letItemObjectMap;
     }
 
     //~--- methods ----------------------------------------------------------
@@ -95,13 +111,20 @@ public class QueryClause {
                 clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "For each", 
                 forSpecProperty, forList));
                 forSpecProperty.addListener((observable, oldValue, newValue) -> {
-                    descriptionLuceneMatch.setAssemblageForIteration(newValue);
+                    
+                    try {
+                        descriptionLuceneMatch.setAssemblageForIteration(newValue);
+                    } catch (Exception e) {
+                        FxGet.dialogs().showErrorDialog("Error updating after forSpecProperty change.", e);
+                    }
                 });
                
                 
                 SimpleStringProperty queryText = new SimpleStringProperty(this, MetaData.QUERY_STRING____SOLOR.toExternalString());
+                queryText.setValue(descriptionLuceneMatch.getQueryText());
                 queryText.addListener((observable, oldValue, newValue) -> {
-                    descriptionLuceneMatch.setParameterString(newValue);
+                    descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), newValue);
+                    
                 });
 
                 clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold, queryText));
@@ -126,7 +149,38 @@ public class QueryClause {
             case XOR:
                 return new Pane();
             case JOIN:
-                return new Pane();
+                Join join = (Join) clauseProperty.get();
+                join.setJoinSpecifications(FXCollections.observableArrayList());
+                JoinSpecificationObservable joinCriterion = new JoinSpecificationObservable();
+                join.getJoinSpecifications().add(joinCriterion);
+                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "join", 
+                forSpecProperty, forList));
+                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "with", 
+                joinCriterion.assemblageToJoin, forList));
+                // need field list here
+                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "where", 
+                joinCriterion.sourceField, joinProperties));
+                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "equals", 
+                joinCriterion.joinField, joinProperties));
+                return clausePropertySheet;
+                
+            case COMPONENT_IS_ACTIVE:
+                ComponentIsActive componentIsActive = (ComponentIsActive) clauseProperty.get();
+                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "For each", 
+                forSpecProperty, forList));
+                forSpecProperty.addListener((observable, oldValue, newValue) -> {
+                    componentIsActive.setAssemblageForIteration(newValue);
+                });
+                
+                clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("Stamp", 
+                stampKeyProperty, stampCoordinateKeys));
+                stampKeyProperty.setValue(componentIsActive.getStampCoordinateKey());
+                
+                stampKeyProperty.addListener((observable, oldValue, newValue) -> {
+                    componentIsActive.setStampCoordinateKey((LetItemKey) newValue);
+                });
+                return clausePropertySheet;
+                
             default:
                 throw new UnsupportedOperationException("Can't handle: " + this.clauseProperty.get().getClauseSemantic());
 

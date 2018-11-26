@@ -19,8 +19,9 @@
 package sh.isaac.integration.tests.suite2;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,13 +35,15 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.RecursiveDelete;
-import sh.isaac.convert.mojo.turtle.TurtleImportMojo;
+import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
+import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
@@ -69,9 +72,9 @@ public class QueryProviderTest {
 		Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 		LookupService.startupIsaac();
 
-		TurtleImportMojo tim = new TurtleImportMojo(null, QueryProviderTest.class.getResourceAsStream("/turtle/bevontology-0.8.ttl"), "0.8");
-		
-		tim.processTurtle();
+		TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
+		timd.configure(null, Paths.get(QueryProviderTest.class.getResource("/turtle/bevontology-0.8.ttl").toURI()), "0.8", null);
+		timd.convertContent(update -> {}, (work, total) ->{});
 		
 		di = LookupService.get().getService(DescriptionIndexer.class);
 		di.forceMerge();  //Just a way to force the query readers to refresh more quickly than they would
@@ -104,7 +107,7 @@ public class QueryProviderTest {
 	@Test
 	public void testSizeLimits2() {
 		
-		int expectedMaxHits = 158;
+		int expectedMaxHits = 242;
 		
 		Assert.assertEquals(di.query("bevon", Integer.MAX_VALUE).size(), expectedMaxHits);
 		
@@ -252,10 +255,10 @@ public class QueryProviderTest {
 	public void testPredicate() {
 		
 		//no predicate
-		Assert.assertEquals(di.query("rdfs.co", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 141);
+		Assert.assertEquals(di.query("rdfs.co", false, null, null, null, 1, Integer.MAX_VALUE, null).size(), 183);
 		
 		//no fail predicate
-		Assert.assertEquals(di.query("rdfs.co", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 141);
+		Assert.assertEquals(di.query("rdfs.co", false, null, (nid -> true), null, 1, Integer.MAX_VALUE, null).size(), 183);
 		
 		//no pass predicate
 		Assert.assertEquals(di.query("rdfs.co", false, null, (nid -> false), null, 1, Integer.MAX_VALUE, null).size(), 0);
@@ -305,9 +308,41 @@ public class QueryProviderTest {
 	@Test
 	public void testPrefixWithMergeOnConcepts() {
 		
-		Assert.assertEquals(di.query("whis", true, null, null, 1, 125, null).size(), 53);
+		Assert.assertEquals(di.query("whis", true, null, null, 1, 125, null).size(), 54);
 		
 		Assert.assertEquals(di.mergeResultsOnConcept(di.query("whis", true, null, null, 1, 125, null)).size(), 25);
+	}
+	
+	
+	/**
+	 * Lazy cheat of a non-query test being shoved into this class, but one that needs the beverage ontology
+	 */
+	@Test
+	public void testExternalDescriptionExpand() {
+		
+		ConceptSpecification[] expandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR}, null);
+		
+		Assert.assertEquals(expandedList.length, 4);
+		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, expandedList[0]);
+		HashSet<UUID> expected = new HashSet<>();
+		expected.add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid());
+		expected.add(UUID.fromString("f98669ec-27fb-526d-97f1-5162e11e24e1"));
+		expected.add(UUID.fromString("e00ac5df-d8e4-562e-ba52-105812bdde52"));
+		expected.add(UUID.fromString("26a7bba3-7807-5a9c-a9c1-ebf0934cb5f4"));
+
+		for (ConceptSpecification spec : expandedList)
+		{
+			Assert.assertTrue(expected.contains(spec.getPrimordialUuid()));
+		}
+		
+		ConceptSpecification[] reexpandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(expandedList, null);
+		
+		Assert.assertEquals(reexpandedList.length, 4);
+		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, reexpandedList[0]);
+		for (ConceptSpecification spec : reexpandedList)
+		{
+			Assert.assertTrue(expected.contains(spec.getPrimordialUuid()));
+		}
 	}
 	
 	private void printResults(List<SearchResult> result)

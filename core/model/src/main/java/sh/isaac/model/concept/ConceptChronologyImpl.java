@@ -205,7 +205,9 @@ public class ConceptChronologyImpl
       builder.append(toUserString());
       builder.append(" <");
       builder.append(getNid());
-      builder.append("> \n");
+      builder.append(">[");
+      builder.append(getPrimordialUuid());
+      builder.append("] \n");
       return builder.toString();
    }
    

@@ -37,16 +37,19 @@
 
 package sh.isaac.convert.mojo.icd10.reader;
 
-import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import org.apache.maven.plugin.MojoExecutionException;
+import java.util.zip.ZipInputStream;
 import sh.isaac.convert.mojo.icd10.data.ICD10;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
@@ -62,9 +65,7 @@ public class ICD10Reader
 	// 2017 CM/PCS order files have 76,000 - 94,000 total rows, so good starting point
 	private List<ICD10> icd10Codes = new ArrayList<ICD10>(100000);
 
-	private final File file_;
-
-	public ICD10Reader(File inputFileOrDirectory, String converterSourceArtifactVersion) throws MojoExecutionException
+	public ICD10Reader(Path inputFileOrDirectory, String converterSourceArtifactVersion) throws IOException
 	{
 		// Need this for finding the right file and for concept date/time
 		if (converterSourceArtifactVersion == null || converterSourceArtifactVersion.length() != 4)
@@ -72,69 +73,56 @@ public class ICD10Reader
 			throw new RuntimeException("The 'converterSourceArtifactVersion' is not " + "set correctly, which should be the year of the codeset.");
 		}
 
-		File[] files_;
-
-		if (inputFileOrDirectory.isDirectory())
+		final AtomicReference<Path> zipFile = new AtomicReference<>();
+		
+		Files.walk(inputFileOrDirectory, new FileVisitOption[] {}).forEach(path ->
 		{
-			files_ = inputFileOrDirectory.listFiles();
-		}
-		else
-		{
-			files_ = new File[] { inputFileOrDirectory };
-		}
-
-		ArrayList<File> files = new ArrayList<File>();
-		for (File f : files_)
-		{
-			if (f.isFile() && f.getName().toLowerCase().endsWith(".zip") && f.getName().contains(converterSourceArtifactVersion))
+			if (path.toString().toLowerCase().endsWith(".zip") && path.toString().contains(converterSourceArtifactVersion))
 			{
-				files.add(f);
+				if (zipFile.get() != null)
+				{
+					throw new RuntimeException("Only expected to find one zip file in the folder " + inputFileOrDirectory.normalize());
+				}
+				zipFile.set(path);
 			}
-		}
+		});
 
-		if (files.size() != 1)
+		if (zipFile.get() == null)
 		{
 			throw new RuntimeException("Was expecting to find a single zip file which contained the source artifact version of '"
-					+ converterSourceArtifactVersion + "', but instead, we found " + files.size() + " files in " + inputFileOrDirectory.getAbsolutePath());
+					+ converterSourceArtifactVersion + " in " + inputFileOrDirectory.normalize());
 		}
 
-		file_ = files.get(0);
 		boolean foundData = false;
-		try
+		try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile.get(), StandardOpenOption.READ)))
 		{
-			ZipFile zf = new ZipFile(file_);
-			Enumeration<? extends ZipEntry> zipEntries = zf.entries();
-			while (zipEntries.hasMoreElements())
+			ZipEntry ze = zis.getNextEntry();
+			while (ze != null)
 			{
-				ZipEntry ze = zipEntries.nextElement();
 				if (ze.getName().toLowerCase().endsWith(".txt") && ze.getName().toLowerCase().contains("order_" + converterSourceArtifactVersion.trim()))
 				{
 					// Just processing the first file/zip entry found that matches
 					ConsoleUtil.println("Prepared to process: " + ze.getName());
-					this.readCodes(zf.getInputStream(ze));
+					this.readCodes(zis);
 					foundData = true;
 				}
 				if (foundData)
 				{
 					break;
 				}
+				ze = zis.getNextEntry();
 			}
-			zf.close();
-		}
-		catch (Exception e)
-		{
-			throw new MojoExecutionException("Exception", e);
 		}
 		if (!foundData)
 		{
 			throw new RuntimeException(
-					"Was looking inside the zip file " + file_.getAbsolutePath() + " for a file name that ends in '.txt' and contains 'order_"
+					"Was looking inside the zip file " + zipFile.get().normalize() + " for a file name that ends in '.txt' and contains 'order_"
 							+ converterSourceArtifactVersion.trim() + "' but was unable to find a matching file");
 		}
 
 	}
 
-	private void readCodes(InputStream is) throws MojoExecutionException
+	private void readCodes(InputStream is) throws IOException
 	{
 		/*
 		 * Per ICD-10 PCS and CM Order File documentation
@@ -160,7 +148,7 @@ public class ICD10Reader
 		}
 		catch (Exception e)
 		{
-			throw new MojoExecutionException("Exception", e);
+			throw new IOException("Exception", e);
 		}
 	}
 

@@ -44,6 +44,10 @@ package sh.isaac.api.query.clauses;
 import java.util.EnumSet;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -54,6 +58,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 
@@ -66,23 +71,22 @@ import sh.isaac.api.query.WhereClause;
  *
  * @author dylangrald
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class ChangedBetweenVersions
         extends LeafClause {
-   /**
-    * Cached set of incoming components. Used to optimize speed in
-    * getQueryMatches method.
-    */
-   NidSet cache = new NidSet();
 
    /**
     * The <code>StampCoordinate</code> used to specify version one.
     */
-   String stampCoordinateOneKey;
+   @XmlElement
+   LetItemKey stampCoordinateOneKey;
 
    /**
     * The <code>StampCoordinate</code> used to specify version two.
     */
-   String stampCoordinateTwoKey;
+   @XmlElement
+   LetItemKey stampCoordinateTwoKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -100,26 +104,26 @@ public class ChangedBetweenVersions
     * @param stampCoordinateOneKey the first stamp version to compare
     * @param stampCoordinateTwoKey the second stamp version to compare
     */
-   public ChangedBetweenVersions(Query enclosingQuery, String stampCoordinateOneKey, String stampCoordinateTwoKey) {
+   public ChangedBetweenVersions(Query enclosingQuery, LetItemKey stampCoordinateOneKey, LetItemKey stampCoordinateTwoKey) {
       super(enclosingQuery);
       this.stampCoordinateOneKey = stampCoordinateOneKey;
       this.stampCoordinateTwoKey = stampCoordinateTwoKey;
    }
 
-   public String getStampCoordinateOneKey() {
+   public LetItemKey getStampCoordinateOneKey() {
       return stampCoordinateOneKey;
    }
 
-    public void setStampCoordinateOneKey(String stampCoordinateOneKey) {
+    public void setStampCoordinateOneKey(LetItemKey stampCoordinateOneKey) {
         this.stampCoordinateOneKey = stampCoordinateOneKey;
     }
 
-    public String getStampCoordinateTwoKey() {
+    public LetItemKey getStampCoordinateTwoKey() {
         return stampCoordinateTwoKey;
     }
 
     //~--- methods -------------------------------------------------------------
-    public void setStampCoordinateTwoKey(String stampCoordinateTwoKey) {
+    public void setStampCoordinateTwoKey(LetItemKey stampCoordinateTwoKey) {
         this.stampCoordinateTwoKey = stampCoordinateTwoKey;
     }
 
@@ -131,7 +135,7 @@ public class ChangedBetweenVersions
      */
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        this.cache = incomingPossibleComponents.get(this.getAssemblageForIteration());
+        this.getResultsCache().or(incomingPossibleComponents.get(this.getAssemblageForIteration()));
         return incomingPossibleComponents;
     }
 

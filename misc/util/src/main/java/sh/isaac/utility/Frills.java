@@ -69,6 +69,7 @@ import org.jvnet.hk2.annotations.Service;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.MetaData;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.IsaacCache;
 import sh.isaac.api.LookupService;
@@ -127,14 +128,17 @@ import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.SctId;
+import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.mapping.constants.IsaacMappingConstants;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.concept.ConceptVersionImpl;
+import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.model.coordinate.EditCoordinateImpl;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
@@ -153,7 +157,6 @@ import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.api.TaxonomySnapshot;
 
-
 /**
  * The Class Frills.
  */
@@ -168,6 +171,7 @@ public class Frills
    private static final Cache<Integer, Boolean> IS_ASSOCIATION_CLASS = Caffeine.newBuilder().maximumSize(50).build();
    private static final Cache<Integer, Boolean> IS_MAPPING_CLASS = Caffeine.newBuilder().maximumSize(50).build();
    private static final Cache<Integer, Integer> MODULE_TO_TERM_TYPE_CACHE = Caffeine.newBuilder().maximumSize(50).build();
+   private static final Cache<Integer, Integer> EDIT_MODULE_FOR_TERMINOLOGY_CACHE = Caffeine.newBuilder().maximumSize(50).build();
 
 
    /**
@@ -254,7 +258,7 @@ public class Frills
          NecessarySet(And(ConceptAssertion(parentConcept, defBuilder)));
 
          final LogicalExpression parentDef = defBuilder.build();
-         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(semanticFQN, null, parentDef, MetaData.CONCEPT_ASSEMBLAGE____SOLOR.getNid());
+         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(semanticFQN, null, parentDef, MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
          DescriptionBuilder<? extends SemanticChronology, ? extends MutableDescriptionVersion> definitionBuilder =
             descriptionBuilderService.getDescriptionBuilder(
                 semanticPreferredTerm,
@@ -466,25 +470,97 @@ public class Frills
    }
    
    /**
-    * Walk up the module tree, looking for the module concept nid directly under {@link MetaData#MODULE____SOLOR} - return it if found, otherwise, return null.
+    * For a specified module, such as "NUCC modules" or "NUCC 17.1 module" create (if necessary) a module following the pattern:
+    * Module
+    *   NUCC modules
+    *     NUCC Edit
+    * 
+    * and then return the nid for "NUCC Edit".  The FSN and Regular name for the created concept will be based off of the "NUCC modules" concept, 
+    * plus the word "Edit".
+    * 
+    * @param module The terminology type module concept - typically a direct child of {@link MetaData#MODULE____SOLOR} but can also be nested deeper.
+    * @return the "Edit" module for this terminology type, which will be created, if necessary.
     */
-   private static Integer findTermTypeConcept(int conceptModuleNid, StampCoordinate stamp)
-   {
-      int[] parents = Get.taxonomyService().getSnapshot(
-            new ManifoldCoordinateImpl(stamp == null ? StampCoordinates.getDevelopmentLatest(): stamp, 
-                  LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
+   public static int createAndGetDefaultEditModule(int module) {
+
+      return EDIT_MODULE_FOR_TERMINOLOGY_CACHE.get(module, moduleAgain -> {
+         
+         final int termTypeConcept = findTermTypeConcept(moduleAgain, null);
+         final StampCoordinate stamp = StampCoordinates.getDevelopmentLatest();
+         final LanguageCoordinate fqnCoord = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
+         
+         //iterate the children, find one that has a FQN than ends with "Edit (SOLOR)"
+         int[] termTypeChildren = Get.taxonomyService().getSnapshotNoTree(new ManifoldCoordinateImpl(stamp, fqnCoord)).getTaxonomyChildConceptNids(termTypeConcept);
+         for (int nid : termTypeChildren) {
+            String fqn = fqnCoord.getFullyQualifiedName(nid, stamp).orElseGet(() -> "");
+            int index = fqn.indexOf("Edit (" + ConceptProxy.METADATA_SEMANTIC_TAG + ")"); 
+            if (index > 0) {
+               LOG.debug("Returning existing default edit module nid of {} for {}", Get.conceptDescriptionText(nid), Get.conceptDescriptionText(moduleAgain));
+               return nid;
+            }
+         }
+         
+         //We didn't find one... need to create it.
+         LOG.debug("Creating edit module concept for terminology type {}", Get.conceptDescriptionText(termTypeConcept));
+         String termTypeFQN = fqnCoord.getFullyQualifiedName(termTypeConcept, stamp).get();
+         termTypeFQN = SemanticTags.stripSemanticTagIfPresent(termTypeFQN);
+         if (termTypeFQN.endsWith(" modules")) {  //Common pattern
+            termTypeFQN = termTypeFQN.substring(0, termTypeFQN.length() - " modules".length());
+         }
+         termTypeFQN = termTypeFQN + " Edit";
+         
+         final LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
+         NecessarySet(And(ConceptAssertion(termTypeConcept, defBuilder)));
+         
+         //TODO switch this over to the observable create / commit pattern
+         try {
+            int nid = Get.conceptBuilderService().getDefaultConceptBuilder(termTypeFQN, ConceptProxy.METADATA_SEMANTIC_TAG, defBuilder.build(), 
+                 MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).build(
+                       new EditCoordinateImpl(TermAux.USER.getNid(),  TermAux.CORE_METADATA_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid()), ChangeCheckerMode.ACTIVE).get().getNid();
+             commitCheck(Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
+                 "creating new edit module for terminology type " + Get.conceptDescriptionText(termTypeConcept)));
+             return nid;
+         }
+         catch (Exception e) {
+            throw new RuntimeException("Failed to create concept", e);
+         }
+      });
+   }
+   
+   /**
+    * Walk up the module tree, looking for the module concept nid directly under {@link MetaData#MODULE____SOLOR} - return it if found, otherwise, return null.
+    * 
+    * @param module the module to look up
+    * @param stamp - optional - uses default if not provided.  If provided, and doesn't include the metadata modules, it will use a modified stamp
+    * that includes the metadata module, since that module is required to read the module hierarchy.
+    */
+   private static Integer findTermTypeConcept(int conceptModuleNid, StampCoordinate stamp) {
+      StampCoordinate stampToUse = stamp == null ? StampCoordinates.getDevelopmentLatest() : stamp;
+      
+      if (stamp!= null) {
+         //ensure the provided stamp includes the metadata module
+         if (stamp.getModuleNids().size() > 0 && !stamp.getModuleNids().contains(MetaData.CORE_METADATA_MODULE____SOLOR.getNid()))
+         {
+            stampToUse = stamp.makeModuleAnalog(Arrays.asList(new ConceptSpecification[] {MetaData.CORE_METADATA_MODULE____SOLOR}), true);
+         }
+      }
+      
+      int[] parents = Get.taxonomyService().getSnapshotNoTree(
+            new ManifoldCoordinateImpl(stampToUse, LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
             .getTaxonomyParentConceptNids(conceptModuleNid);
       for (int current : parents)
       {
-         if (current == MetaData.MODULE____SOLOR.getNid())
-         {
+         if (current == MetaData.MODULE____SOLOR.getNid()) {
             return conceptModuleNid;
          }
-         else
-         {
-            return findTermTypeConcept(current, stamp);
+         else {
+            Integer recursive = findTermTypeConcept(current, stampToUse);
+            if (recursive != null) {  //only return this one if it had a path to MODULE_SOLOR, otherwise, let the loop continue.
+               return recursive;
+            }
          }
       }
+      //None of the parents has a path to MODULE_SOLOR
       return null;
    }
 
@@ -1032,7 +1108,7 @@ public class Frills
     */
    public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
       
-      TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(
+      TaxonomySnapshot tss = Get.taxonomyService().getSnapshotNoTree(
             new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp),
                   LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()));
       
@@ -2047,6 +2123,80 @@ public class Frills
    }
    
    /**
+    * Returns the set of terminology types (which are concepts directly under {@link MetaData#MODULE____SOLOR} for any concept in the system as a 
+    * set of concept nids.
+    * 
+    * Also, if the concept is a child of {@link MetaData#METADATA____SOLOR}, then it will also be marked with the terminology type of 
+    * {@link MetaData#SOLOR_MODULE____SOLOR} -even if there is no concept version that exists using the MetaData#SOLOR_MODULE____SOLOR} module - this gives 
+    * an easy way to identify "metadata" concepts.
+    * 
+    * @param oc
+    *           - the concept to read modules for
+    * @param stamp
+    *           - if null, return the modules ignoring coordinates. If not null, only return modules visible on the given coordinate
+    * @return the types
+    */
+   public static HashSet<Integer> getTerminologyTypes(ConceptChronology oc, StampCoordinate stamp) {
+      HashSet<Integer> modules = new HashSet<>();
+      HashSet<Integer> terminologyTypes = new HashSet<>();
+      
+      TaxonomySnapshot tss = Get.taxonomyService().getStatedLatestSnapshot(
+            (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathSpecification().getNid() : stamp.getStampPosition().getStampPathSpecification().getNid()),
+            (stamp == null ? new HashSet<>() : stamp.getModuleSpecifications()),
+            (stamp == null ? Status.ACTIVE_ONLY_SET : stamp.getAllowedStates()), false);
+
+      if (stamp == null) {
+         for (int stampSequence : oc.getVersionStampSequences()) {
+            modules.add(Get.stampService().getModuleNidForStamp(stampSequence));
+         }
+         if (tss.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid())) {
+            terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
+         }
+      } else {
+         oc.getVersionList().stream().filter(version -> {
+            return stamp.getAllowedStates().contains(version.getStatus())
+                  && (stamp.getModuleNids().size() == 0 ? true : stamp.getModuleNids().contains(version.getModuleNid()));
+         }).forEach(version -> {
+            modules.add(version.getModuleNid());
+         });
+         
+         if (tss.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid()))
+         {
+            terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
+         }
+      }
+      
+      //This isn't a valid module to ask for terminology type on
+      modules.remove(MetaData.MODULE____SOLOR.getNid());
+
+      for (int moduleNid : modules) {
+         terminologyTypes.add(getTerminologyTypeForModule(moduleNid, stamp));
+      }
+      return terminologyTypes;
+   }
+   
+   /**
+    * For a given module concept, walk up the module hierarchy, and return the terminology type concept that represents the module, 
+    * which would be a module concept that is a direct child on {@link MetaData#MODULE____SOLOR}
+    * @param module the module to look up
+    * @param stamp - optional - uses default if not provided.  If provided, and doesn't include the metadata modules, it will use a modified stamp
+    * that includes the metadata module, since that module is required to read the module hierarchy.
+    * @return the terminology type module
+    */
+   public static int getTerminologyTypeForModule(int module, StampCoordinate stamp)
+   {
+      Integer temp = (MODULE_TO_TERM_TYPE_CACHE.get(module, mNid -> {
+          return findTermTypeConcept(module, stamp);
+        }));
+        if (temp == null) {
+           throw new RuntimeException("The passed in module '" + module + " " + Get.conceptDescriptionText(module) +  " ' was not a child of MODULE (SOLOR)");
+        }
+        else {
+           return temp.intValue();
+        }
+   }
+
+   /**
     * Gets the version type.
     *
     * @param obj the obj
@@ -2322,6 +2472,7 @@ public class Frills
       IS_ASSOCIATION_CLASS.invalidateAll();
       IS_MAPPING_CLASS.invalidateAll();
       MODULE_TO_TERM_TYPE_CACHE.invalidateAll();
+      EDIT_MODULE_FOR_TERMINOLOGY_CACHE.invalidateAll();
    }
 }
 

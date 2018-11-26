@@ -181,7 +181,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
     *             the unsupported encoding exception
     */
    public IsaacMetadataAuxiliary() throws NoSuchAlgorithmException, UnsupportedEncodingException, Exception {
-      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.SOLOR_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.SOLOR_MODULE.getPrimordialUuid());
+      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.CORE_METADATA_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.CORE_METADATA_MODULE.getPrimordialUuid());
 
 //J-
       createConcept(TermAux.SOLOR_ROOT);
@@ -243,7 +243,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 popParent();
             createConcept("Module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
             pushParent(current());
-               createConcept(TermAux.KOMET_MODULE).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.METADATA_MODULES);
+               pushParent(current());
+                  createConcept(TermAux.CORE_METADATA_MODULE);
+                  createConcept(TermAux.KOMET_MODULE).setModule(TermAux.KOMET_MODULE);
+                  popParent();
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                pushParent(current());
                   createConcept("SOLOR quality assurance rule module");
@@ -268,11 +272,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
                createConcept(TermAux.VHAT_MODULES).addDescription("VHAT", TermAux.REGULAR_NAME_DESCRIPTION_TYPE).addDescription("VHA Terminology", TermAux.DEFINITION_DESCRIPTION_TYPE)
                      .addUuids(UUID.fromString("1f201520-960e-11e5-8994-feff819cdc9f"));
-               pushParent(current());
-                  createConcept(TermAux.VHAT_EDIT);
-                  popParent();
-
-               
                createConcept("HL7® v3 modules", "HL7v3").addDescription("Health Level 7 version 3", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("NUCC modules", "NUCC").addDescription("National Uniform Claim Committee", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("CVX modules", "CVX").addDescription("Vaccines Administered", TermAux.DEFINITION_DESCRIPTION_TYPE);
@@ -466,18 +465,16 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
 
                   // addPathOrigin(pathOrigins, developmentPath, masterPath);
                   popParent();
-               createConcept("SOLOR assemblage").setPrimordialUuid("7a9b495e-69c1-53e5-a2d5-41be2429c146");
-               createConcept("SOLOR Content Metadata");
-               pushParent(current());
-                  createConcept(TermAux.DATABASE_UUID);
-                  createConcept("Source Artifact Version");
-                  createConcept("Source Release Date");
-                  createConcept("Converter Version");
-                  createConcept("Converted IBDF Artifact Version");
-                  createConcept("Converted IBDF Artifact Classifier");
-                  popParent();
                popParent();
-               
+            createConcept("Content Metadata");
+            pushParent(current());
+               createConcept(TermAux.DATABASE_UUID);
+               createConcept("Source Artifact Version");
+               createConcept("Source Release Date");
+               createConcept("Converter Version");
+               createConcept("Converted IBDF Artifact Version");
+               createConcept("Converted IBDF Artifact Classifier");
+               popParent();
             createConcept(TermAux.LANGUAGE);
             pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 
             //confusing than necessary, also, making 2 parents, one of language, the other under assemblage.
@@ -598,7 +595,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                
                final ConceptBuilder syn = createConcept(TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
-               syn.addDescription("Synonyn", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
+               syn.addDescription("Synonym", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                createConcept(TermAux.DEFINITION_DESCRIPTION_TYPE);
                popParent();
             createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // LOINC and RxNorm description types are created under this node
@@ -661,10 +658,23 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Universal restriction").setPrimordialUuid(NodeSemantic.ROLE_ALL.getSemanticUuid());
                createConcept("Existential restriction").setPrimordialUuid(NodeSemantic.ROLE_SOME.getSemanticUuid());
                popParent();
+            createConcept("Status value");
+            pushParent(current());
+               createConcept(TermAux.INACTIVE_STATUS);
+               createConcept(TermAux.ACTIVE_STATUS);
+               createConcept(TermAux.PRIMORDIAL_STATUS);
+               createConcept(TermAux.CANCELED_STATUS);
+               createConcept(TermAux.WITHDRAWN_STATUS);
+                popParent();
+            createConcept("Precedence");
+            pushParent(current());
+               createConcept(TermAux.TIME_PRECEDENCE);
+               createConcept(TermAux.PATH_PRECEDENCE);
+                popParent();
             createConcept("Literal value");
             pushParent(current());
                createConcept("Boolean literal").setPrimordialUuid(NodeSemantic.LITERAL_BOOLEAN.getSemanticUuid());
-               createConcept("Float literal").setPrimordialUuid(NodeSemantic.LITERAL_FLOAT.getSemanticUuid());
+               createConcept("Float literal").setPrimordialUuid(NodeSemantic.LITERAL_DOUBLE.getSemanticUuid());
                createConcept("Instant literal").setPrimordialUuid(NodeSemantic.LITERAL_INSTANT.getSemanticUuid());
                createConcept("Integer literal").setPrimordialUuid(NodeSemantic.LITERAL_INTEGER.getSemanticUuid());
                createConcept("String literal").setPrimordialUuid(NodeSemantic.LITERAL_STRING.getSemanticUuid());
@@ -967,6 +977,18 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                createConcept(TermAux.ACTIVE_QUERY_CLAUSE);
                createConcept(TermAux.INACTIVE_QUERY_CLAUSE);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_ACTIVE);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_INACTIVE);
+               
+               createConcept(TermAux.REFERENCED_COMPONENT_IS);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_MEMBER_OF);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_NOT_MEMBER_OF);
+
+               createConcept(TermAux.COMPONENT_IS_MEMBER_OF);
+               createConcept(TermAux.COMPONENT_IS_NOT_MEMBER_OF);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_KIND_OF);
+               createConcept(TermAux.REFERENCED_COMPONENT_IS_NOT_KIND_OF);
+               
                createConcept(TermAux.AND_QUERY_CLAUSE);
          
                createConcept(TermAux.NOT_QUERY_CLAUSE);

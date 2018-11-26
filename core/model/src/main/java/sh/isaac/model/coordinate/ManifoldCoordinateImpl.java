@@ -41,6 +41,7 @@ package sh.isaac.model.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -223,6 +224,17 @@ public class ManifoldCoordinateImpl
    }
 
    /**
+    * @see sh.isaac.api.coordinate.StampCoordinate#makeModuleAnalog(int[], boolean)
+    */
+   @Override
+   public ManifoldCoordinateImpl makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+      return new ManifoldCoordinateImpl(this.taxonomyPremiseType, 
+            this.stampCoordinate.makeModuleAnalog(modules, add), 
+            this.languageCoordinate, 
+            this.logicCoordinate);
+   }
+
+   /**
     * To string.
     *
     * @return the string
@@ -329,6 +341,22 @@ public class ManifoldCoordinateImpl
     @Override
     public Set<ConceptSpecification> getModuleSpecifications() {
         return stampCoordinate.getModuleSpecifications();
+    }
+    
+
+    @Override
+    public ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
+        return languageCoordinate.getDialectAssemblageSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
+        return languageCoordinate.getDescriptionTypeSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
+        return languageCoordinate.getModuleSpecPreferenceListForLanguage();
     }
     
     

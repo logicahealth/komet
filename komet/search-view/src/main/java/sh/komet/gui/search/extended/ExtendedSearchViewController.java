@@ -53,6 +53,7 @@ import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -87,6 +88,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import sh.isaac.MetaData;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
@@ -96,6 +98,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -220,6 +223,14 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         }
     }
 
+    void selectionChanged(ListChangeListener.Change<? extends CompositeSearchResult> c) {
+        while (c.next()) {
+            if (!c.getAddedSubList().isEmpty()) {
+                CompositeSearchResult result = c.getAddedSubList().get(0);
+                outsideManifold.setFocusedConceptChronology(result.getContainingConcept());
+            }
+        }
+    }
     @FXML
     public void initialize() {
         assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
@@ -234,6 +245,8 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         assert stampCriteriaLabel != null : "fx:id=\"stampCriteriaLabel\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
         assert stampCriteriaTooltip != null : "fx:id=\"stampCriteriaTooltip\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
         assert adjustStampButton != null : "fx:id=\"adjustStampButton\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
+        
+        searchResults.getSelectionModel().getSelectedItems().addListener(this::selectionChanged);
 
         borderPane.getStylesheets().add(ExtendedSearchViewController.class.getResource("/styles/extendedSearch.css").toString());
 
@@ -450,7 +463,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                                 HBox hb = new HBox();
 
                                 if (item.getContainingConcept().getNid() == item.getMatchingComponents().iterator().next().getNid()) {
-                                    //matching item was a concept, which means this was a nid or UUID lookup.
+                                    //matching item was a concept, which means this was a spec or UUID lookup.
                                     Label concept = new Label("Concept");
                                     concept.getStyleClass().add("boldLabel");
                                     hb.getChildren().add(concept);
@@ -732,8 +745,8 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                 throw new RuntimeException("oops");
             } else switch (searchIn.getValue()) {
                 case Descriptions:
-                    int[] descriptionTypeRestriction;
-                    int[] extendedDescriptionTypeRestriction;
+                    ConceptSpecification[] descriptionTypeRestriction;
+                    ConceptSpecification[] extendedDescriptionTypeRestriction;
                     if (descriptionTypeSelection.getValue().getNid() == Integer.MIN_VALUE ||
                           descriptionTypeSelection.getValue().getNid() == Integer.MAX_VALUE) {
                         LOG.debug("Doing a description search across all description types");
@@ -741,13 +754,13 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                         extendedDescriptionTypeRestriction = null;
                     } else if (descriptionTypeSelection.getSelectionModel().getSelectedIndex() < descriptionTypeSelectionExtendedIndex) {
                         LOG.debug("Doing a description search on core description type {}", Get.conceptDescriptionText(descriptionTypeSelection.getValue().getNid()));
-                        descriptionTypeRestriction = LanguageCoordinates.expandDescriptionTypePreferenceList(new int[]{descriptionTypeSelection.getValue().getNid()}, 
+                        descriptionTypeRestriction = LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[]{new ConceptProxy(descriptionTypeSelection.getValue().getNid())}, 
                                 readManifoldCoordinate);
                         extendedDescriptionTypeRestriction = null;
                     } else {
                         LOG.debug("Doing a description search on the extended type {}", descriptionTypeSelection.getValue().getDescription());
                         descriptionTypeRestriction = null;
-                        extendedDescriptionTypeRestriction = new int[]{descriptionTypeSelection.getValue().getNid()};
+                        extendedDescriptionTypeRestriction = new ConceptSpecification[]{new ConceptProxy(descriptionTypeSelection.getValue().getNid())};
                     }   ssh = SearchHandler.search(()
                             -> {
                         return Get.service(IndexDescriptionQueryService.class).query(searchText.getText(), false, null,
@@ -864,20 +877,17 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                 -> {
             try {
                 descriptionTypeSelection.getItems().add(new SimpleDisplayConcept("All", Integer.MIN_VALUE));
-                for (int nid : LanguageCoordinates.expandDescriptionTypePreferenceList(new int[] {MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()}, readManifoldCoordinate)) {
-                    descriptionTypeSelection.getItems().add(
-                        new SimpleDisplayConcept((nid == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid() ? "" : "  ") 
-                           + readManifoldCoordinate.getRegularName(nid).get(), nid));
+                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate)) {
+                    descriptionTypeSelection.getItems().add(new SimpleDisplayConcept((spec.equals(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR) ? "" : "  ") 
+                           + readManifoldCoordinate.getRegularName(spec).get(), spec.getNid()));
                 }
-                for (int nid : LanguageCoordinates.expandDescriptionTypePreferenceList(new int[] {MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()}, readManifoldCoordinate)) {
-                    descriptionTypeSelection.getItems().add(
-                        new SimpleDisplayConcept((nid == MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid() ? "" : "  ") 
-                           + readManifoldCoordinate.getRegularName(nid).get(), nid));
+                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate)) {
+                    descriptionTypeSelection.getItems().add(new SimpleDisplayConcept((spec.equals(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR) ? "" : "  ") 
+                           + readManifoldCoordinate.getRegularName(spec).get(), spec.getNid()));
                 }
-                for (int nid : LanguageCoordinates.expandDescriptionTypePreferenceList(new int[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()}, readManifoldCoordinate)) {
-                    descriptionTypeSelection.getItems().add(
-                        new SimpleDisplayConcept((nid == MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid() ? "" : "  ") 
-                           + readManifoldCoordinate.getRegularName(nid).get(), nid));
+                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate)) {
+                    descriptionTypeSelection.getItems().add(new SimpleDisplayConcept((spec.equals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR) ? "" : "  ") 
+                           + readManifoldCoordinate.getRegularName(spec).get(), spec.getNid()));
                 }
                 Set<Integer> extendedDescriptionTypes = Frills.getAllChildrenOfConcept(
                         MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true, readManifoldCoordinate);

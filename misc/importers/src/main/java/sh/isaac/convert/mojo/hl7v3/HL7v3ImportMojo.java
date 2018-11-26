@@ -229,7 +229,7 @@ public class HL7v3ImportMojo extends ConverterBaseMojo
 					new DynamicColumnInfo[] { new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.NID,
 							null, true, true) }));
 
-			ComponentReference hl7v3Metadata = ComponentReference.fromConcept(createType(MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid(),
+			ComponentReference hl7v3Metadata = ComponentReference.fromConcept(createType(MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid(),
 					HL7v3Constants.TERMINOLOGY_NAME + " Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG));
 
 			importUtil.loadTerminologyMetadataAttributes(converterSourceArtifactVersion, Optional.empty(), converterOutputArtifactVersion,

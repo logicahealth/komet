@@ -37,8 +37,12 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -52,6 +56,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author kec
  */
+@XmlRootElement(name = "and")
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class And
         extends ParentClause {
 
@@ -156,4 +162,10 @@ public class And
         return getAllClauses();
     }
 
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
+
+    
 }

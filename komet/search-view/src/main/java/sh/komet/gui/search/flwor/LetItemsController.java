@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.LetItemKey;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -48,6 +49,9 @@ public class LetItemsController {
 
     }
 
+    public void reset() {
+        letListViewletListView.getItems().clear();
+    }
     public ListView<LetItemKey> getLetListViewletListView() {
         return letListViewletListView;
     }

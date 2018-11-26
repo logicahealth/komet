@@ -37,8 +37,10 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -52,6 +54,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author dylangrald
  */
+@XmlRootElement()
 public class Or
         extends ParentClause {
 
@@ -73,6 +76,10 @@ public class Or
     }
 
     //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
     /**
      * Compute components.
      *

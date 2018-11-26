@@ -32,7 +32,7 @@ import static sh.isaac.api.query.Clause.getParentClauses;
 public class Join 
         extends ParentClause {
 
-    List<JoinSpecificationSimple> joinSpecifications = new ArrayList<>();
+    List<JoinSpecification> joinSpecifications = new ArrayList<>();
     
     /**
      * Default no arg constructor for Jaxb.
@@ -52,6 +52,10 @@ public class Join
     }
 
     //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
     /**
      * Compute components.
      *
@@ -71,11 +75,11 @@ public class Join
         return resultsMap;
     }
 
-    public List<JoinSpecificationSimple> getJoinSpecifications() {
+    public List<JoinSpecification> getJoinSpecifications() {
         return joinSpecifications;
     }
 
-    public void setJoinSpecifications(List<JoinSpecificationSimple> joinSpecifications) {
+    public void setJoinSpecifications(List<JoinSpecification> joinSpecifications) {
         this.joinSpecifications = joinSpecifications;
     }
 

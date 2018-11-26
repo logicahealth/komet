@@ -54,7 +54,12 @@ public class SemanticTags {
     */
    public static boolean containsSemanticTag(String text)
    {
-      return CONTAINS_SEM_TAG_PATTERN.matcher(text).matches();
+      if (StringUtils.isEmpty(text)) {
+         return false;
+      }
+      else {
+         return CONTAINS_SEM_TAG_PATTERN.matcher(text).matches();
+      }
    }
    
    /**

@@ -16,16 +16,36 @@
  */
 package sh.isaac.api.constants;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+
 /**
  * The database implementations that may be selected via configuration.
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
 public enum DatabaseImplementation {
-	FILESYSTEM, XODUS, BDB, MV, DEFAULT;
+	FILESYSTEM, XODUS, BDB, MV, EXTERNAL, DEFAULT;
+	
+	private String serviceName = null;
+	
+	private void setServiceName(String serviceName)
+	{
+		this.serviceName = serviceName;
+	}
+	
+	/**
+	 * Return the name that should be used for a serviceLookup to HK2 for this implementation.
+	 * @return
+	 */
+	public String getServiceName()
+	{
+		return StringUtils.isBlank(serviceName) ? this.name() : serviceName;
+	}
 
 	/**
 	 * @param string parse the value from a string that equals the enum name value.
-	 * @return the implementation, or, throw a runtime exception if unknown.
+	 * @return the implementation, or, if it doesn't match one of the options here, 
+	 * 	it will return 'EXTERNAL', with the serviceName set to the passed in string. 
 	 */
 	public static DatabaseImplementation parse(String string)
 	{
@@ -36,6 +56,9 @@ public enum DatabaseImplementation {
 				return di;
 			}
 		}
-		throw new RuntimeException("Invalid value - " + string);
+		DatabaseImplementation toReturn = DatabaseImplementation.EXTERNAL;
+		toReturn.setServiceName(string);
+		LogManager.getLogger().info("External datastore found with a service name of '{}'", string);
+		return toReturn;
 	}
 }

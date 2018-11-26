@@ -261,7 +261,5 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     public Optional<ConceptSpecification> getModule() {
         return Optional.ofNullable(this.moduleSpecification);
     }
-    
-    
 }
 

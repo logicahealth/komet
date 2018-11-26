@@ -55,6 +55,7 @@ import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
@@ -193,10 +194,15 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
 
       descBuilder.setPrimordialUuid(this.getPrimordialUuid());
 
-      final SemanticChronology newDescription =
-         (SemanticChronology) descBuilder.build(stampSequence,
-                                                                         builtObjects);
-      getSemanticBuilders().forEach((builder) -> builder.build(stampSequence, builtObjects));
+      if (getModule().isPresent()) {
+          Stamp requested = Get.stampService().getStamp(stampSequence);
+          stampSequence = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
+      }
+       
+      final int finalStamp = stampSequence;
+
+      final SemanticChronology newDescription = (SemanticChronology) descBuilder.build(finalStamp, builtObjects);
+      getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
       return (T) newDescription;
    }
 

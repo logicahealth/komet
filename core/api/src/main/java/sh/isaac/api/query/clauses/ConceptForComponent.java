@@ -45,6 +45,9 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -66,6 +69,8 @@ import sh.isaac.api.query.WhereClause;
  *
  * @author kec
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptForComponent
         extends ParentClause {
    /**
@@ -84,6 +89,10 @@ public class ConceptForComponent
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
 
    /**
     * Compute components.

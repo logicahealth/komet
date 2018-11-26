@@ -94,7 +94,7 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.DoubleLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import sh.isaac.api.index.IndexQueryService;
@@ -109,6 +109,7 @@ import sh.isaac.api.component.semantic.version.DynamicVersion;
  * The Class RxNormLogicGraphsMojo.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * @deprecated this code was never properly ported, only left as (possibly) and example for future solar import work
  */
 @Service(name = "convert-rxnorm-to-solor-ibdf")
 public class RxNormLogicGraphsMojo

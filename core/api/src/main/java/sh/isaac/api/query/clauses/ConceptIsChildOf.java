@@ -45,6 +45,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -59,6 +63,7 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -71,13 +76,17 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author dylangrald
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsChildOf
         extends LeafClause {
    /** The child of spec key. */
-   String childOfSpecKey;
+   @XmlElement
+   LetItemKey childOfSpecKey;
 
-   /** The view coordinate key. */
-   String viewCoordinateKey;
+   /** the manifold coordinate key. */
+   @XmlElement
+   LetItemKey manifoldCoordinateKey;
 
    private ConceptSpecification childOfSpecification;
    private ManifoldCoordinate manifoldCoordinate;
@@ -94,12 +103,12 @@ public class ConceptIsChildOf
     *
     * @param enclosingQuery the enclosing query
     * @param kindOfSpecKey the kind of spec key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public ConceptIsChildOf(Query enclosingQuery, String kindOfSpecKey, String viewCoordinateKey) {
+   public ConceptIsChildOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
       this.childOfSpecKey    = kindOfSpecKey;
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.manifoldCoordinateKey = manifoldCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -171,7 +180,7 @@ public class ConceptIsChildOf
       whereClause.getLetKeys()
                  .add(this.childOfSpecKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
    

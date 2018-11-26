@@ -30,7 +30,7 @@ public class Rf2DirectMojoRunner extends Rf2ImportMojoDirect
 	{
 		Rf2DirectMojoRunner i = new Rf2DirectMojoRunner();
 		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
-		i.inputFileLocation= new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
+		i.inputFileLocationPath = new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src").toPath();
 		i.converterOutputArtifactVersion = "20170731T150000Z-loader-4.48-SNAPSHOT";
 		i.converterVersion = "4.48-SNAPSHOT";
 		i.converterSourceArtifactVersion = "20170731T150000Z";

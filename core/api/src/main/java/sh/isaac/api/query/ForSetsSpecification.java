@@ -80,19 +80,23 @@ public class ForSetsSpecification {
 
    //~--- get methods ---------------------------------------------------------
 
-   /**
-    * Gets the collection.
-    *
-    * @return the collection
-    */
-   public Map<ConceptSpecification, NidSet> getCollectionMap() {
-       Map<ConceptSpecification, NidSet> collections = new HashMap<>();
-       for (ConceptSpecification assemblage: assemblageSpecificationsForSet) {
-           NidSet assemblageNids = NidSet.of(Get.identifierService().getNidsForAssemblage(assemblage));
-           collections.put(assemblage, assemblageNids);
-       }
-       return collections;
+   public List<ConceptSpecification> getForSet() {
+       return assemblageSpecificationsForSet;
    }
+
+    /**
+     * Gets the collection.
+     *
+     * @return the collection
+     */
+    public Map<ConceptSpecification, NidSet> getCollectionMap() {
+        Map<ConceptSpecification, NidSet> collections = new HashMap<>();
+        for (ConceptSpecification assemblage: assemblageSpecificationsForSet) {
+            NidSet assemblageNids = NidSet.of(Get.identifierService().getNidsForAssemblage(assemblage));
+            collections.put(assemblage, assemblageNids);
+        }
+        return collections;
+    }
    
    public Map<ConceptSpecification, Integer> getAssembalgeToIndexMap() {
        Map<ConceptSpecification, Integer> returnValue = new HashMap();

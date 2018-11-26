@@ -54,6 +54,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
@@ -162,13 +163,20 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                     .getNidForUuids(this.referencedComponentBuilder.getUuids());
         }
         
+        if (getModule().isPresent()) {
+            Stamp requested = Get.stampService().getStamp(stampSequence);
+            stampSequence = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
+        }
+         
+        final int finalStamp = stampSequence;
+        
         List<SemanticBuildListenerI> semanticBuildListeners = LookupService.get().getAllServices(SemanticBuildListenerI.class);
         for (SemanticBuildListenerI listener : semanticBuildListeners) {
             if (listener != null) {
                 if (listener.isEnabled()) {
                     // LOG.info("Calling " + listener.getListenerName() + ".applyBefore(...)");
                     try {
-                        listener.applyBefore(stampSequence, builtObjects);
+                        listener.applyBefore(finalStamp, builtObjects);
                     } catch (RuntimeException e) {
                         LOG.error("FAILED running " + listener.getListenerName() + ".applyBefore(...): ", e);
                     }
@@ -203,14 +211,14 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
         switch (this.semanticType) {
             case COMPONENT_NID:
                 final ComponentNidVersionImpl cnsi
-                        = (ComponentNidVersionImpl) semanticChronicle.createMutableVersion(stampSequence);
+                        = (ComponentNidVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
                 
                 cnsi.setComponentNid((Integer) this.parameters[0]);
                 break;
             
             case Nid1_Int2:
                 final Nid1_Int2_Version nid1int2
-                        = (Nid1_Int2_Version) semanticChronicle.createMutableVersion(stampSequence);
+                        = (Nid1_Int2_Version) semanticChronicle.createMutableVersion(finalStamp);
                 
                 nid1int2.setNid1((Integer) this.parameters[0]);
                 nid1int2.setInt2((Integer) this.parameters[1]);
@@ -218,32 +226,32 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                 break;
             
             case LONG:
-                final LongVersionImpl lsi = (LongVersionImpl) semanticChronicle.createMutableVersion(stampSequence);
+                final LongVersionImpl lsi = (LongVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
                 version = lsi;
                 lsi.setLongValue((Long) this.parameters[0]);
                 break;
             
             case LOGIC_GRAPH:
                 final LogicGraphVersionImpl lgsi
-                        = (LogicGraphVersionImpl) semanticChronicle.createMutableVersion(stampSequence);
+                        = (LogicGraphVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
                 version = lgsi;
                 lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
                 break;
             
             case MEMBER:
-                SemanticVersionImpl svi = semanticChronicle.createMutableVersion(stampSequence);
+                SemanticVersionImpl svi = semanticChronicle.createMutableVersion(finalStamp);
                 version = svi;
                 break;
             
             case STRING:
-                final StringVersionImpl ssi = (StringVersionImpl) semanticChronicle.createMutableVersion(stampSequence);
+                final StringVersionImpl ssi = (StringVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
                 version = ssi;
                 ssi.setString((String) this.parameters[0]);
                 break;
             
             case DESCRIPTION: {
                 final DescriptionVersionImpl dsi
-                        = (DescriptionVersionImpl) semanticChronicle.createMutableVersion(stampSequence);
+                        = (DescriptionVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
                 version = dsi;
                 dsi.setCaseSignificanceConceptNid((Integer) this.parameters[0]);
                 dsi.setDescriptionTypeConceptNid((Integer) this.parameters[1]);
@@ -253,7 +261,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             }
             
             case DYNAMIC: {
-                final DynamicImpl dsi = (DynamicImpl) semanticChronicle.createMutableVersion(stampSequence);
+                final DynamicImpl dsi = (DynamicImpl) semanticChronicle.createMutableVersion(finalStamp);
                 if (referencedComponentBuilder != null) {
                     dsi.setReferencedComponentVersionType(referencedComponentBuilder.getVersionType());
                 }
@@ -272,14 +280,14 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                 throw new UnsupportedOperationException("p Can't handle: " + this.semanticType);
         }
         
-        getSemanticBuilders().forEach((builder) -> builder.build(stampSequence, builtObjects));
+        getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
         builtObjects.add(semanticChronicle);
         for (SemanticBuildListenerI listener : semanticBuildListeners) {
             if (listener != null) {
                 if (listener.isEnabled()) {
                     // LOG.info("Calling " + listener.getListenerName() + ".applyAfter(...)");
                     try {
-                        listener.applyAfter(stampSequence, version, builtObjects);
+                        listener.applyAfter(finalStamp, version, builtObjects);
                     } catch (RuntimeException e) {
                         LOG.error("FAILED running " + listener.getListenerName() + ".applyAfter(...): ", e);
                     }

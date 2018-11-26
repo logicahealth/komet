@@ -40,7 +40,7 @@
 package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
-
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -190,7 +190,12 @@ public class ObservableManifoldCoordinateImpl
       return new ObservableManifoldCoordinateImpl(this.manifoldCoordinate.makeCoordinateAnalog(state));
    }
 
-   /**
+   @Override
+   public ObservableManifoldCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+      return new ObservableManifoldCoordinateImpl(this.manifoldCoordinate.makeModuleAnalog(modules, add));
+   }
+
+/**
     * Premise type property.
     *
     * @return the object property
@@ -366,6 +371,19 @@ public class ObservableManifoldCoordinateImpl
         return manifoldCoordinate.getLanguageConcept();
     }
     
-    
+    @Override
+    public ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
+        return manifoldCoordinate.getDialectAssemblageSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
+        return manifoldCoordinate.getDescriptionTypeSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
+        return manifoldCoordinate.getModuleSpecPreferenceListForLanguage();
+    }
 }
 

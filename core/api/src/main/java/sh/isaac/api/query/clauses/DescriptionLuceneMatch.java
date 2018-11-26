@@ -41,7 +41,12 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.LookupService;
@@ -56,7 +61,7 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.index.IndexDescriptionQueryService;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -64,22 +69,20 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author kec
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionLuceneMatch
         extends LeafClause {
 
+    public static final LetItemKey DEFAULT_QUERY_STRING_KEY 
+            = new LetItemKey("Default query string key", 
+                    UUID.fromString("dd11c59a-9afd-4a15-a4a9-32fb414f3299"));
+    
     /**
-     * The lucene match key.
+     * the manifold coordinate key.
      */
-    String luceneMatchKey;
 
-    /**
-     * The view coordinate key.
-     */
-    String viewCoordinateKey;
-
-    private String parameterString;
-    private ManifoldCoordinate manifoldCoordinate;
-
+    private LetItemKey queryStringKey = DEFAULT_QUERY_STRING_KEY;
     //~--- constructors --------------------------------------------------------
     /**
      * Instantiates a new description lucene match.
@@ -91,23 +94,23 @@ public class DescriptionLuceneMatch
      * Instantiates a new description lucene match.
      *
      * @param enclosingQuery the enclosing query
-     * @param luceneMatchKey the lucene match key
-     * @param viewCoordinateKey the view coordinate key
+     * @param queryStringKey the lucene match key
      */
-    public DescriptionLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
+    public DescriptionLuceneMatch(Query enclosingQuery, LetItemKey queryStringKey) {
         super(enclosingQuery);
-        this.luceneMatchKey = luceneMatchKey;
-        this.viewCoordinateKey = viewCoordinateKey;
+        this.queryStringKey = queryStringKey;
     }
+    /**
+     * Instantiates a new description lucene match using the DEFAULT_QUERY_STRING_KEY.
+     *
+     * @param enclosingQuery the enclosing query
+     */
+    public DescriptionLuceneMatch(Query enclosingQuery) {
+        super(enclosingQuery);
+    }
+
 
     //~--- methods -------------------------------------------------------------
-    public void setParameterString(String parameterString) {
-        this.parameterString = parameterString;
-    }
-
-    public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
-        this.manifoldCoordinate = manifoldCoordinate;
-    }
 
     /**
      * Compute possible components.
@@ -124,14 +127,13 @@ public class DescriptionLuceneMatch
             throw new IllegalStateException("No description indexer found on classpath");
         }
 
-        final List<SearchResult> queryResults = descriptionIndexer.query(this.parameterString, 1000);
+        final List<SearchResult> queryResults = descriptionIndexer.query((String) this.enclosingQuery.getLetDeclarations().get(queryStringKey), 1000);
 
         NidSet incomingPossibleSet = incomingPossibleComponents.get(this.getAssemblageForIteration());
         queryResults.stream().forEach((s) -> {
             if (incomingPossibleSet.contains(s.getNid())) {
                 nids.add(s.getNid());
             }
-
         });
 
       getResultsCache().or(nids);
@@ -177,7 +179,7 @@ public class DescriptionLuceneMatch
 
         whereClause.setSemantic(ClauseSemantic.DESCRIPTION_LUCENE_MATCH);
         whereClause.getLetKeys()
-                .add(this.luceneMatchKey);
+                .add(this.queryStringKey);
         return whereClause;
     }
 
@@ -185,20 +187,17 @@ public class DescriptionLuceneMatch
     public ConceptSpecification getClauseConcept() {
         return TermAux.DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE;
     }
-
-    public String getLuceneMatchKey() {
-        return luceneMatchKey;
+    public void setQueryStringKey(LetItemKey queryStringKey) {
+        this.queryStringKey = queryStringKey;
     }
 
-    public void setLuceneMatchKey(String luceneMatchKey) {
-        this.luceneMatchKey = luceneMatchKey;
+    @XmlElement
+    public LetItemKey getQueryStringKey() {
+        return this.queryStringKey;
+    }    
+    
+    public String getQueryText() {
+        return getLetItem(queryStringKey);
     }
-
-    public String getViewCoordinateKey() {
-        return viewCoordinateKey;
-    }
-
-    public void setViewCoordinateKey(String viewCoordinateKey) {
-        this.viewCoordinateKey = viewCoordinateKey;
-    }
+    
 }

@@ -42,6 +42,7 @@ package sh.isaac.api.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collection;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -58,6 +59,8 @@ public interface StampPath
     * @return the nid of the concept that defines this STAMP path.
     */
    int getPathConceptNid();
+
+   ConceptSpecification getPathConcept();
 
    /**
     * Gets the path origins.

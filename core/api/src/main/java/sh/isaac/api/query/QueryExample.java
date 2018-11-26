@@ -34,18 +34,13 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
 import java.util.Map;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -53,57 +48,61 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
- * Demonstrates the syntax to construct and compute a
- * <code>Query</code>.
+ * Demonstrates the syntax to construct and compute a <code>Query</code>.
  *
  * @author kec
  */
 public class QueryExample {
-   /** The query. */
-   Query query;
 
-   //~--- constructors --------------------------------------------------------
+    /**
+     * The query.
+     */
+    Query query;
 
-   /**
-    * Instantiates a new query example.
-    */
-   public QueryExample() {
-      
-      this.query =
-         new Query(TermAux.SOLOR_CONCEPT_ASSEMBLAGE) {
-         @Override
-         public void Let() {
-            let("allergic-asthma", new ConceptProxy("Allergic asthma", "531abe20-8324-3db9-9104-8bcdbf251ac7"));
-            let("asthma", new ConceptProxy("Asthma (disorder)", "c265cf22-2a11-3488-b71e-296ec0317f96"));
-            let("mild asthma", new ConceptProxy("Mild asthma (disorder)", "51971ecc-9a54-3584-9c36-d647ab00b47f"));
-            let("stamp coordinate", Get.defaultCoordinate());
-         }
-         @Override
-         public Clause Where() {
-            return And(ConceptIsKindOf("asthma"),
-                       Not(ConceptIsChildOf("allergic-asthma"), "stamp coordinate"),
-                       ConceptIs("allergic-asthma"));
+    //~--- constructors --------------------------------------------------------
+    /**
+     * Instantiates a new query example.
+     */
+    public QueryExample() {
+        LetItemKey allergicAsthmaKey = new LetItemKey("allergic-asthma");
+        LetItemKey asthmaKey = new LetItemKey("asthma");
+        LetItemKey mildAsthmaKey = new LetItemKey("mild asthma");
+        LetItemKey stampCoordinateKey = new LetItemKey("stamp coordinate");
 
-//          Union(ConceptIsKindOf("allergic-asthma"),
-//          ConceptIsKindOf("mild asthma")));
-         }
-      };
-   }
+        this.query
+                = new Query(TermAux.SOLOR_CONCEPT_ASSEMBLAGE) {
+            @Override
+            public void Let() {
 
-   //~--- get methods ---------------------------------------------------------
+                let(allergicAsthmaKey, new ConceptProxy("Allergic asthma", "531abe20-8324-3db9-9104-8bcdbf251ac7"));
+                let(asthmaKey, new ConceptProxy("Asthma (disorder)", "c265cf22-2a11-3488-b71e-296ec0317f96"));
+                let(mildAsthmaKey, new ConceptProxy("Mild asthma (disorder)", "51971ecc-9a54-3584-9c36-d647ab00b47f"));
+                let(stampCoordinateKey, Get.defaultCoordinate());
+            }
 
-   /**
-    * Gets the results.
-    *
-    * @return the results
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @throws Exception the exception
-    */
-   public Map<ConceptSpecification, NidSet> getResults()
+            @Override
+            public Clause Where() {
+                return And(ConceptIsKindOf(allergicAsthmaKey),
+                        Not(ConceptIsChildOf(allergicAsthmaKey), stampCoordinateKey),
+                        ConceptIs(allergicAsthmaKey));
+
+//          Union(ConceptIsKindOf(allergicAsthmaKey),
+//          ConceptIsKindOf(mildAsthmaKey)));
+            }
+        };
+    }
+
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the results.
+     *
+     * @return the results
+     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws Exception the exception
+     */
+    public Map<ConceptSpecification, NidSet> getResults()
             throws IOException, Exception {
-      return this.query.compute();
-   }
+        return this.query.compute();
+    }
 }
-

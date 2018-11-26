@@ -45,6 +45,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -55,6 +59,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 
@@ -66,13 +71,17 @@ import sh.isaac.api.query.WhereClause;
  *
  * @author dylangrald
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIs
         extends LeafClause {
    /** The concept spec string. */
-   String conceptSpecString;
+   @XmlElement
+   LetItemKey conceptSpecString;
 
-   /** The view coordinate key. */
-   String viewCoordinateKey;
+   /** the manifold coordinate key. */
+   @XmlElement
+   LetItemKey manifoldCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -86,12 +95,12 @@ public class ConceptIs
     *
     * @param enclosingQuery the enclosing query
     * @param conceptSpec the concept spec
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public ConceptIs(Query enclosingQuery, String conceptSpec, String viewCoordinateKey) {
+   public ConceptIs(Query enclosingQuery, LetItemKey conceptSpec, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
       this.conceptSpecString = conceptSpec;
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.manifoldCoordinateKey = manifoldCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -151,7 +160,7 @@ public class ConceptIs
       whereClause.getLetKeys()
                  .add(this.conceptSpecString);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
    

@@ -275,18 +275,8 @@ public class Stamp
     * @return the stamp
     */
    public static Stamp stampFromIntStamp(int stamp) {
-      final Status status         = Get.stampService()
-                                      .getStatusForStamp(stamp);
-      final long  time           = Get.stampService()
-                                      .getTimeForStamp(stamp);
-      final int   authorNid = Get.stampService()
-                                      .getAuthorNidForStamp(stamp);
-      final int   moduleNid = Get.stampService()
-                                      .getModuleNidForStamp(stamp);
-      final int   pathNid   = Get.stampService()
-                                      .getPathNidForStamp(stamp);
-
-      return new Stamp(status, time, authorNid, moduleNid, pathNid);
+      final Stamp s = Get.stampService().getStamp(stamp);
+      return new Stamp(s.getStatus(), s.getTime(), s.getAuthorNid(), s.getModuleNid(), s.getPathNid());
    }
 
    /**

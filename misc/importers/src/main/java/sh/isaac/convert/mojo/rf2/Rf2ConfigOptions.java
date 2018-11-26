@@ -62,6 +62,8 @@ public class Rf2ConfigOptions implements ConfigOptionsDescriptor
                   "The UUID of the module to load this content on.  If not provided, defaults to the SNOMED CT Core Module", 
                   true, 
                   false,
+                  false,
+                  new String[] {MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getPrimordialUuid().toString()},
                   new ConverterOptionParamSuggestedValue(MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getPrimordialUuid().toString(), 
                         MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getRegularName().get()),
                   new ConverterOptionParamSuggestedValue(MetaData.US_EXTENSION_MODULES____SOLOR.getPrimordialUuid().toString(),

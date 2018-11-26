@@ -42,10 +42,12 @@ package sh.isaac.model.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collection;
+import sh.isaac.api.ConceptProxy;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPosition;
 
@@ -59,8 +61,8 @@ import sh.isaac.api.coordinate.StampPosition;
 public class StampPathImpl
          implements StampPath {
    /** The path concept nid. */
-   private final int pathConceptNid;
-
+   
+    ConceptSpecification pathConcept;
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -69,7 +71,11 @@ public class StampPathImpl
     * @param pathConceptNid the path concept nid
     */
    public StampPathImpl(int pathConceptNid) {
-      this.pathConceptNid = pathConceptNid;
+      this.pathConcept = new ConceptProxy(pathConceptNid);
+   }
+
+   public StampPathImpl(ConceptSpecification pathConcept) {
+      this.pathConcept = pathConcept;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -82,20 +88,25 @@ public class StampPathImpl
     */
    @Override
    public int compareTo(StampPath o) {
-      return Integer.compare(this.pathConceptNid, o.getPathConceptNid());
+      return this.pathConcept.getPrimordialUuid().compareTo(o.getPathConcept().getPrimordialUuid());
    }
 
    //~--- get methods ---------------------------------------------------------
 
-   /**
-    * Gets the path concept nid.
-    *
-    * @return the path concept nid
-    */
-   @Override
-   public int getPathConceptNid() {
-      return this.pathConceptNid;
+    @Override
+   public ConceptSpecification getPathConcept() {
+      return pathConcept;
    }
+
+    /**
+     * Gets the path concept nid.
+     *
+     * @return the path concept nid
+     */
+    @Override
+    public int getPathConceptNid() {
+        return this.pathConcept.getNid();
+    }
 
    /**
     * Gets the path origins.
@@ -105,7 +116,7 @@ public class StampPathImpl
    @Override
    public Collection<? extends StampPosition> getPathOrigins() {
       return Get.versionManagmentPathService()
-                .getOrigins(this.pathConceptNid);
+                .getOrigins(this.getPathConceptNid());
    }
 }
 

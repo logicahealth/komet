@@ -47,6 +47,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
+import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -61,14 +62,14 @@ import sh.isaac.api.coordinate.EditCoordinate;
  */
 public class EditCoordinateImpl
          implements EditCoordinate {
-   /** The author nid. */
-   int authorNid;
+   /** The author. */
+   ConceptSpecification author;
 
-   /** The module nid. */
-   int moduleNid;
+   /** The module. */
+   ConceptSpecification module;
 
-   /** The path nid. */
-   int pathNid;
+   /** The path. */
+   ConceptSpecification path;
    
     List<ConceptSpecification> pathOptions = new ArrayList<>();
     List<ConceptSpecification> moduleOptions = new ArrayList<>();
@@ -83,9 +84,15 @@ public class EditCoordinateImpl
     * @param pathId the path id
     */
    public EditCoordinateImpl(int authorId, int moduleId, int pathId) {
-      this.authorNid = authorId;
-      this.moduleNid = moduleId;
-      this.pathNid   = pathId;
+      this.author = new ConceptProxy(authorId);
+      this.module = new ConceptProxy(moduleId);
+      this.path   = new ConceptProxy(pathId);
+   }
+
+   public EditCoordinateImpl(ConceptSpecification author, ConceptSpecification module, ConceptSpecification path) {
+      this.author = author;
+      this.module = module;
+      this.path   = path;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -108,15 +115,15 @@ public class EditCoordinateImpl
 
       final EditCoordinateImpl other = (EditCoordinateImpl) obj;
 
-      if (this.authorNid != other.authorNid) {
+      if (!this.author.equals(other.author)) {
          return false;
       }
 
-      if (this.moduleNid != other.moduleNid) {
+      if (this.module.equals(other.module)) {
          return false;
       }
 
-      if (this.pathNid != other.pathNid) {
+      if (this.path.equals(other.path)) {
          return false;
       }
 
@@ -132,9 +139,9 @@ public class EditCoordinateImpl
    public int hashCode() {
       int hash = 3;
 
-      hash = 97 * hash + this.authorNid;
-      hash = 97 * hash + this.moduleNid;
-      hash = 97 * hash + this.pathNid;
+      hash = 97 * hash + this.author.getNid();
+      hash = 97 * hash + this.module.getNid();
+      hash = 97 * hash + this.path.getNid();
       return hash;
    }
 
@@ -145,9 +152,9 @@ public class EditCoordinateImpl
     */
    @Override
    public String toString() {
-      return "EditCoordinate{a: " + Get.conceptDescriptionText(this.authorNid) + ", m: " +
-             Get.conceptDescriptionText(this.moduleNid) + ", p: " +
-             Get.conceptDescriptionText(this.pathNid) + '}';
+      return "EditCoordinate{a: " + Get.conceptDescriptionText(this.author) + ", m: " +
+             Get.conceptDescriptionText(this.module) + ", p: " +
+             Get.conceptDescriptionText(this.path) + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -159,7 +166,7 @@ public class EditCoordinateImpl
     */
    @Override
    public int getAuthorNid() {
-      return this.authorNid;
+      return this.author.getNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -170,7 +177,7 @@ public class EditCoordinateImpl
     * @param authorId the new author nid
     */
    public void setAuthorNid(int authorId) {
-      this.authorNid = authorId;
+      this.author = new ConceptProxy(authorId);
    }
 
    /**
@@ -183,7 +190,7 @@ public class EditCoordinateImpl
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.authorNid = newValue.intValue();
+               this.author = new ConceptProxy(newValue.intValue());
             };
 
       authorSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -199,7 +206,7 @@ public class EditCoordinateImpl
     */
    @Override
    public int getModuleNid() {
-      return this.moduleNid;
+      return this.module.getNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -210,7 +217,7 @@ public class EditCoordinateImpl
     * @param moduleId the new module nid
     */
    public void setModuleNid(int moduleId) {
-      this.moduleNid = moduleId;
+      this.module = new ConceptProxy(moduleId);
    }
 
    /**
@@ -223,7 +230,7 @@ public class EditCoordinateImpl
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.moduleNid = newValue.intValue();
+               this.module = new ConceptProxy(newValue.intValue());
             };
 
       moduleSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -239,7 +246,7 @@ public class EditCoordinateImpl
     */
    @Override
    public int getPathNid() {
-      return this.pathNid;
+      return this.path.getNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -250,7 +257,7 @@ public class EditCoordinateImpl
     * @param pathId the new path nid
     */
    public void setPathNid(int pathId) {
-      this.pathNid = pathId;
+      this.path = new ConceptProxy(pathId);
    }
 
    /**
@@ -263,7 +270,7 @@ public class EditCoordinateImpl
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                                Number oldValue,
                                                Number newValue) -> {
-               this.pathNid = newValue.intValue();
+               this.path = new ConceptProxy(newValue.intValue());
             };
 
       pathSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -292,7 +299,7 @@ public class EditCoordinateImpl
 
    @Override
    public EditCoordinate deepClone() {
-      EditCoordinateImpl newCoordinate = new EditCoordinateImpl(authorNid, moduleNid, pathNid);
+      EditCoordinateImpl newCoordinate = new EditCoordinateImpl(author, module, path);
       newCoordinate.moduleOptions.addAll(moduleOptions);
       newCoordinate.pathOptions.addAll(pathOptions);
       return newCoordinate;

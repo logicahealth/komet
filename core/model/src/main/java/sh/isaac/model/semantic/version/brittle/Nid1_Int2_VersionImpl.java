@@ -97,7 +97,7 @@ public class Nid1_Int2_VersionImpl
                                        this.getModuleNid(),
                                        ec.getPathNid());
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Nid1_Int2_VersionImpl newVersion = new Nid1_Int2_VersionImpl((SemanticChronology) this, stampSequence);
+      final Nid1_Int2_VersionImpl newVersion = new Nid1_Int2_VersionImpl(this.getChronology(), stampSequence);
       newVersion.setNid1(this.nid1);
       newVersion.setInt2(this.int2);
 

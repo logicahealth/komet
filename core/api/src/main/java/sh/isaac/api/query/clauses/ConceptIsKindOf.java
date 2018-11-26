@@ -45,6 +45,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
@@ -57,7 +61,7 @@ import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,16 +72,16 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author kec
  */
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsKindOf
         extends LeafClause {
    /** The kind of spec key. */
-   String kindOfSpecKey;
+   @XmlElement
+   LetItemKey kindOfSpecKey;
 
-   /** The view coordinate key. */
-   String viewCoordinateKey;
-
-   private ConceptSpecification kindOfSpecification;
-   private ManifoldCoordinate manifoldCoordinate;
+   /** the manifold coordinate key. */
+   @XmlElement
+   LetItemKey manifoldCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -93,24 +97,16 @@ public class ConceptIsKindOf
     *
     * @param enclosingQuery the enclosing query
     * @param kindOfSpecKey the kind of spec key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public ConceptIsKindOf(Query enclosingQuery, String kindOfSpecKey, String viewCoordinateKey) {
+   public ConceptIsKindOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
       this.kindOfSpecKey     = kindOfSpecKey;
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.manifoldCoordinateKey = manifoldCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
 
-
-   public void setKindOfSpecification(ConceptSpecification kindOfSpecification) {
-      this.kindOfSpecification = kindOfSpecification;
-   }
-
-   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
-      this.manifoldCoordinate = manifoldCoordinate;
-   }
 
    /**
     * Compute possible components.
@@ -120,8 +116,8 @@ public class ConceptIsKindOf
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-      final int                parentNid         = this.kindOfSpecification.getNid();
-      final NidSet kindOfNidSet = Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getKindOfConceptNidSet(parentNid);
+      final int                parentNid         = ((ConceptSpecification) getLetItem(kindOfSpecKey)).getNid();
+      final NidSet kindOfNidSet = Get.taxonomyService().getSnapshot(getLetItem(manifoldCoordinateKey)).getKindOfConceptNidSet(parentNid);
       getResultsCache().or(kindOfNidSet);
       HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
       resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
@@ -168,7 +164,7 @@ public class ConceptIsKindOf
       whereClause.getLetKeys()
                  .add(this.kindOfSpecKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
    

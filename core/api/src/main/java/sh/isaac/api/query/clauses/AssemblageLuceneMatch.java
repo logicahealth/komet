@@ -44,6 +44,10 @@ package sh.isaac.api.query.clauses;
 import java.util.EnumSet;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -54,6 +58,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 //import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
@@ -65,32 +70,36 @@ import sh.isaac.api.query.WhereClause;
  *
  * @author dylangrald
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class AssemblageLuceneMatch
         extends LeafClause {
    /** The lucene match key. */
-   String luceneMatchKey;
+   @XmlElement
+   LetItemKey queryStringKey;
 
-   /** The view coordinate key. */
-   String viewCoordinateKey;
+   /** the manifold coordinate key. */
+   @XmlElement
+   LetItemKey manifoldCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new refset lucene match.
+    * Instantiates a new assemblage lucene match.
     */
    public AssemblageLuceneMatch() {}
 
    /**
-    * Instantiates a new refset lucene match.
+    * Instantiates a new assemblage lucene match.
     *
     * @param enclosingQuery the enclosing query
-    * @param luceneMatchKey the lucene match key
-    * @param viewCoordinateKey the view coordinate key
+    * @param queryStringKey the lucene match key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public AssemblageLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
+   public AssemblageLuceneMatch(Query enclosingQuery, LetItemKey queryStringKey, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
-      this.luceneMatchKey    = luceneMatchKey;
-      this.viewCoordinateKey = viewCoordinateKey;
+      this.queryStringKey    = queryStringKey;
+      this.manifoldCoordinateKey = manifoldCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -104,9 +113,9 @@ public class AssemblageLuceneMatch
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
       this.enclosingQuery.getLetDeclarations()
-                         .get(this.viewCoordinateKey);
+                         .get(this.manifoldCoordinateKey);
       this.enclosingQuery.getLetDeclarations()
-                         .get(this.luceneMatchKey);
+                         .get(this.queryStringKey);
 
       final NidSet        nids = new NidSet();
       throw new UnsupportedOperationException();
@@ -156,7 +165,6 @@ public class AssemblageLuceneMatch
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {}
@@ -177,7 +185,7 @@ public class AssemblageLuceneMatch
 
       whereClause.setSemantic(ClauseSemantic.ASSEMBLAGE_LUCENE_MATCH);
       whereClause.getLetKeys()
-                 .add(this.luceneMatchKey);
+                 .add(this.queryStringKey);
       return whereClause;
    }
    

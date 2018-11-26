@@ -180,5 +180,30 @@ public enum ClauseSemantic {
     * Join two assemblages in the result set when criterion are met 
     */
    JOIN,
+   
+   COMPONENT_IS_ACTIVE,
+   
+   COMPONENT_IS_INACTIVE,
+   
+   REFERENCED_COMPONENT_IS_ACTIVE,
+
+   REFERENCED_COMPONENT_IS_INACTIVE,
+   
+   REFERENCED_COMPONENT_IS,
+   
+   REFERENCED_COMPONENT_IS_MEMBER_OF,
+   
+   REFERENCED_COMPONENT_IS_NOT_MEMBER_OF,
+   //
+   COMPONENT_IS_MEMBER_OF,
+   
+   COMPONENT_IS_NOT_MEMBER_OF,
+   
+   REFERENCED_COMPONENT_IS_KIND_OF,
+   
+   REFERENCED_COMPONENT_IS_NOT_KIND_OF,
+   
+   
+   
 }
 

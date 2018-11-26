@@ -397,10 +397,13 @@ public class Get
                                    .getText();
       }
 
-      return "No desc for: " + conceptNid;
+      return "No desc for: " + conceptNid + " " + Get.identifierService.getUuidPrimoridalStringForNid(conceptNid);
    }
    
    public static String conceptDescriptionText(ConceptSpecification conceptSpec) {
+       if (conceptSpec == null) {
+           throw new NullPointerException("conceptSpec cannot be null.");
+       }
        return conceptDescriptionText(conceptSpec.getNid());
    }
 
@@ -429,6 +432,24 @@ public class Get
                .forEach(
                    (conceptId) -> {
                       builder.append(conceptDescriptionText(conceptId));
+                      builder.append(", ");
+                   });
+         builder.delete(builder.length() - 2, builder.length());
+         builder.append("]");
+         return builder.toString();
+      }
+
+      return "[]";
+   }
+   public static String conceptDescriptionTextList(ConceptSpecification[] conceptSpecs) {
+      if ((conceptSpecs != null) && (conceptSpecs.length > 0)) {
+         final StringBuilder builder = new StringBuilder();
+
+         builder.append("[");
+         Arrays.stream(conceptSpecs)
+               .forEach(
+                   (conceptSpec) -> {
+                      builder.append(conceptDescriptionText(conceptSpec));
                       builder.append(", ");
                    });
          builder.delete(builder.length() - 2, builder.length());
@@ -491,7 +512,7 @@ public class Get
            if (TERM_AUX_CACHE.containsKey(nid)) {
                return TERM_AUX_CACHE.get(nid);
            }
-           return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
+           return new ConceptProxy(nid);
        } catch (InterruptedException ex) {
            throw new RuntimeException();
        }
@@ -602,7 +623,7 @@ public class Get
     * @return a nid
     */
    public static int nidForUuids(UUID... uuids) {
-       return identifierService().assignNid(uuids);
+       return identifierService().getNidForUuids(uuids);
    }
 
    /**

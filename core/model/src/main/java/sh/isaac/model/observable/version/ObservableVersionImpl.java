@@ -78,96 +78,105 @@ import sh.isaac.model.observable.ObservableFields;
  */
 public abstract class ObservableVersionImpl
         implements ObservableVersion, CommittableComponent {
+
     protected static final Logger LOG = LogManager.getLogger();
 
-   /**
-    * The primordial uuid property.
-    */
-   ObjectProperty<UUID> primordialUuidProperty;
-
+    /**
+     * The primordial uuid property.
+     */
+    ObjectProperty<UUID> primordialUuidProperty;
 
     /**
-    * The state property.
-    */
-   ObjectProperty<Status> stateProperty;
+     * The state property.
+     */
+    ObjectProperty<Status> stateProperty;
 
-   /**
-    * The time property.
-    */
-   LongProperty timeProperty;
+    /**
+     * The time property.
+     */
+    LongProperty timeProperty;
 
-   /**
-    * The author nid property.
-    */
-   IntegerProperty authorNidProperty;
+    /**
+     * The author nid property.
+     */
+    IntegerProperty authorNidProperty;
 
-   /**
-    * The module nid property.
-    */
-   IntegerProperty moduleNidProperty;
+    /**
+     * The module nid property.
+     */
+    IntegerProperty moduleNidProperty;
 
-   /**
-    * The path nid property.
-    */
-   IntegerProperty pathNidProperty;
+    /**
+     * The path nid property.
+     */
+    IntegerProperty pathNidProperty;
 
-   /**
-    * The commit state property.
-    */
-   ObjectProperty<CommitStates> commitStateProperty;
+    /**
+     * The commit state property.
+     */
+    ObjectProperty<CommitStates> commitStateProperty;
 
-   /**
-    * The commit state binding.
-    */
-   ObjectBinding<CommitStates> commitStateBinding;
+    /**
+     * The commit state binding.
+     */
+    ObjectBinding<CommitStates> commitStateBinding;
 
-   /**
-    * The stamp sequence property.
-    */
-   IntegerProperty stampSequenceProperty;
-   
-   private HashMap<String, Object> userObjectMap;
+    /**
+     * The stamp sequence property.
+     */
+    IntegerProperty stampSequenceProperty;
 
-   /**
-    * The stamped version.
-    */
-   protected final SimpleObjectProperty<VersionImpl> stampedVersionProperty;
+    private HashMap<String, Object> userObjectMap;
 
-   /**
-    * The chronology.
-    */
-   protected ObservableChronology chronology;
-   
-   protected final VersionType versionType;
-   
-       /**
+    /**
+     * The stamped version.
+     */
+    protected final SimpleObjectProperty<VersionImpl> stampedVersionProperty;
+
+    /**
+     * The chronology.
+     */
+    protected ObservableChronology chronology;
+
+    protected final VersionType versionType;
+
+    /**
      * The assemblage nid property.
      */
     protected IntegerProperty assemblageNidProperty;
 
-
-   //~--- constructors --------------------------------------------------------
-
-  /**
-    * limited arg constructor, for making an observable uncoupled for underlying data, 
-    * for example when creating a new component prior to being committed for 
-    * the first time. 
+    //~--- constructors --------------------------------------------------------
+    /**
+     * limited arg constructor, for making an observable uncoupled for
+     * underlying data, for example when creating a new component prior to being
+     * committed for the first time.
+     *
      * @param versionType
      * @param primordialUuid
      * @param assemblageNid
-    */
-   public ObservableVersionImpl(VersionType versionType, UUID primordialUuid, int assemblageNid) {
+     */
+    public ObservableVersionImpl(VersionType versionType, UUID primordialUuid, int assemblageNid) {
         this.stampedVersionProperty = null;
-       this.chronology = null;
-       this.versionType = versionType;
-       assemblageNidProperty(assemblageNid);
-       this.primordialUuidProperty = new SimpleObjectProperty(
-                 this,
-                 ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT.toExternalString(),
-                 primordialUuid);
-       getProperties();
-   }
-   
+        this.chronology = null;
+        this.versionType = versionType;
+        assemblageNidProperty(assemblageNid);
+        this.primordialUuidProperty = new SimpleObjectProperty(
+                this,
+                ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT.toExternalString(),
+                primordialUuid);
+        getProperties();
+    }
+
+    protected ObjectProperty<UUID> primordialUuidProperty() {
+        if (this.primordialUuidProperty == null) {
+            this.primordialUuidProperty = new SimpleObjectProperty(
+                    this,
+                    ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT.toExternalString());
+            this.primordialUuidProperty.set(chronology.getPrimordialUuid());
+        }
+        return this.primordialUuidProperty;
+    }
+
     /**
      * Instantiates a new observable version.
      *
@@ -175,25 +184,29 @@ public abstract class ObservableVersionImpl
      * @param chronology the chronology
      */
     public ObservableVersionImpl(Version stampedVersion, ObservableChronology chronology) {
-        this.stampedVersionProperty = new SimpleObjectProperty<>((VersionImpl) stampedVersion);
+        if (stampedVersion instanceof VersionImpl) {
+            this.stampedVersionProperty = new SimpleObjectProperty<>((VersionImpl) stampedVersion);
+        } else {
+            this.stampedVersionProperty = null;
+        }
         this.chronology = chronology;
         this.versionType = stampedVersion.getSemanticType();
     }
 
-   protected ObservableVersionImpl(ObservableChronology chronology) {
-      this.chronology = chronology;
-      this.stampedVersionProperty = null;
-      this.versionType = chronology.getVersionType();
-   }
-   
-   public void setChronology(ObservableChronology chronology) {
-       if (this.chronology != null) {
-           throw new IllegalStateException("Chronology is not null. Cannot change.");
-       }
-       this.chronology = chronology;
-   }
+    protected ObservableVersionImpl(ObservableChronology chronology) {
+        this.chronology = chronology;
+        this.stampedVersionProperty = null;
+        this.versionType = chronology.getVersionType();
+    }
 
-   //~--- methods -------------------------------------------------------------
+    public void setChronology(ObservableChronology chronology) {
+        if (this.chronology != null) {
+            throw new IllegalStateException("Chronology is not null. Cannot change.");
+        }
+        this.chronology = chronology;
+    }
+
+    //~--- methods -------------------------------------------------------------
     /**
      * Assemblage sequence property.
      *
@@ -202,703 +215,706 @@ public abstract class ObservableVersionImpl
     public final IntegerProperty assemblageNidProperty() {
         return assemblageNidProperty(getAssemblageNid());
     }
-   
+
     private IntegerProperty assemblageNidProperty(int assemblageNid) {
         if (this.assemblageNidProperty == null) {
-            this.assemblageNidProperty = 
-                    new CommitAwareIntegerProperty(this, 
-                            TermAux.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(), 
+            this.assemblageNidProperty
+                    = new CommitAwareIntegerProperty(this,
+                            TermAux.ASSEMBLAGE_NID_FOR_COMPONENT.toExternalString(),
                             assemblageNid);
         }
         return this.assemblageNidProperty;
     }
-   
-   @Override
-   public final int getAssemblageNid() {
-       if (this.assemblageNidProperty != null) {
-           return this.assemblageNidProperty.get();
-       }
-       return this.chronology.getAssemblageNid(); 
-   }
+
+    @Override
+    public final int getAssemblageNid() {
+        if (this.assemblageNidProperty != null) {
+            return this.assemblageNidProperty.get();
+        }
+        return this.chronology.getAssemblageNid();
+    }
 
     @Override
     public void addAdditionalUuids(UUID... uuids) {
         ((VersionImpl) this.stampedVersionProperty.get()).addAdditionalUuids(uuids);
     }
-   
-   /**
-    * Author nid property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public final IntegerProperty authorNidProperty() {
-      if (this.stampedVersionProperty == null && this.authorNidProperty == null) {
-        this.authorNidProperty = new CommitAwareIntegerProperty(
-                 this,
-                 TermAux.AUTHOR_NID_FOR_VERSION.toExternalString(),
-                 0);
-      }
-      if (this.authorNidProperty == null) {
-         this.authorNidProperty = new CommitAwareIntegerProperty(
-                 this,
-                 TermAux.AUTHOR_NID_FOR_VERSION.toExternalString(),
-                 getAuthorNid());
-         this.authorNidProperty.addListener(
-                 (observable, oldValue, newValue) -> {
-                    this.stampedVersionProperty.get().setAuthorNid(newValue.intValue());
 
-                    if (this.stampSequenceProperty != null) {
-                       this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+    /**
+     * Author nid property.
+     *
+     * @return the integer property
+     */
+    @Override
+    public final IntegerProperty authorNidProperty() {
+        if (this.stampedVersionProperty == null && this.authorNidProperty == null) {
+            this.authorNidProperty = new CommitAwareIntegerProperty(
+                    this,
+                    TermAux.AUTHOR_NID_FOR_VERSION.toExternalString(),
+                    0);
+        }
+        if (this.authorNidProperty == null) {
+            this.authorNidProperty = new CommitAwareIntegerProperty(
+                    this,
+                    TermAux.AUTHOR_NID_FOR_VERSION.toExternalString(),
+                    getAuthorNid());
+            this.authorNidProperty.addListener(
+                    (observable, oldValue, newValue) -> {
+                        this.stampedVersionProperty.get().setAuthorNid(newValue.intValue());
+
+                        if (this.stampSequenceProperty != null) {
+                            this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+                        }
+                    });
+        }
+
+        return this.authorNidProperty;
+    }
+
+    /**
+     * Cancel.
+     */
+    public void cancel() {
+        if (!isUncommitted()) {
+            throw new RuntimeException("Attempt to cancel an already committed version: " + this);
+        }
+
+        this.stampedVersionProperty.get().cancel();
+        this.getChronology()
+                .getVersionList()
+                .remove(this);
+        this.stampSequenceProperty()
+                .set(-1);
+    }
+
+    /**
+     * Commit state property.
+     *
+     * @return the object property
+     */
+    @Override
+    public final ObjectProperty<CommitStates> commitStateProperty() {
+        if (this.stampedVersionProperty == null && this.commitStateProperty == null) {
+            this.commitStateProperty = new SimpleObjectProperty(
+                    this,
+                    TermAux.COMMITTED_STATE_FOR_VERSION.toExternalString(),
+                    CommitStates.UNCOMMITTED);
+        }
+        if (this.commitStateProperty == null) {
+            this.commitStateBinding = new ObjectBinding<CommitStates>() {
+                @Override
+                protected CommitStates computeValue() {
+                    if (ObservableVersionImpl.this.stampedVersionProperty.get().getStampSequence() == -1) {
+                        return CommitStates.CANCELED;
                     }
-                 });
-      }
+                    if (ObservableVersionImpl.this.timeProperty()
+                            .get() == Long.MAX_VALUE) {
+                        return CommitStates.UNCOMMITTED;
+                    }
 
-      return this.authorNidProperty;
-   }
+                    return CommitStates.COMMITTED;
+                }
+            };
+            this.timeProperty().addListener((observable) -> {
+                this.commitStateBinding.invalidate();
+            });
+            this.commitStateProperty = new SimpleObjectProperty(
+                    this,
+                    TermAux.COMMITTED_STATE_FOR_VERSION.toExternalString(),
+                    this.commitStateBinding.get());
+            this.commitStateProperty.bind(this.commitStateBinding);
+        }
 
-   /**
-    * Cancel.
-    */
-   public void cancel() {
-      if (!isUncommitted()) {
-         throw new RuntimeException("Attempt to cancel an already committed version: " + this);
-      }
+        return this.commitStateProperty;
+    }
 
-      this.stampedVersionProperty.get().cancel();
-      this.getChronology()
-              .getVersionList()
-              .remove(this);
-      this.stampSequenceProperty()
-              .set(-1);
-   }
+    /**
+     * module nid property.
+     *
+     * @return the integer property
+     */
+    @Override
+    public final IntegerProperty moduleNidProperty() {
+        if (this.stampedVersionProperty == null && this.moduleNidProperty == null) {
+            this.moduleNidProperty = new CommitAwareIntegerProperty(
+                    this,
+                    TermAux.MODULE_NID_FOR_VERSION.toExternalString(),
+                    0);
+        }
+        if (this.moduleNidProperty == null) {
+            this.moduleNidProperty = new CommitAwareIntegerProperty(
+                    this,
+                    TermAux.MODULE_NID_FOR_VERSION.toExternalString(),
+                    getModuleNid());
+            this.moduleNidProperty.addListener(
+                    (observable, oldValue, newValue) -> {
+                        this.stampedVersionProperty.get().setModuleNid(newValue.intValue());
 
-   /**
-    * Commit state property.
-    *
-    * @return the object property
-    */
-   @Override
-   public final ObjectProperty<CommitStates> commitStateProperty() {
-      if (this.stampedVersionProperty == null && this.commitStateProperty == null) {
-         this.commitStateProperty = new SimpleObjectProperty(
-                 this,
-                 TermAux.COMMITTED_STATE_FOR_VERSION.toExternalString(),
-                 CommitStates.UNCOMMITTED);
-      }
-      if (this.commitStateProperty == null) {
-         this.commitStateBinding = new ObjectBinding<CommitStates>() {
-            @Override
-            protected CommitStates computeValue() {
-               if (ObservableVersionImpl.this.stampedVersionProperty.get().getStampSequence() == -1) {
-                  return CommitStates.CANCELED;
-               }
-               if (ObservableVersionImpl.this.timeProperty()
-                       .get() == Long.MAX_VALUE) {
-                  return CommitStates.UNCOMMITTED;
-               }
+                        if (this.stampSequenceProperty != null) {
+                            this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+                        }
+                    });
+        }
 
-               return CommitStates.COMMITTED;
-            }
-         };
-         this.timeProperty().addListener((observable) -> {
+        return this.moduleNidProperty;
+    }
+
+    /**
+     * Path nid property.
+     *
+     * @return the integer property
+     */
+    @Override
+    public final IntegerProperty pathNidProperty() {
+        if (this.stampedVersionProperty == null && this.pathNidProperty == null) {
+            this.pathNidProperty = new CommitAwareIntegerProperty(
+                    this,
+                    TermAux.PATH_NID_FOR_VERSION.toExternalString(),
+                    0);
+        }
+        if (this.pathNidProperty == null) {
+            this.pathNidProperty = new CommitAwareIntegerProperty(
+                    this,
+                    TermAux.PATH_NID_FOR_VERSION.toExternalString(),
+                    getPathNid());
+            this.pathNidProperty.addListener(
+                    (observable, oldValue, newValue) -> {
+                        this.stampedVersionProperty.get().setPathNid(newValue.intValue());
+
+                        if (this.stampSequenceProperty != null) {
+                            this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+                        }
+                    });
+        }
+
+        return this.pathNidProperty;
+    }
+
+    /**
+     * Stamp sequence property.
+     *
+     * @return the integer property
+     */
+    @Override
+    public final IntegerProperty stampSequenceProperty() {
+        if (this.stampedVersionProperty == null) {
+            throw new IllegalStateException();
+        }
+        if (this.stampSequenceProperty == null) {
+            this.stampSequenceProperty = new CommitAwareIntegerProperty(
+                    this,
+                    TermAux.STAMP_SEQUENCE_FOR_VERSION.toExternalString(),
+                    getStampSequence());
+            this.stampSequenceProperty.addListener(
+                    (observable, oldValue, newValue) -> {
+                        if (newValue.intValue() != this.stampedVersionProperty.get().getStampSequence()) {
+                            throw new RuntimeException(
+                                    "ERROR: Cannot set stamp value directly. stampedVersion now out of sync with observable");
+                        }
+                    });
+            stateProperty();
+            authorNidProperty();
+            moduleNidProperty();
+            pathNidProperty();
+            stateProperty();
+            timeProperty();
+        }
+
+        return this.stampSequenceProperty;
+    }
+
+    /**
+     * Status property.
+     *
+     * @return the object property
+     */
+    @Override
+    public final ObjectProperty<Status> stateProperty() {
+        if (this.stampedVersionProperty == null && this.stateProperty == null) {
+            this.stateProperty = new CommitAwareObjectProperty<>(
+                    this,
+                    TermAux.STATUS_FOR_VERSION.toExternalString(),
+                    Status.PRIMORDIAL);
+        }
+        if (this.stateProperty == null) {
+            this.stateProperty = new CommitAwareObjectProperty<>(
+                    this,
+                    TermAux.STATUS_FOR_VERSION.toExternalString(),
+                    getStatus());
+            this.stateProperty.addListener(
+                    (observable, oldValue, newValue) -> {
+                        this.stampedVersionProperty.get().setStatus(newValue);
+
+                        if (this.stampSequenceProperty != null) {
+                            this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+                        }
+                    });
+        }
+
+        return this.stateProperty;
+    }
+
+    /**
+     * Time property.
+     *
+     * @return the long property
+     */
+    @Override
+    public final LongProperty timeProperty() {
+        if (this.stampedVersionProperty == null && this.timeProperty == null) {
+            this.timeProperty = new CommitAwareLongProperty(
+                    this,
+                    TermAux.TIME_FOR_VERSION.toExternalString(),
+                    Long.MAX_VALUE);
+        }
+        if (this.timeProperty == null) {
+            this.timeProperty = new CommitAwareLongProperty(
+                    this,
+                    TermAux.TIME_FOR_VERSION.toExternalString(),
+                    getTime());
+            this.timeProperty.addListener(
+                    (observable, oldValue, newValue) -> {
+                        if (this.stampedVersionProperty.get().getStampSequence() != -1) {
+                            if (this.stampedVersionProperty.get().getTime() != newValue.longValue()) {
+                                this.stampedVersionProperty.get().setTime(newValue.longValue());
+
+                                if (this.commitStateBinding != null) {
+                                    this.commitStateBinding.invalidate();
+                                }
+
+                                if (this.stampSequenceProperty != null) {
+                                    this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+                                }
+                            }
+                        }
+                    });
+        }
+
+        return this.timeProperty;
+    }
+
+    @Override
+    public String toString() {
+        if (stampedVersionProperty != null) {
+            return "ObservableVersionImpl{" + stampedVersionProperty.get() + '}';
+        }
+        return "ObservableVersionImpl{ no wrapped version }";
+    }
+
+    /**
+     * To user string.
+     *
+     * @return the string
+     */
+    @Override
+    public String toUserString() {
+        return toString();
+    }
+
+    /**
+     * Update version.
+     *
+     * @param stampedVersion the stamped version
+     */
+    public final void updateVersion(Version stampedVersion) {
+        if (!this.stampedVersionProperty.get().getClass()
+                .equals(stampedVersion.getClass())) {
+            throw new IllegalStateException(
+                    "versions are not of same class: \n" + this.stampedVersionProperty.get().getClass().getName() + "\n"
+                    + stampedVersion.getClass().getName());
+        }
+
+        this.stampedVersionProperty.set((VersionImpl) stampedVersion);
+
+        if ((this.stampSequenceProperty != null)
+                && (this.stampSequenceProperty.get() != stampedVersion.getStampSequence())) {
+            this.stampSequenceProperty.set(stampedVersion.getStampSequence());
+        }
+
+        if (this.commitStateBinding != null) {
             this.commitStateBinding.invalidate();
-         });
-         this.commitStateProperty = new SimpleObjectProperty(
-                 this,
-                 TermAux.COMMITTED_STATE_FOR_VERSION.toExternalString(),
-                 this.commitStateBinding.get());
-         this.commitStateProperty.bind(this.commitStateBinding);
-      }
+        }
 
-      return this.commitStateProperty;
-   }
+        if ((this.stateProperty != null) && (this.stateProperty.get() != stampedVersion.getStatus())) {
+            this.stateProperty.set(stampedVersion.getStatus());
+        }
 
-   /**
-    * module nid property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public final IntegerProperty moduleNidProperty() {
-      if (this.stampedVersionProperty == null && this.moduleNidProperty == null) {
-         this.moduleNidProperty = new CommitAwareIntegerProperty(
-                 this,
-                 TermAux.MODULE_NID_FOR_VERSION.toExternalString(),
-                 0);
-      }
-      if (this.moduleNidProperty == null) {
-         this.moduleNidProperty = new CommitAwareIntegerProperty(
-                 this,
-                 TermAux.MODULE_NID_FOR_VERSION.toExternalString(),
-                 getModuleNid());
-         this.moduleNidProperty.addListener(
-                 (observable, oldValue, newValue) -> {
-                    this.stampedVersionProperty.get().setModuleNid(newValue.intValue());
+        if ((this.authorNidProperty != null)
+                && (this.authorNidProperty.get() != stampedVersion.getAuthorNid())) {
+            this.authorNidProperty.set(stampedVersion.getAuthorNid());
+        }
 
-                    if (this.stampSequenceProperty != null) {
-                       this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
-                    }
-                 });
-      }
+        if ((this.moduleNidProperty != null)
+                && (this.moduleNidProperty.get() != stampedVersion.getModuleNid())) {
+            this.moduleNidProperty.set(stampedVersion.getModuleNid());
+        }
 
-      return this.moduleNidProperty;
-   }
+        if ((this.pathNidProperty != null)
+                && (this.pathNidProperty.get() != stampedVersion.getPathNid())) {
+            this.pathNidProperty.set(stampedVersion.getPathNid());
+        }
 
-   /**
-    * Path nid property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public final IntegerProperty pathNidProperty() {
-      if (this.stampedVersionProperty == null && this.pathNidProperty == null) {
-         this.pathNidProperty = new CommitAwareIntegerProperty(
-                 this,
-                 TermAux.PATH_NID_FOR_VERSION.toExternalString(),
-                 0);
-      }
-      if (this.pathNidProperty == null) {
-         this.pathNidProperty = new CommitAwareIntegerProperty(
-                 this,
-                 TermAux.PATH_NID_FOR_VERSION.toExternalString(),
-                 getPathNid());
-         this.pathNidProperty.addListener(
-                 (observable, oldValue, newValue) -> {
-                    this.stampedVersionProperty.get().setPathNid(newValue.intValue());
+        if ((this.timeProperty != null)
+                && (this.timeProperty.get() != stampedVersion.getTime())) {
+            this.timeProperty.set(stampedVersion.getTime());
+        }
 
-                    if (this.stampSequenceProperty != null) {
-                       this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
-                    }
-                 });
-      }
+        try {
+            updateVersion();
+        } catch (UnsupportedOperationException e) {
+            LOG.warn("\n  ** Could not update to version: " + stampedVersion);
+        }
+    }
 
-      return this.pathNidProperty;
-   }
+    protected abstract void updateVersion();
 
-   /**
-    * Stamp sequence property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public final IntegerProperty stampSequenceProperty() {
-      if (this.stampedVersionProperty == null) {
-         throw new IllegalStateException();
-      }
-      if (this.stampSequenceProperty == null) {
-         this.stampSequenceProperty = new CommitAwareIntegerProperty(
-                 this,
-                 TermAux.STAMP_SEQUENCE_FOR_VERSION.toExternalString(),
-                 getStampSequence());
-         this.stampSequenceProperty.addListener(
-                 (observable, oldValue, newValue) -> {
-                    if (newValue.intValue() != this.stampedVersionProperty.get().getStampSequence()) {
-                       throw new RuntimeException(
-                               "ERROR: Cannot set stamp value directly. stampedVersion now out of sync with observable");
-                    }
-                 });
-         stateProperty();
-         authorNidProperty();
-         moduleNidProperty();
-         pathNidProperty();
-         stateProperty();
-         timeProperty();
-      }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the author nid.
+     *
+     * @return the author nid
+     */
+    @Override
+    public final int getAuthorNid() {
+        if (this.authorNidProperty != null) {
+            return this.authorNidProperty.get();
+        }
 
-      return this.stampSequenceProperty;
-   }
+        if (this.stampedVersionProperty != null) {
+            return this.stampedVersionProperty.get().getAuthorNid();
+        }
+        throw new IllegalStateException();
+    }
 
-   /**
-    * Status property.
-    *
-    * @return the object property
-    */
-   @Override
-   public final ObjectProperty<Status> stateProperty() {
-      if (this.stampedVersionProperty == null && this.stateProperty == null) {
-         this.stateProperty = new CommitAwareObjectProperty<>(
-                 this,
-                 TermAux.STATUS_FOR_VERSION.toExternalString(),
-                 Status.PRIMORDIAL);
-      }
-      if (this.stateProperty == null) {
-         this.stateProperty = new CommitAwareObjectProperty<>(
-                 this,
-                 TermAux.STATUS_FOR_VERSION.toExternalString(),
-                 getStatus());
-         this.stateProperty.addListener(
-                 (observable, oldValue, newValue) -> {
-                    this.stampedVersionProperty.get().setStatus(newValue);
+    //~--- set methods ---------------------------------------------------------
+    /**
+     * Sets the author nid.
+     *
+     * @param authorSequence the new author nid
+     */
+    @Override
+    public void setAuthorNid(int authorSequence) {
+        if (this.stampedVersionProperty == null) {
+            this.authorNidProperty();
+        }
+        if (this.authorNidProperty != null) {
+            this.authorNidProperty.set(authorSequence);
+        }
+        if (this.stampedVersionProperty != null) {
+            this.stampedVersionProperty.get().setAuthorNid(authorSequence);
+        }
+    }
 
-                    if (this.stampSequenceProperty != null) {
-                       this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
-                    }
-                 });
-      }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the chronology.
+     *
+     * @return the chronology
+     */
+    @Override
+    public ObservableChronology getChronology() {
+        return this.chronology;
+    }
 
-      return this.stateProperty;
-   }
+    /**
+     * Gets the commit state.
+     *
+     * @return the commit state
+     */
+    @Override
+    public final CommitStates getCommitState() {
+        if (this.stampedVersionProperty == null) {
+            return CommitStates.UNCOMMITTED;
+        }
+        if (this.commitStateProperty != null) {
+            return this.commitStateProperty.get();
+        }
+        if (getStampSequence() == -1) {
+            return CommitStates.CANCELED;
+        }
 
-   /**
-    * Time property.
-    *
-    * @return the long property
-    */
-   @Override
-   public final LongProperty timeProperty() {
-      if (this.stampedVersionProperty == null && this.timeProperty == null) {
-         this.timeProperty = new CommitAwareLongProperty(
-                 this,
-                 TermAux.TIME_FOR_VERSION.toExternalString(),
-                 Long.MAX_VALUE);
-      }
-      if (this.timeProperty == null) {
-         this.timeProperty = new CommitAwareLongProperty(
-                 this,
-                 TermAux.TIME_FOR_VERSION.toExternalString(),
-                 getTime());
-         this.timeProperty.addListener(
-                 (observable, oldValue, newValue) -> {
-                    if (this.stampedVersionProperty.get().getStampSequence() != -1) {
-                       if (this.stampedVersionProperty.get().getTime() != newValue.longValue()) {
-                          this.stampedVersionProperty.get().setTime(newValue.longValue());
+        if (getTime() == Long.MAX_VALUE) {
+            return CommitStates.UNCOMMITTED;
+        }
 
-                          if (this.commitStateBinding != null) {
-                             this.commitStateBinding.invalidate();
-                          }
+        if (getTime() == Long.MIN_VALUE) {
+            return CommitStates.CANCELED;
+        }
 
-                          if (this.stampSequenceProperty != null) {
-                             this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
-                          }
-                       }
-                    }
-                 });
-      }
+        return CommitStates.COMMITTED;
+    }
 
-      return this.timeProperty;
-   }
+    /**
+     * Gets the module nid.
+     *
+     * @return the module nid
+     */
+    @Override
+    public final int getModuleNid() {
+        if (this.moduleNidProperty != null) {
+            return this.moduleNidProperty.get();
+        }
 
-   @Override
-   public String toString() {
-      return "ObservableVersionImpl{" + stampedVersionProperty.get() + '}';
-   }
+        if (this.stampedVersionProperty != null) {
+            return this.stampedVersionProperty.get().getModuleNid();
+        }
+        return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
+    }
 
-   /**
-    * To user string.
-    *
-    * @return the string
-    */
-   @Override
-   public String toUserString() {
-      return toString();
-   }
+    //~--- set methods ---------------------------------------------------------
+    /**
+     * Sets the module nid.
+     *
+     * @param moduleNid the new module nid
+     */
+    @Override
+    public void setModuleNid(int moduleNid) {
+        if (this.stampedVersionProperty == null) {
+            this.moduleNidProperty();
+        }
+        if (this.moduleNidProperty != null) {
+            this.moduleNidProperty.set(moduleNid);
+        }
 
-   /**
-    * Update version.
-    *
-    * @param stampedVersion the stamped version
-    */
-   public final void updateVersion(Version stampedVersion) {
-      if (!this.stampedVersionProperty.get().getClass()
-              .equals(stampedVersion.getClass())) {
-         throw new IllegalStateException(
-                 "versions are not of same class: \n" + this.stampedVersionProperty.get().getClass().getName() + "\n"
-                 + stampedVersion.getClass().getName());
-      }
+        if (this.stampedVersionProperty != null) {
+            this.stampedVersionProperty.get().setModuleNid(moduleNid);
+        }
+    }
 
-      this.stampedVersionProperty.set((VersionImpl) stampedVersion);
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the nid.
+     *
+     * @return the nid
+     */
+    @Override
+    public int getNid() {
+        if (this.primordialUuidProperty != null) {
+            return Get.identifierService().assignNid(this.primordialUuidProperty.get());
+        }
+        if (this.chronology != null) {
+            return this.chronology.getNid();
+        }
+        UUID primordialUuid = getPrimordialUuid();
+        if (Get.identifierService().hasUuid(primordialUuid)) {
+            return Get.identifierService().getNidForUuids(primordialUuid);
+        }
+        return Get.identifierService().assignNid(primordialUuid);
+    }
 
-      if ((this.stampSequenceProperty != null)
-              && (this.stampSequenceProperty.get() != stampedVersion.getStampSequence())) {
-         this.stampSequenceProperty.set(stampedVersion.getStampSequence());
-      }
+    /**
+     * Gets the path nid.
+     *
+     * @return the path nid
+     */
+    @Override
+    public final int getPathNid() {
+        if (this.pathNidProperty != null) {
+            return this.pathNidProperty.get();
+        }
+        if (this.stampedVersionProperty != null) {
+            return stampedVersionProperty.get().getPathNid();
+        }
+        return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
+    }
 
-      if (this.commitStateBinding != null) {
-         this.commitStateBinding.invalidate();
-      }
+    //~--- set methods ---------------------------------------------------------
+    /**
+     * Sets the path nid.
+     *
+     * @param pathSequence the new path nid
+     */
+    @Override
+    public void setPathNid(int pathSequence) {
+        if (this.stampedVersionProperty == null) {
+            this.pathNidProperty();
+        }
+        if (this.pathNidProperty != null) {
+            this.pathNidProperty.set(pathSequence);
+        }
+        if (this.stampedVersionProperty != null) {
+            this.stampedVersionProperty.get().setPathNid(pathSequence);
+        }
+    }
 
-      if ((this.stateProperty != null) && (this.stateProperty.get() != stampedVersion.getStatus())) {
-         this.stateProperty.set(stampedVersion.getStatus());
-      }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the primordial uuid.
+     *
+     * @return the primordial uuid
+     */
+    @Override
+    public UUID getPrimordialUuid() {
+        if (this.primordialUuidProperty != null) {
+            return this.primordialUuidProperty.get();
+        }
+        return getChronology().getPrimordialUuid();
+    }
 
-      if ((this.authorNidProperty != null)
-              && (this.authorNidProperty.get() != stampedVersion.getAuthorNid())) {
-         this.authorNidProperty.set(stampedVersion.getAuthorNid());
-      }
-
-      if ((this.moduleNidProperty != null)
-              && (this.moduleNidProperty.get() != stampedVersion.getModuleNid())) {
-         this.moduleNidProperty.set(stampedVersion.getModuleNid());
-      }
-
-      if ((this.pathNidProperty != null)
-              && (this.pathNidProperty.get() != stampedVersion.getPathNid())) {
-         this.pathNidProperty.set(stampedVersion.getPathNid());
-      }
-
-      if ((this.timeProperty != null)
-              && (this.timeProperty.get() != stampedVersion.getTime())) {
-         this.timeProperty.set(stampedVersion.getTime());
-      }
-      
-       try {
-           updateVersion();
-       } catch (UnsupportedOperationException e) {
-           LOG.warn("\n  ** Could not update to version: " + stampedVersion);
-       }
-   }
-
-   protected abstract void updateVersion();
-
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the author nid.
-    *
-    * @return the author nid
-    */
-   @Override
-   public final int getAuthorNid() {
-      if (this.authorNidProperty != null) {
-         return this.authorNidProperty.get();
-      }
-
-      if (this.stampedVersionProperty != null) {
-        return this.stampedVersionProperty.get().getAuthorNid();
-      }
-      throw new IllegalStateException();
-   }
-
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Sets the author nid.
-    *
-    * @param authorSequence the new author nid
-    */
-   @Override
-   public void setAuthorNid(int authorSequence) {
-       if (this.stampedVersionProperty == null) {
-           this.authorNidProperty();
-       }
-      if (this.authorNidProperty != null) {
-         this.authorNidProperty.set(authorSequence);
-      }
-      if (this.stampedVersionProperty != null) {
-        this.stampedVersionProperty.get().setAuthorNid(authorSequence);
-      }
-   }
-
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the chronology.
-    *
-    * @return the chronology
-    */
-   @Override
-   public ObservableChronology getChronology() {
-      return this.chronology;
-   }
-
-   /**
-    * Gets the commit state.
-    *
-    * @return the commit state
-    */
-   @Override
-   public final CommitStates getCommitState() {
-      if (this.stampedVersionProperty == null) {
-          return CommitStates.UNCOMMITTED;
-      }
-      if (this.commitStateProperty != null) {
-         return this.commitStateProperty.get();
-      }
-      if (getStampSequence() == -1) {
-          return CommitStates.CANCELED;
-      }
-
-      if (getTime() == Long.MAX_VALUE) {
-         return CommitStates.UNCOMMITTED;
-      }
-
-      if (getTime() == Long.MIN_VALUE) {
-         return CommitStates.CANCELED;
-      }
-
-      return CommitStates.COMMITTED;
-   }
-
-   /**
-    * Gets the module nid.
-    *
-    * @return the module nid
-    */
-   @Override
-   public final int getModuleNid() {
-      if (this.moduleNidProperty != null) {
-         return this.moduleNidProperty.get();
-      }
-
-      if (this.stampedVersionProperty != null) {
-        return this.stampedVersionProperty.get().getModuleNid();
-      }
-      return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
-   }
-
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Sets the module nid.
-    *
-    * @param moduleNid the new module nid
-    */
-   @Override
-   public void setModuleNid(int moduleNid) {
-       if (this.stampedVersionProperty == null) {
-           this.moduleNidProperty();
-       }
-      if (this.moduleNidProperty != null) {
-         this.moduleNidProperty.set(moduleNid);
-      }
-
-      if (this.stampedVersionProperty != null) {
-        this.stampedVersionProperty.get().setModuleNid(moduleNid);
-      }
-   }
-
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the nid.
-    *
-    * @return the nid
-    */
-   @Override
-   public int getNid() {
-       if (this.primordialUuidProperty != null) {
-           return Get.identifierService().assignNid(this.primordialUuidProperty.get());
-       }
-      if (this.chronology != null) {
-          return this.chronology.getNid();
-      }
-      UUID primordialUuid = getPrimordialUuid();
-      if (Get.identifierService().hasUuid(primordialUuid)) {
-          return Get.identifierService().getNidForUuids(primordialUuid);
-      }
-      return Get.identifierService().assignNid(primordialUuid);
-   }
-   /**
-    * Gets the path nid.
-    *
-    * @return the path nid
-    */
-   @Override
-   public final int getPathNid() {
-      if (this.pathNidProperty != null) {
-         return this.pathNidProperty.get();
-      }
-      if (this.stampedVersionProperty != null) {
-        return stampedVersionProperty.get().getPathNid();
-      }
-      return TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
-   }
-
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Sets the path nid.
-    *
-    * @param pathSequence the new path nid
-    */
-   @Override
-   public void setPathNid(int pathSequence) {
-       if (this.stampedVersionProperty == null) {
-           this.pathNidProperty();
-       }
-      if (this.pathNidProperty != null) {
-         this.pathNidProperty.set(pathSequence);
-      }
-      if (this.stampedVersionProperty != null) {
-        this.stampedVersionProperty.get().setPathNid(pathSequence);
-      }
-   }
-
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the primordial uuid.
-    *
-    * @return the primordial uuid
-    */
-   @Override
-   public UUID getPrimordialUuid() {
-       if (this.primordialUuidProperty != null) {
-          return this.primordialUuidProperty.get();
-       }
-      return getChronology().getPrimordialUuid();
-   }
-
-   @Override
-   public List<ReadOnlyProperty<?>> getProperties() {
-      return new ArrayList(
-              Arrays.asList(new Property[]{ 
-                         stateProperty(), timeProperty(), authorNidProperty(), moduleNidProperty(), pathNidProperty(),
-                         commitStateProperty()}));
-   }
+    @Override
+    public List<ReadOnlyProperty<?>> getProperties() {
+        return new ArrayList(
+                Arrays.asList(new Property[]{
+            primordialUuidProperty(),
+            stateProperty(), timeProperty(), authorNidProperty(), moduleNidProperty(), pathNidProperty(),
+            commitStateProperty()}));
+    }
 
     protected abstract List<Property<?>> getEditableProperties2();
-    
+
     @Override
     public final List<Property<?>> getEditableProperties() {
         ArrayList<Property<?>> propertyList = new ArrayList();
         propertyList.add(stateProperty());
         propertyList.addAll(getEditableProperties2());
         propertyList.addAll(Arrays.asList(new Property<?>[]{
-                    moduleNidProperty(), pathNidProperty()
-                }));
-      return propertyList;
+            moduleNidProperty(), pathNidProperty()
+        }));
+        return propertyList;
     }
 
-   
-   /**
-    * Gets the stamp sequence.
-    *
-    * @return the stamp sequence
-    */
-   @Override
-   public final int getStampSequence() {
-      if (this.stampSequenceProperty != null) {
-         return this.stampSequenceProperty.get();
-      }
+    /**
+     * Gets the stamp sequence.
+     *
+     * @return the stamp sequence
+     */
+    @Override
+    public final int getStampSequence() {
+        if (this.stampSequenceProperty != null) {
+            return this.stampSequenceProperty.get();
+        }
 
-      return this.stampedVersionProperty.get().getStampSequence();
-   }
+        return this.stampedVersionProperty.get().getStampSequence();
+    }
 
-   public VersionImpl getStampedVersion() {
-      return stampedVersionProperty.get();
-   }
+    public VersionImpl getStampedVersion() {
+        return stampedVersionProperty.get();
+    }
 
-   /**
-    * Gets the state.
-    *
-    * @return the state
-    */
-   @Override
-   public final Status getStatus() {
-      if (this.stateProperty != null) {
-         return this.stateProperty.get();
-      }
-      if (this.stampedVersionProperty != null ) {
-        return this.stampedVersionProperty.get().getStatus();
-      }
-      return Status.PRIMORDIAL;
-   }
+    /**
+     * Gets the state.
+     *
+     * @return the state
+     */
+    @Override
+    public final Status getStatus() {
+        if (this.stateProperty != null) {
+            return this.stateProperty.get();
+        }
+        if (this.stampedVersionProperty != null) {
+            return this.stampedVersionProperty.get().getStatus();
+        }
+        return Status.PRIMORDIAL;
+    }
 
-   //~--- set methods ---------------------------------------------------------
-   @Override
-   public final void setStatus(Status state) {
-       if (this.stampedVersionProperty == null) {
-           this.stateProperty();
-       }
-      if (this.stateProperty != null) {
-         this.stateProperty.set(state);
-      }
-      if (this.stampedVersionProperty != null) {
-          this.stampedVersionProperty.get().setStatus(state);
-      }
-      
-   }
+    //~--- set methods ---------------------------------------------------------
+    @Override
+    public final void setStatus(Status state) {
+        if (this.stampedVersionProperty == null) {
+            this.stateProperty();
+        }
+        if (this.stateProperty != null) {
+            this.stateProperty.set(state);
+        }
+        if (this.stampedVersionProperty != null) {
+            this.stampedVersionProperty.get().setStatus(state);
+        }
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the time.
-    *
-    * @return the time
-    */
-   @Override
-   public final long getTime() {
-      if (this.timeProperty != null) {
-         return this.timeProperty.get();
-      }
-      if (this.stampedVersionProperty != null) {
-        return this.stampedVersionProperty.get().getTime();
-      }
-      return Long.MAX_VALUE;
-   }
+    }
 
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Sets the time.
-    *
-    * @param time the new time
-    */
-   @Override
-   public void setTime(long time) {
-       if (this.stampedVersionProperty == null) {
-           throw new IllegalStateException();
-       }
-      if (this.timeProperty != null) {
-         this.timeProperty.set(time);
-      }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the time.
+     *
+     * @return the time
+     */
+    @Override
+    public final long getTime() {
+        if (this.timeProperty != null) {
+            return this.timeProperty.get();
+        }
+        if (this.stampedVersionProperty != null) {
+            return this.stampedVersionProperty.get().getTime();
+        }
+        return Long.MAX_VALUE;
+    }
 
-      this.stampedVersionProperty.get().setTime(time);
+    //~--- set methods ---------------------------------------------------------
+    /**
+     * Sets the time.
+     *
+     * @param time the new time
+     */
+    @Override
+    public void setTime(long time) {
+        if (this.stampedVersionProperty == null) {
+            throw new IllegalStateException();
+        }
+        if (this.timeProperty != null) {
+            this.timeProperty.set(time);
+        }
 
-      if (this.commitStateBinding != null) {
-         this.commitStateBinding.invalidate();
-      }
-   }
+        this.stampedVersionProperty.get().setTime(time);
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Checks if uncommitted.
-    *
-    * @return true, if uncommitted
-    */
-   @Override
-   public boolean isUncommitted() {
-      return getCommitState() == CommitStates.UNCOMMITTED;
-   }
+        if (this.commitStateBinding != null) {
+            this.commitStateBinding.invalidate();
+        }
+    }
 
-   /**
-    * Gets the uuid list.
-    *
-    * @return the uuid list
-    */
-   @Override
-   public List<UUID> getUuidList() {
-       if (this.stampedVersionProperty == null || this.stampedVersionProperty.get() == null) {
-           return Arrays.asList(this.primordialUuidProperty.get());
-       }
-      return ((VersionImpl) this.stampedVersionProperty.get()).getUuidList();
-   }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Checks if uncommitted.
+     *
+     * @return true, if uncommitted
+     */
+    @Override
+    public boolean isUncommitted() {
+        return getCommitState() == CommitStates.UNCOMMITTED;
+    }
 
-   @Override
-   public final VersionType getSemanticType() {
-      return this.versionType;
-   }
+    /**
+     * Gets the uuid list.
+     *
+     * @return the uuid list
+     */
+    @Override
+    public List<UUID> getUuidList() {
+        if (this.stampedVersionProperty == null || this.stampedVersionProperty.get() == null) {
+            return Arrays.asList(this.primordialUuidProperty.get());
+        }
+        return ((VersionImpl) this.stampedVersionProperty.get()).getUuidList();
+    }
 
-   @Override
-   public <T> Optional<T> getUserObject(String objectKey) {
-      if (userObjectMap == null) {
-         return Optional.empty();
-      }
-      return Optional.ofNullable((T) userObjectMap.get(objectKey));
-   }
+    @Override
+    public final VersionType getSemanticType() {
+        return this.versionType;
+    }
 
-   @Override
-   public void putUserObject(String objectKey, Object object) {
-      if (userObjectMap == null) {
-         userObjectMap = new HashMap<>();
-      }
-      userObjectMap.put(objectKey, object);
-   }
+    @Override
+    public <T> Optional<T> getUserObject(String objectKey) {
+        if (userObjectMap == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable((T) userObjectMap.get(objectKey));
+    }
 
-   @Override
-   public <T> Optional<T> removeUserObject(String objectKey) {
-      T value = null;
-      if (userObjectMap != null) {
-         value = (T) userObjectMap.remove(objectKey);
-         if (userObjectMap.isEmpty()) {
-            userObjectMap = null;
-         }
-      }
-      return Optional.ofNullable(value);
-   }
-   
-   
+    @Override
+    public void putUserObject(String objectKey, Object object) {
+        if (userObjectMap == null) {
+            userObjectMap = new HashMap<>();
+        }
+        userObjectMap.put(objectKey, object);
+    }
+
+    @Override
+    public <T> Optional<T> removeUserObject(String objectKey) {
+        T value = null;
+        if (userObjectMap != null) {
+            value = (T) userObjectMap.remove(objectKey);
+            if (userObjectMap.isEmpty()) {
+                userObjectMap = null;
+            }
+        }
+        return Optional.ofNullable(value);
+    }
+
 }

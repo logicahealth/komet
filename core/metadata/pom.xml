@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-        <version>4.58</version>
+        <version>4.59</version>
     </parent>
     <groupId>sh.isaac.core</groupId>
     <artifactId>metadata</artifactId>
@@ -69,11 +69,6 @@
                     <dependency>
                         <groupId>sh.isaac.provider</groupId>
                         <artifactId>identifier</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>sh.isaac.provider</groupId>
-                        <artifactId>datastore-locator</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>
@@ -225,4 +220,55 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>file-datastore</id>
+            <activation>
+                <property>
+                    <name>!explicit-datstore</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>sh.isaac.core</groupId>
+                        <artifactId>mojo</artifactId>
+                        <version>${project.version}</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>sh.isaac.provider</groupId>
+                                <artifactId>datastore-locator</artifactId>
+                                <version>${project.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>postgres-datastore</id>
+            <activation>
+                <property>
+                    <name>explicit-datstore</name>
+                    <value>postgres</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>sh.isaac.core</groupId>
+                        <artifactId>mojo</artifactId>
+                        <version>${project.version}</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>sh.isaac.provider</groupId>
+                                <artifactId>postgress</artifactId>
+                                <version>${project.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
