@@ -87,7 +87,7 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
                         break;
 
                     case GENE:
-                        conceptSpecificAssemblage = MetaData.NCIB_GENE_ID____SOLOR;
+                        conceptSpecificAssemblage = MetaData.NCBI_GENE_ID____SOLOR;
                         break;
 
                     case ALLELE:

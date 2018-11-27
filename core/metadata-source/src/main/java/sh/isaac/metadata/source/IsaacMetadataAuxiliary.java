@@ -349,7 +349,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
                createConcept("Retro ID", "SOLOR Retro Identifier").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("CLINVAR Variant Name").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("NCIB Gene ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("NCBI Gene ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("CLINVAR Allele ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("MIM Number").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
 

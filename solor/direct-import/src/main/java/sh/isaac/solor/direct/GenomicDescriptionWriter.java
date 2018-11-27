@@ -86,7 +86,7 @@ public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void>
                         int conceptStamp = stampService.getStampSequence(this.state, this.commitTime, this.authorNid, this.moduleNid, this.pathNid);
                         DescriptionVersionImpl genomicDescriptionVersion = genomicDescription.createMutableVersion(conceptStamp);
                         genomicDescriptionVersion.setCaseSignificanceConceptNid(TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getNid());
-                        genomicDescriptionVersion.setDescriptionTypeConceptNid(TermAux.DEFINITION_DESCRIPTION_TYPE.getNid());
+                        genomicDescriptionVersion.setDescriptionTypeConceptNid(TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid());
                         genomicDescriptionVersion.setLanguageConceptNid(this.languageNid);
                         genomicDescriptionVersion.setText(descriptionString);
                         index(genomicDescription);
