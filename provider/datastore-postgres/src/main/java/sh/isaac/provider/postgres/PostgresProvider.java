@@ -117,7 +117,7 @@ public class PostgresProvider
             String isaacUserpwd = System.getProperty("ISAAC_PSQL_UPWD", "isaac_pwd");
 
             HikariConfig config = new HikariConfig();
-            // ::NYI: pass in setJdbcUrl as parameter instead of being hardcoded.
+
             config.setJdbcUrl(isaacDbUrl);
             config.setUsername(isaacUsername);
             config.setPassword(isaacUserpwd);
