@@ -28,6 +28,8 @@ import java.util.zip.ZipOutputStream;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.Stamp;
+import sh.isaac.api.commit.StampService;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import static sh.isaac.api.externalizable.IsaacObjectType.UNKNOWN;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -90,6 +92,29 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
                   });
               }
               zipOut.closeEntry();
+              
+              updateMessage("Exporting STAMPs...");
+              ZipEntry stampEntry = new ZipEntry("stamp");
+              zipOut.putNextEntry(stampEntry);
+              StampService stampService = Get.stampService();
+              int[] stampSequences = stampService.getStampSequences().toArray();
+              dos.writeInt(stampSequences.length);
+              for (int stampSequence: stampSequences) {
+                  try {
+                      dos.writeInt(stampSequence);
+                      Stamp stamp = stampService.getStamp(stampSequence);
+                      dos.writeUTF(stamp.getStatus().name());
+                      dos.writeLong(stamp.getTime());
+                      dos.writeInt(stamp.getAuthorNid());
+                      dos.writeInt(stamp.getModuleNid());
+                      dos.writeInt(stamp.getPathNid());
+                  } catch (IOException ex) {
+                          throw new RuntimeException(ex);
+                  }
+              }
+              
+              zipOut.closeEntry();
+              
               updateMessage("Exporting objects...");
               ZipEntry ibdfEntry = new ZipEntry("ibdf");
               zipOut.putNextEntry(ibdfEntry);

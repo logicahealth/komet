@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -65,10 +66,24 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
                 VersionType versionType = VersionType.getFromToken(dis.readByte());
                 // DO something with the identifier data before going to the next one.
                 completedUnitOfWork();
-               
+
             }
             dis.close();
-
+            updateMessage("Importing STAMPs...");
+            ZipEntry stampEntry = zipFile.getEntry("stamp");
+            DataInputStream stampIs = new DataInputStream(zipFile.getInputStream(stampEntry));
+            int stampCount = stampIs.readInt();
+            for (int i = 0; i < stampCount; i++) {
+                int stampSequence = stampIs.readInt();
+                Status status = Status.valueOf(stampIs.readUTF());
+                long time = stampIs.readLong();
+                int authorNid = stampIs.readInt();
+                int moduleNid = stampIs.readInt();
+                int pathNid = stampIs.readInt();
+                // do something with the stamp...
+            }
+            stampIs.close();
+            
             updateMessage("Importing objects...");
             ZipEntry ibdfEntry = zipFile.getEntry("ibdf");
             DataInputStream ibdfIs = new DataInputStream(zipFile.getInputStream(ibdfEntry));
@@ -93,7 +108,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
             ibdfIs.readFully(dataRead);
             dataToRead[i] = dataRead;
         }
-        
+
         int size = 0;
         for (byte[] dataEntry : dataToRead) {
             size = size + dataEntry.length;
@@ -113,24 +128,24 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
             }
 
         }
-        
+
         byteBuffer.putInt(0);
         byteBuffer.rewind();
-        
+
         switch (objectType) {
             case CONCEPT:
                 IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
                 ConceptChronologyImpl temp = ConceptChronologyImpl.make(byteBuffer);
                 // do something with concept...
                 break;
-                
+
             case SEMANTIC:
                 IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
                 SemanticChronologyImpl.make(byteBuffer);
                 // do something with semantic...
                 break;
             default:
-                // unexpected...
+            // unexpected...
         }
         completedUnitOfWork();
     }
