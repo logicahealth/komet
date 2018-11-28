@@ -24,7 +24,9 @@ import javafx.scene.control.ListView;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampPosition;
 import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
@@ -80,6 +82,9 @@ public class LetItemPanel {
         if (letItem instanceof ObservableLanguageCoordinate) {
             setupLanguageCoordinate((ObservableLanguageCoordinate) letItem);
         }
+        if (letItem instanceof ObservableLogicCoordinate) {
+            setupLogicCoordinate((ObservableLogicCoordinate) letItem);
+        }
     }
     
     public Node getNode() {
@@ -104,5 +109,19 @@ public class LetItemPanel {
         this.sheet.getItems().add(new PropertySheetStampPrecedenceWrapper("Precedence", stampCoordinateItem.stampPrecedenceProperty()));
         this.sheet.getItems().add(new PropertySheetConceptSetWrapper(manifold, stampCoordinateItem.moduleSpecificationsProperty()));
         this.sheet.getItems().add(new PropertySheetConceptListWrapper(manifold, stampCoordinateItem.modulePreferenceListForVersionsProperty()));
+    }
+    
+    private void setupLogicCoordinate(ObservableLogicCoordinate logicCoordinateItem) {
+
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, "Logic profile", logicCoordinateItem.descriptionLogicProfileProperty(), 
+                new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_LOGIC_PROFILE }));
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, "Classifier", logicCoordinateItem.classifierProperty(), 
+                new ConceptSpecification[] { TermAux.SNOROCKET_CLASSIFIER }));
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, "Concepts to classify", logicCoordinateItem.conceptAssemblageProperty(), 
+                new ConceptSpecification[] { TermAux.SOLOR_CONCEPT_ASSEMBLAGE }));
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, "Stated assemblage", logicCoordinateItem.statedAssemblageProperty(), 
+                new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE }));
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, "Inferred assemblage", logicCoordinateItem.inferredAssemblageProperty(), 
+                new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE }));
     }
 }

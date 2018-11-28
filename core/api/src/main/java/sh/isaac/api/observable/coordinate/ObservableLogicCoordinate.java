@@ -41,7 +41,8 @@ package sh.isaac.api.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 import sh.isaac.api.coordinate.LogicCoordinate;
 
@@ -55,41 +56,43 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 public interface ObservableLogicCoordinate
         extends LogicCoordinate, ObservableCoordinate {
    /**
-    * Classifier nid property.
+    * Classifier property.
     *
-    * @return the integer property
+    * @return the classifier concept property. 
     */
-   IntegerProperty classifierNidProperty();
+   ObjectProperty<ConceptSpecification> classifierProperty();
 
    /**
-    * Concept assemblage nid property.
+    * Concept assemblage property.
     *
-    * @return the integer property
+    * @return the assemblage concept property. 
     */
-   IntegerProperty conceptAssemblageNidProperty();
+   ObjectProperty<ConceptSpecification> conceptAssemblageProperty();
 
    /**
-    * Description logic profile nid property.
+    * Description logic profile property.
     *
-    * @return the integer property
+    * @return the description logic profile concept property. 
     */
-   IntegerProperty descriptionLogicProfileNidProperty();
+   ObjectProperty<ConceptSpecification> descriptionLogicProfileProperty();
 
    /**
-    * Inferred assemblage nid property.
+    * Inferred assemblage property.
     *
-    * @return the integer property
+    * @return the inferred assemblage concept property. 
     */
-   IntegerProperty inferredAssemblageNidProperty();
+   ObjectProperty<ConceptSpecification> inferredAssemblageProperty();
 
    /**
-    * Stated assemblage nid property.
+    * Stated assemblage property.
     *
-    * @return the integer property
+    * @return the stated assemblage concept property. 
     */
-   IntegerProperty statedAssemblageNidProperty();
+   ObjectProperty<ConceptSpecification> statedAssemblageProperty();
    
    @Override
    public ObservableLogicCoordinate deepClone();
+   
+
 }
 

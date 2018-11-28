@@ -18,11 +18,14 @@ import javafx.scene.layout.BorderPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableStampCoordinateImpl;
 import sh.komet.gui.search.flwor.LetItemPanel;
 import sh.komet.gui.search.flwor.LetItemsController;
@@ -60,6 +63,14 @@ public class LetPropertySheet {
         MenuItem addLanguageCoordinate = new MenuItem("Add language coordinate");
         addLanguageCoordinate.setOnAction(this::addLanguageCoordinate);
         addLetClauseButton.getItems().add(addLanguageCoordinate);
+
+        MenuItem addLogicCoordinate = new MenuItem("Add logic coordinate");
+        addLogicCoordinate.setOnAction(this::addLogicCoordinate);
+        addLetClauseButton.getItems().add(addLogicCoordinate);
+
+        MenuItem addManifoldCoordinate = new MenuItem("Add manifold coordinate");
+        addManifoldCoordinate.setOnAction(this::addManifoldCoordinate);
+        addLetClauseButton.getItems().add(addManifoldCoordinate);
 
         AnchorPane.setBottomAnchor(this.propertySheetBorderPane, 0.0);
         AnchorPane.setTopAnchor(this.propertySheetBorderPane, 0.0);
@@ -153,6 +164,10 @@ public class LetPropertySheet {
         addLanguageCoordinate(newLetItem, this.manifoldForDisplay.getLanguageCoordinate().deepClone());
     }
 
+    public void addManifoldCoordinate(ActionEvent action) {
+        throw new UnsupportedOperationException();
+    }
+
     public void addStampCoordinate(ActionEvent action) {
         int sequence = 1;
         String keyName = "STAMP " + sequence;
@@ -172,6 +187,43 @@ public class LetPropertySheet {
         addStampCoordinate(newLetItem, stampCoordinate);
     }
 
+    public void addLogicCoordinate(ActionEvent action) {
+        int sequence = 1;
+        String keyName = "Logic " + sequence;
+        boolean unique = false;
+        TRY_NEXT: while (!unique) {
+            keyName = "Logic " + sequence++;
+            for (LetItemKey key: letItemObjectMap.keySet()) {
+                if (key.getItemName().equalsIgnoreCase(keyName)) {
+                    continue TRY_NEXT;
+                }
+            }
+            unique = true;
+        }
+        
+        LetItemKey newLetItem = new LetItemKey(keyName);
+        ObservableLogicCoordinate logicCoordinate = this.manifoldForDisplay.getLogicCoordinate().deepClone();
+        addLogicCoordinate(newLetItem, logicCoordinate);
+    }
+
+    public void addLogicCoordinate(LetItemKey newLetItem, LogicCoordinate newLogicCoordinate) {
+        ObservableLogicCoordinate logicCoordinate;
+        if (newLogicCoordinate instanceof ObservableStampCoordinate) {
+            logicCoordinate = (ObservableLogicCoordinate) newLogicCoordinate;
+        } else {
+            logicCoordinate = new ObservableLogicCoordinateImpl(newLogicCoordinate);
+        }
+        this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
+        letItemObjectMap.put(newLetItem, logicCoordinate);
+        LetItemPanel newLetItemPanel = new LetItemPanel(manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), logicCoordinate);
+        letItemPanelMap.put(newLetItem, newLetItemPanel);
+
+        letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
+        
+        this.letItemsController.getLetListViewletListView().getSelectionModel().select(newLetItem);
+        
+    }
+    
     public void addStampCoordinate(LetItemKey newLetItem, StampCoordinate newStampCoordinate) {
         ObservableStampCoordinate stampCoordinate;
         if (newStampCoordinate instanceof ObservableStampCoordinate) {

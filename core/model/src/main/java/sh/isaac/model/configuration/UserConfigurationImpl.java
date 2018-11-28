@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.GlobalDatastoreConfiguration;
@@ -137,11 +138,11 @@ public class UserConfigurationImpl implements UserConfiguration
 		//languageCoordinate.nextProrityLanguageCoordinateProperty();
 		
 		logicCoordinate = globalConfig.getDefaultLogicCoordinate().deepClone();
-		logicCoordinate.classifierNidProperty().set(getOption(ConfigurationOption.CLASSIFIER));
-		//logicCoordinate.conceptAssemblageNidProperty()
-		logicCoordinate.descriptionLogicProfileNidProperty().set(getOption(ConfigurationOption.DESCRIPTION_LOGIC_PROFILE));
-		logicCoordinate.inferredAssemblageNidProperty().set(getOption(ConfigurationOption.INFERRED_ASSEMBLAGE));
-		logicCoordinate.statedAssemblageNidProperty().set(getOption(ConfigurationOption.STATED_ASSEMBLAGE));
+		logicCoordinate.classifierProperty().set(new ConceptProxy((Integer) getOption(ConfigurationOption.CLASSIFIER)));
+		//logicCoordinate.conceptAssemblageProperty()
+		logicCoordinate.descriptionLogicProfileProperty().set(new ConceptProxy((Integer) getOption(ConfigurationOption.DESCRIPTION_LOGIC_PROFILE)));
+		logicCoordinate.inferredAssemblageProperty().set(new ConceptProxy((Integer) getOption(ConfigurationOption.INFERRED_ASSEMBLAGE)));
+		logicCoordinate.statedAssemblageProperty().set(new ConceptProxy((Integer) getOption(ConfigurationOption.STATED_ASSEMBLAGE)));
 		
 		stampCoordinate = globalConfig.getDefaultStampCoordinate().deepClone();
 		//stampCoordinate.allowedStatesProperty();
@@ -353,10 +354,10 @@ public class UserConfigurationImpl implements UserConfiguration
 				switch(option)
 				{
 					case CLASSIFIER:
-						logicCoordinate.classifierNidProperty().set(getOption(ConfigurationOption.CLASSIFIER));
+						logicCoordinate.classifierProperty().set(new ConceptProxy((Integer)getOption(ConfigurationOption.CLASSIFIER)));
 						break;
 					case DESCRIPTION_LOGIC_PROFILE:
-						logicCoordinate.descriptionLogicProfileNidProperty().set(getOption(ConfigurationOption.DESCRIPTION_LOGIC_PROFILE));
+						logicCoordinate.descriptionLogicProfileProperty().set(new ConceptProxy((Integer)getOption(ConfigurationOption.DESCRIPTION_LOGIC_PROFILE)));
 						break;
 					case DESCRIPTION_TYPE_PREFERENCE_LIST:
 						languageCoordinate.setDescriptionTypePreferenceList((int[])getOption(ConfigurationOption.DESCRIPTION_TYPE_PREFERENCE_LIST));
@@ -371,7 +372,7 @@ public class UserConfigurationImpl implements UserConfiguration
 						editCoordinate.pathNidProperty().set(getOption(ConfigurationOption.EDIT_PATH));
 						break;
 					case INFERRED_ASSEMBLAGE:
-						logicCoordinate.inferredAssemblageNidProperty().set(getOption(ConfigurationOption.INFERRED_ASSEMBLAGE));
+						logicCoordinate.inferredAssemblageProperty().set(new ConceptProxy((Integer)getOption(ConfigurationOption.INFERRED_ASSEMBLAGE)));
 						break;
 					case LANGUAGE:
 						languageCoordinate.setLanguageConceptNid(getOption(ConfigurationOption.LANGUAGE));
@@ -380,7 +381,7 @@ public class UserConfigurationImpl implements UserConfiguration
 						manifoldCoordinate.taxonomyPremiseTypeProperty().set(getOption(ConfigurationOption.PREMISE_TYPE));
 						break;
 					case STATED_ASSEMBLAGE:
-						logicCoordinate.statedAssemblageNidProperty().set(getOption(ConfigurationOption.STATED_ASSEMBLAGE));
+						logicCoordinate.statedAssemblageProperty().set(new ConceptProxy((Integer)getOption(ConfigurationOption.STATED_ASSEMBLAGE)));
 						break;
 					case TIME:
 						stampCoordinate.stampPositionProperty().get().timeProperty().set(getOption(ConfigurationOption.TIME));
@@ -402,10 +403,10 @@ public class UserConfigurationImpl implements UserConfiguration
 				switch(option)
 				{
 					case CLASSIFIER:
-						logicCoordinate.classifierNidProperty().set((Integer)objectValue);
+						logicCoordinate.classifierProperty().set(new ConceptProxy((Integer)objectValue));
 						break;
 					case DESCRIPTION_LOGIC_PROFILE:
-						logicCoordinate.descriptionLogicProfileNidProperty().set((Integer)objectValue);
+						logicCoordinate.descriptionLogicProfileProperty().set(new ConceptProxy((Integer)objectValue));
 						break;
 					case DESCRIPTION_TYPE_PREFERENCE_LIST:
 						languageCoordinate.setDescriptionTypePreferenceList((int[])objectValue);
@@ -420,7 +421,7 @@ public class UserConfigurationImpl implements UserConfiguration
 						editCoordinate.pathNidProperty().set((Integer)objectValue);
 						break;
 					case INFERRED_ASSEMBLAGE:
-						logicCoordinate.inferredAssemblageNidProperty().set((Integer)objectValue);
+						logicCoordinate.inferredAssemblageProperty().set(new ConceptProxy((Integer)objectValue));
 						break;
 					case LANGUAGE:
 						languageCoordinate.setLanguageConceptNid((Integer)objectValue);
@@ -429,7 +430,7 @@ public class UserConfigurationImpl implements UserConfiguration
 						manifoldCoordinate.taxonomyPremiseTypeProperty().set((PremiseType)objectValue);
 						break;
 					case STATED_ASSEMBLAGE:
-						logicCoordinate.statedAssemblageNidProperty().set((Integer)objectValue);
+						logicCoordinate.statedAssemblageProperty().set(new ConceptProxy((Integer)objectValue));
 						break;
 					case TIME:
 						stampCoordinate.stampPositionProperty().get().timeProperty().set((Long)objectValue);

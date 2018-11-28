@@ -45,6 +45,7 @@ import sh.isaac.api.query.clauses.DescriptionRegexMatch;
 import sh.isaac.api.query.clauses.RelRestriction;
 import sh.isaac.api.xml.JaxbMap;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
+import sh.isaac.model.coordinate.LogicCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 
 /**
@@ -56,16 +57,20 @@ public class Jaxb {
     final JAXBContext jc;
     private Jaxb() {
         try {
-            jc = JAXBContext.newInstance(StampCoordinateImpl.class,
+            jc = JAXBContext.newInstance(
+                    StampCoordinateImpl.class,
+                    LanguageCoordinateImpl.class,
+                    LogicCoordinateImpl.class,
                     ConceptSpecification.class,
-                    ConceptProxy.class, LanguageCoordinateImpl.class,
-                    JaxbMap.class, Query.class,
-                    Clause.class, Or.class,
+                    ConceptProxy.class, 
+                    JaxbMap.class, 
+                    Query.class,
+                    Clause.class, 
+                    Or.class,
                     And.class,
                     AndNot.class,
                     LeafClause.class,
                     Not.class,
-                    Or.class,
                     Xor.class,
                     ChangedBetweenVersions.class,
                     ComponentIsActive.class,

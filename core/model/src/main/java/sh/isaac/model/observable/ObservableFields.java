@@ -120,6 +120,8 @@ public enum ObservableFields
    /** The classifier nid for logic coordinate. */
    CLASSIFIER_NID_FOR_LOGIC_COORDINATE("Classifier nid for logic coordinate", "Classifier"),
 
+   CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE("Concept assemblage for logic coordinate", "Concepts to classify"),
+
    /** The stamp precedence for stamp coordinate. */
    STAMP_PRECEDENCE_FOR_STAMP_COORDINATE("Stamp precedence for stamp coordinate", "Precedence"),
 

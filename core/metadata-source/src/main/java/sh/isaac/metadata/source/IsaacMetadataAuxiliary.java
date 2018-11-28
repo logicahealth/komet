@@ -114,6 +114,7 @@ import static sh.isaac.model.observable.ObservableFields.MODULE_NID_ARRAY_FOR_ST
 import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_STAMP_PATH;
 import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_STAMP_POSITION;
 import static sh.isaac.model.observable.ObservableFields.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION;
+import static sh.isaac.model.observable.ObservableFields.CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION;
 import static sh.isaac.model.observable.ObservableFields.SEMANTIC_LIST_FOR_CHRONICLE;
 import static sh.isaac.model.observable.ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT;
@@ -768,6 +769,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(CLASSIFIER_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(STAMP_PRECEDENCE_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(STAMP_POSITION_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(ALLOWED_STATES_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
