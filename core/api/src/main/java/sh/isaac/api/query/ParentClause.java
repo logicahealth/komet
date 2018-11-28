@@ -55,7 +55,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.concept.ConceptVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -164,19 +163,6 @@ public abstract class ParentClause
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_AND_POST_ITERATION;
    }
-
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
-   @Override
-   public final void getQueryMatches(ConceptVersion conceptVersion) {
-      this.children.stream().forEach((c) -> {
-                               c.getQueryMatches(conceptVersion);
-                            });
-   }
-   
 
    @Override
    public Clause[] getAllowedChildClauses() {

@@ -368,7 +368,7 @@ public class LoadTermstore
                   
                   UUID primordial = sc.getPrimordialUuid();
                   json.write(sc);
-                  getLog().error("Failed on taxonomy update for object with primoridial UUID " + primordial.toString() + ": " +  baos.toString(), e);
+                  getLog().error("Failed on taxonomy update for object with primordial UUID " + primordial.toString() + ": " +  baos.toString(), e);
                   json.close();
                }
                } else {
@@ -609,7 +609,7 @@ public class LoadTermstore
                
                json.write(object);
                getLog().error("Failed on " + ((primordial == null) ? ": "
-                       : "object with primoridial UUID " + primordial.toString() + ": ") + baos.toString());
+                       : "object with primordial UUID " + primordial.toString() + ": ") + baos.toString());
             }
          }
 

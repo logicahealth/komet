@@ -285,7 +285,7 @@ public class TermAux implements StaticIsaacCache {
          UUID.fromString("50e719a8-67ec-11e7-907b-a6006ad3dba0"));
    
    public static ConceptProxy REFERENCED_COMPONENT_IS_ACTIVE = new ConceptProxy("Referenced component is active (query clause)", "Referenced component is active", UUID.fromString("d6f0f08f-d2db-5143-9466-cb60073879f3"));
-   public static ConceptProxy REFERENCED_COMPONENT_IS_INACTIVE = new ConceptProxy("Referenced component is inactive (query clause)", "Referenced component is inactive", UUID.fromString("1fbdd3c7-efd1-59ec-a648-79582d0f8f1e"));
+   public static ConceptProxy REFERENCED_COMPONENT_IS_INACTIVE = new ConceptProxy("Referenced component is NOT active (query clause)", "Referenced component is NOT active", UUID.fromString("1fbdd3c7-efd1-59ec-a648-79582d0f8f1e"));
    
    
    public static ConceptProxy AND_QUERY_CLAUSE = new ConceptProxy("All child criterion are satisfied for component (query clause)", "and query",

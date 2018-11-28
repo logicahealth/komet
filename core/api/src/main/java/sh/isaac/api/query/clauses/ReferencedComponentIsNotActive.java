@@ -17,7 +17,6 @@
 package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -29,7 +28,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
@@ -45,7 +43,7 @@ import sh.isaac.api.query.WhereClause;
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class ReferencedComponentIsInactive extends LeafClause {
+public class ReferencedComponentIsNotActive extends LeafClause {
 
     /**
      * the manifold coordinate key.
@@ -56,7 +54,7 @@ public class ReferencedComponentIsInactive extends LeafClause {
     /**
      * Instantiates a new component is active clause.
      */
-    public ReferencedComponentIsInactive() {
+    public ReferencedComponentIsNotActive() {
     }
 
     /**
@@ -65,20 +63,25 @@ public class ReferencedComponentIsInactive extends LeafClause {
      * @param enclosingQuery the enclosing query
      * @param stampCoordinateKey the manifold coordinate key
      */
-    public ReferencedComponentIsInactive(Query enclosingQuery, LetItemKey stampCoordinateKey) {
+    public ReferencedComponentIsNotActive(Query enclosingQuery, LetItemKey stampCoordinateKey) {
         super(enclosingQuery);
         this.stampCoordinateKey = stampCoordinateKey;
     }
 
     //~--- methods -------------------------------------------------------------
+    /**
+     * Compute possible components.
+     *
+     * @param incomingPossibleComponents the incoming possible components
+     * @return the nid set
+     */
     @Override
-    public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
+    public final Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
         StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
-        
-        getResultsCache().and(incomingComponents.get(this.getAssemblageForIteration()));
-                
-        NidSet.of(getResultsCache()).stream().forEach((nid) -> {
-            final Optional<? extends Chronology> chronology
+
+        NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+        for (int nid: possibleComponents.asArray()) {
+           final Optional<? extends Chronology> chronology
                     = Get.identifiedObjectService()
                             .getChronology(nid);
             if (chronology.isPresent() && chronology.get() instanceof SemanticChronology) {
@@ -89,31 +92,14 @@ public class ReferencedComponentIsInactive extends LeafClause {
                 if (referencedComponentChronology.isPresent() &&
                         !referencedComponentChronology.get()
                         .isLatestVersionActive(stampCoordinate)) {
-                    getResultsCache().remove(nid);
+                    possibleComponents.remove(nid);
                 }
             } else {
-                getResultsCache().remove(nid);
+                possibleComponents.remove(nid);
             }
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
-        return resultsMap;
-    }
-
-    /**
-     * Compute possible components.
-     *
-     * @param incomingPossibleComponents the incoming possible components
-     * @return the nid set
-     */
-    @Override
-    public final Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        NidSet possibleComponents = NidSet.of(Get.identifierService().getNidsForAssemblage(this.getAssemblageForIteration()));
-            getResultsCache().or(possibleComponents);
-        if (incomingPossibleComponents.get(this.getAssemblageForIteration()) != null) {
-            getResultsCache().or(incomingPossibleComponents.get(this.getAssemblageForIteration()));
         }
-        incomingPossibleComponents.put(this.getAssemblageForIteration(), getResultsCache());
+
+                
         return incomingPossibleComponents;
     }
 
@@ -127,16 +113,6 @@ public class ReferencedComponentIsInactive extends LeafClause {
     @Override
     public EnumSet<ClauseComputeType> getComputePhases() {
         return ITERATION;
-    }
-
-    /**
-     * Gets the query matches.
-     *
-     * @param conceptVersion the concept version
-     */
-    @Override
-    public void getQueryMatches(ConceptVersion conceptVersion) {
-        getResultsCache();
     }
 
     @Override

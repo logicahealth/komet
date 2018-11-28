@@ -266,16 +266,6 @@ public abstract class Clause implements ConceptSpecification {
     }
 
     //~--- get methods ---------------------------------------------------------
-    /**
-     * Collect intermediate results for clauses that require iteration over the
-     * database. This method will only be called if one of the clauses has a
-     * compute type of <code>ClauseComputeType.ITERATION</code>. The clause will
-     * cache results, and return the final results during the computeComponents
-     * method.
-     *
-     * @param conceptVersion the concept version
-     */
-    public abstract void getQueryMatches(ConceptVersion conceptVersion);
 
     /**
      * Getter for the <code>Where</code> clause, which is the syntax of the
@@ -299,7 +289,7 @@ public abstract class Clause implements ConceptSpecification {
             new ComponentIsActive(),
             new ComponentIsInactive(),
             new ReferencedComponentIsActive(),
-            new ReferencedComponentIsInactive(),
+            new ReferencedComponentIsNotActive(),
             
 //            new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
 //            new AssemblageContainsString(), new AssemblageLuceneMatch(),

@@ -17,17 +17,21 @@
 package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
+import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -89,28 +93,26 @@ public class ComponentIsNotMemberOf
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
 
-        StampCoordinate stampCoordinate = (StampCoordinate) this.enclosingQuery.getLetDeclarations().get(stampCoordinateKey);
-        ConceptSpecification assemblageSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(assemblageSpecKey);
-
-        int assemblageNid = assemblageSpec.getNid();
-        for (int nid : incomingPossibleComponents.get(getAssemblageForIteration()).asArray()) {
-            NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(nid, assemblageNid);
-            if (semanticNids.isEmpty()) {
-                getResultsCache().add(nid);
-            } else {
-                boolean memberOf = false;
-                for (int semanticNid : semanticNids.asArray()) {
-                    SemanticChronology semantic = Get.assemblageService().getSemanticChronology(semanticNid);
-                    if (!semantic.isLatestVersionActive(stampCoordinate)) {
-                        memberOf = true;
-                    }
-                }
-                if (!memberOf) {
-                    getResultsCache().add(nid);
+       StampCoordinate stampCoordinate = (StampCoordinate) this.enclosingQuery.getLetDeclarations().get(stampCoordinateKey);
+       ConceptSpecification assemblageSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(assemblageSpecKey);
+       NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+       SingleAssemblageSnapshot<SemanticVersion> snapshot = Get.assemblageService()
+                .getSingleAssemblageSnapshot(assemblageSpec, SemanticVersion.class, stampCoordinate);
+        
+        for (int nid: possibleComponents.asArray()) {
+            List<LatestVersion<SemanticVersion>> latestList
+                    = snapshot.getLatestSemanticVersionsForComponentFromAssemblage(nid);
+            boolean isMemberOf = false;
+            for (LatestVersion<SemanticVersion> latest : latestList) {
+                if (latest.isPresent()) {
+                    isMemberOf = true;
                 }
             }
+            if (isMemberOf) {
+                possibleComponents.remove(nid);
+            }
         }
-        incomingPossibleComponents.put(getAssemblageForIteration(), getResultsCache());
+
         return incomingPossibleComponents;
     }
 
@@ -140,16 +142,6 @@ public class ComponentIsNotMemberOf
 
     public void setAssemblageSpecKey(LetItemKey assemblageSpecKey) {
         this.assemblageSpecKey = assemblageSpecKey;
-    }
-
-    /**
-     * Gets the query matches.
-     *
-     * @param conceptVersion the concept version
-     */
-    @Override
-    public void getQueryMatches(ConceptVersion conceptVersion) {
-        // Nothing to do here...
     }
 
     @Override

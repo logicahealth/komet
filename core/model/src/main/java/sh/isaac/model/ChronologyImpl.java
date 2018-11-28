@@ -761,7 +761,7 @@ public abstract class ChronologyImpl
             Set<UUID> mergedExtraUUIDs = new HashSet<>();  //merge the other UUIDs
             mergedExtraUUIDs.addAll(uuidsFromOne);
             mergedExtraUUIDs.addAll(uuidsFromTwo);
-            mergedExtraUUIDs.remove(uuidsFromOne.get(0));  //remove the primoridial we wrote from the extra list
+            mergedExtraUUIDs.remove(uuidsFromOne.get(0));  //remove the primordial we wrote from the extra list
             
             db.putInt(mergedExtraUUIDs.size() * 2);  //Write the number of UUIDs
             for (UUID uuid : mergedExtraUUIDs)

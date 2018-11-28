@@ -917,4 +917,13 @@ public abstract class ObservableVersionImpl
         return Optional.ofNullable(value);
     }
 
+    @Override
+    public boolean deepEquals(Object other) {
+        if (other instanceof ObservableVersionImpl) {
+            ObservableVersionImpl otherObservable = (ObservableVersionImpl) other;
+            return this.getStampedVersion().deepEquals(otherObservable.getStampedVersion());
+        }
+        return this.getStampedVersion().deepEquals(other);
+    }
+
 }

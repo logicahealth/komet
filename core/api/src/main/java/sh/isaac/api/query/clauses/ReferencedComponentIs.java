@@ -26,7 +26,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -78,17 +77,16 @@ public class ReferencedComponentIs
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-    getResultsCache().clear();
     ConceptSpecification conceptSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(conceptSpecKey);
 
     int conceptNid = conceptSpec.getNid();
-    for (int nid: Get.assemblageService().getSemanticNidsFromAssemblage(getAssemblageForIteration().getNid()).asArray()) {
+    NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+    for (int nid: possibleComponents.asArray()) {
         SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
-        if (sc.getReferencedComponentNid() == conceptNid) {
-            getResultsCache().add(nid);
+        if (sc.getReferencedComponentNid() != conceptNid) {
+            possibleComponents.remove(nid);
         }
     }
-    incomingPossibleComponents.put(getAssemblageForIteration(), getResultsCache());
     return incomingPossibleComponents;
    }
 
@@ -112,15 +110,6 @@ public class ReferencedComponentIs
         this.conceptSpecKey = conceptSpecKey;
     }
 
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
-   @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {
-      // Nothing to do here...
-   }
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.REFERENCED_COMPONENT_IS;

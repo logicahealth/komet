@@ -42,7 +42,6 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -52,10 +51,10 @@ import javax.xml.bind.annotation.XmlElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
@@ -117,12 +116,21 @@ public class ConceptIsKindOf
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
       final int                parentNid         = ((ConceptSpecification) getLetItem(kindOfSpecKey)).getNid();
-      final NidSet kindOfNidSet = Get.taxonomyService().getSnapshot(getLetItem(manifoldCoordinateKey)).getKindOfConceptNidSet(parentNid);
-      getResultsCache().or(kindOfNidSet);
-      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-      resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
-      return resultsMap;
+      final TaxonomySnapshot kindOfSnapshot = Get.taxonomyService().getSnapshot(getLetItem(manifoldCoordinateKey));
+      
+      NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+        
+      for (int nid: possibleComponents.asArray()) {
+          if (!test(kindOfSnapshot, nid, parentNid)) {
+              possibleComponents.remove(nid);
+          }
+      }
+      return incomingPossibleComponents;
    }
+
+    protected boolean test(final TaxonomySnapshot kindOfSnapshot, int nid, final int parentNid) {
+        return kindOfSnapshot.isKindOf(nid, parentNid);
+    }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -136,15 +144,6 @@ public class ConceptIsKindOf
       return PRE_ITERATION;
    }
 
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
-   @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {
-      // Nothing to do...
-   }
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.CONCEPT_IS_KIND_OF;
@@ -172,6 +171,22 @@ public class ConceptIsKindOf
    public ConceptSpecification getClauseConcept() {
       return TermAux.CONCEPT_IS_KIND_OF_QUERY_CLAUSE;
    }
+
+    public LetItemKey getKindOfSpecKey() {
+        return kindOfSpecKey;
+    }
+
+    public void setKindOfSpecKey(LetItemKey kindOfSpecKey) {
+        this.kindOfSpecKey = kindOfSpecKey;
+    }
+
+    public LetItemKey getManifoldCoordinateKey() {
+        return manifoldCoordinateKey;
+    }
+
+    public void setManifoldCoordinateKey(LetItemKey manifoldCoordinateKey) {
+        this.manifoldCoordinateKey = manifoldCoordinateKey;
+    }
 
 }
 

@@ -331,7 +331,7 @@ public class LoadTermstoreSemaphore
 
                 json.write(object);
                 getLog().error("Failed on " + ((primordial == null) ? ": "
-                        : "object with primoridial UUID " + primordial.toString() + ": ") + baos.toString());
+                        : "object with primordial UUID " + primordial.toString() + ": ") + baos.toString());
             }
         }
 

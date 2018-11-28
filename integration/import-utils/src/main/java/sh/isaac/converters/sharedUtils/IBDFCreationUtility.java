@@ -584,7 +584,7 @@ public class IBDFCreationUtility
       if (additionalUUIDs != null)
       {
          conceptVersion.addAdditionalUuids(additionalUUIDs);
-         conceptVersion.addAdditionalUuids(conceptPrimordialUuid);  //We may not have used the primoridial in the constructor above, make sure its added here.
+         conceptVersion.addAdditionalUuids(conceptPrimordialUuid);  //We may not have used the primordial in the constructor above, make sure its added here.
          //The addAdditionalUUIDs already remove duplicates / don't duplicate the primordial.
       }
       this.writer.put(conceptChronology);

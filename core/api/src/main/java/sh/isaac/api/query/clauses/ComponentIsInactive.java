@@ -74,24 +74,23 @@ public class ComponentIsInactive extends LeafClause {
     public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
         StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
         
-        getResultsCache().and(incomingComponents.get(this.getAssemblageForIteration()));
-                
-        NidSet.of(getResultsCache()).stream().forEach((nid) -> {
+        NidSet possibleComponents = incomingComponents.get(getAssemblageForIteration());
+        
+        for (int nid: possibleComponents.asArray()) {
             final Optional<? extends Chronology> chronology
                     = Get.identifiedObjectService()
                             .getChronology(nid);
             if (chronology.isPresent()) {
                 if (chronology.get()
                         .isLatestVersionActive(stampCoordinate)) {
-                    getResultsCache().remove(nid);
+                    possibleComponents.remove(nid);
                 }
             } else {
-                getResultsCache().remove(nid);
+                possibleComponents.remove(nid);
             }
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
-        return resultsMap;
+        }
+  
+        return incomingComponents;
     }
 
     /**
@@ -102,12 +101,6 @@ public class ComponentIsInactive extends LeafClause {
      */
     @Override
     public final Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        NidSet possibleComponents = NidSet.of(Get.identifierService().getNidsForAssemblage(this.getAssemblageForIteration()));
-            getResultsCache().or(possibleComponents);
-        if (incomingPossibleComponents.get(this.getAssemblageForIteration()) != null) {
-            getResultsCache().or(incomingPossibleComponents.get(this.getAssemblageForIteration()));
-        }
-        incomingPossibleComponents.put(this.getAssemblageForIteration(), getResultsCache());
         return incomingPossibleComponents;
     }
 
@@ -121,16 +114,6 @@ public class ComponentIsInactive extends LeafClause {
     @Override
     public EnumSet<ClauseComputeType> getComputePhases() {
         return ITERATION;
-    }
-
-    /**
-     * Gets the query matches.
-     *
-     * @param conceptVersion the concept version
-     */
-    @Override
-    public void getQueryMatches(ConceptVersion conceptVersion) {
-        getResultsCache();
     }
 
     @Override

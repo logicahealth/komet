@@ -38,7 +38,6 @@ package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -53,7 +52,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -120,8 +118,9 @@ public class DescriptionLuceneMatch
      */
     @Override
     public final Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        final NidSet nids = new NidSet();
-        IndexDescriptionQueryService descriptionIndexer = LookupService.get().getService(IndexDescriptionQueryService.class);
+        NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+         
+       IndexDescriptionQueryService descriptionIndexer = LookupService.get().getService(IndexDescriptionQueryService.class);
 
         if (descriptionIndexer == null) {
             throw new IllegalStateException("No description indexer found on classpath");
@@ -129,17 +128,12 @@ public class DescriptionLuceneMatch
 
         final List<SearchResult> queryResults = descriptionIndexer.query((String) this.enclosingQuery.getLetDeclarations().get(queryStringKey), 1000);
 
-        NidSet incomingPossibleSet = incomingPossibleComponents.get(this.getAssemblageForIteration());
         queryResults.stream().forEach((s) -> {
-            if (incomingPossibleSet.contains(s.getNid())) {
-                nids.add(s.getNid());
+            if (!possibleComponents.contains(s.getNid())) {
+                possibleComponents.remove(s.getNid());
             }
         });
-
-      getResultsCache().or(nids);
-      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-      resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
-      return resultsMap;
+      return incomingPossibleComponents;
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -151,16 +145,6 @@ public class DescriptionLuceneMatch
     @Override
     public EnumSet<ClauseComputeType> getComputePhases() {
         return PRE_ITERATION;
-    }
-
-    /**
-     * Gets the query matches.
-     *
-     * @param conceptVersion the concept version
-     */
-    @Override
-    public void getQueryMatches(ConceptVersion conceptVersion) {
-        getResultsCache();
     }
 
     @Override

@@ -243,4 +243,9 @@ public class ObservableDescriptionDialect implements ObservableVersion {
         return descriptionProperty.get().getCommitState();
     }
 
+    @Override
+    public boolean deepEquals(Object other) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

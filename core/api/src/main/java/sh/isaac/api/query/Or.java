@@ -83,39 +83,30 @@ public class Or
     /**
      * Compute components.
      *
-     * @param incomingComponents the incoming components
+     * @param components the components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        final NidSet results = new NidSet();
-
-        getChildren().stream().forEach((clause) -> {
-            results.or(clause.computeComponents(incomingComponents).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> components) {
+        for (Clause child: getChildren()) {
+            components = ForSet.or(components, child.computePossibleComponents(components));
+        }
+        return components;
     }
 
     /**
      * Compute possible components.
      *
-     * @param searchSpace the search space
+     * @param possibleComponents the incoming possible components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> searchSpace) {
-        final NidSet results = new NidSet();
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> possibleComponents) {
 
-        getChildren().stream().forEach((clause) -> {
-            results.or(clause.computePossibleComponents(searchSpace).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(searchSpace);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+        for (Clause child: getChildren()) {
+            possibleComponents = ForSet.or(possibleComponents, child.computePossibleComponents(possibleComponents));
+        }
+        return possibleComponents;
     }
 
     //~--- get methods ---------------------------------------------------------

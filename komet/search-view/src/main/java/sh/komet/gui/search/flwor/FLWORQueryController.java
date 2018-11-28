@@ -121,7 +121,7 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.query.Clause;
-import sh.isaac.api.query.ForSetsSpecification;
+import sh.isaac.api.query.ForSet;
 import sh.isaac.api.query.Or;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.SortSpecification;
@@ -499,7 +499,7 @@ public class FLWORQueryController
         rootClause.setEnclosingQuery(query);
 
         int[][] resultArray = query.reify();
-        ForSetsSpecification forSet = query.getForSetSpecification();
+        ForSet forSet = query.getForSetSpecification();
 
         FxGet.statusMessageService()
                 .reportSceneStatus(anchorPane.getScene(), "Query result count: " + resultArray.length);
