@@ -54,7 +54,6 @@ package sh.komet.gui.search.flwor;
 * See the License for the specific language governing permissions and
 * limitations under the License.
  */
-import com.sun.javafx.scene.control.skin.LabeledText;
 import sh.isaac.api.query.AttributeFunction;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.AttributeSpecification;
@@ -62,8 +61,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URL;
 
 import java.util.*;
@@ -79,7 +76,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
@@ -99,7 +95,6 @@ import javafx.stage.FileChooser;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.ValidationEvent;
 
 //~--- JDK imports ------------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
@@ -119,9 +114,11 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ForSet;
+import sh.isaac.api.query.ManifoldCoordinateForQuery;
 import sh.isaac.api.query.Or;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.SortSpecification;
@@ -295,6 +292,10 @@ public class FLWORQueryController
         return Iconography.FLWOR_SEARCH.getIconographic();
     }
 
+    public Query getQuery() {
+        return query;
+    }
+
     /*
     Functions needed: 
         primordial uuid for nid
@@ -385,7 +386,6 @@ public class FLWORQueryController
 
                 Marshaller marshaller = Jaxb.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                marshaller.marshal(TermAux.ISAAC_UUID, System.out);
 
                 this.query.reset();
 
@@ -395,6 +395,8 @@ public class FLWORQueryController
                         value = ((ObservableStampCoordinate) value).getStampCoordinate();
                     } else if (value instanceof ObservableLanguageCoordinate) {
                         value = ((ObservableLanguageCoordinate) value).getLanguageCoordinate();
+                    } else if (value instanceof ObservableLogicCoordinate) {
+                        value = ((ObservableLogicCoordinate) value).getLogicCoordinate();
                     }
                     this.query.let(key, value);
                 }
@@ -408,25 +410,6 @@ public class FLWORQueryController
                 query.setReturnAttributeList(resultColumns);
 
                 rootClause.setEnclosingQuery(query);
-
-//                marshaller.setEventHandler((ValidationEvent event1) -> {
-//                    System.out.println(event1);
-//                    return true;
-//                });
-//
-//                StringWriter stringWriter1 = new StringWriter();
-//                marshaller.marshal(query, stringWriter1);
-//                String xml1 = stringWriter1.toString();
-//                System.out.println(xml1);
-//
-//                Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
-//                Object obj = unmarshaller.unmarshal(new StringReader(xml1));
-//
-//                StringWriter stringWriter2 = new StringWriter();
-//                marshaller.marshal(obj, stringWriter2);
-//                String xml2 = stringWriter2.toString();
-//                System.out.println("Strings equal: " + xml1.equals(xml2));
-//                System.out.println(xml2);
                 marshaller.marshal(query, new FileWriter(selectedFile));
             }
 
@@ -485,6 +468,8 @@ public class FLWORQueryController
         this.setQuery(q);
         this.letPropertySheet.addLanguageCoordinate(null);
         this.letPropertySheet.addStampCoordinate(null);
+        this.letPropertySheet.addLogicCoordinate(null);
+        this.letPropertySheet.addManifoldCoordinate(null);
     }
 
     @FXML
@@ -868,7 +853,7 @@ public class FLWORQueryController
     //~--- set methods ---------------------------------------------------------
     public void setManifold(Manifold manifold) {
         this.manifold = manifold;
-        this.letPropertySheet = new LetPropertySheet(this.manifold.deepClone());
+        this.letPropertySheet = new LetPropertySheet(this.manifold.deepClone(), this);
         returnStampCoordinateColumn.setCellValueFactory((param) -> {
             return param.getValue().stampCoordinateKeyProperty();
         });

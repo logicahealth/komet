@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.List;
 import java.util.stream.Collectors;
 import javafx.beans.InvalidationListener;

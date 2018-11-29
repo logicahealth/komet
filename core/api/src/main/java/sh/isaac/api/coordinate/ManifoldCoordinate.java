@@ -43,6 +43,7 @@ package sh.isaac.api.coordinate;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -342,5 +343,54 @@ public interface ManifoldCoordinate
        ConceptChronology concept = Get.concept(conceptNid);
        return concept.getLogicalDefinition(this, premiseType, this);
    }
+
+   @Override
+   default ConceptSpecification getLanguageConcept() {
+       return this.getLanguageCoordinate().getLanguageConcept();
+   }
+   
+
+    @Override
+    default Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+        return getLanguageCoordinate().getNextProrityLanguageCoordinate();
+    }
+
+    @Override
+    default LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
+        return getLanguageCoordinate().getDefinitionDescription(descriptionList, stampCoordinate);
+    }
+
+    @Override
+    default int[] getModulePreferenceListForLanguage() {
+        return getLanguageCoordinate().getModulePreferenceListForLanguage();
+    }
+
+    @Override
+    default ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
+        return getLanguageCoordinate().getDialectAssemblageSpecPreferenceList();
+    }
+
+    @Override
+    default ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
+        return getLanguageCoordinate().getDescriptionTypeSpecPreferenceList();
+    }
+
+    @Override
+    default ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
+        return getLanguageCoordinate().getModuleSpecPreferenceListForLanguage();
+    }
+
+    @Override
+    default List<ConceptSpecification> getModulePreferenceOrderForVersions() {
+        return getStampCoordinate().getModulePreferenceOrderForVersions();
+    }
+
+    @Override
+    default Set<ConceptSpecification> getModuleSpecifications() {
+        return getStampCoordinate().getModuleSpecifications();
+    }
+    
+    
+       
 }
 

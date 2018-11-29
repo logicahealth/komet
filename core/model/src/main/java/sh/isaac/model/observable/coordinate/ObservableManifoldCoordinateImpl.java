@@ -40,6 +40,7 @@
 package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;

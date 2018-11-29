@@ -35,12 +35,11 @@
  *
  */
 
-package sh.isaac.model.observable.coordinate;
+package sh.isaac.api.observable.coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.value.ObservableValueBase;
-import sh.isaac.api.observable.coordinate.ObservableCoordinate;
 
 /**
  * The implementation code that actually makes all of these "Observable" coordinates observable as a whole, 

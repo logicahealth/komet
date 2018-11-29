@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -108,23 +109,28 @@ public class ObservableLogicCoordinateImpl
 
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Classifier property.
-    *
-    * @return the integer property
-    */
    @Override
-   public ObjectProperty<ConceptSpecification>  classifierProperty() {
-      if (this.classifierProperty == null) {
-         this.classifierProperty = new SimpleObjectProperty(this,
-               ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE.toExternalString(),
-               getClassifier());
-         addListenerReference(this.logicCoordinate.setClassifierProperty(this.classifierProperty));
-         this.classifierProperty.addListener((invalidation) -> fireValueChangedEvent());
-      }
-
-      return this.classifierProperty;
+   public LogicCoordinate  getLogicCoordinate() {
+      return logicCoordinate;
    }
+
+    /**
+     * Classifier property.
+     *
+     * @return the integer property
+     */
+    @Override
+    public ObjectProperty<ConceptSpecification> classifierProperty() {
+        if (this.classifierProperty == null) {
+            this.classifierProperty = new SimpleObjectProperty(this,
+                    ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE.toExternalString(),
+                    getClassifier());
+            addListenerReference(this.logicCoordinate.setClassifierProperty(this.classifierProperty));
+            this.classifierProperty.addListener((invalidation) -> fireValueChangedEvent());
+        }
+        
+        return this.classifierProperty;
+    }
 
    @Override
    public ObjectProperty<ConceptSpecification>  conceptAssemblageProperty() {

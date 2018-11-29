@@ -59,7 +59,6 @@ import sh.isaac.api.chronicle.Version;
 
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;

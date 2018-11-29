@@ -504,13 +504,14 @@ public class TermAux implements StaticIsaacCache {
 
     public static ConceptProxy TIME_PRECEDENCE = new ConceptProxy("Time precedence", "Time precedence", UUID.fromString("cd5ccb52-9a7c-5e35-9d82-4d936bc3b086"));
     public static ConceptProxy PATH_PRECEDENCE = new ConceptProxy("Path precedence", "Path precedence", UUID.fromString("fba850b7-de84-5df2-ab0b-d1caa6a358ff"));
-   
+
+    public static ConceptProxy STAMP_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Stamp coordinate key for manifold", "Stamp coordinate key", UUID.fromString("bb3bfeb0-5090-5512-9281-c2ce60927820"));
+    public static ConceptProxy LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Language coordinate key for manifold", "Language coordiante key", UUID.fromString("2621ca26-8efb-56e2-9b1c-61313c40c27f"));
+    public static ConceptProxy LOGIC_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Logic coordinate key for manifold", "Logic coordinate key", UUID.fromString("300bf628-b40d-534f-9072-7b38c4f6f1b5"));
+    public static ConceptProxy PREMISE_TYPE_FOR_MANIFOLD = new ConceptProxy("Premise type for manifold", "Premise type", UUID.fromString("7df6c6cb-9f91-5515-a05b-6b2886938363"));
+    
    
     /*
-    public static ConceptProxy SPEC83 = new ConceptProxy("", "", UUID.fromString("bb3bfeb0-5090-5512-9281-c2ce60927820"));
-    public static ConceptProxy SPEC84 = new ConceptProxy("", "", UUID.fromString("2621ca26-8efb-56e2-9b1c-61313c40c27f"));
-    public static ConceptProxy SPEC85 = new ConceptProxy("", "", UUID.fromString("300bf628-b40d-534f-9072-7b38c4f6f1b5"));
-    public static ConceptProxy SPEC86 = new ConceptProxy("", "", UUID.fromString("7df6c6cb-9f91-5515-a05b-6b2886938363"));
     public static ConceptProxy SPEC87 = new ConceptProxy("", "", UUID.fromString("57e1643b-da06-5684-a2ef-044727c25b81"));
     public static ConceptProxy SPEC88 = new ConceptProxy("", "", UUID.fromString("8551edb2-6e34-52fe-9113-d25b742b303a"));
     public static ConceptProxy SPEC89 = new ConceptProxy("", "", UUID.fromString("5c31cb70-a042-59b8-a21c-6aca1c03f907"));

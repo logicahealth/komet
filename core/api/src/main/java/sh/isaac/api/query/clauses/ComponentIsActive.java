@@ -17,7 +17,6 @@
 package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -29,7 +28,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;

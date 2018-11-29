@@ -55,6 +55,13 @@ import sh.isaac.api.coordinate.LogicCoordinate;
  */
 public interface ObservableLogicCoordinate
         extends LogicCoordinate, ObservableCoordinate {
+    
+    /**
+     * 
+     * @return the logic coordinate that this observable wraps. 
+     */
+   LogicCoordinate getLogicCoordinate();
+
    /**
     * Classifier property.
     *

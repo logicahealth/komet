@@ -30,6 +30,7 @@ import sh.isaac.api.query.AttributeSpecification;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.LetItemKey;
+import sh.isaac.api.query.ManifoldCoordinateForQuery;
 import sh.isaac.api.query.Not;
 import sh.isaac.api.query.Or;
 import sh.isaac.api.query.Query;
@@ -61,6 +62,7 @@ public class Jaxb {
                     StampCoordinateImpl.class,
                     LanguageCoordinateImpl.class,
                     LogicCoordinateImpl.class,
+                    ManifoldCoordinateForQuery.class,
                     ConceptSpecification.class,
                     ConceptProxy.class, 
                     JaxbMap.class, 

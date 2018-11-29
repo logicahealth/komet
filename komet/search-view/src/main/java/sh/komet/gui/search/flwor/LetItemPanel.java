@@ -19,17 +19,22 @@ package sh.komet.gui.search.flwor;
 import sh.isaac.api.query.LetItemKey;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampPosition;
+import sh.isaac.api.query.ManifoldCoordinateForQuery;
 import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
+import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.PropertySheetStampPrecedenceWrapper;
 import sh.komet.gui.control.PropertySheetStatusSetWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
@@ -38,6 +43,7 @@ import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.search.control.LetPropertySheet;
 
 /**
  *
@@ -61,15 +67,19 @@ public class LetItemPanel {
     private final LetItemKey letItemKey;
     
     private final Observable letItem;
+    
+    private final LetPropertySheet letPropertySheet;
 
     public LetItemPanel(Manifold manifold, LetItemKey letItemKey, 
-            ListView<LetItemKey> letListViewletListView, Observable letItem) {
+            ListView<LetItemKey> letListViewletListView, Observable letItem, 
+            LetPropertySheet letPropertySheet) {
         this.manifold = manifold;
         this.sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
         this.sheet.getItems().add(new PropertySheetTextWrapper(manifold, nameProperty));
         this.letListView = letListViewletListView;
         this.letItem = letItem;
         this.letItemKey = letItemKey;
+        this.letPropertySheet = letPropertySheet;
         this.nameProperty.setValue(this.letItemKey.getItemName());
         this.nameProperty.addListener((observable, oldValue, newValue) -> {
             this.letItemKey.setItemName(newValue);
@@ -85,12 +95,26 @@ public class LetItemPanel {
         if (letItem instanceof ObservableLogicCoordinate) {
             setupLogicCoordinate((ObservableLogicCoordinate) letItem);
         }
+        if (letItem instanceof ManifoldCoordinateForQuery) {
+            setupManifoldCoordinate((ManifoldCoordinateForQuery) letItem);
+        }
     }
     
     public Node getNode() {
         return sheet;
     }
 
+    private void setupManifoldCoordinate(ManifoldCoordinateForQuery setupManifoldCoordinate) {
+
+        ObservableList<PremiseType> premiseTypes = 
+                FXCollections.observableArrayList(PremiseType.INFERRED, PremiseType.STATED);
+        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Premise type", setupManifoldCoordinate.premiseTypeProperty(), 
+                premiseTypes));
+        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Stamp coordinate", setupManifoldCoordinate.stampCoordinateKey(), letPropertySheet.getStampCoordinateKeys()));
+        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Language coordinate", setupManifoldCoordinate.languageCoordinateKeyProperty(), letPropertySheet.getLanguageCoordinateKeys()));
+        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Logic coordinate", setupManifoldCoordinate.logicCoordinateKeyProperty(), letPropertySheet.getLogicCoordinateKeys()));
+    }
+    
 
     private void setupLanguageCoordinate(ObservableLanguageCoordinate languageCoordinateItem) {
 

@@ -36,6 +36,7 @@
  */
 package sh.isaac.model.observable.coordinate;
 
+import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.ListProperty;
