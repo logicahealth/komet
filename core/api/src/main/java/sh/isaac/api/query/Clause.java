@@ -290,6 +290,7 @@ public abstract class Clause implements ConceptSpecification {
             new ComponentIsInactive(),
             new ReferencedComponentIsActive(),
             new ReferencedComponentIsNotActive(),
+            new ReferencedComponentIs()
             
 //            new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
 //            new AssemblageContainsString(), new AssemblageLuceneMatch(),

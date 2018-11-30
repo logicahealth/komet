@@ -17,10 +17,14 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
@@ -58,6 +62,7 @@ public class LetPropertySheet {
     private final ObservableList<LetItemKey> languageCoordinateKeys = FXCollections.observableArrayList();
     private final ObservableList<LetItemKey> logicCoordinateKeys = FXCollections.observableArrayList();
     private final ObservableList<LetItemKey> manifoldCoordinateKeys = FXCollections.observableArrayList();
+    private final ObservableList<LetItemKey> conceptSpecificationKeys = FXCollections.observableArrayList();
     
     private final FLWORQueryController fLWORQueryController;
     
@@ -101,6 +106,10 @@ public class LetPropertySheet {
         return logicCoordinateKeys;
     }
     
+    public ObservableList<LetItemKey> getConceptSpecificationKeys() {
+        return conceptSpecificationKeys;
+    }
+    
     private void letItemsChanged(MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) {
         LetItemKey key = change.getKey();
         if (change.wasRemoved()) {
@@ -108,6 +117,7 @@ public class LetPropertySheet {
             languageCoordinateKeys.remove(key);
             logicCoordinateKeys.remove(key);
             manifoldCoordinateKeys.remove(key);
+            conceptSpecificationKeys.remove(key);
         }
         if (change.wasAdded()) {
           if (change.getValueAdded() instanceof StampCoordinate && 
@@ -134,6 +144,11 @@ public class LetPropertySheet {
               }
               if (change.getValueAdded() instanceof ManifoldCoordinateForQuery) {
                 ((ManifoldCoordinateForQuery) change.getValueAdded()).setQuery(fLWORQueryController.getQuery());
+              }
+          }
+          if (change.getValueAdded() instanceof ConceptSpecification) {
+              if (!conceptSpecificationKeys.contains(key)) {
+                  conceptSpecificationKeys.add(key);
               }
           }
         }
@@ -163,14 +178,20 @@ public class LetPropertySheet {
         this.letItemsController.reset();
     }
     public void addItem(LetItemKey newLetItem, Object newObject) {
-        if (newObject instanceof StampCoordinate) {
+        if (newObject instanceof StampCoordinate && 
+                  !(newObject instanceof ManifoldCoordinate)) {
             addStampCoordinate(newLetItem, (StampCoordinate) newObject);
-        } else if (newObject instanceof LanguageCoordinate) {
+        } else if (newObject instanceof LanguageCoordinate && 
+                  !(newObject instanceof ManifoldCoordinate)) {
             addLanguageCoordinate(newLetItem, (LanguageCoordinate) newObject);
-        } else if (newObject instanceof LogicCoordinate) {
+        } else if (newObject instanceof LogicCoordinate && 
+                  !(newObject instanceof ManifoldCoordinate)) {
             addLogicCoordinate(newLetItem, (LogicCoordinate) newObject);
         } else if (newObject instanceof ManifoldCoordinate) {
             addManifoldCoordinate(newLetItem, (ManifoldCoordinateForQuery) newObject);
+        } else if (newObject instanceof ConceptProxy) {
+            ObservableConceptProxy newObjectProxy = new ObservableConceptProxy(newObject, TermAux.CONCEPT_FIELD.toExternalString(), (ConceptProxy) newObject);
+            addConceptSpecification(newLetItem, newObjectProxy);
         } else {
             letItemObjectMap.put(newLetItem, newObject);
             FxGet.dialogs().showInformationDialog("Unsupported let item", "Can't create panel for " + newLetItem + ": " + newObject);
@@ -240,6 +261,35 @@ public class LetPropertySheet {
         
     }
 
+    public void addConceptSpecification(LetItemKey newLetItem, ObservableConceptProxy newConceptSpecification) {
+        this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
+        letItemObjectMap.put(newLetItem, newConceptSpecification);
+        LetItemPanel newLetItemPanel = new LetItemPanel(manifoldForDisplay, newLetItem, 
+                this.letItemsController.getLetListViewletListView(), 
+                new ObservableConceptProxy(this, TermAux.CONCEPT_FIELD.toExternalString(), new ConceptProxy(newConceptSpecification)), this);
+        letItemPanelMap.put(newLetItem, newLetItemPanel);
+
+        letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
+        
+        this.letItemsController.getLetListViewletListView().getSelectionModel().select(newLetItem);
+        newConceptSpecification.addListener((observable, oldValue, newValue) -> {
+            letItemObjectMap.put(newLetItem, newValue);
+        });
+        letItemObjectMap.addListener((MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) -> {
+        LetItemKey key = change.getKey();
+        if (key.equals(newLetItem)) {
+            if (change.wasRemoved() & !change.wasAdded()) {
+                newConceptSpecification.setValue(null);
+            }
+            if (change.wasAdded()) {
+                newConceptSpecification.setValue((ConceptProxy) change.getValueAdded());
+            }
+        }
+        });
+        
+    }
+
+    
     public void addStampCoordinate(ActionEvent action) {
         int sequence = 1;
         String keyName = "STAMP " + sequence;

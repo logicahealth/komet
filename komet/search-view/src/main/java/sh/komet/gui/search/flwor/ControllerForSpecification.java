@@ -126,7 +126,7 @@ public abstract class ControllerForSpecification {
                 lastStampCoordinateKey = null;
             }
             for (QueryFieldSpecification row : getSpecificationRows()) {
-                if (row.getStampCoordinateKey().equals(key)) {
+                if (row.getStampCoordinateKey() != null && row.getStampCoordinateKey().equals(key)) {
                     row.setStampCoordinateKey(null);
                 }
             }

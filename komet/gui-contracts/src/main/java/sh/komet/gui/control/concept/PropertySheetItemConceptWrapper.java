@@ -199,10 +199,10 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
 
     @Override
     public void setValue(Object value) {
-        ConceptSpecificationForControlWrapper specValue;
+        ConceptSpecificationForControlWrapper specValue = null;
         if (value instanceof ConceptSpecificationForControlWrapper) {
             specValue = (ConceptSpecificationForControlWrapper) value;
-        } else {
+        } else if (value != null) {
             specValue = new ConceptSpecificationForControlWrapper((ConceptSpecification) value, manifoldForDisplay);
         }
         try {

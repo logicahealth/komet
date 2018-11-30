@@ -89,7 +89,7 @@ public class Or
     @Override
     public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> components) {
         for (Clause child: getChildren()) {
-            components = ForSet.or(components, child.computePossibleComponents(components));
+            components = ForSet.or(components, child.computeComponents(components));
         }
         return components;
     }

@@ -45,7 +45,7 @@ public class ReferencedComponentIs
 
    /** The concept spec key. */
    @XmlElement
-   LetItemKey conceptSpecKey;
+   LetItemKey referencedComponentSpecKey;
 
 
    //~--- constructors --------------------------------------------------------
@@ -64,7 +64,7 @@ public class ReferencedComponentIs
    public ReferencedComponentIs(Query enclosingQuery,
                                 LetItemKey conceptSpecKey) {
       super(enclosingQuery);
-      this.conceptSpecKey    = conceptSpecKey;
+      this.referencedComponentSpecKey    = conceptSpecKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -77,7 +77,7 @@ public class ReferencedComponentIs
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-    ConceptSpecification conceptSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(conceptSpecKey);
+    ConceptSpecification conceptSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(referencedComponentSpecKey);
 
     int conceptNid = conceptSpec.getNid();
     NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
@@ -102,12 +102,12 @@ public class ReferencedComponentIs
       return PRE_ITERATION;
    }
 
-    public LetItemKey getConceptSpecKey() {
-        return conceptSpecKey;
+    public LetItemKey getReferencedComponentSpecKey() {
+        return referencedComponentSpecKey;
     }
 
-    public void setConceptSpecKey(LetItemKey conceptSpecKey) {
-        this.conceptSpecKey = conceptSpecKey;
+    public void setReferencedComponentSpecKey(LetItemKey referencedComponentSpecKey) {
+        this.referencedComponentSpecKey = referencedComponentSpecKey;
     }
 
     @Override
@@ -127,7 +127,7 @@ public class ReferencedComponentIs
 
       whereClause.setSemantic(ClauseSemantic.REFERENCED_COMPONENT_IS);
       whereClause.getLetKeys()
-                 .add(this.conceptSpecKey);
+                 .add(this.referencedComponentSpecKey);
       return whereClause;
    }
    

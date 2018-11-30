@@ -43,6 +43,13 @@ import sh.isaac.api.query.clauses.ConceptIsDescendentOf;
 import sh.isaac.api.query.clauses.ConceptIsKindOf;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionRegexMatch;
+import sh.isaac.api.query.clauses.ReferencedComponentIs;
+import sh.isaac.api.query.clauses.ReferencedComponentIsActive;
+import sh.isaac.api.query.clauses.ReferencedComponentIsKindOf;
+import sh.isaac.api.query.clauses.ReferencedComponentIsMemberOf;
+import sh.isaac.api.query.clauses.ReferencedComponentIsNotActive;
+import sh.isaac.api.query.clauses.ReferencedComponentIsNotKindOf;
+import sh.isaac.api.query.clauses.ReferencedComponentIsNotMemberOf;
 import sh.isaac.api.query.clauses.RelRestriction;
 import sh.isaac.api.xml.JaxbMap;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
@@ -87,7 +94,14 @@ public class Jaxb {
                     AttributeSpecification.class,
                     StampPrecedence.class,
                     Status.class,
-                    StatusEnumSetAdaptor.class
+                    StatusEnumSetAdaptor.class,
+                    ReferencedComponentIs.class,
+                    ReferencedComponentIsActive.class,
+                    ReferencedComponentIsKindOf.class,
+                    ReferencedComponentIsMemberOf.class,
+                    ReferencedComponentIsNotActive.class,
+                    ReferencedComponentIsNotKindOf.class,
+                    ReferencedComponentIsNotMemberOf.class
             );
         } catch (JAXBException ex) {
             throw new RuntimeException(ex);

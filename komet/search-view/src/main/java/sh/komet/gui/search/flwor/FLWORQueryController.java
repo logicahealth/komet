@@ -118,7 +118,6 @@ import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ForSet;
-import sh.isaac.api.query.ManifoldCoordinateForQuery;
 import sh.isaac.api.query.Or;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.SortSpecification;
@@ -606,7 +605,7 @@ public class FLWORQueryController
 
         treeItem.getChildren()
                 .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
+                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getConceptSpecificationKeys(), letPropertySheet.getLetItemObjectMap())));
 
     }
 
@@ -620,7 +619,7 @@ public class FLWORQueryController
         treeItem.getParent()
                 .getChildren()
                 .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
+                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getConceptSpecificationKeys(), letPropertySheet.getLetItemObjectMap())));
 
     }
 
@@ -634,7 +633,7 @@ public class FLWORQueryController
                 .get(CLAUSE);
 
         treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
+                joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getConceptSpecificationKeys(), letPropertySheet.getLetItemObjectMap()));
     }
 
     // changeClause->, addSibling->, addChild->,
@@ -664,8 +663,11 @@ public class FLWORQueryController
             QueryClause clause = treeItem.getValue();
 
             if (clause != null) {
-                Clause[] siblings = clause.getClause()
+                Clause[] siblings = new Clause[]{};
+                if (treeItem.getParent() != null) {
+                    siblings = clause.getClause()
                         .getAllowedSiblingClauses();
+                }
                 Clause[] children = clause.getClause()
                         .getAllowedChildClauses();
                 Clause[] substitution = clause.getClause()
@@ -719,7 +721,7 @@ public class FLWORQueryController
                     actionList.add(new ActionGroup("change this clause", actions));
                 }
 
-                if ((treeItem.getParent() != this.root) || (this.root.getChildren().size() > 1)) {
+                if (treeItem.getParent() != null) {
                     Action deleteAction = new Action(
                             "delete this clause",
                             (ActionEvent event) -> {
@@ -822,7 +824,8 @@ public class FLWORQueryController
         QueryClause rootQueryClause = new QueryClause(this.query.getRoot(), this.manifold,
                 this.forPropertySheet.getForAssemblagesProperty(),
                 this.joinProperties,
-                this.letPropertySheet.getStampCoordinateKeys(),
+                this.letPropertySheet.getStampCoordinateKeys(), 
+                this.letPropertySheet.getConceptSpecificationKeys(),
                 this.letPropertySheet.getLetItemObjectMap());
         this.root = new ClauseTreeItem(rootQueryClause);
         addChildren(this.query.getRoot(), this.root);
@@ -842,7 +845,8 @@ public class FLWORQueryController
             QueryClause childQueryClause = new QueryClause(child, this.manifold,
                     this.forPropertySheet.getForAssemblagesProperty(),
                     this.joinProperties,
-                    this.letPropertySheet.getStampCoordinateKeys(),
+                    this.letPropertySheet.getStampCoordinateKeys(), 
+                    this.letPropertySheet.getConceptSpecificationKeys(),
                     this.letPropertySheet.getLetItemObjectMap());
             ClauseTreeItem childTreeItem = new ClauseTreeItem(childQueryClause);
             parentTreeItem.getChildren().add(childTreeItem);
@@ -882,13 +886,13 @@ public class FLWORQueryController
         this.forPropertySheet = new ForPanel(manifold);
         this.query = new Query(forPropertySheet.getForSetSpecification());
         this.root = new ClauseTreeItem(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap()));
+                joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getConceptSpecificationKeys(), letPropertySheet.getLetItemObjectMap()));
 
         this.root.getValue().getClause().setEnclosingQuery(this.query);
 
         this.root.getChildren()
                 .add(new ClauseTreeItem(new QueryClause(new DescriptionLuceneMatch(this.query), manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getLetItemObjectMap())));
+                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getConceptSpecificationKeys(), letPropertySheet.getLetItemObjectMap())));
         this.root.getValue().getClause().setEnclosingQuery(this.query);
         this.root.setExpanded(true);
         this.clauseNameColumn.setCellFactory(
@@ -990,6 +994,8 @@ public class FLWORQueryController
         this.letPropertySheet.setLetItemsController(letItemsController);
         this.letPropertySheet.addLanguageCoordinate(null);
         this.letPropertySheet.addStampCoordinate(null);
+        this.letPropertySheet.addLogicCoordinate(null);
+        this.letPropertySheet.addManifoldCoordinate(null);
     }
 
     @FXML

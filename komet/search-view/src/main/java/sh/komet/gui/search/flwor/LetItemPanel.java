@@ -28,6 +28,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
@@ -98,6 +99,13 @@ public class LetItemPanel {
         if (letItem instanceof ManifoldCoordinateForQuery) {
             setupManifoldCoordinate((ManifoldCoordinateForQuery) letItem);
         }
+        if (letItem instanceof ObservableConceptProxy) {
+            setupConceptProxy((ObservableConceptProxy) letItem);
+        }
+    }
+    
+    private void setupConceptProxy(ObservableConceptProxy conceptProxyItem) {
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, conceptProxyItem));
     }
     
     public Node getNode() {
