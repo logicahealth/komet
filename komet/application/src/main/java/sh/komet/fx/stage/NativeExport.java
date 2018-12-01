@@ -23,9 +23,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomyService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.Stamp;
@@ -114,6 +119,34 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
               }
               
               zipOut.closeEntry();
+              
+              updateMessage("Exporting Taxonomy...");
+              ZipEntry taxonomy = new ZipEntry("taxonomy");
+              zipOut.putNextEntry(taxonomy);
+              TaxonomyService taxonomyService = Get.taxonomyService();
+              long count = Get.identifierService().getNidsForAssemblage(TermAux.SOLOR_CONCEPT_ASSEMBLAGE).count();
+              int[] conceptNids = new int[(int) count];
+              dos.writeInt(conceptNids.length);
+              addToTotalWork(conceptNids.length);
+              AtomicInteger taxonomyCount = new AtomicInteger();
+              Get.identifierService().getNidsForAssemblage(TermAux.SOLOR_CONCEPT_ASSEMBLAGE).forEach((int nid)-> {
+                  try {
+                      taxonomyCount.incrementAndGet();
+                      dos.writeInt(nid);
+                      int[] taxonomyData = taxonomyService.getTaxonomyData(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid(), nid);
+                      dos.writeInt(taxonomyData.length);
+                      for (int i = 0; i < taxonomyData.length; i++) {
+                          dos.writeInt(taxonomyData[i]);
+                      }
+                      completedUnitOfWork();
+                  } catch (IOException ex) {
+                      throw new RuntimeException(ex);
+                  }
+              });
+              zipOut.closeEntry();
+              if (count != taxonomyCount.longValue()) {
+                  throw new IllegalStateException("Count: " + count + " TaxonomyCount: " + taxonomyCount.get());
+              }
               
               updateMessage("Exporting objects...");
               ZipEntry ibdfEntry = new ZipEntry("ibdf");

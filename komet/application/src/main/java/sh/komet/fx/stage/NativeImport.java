@@ -84,6 +84,24 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
             }
             stampIs.close();
             
+            updateMessage("Importing Taxonomy...");
+            ZipEntry taxonomyEntry = zipFile.getEntry("taxonomy");
+            DataInputStream taxonomyIs = new DataInputStream(zipFile.getInputStream(taxonomyEntry));
+            int taxonomyCount = taxonomyIs.readInt();
+            addToTotalWork(taxonomyCount);
+ 
+            for (int i = 0; i < taxonomyCount; i++) {
+                int nid = taxonomyIs.readInt();
+                int taxonomyArraySize = taxonomyIs.readInt();
+                int[] taxonomyData = new int[taxonomyArraySize];
+                for (int j = 0; j < taxonomyArraySize; j++) {
+                    taxonomyData[j] = taxonomyIs.readInt();
+                }
+                // do something with the taxonomy data...
+                completedUnitOfWork();
+            }
+            taxonomyIs.close();
+            
             updateMessage("Importing objects...");
             ZipEntry ibdfEntry = zipFile.getEntry("ibdf");
             DataInputStream ibdfIs = new DataInputStream(zipFile.getInputStream(ibdfEntry));

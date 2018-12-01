@@ -52,7 +52,6 @@ import java.util.stream.IntStream;
 
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.IntSet;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
