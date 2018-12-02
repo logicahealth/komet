@@ -69,6 +69,19 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
 
             }
             dis.close();
+            
+            updateMessage("Importing Types...");
+            ZipEntry typeEntry = zipFile.getEntry("types");
+            DataInputStream typeIs = new DataInputStream(zipFile.getInputStream(typeEntry));
+            int typeCount = typeIs.readInt();
+            for (int i = 0; i < typeCount; i++) {
+                int nid = typeIs.readInt();
+                IsaacObjectType objectType = IsaacObjectType.fromToken((byte) typeIs.readInt());
+                VersionType versionType = VersionType.getFromToken((byte) typeIs.readInt());
+                // do something with the version info. 
+            }
+            typeIs.close();
+            
             updateMessage("Importing STAMPs...");
             ZipEntry stampEntry = zipFile.getEntry("stamp");
             DataInputStream stampIs = new DataInputStream(zipFile.getInputStream(stampEntry));

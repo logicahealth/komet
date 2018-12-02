@@ -20,8 +20,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -50,6 +52,17 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
     final File exportFile;
     int identifierCount = 0;
     int exportCount = 0;
+    TreeSet<int[]> assemlageNidTypeTokenVersionTokenSet = new TreeSet((Comparator<int[]>) (int[] o1, int[] o2) -> {
+        int compare = Integer.compare(o1[0], o2[0]);
+        if (compare != 0) {
+            return compare;
+        }
+        compare = Integer.compare(o1[1], o2[1]);        
+        if (compare != 0) {
+            return compare;
+        }
+        return Integer.compare(o1[2], o2[2]);
+    }); 
     
     public NativeExport(File exportFile) {
       this.exportFile = exportFile;
@@ -90,12 +103,30 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
                           IsaacObjectType objectType = Get.identifierService().getObjectTypeForComponent(nid);
                           dos.writeByte(objectType.getToken());
                           dos.writeByte(versionType.getVersionTypeToken());
+                          
+                          int[] assemlageNidTypeTokenVersionToken = new int[] {nid, objectType.getToken(), versionType.getVersionTypeToken()};
+                          assemlageNidTypeTokenVersionTokenSet.add(assemlageNidTypeTokenVersionToken);
                           completedUnitOfWork();
                       } catch (IOException ex) {
                           throw new RuntimeException(ex);
                       }
                   });
               }
+              zipOut.closeEntry();
+              
+              DataOutputStream typeOS = new DataOutputStream( zipOut );
+              ZipEntry typeEntry = new ZipEntry("types");
+              zipOut.putNextEntry(typeEntry);
+              typeOS.writeInt(assemlageNidTypeTokenVersionTokenSet.size());
+              assemlageNidTypeTokenVersionTokenSet.forEach((int[] types) -> {
+                  try {
+                      typeOS.writeInt(types[0]);
+                      typeOS.writeInt(types[1]);
+                      typeOS.writeInt(types[2]);
+                  } catch (IOException ex) {
+                      throw new RuntimeException(ex);
+                  }
+              });
               zipOut.closeEntry();
               
               updateMessage("Exporting STAMPs...");
