@@ -34,57 +34,23 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+package sh.isaac.convert.mojo.vhat;
 
-package sh.isaac.convert.mojo.vhat.propertyTypes;
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.convert.directUtils.DirectConverter;
 
-import sh.isaac.MetaData;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Annotations;
-import sh.isaac.converters.sharedUtils.propertyTypes.Property;
-import sh.isaac.misc.constants.VHATConstants;
-
-@Deprecated //currently only used by deprecated loaders
-public class PT_Annotations extends BPT_Annotations
+/**
+ * {@link VHATImportHK2Direct}
+ *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ */
+@PerLookup
+@Service
+public class VHATImportHK2Direct extends VHATImportMojoDirect implements DirectConverter
 {
-	public enum Attribute
+	private VHATImportHK2Direct()
 	{
-		VUID(MetaData.VUID____SOLOR, true), CODE(MetaData.CODE____SOLOR, true), VER_EFF_DATE("Version Effective Date");
-
-		private Property property;
-		private final String p;
-
-		private Attribute(String niceName)
-		{
-			// Don't know the owner yet - will be autofilled when we add this to the parent, below.
-			property = new Property(null, niceName);
-			p = niceName;
-		}
-
-		private Attribute(ConceptSpecification cs, boolean isIdentifier)
-		{
-			// Don't know the owner yet - will be autofilled when we add this to the parent, below.
-			property = new Property(null, cs, isIdentifier);
-			p = cs.getRegularName().get();
-		}
-
-		public Property getProperty()
-		{
-			return property;
-		}
-
-		public String get()
-		{
-			return p;
-		}
-	}
-
-	public PT_Annotations()
-	{
-		super(VHATConstants.VHAT_ROOT_CONCEPT.getRegularName().get());
-		indexByAltNames();
-		for (Attribute attr : Attribute.values())
-		{
-			addProperty(attr.getProperty());
-		}
+		//For HK2
 	}
 }

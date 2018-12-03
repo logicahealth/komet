@@ -62,6 +62,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -219,6 +220,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 
 			LookupService.startupPreferenceProvider();
 
+			Get.configurationService().setDBBuildMode(BuildMode.IBDF);  //enabled the nid to uuid cache
 			Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 
 			LookupService.startupIsaac();

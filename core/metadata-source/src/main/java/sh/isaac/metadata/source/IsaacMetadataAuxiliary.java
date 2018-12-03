@@ -604,8 +604,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                syn.addDescription("Synonym", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                createConcept(TermAux.DEFINITION_DESCRIPTION_TYPE);
                popParent();
-            createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // LOINC and RxNorm description types are created under this node
-            createConcept(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY); // RxNorm relationship types are created under this node
+            createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // SOLOR extended description types are created under this node
+            createConcept(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY); // SOLOR extended relationship types are created under this node
             createConcept("Description case significance");
             pushParent(current());
                createConcept(TermAux.DESCRIPTION_CASE_SENSITIVE);
