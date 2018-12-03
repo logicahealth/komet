@@ -38,13 +38,7 @@ package sh.isaac.provider.postgres;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,14 +55,12 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import java.util.stream.IntStream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -81,9 +73,7 @@ import javax.xml.bind.DatatypeConverter;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.MetadataService;
 import sh.isaac.api.Status;
-import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.Stamp;
@@ -92,11 +82,8 @@ import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.datastore.DataStore;
-import sh.isaac.api.datastore.ExtendedStore;
-import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.task.TimedTask;
-import sh.isaac.api.util.DataToBytesUtils;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -536,7 +523,7 @@ public class PostgresStampProvider
         this.cacheStampSequenceToStampObjectMap.clear();
 
         //We put the nextStampSequence here in the MAX_VALUE slot.
-        OptionalInt oi = getStampNextSequenceCurrval();
+        OptionalInt oi = getStampNextSequenceLastval();
         if (oi.isPresent()) {
             this.nextStampSequence.set(oi.getAsInt());
 
@@ -920,6 +907,7 @@ public class PostgresStampProvider
     }
 
     private OptionalInt getStampNextSequenceNextval() {
+        // advance sequence and return new value
         String sql = "SELECT nextval('stamp_next_sequence'); ";
         logSqlString(sql);
         try (Connection conn = this.ds.getConnection();
@@ -936,7 +924,25 @@ public class PostgresStampProvider
     }
 
     private OptionalInt getStampNextSequenceCurrval() {
+        // return most recent value. does not advance sequence
         String sql = "SELECT currval('stamp_next_sequence'); ";
+        logSqlString(sql);
+        try (Connection conn = this.ds.getConnection();
+            Statement stmt = conn.createStatement()) {
+            ResultSet resultSet = stmt.executeQuery(sql);
+            while (resultSet.next()) {
+                int currval = resultSet.getInt(1);
+                return OptionalInt.of(currval);
+            }
+        } catch (SQLException ex) {
+            LOG.error(ex.getLocalizedMessage(), ex);
+        }
+        return OptionalInt.empty();
+    }
+    
+    private OptionalInt getStampNextSequenceLastval() {
+        // return most recent value. does not advance sequence
+        String sql = "SELECT last_value FROM stamp_next_sequence; ";
         logSqlString(sql);
         try (Connection conn = this.ds.getConnection();
             Statement stmt = conn.createStatement()) {
