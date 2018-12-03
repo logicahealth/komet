@@ -306,7 +306,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
             }
 
             objectCount++;
-            if (objectCount % 10000 == 0) {
+            if (objectCount % 1000000 == 0) {
                 LOG.info("    ... " + objectCount);
             }
         }
