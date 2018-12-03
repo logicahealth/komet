@@ -28,8 +28,6 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import sh.isaac.api.Get;
@@ -234,9 +232,11 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
                 dos.writeInt(chronologyNid); //:1: o_nid 
                 dos.writeInt(assemblageNid); //:2: assemblage_nid
                 if (i == 0) {                //:3: version_stamp
-                    dos.writeInt(-1); // base row.
+                    dos.writeInt(-1);  // base row.
                 } else {
-                    dos.writeInt(versionStampSequences[i - 1]);
+                    int stamp = (((bytes[4]) << 24) | ((bytes[5] & 0xff) << 16)
+                            | ((bytes[6] & 0xff) << 8) | ((bytes[7] & 0xff)));
+                    dos.writeInt(stamp);
                 }
                 dos.writeInt(bytes.length);  //:4: version_data size
                 dos.write(bytes);            //:5: version_data
@@ -254,7 +254,9 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
                 if (i == 0) {                         //:4: version_stamp
                     dos.writeInt(-1); // base row.
                 } else {
-                    dos.writeInt(versionStampSequences[i - 1]);
+                    int stamp = (((bytes[4]) << 24) | ((bytes[5] & 0xff) << 16)
+                            | ((bytes[6] & 0xff) << 8) | ((bytes[7] & 0xff)));
+                    dos.writeInt(stamp);
                 }
                 dos.writeInt(bytes.length);           //:5: version_data size
                 dos.write(bytes);                     //:6: version_data
@@ -267,7 +269,17 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
     // Analog to ProstgresProvider getDataList(...)
     private List<byte[]> getDataList(ChronologySerializeable chronology) {
 
-        List<byte[]> dataArray = new ArrayList<>();
+        TreeSet<byte[]> dataTree = new TreeSet<>((o1, o2) -> {
+            if (o1.length != o2.length) {
+                return Integer.compare(o1.length, o2.length);
+            }
+            for (int i = 0; i < o1.length; i++) {
+                if (o1[i] != o2[i]) {
+                    return Integer.compare(o1[i], o2[i]);
+                }
+            }
+            return 0;
+        });
 
         byte[] dataToSplit = chronology.getChronologyVersionDataToWrite();
         int versionStartPosition = ((ChronologyImpl) chronology).getVersionStartPosition();
@@ -279,13 +291,13 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
         for (int i = 0; i < chronicleBytes.length; i++) {
             chronicleBytes[i] = dataToSplit[i];
         }
-        dataArray.add(chronicleBytes);
+        byte[] first = chronicleBytes;
 
         int versionStart = versionStartPosition;
         int versionSize = (((dataToSplit[versionStart]) << 24)
-            | ((dataToSplit[versionStart + 1] & 0xff) << 16)
-            | ((dataToSplit[versionStart + 2] & 0xff) << 8)
-            | ((dataToSplit[versionStart + 3] & 0xff)));
+                | ((dataToSplit[versionStart + 1] & 0xff) << 16)
+                | ((dataToSplit[versionStart + 2] & 0xff) << 8)
+                | ((dataToSplit[versionStart + 3] & 0xff)));
 
         while (versionSize != 0) {
             int versionTo = versionStart + versionSize;
@@ -296,14 +308,17 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
             if (newLength < 0) {
                 LOG.error("Error newLength: " + newLength);
             }
-            dataArray.add(Arrays.copyOfRange(dataToSplit, versionStart, versionTo));
+            dataTree.add(Arrays.copyOfRange(dataToSplit, versionStart, versionTo));
             versionStart = versionStart + versionSize;
             versionSize = (((dataToSplit[versionStart]) << 24)
-                | ((dataToSplit[versionStart + 1] & 0xff) << 16)
-                | ((dataToSplit[versionStart + 2] & 0xff) << 8)
-                | ((dataToSplit[versionStart + 3] & 0xff)));
+                    | ((dataToSplit[versionStart + 1] & 0xff) << 16)
+                    | ((dataToSplit[versionStart + 2] & 0xff) << 8)
+                    | ((dataToSplit[versionStart + 3] & 0xff)));
         }
-
+        List<byte[]> dataArray = new ArrayList<>();
+        dataArray.add(first);
+        dataArray.addAll(dataTree);
         return dataArray;
+
     }
 }
