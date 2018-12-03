@@ -11,6 +11,9 @@
 -- \set ECHO all
 
 -- 4. Create all tables and sequences created by the ISAAC Komet application.
+-- -- Note: load databases as the same user that will be run with application.
+-- \du                           -- display user and roles
+\connect isaac_db isaac_user
 \i /PATH_TO/…/provider/datastore-postgres/README_files/sql_scripts/drop_all.sql
 
 -- 5. Create new tables
