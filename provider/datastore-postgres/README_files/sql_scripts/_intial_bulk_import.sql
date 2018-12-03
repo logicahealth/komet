@@ -24,9 +24,9 @@
 
 -- 7. Load the data
 -- toggle timing on/off
-\timing
+\timing on
 \i initial_data_load.sql
-\timing
+\timing off
 
 -- 8. Verify row count
 -- Get stats for what actually loaded.
