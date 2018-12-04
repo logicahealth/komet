@@ -1013,7 +1013,7 @@ public class PostgresStampProvider
 
     //~--- persistant datastore ------------------------------------------------
     private void storeStampReadAll() {
-        String sql = "SELECT (stamp_committed_sequence, stamp_committed_data) "
+        String sql = "SELECT stamp_committed_sequence, stamp_committed_data "
             + "FROM stamp_committed_table; ";
 
         try (
@@ -1081,7 +1081,7 @@ public class PostgresStampProvider
     }
 
     private void storeUncommittedStampReadAll() {
-        String sql = "SELECT (stamp_uncommitted_sequence, stamp_uncommitted_data) "
+        String sql = "SELECT stamp_uncommitted_sequence, stamp_uncommitted_data "
             + "FROM stamp_uncommitted_table; ";
 
         try (

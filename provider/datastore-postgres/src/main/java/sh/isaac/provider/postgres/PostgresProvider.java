@@ -260,7 +260,7 @@ public class PostgresProvider
     }
 
     String sqlReadTaxonomyData() {
-        return "SELECT (taxonomy_data) "
+        return "SELECT taxonomy_data "
             + "FROM taxonomy_data_table "
             + "WHERE t_nid = ? AND assemblage_nid = ?; ";
     }
