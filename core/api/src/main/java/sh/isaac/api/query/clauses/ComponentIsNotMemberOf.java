@@ -29,8 +29,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
@@ -165,10 +163,4 @@ public class ComponentIsNotMemberOf
                 .add(this.stampCoordinateKey);
         return whereClause;
     }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.COMPONENT_IS_NOT_MEMBER_OF;
-    }
-
 }

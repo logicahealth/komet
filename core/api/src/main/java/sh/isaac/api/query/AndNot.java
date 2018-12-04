@@ -39,7 +39,6 @@ package sh.isaac.api.query;
 //~--- JDK imports ------------------------------------------------------------
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.HashMap;
 import java.util.Map;
 import sh.isaac.api.bootstrap.TermAux;
 
@@ -125,11 +124,6 @@ public class AndNot
                     .add(clause.getWhereClause());
         });
         return whereClause;
-    }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.AND_NOT_QUERY_CLAUSE;
     }
 
     @Override

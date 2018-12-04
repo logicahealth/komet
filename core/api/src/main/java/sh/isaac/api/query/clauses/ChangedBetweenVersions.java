@@ -200,10 +200,5 @@ public class ChangedBetweenVersions
       return whereClause;
    }
    
-   @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE;
-   }
-   
 }
 

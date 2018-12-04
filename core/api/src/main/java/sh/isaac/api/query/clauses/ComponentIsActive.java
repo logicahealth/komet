@@ -130,11 +130,6 @@ public class ComponentIsActive extends LeafClause {
         return whereClause;
     }
 
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.ACTIVE_QUERY_CLAUSE;
-    }
-
     @XmlElement
     public LetItemKey getStampCoordinateKey() {
         return stampCoordinateKey;

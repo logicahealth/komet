@@ -144,11 +144,6 @@ public class ConceptIs
         return whereClause;
     }
 
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.CONCEPT_IS_QUERY_CLAUSE;
-    }
-
     public LetItemKey getConceptSpecString() {
         return conceptSpecString;
     }

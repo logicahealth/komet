@@ -604,8 +604,8 @@ public class FLWORQueryController
                 .get(CLAUSE);
 
         treeItem.getChildren()
-                .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getConceptSpecificationKeys(), letPropertySheet.getLetItemObjectMap())));
+                .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet,
+                        joinProperties, letPropertySheet)));
 
     }
 
@@ -618,22 +618,24 @@ public class FLWORQueryController
 
         treeItem.getParent()
                 .getChildren()
-                .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getConceptSpecificationKeys(), letPropertySheet.getLetItemObjectMap())));
+                .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet,
+                        joinProperties, letPropertySheet)));
 
     }
 
     private void changeClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
         ClauseTreeItem treeItem = (ClauseTreeItem) rowValue.getTreeItem();
         ClauseTreeItem parent = (ClauseTreeItem) treeItem.getParent();
-        treeItem.getValue().getClause().removeParent(parent.getValue().getClause());
+        if (parent != null) {
+            treeItem.getValue().getClause().removeParent(parent.getValue().getClause());
+        }
 
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()
                 .get(CLAUSE);
 
-        treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getConceptSpecificationKeys(), letPropertySheet.getLetItemObjectMap()));
+        treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet,
+                joinProperties, letPropertySheet));
     }
 
     // changeClause->, addSibling->, addChild->,
@@ -822,11 +824,9 @@ public class FLWORQueryController
         this.query.setLetDeclarations(this.letPropertySheet.getLetItemObjectMap());
 
         QueryClause rootQueryClause = new QueryClause(this.query.getRoot(), this.manifold,
-                this.forPropertySheet.getForAssemblagesProperty(),
+                this.forPropertySheet,
                 this.joinProperties,
-                this.letPropertySheet.getStampCoordinateKeys(), 
-                this.letPropertySheet.getConceptSpecificationKeys(),
-                this.letPropertySheet.getLetItemObjectMap());
+                this.letPropertySheet);
         this.root = new ClauseTreeItem(rootQueryClause);
         addChildren(this.query.getRoot(), this.root);
         this.root.setExpanded(true);
@@ -843,11 +843,9 @@ public class FLWORQueryController
     private void addChildren(Clause parent, ClauseTreeItem parentTreeItem) {
         for (Clause child : parent.getChildren()) {
             QueryClause childQueryClause = new QueryClause(child, this.manifold,
-                    this.forPropertySheet.getForAssemblagesProperty(),
+                    this.forPropertySheet,
                     this.joinProperties,
-                    this.letPropertySheet.getStampCoordinateKeys(), 
-                    this.letPropertySheet.getConceptSpecificationKeys(),
-                    this.letPropertySheet.getLetItemObjectMap());
+                    this.letPropertySheet);
             ClauseTreeItem childTreeItem = new ClauseTreeItem(childQueryClause);
             parentTreeItem.getChildren().add(childTreeItem);
             addChildren(child, childTreeItem);
@@ -885,14 +883,14 @@ public class FLWORQueryController
 
         this.forPropertySheet = new ForPanel(manifold);
         this.query = new Query(forPropertySheet.getForSetSpecification());
-        this.root = new ClauseTreeItem(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getConceptSpecificationKeys(), letPropertySheet.getLetItemObjectMap()));
+        this.root = new ClauseTreeItem(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet,
+                joinProperties, letPropertySheet));
 
         this.root.getValue().getClause().setEnclosingQuery(this.query);
 
         this.root.getChildren()
-                .add(new ClauseTreeItem(new QueryClause(new DescriptionLuceneMatch(this.query), manifold, this.forPropertySheet.getForAssemblagesProperty(),
-                        joinProperties, letPropertySheet.getStampCoordinateKeys(), letPropertySheet.getConceptSpecificationKeys(), letPropertySheet.getLetItemObjectMap())));
+                .add(new ClauseTreeItem(new QueryClause(new DescriptionLuceneMatch(this.query), manifold, this.forPropertySheet,
+                        joinProperties, letPropertySheet)));
         this.root.getValue().getClause().setEnclosingQuery(this.query);
         this.root.setExpanded(true);
         this.clauseNameColumn.setCellFactory(

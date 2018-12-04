@@ -40,7 +40,6 @@ package sh.isaac.api.query;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.HashMap;
 import java.util.Map;
 import sh.isaac.api.bootstrap.TermAux;
 
@@ -129,11 +128,6 @@ public class Xor
         }
 
         return whereClause;
-    }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.XOR_QUERY_CLAUSE;
     }
 
     @Override

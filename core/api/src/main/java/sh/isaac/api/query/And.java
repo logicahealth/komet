@@ -133,11 +133,6 @@ public class And
     }
 
     @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.AND_QUERY_CLAUSE;
-    }
-
-    @Override
     public Clause[] getAllowedSubstutitionClauses() {
         return getParentClauses();
     }

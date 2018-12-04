@@ -17,7 +17,6 @@
 package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -25,14 +24,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
-import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -133,11 +129,6 @@ public class ReferencedComponentIsActive extends LeafClause {
 
         whereClause.setSemantic(ClauseSemantic.REFERENCED_COMPONENT_IS_ACTIVE);
         return whereClause;
-    }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.REFERENCED_COMPONENT_IS_ACTIVE;
     }
 
     @XmlElement

@@ -166,11 +166,6 @@ public class ConceptIsKindOf
                  .add(this.manifoldCoordinateKey);
       return whereClause;
    }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.CONCEPT_IS_KIND_OF_QUERY_CLAUSE;
-   }
 
     public LetItemKey getKindOfSpecKey() {
         return kindOfSpecKey;

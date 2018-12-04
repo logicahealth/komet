@@ -181,11 +181,6 @@ public class ConceptIsChildOf
                  .add(this.manifoldCoordinateKey);
       return whereClause;
    }
-   
-   @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.CONCEPT_IS_CHILD_OF_QUERY_CLAUSE;
-   }
 
 }
 

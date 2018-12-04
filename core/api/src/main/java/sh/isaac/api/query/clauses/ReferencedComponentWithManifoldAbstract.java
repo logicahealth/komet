@@ -16,36 +16,41 @@
  */
 package sh.isaac.api.query.clauses;
 
+import sh.isaac.api.query.properties.ManifoldClause;
 import java.util.EnumSet;
-import java.util.Map;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomySnapshot;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import javax.xml.bind.annotation.XmlElement;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
+import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
+import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.query.properties.ReferencedComponentClause;
 
 /**
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
-public class ReferencedComponentIsKindOf
-        extends ReferencedComponentWithManifoldAbstract {
+public abstract class ReferencedComponentWithManifoldAbstract extends LeafClause 
+        implements ManifoldClause, ReferencedComponentClause {
 
-   
+    /**
+     * The parent concept spec key.
+     */
+    @XmlElement
+    LetItemKey referencedComponentSpecKey;
+
+    /**
+     * the manifold coordinate key.
+     */
+    @XmlElement
+    LetItemKey manifoldCoordinateKey;
+    
     //~--- constructors --------------------------------------------------------
     /**
      * Instantiates a new refset contains concept.
      */
-    public ReferencedComponentIsKindOf() {
+    public ReferencedComponentWithManifoldAbstract() {
     }
 
     /**
@@ -55,42 +60,16 @@ public class ReferencedComponentIsKindOf
      * @param referencedComponentSpecKey the concept spec key
      * @param manifoldCoordinateKey the manifold coordinate key
      */
-    public ReferencedComponentIsKindOf(Query enclosingQuery,
+    public ReferencedComponentWithManifoldAbstract(Query enclosingQuery,
             LetItemKey referencedComponentSpecKey,
             LetItemKey manifoldCoordinateKey) {
-        super(enclosingQuery, referencedComponentSpecKey, manifoldCoordinateKey);
+        super(enclosingQuery);
+        this.referencedComponentSpecKey = referencedComponentSpecKey;
+        this.manifoldCoordinateKey = manifoldCoordinateKey;
     }
 
     //~--- methods -------------------------------------------------------------
-    /**
-     * Compute possible components.
-     *
-     * @param incomingPossibleComponents the incoming possible components
-     * @return the nid set
-     */
-    @Override
-    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-
-        ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations().get(manifoldCoordinateKey);
-        ConceptSpecification parentSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(referencedComponentSpecKey);
-
-        TaxonomySnapshot snapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
-
-        NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
-        
-        for (int nid: possibleComponents.asArray()) {
-            if (!test(snapshot, nid, parentSpec.getNid())) {
-                possibleComponents.remove(nid);
-            }
-        }
-        return incomingPossibleComponents;
-    }
-    
-    protected boolean test(TaxonomySnapshot snapshot, int childNid, int parentNid) {
-        return snapshot.isKindOf(childNid, parentNid);
-    }
-    
-    
+ 
  
     //~--- get methods ---------------------------------------------------------
     /**
@@ -104,8 +83,45 @@ public class ReferencedComponentIsKindOf
     }
 
     @Override
+    public LetItemKey getReferencedComponentSpecKey() {
+        return referencedComponentSpecKey;
+    }
+
+    @Override
+    public void setReferencedComponentSpecKey(LetItemKey referencedComponentSpecKey) {
+        this.referencedComponentSpecKey = referencedComponentSpecKey;
+    }
+
+    @Override
+    public LetItemKey getManifoldCoordinateKey() {
+        return manifoldCoordinateKey;
+    }
+
+    @Override
+    public void setManifoldCoordinateKey(LetItemKey manifoldCoordinateKey) {
+        this.manifoldCoordinateKey = manifoldCoordinateKey;
+    }
+
+    @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.REFERENCED_COMPONENT_IS_KIND_OF;
+    }
+
+    /**
+     * Gets the where clause.
+     *
+     * @return the where clause
+     */
+    @Override
+    public final WhereClause getWhereClause() {
+        final WhereClause whereClause = new WhereClause();
+
+        whereClause.setSemantic(getClauseSemantic());
+        whereClause.getLetKeys()
+                .add(this.referencedComponentSpecKey);
+        whereClause.getLetKeys()
+                .add(this.manifoldCoordinateKey);
+        return whereClause;
     }
 
 }

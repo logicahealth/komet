@@ -194,11 +194,6 @@ public class Not
     }
 
     @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.NOT_QUERY_CLAUSE;
-    }
-
-    @Override
     public Clause[] getAllowedSubstutitionClauses() {
         return getParentClauses();
     }

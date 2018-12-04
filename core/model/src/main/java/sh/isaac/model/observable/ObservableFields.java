@@ -340,6 +340,8 @@ public enum ObservableFields
    CONCEPT_CONSTRAINTS("Concept constraints"),
    
    ASSEMBLAGE_LIST_FOR_QUERY("Assemblage list for query", "For list"),
+   
+   MANIFOLD_COORDINATE_REFERENCE("Manifold coordinate reference", "manifold"),
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */

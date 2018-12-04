@@ -21,24 +21,19 @@ import java.util.List;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.SingleAssemblageSnapshot;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
 
 /**
  *
@@ -47,20 +42,8 @@ import sh.isaac.api.query.WhereClause;
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ReferencedComponentIsMemberOf 
-        extends LeafClause {
+        extends ReferencedComponentWithManifoldAbstract {
 
-    /**
-     * the manifold coordinate key.
-     */
-    @XmlElement
-    LetItemKey stampCoordinateKey;
-
-    /**
-     * The assemblage spec key.
-     */
-    //
-    @XmlElement
-    LetItemKey assemblageSpecKey;
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -79,9 +62,7 @@ public class ReferencedComponentIsMemberOf
     public ReferencedComponentIsMemberOf(Query enclosingQuery,
             LetItemKey assemblageSpecKey,
             LetItemKey stampCoordinateKey) {
-        super(enclosingQuery);
-        this.assemblageSpecKey = assemblageSpecKey;
-        this.stampCoordinateKey = stampCoordinateKey;
+        super(enclosingQuery, assemblageSpecKey, stampCoordinateKey);
     }
 
     //~--- methods -------------------------------------------------------------
@@ -95,8 +76,8 @@ public class ReferencedComponentIsMemberOf
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
 
-        StampCoordinate stampCoordinate = (StampCoordinate) this.enclosingQuery.getLetDeclarations().get(stampCoordinateKey);
-        ConceptSpecification assemblageSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(assemblageSpecKey);
+        StampCoordinate stampCoordinate = (StampCoordinate) this.enclosingQuery.getLetDeclarations().get(getManifoldCoordinateKey());
+        ConceptSpecification assemblageSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(getReferencedComponentSpecKey());
 
         SingleAssemblageSnapshot<SemanticVersion> snapshot = Get.assemblageService()
                 .getSingleAssemblageSnapshot(assemblageSpec, SemanticVersion.class, stampCoordinate);
@@ -136,49 +117,9 @@ public class ReferencedComponentIsMemberOf
       return PRE_ITERATION;
    }
 
-    public LetItemKey getStampCoordinateKey() {
-        return stampCoordinateKey;
-    }
-
-    public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
-        this.stampCoordinateKey = stampCoordinateKey;
-    }
-
-    public LetItemKey getAssemblageSpecKey() {
-        return assemblageSpecKey;
-    }
-
-    public void setAssemblageSpecKey(LetItemKey assemblageSpecKey) {
-        this.assemblageSpecKey = assemblageSpecKey;
-    }
-
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.REFERENCED_COMPONENT_IS_MEMBER_OF;
     }
-   
-
-   /**
-    * Gets the where clause.
-    *
-    * @return the where clause
-    */
-   @Override
-   public WhereClause getWhereClause() {
-      final WhereClause whereClause = new WhereClause();
-
-      whereClause.setSemantic(ClauseSemantic.REFERENCED_COMPONENT_IS_MEMBER_OF);
-      whereClause.getLetKeys()
-                 .add(this.assemblageSpecKey);
-      whereClause.getLetKeys()
-                 .add(this.stampCoordinateKey);
-      return whereClause;
-   }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.REFERENCED_COMPONENT_IS_MEMBER_OF;
-   }
-
 }
 

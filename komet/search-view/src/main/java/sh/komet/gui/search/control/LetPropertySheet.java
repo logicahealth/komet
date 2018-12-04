@@ -109,6 +109,10 @@ public class LetPropertySheet {
     public ObservableList<LetItemKey> getConceptSpecificationKeys() {
         return conceptSpecificationKeys;
     }
+
+    public ObservableList<LetItemKey> getManifoldCoordinateKeys() {
+        return manifoldCoordinateKeys;
+    }
     
     private void letItemsChanged(MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) {
         LetItemKey key = change.getKey();

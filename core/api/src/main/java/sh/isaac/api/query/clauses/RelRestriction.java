@@ -229,10 +229,5 @@ public class RelRestriction
       return whereClause;
    }
    
-   @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.REL_RESTRICTION_QUERY_CLAUSE;
-   }
-   
 }
 

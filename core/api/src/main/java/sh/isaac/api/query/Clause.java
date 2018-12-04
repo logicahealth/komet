@@ -37,6 +37,7 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.isaac.api.query.properties.AssemblageForIterationClause;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,6 @@ import sh.isaac.api.bootstrap.TermAux;
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.clauses.*;
 import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 
@@ -71,7 +71,7 @@ import sh.isaac.api.xml.ConceptSpecificationAdaptor;
  */
 @XmlRootElement(name = "Clause")
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class Clause implements ConceptSpecification {
+public abstract class Clause implements ConceptSpecification, AssemblageForIterationClause {
     private static final Logger LOG = LogManager.getLogger();
 
     /**
@@ -148,10 +148,12 @@ public abstract class Clause implements ConceptSpecification {
 
     @XmlElement
     @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)    
+    @Override
     public ConceptSpecification getAssemblageForIteration() {
         return assemblageForIteration;
     }
 
+    @Override
     public void setAssemblageForIteration(ConceptSpecification assemblageForIteration) {
         if (assemblageForIteration == null) {
             LOG.error("assemblage for iteration attempt to set to null for class: " + 
@@ -171,7 +173,9 @@ public abstract class Clause implements ConceptSpecification {
         }
     }
 
-    public abstract ConceptSpecification getClauseConcept();
+    public final ConceptSpecification getClauseConcept() {
+        return getClauseSemantic().getClauseConcept();
+    };
 
     @Override
     public String getFullyQualifiedName() {
@@ -290,7 +294,11 @@ public abstract class Clause implements ConceptSpecification {
             new ComponentIsInactive(),
             new ReferencedComponentIsActive(),
             new ReferencedComponentIsNotActive(),
-            new ReferencedComponentIs()
+            new ReferencedComponentIs(),
+            new ReferencedComponentIsKindOf(),
+            new ReferencedComponentIsNotKindOf(),
+            new ReferencedComponentIsMemberOf(),
+            new ReferencedComponentIsNotMemberOf()
             
 //            new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
 //            new AssemblageContainsString(), new AssemblageLuceneMatch(),

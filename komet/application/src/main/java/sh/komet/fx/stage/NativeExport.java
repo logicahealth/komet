@@ -38,6 +38,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.datastore.ChronologySerializeable;
+import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import static sh.isaac.api.externalizable.IsaacObjectType.UNKNOWN;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -234,8 +235,7 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
                 if (i == 0) {                //:3: version_stamp
                     dos.writeInt(-1);  // base row.
                 } else {
-                    int stamp = (((bytes[4]) << 24) | ((bytes[5] & 0xff) << 16)
-                            | ((bytes[6] & 0xff) << 8) | ((bytes[7] & 0xff)));
+                    int stamp = getInt(bytes, 4);
                     dos.writeInt(stamp);
                 }
                 dos.writeInt(bytes.length);  //:4: version_data size
@@ -254,8 +254,7 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
                 if (i == 0) {                         //:4: version_stamp
                     dos.writeInt(-1); // base row.
                 } else {
-                    int stamp = (((bytes[4]) << 24) | ((bytes[5] & 0xff) << 16)
-                            | ((bytes[6] & 0xff) << 8) | ((bytes[7] & 0xff)));
+                    int stamp = getInt(bytes, 4);
                     dos.writeInt(stamp);
                 }
                 dos.writeInt(bytes.length);           //:5: version_data size
@@ -294,10 +293,7 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
         byte[] first = chronicleBytes;
 
         int versionStart = versionStartPosition;
-        int versionSize = (((dataToSplit[versionStart]) << 24)
-                | ((dataToSplit[versionStart + 1] & 0xff) << 16)
-                | ((dataToSplit[versionStart + 2] & 0xff) << 8)
-                | ((dataToSplit[versionStart + 3] & 0xff)));
+        int versionSize = getInt(dataToSplit, versionStart);
 
         while (versionSize != 0) {
             int versionTo = versionStart + versionSize;
@@ -310,10 +306,7 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
             }
             dataTree.add(Arrays.copyOfRange(dataToSplit, versionStart, versionTo));
             versionStart = versionStart + versionSize;
-            versionSize = (((dataToSplit[versionStart]) << 24)
-                    | ((dataToSplit[versionStart + 1] & 0xff) << 16)
-                    | ((dataToSplit[versionStart + 2] & 0xff) << 8)
-                    | ((dataToSplit[versionStart + 3] & 0xff)));
+            versionSize = getInt(dataToSplit, versionStart);
         }
         List<byte[]> dataArray = new ArrayList<>();
         dataArray.add(first);

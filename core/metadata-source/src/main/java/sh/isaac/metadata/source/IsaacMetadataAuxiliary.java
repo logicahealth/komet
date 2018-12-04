@@ -135,6 +135,7 @@ import static sh.isaac.model.observable.ObservableFields.GIT_PASSWORD;
 import static sh.isaac.model.observable.ObservableFields.GIT_URL;
 import static sh.isaac.model.observable.ObservableFields.GIT_USER_NAME;
 import static sh.isaac.model.observable.ObservableFields.LANGUAGE_FOR_LANGUAGE_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.MANIFOLD_COORDINATE_REFERENCE;
 import static sh.isaac.model.observable.ObservableFields.MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.MODULE_OPTIONS_FOR_EDIT_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE;
@@ -1039,6 +1040,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Assemblage to join", "Join assemblage");
                createConcept("Field to join", "Join field");
                createConcept("For assemblage field to join", "Source field");
+               createConcept(MANIFOLD_COORDINATE_REFERENCE);
                popParent();
             popParent(); 
          popParent(); // ISAAC root should still be parent on stack...

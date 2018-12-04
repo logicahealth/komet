@@ -133,11 +133,6 @@ public class ReferencedComponentIsNotActive extends LeafClause {
         return whereClause;
     }
 
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.REFERENCED_COMPONENT_IS_INACTIVE;
-    }
-
     @XmlElement
     public LetItemKey getStampCoordinateKey() {
         return stampCoordinateKey;

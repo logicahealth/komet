@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 
@@ -43,6 +44,10 @@ public class ReferencedComponentIsNotMemberOf
     @Override
     protected boolean test(LatestVersion<SemanticVersion> latest) {
         return !super.test(latest); //To change body of generated methods, choose Tools | Templates.
+    }
+    @Override
+    public ClauseSemantic getClauseSemantic() {
+        return ClauseSemantic.REFERENCED_COMPONENT_IS_NOT_MEMBER_OF; 
     }
 
 }

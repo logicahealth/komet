@@ -164,9 +164,4 @@ public class ComponentIsMemberOf
         return whereClause;
     }
 
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.COMPONENT_IS_MEMBER_OF;
-    }
-
 }

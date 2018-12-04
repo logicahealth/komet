@@ -162,11 +162,6 @@ public class ConceptIsDescendentOf
                  .add(this.manifoldCoordinateKey);
       return whereClause;
    }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE;
-   }
 
     public LetItemKey getDescendentOfSpecKey() {
         return descendentOfSpecKey;

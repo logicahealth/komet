@@ -38,7 +38,6 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
@@ -130,11 +129,6 @@ public class Or
                     .add(clause.getWhereClause());
         });
         return whereClause;
-    }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.OR_QUERY_CLAUSE;
     }
 
     @Override

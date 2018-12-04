@@ -16,6 +16,7 @@
  */
 package sh.isaac.api.query.clauses;
 
+import sh.isaac.api.query.properties.ReferencedComponentClause;
 import java.util.EnumSet;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -41,7 +42,7 @@ import sh.isaac.api.query.WhereClause;
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ReferencedComponentIs         
-        extends LeafClause {
+        extends LeafClause implements ReferencedComponentClause {
 
    /** The concept spec key. */
    @XmlElement
@@ -102,13 +103,6 @@ public class ReferencedComponentIs
       return PRE_ITERATION;
    }
 
-    public LetItemKey getReferencedComponentSpecKey() {
-        return referencedComponentSpecKey;
-    }
-
-    public void setReferencedComponentSpecKey(LetItemKey referencedComponentSpecKey) {
-        this.referencedComponentSpecKey = referencedComponentSpecKey;
-    }
 
     @Override
     public ClauseSemantic getClauseSemantic() {
@@ -130,11 +124,16 @@ public class ReferencedComponentIs
                  .add(this.referencedComponentSpecKey);
       return whereClause;
    }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.REFERENCED_COMPONENT_IS;
-   }
 
+    @Override
+    public LetItemKey getReferencedComponentSpecKey() {
+        return referencedComponentSpecKey;
+    }
+
+    @Override
+    public void setReferencedComponentSpecKey(LetItemKey referencedComponentSpecKey) {
+        this.referencedComponentSpecKey = referencedComponentSpecKey;
+    }
+   
 }
 

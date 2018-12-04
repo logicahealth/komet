@@ -343,14 +343,14 @@ public class TermAux implements StaticIsaacCache {
          UUID.fromString("a44e673b-14c4-525b-99be-0b5dfa0280c8"));
     public static ConceptProxy JOIN_QUERY_CLAUSE = new ConceptProxy("Join query clause", "join", UUID.fromString("18fa4f5c-6691-597d-897a-93c6f709ec66"));
 
-    public static ConceptProxy REFERENCED_COMPONENT_IS = new ConceptProxy("Referenced component is (query clause)", "referenced component is", UUID.fromString("9d4f0198-4f84-5172-b78c-f47fd048c851"));
-    public static ConceptProxy REFERENCED_COMPONENT_IS_MEMBER_OF = new ConceptProxy("Referenced component is member of (query clause)", "referenced component is member of", UUID.fromString("d39a3b5f-a862-5b52-93ed-0a7a0bbe329f"));
-    public static ConceptProxy REFERENCED_COMPONENT_IS_NOT_MEMBER_OF = new ConceptProxy("Referenced component is NOT member of (query clause)", "Referenced component is member of", UUID.fromString("c92e5540-0d38-5f08-94e2-6ae673ee9c6b"));
+    public static ConceptProxy REFERENCED_COMPONENT_IS = new ConceptProxy("Referenced component is (query clause)", "RC is", UUID.fromString("9d4f0198-4f84-5172-b78c-f47fd048c851"));
+    public static ConceptProxy REFERENCED_COMPONENT_IS_MEMBER_OF = new ConceptProxy("Referenced component is member of (query clause)", "RC is member of", UUID.fromString("d39a3b5f-a862-5b52-93ed-0a7a0bbe329f"));
+    public static ConceptProxy REFERENCED_COMPONENT_IS_NOT_MEMBER_OF = new ConceptProxy("Referenced component is NOT member of (query clause)", "RC is NOT member of", UUID.fromString("c92e5540-0d38-5f08-94e2-6ae673ee9c6b"));
     
     public static ConceptProxy COMPONENT_IS_MEMBER_OF = new ConceptProxy("Component is member of (query clause)", "Component is member of", UUID.fromString("380e0514-906b-5675-9ac4-6e788b1269cd"));
     public static ConceptProxy COMPONENT_IS_NOT_MEMBER_OF = new ConceptProxy("Component is NOT member of (query clause)", "Component is NOT member of", UUID.fromString("117cf5cd-80aa-58b0-b216-fd60c953af22"));
-    public static ConceptProxy REFERENCED_COMPONENT_IS_KIND_OF = new ConceptProxy("Referenced component is kind-of (query clause)", "Referenced component is kind-of", UUID.fromString("74ba168f-7932-5f3d-a8c5-28dc6d9fe647"));
-    public static ConceptProxy REFERENCED_COMPONENT_IS_NOT_KIND_OF = new ConceptProxy("Referenced component is NOT kind-of (query clause)", "Referenced component is NOT kind-of", UUID.fromString("82ae0a41-8a1c-5cb5-8087-5562608b3373"));
+    public static ConceptProxy REFERENCED_COMPONENT_IS_KIND_OF = new ConceptProxy("Referenced component is kind-of (query clause)", "RC is kind-of", UUID.fromString("74ba168f-7932-5f3d-a8c5-28dc6d9fe647"));
+    public static ConceptProxy REFERENCED_COMPONENT_IS_NOT_KIND_OF = new ConceptProxy("Referenced component is NOT kind-of (query clause)", "RC is NOT kind-of", UUID.fromString("82ae0a41-8a1c-5cb5-8087-5562608b3373"));
     
    public static ConceptProxy STATED_PREMISE_TYPE = new ConceptProxy("Stated premise type", "Stated", UUID.fromString("3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));
 

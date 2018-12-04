@@ -46,6 +46,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
+import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -155,7 +156,7 @@ public class DynamicIntegerImpl
     * @return the int from byte array
     */
    protected static int getIntFromByteArray(byte[] bytes) {
-      return ((bytes[0] << 24) | ((bytes[1] & 0xFF) << 16) | ((bytes[2] & 0xFF) << 8) | ((bytes[3] & 0xFF) << 0));
+      return getInt(bytes, 0);
    }
 }
 

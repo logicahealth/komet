@@ -167,10 +167,6 @@ public class DescriptionLuceneMatch
         return whereClause;
     }
 
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE;
-    }
     public void setQueryStringKey(LetItemKey queryStringKey) {
         this.queryStringKey = queryStringKey;
     }

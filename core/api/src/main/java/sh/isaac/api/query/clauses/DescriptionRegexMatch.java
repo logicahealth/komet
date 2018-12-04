@@ -137,11 +137,6 @@ public class DescriptionRegexMatch
 
    //~--- get methods ---------------------------------------------------------
 
-   @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE;
-   }
-
    /**
     * Gets the compute phases.
     *
