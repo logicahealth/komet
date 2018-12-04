@@ -107,14 +107,14 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
                             IsaacObjectType objectType = Get.identifierService().getObjectTypeForComponent(nid);
                             dos.writeByte(objectType.getToken());
                             dos.writeByte(versionType.getVersionTypeToken());
-
-                            int[] assemlageNidTypeTokenVersionToken = new int[]{nid, objectType.getToken(), versionType.getVersionTypeToken()};
+                            int[] assemlageNidTypeTokenVersionToken = new int[]{assemblageNid, objectType.getToken(), versionType.getVersionTypeToken()};
                             assemlageNidTypeTokenVersionTokenSet.add(assemlageNidTypeTokenVersionToken);
-                            completedUnitOfWork();
+                             completedUnitOfWork();
                         } catch (IOException ex) {
                             throw new RuntimeException(ex);
                         }
                     });
+                    
                 }
                 zipOut.closeEntry();
 
