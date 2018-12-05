@@ -182,7 +182,7 @@ public class VHATImportMojoDirect extends DirectConverterBaseMojo implements Dir
 			dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.VHAT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 					"VHAT", true);
 			
-			setupModule("SOPT", MetaData.VHAT_MODULES____SOLOR.getPrimordialUuid(), time);
+			setupModule("VHAT", MetaData.VHAT_MODULES____SOLOR.getPrimordialUuid(), time);
 			
 			//Set up our metadata hierarchy
 			dwh.makeMetadataHierarchy(true, true, true, true, true, true, time);
