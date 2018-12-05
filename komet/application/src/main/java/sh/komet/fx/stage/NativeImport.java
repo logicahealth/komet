@@ -49,7 +49,6 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
 //    private final ConcurrentHashMap<VersionType, Integer> cacheVersionTypeToNidMap = new ConcurrentHashMap<>();
 //
 //    private final ConcurrentHashMap<Integer, Stamp> cacheStampSequenceToStampObjectMap = new ConcurrentHashMap<>();
-
     public NativeImport(File importFile) {
         this.importFile = importFile;
         updateTitle("Native import from " + importFile.getName());
@@ -224,8 +223,9 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
                 int nid = dis.readInt();
                 // int assemblageNid = Note: limit ... only processing one assemblage
                 int taxonomyArraySize = dis.readInt();
-                int[] taxonomyData = new int[taxonomyArraySize];
-                for (int j = 0; j < taxonomyArraySize; j++) {
+                int[] taxonomyData = new int[taxonomyArraySize + 1];
+                taxonomyData[0] = taxonomyArraySize;
+                for (int j = 1; j < taxonomyArraySize; j++) {
                     taxonomyData[j] = dis.readInt();
                 }
 
