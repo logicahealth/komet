@@ -480,7 +480,7 @@ public class ConceptBuilderImpl
             throw new RuntimeException("Attempting to set Type 5 UUID where the UUID was previously set to random on - " + getFullyQualifiedName());
       }
       if (!isPrimordialUuidSet()) {
-         setPrimordialUuid(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, getFullyQualifiedName()));
+         setPrimordialUuid(UuidT5Generator.get(namespace == null ? UuidT5Generator.PATH_ID_FROM_FS_DESC : namespace, getFullyQualifiedName(), consumer));
       }
       return this;
    }

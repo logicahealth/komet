@@ -62,6 +62,7 @@ import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.util.UuidFactory;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -270,7 +271,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       return this;
    }
    
-    @Override
+   @Override
    public DescriptionBuilder setT5Uuid(UUID namespace, BiConsumer<String, UUID> consumer) {
       if (isPrimordialUuidSet() && getPrimordialUuid().version() == 4) {
          throw new RuntimeException("Attempting to set Type 5 UUID where the UUID was previously set to random");
@@ -279,7 +280,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       if (!isPrimordialUuidSet()) {
          int caseSigNid = Get.languageCoordinateService().caseSignificanceToConceptNid(false);
 
-         setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace,
+         setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace == null ? UuidT5Generator.PATH_ID_FROM_FS_DESC : namespace,
                  conceptBuilder == null ? Get.identifierService().getUuidPrimordialForNid(conceptNid) : conceptBuilder.getPrimordialUuid(), 
                  Get.identifierService().getUuidPrimordialForNid(caseSigNid),
                  descriptionType.getPrimordialUuid(), 

@@ -479,7 +479,8 @@ public class Frills
     * plus the word "Edit".
     * 
     * @param module The terminology type module concept - typically a direct child of {@link MetaData#MODULE____SOLOR} but can also be nested deeper.
-    * @return the "Edit" module for this terminology type, which will be created, if necessary.
+    * @return the "Edit" module for this terminology type, which will be created, if necessary.  This concept will also be used for the namespace
+    * when generating the UUID(s) for the new concept.
     */
    public static int createAndGetDefaultEditModule(int module) {
 
@@ -515,7 +516,7 @@ public class Frills
          //TODO switch this over to the observable create / commit pattern
          try {
             int nid = Get.conceptBuilderService().getDefaultConceptBuilder(termTypeFQN, ConceptProxy.METADATA_SEMANTIC_TAG, defBuilder.build(), 
-                 MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).build(
+                 MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).setT5UuidNested(Get.concept(module).getPrimordialUuid()).build(
                        new EditCoordinateImpl(TermAux.USER.getNid(),  TermAux.CORE_METADATA_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid()), ChangeCheckerMode.ACTIVE).get().getNid();
              commitCheck(Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
                  "creating new edit module for terminology type " + Get.conceptDescriptionText(termTypeConcept)));
