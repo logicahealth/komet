@@ -1045,7 +1045,11 @@ public class ByteArrayDataBuffer {
     * @return the int array
     */
    public int[] getIntArray() {
-      final int[] array            = new int[getInt()];
+      int length = getInt();
+      if (length < 0) {
+          throw new IllegalStateException("Negative int array size: " + length);
+      }
+      final int[] array            = new int[length];
       final int   startingPosition = this.position;
       long        lockStamp        = this.sl.tryOptimisticRead();
 

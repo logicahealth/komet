@@ -47,10 +47,5 @@
          <artifactId>opencsv</artifactId>
          <scope>compile</scope>
       </dependency>
-       <dependency>
-           <groupId>sh.isaac.provider</groupId>
-           <artifactId>query</artifactId>
-           <version>4.60-SNAPSHOT</version>
-       </dependency>
    </dependencies>
 </project>

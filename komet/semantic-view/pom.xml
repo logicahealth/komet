@@ -28,11 +28,6 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>query</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>sh.isaac.integration</groupId>
 			<artifactId>db-config-builder-ui</artifactId>
 			<version>${project.parent.version}</version>
