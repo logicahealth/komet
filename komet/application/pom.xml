@@ -541,7 +541,7 @@
                 </plugins>
             </build>
         </profile>
-<!--        <profile>
+        <profile>
             <id>file-datastore</id>
             <activation>
                 <property>
@@ -565,7 +565,7 @@
                     <version>${project.parent.version}</version>
                 </dependency>
             </dependencies>
-        </profile>-->
+        </profile>
         <profile>
             <id>postgres-datastore</id>
             <activation>
