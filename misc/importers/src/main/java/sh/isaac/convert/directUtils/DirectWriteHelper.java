@@ -70,6 +70,9 @@ import sh.isaac.converters.sharedUtils.IBDFCreationUtility;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.stats.LoadStats;
 import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.configuration.LanguageCoordinates;
+import sh.isaac.model.configuration.ManifoldCoordinates;
+import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
@@ -222,7 +225,7 @@ public class DirectWriteHelper
 		loadStats.addConcept();
 		return concept;
 	}
-
+	
 	/**
 	 * This creates a semantic type of {@link VersionType#DYNAMIC} with no data columns
 	 * 
@@ -236,11 +239,28 @@ public class DirectWriteHelper
 	 */
 	public UUID makeDynamicRefsetMember(UUID assemblageConcept, UUID memberUUID, long time)
 	{
+		return makeDynamicRefsetMember(assemblageConcept, memberUUID, null, time);
+	}
+
+	/**
+	 * This creates a semantic type of {@link VersionType#DYNAMIC} with no data columns
+	 * 
+	 * This serves the same purpose as {@link #makeBrittleRefsetMember(UUID, UUID, long)} but allows for the refset to be described in the
+	 * dynamic definition.
+	 * 
+	 * @param assemblageConcept The type of refset member to create
+	 * @param memberUUID The id being added to the refset
+	 * @param status - the status to use, active if null.
+	 * @param time The time to use for the entry
+	 * @return The UUID of the object created
+	 */
+	public UUID makeDynamicRefsetMember(UUID assemblageConcept, UUID memberUUID, Status status, long time)
+	{
 		UUID uuidForCreatedMember = UuidFactory.getUuidForDynamic(converterUUID.getNamespace(), assemblageConcept, memberUUID, null,
 				((input, uuid) -> converterUUID.addMapping(input, uuid)));
 		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, uuidForCreatedMember,
 				identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(memberUUID));
-		refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
+		refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(status == null ? Status.ACTIVE : status, time, authorNid, moduleNid, pathNid));
 		indexAndWrite(refsetMemberToWrite);
 		loadStats.addRefsetMember(getOriginStringForUuid(assemblageConcept));
 		return refsetMemberToWrite.getPrimordialUuid();
@@ -1516,7 +1536,7 @@ public class DirectWriteHelper
 	/**
 	 * Return the UUID of the concept that matches the description created by {@link #makeRefsetTypeConcept(String, String, long)}
 	 * 
-	 * @param descriptionName the name or altName of the description
+	 * @param refsetName the name or altName of the description
 	 * @return the UUID of the concept that represents it
 	 */
 	public UUID getRefsetType(String refsetName)
@@ -1640,6 +1660,60 @@ public class DirectWriteHelper
 		}
 
 		makeParentGraph(concept, parents, Status.ACTIVE, time);
+		return concept;
+	}
+
+	/**
+	 * A mechanism for runtime (mostly delta) loaders to add pre-existing items into the mappings of name to types, for 
+	 * simplified lookups and handling.
+	 * @param parentTypesNode - A uuid that matches one of {@link #getAttributeTypesNode()}, {@link #getAssociationTypesNode()},
+	 * {@link #getDescriptionTypesNode()}, {@link #getRefsetTypesNode()} or {@link #getRelationTypesNode()}
+	 * @param type - optional - if not provided, calcualted from name in the same way as the other makeTypeConcept methods.
+	 *     the type you are adding.  Should be a child of the {parentTypesNode}
+	 * @param name - the name to store as the lookup to the {type}
+	 * @return the passed in {type} uuid, or the calculated UUID.
+	 */
+	public UUID addExistingTypeConcept(UUID parentTypesNode, UUID type, String name)
+	{
+		String fqn = name + " (" + terminologyName + ")";
+		final UUID concept = type == null ?  converterUUID.createNamespaceUUIDFromString(fqn) : type;
+		
+		final int typeNid = Get.nidForUuids(concept);
+		if (!Get.conceptService().hasConcept(typeNid))
+		{
+			throw new RuntimeException("The concept " + concept + " " + name + " does not exist!");
+		}
+		
+		if (!Get.taxonomyService().getSnapshotNoTree(ManifoldCoordinates.getStatedManifoldCoordinate(StampCoordinates.getDevelopmentLatest(), 
+				LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate())).isChildOf(typeNid, Get.nidForUuids(parentTypesNode)))
+		{
+			throw new RuntimeException("The existing concept " + concept + " " + name + " must be a child of the parentTypesNode " + parentTypesNode);
+		}	
+		
+		if (parentTypesNode.equals(getAttributeTypesNode().orElse(null)))
+		{
+			createdAttributeTypes.put(name, concept);
+		}
+		else if (parentTypesNode.equals(getAssociationTypesNode().orElse(null)))
+		{
+			createdAssociationTypes.put(name, concept);
+		}
+		else if (parentTypesNode.equals(getDescriptionTypesNode().orElse(null)))
+		{
+			createdDescriptionTypes.put(name, concept);
+		}
+		else if (parentTypesNode.equals(getRefsetTypesNode().orElse(null)))
+		{
+			createdRefsetTypes.put(name, concept);
+		}
+		else if (parentTypesNode.equals(getRelationTypesNode().orElse(null)))
+		{
+			createdRelationshipTypes.put(name, concept);
+		}
+		else
+		{
+			throw new RuntimeException("Unknown parent types node " + parentTypesNode);
+		}
 		return concept;
 	}
 }
