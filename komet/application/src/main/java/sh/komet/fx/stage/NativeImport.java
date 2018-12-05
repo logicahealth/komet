@@ -225,7 +225,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
                 int taxonomyArraySize = dis.readInt();
                 int[] taxonomyData = new int[taxonomyArraySize + 1];
                 taxonomyData[0] = taxonomyArraySize;
-                for (int j = 1; j < taxonomyArraySize; j++) {
+                for (int j = 1; j < taxonomyArraySize + 1; j++) {
                     taxonomyData[j] = dis.readInt();
                 }
 
