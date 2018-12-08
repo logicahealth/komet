@@ -1,4 +1,4 @@
-package sh.isaac.solor.utility;
+package sh.isaac.solor.rf2.utility;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /*
  * aks8m - 5/20/18
  */
-public class ExportLookUpCache {
+public class RF2ExportLookUpCache {
 
     private static List<Integer> sctidNids = Get.assemblageService()
             .getReferencedComponentNidStreamFromAssemblage(TermAux.SNOMED_IDENTIFIER)

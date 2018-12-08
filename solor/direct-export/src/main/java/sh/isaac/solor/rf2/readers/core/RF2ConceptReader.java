@@ -1,4 +1,4 @@
-package sh.isaac.solor.rf2;
+package sh.isaac.solor.rf2.readers.core;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
@@ -6,7 +6,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.solor.ExportConfiguration;
+import sh.isaac.solor.rf2.utility.RF2ExportHelper;
 import sh.komet.gui.manifold.Manifold;
 
 import java.util.ArrayList;
@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
 
-public class RF2ExportConceptReader extends TimedTaskWithProgressTracker<List<String>> {
+public class RF2ConceptReader extends TimedTaskWithProgressTracker<List<String>> {
 
     private final RF2ExportHelper rf2ExportHelper;
     private final List<Chronology> chronologies;
     private final Semaphore readSemaphore;
     private final Manifold manifold;
 
-    public RF2ExportConceptReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, ExportConfiguration exportConfiguration) {
+    public RF2ConceptReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, String message) {
         this.chronologies = chronologies;
         this.readSemaphore = readSemaphore;
         this.manifold = manifold;
@@ -29,7 +29,7 @@ public class RF2ExportConceptReader extends TimedTaskWithProgressTracker<List<St
 
         readSemaphore.acquireUninterruptibly();
 
-        updateTitle("Reading " + exportConfiguration.getMessage() + " batch of size: " + chronologies.size());
+        updateTitle("Reading " + message + " batch of size: " + chronologies.size());
         updateMessage("Processing batch of concepts for RF2 Export");
         addToTotalWork(chronologies.size());
         Get.activeTasks().add(this);
@@ -37,13 +37,11 @@ public class RF2ExportConceptReader extends TimedTaskWithProgressTracker<List<St
 
     @Override
     protected List<String> call() {
-
         ArrayList<String> returnList = new ArrayList<>();
 
         try{
 
             for(Chronology chronology : chronologies){
-
                 returnList.add(this.rf2ExportHelper.getRF2CommonElements(chronology)
                         .append(getConceptPrimitiveOrSufficientDefinedSCTID(chronology.getNid()))
                         .append("\r")

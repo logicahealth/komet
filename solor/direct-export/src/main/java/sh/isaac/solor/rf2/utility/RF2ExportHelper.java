@@ -1,4 +1,4 @@
-package sh.isaac.solor.rf2;
+package sh.isaac.solor.rf2.utility;
 
 
 
@@ -16,7 +16,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.solor.utility.ExportLookUpCache;
 import sh.komet.gui.manifold.Manifold;
 
 import java.text.SimpleDateFormat;
@@ -54,7 +53,7 @@ public class RF2ExportHelper {
                 .append(getModuleString(stampNid) + "\t");     //moduleId
     }
 
-    public StringBuilder getRF2CommonElements(Chronology chronology, UUID uuid){
+    protected StringBuilder getRF2CommonElements(Chronology chronology, UUID uuid){
 
         int stampNid = 0;
 
@@ -71,14 +70,14 @@ public class RF2ExportHelper {
                 .append(getModuleString(stampNid) + "\t");     //moduleId
     }
 
-    String getIdString(Chronology chronology){
+    public String getIdString(Chronology chronology){
 
-        if (ExportLookUpCache.isSCTID(chronology)) {
+        if (RF2ExportLookUpCache.isSCTID(chronology)) {
             return lookUpIdentifierFromSemantic(snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), chronology);
-        } else if (ExportLookUpCache.isLoinc(chronology)) {
+        } else if (RF2ExportLookUpCache.isLoinc(chronology)) {
             final String loincId = lookUpIdentifierFromSemantic(snapshotService, MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeSolorIdFromLoincId(loincId);
-        } else if (ExportLookUpCache.isRxNorm(chronology)) {
+        } else if (RF2ExportLookUpCache.isRxNorm(chronology)) {
             final String rxnormId = lookUpIdentifierFromSemantic(snapshotService, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);
             return UuidT5Generator.makeSolorIdFromRxNormId(rxnormId);
         } else {
@@ -86,7 +85,7 @@ public class RF2ExportHelper {
         }
     }
 
-    String getIdString(int nID){
+    public String getIdString(int nID){
 
         Chronology chronology = null;
         switch (Get.identifierService().getObjectTypeForComponent(nID)){
@@ -101,17 +100,17 @@ public class RF2ExportHelper {
         return chronology != null? getIdString(chronology) : "null_chronology";
     }
 
-    private String getTimeString(int stampNid){
+    public String getTimeString(int stampNid){
         return new SimpleDateFormat("YYYYMMdd").format(new Date(Get.stampService().getTimeForStamp(stampNid)));
     }
 
-    private String getActiveString(int stampNid){
+    public String getActiveString(int stampNid){
         return Get.stampService().getStatusForStamp(stampNid).isActive() ? "1" : "0";
     }
 
-    private String getModuleString(int stampNid){
+    public String getModuleString(int stampNid){
         ConceptChronology moduleConcept = Get.concept(Get.stampService().getModuleNidForStamp(stampNid));
-        if (ExportLookUpCache.isSCTID(moduleConcept)) {
+        if (RF2ExportLookUpCache.isSCTID(moduleConcept)) {
             return lookUpIdentifierFromSemantic(snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), moduleConcept);
         } else {
             return UuidT5Generator.makeSolorIdFromUuid(moduleConcept.getPrimordialUuid());

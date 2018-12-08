@@ -1,4 +1,4 @@
-package sh.isaac.solor.rf2;
+package sh.isaac.solor.rf2.readers.core;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -7,21 +7,21 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.solor.ExportConfiguration;
+import sh.isaac.solor.rf2.utility.RF2ExportHelper;
 import sh.komet.gui.manifold.Manifold;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-public class RF2ExportDescriptionReader extends TimedTaskWithProgressTracker<List<String>> {
+public class RF2DescriptionReader extends TimedTaskWithProgressTracker<List<String>> {
 
     private final RF2ExportHelper rf2ExportHelper;
     private final List<Chronology> chronologies;
     private final Semaphore readSemaphore;
     private final Manifold manifold;
 
-    public RF2ExportDescriptionReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, ExportConfiguration exportConfiguration) {
+    public RF2DescriptionReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, String message) {
         this.chronologies = chronologies;
         this.readSemaphore = readSemaphore;
         this.manifold = manifold;
@@ -29,7 +29,7 @@ public class RF2ExportDescriptionReader extends TimedTaskWithProgressTracker<Lis
 
         readSemaphore.acquireUninterruptibly();
 
-        updateTitle("Reading " + exportConfiguration.getMessage() + " batch of size: " + chronologies.size());
+        updateTitle("Reading " + message + " batch of size: " + chronologies.size());
         updateMessage("Processing batch of descriptions for RF2 Export");
         addToTotalWork(chronologies.size());
         Get.activeTasks().add(this);
@@ -42,6 +42,8 @@ public class RF2ExportDescriptionReader extends TimedTaskWithProgressTracker<Lis
         try{
 
             for(Chronology chronology : this.chronologies) {
+
+                System.out.print(chronology.getVersionType());
 
                 returnList.add(
                         rf2ExportHelper.getRF2CommonElements(chronology)
