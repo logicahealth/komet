@@ -46,6 +46,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -124,7 +126,7 @@ public class LoadTermstore
     * @param mergeLogicGraphs true, if you want the loader to attempt to merge the logic graphs in the incoming with the currently existing graphs.
     * False, to simply load the IBDF as is.
     */
-   public LoadTermstore(File[] ibdfFiles, boolean routeLogToLog4j, boolean mergeLogicGraphs) {
+   public LoadTermstore(Path[] ibdfFiles, boolean routeLogToLog4j, boolean mergeLogicGraphs) {
       setibdfFiles(ibdfFiles);
       if (routeLogToLog4j) {
          setLog(new Log4jAdapter(this.getClass()));
@@ -202,18 +204,14 @@ public class LoadTermstore
       ibdfFileFolder = folder;
    }
 
-   /**
-    * The optional (old) way to specify ibdf files - requires each file to be listed one by one.
-    */
-   @Parameter(required = false)
-   private File[] ibdfFiles;
+   private Path[] ibdfFilePaths;
    
    /**
-    * The optional (old) way to specify ibdf files - requires each file to be listed one by one.
-    * @param files the individual ibdf files to process 
+    * A second way to specify IBDF files for preload - used for non-maven loads
+    * @param filePaths the individual ibdf files to process 
     */
-   public void setibdfFiles(File[] files) {
-      this.ibdfFiles = files;
+   public void setibdfFiles(Path[] filePaths) {
+      this.ibdfFilePaths = filePaths;
    }
    
    //internal use / non-maven exposed parameters
@@ -253,59 +251,55 @@ public class LoadTermstore
 
       // Load IsaacMetadataAuxiliary first, otherwise, we have issues....
       final AtomicBoolean hasMetadata = new AtomicBoolean(false);
-      Set<File>           mergedFiles;
+      Set<Path>           mergedFiles;
 
-      try {
-         mergedFiles = new HashSet<>();
+     mergedFiles = new HashSet<>();
 
-         if (this.ibdfFiles != null) {
-            for (final File f: this.ibdfFiles) {
-               mergedFiles.add(f.getCanonicalFile());
-            }
+      if (this.ibdfFilePaths != null) {
+         for (final Path f: this.ibdfFilePaths) {
+            mergedFiles.add(f.normalize());
          }
-
-         if (this.ibdfFileFolder != null) {
-            if (!this.ibdfFileFolder.isDirectory()) {
-               throw new MojoExecutionException("If ibdfFileFolder is provided, it must point to a folder");
-            }
-
-            for (final File f: this.ibdfFileFolder.listFiles()) {
-               if (!f.isFile()) {
-                  getLog().info("The file " + f.getAbsolutePath() + " is not a file - ignoring.");
-               } else if (!f.getName()
-                            .toLowerCase(Locale.ENGLISH)
-                            .endsWith(".ibdf")) {
-                  getLog().info("The file " + f.getAbsolutePath() +
-                                " does not match the expected type of ibdf - ignoring.");
-               } else {
-                  mergedFiles.add(f);
-               }
-            }
-         }
-      } catch (final IOException e1) {
-         throw new MojoExecutionException("Problem reading ibdf files", e1);
       }
 
-      final File[] temp = mergedFiles.toArray(new File[mergedFiles.size()]);
+      if (this.ibdfFileFolder != null) {
+         if (!this.ibdfFileFolder.isDirectory()) {
+            throw new MojoExecutionException("If ibdfFileFolder is provided, it must point to a folder");
+         }
+
+         for (final File f: this.ibdfFileFolder.listFiles()) {
+            if (!f.isFile()) {
+               getLog().info("The file " + f.getAbsolutePath() + " is not a file - ignoring.");
+            } else if (!f.getName()
+                         .toLowerCase(Locale.ENGLISH)
+                         .endsWith(".ibdf")) {
+               getLog().info("The file " + f.getAbsolutePath() +
+                             " does not match the expected type of ibdf - ignoring.");
+            } else {
+               mergedFiles.add(f.toPath().normalize());
+            }
+         }
+      }
+
+      final Path[] temp = mergedFiles.toArray(new Path[mergedFiles.size()]);
 
       Arrays.sort(temp,
                   (o1, o2) -> {
-                     if (o1.getName()
-                           .equals("IsaacMetadataAuxiliary.ibdf")) {
+                     if (o1.toString().endsWith("IsaacMetadataAuxiliary.ibdf")) {
                         hasMetadata.set(true);
                         return -1;
-                     } else if (o2.getName()
-                                  .equals("IsaacMetadataAuxiliary.ibdf")) {
+                     } else if (o2.toString().endsWith("IsaacMetadataAuxiliary.ibdf")) {
                         hasMetadata.set(true);
                         return 1;
                      } else {
-                        return ((o1.length() - o2.length()) > 0 ? 1
-                  : ((o1.length() - o2.length()) < 0 ? -1
-                  : 0));
+                        try {
+                        return ((Files.size(o1) - Files.size(o2)) > 0 ? 1 : ((Files.size(o1) - Files.size(o2)) < 0 ? -1 : 0));
+                        } catch (IOException e) {
+                           throw new RuntimeException(e);
+                        }
                      }
                   });
 
-      if (temp.length == 1 && temp[0].getName().equals("IsaacMetadataAuxiliary.ibdf"))
+      if (temp.length == 1 && temp[0].toString().endsWith("IsaacMetadataAuxiliary.ibdf"))
       {
          hasMetadata.set(true);
       }
@@ -328,10 +322,10 @@ public class LoadTermstore
       }
 
       try {
-         for (final File f: temp) {
-            getLog().info("Loading termstore from " + f.getCanonicalPath() + (this.activeOnly ? " active items only" : ""));
-            FileHandler fh = new FileHandler(f.getName());
-            final BinaryDatastreamReader reader = new BinaryDatastreamReader(item -> fh.process(item), f.toPath());
+         for (final Path f: temp) {
+            getLog().info("Loading termstore from " + f + (this.activeOnly ? " active items only" : ""));
+            FileHandler fh = new FileHandler(f.toString());
+            final BinaryDatastreamReader reader = new BinaryDatastreamReader(item -> fh.process(item), f);
             Get.executor().submit(reader).get();
             fh.summarize();
          }
@@ -387,7 +381,7 @@ public class LoadTermstore
          LookupService.syncAll();
          Get.startIndexTask().get();
 
-      } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
+      } catch (final ExecutionException | InterruptedException | UnsupportedOperationException ex) {
          getLog().error("Loaded with exception");
          throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
       } 

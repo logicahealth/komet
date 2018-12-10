@@ -1,11 +1,11 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
  *
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
  * 
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
@@ -34,36 +34,23 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+package sh.isaac.convert.mojo.rxnorm;
 
-
-
-package sh.isaac.converters.sharedUtils.umlsUtils.propertyTypes;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Descriptions;
-
-//~--- classes ----------------------------------------------------------------
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.convert.directUtils.DirectConverter;
 
 /**
- * {@link PT_Descriptions}.
+ * {@link RxNormImportHK2Direct}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class PT_Descriptions
-        extends BPT_Descriptions {
-   /**
-    * Instantiates a new p T descriptions.
-    *
-    * @param termName the term name
-    */
-   public PT_Descriptions(String termName) {
-      super(termName);
-
-      // from relationship metadata, but needs to be here because they are loaded as description types
-      addProperty("Inverse FQN");
-      addProperty("Inverse Synonym");
-      addProperty("Inverse Description");
-   }
+@PerLookup
+@Service
+public class RxNormImportHK2Direct extends RxNormImportMojoDirect implements DirectConverter
+{
+	private RxNormImportHK2Direct()
+	{
+		//For HK2
+	}
 }
-

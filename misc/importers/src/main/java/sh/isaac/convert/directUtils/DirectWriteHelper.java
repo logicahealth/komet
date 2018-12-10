@@ -66,7 +66,6 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.metainf.VersionFinder;
-import sh.isaac.converters.sharedUtils.IBDFCreationUtility;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.stats.LoadStats;
 import sh.isaac.model.concept.ConceptChronologyImpl;
@@ -85,8 +84,9 @@ import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.utility.Frills;
 
 /**
- * A class similar to {@link IBDFCreationUtility}, but intended for direct writes, rather than the previous traditional way
- * to write IBDF files
+ * A class to help structure external terminologies into the system in a consistent way, especially with respect to metadata.
+ * 
+ * Also, many helper method for common operations.
  * 
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
@@ -936,9 +936,16 @@ public class DirectWriteHelper
 		//Add inverse name, if provided
 		if (StringUtils.isNotBlank(inverseName))
 		{
-			//If inverse name equals forward (regular name) this is going to blow up...
-			UUID descriptionUUID = makeDescriptionEn(concept, inverseName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+			//make UUID manually for inverse, to it doesn't blow up when the inverse name is the same as the forward name
+			UUID descriptionUUID = UuidFactory.getUuidForDescriptionSemantic(converterUUID.getNamespace(), concept, 
+					MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(),
+					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(),
+					"inverse:" + inverseName, ((input, uuid) -> converterUUID.addMapping(input, uuid)));
+					
+			makeDescription(descriptionUUID, concept, inverseName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+					MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(),
 					MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
+					MetaData.US_ENGLISH_DIALECT____SOLOR.getPrimordialUuid(),
 					MetaData.ACCEPTABLE____SOLOR.getPrimordialUuid());
 			makeDynamicRefsetMember(DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getPrimordialUuid(), descriptionUUID, time);
 		}
@@ -1525,7 +1532,7 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * @return all description names fed into {@link #makeAttributeTypeConcept(UUID, String, String, String, boolean, DynamicDataType, List, long)}
+	 * @return all attribute names fed into {@link #makeAttributeTypeConcept(UUID, String, String, String, boolean, DynamicDataType, List, long)}
 	 * or ({@link #makeAttributeTypeConcept(UUID, String, String, String, String, boolean, DynamicDataType, List, long)}
 	 */
 	public Set<String> getAttributeTypes()
@@ -1554,6 +1561,15 @@ public class DirectWriteHelper
 	}
 	
 	/**
+	 * @param otherMetadataGroup the group name
+	 * @return all other names fed into {@link #makeOtherTypeConcept(UUID, UUID, String, String, String, String, DynamicDataType, List, long)}
+	 */
+	public Set<String> getOtherTypes(UUID otherMetadataGroup)
+	{
+		return otherTypes.get(otherMetadataGroup).keySet();
+	}
+	
+	/**
 	 * @param otherMetadataGroup the grouping concept that was created by {@link #makeOtherMetadataRootNode(String, long)}
 	 * @param otherName the type that was created by {@link #makeOtherTypeConcept(UUID, UUID, String, String, String, String, DynamicDataType, List, long)}
 	 * @return the UUID assigned to the concept created for {otherName}
@@ -1562,6 +1578,18 @@ public class DirectWriteHelper
 	{
 		HashMap<String, UUID> map = otherTypes.get(otherMetadataGroup);
 		return map == null ? null : map.get(otherName);
+	}
+	
+	/**
+	 * A convenience method that calls {@link #getOtherType(UUID, String)} with {@link #getOtherMetadataRootType(String)} as the first 
+	 * parameter
+	 * @param otherMetadataGroup The string name that was passed into {@link #makeOtherMetadataRootNode(String, long);}
+	 * @param otherName The string type that was passed into {@link #makeOtherTypeConcept(UUID, UUID, String, String, String, String, DynamicDataType, List, long)}
+	 * @return The UUID of the concept that represents the type.
+	 */
+	public UUID getOtherType(String otherMetadataGroup, String otherName)
+	{
+		return getOtherType(getOtherMetadataRootType(otherMetadataGroup), otherName);
 	}
 
 	/**
@@ -1626,10 +1654,12 @@ public class DirectWriteHelper
 	 * If not provided, the {name} will also be used as the preferred regular name.
 	 * @param altName - optional - additional regular name to add
 	 * @param description - optional - used as the dynamic assemblage configuration description if provided, otherwise, the altName or name is used.
-	 * @param dataType - optional the data type to store in the annotation - ignored if {isIdentifier} is true.  If 
-	 *            isIdentifier is false, and this is null, it is the callers responsibility to call 
+	 * @param dataType - optional the data type to store in the annotation - if this is null, it is the callers responsibility to call 
 	 *            {@link #configureConceptAsDynamicAssemblage(UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
-	 *            to finish configuring this node.
+	 *            to finish configuring this node, if they want to to be a dynamic type.
+	 *            
+	 *            Alternatively, you can pass a type of {@link DynamicDataType#UNKNOWN}, to specify that this should be setup as an identifier
+	 *            (which is a brittle-string annotation type)
 	 * @param additionalParents - optional - if this concept should have more parents, supply them here
 	 * @param time - the commit time
 	 * @return the UUID of the created concept.
@@ -1650,8 +1680,16 @@ public class DirectWriteHelper
 		parents.add(otherTypeGroup);
 		if (dataType != null)
 		{
-			configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
+			if (dataType == DynamicDataType.UNKNOWN)
+			{
+				parents.add(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid());
+				makeBrittleRefsetMember(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid(), concept, time);
+			}
+			else
+			{
+				configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
 					new DynamicColumnInfo[] { new DynamicColumnInfo(0, concept, dataType, null, true, true) }, null, null, time);
+			}
 		}
 		
 		if (additionalParents != null)

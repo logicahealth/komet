@@ -42,6 +42,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -250,7 +251,7 @@ public class IBDFCreationUtility
     */
    public IBDFCreationUtility(Optional<String> moduleToCreate, Optional<ConceptSpecification> preExistingModule, File outputDirectory, 
          String outputArtifactId, String outputArtifactVersion, String outputArtifactClassifier, boolean outputGson, long defaultTime, 
-         Collection<VersionType> versionTypesToSkip, Boolean preloadActiveOnly, File ... ibdfPreLoadFiles) throws Exception
+         Collection<VersionType> versionTypesToSkip, Boolean preloadActiveOnly, Path ... ibdfPreLoadFiles) throws Exception
    {
       converterUUID = Get.service(ConverterUUID.class);
       converterUUID.clearCache();

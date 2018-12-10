@@ -139,27 +139,28 @@ public class LoincTPImportMojoDirect extends DirectConverterBaseMojo implements 
 	}
 
 	@Override
-	protected File[] getIBDFFilesToPreload()
+	protected Path[] getIBDFFilesToPreload() throws IOException
 	{
-		//This method should only be called via a maven / manual run, at the moment, so it is safe to assume
-		//that the input location will be a file, and not, say, a path to a zip file or something
-		//that needs processing.
-		
 		//There currently is no mechanism to automatically pre-load a required IBDF file if you are running the 
 		//converter live.
-		File[] ibdfFiles = new File(inputFileLocationPath.toFile(), "ibdf").listFiles(new FileFilter()
+		final AtomicReference<Path> ibdfFile = new AtomicReference<>();
+		Files.walk(inputFileLocationPath.resolve("ibdf"), new FileVisitOption[] {}).forEach(path ->
 		{
-			@Override
-			public boolean accept(File pathname)
+			if (path.toString().toLowerCase().endsWith(".ibdf"))
 			{
-				if (pathname.isFile() && pathname.getName().toLowerCase().endsWith(".ibdf"))
+				if (ibdfFile.get() != null)
 				{
-					return true;
+					throw new RuntimeException("Only expected to find one ibdf file in the folder " + inputFileLocationPath.resolve("ibdf").normalize());
 				}
-				return false;
+				ibdfFile.set(path);
 			}
 		});
-		return ibdfFiles;
+
+		if (ibdfFile.get() == null)
+		{
+			throw new IOException("Failed to locate the ibdf file in " + inputFileLocationPath.resolve("ibdf"));
+		}
+		return new Path[] {ibdfFile.get()};
 	}
 
 	@Override

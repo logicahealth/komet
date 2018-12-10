@@ -146,7 +146,7 @@ public class NUCCImportMojoDirect extends DirectConverterBaseMojo implements Dir
 			date = new Date(); // TODO remove this when getting valid data from source
 		}
 		
-		//Right now, we are configured for the CPT grouping modules nid
+		//Right now, we are configured for the NUCC grouping modules nid
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.NUCC_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"NUCC", false);
 		

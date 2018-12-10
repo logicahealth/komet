@@ -25,7 +25,7 @@ import javafx.application.Platform;
  *         Just a runner class in the test package, so that eclipse launches with a classpath that includes test libraries, which makes
  *         logging work to the console.
  */
-public class RxNormMojoRunner extends RxNormMojo
+public class RxNormMojoRunner extends RxNormImportMojoDirect
 {
 
 	/**
@@ -41,7 +41,7 @@ public class RxNormMojoRunner extends RxNormMojo
 		try
 		{
 			mojo.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
-			mojo.inputFileLocation = new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src");
+			mojo.inputFileLocationPath= new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src").toPath();
 			mojo.converterVersion = "foo";
 			mojo.converterOutputArtifactVersion = "bar";
 			mojo.converterSourceArtifactVersion = "foooo";
@@ -53,7 +53,5 @@ public class RxNormMojoRunner extends RxNormMojo
 		{
 			Platform.exit();
 		}
-
 	}
-
 }

@@ -43,6 +43,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.file.Path;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -93,6 +94,7 @@ import sh.isaac.converters.sharedUtils.sql.DataType;
 import sh.isaac.converters.sharedUtils.sql.H2DatabaseHandle;
 import sh.isaac.converters.sharedUtils.sql.TableDefinition;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
+import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.LanguageMap;
 import sh.isaac.utility.MetaDataFinder;
@@ -974,23 +976,25 @@ public class RF2Mojo extends ConverterBaseMojo
 
       clearTargetFiles(contentNameVersion_);
 
-      File[] ibdfFiles = new File[0];
-      File ibdfFolder = new File(inputFileLocation, "ibdf");
-      if (ibdfFolder.isDirectory())
-      {
-         ibdfFiles = ibdfFolder.listFiles(new FileFilter()
-         {
-            @Override
-            public boolean accept(File pathname)
-            {
-               if (pathname.isFile() && pathname.getName().toLowerCase().endsWith(".ibdf"))
-               {
-                  return true;
-               }
-               return false;
-            }
-         });
-      }
+      Path[] ibdfFiles = new Path[0];
+
+      //broken by an API change, after this code was deprecated / no longer used
+      //      File ibdfFolder = new File(inputFileLocation, "ibdf");
+//      if (ibdfFolder.isDirectory())
+//      {
+//         ibdfFiles = ibdfFolder.listFiles(new FileFilter()
+//         {
+//            @Override
+//            public boolean accept(File pathname)
+//            {
+//               if (pathname.isFile() && pathname.getName().toLowerCase().endsWith(".ibdf"))
+//               {
+//                  return true;
+//               }
+//               return false;
+//            }
+//         });
+//      }
 
       if (moduleUUID.getPrimordialUuid() == null)
       {
