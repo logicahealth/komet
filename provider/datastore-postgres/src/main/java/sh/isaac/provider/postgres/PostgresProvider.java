@@ -986,4 +986,11 @@ public class PostgresProvider
         this.identifierProvider.setupNid(nid, assemblageNid, objectType, versionType);
     }
 
+    /**
+     * @see sh.isaac.api.IdentifierService#optimizeForOutOfOrderLoading()
+     */
+    @Override
+    public void optimizeForOutOfOrderLoading() {
+        this.identifierProvider.optimizeForOutOfOrderLoading();
+    }
 }

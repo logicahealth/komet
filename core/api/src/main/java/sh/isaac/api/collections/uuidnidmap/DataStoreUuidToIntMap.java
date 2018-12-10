@@ -61,8 +61,9 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 		// Loader utility enables this when doing IBDF file creation to to get from nid back to UUID - this prevents it from doing table scans.
 		if (Get.configurationService().isInDBBuildMode(BuildMode.IBDF))
 		{
-			this.nidToPrimordialCache = Caffeine.newBuilder().build();
+			enableInverseCache();
 		}
+		
 	}
 
 	/**
@@ -90,6 +91,15 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 	public boolean inverseCacheEnabled()
 	{
 		return nidToPrimordialCache != null;
+	}
+	
+	/**
+	 * @see sh.isaac.api.collections.uuidnidmap.UuidToIntMap#enableInverseCache()
+	 */
+	@Override
+	public void enableInverseCache()
+	{
+		this.nidToPrimordialCache = Caffeine.newBuilder().build();
 	}
 
 	/**

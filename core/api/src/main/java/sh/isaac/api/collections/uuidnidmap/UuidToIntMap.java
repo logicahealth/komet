@@ -80,6 +80,11 @@ public interface UuidToIntMap {
     * @return true, if a cache is enabled
     */
    boolean inverseCacheEnabled();
+   
+   /**
+    * If the inverse cache was not enabled, enable it now.
+    */
+   void enableInverseCache();
 
    /**
     * Put.
