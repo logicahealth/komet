@@ -41,8 +41,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import sh.isaac.api.constants.MetadataConceptConstant;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
-import sh.isaac.converters.sharedUtils.propertyTypes.Property;
-import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
 import sh.isaac.misc.constants.VHATConstants;
 
 /**
@@ -101,64 +99,6 @@ public class VhatUtil
 		if (uuid == null || !c.getPrimordialUuid().equals(uuid))
 		{
 			throw new RuntimeException("Constants file doesn't match for " + c.toExternalString() + " : " + uuid);
-		}
-	}
-	
-	/**
-	 * To be replaced by the above, when the last references are removed.
-	 * @param associations
-	 * @param annotations
-	 * @param descriptions
-	 * @param refsets
-	 * @param rootConcept
-	 * @param missingConcept
-	 */
-	@Deprecated
-	public static void check(PropertyType associations, PropertyType annotations, PropertyType descriptions, PropertyType refsets, UUID rootConcept,
-			UUID missingConcept)
-	{
-		check(associations, VHATConstants.VHAT_HAS_PARENT_ASSOCIATION_TYPE);
-		check(descriptions, VHATConstants.VHAT_ABBREVIATION);
-		check(descriptions, VHATConstants.VHAT_FULLY_SPECIFIED_NAME);
-		check(descriptions, VHATConstants.VHAT_PREFERRED_NAME);
-		check(descriptions, VHATConstants.VHAT_SYNONYM);
-		check(descriptions, VHATConstants.VHAT_VISTA_NAME);
-		check(refsets, VHATConstants.VHAT_ALL_CONCEPTS);
-		if (!associations.getPropertyTypeUUID().equals(VHATConstants.VHAT_ASSOCIATION_TYPES.getPrimordialUuid()))
-		{
-			throw new RuntimeException("Constants file doesn't match for " + VHATConstants.VHAT_ASSOCIATION_TYPES.toExternalString());
-		}
-		if (!annotations.getPropertyTypeUUID().equals(VHATConstants.VHAT_ATTRIBUTE_TYPES.getPrimordialUuid()))
-		{
-			throw new RuntimeException("Constants file doesn't match for " + VHATConstants.VHAT_ATTRIBUTE_TYPES.toExternalString());
-		}
-		if (!refsets.getPropertyTypeUUID().equals(VHATConstants.VHAT_REFSETS.getPrimordialUuid()))
-		{
-			throw new RuntimeException("Constants file doesn't match for " + VHATConstants.VHAT_REFSETS.toExternalString());
-		}
-		if (!descriptions.getPropertyTypeUUID().equals(VHATConstants.VHAT_DESCRIPTION_TYPES.getPrimordialUuid()))
-		{
-			throw new RuntimeException("Constants file doesn't match for " + VHATConstants.VHAT_DESCRIPTION_TYPES.toExternalString());
-		}
-
-		if (!VHATConstants.VHAT_ROOT_CONCEPT.getPrimordialUuid().equals(rootConcept))
-		{
-			throw new RuntimeException("Root concept got an unexpected UUID! " + rootConcept);
-		}
-
-		if (!VHATConstants.VHAT_MISSING_SDO_CODE_SYSTEM_CONCEPTS.getPrimordialUuid().equals(missingConcept))
-		{
-			throw new RuntimeException("Missing concept got an unexpected UUID! " + missingConcept);
-		}
-	}
-
-	@Deprecated
-	private static void check(PropertyType pt, MetadataConceptConstant c)
-	{
-		Property p = pt.getProperty(c.getRegularName().get());
-		if (p == null || !c.getPrimordialUuid().equals(pt.getProperty(c.getRegularName().get()).getUUID()))
-		{
-			throw new RuntimeException("Constants file doesn't match for " + c.toExternalString() + (p == null ? "null" : p.getUUID()));
 		}
 	}
 }

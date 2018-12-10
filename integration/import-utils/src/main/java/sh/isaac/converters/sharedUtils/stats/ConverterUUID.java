@@ -56,7 +56,6 @@ import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.constants.MetadataConceptConstant;
 import sh.isaac.api.constants.MetadataConceptConstantGroup;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 
 /**
  * A utility class for generating UUIDs which keeps track of what was used to generate the UUIDs - which
