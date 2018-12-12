@@ -94,6 +94,7 @@ public class Join
      */
     @Override
     public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> searchSpace) {
+        joinResults.clear();
         for (Clause child: getChildren()) {
             child.computePossibleComponents(searchSpace);
         }
@@ -127,6 +128,7 @@ public class Join
 
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+        joinResults.clear();
         for (Clause child: getChildren()) {
             child.computePossibleComponents(incomingPossibleComponents);
         }

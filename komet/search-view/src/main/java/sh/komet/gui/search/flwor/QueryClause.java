@@ -43,6 +43,7 @@ import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.properties.ManifoldClause;
 import sh.isaac.api.query.properties.QueryStringClause;
 import sh.isaac.api.query.properties.ReferencedComponentClause;
+import sh.isaac.api.query.properties.StampCoordinateClause;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
@@ -226,11 +227,32 @@ public class QueryClause {
             case SEMANTIC_CONTAINS_TEXT:
                 setupAssemblageForIteration("for each");
                 return setupQueryStringClause("query string");
+                
+            case REFERENCED_COMPONENT_IS_ACTIVE:
+            case REFERENCED_COMPONENT_IS_INACTIVE:
+                setupAssemblageForIteration("for each");
+                return setupStampCoordinateClause("stamp key");
+                
 
             default:
                 throw new UnsupportedOperationException("Can't handle: " + this.clauseProperty.get().getClauseSemantic());
         }
     }
+    protected PropertySheet setupStampCoordinateClause(String keyName) {
+        StampCoordinateClause stampClause = (StampCoordinateClause) clauseProperty.get();
+        SimpleObjectProperty<LetItemKey> stampKeyForClauseProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
+        this.clauseSpecificProperties.add(stampKeyForClauseProperty);
+        if (stampClause.getStampCoordinateKey() == null &! letPropertySheet.getStampCoordinateKeys().isEmpty()) {
+            stampClause.setStampCoordinateKey(letPropertySheet.getStampCoordinateKeys().get(0));
+        }
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper(keyName,
+                stampKeyForClauseProperty, letPropertySheet.getStampCoordinateKeys()));
+        stampKeyForClauseProperty.addListener((observable, oldValue, newValue) -> {
+            stampClause.setStampCoordinateKey((LetItemKey) newValue);
+        });
+        return clausePropertySheet;
+    }
+
 
     protected PropertySheet setupQueryStringClause(String keyName) {
         QueryStringClause queryStringClause = (QueryStringClause) clauseProperty.get();
