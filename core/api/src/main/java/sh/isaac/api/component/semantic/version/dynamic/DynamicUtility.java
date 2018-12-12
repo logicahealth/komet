@@ -42,9 +42,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
-import org.apache.logging.log4j.LogManager;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
@@ -172,7 +172,7 @@ public interface DynamicUtility {
     * as necessary, if the data[] contains 'nulls' and the column is specified with a default value.
     *
     * @param dynamicUsageDescriptionSupplier a function to supply the appropriate DynamicUsageDescription
-    * @param data the data
+    * @param userData the data
     * @param referencedComponentNid the referenced component nid
     * @param referencedComponentVersionType - optional - there are some build sequences where we can't look up the version type here, it must be
     * passed in
@@ -184,7 +184,7 @@ public interface DynamicUtility {
     * @throws InvalidParameterException - if anything fails validation
     */
    public default List<BooleanSupplier> validate(Supplier<DynamicUsageDescription> dynamicUsageDescriptionSupplier,
-                                DynamicData[] data,
+                                DynamicData[] userData,
                                 int referencedComponentNid,
                                 VersionType referencedComponentVersionType,
                                 int stampSequence,
@@ -232,10 +232,23 @@ public interface DynamicUtility {
             refComponentValidator.getAsBoolean();
          }
       }
+         
+      int lastColumnWithDefaultValue = 0;
 
-      if (data == null) {
-         data = new DynamicData[] {};
+      for (int i = 0; i < dsud.getColumnInfo().length; i++) {
+         if (dsud.getColumnInfo()[i].getDefaultColumnValue() != null) {
+            lastColumnWithDefaultValue = i;
+         }
       }
+
+      DynamicData[] tempData = userData == null ? new DynamicData[0] : userData;
+      
+      // We may need to lengthen the data array, to make room to add the default value
+      
+      final DynamicData[] data = (lastColumnWithDefaultValue + 1 > tempData.length) ? 
+            Arrays.copyOf(tempData, lastColumnWithDefaultValue) : tempData;
+      
+      tempData = null;
 
       // specifically allow < - we don't need the trailing columns, if they were defined as optional.
       if (data.length > dsud.getColumnInfo().length) {
@@ -246,18 +259,8 @@ public interface DynamicUtility {
              " (the data column count may be less, if the missing columns are defined as optional)");
       }
 
-      int lastColumnWithDefaultValue = 0;
-
-      for (int i = 0; i < dsud.getColumnInfo().length; i++) {
-         if (dsud.getColumnInfo()[i]
-                 .getDefaultColumnValue() != null) {
-            lastColumnWithDefaultValue = i;
-         }
-      }
-
       if (lastColumnWithDefaultValue + 1 > data.length) {
-         // We need to lengthen the data array, to make room to add the default value
-         data = Arrays.copyOf(data, lastColumnWithDefaultValue);
+         
       }
 
       for (int i = 0; i < dsud.getColumnInfo().length; i++) {
@@ -281,6 +284,7 @@ public interface DynamicUtility {
 
       for (int dataColumn = 0; dataColumn < data.length; dataColumn++) {
          final DynamicColumnInfo dsci = dsud.getColumnInfo()[dataColumn];
+         final int dataColumnFinal = dataColumn;
 
          if (data[dataColumn] == null) {
             if (dsci.isColumnRequired()) {
@@ -299,31 +303,27 @@ public interface DynamicUtility {
             }
 
             if ((dsci.getValidator() != null) && (dsci.getValidator().length > 0)) {
+               BiFunction<DynamicValidatorType, DynamicData, Boolean> colInfoValidator = (dynamicValidatorType, dynamicData) -> {
+                  if (!dynamicValidatorType.passesValidator(data[dataColumnFinal], dynamicData, stampSequence)) {
+                      throw new IllegalArgumentException(
+                          "The supplied data for column " + dataColumnFinal +
+                          " does not pass the assigned validator(s) for this dynamic field.  Data: " +
+                          data[dataColumnFinal].dataToString() + " Validator: " + dynamicValidatorType.name() +
+                          " Validator Data: " + dynamicData.dataToString() + " Semantic: " + dsud.getDynamicName()
+                          + " Referenced Component " 
+                          + Get.identifiedObjectService().getChronology(referencedComponentNid).get().toUserString());
+                  }
+                  return true;
+               };
+               
                try {
                   for (int i = 0; i < dsci.getValidator().length; i++) {
-                     boolean rethrow = false;
-
-                     try {
-                        if (!dsci.getValidator()[i]
-                                 .passesValidator(data[dataColumn],
-                                                  dsci.getValidatorData()[i],
-                                                  stampSequence)) {
-                           rethrow = true;
-                           throw new IllegalArgumentException(
-                               "The supplied data for column " + dataColumn +
-                               " does not pass the assigned validator(s) for this dynamic field.  Data: " +
-                               data[dataColumn].dataToString() + " Validator: " + dsci.getValidator()[i].name() +
-                               " Validator Data: " + dsci.getValidatorData()[i].dataToString() + " Semantic: " + dsud.getDynamicName()
-                               + " Referenced Component " 
-                               + Get.identifiedObjectService().getChronology(referencedComponentNid).get().toUserString());
-                        }
-                     } catch (final IllegalArgumentException e) {
-                        if (rethrow) {
-                           throw e;
-                        } else {
-                           LogManager.getLogger()
-                                        .debug("Couldn't execute validator due to missing coordiantes");
-                        }
+                     final int valFinal = i;
+                     if (delayValidation) {
+                        delayedValidators.add(() -> colInfoValidator.apply(dsci.getValidator()[valFinal], dsci.getValidatorData()[valFinal]));
+                     }
+                     else {
+                        colInfoValidator.apply(dsci.getValidator()[valFinal], dsci.getValidatorData()[valFinal]);
                      }
                   }
                } catch (final IllegalArgumentException e) {

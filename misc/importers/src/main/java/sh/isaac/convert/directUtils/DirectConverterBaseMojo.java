@@ -62,6 +62,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -219,19 +220,14 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 
 			LookupService.startupPreferenceProvider();
 
+			Get.configurationService().setDBBuildMode(BuildMode.IBDF);  //enabled the nid to uuid cache
 			Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 
 			LookupService.startupIsaac();
 			
 			readbackCoordinate = StampCoordinates.getDevelopmentLatest();
 
-			// Don't need to build indexes
-			for (IndexBuilderService ibs : LookupService.getServices(IndexBuilderService.class))
-			{
-				ibs.setEnabled(false);
-			}
-			
-			File[] filesToPreload = getIBDFFilesToPreload();
+			Path[] filesToPreload = getIBDFFilesToPreload();
 			if (filesToPreload != null && filesToPreload.length > 0)
 			{
 				log.info("Preloading IBDF files");
@@ -280,10 +276,11 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	 * This is only used by loaders that cannot execute without having another terminology preloaded - such as snomed extensions
 	 * that need to do snomed lookups, or loinc tech preview, which requires snomed, and loinc, for example.
 	 * @return
+	 * @throws IOException 
 	 */
-	protected File[] getIBDFFilesToPreload()
+	protected Path[] getIBDFFilesToPreload() throws IOException
 	{
-		return new File[0];
+		return new Path[0];
 	}
 	
 	/**
@@ -351,7 +348,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	}
 
 	/**
-	 * Can be called by converters so show progress on a console in maven mode
+	 * Can be called by converters to show progress on a console in maven mode
 	 * Does nothing if not running on a console in maven mode
 	 */
 	protected void showProgress()

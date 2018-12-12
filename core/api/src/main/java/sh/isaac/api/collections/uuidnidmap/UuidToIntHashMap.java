@@ -896,6 +896,15 @@ public class UuidToIntHashMap
    }
    
    /**
+    * @see sh.isaac.api.collections.uuidnidmap.UuidToIntMap#enableInverseCache()
+    */
+   @Override
+   public void enableInverseCache()
+   {
+        //noop, this impl doesn't have one
+   }
+   
+   /**
     * {@inheritDoc}
     */
    @Override

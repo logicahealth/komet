@@ -53,6 +53,7 @@ import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -196,7 +197,8 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * Throws runtime exception if Primordial UUID has been set and is random (t4).
     * Does nothing if UUID has already been set to a non-random (Not a Type 4 UUID) value.
     * 
-    * @param namespace - what namespace to use to generate the UUIDs
+    * @param namespace - optional - what namespace to use to generate the UUIDs.  Defaults to {@link UuidT5Generator.PATH_ID_FROM_FS_DESC} 
+    * if not provided
     * @param consumer - an optional function that can be passed in.  Has no impact on the UUID generation.  Implementors of 
     * the method will receive the UUID seed string into the consumer during generation (useful as a debug aid), and the resulting UUID
     * 
