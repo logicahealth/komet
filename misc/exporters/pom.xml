@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
 		<artifactId>misc</artifactId>
-		<version>4.60-SNAPSHOT</version>
+		<version>4.60-postgres-SNAPSHOT</version>
 	</parent>
 	<groupId>sh.isaac.misc</groupId>
 	<artifactId>exporters</artifactId>
