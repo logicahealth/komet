@@ -46,6 +46,7 @@ public class Join
         extends ParentClause {
 
     List<? extends JoinSpecification> joinSpecifications = new ArrayList<>();
+    List<int[]> joinResults = new ArrayList<>();
     
     /**
      * Default no arg constructor for Jaxb.
@@ -81,6 +82,10 @@ public class Join
         this.joinSpecifications = joinSpecifications;
     }
 
+    public int[][] getJoinResults() {
+        return joinResults.toArray(new int[joinResults.size()][]);
+    }
+
     /**
      * Compute possible components.
      *
@@ -102,7 +107,6 @@ public class Join
                 if (version1Latest.isPresent() && version1Latest.get().getPropertyMap().containsKey(joinSpec.getFirstField())) {
                     ObservableVersion v1 = version1Latest.get();
                     ReadOnlyProperty<?> v1Prop = v1.getPropertyMap().get(joinSpec.getFirstField());
-                    boolean foundAny = false;
                     for (int nid2: nidSet2.asArray()) {
                         ObservableChronology chron2 = Get.observableChronologyService().getObservableChronology(nid2);
                         LatestVersion<ObservableVersion> version2Latest = chron2.getLatestObservableVersion(stampCoordinate);
@@ -110,20 +114,11 @@ public class Join
                             ObservableVersion v2 = version2Latest.get();
                             ReadOnlyProperty<?> v2Prop = v2.getPropertyMap().get(joinSpec.getSecondField());
                             if (v1Prop.getValue().equals(v2Prop.getValue())) {
-                                foundAny = true;
-                            } else {
-                                nidSet2.remove(nid2);
-                            }
-                        } else {
-                            nidSet2.remove(nid2);
-                        }
+                                joinResults.add(new int[] {nid1, nid2});
+                            } 
+                        } 
                     }
-                    if (!foundAny) {
-                        nidSet1.remove(nid1);
-                    }
-                } else {
-                   nidSet1.remove(nid1);
-                }
+                } 
             }
         }
 
