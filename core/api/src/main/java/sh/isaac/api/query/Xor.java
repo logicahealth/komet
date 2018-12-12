@@ -40,7 +40,6 @@ package sh.isaac.api.query;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.HashMap;
 import java.util.Map;
 import sh.isaac.api.bootstrap.TermAux;
 
@@ -82,43 +81,33 @@ public class Xor
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.XOR;
     }
-
     /**
      * Compute components.
      *
-     * @param incomingComponents the incoming components
+     * @param components the components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        final NidSet xorSet = new NidSet();
-
-        getChildren().stream().forEach((c) -> {
-            xorSet.xor(c.computeComponents(incomingComponents).get(c.getAssemblageForIteration()));
-            setAssemblageForIteration(c.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), xorSet);
-        return resultsMap;
+    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> components) {
+        for (Clause child: getChildren()) {
+            components = ForSet.xor(components, child.computePossibleComponents(components));
+        }
+        return components;
     }
 
     /**
      * Compute possible components.
      *
-     * @param incomingPossibleComponents the incoming possible components
+     * @param possibleComponents the incoming possible components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        final NidSet unionSet = new NidSet();
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> possibleComponents) {
 
-        getChildren().stream().forEach((c) -> {
-            unionSet.or(c.computePossibleComponents(incomingPossibleComponents).get(c.getAssemblageForIteration()));
-            setAssemblageForIteration(c.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-        resultsMap.put(this.getAssemblageForIteration(), unionSet);
-        return resultsMap;
+        for (Clause child: getChildren()) {
+            possibleComponents = ForSet.xor(possibleComponents, child.computePossibleComponents(possibleComponents));
+        }
+        return possibleComponents;
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -139,11 +128,6 @@ public class Xor
         }
 
         return whereClause;
-    }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.XOR_QUERY_CLAUSE;
     }
 
     @Override

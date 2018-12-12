@@ -66,10 +66,14 @@ import static sh.isaac.api.bootstrap.TermAux.AUTHOR_NID_FOR_VERSION;
 import static sh.isaac.api.bootstrap.TermAux.COMMITTED_STATE_FOR_VERSION;
 import static sh.isaac.api.bootstrap.TermAux.CONCEPT_SEMANTIC;
 import static sh.isaac.api.bootstrap.TermAux.DESCRIPTION_SEMANTIC;
+import static sh.isaac.api.bootstrap.TermAux.LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD;
+import static sh.isaac.api.bootstrap.TermAux.LOGIC_COORDINATE_KEY_FOR_MANIFOLD;
 import static sh.isaac.api.bootstrap.TermAux.MODULE_NID_FOR_VERSION;
 import static sh.isaac.api.bootstrap.TermAux.PATH_NID_FOR_VERSION;
+import static sh.isaac.api.bootstrap.TermAux.PREMISE_TYPE_FOR_MANIFOLD;
 import static sh.isaac.api.bootstrap.TermAux.REFERENCED_COMPONENT_NID_FOR_SEMANTIC;
 import static sh.isaac.api.bootstrap.TermAux.SEMANTIC_TYPE;
+import static sh.isaac.api.bootstrap.TermAux.STAMP_COORDINATE_KEY_FOR_MANIFOLD;
 import static sh.isaac.api.bootstrap.TermAux.STAMP_SEQUENCE_FOR_VERSION;
 import static sh.isaac.api.bootstrap.TermAux.STATUS_FOR_VERSION;
 import static sh.isaac.api.bootstrap.TermAux.STRING_SEMANTIC;
@@ -114,6 +118,7 @@ import static sh.isaac.model.observable.ObservableFields.MODULE_NID_ARRAY_FOR_ST
 import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_STAMP_PATH;
 import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_STAMP_POSITION;
 import static sh.isaac.model.observable.ObservableFields.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION;
+import static sh.isaac.model.observable.ObservableFields.CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION;
 import static sh.isaac.model.observable.ObservableFields.SEMANTIC_LIST_FOR_CHRONICLE;
 import static sh.isaac.model.observable.ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT;
@@ -130,6 +135,7 @@ import static sh.isaac.model.observable.ObservableFields.GIT_PASSWORD;
 import static sh.isaac.model.observable.ObservableFields.GIT_URL;
 import static sh.isaac.model.observable.ObservableFields.GIT_USER_NAME;
 import static sh.isaac.model.observable.ObservableFields.LANGUAGE_FOR_LANGUAGE_COORDINATE;
+import static sh.isaac.model.observable.ObservableFields.MANIFOLD_COORDINATE_REFERENCE;
 import static sh.isaac.model.observable.ObservableFields.MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.MODULE_OPTIONS_FOR_EDIT_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE;
@@ -598,8 +604,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                syn.addDescription("Synonym", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                createConcept(TermAux.DEFINITION_DESCRIPTION_TYPE);
                popParent();
-            createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // LOINC and RxNorm description types are created under this node
-            createConcept(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY); // RxNorm relationship types are created under this node
+            createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // SOLOR extended description types are created under this node
+            createConcept(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY); // SOLOR extended relationship types are created under this node
             createConcept("Description case significance");
             pushParent(current());
                createConcept(TermAux.DESCRIPTION_CASE_SENSITIVE);
@@ -768,6 +774,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(CLASSIFIER_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(STAMP_PRECEDENCE_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(STAMP_POSITION_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(ALLOWED_STATES_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
@@ -1020,6 +1027,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.ASSOCIATED_PARAMETER_QUERY_CLAUSE).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.JOIN_QUERY_CLAUSE).setModule(TermAux.KOMET_MODULE);
                createConcept(ASSEMBLAGE_LIST_FOR_QUERY).setModule(TermAux.KOMET_MODULE);
+               createConcept(STAMP_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
+               createConcept(LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
+               createConcept(LOGIC_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
+               createConcept(PREMISE_TYPE_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
                popParent();
             createConcept("Query clause parameters");
             pushParent(current());
@@ -1029,6 +1040,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Assemblage to join", "Join assemblage");
                createConcept("Field to join", "Join field");
                createConcept("For assemblage field to join", "Source field");
+               createConcept(MANIFOLD_COORDINATE_REFERENCE);
                popParent();
             popParent(); 
          popParent(); // ISAAC root should still be parent on stack...

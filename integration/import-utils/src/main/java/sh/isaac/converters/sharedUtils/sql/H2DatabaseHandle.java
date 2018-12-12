@@ -38,49 +38,37 @@
 
 
 package sh.isaac.converters.sharedUtils.sql;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 import java.io.IOException;
-
 import java.math.BigDecimal;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class H2DatabaseHandle.
  */
 public class H2DatabaseHandle {
-   /** The connection. */
+
    protected Connection connection;
-
-   //~--- constructors --------------------------------------------------------
-
+   protected Logger log = LogManager.getLogger();
+   
    /**
     * Instantiates a new H2DatabaseHandle.
     */
    public H2DatabaseHandle() {
       super();
    }
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * If file provided, created or opened at that path.  If file is null, an in-memory db is created.
@@ -140,7 +128,7 @@ public class H2DatabaseHandle {
 
       sql.setLength(sql.length() - 1);
       sql.append(")");
-      ConsoleUtil.println("Creating Table " + tableName);
+      log.info("Creating Table " + tableName);
       s.executeUpdate(sql.toString());
    }
 
@@ -177,7 +165,7 @@ public class H2DatabaseHandle {
                                 Collection<String> includeValues)
             throws SQLException,
                    IOException {
-      ConsoleUtil.println("Loading table " + tableDefinition.getTableName());
+      log.info("Loading table " + tableDefinition.getTableName());
 
       final StringBuilder insert = new StringBuilder();
 
@@ -299,10 +287,11 @@ public class H2DatabaseHandle {
             }
          }
       }
-      ConsoleUtil.println("Loaded " + rowCount + " rows");
+      System.out.println();
+      log.info("Loaded " + rowCount + " rows");
 
       if (sabSkipCount > 0) {
-         ConsoleUtil.println("Skipped " + sabSkipCount + " rows for not matching the include filter - " +
+         log.info("Skipped " + sabSkipCount + " rows for not matching the include filter - " +
                              Arrays.toString(skippedSabs.toArray(new String[] {})));
       }
 
@@ -322,8 +311,6 @@ public class H2DatabaseHandle {
          this.connection = null;
       }
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the connection.

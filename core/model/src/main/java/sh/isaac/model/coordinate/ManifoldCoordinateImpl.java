@@ -42,10 +42,8 @@ package sh.isaac.model.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import sh.isaac.api.ConfigurationService;
@@ -54,10 +52,7 @@ import sh.isaac.api.Get;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Status;
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
@@ -224,6 +219,9 @@ public class ManifoldCoordinateImpl
    }
 
    /**
+     * @param modules
+     * @param add
+     * @return 
     * @see sh.isaac.api.coordinate.StampCoordinate#makeModuleAnalog(int[], boolean)
     */
    @Override
@@ -302,11 +300,6 @@ public class ManifoldCoordinateImpl
       return this.uuid;
    }
 
-    @Override
-    public ConceptSpecification getLanguageConcept() {
-        return this.languageCoordinate.getLanguageConcept();
-    }
-
    //~--- inner classes -------------------------------------------------------
 
    @Override
@@ -318,47 +311,5 @@ public class ManifoldCoordinateImpl
       return newCoordinate;
    }
 
-    @Override
-    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        return languageCoordinate.getNextProrityLanguageCoordinate();
-    }
-
-    @Override
-    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
-        return languageCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
-    }
-
-    @Override
-    public int[] getModulePreferenceListForLanguage() {
-        return languageCoordinate.getModulePreferenceListForLanguage();
-    }
-
-    @Override
-    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
-        return stampCoordinate.getModulePreferenceOrderForVersions();
-    }
-
-    @Override
-    public Set<ConceptSpecification> getModuleSpecifications() {
-        return stampCoordinate.getModuleSpecifications();
-    }
-    
-
-    @Override
-    public ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
-        return languageCoordinate.getDialectAssemblageSpecPreferenceList();
-    }
-
-    @Override
-    public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
-        return languageCoordinate.getDescriptionTypeSpecPreferenceList();
-    }
-
-    @Override
-    public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
-        return languageCoordinate.getModuleSpecPreferenceListForLanguage();
-    }
-    
-    
 }
 

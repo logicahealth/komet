@@ -56,6 +56,7 @@ import java.util.stream.IntStream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -240,5 +241,14 @@ public interface IdentifierService
      * @throws IllegalStateException if the nid was already set up and the previous type(s) don't match, or the nid is unknown.
      */
     void setupNid(int nid, int assemblageNid, IsaacObjectType objectType, VersionType versionType) throws IllegalStateException;
+    
+    /**
+     * In many loading situations, Concepts and Semantics may be loaded out-of-order from the order in which their UUIDs were mapped
+     * to nids.  In these cases, the IdentifierService has severe degradation, due to falling back to table scans to find a uuid
+     * for a nid.  Calling this method informs the IdentifierService that you will have this pattern, and it should maintain 
+     * inverse hashed lookups.  This happens automatically when the configuration is set to {@link BuildMode#IBDF} but there are
+     * other cases where we need to enable it at runtime.
+     */
+    void optimizeForOutOfOrderLoading();
 }
 

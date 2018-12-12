@@ -38,7 +38,6 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
@@ -83,39 +82,30 @@ public class Or
     /**
      * Compute components.
      *
-     * @param incomingComponents the incoming components
+     * @param components the components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        final NidSet results = new NidSet();
-
-        getChildren().stream().forEach((clause) -> {
-            results.or(clause.computeComponents(incomingComponents).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> components) {
+        for (Clause child: getChildren()) {
+            components = ForSet.or(components, child.computeComponents(components));
+        }
+        return components;
     }
 
     /**
      * Compute possible components.
      *
-     * @param searchSpace the search space
+     * @param possibleComponents the incoming possible components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> searchSpace) {
-        final NidSet results = new NidSet();
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> possibleComponents) {
 
-        getChildren().stream().forEach((clause) -> {
-            results.or(clause.computePossibleComponents(searchSpace).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(searchSpace);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+        for (Clause child: getChildren()) {
+            possibleComponents = ForSet.or(possibleComponents, child.computePossibleComponents(possibleComponents));
+        }
+        return possibleComponents;
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -139,11 +129,6 @@ public class Or
                     .add(clause.getWhereClause());
         });
         return whereClause;
-    }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.OR_QUERY_CLAUSE;
     }
 
     @Override

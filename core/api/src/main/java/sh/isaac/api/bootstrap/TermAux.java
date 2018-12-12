@@ -285,7 +285,7 @@ public class TermAux implements StaticIsaacCache {
          UUID.fromString("50e719a8-67ec-11e7-907b-a6006ad3dba0"));
    
    public static ConceptProxy REFERENCED_COMPONENT_IS_ACTIVE = new ConceptProxy("Referenced component is active (query clause)", "Referenced component is active", UUID.fromString("d6f0f08f-d2db-5143-9466-cb60073879f3"));
-   public static ConceptProxy REFERENCED_COMPONENT_IS_INACTIVE = new ConceptProxy("Referenced component is inactive (query clause)", "Referenced component is inactive", UUID.fromString("1fbdd3c7-efd1-59ec-a648-79582d0f8f1e"));
+   public static ConceptProxy REFERENCED_COMPONENT_IS_INACTIVE = new ConceptProxy("Referenced component is NOT active (query clause)", "Referenced component is NOT active", UUID.fromString("1fbdd3c7-efd1-59ec-a648-79582d0f8f1e"));
    
    
    public static ConceptProxy AND_QUERY_CLAUSE = new ConceptProxy("All child criterion are satisfied for component (query clause)", "and query",
@@ -343,14 +343,14 @@ public class TermAux implements StaticIsaacCache {
          UUID.fromString("a44e673b-14c4-525b-99be-0b5dfa0280c8"));
     public static ConceptProxy JOIN_QUERY_CLAUSE = new ConceptProxy("Join query clause", "join", UUID.fromString("18fa4f5c-6691-597d-897a-93c6f709ec66"));
 
-    public static ConceptProxy REFERENCED_COMPONENT_IS = new ConceptProxy("Referenced component is (query clause)", "referenced component is", UUID.fromString("9d4f0198-4f84-5172-b78c-f47fd048c851"));
-    public static ConceptProxy REFERENCED_COMPONENT_IS_MEMBER_OF = new ConceptProxy("Referenced component is member of (query clause)", "referenced component is member of", UUID.fromString("d39a3b5f-a862-5b52-93ed-0a7a0bbe329f"));
-    public static ConceptProxy REFERENCED_COMPONENT_IS_NOT_MEMBER_OF = new ConceptProxy("Referenced component is NOT member of (query clause)", "Referenced component is member of", UUID.fromString("c92e5540-0d38-5f08-94e2-6ae673ee9c6b"));
+    public static ConceptProxy REFERENCED_COMPONENT_IS = new ConceptProxy("Referenced component is (query clause)", "RC is", UUID.fromString("9d4f0198-4f84-5172-b78c-f47fd048c851"));
+    public static ConceptProxy REFERENCED_COMPONENT_IS_MEMBER_OF = new ConceptProxy("Referenced component is member of (query clause)", "RC is member of", UUID.fromString("d39a3b5f-a862-5b52-93ed-0a7a0bbe329f"));
+    public static ConceptProxy REFERENCED_COMPONENT_IS_NOT_MEMBER_OF = new ConceptProxy("Referenced component is NOT member of (query clause)", "RC is NOT member of", UUID.fromString("c92e5540-0d38-5f08-94e2-6ae673ee9c6b"));
     
     public static ConceptProxy COMPONENT_IS_MEMBER_OF = new ConceptProxy("Component is member of (query clause)", "Component is member of", UUID.fromString("380e0514-906b-5675-9ac4-6e788b1269cd"));
     public static ConceptProxy COMPONENT_IS_NOT_MEMBER_OF = new ConceptProxy("Component is NOT member of (query clause)", "Component is NOT member of", UUID.fromString("117cf5cd-80aa-58b0-b216-fd60c953af22"));
-    public static ConceptProxy REFERENCED_COMPONENT_IS_KIND_OF = new ConceptProxy("Referenced component is kind-of (query clause)", "Referenced component is kind-of", UUID.fromString("74ba168f-7932-5f3d-a8c5-28dc6d9fe647"));
-    public static ConceptProxy REFERENCED_COMPONENT_IS_NOT_KIND_OF = new ConceptProxy("Referenced component is NOT kind-of (query clause)", "Referenced component is NOT kind-of", UUID.fromString("82ae0a41-8a1c-5cb5-8087-5562608b3373"));
+    public static ConceptProxy REFERENCED_COMPONENT_IS_KIND_OF = new ConceptProxy("Referenced component is kind-of (query clause)", "RC is kind-of", UUID.fromString("74ba168f-7932-5f3d-a8c5-28dc6d9fe647"));
+    public static ConceptProxy REFERENCED_COMPONENT_IS_NOT_KIND_OF = new ConceptProxy("Referenced component is NOT kind-of (query clause)", "RC is NOT kind-of", UUID.fromString("82ae0a41-8a1c-5cb5-8087-5562608b3373"));
     
    public static ConceptProxy STATED_PREMISE_TYPE = new ConceptProxy("Stated premise type", "Stated", UUID.fromString("3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));
 
@@ -504,13 +504,14 @@ public class TermAux implements StaticIsaacCache {
 
     public static ConceptProxy TIME_PRECEDENCE = new ConceptProxy("Time precedence", "Time precedence", UUID.fromString("cd5ccb52-9a7c-5e35-9d82-4d936bc3b086"));
     public static ConceptProxy PATH_PRECEDENCE = new ConceptProxy("Path precedence", "Path precedence", UUID.fromString("fba850b7-de84-5df2-ab0b-d1caa6a358ff"));
-   
+
+    public static ConceptProxy STAMP_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Stamp coordinate key for manifold", "Stamp coordinate key", UUID.fromString("bb3bfeb0-5090-5512-9281-c2ce60927820"));
+    public static ConceptProxy LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Language coordinate key for manifold", "Language coordiante key", UUID.fromString("2621ca26-8efb-56e2-9b1c-61313c40c27f"));
+    public static ConceptProxy LOGIC_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Logic coordinate key for manifold", "Logic coordinate key", UUID.fromString("300bf628-b40d-534f-9072-7b38c4f6f1b5"));
+    public static ConceptProxy PREMISE_TYPE_FOR_MANIFOLD = new ConceptProxy("Premise type for manifold", "Premise type", UUID.fromString("7df6c6cb-9f91-5515-a05b-6b2886938363"));
+    
    
     /*
-    public static ConceptProxy SPEC83 = new ConceptProxy("", "", UUID.fromString("bb3bfeb0-5090-5512-9281-c2ce60927820"));
-    public static ConceptProxy SPEC84 = new ConceptProxy("", "", UUID.fromString("2621ca26-8efb-56e2-9b1c-61313c40c27f"));
-    public static ConceptProxy SPEC85 = new ConceptProxy("", "", UUID.fromString("300bf628-b40d-534f-9072-7b38c4f6f1b5"));
-    public static ConceptProxy SPEC86 = new ConceptProxy("", "", UUID.fromString("7df6c6cb-9f91-5515-a05b-6b2886938363"));
     public static ConceptProxy SPEC87 = new ConceptProxy("", "", UUID.fromString("57e1643b-da06-5684-a2ef-044727c25b81"));
     public static ConceptProxy SPEC88 = new ConceptProxy("", "", UUID.fromString("8551edb2-6e34-52fe-9113-d25b742b303a"));
     public static ConceptProxy SPEC89 = new ConceptProxy("", "", UUID.fromString("5c31cb70-a042-59b8-a21c-6aca1c03f907"));

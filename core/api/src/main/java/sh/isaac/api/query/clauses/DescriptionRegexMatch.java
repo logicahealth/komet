@@ -42,23 +42,25 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
@@ -83,12 +85,6 @@ public class DescriptionRegexMatch
    @XmlElement
    LetItemKey regexKey;
 
-   /** the manifold coordinate key. */
-   @XmlElement
-   LetItemKey manifoldCoordinateKey;
-
-   private String parameterString;
-   private ManifoldCoordinate manifoldCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
@@ -102,11 +98,9 @@ public class DescriptionRegexMatch
     *
     * @param enclosingQuery the enclosing query
     * @param regexKey the regex key
-    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public DescriptionRegexMatch(Query enclosingQuery, LetItemKey regexKey, LetItemKey manifoldCoordinateKey) {
+   public DescriptionRegexMatch(Query enclosingQuery, LetItemKey regexKey) {
       super(enclosingQuery);
-      this.manifoldCoordinateKey = manifoldCoordinateKey;
       this.regexKey          = regexKey;
    }
 
@@ -120,26 +114,28 @@ public class DescriptionRegexMatch
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-      this.getResultsCache().or(incomingPossibleComponents.get(this.getAssemblageForIteration()));
-      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-      resultsMap.put(this.getAssemblageForIteration(), this.getResultsCache());
-      return resultsMap;
+       String regex = getLetItem(regexKey);
+       NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+        for (int nid: possibleComponents.asArray()) {
+            Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(nid);
+            boolean found = false;
+            if (c.isPresent() && c.get() instanceof SemanticChronology && c.get().getVersionType() == VersionType.DESCRIPTION) {
+                for (Version dv: c.get().getVersionList()) {
+                    if (((DescriptionVersion) dv).getText().matches(regex)) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                possibleComponents.remove(nid);
+            }
+        }
+       
+      return incomingPossibleComponents;
    }
 
    //~--- get methods ---------------------------------------------------------
-
-   public void setParameterString(String parameterString) {
-      this.parameterString = parameterString;
-   }
-
-   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
-      this.manifoldCoordinate = manifoldCoordinate;
-   }
-
-   @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE;
-   }
 
    /**
     * Gets the compute phases.
@@ -151,31 +147,6 @@ public class DescriptionRegexMatch
       return ITERATION;
    }
 
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
-   @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {
-
-      final ConceptChronology conceptChronology = conceptVersion.getChronology();
-
-      conceptChronology.getConceptDescriptionList()
-                       .forEach(
-                           (description) -> {
-                              if (this.getResultsCache().contains(description.getNid())) {
-                                 description.getVersionList()
-                                            .forEach(
-                                                  (dv) -> {
-                     if (((DescriptionVersion) dv).getText()
-                           .matches(this.parameterString)) {
-                        addToResultsCache((dv.getNid()));
-                     }
-                  });
-                              }
-                           });
-   }
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.DESCRIPTION_REGEX_MATCH;
@@ -194,8 +165,6 @@ public class DescriptionRegexMatch
       whereClause.setSemantic(ClauseSemantic.DESCRIPTION_REGEX_MATCH);
       whereClause.getLetKeys()
                  .add(this.regexKey);
-      whereClause.getLetKeys()
-                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
 }

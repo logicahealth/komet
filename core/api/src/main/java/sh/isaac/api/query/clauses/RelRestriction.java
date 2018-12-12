@@ -55,7 +55,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
@@ -97,11 +96,6 @@ public class RelRestriction
    @XmlElement
    LetItemKey relTypeSubsumptionKey;
 
-   /** The destination set. */
-   NidSet destinationSet;
-
-   /** The rel type set. */
-   NidSet relTypeSet;
 
    //~--- constructors --------------------------------------------------------
 
@@ -144,7 +138,6 @@ public class RelRestriction
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-//    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
       final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.manifoldCoordinateKey);
       final ConceptSpecification destinationSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
@@ -165,21 +158,33 @@ public class RelRestriction
          destinationSubsumption = true;
       }
 
-      this.relTypeSet = new NidSet();
-      this.relTypeSet.add(relType.getNid());
+
+      NidSet relTypeSet = new NidSet();
+      relTypeSet.add(relType.getNid());
 
       if (relTypeSubsumption) {
-         this.relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConceptNidSet(relType.getNid()));
+         relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConceptNidSet(relType.getNid()));
       }
 
-      this.destinationSet = new NidSet();
-      this.destinationSet.add(destinationSpec.getNid());
+      NidSet destinationSet = new NidSet();
+      destinationSet.add(destinationSpec.getNid());
 
       if (destinationSubsumption) {
-         this.destinationSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConceptNidSet(destinationSpec.getNid()));
+         destinationSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConceptNidSet(destinationSpec.getNid()));
       }
+      throw new UnsupportedOperationException("Reimplement with new taxonomy service. ");
+//      for (int destinationSequence: Get.taxonomyService()
+//         .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()
+//               .getConceptSequence(),
+//               this.relTypeSet,
+//               manifoldCoordinate)) {
+//                     if (this.destinationSet.contains(destinationSequence)) {
+//                        getResultsCache().add(conceptVersion.getChronology()
+//                              .getNid());
+//                     }
+//      }
 
-      return incomingPossibleComponents;
+//      return incomingPossibleComponents;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -193,29 +198,7 @@ public class RelRestriction
       return PRE_ITERATION_AND_ITERATION;
    }
 
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
    @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {
-      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                            .get(this.manifoldCoordinateKey);
-
-      throw new UnsupportedOperationException("Reimplement with new taxonomy service. ");
-//      for (int destinationSequence: Get.taxonomyService()
-//         .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()
-//               .getConceptSequence(),
-//               this.relTypeSet,
-//               manifoldCoordinate)) {
-//                     if (this.destinationSet.contains(destinationSequence)) {
-//                        getResultsCache().add(conceptVersion.getChronology()
-//                              .getNid());
-//                     }
-//      }
-   }
-    @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.REL_RESTRICTION;
     }
@@ -244,11 +227,6 @@ public class RelRestriction
 
 //    System.out.println("Where clause size: " + whereClause.getLetKeys().size());
       return whereClause;
-   }
-   
-   @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.REL_RESTRICTION_QUERY_CLAUSE;
    }
    
 }

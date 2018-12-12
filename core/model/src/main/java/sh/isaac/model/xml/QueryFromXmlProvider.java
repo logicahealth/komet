@@ -18,6 +18,7 @@ package sh.isaac.model.xml;
 
 import java.io.Reader;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.query.ManifoldCoordinateForQuery;
 import sh.isaac.api.query.Query;
 
 /**
@@ -30,6 +31,11 @@ public class QueryFromXmlProvider {
         Query q = (Query) Jaxb.createUnmarshaller().unmarshal(reader);
         if (q.getRoot() != null) {
             q.getRoot().setEnclosingQuery(q);
+        }
+        for (Object obj: q.getLetDeclarations().values()) {
+            if (obj instanceof ManifoldCoordinateForQuery) {
+                ((ManifoldCoordinateForQuery) obj).setQuery(q);
+            }
         }
         return q;
     }

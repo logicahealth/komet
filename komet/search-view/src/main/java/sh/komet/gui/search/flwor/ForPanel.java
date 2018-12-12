@@ -23,7 +23,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.query.ForSetsSpecification;
+import sh.isaac.api.query.ForSet;
 import static sh.isaac.model.observable.ObservableFields.ASSEMBLAGE_LIST_FOR_QUERY;
 import sh.komet.gui.control.concept.PropertySheetItemAssemblageListWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
@@ -64,8 +64,8 @@ public class ForPanel {
         return this.forAssemblagesProperty;
     }
 
-    ForSetsSpecification getForSetSpecification() {
-        return new ForSetsSpecification(this.forAssemblagesProperty);
+    ForSet getForSetSpecification() {
+        return new ForSet(this.forAssemblagesProperty);
     }
 
     void reset() {

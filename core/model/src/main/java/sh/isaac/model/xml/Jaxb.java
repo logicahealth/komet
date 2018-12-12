@@ -30,31 +30,30 @@ import sh.isaac.api.query.AttributeSpecification;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.LetItemKey;
+import sh.isaac.api.query.ManifoldCoordinateForQuery;
 import sh.isaac.api.query.Not;
 import sh.isaac.api.query.Or;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.Xor;
-import sh.isaac.api.query.clauses.AssemblageContainsConcept;
-import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
-import sh.isaac.api.query.clauses.AssemblageContainsString;
-import sh.isaac.api.query.clauses.AssemblageLuceneMatch;
 import sh.isaac.api.query.clauses.ChangedBetweenVersions;
 import sh.isaac.api.query.clauses.ComponentIsActive;
-import sh.isaac.api.query.clauses.ConceptForComponent;
 import sh.isaac.api.query.clauses.ConceptIs;
 import sh.isaac.api.query.clauses.ConceptIsChildOf;
 import sh.isaac.api.query.clauses.ConceptIsDescendentOf;
 import sh.isaac.api.query.clauses.ConceptIsKindOf;
-import sh.isaac.api.query.clauses.DescriptionActiveLuceneMatch;
-import sh.isaac.api.query.clauses.DescriptionActiveRegexMatch;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionRegexMatch;
-import sh.isaac.api.query.clauses.FullyQualifiedNameForConcept;
-import sh.isaac.api.query.clauses.PreferredNameForConcept;
+import sh.isaac.api.query.clauses.ReferencedComponentIs;
+import sh.isaac.api.query.clauses.ReferencedComponentIsActive;
+import sh.isaac.api.query.clauses.ReferencedComponentIsKindOf;
+import sh.isaac.api.query.clauses.ReferencedComponentIsMemberOf;
+import sh.isaac.api.query.clauses.ReferencedComponentIsNotActive;
+import sh.isaac.api.query.clauses.ReferencedComponentIsNotKindOf;
+import sh.isaac.api.query.clauses.ReferencedComponentIsNotMemberOf;
 import sh.isaac.api.query.clauses.RelRestriction;
-import sh.isaac.api.query.clauses.RelationshipIsCircular;
 import sh.isaac.api.xml.JaxbMap;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
+import sh.isaac.model.coordinate.LogicCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 
 /**
@@ -62,54 +61,56 @@ import sh.isaac.model.coordinate.StampCoordinateImpl;
  * @author kec
  */
 public class Jaxb {
-    private static final Jaxb jaxb = new Jaxb();
+    private static final Jaxb JAXB = new Jaxb();
     final JAXBContext jc;
     private Jaxb() {
         try {
-            jc = JAXBContext.newInstance(StampCoordinateImpl.class,
+            jc = JAXBContext.newInstance(
+                    StampCoordinateImpl.class,
+                    LanguageCoordinateImpl.class,
+                    LogicCoordinateImpl.class,
+                    ManifoldCoordinateForQuery.class,
                     ConceptSpecification.class,
-                    ConceptProxy.class, LanguageCoordinateImpl.class,
-                    JaxbMap.class, Query.class,
-                    Clause.class, Or.class,
+                    ConceptProxy.class, 
+                    JaxbMap.class, 
+                    Query.class,
+                    Clause.class, 
+                    Or.class,
                     And.class,
                     AndNot.class,
                     LeafClause.class,
                     Not.class,
-                    Or.class,
                     Xor.class,
-                    AssemblageContainsConcept.class,
-                    AssemblageContainsKindOfConcept.class,
-                    AssemblageContainsString.class,
-                    AssemblageLuceneMatch.class,
                     ChangedBetweenVersions.class,
                     ComponentIsActive.class,
-                    ConceptForComponent.class,
                     ConceptIs.class,
                     ConceptIsChildOf.class,
                     ConceptIsDescendentOf.class,
                     ConceptIsKindOf.class,
-                    DescriptionActiveLuceneMatch.class,
-                    DescriptionActiveRegexMatch.class,
                     DescriptionLuceneMatch.class,
                     DescriptionRegexMatch.class,
-                    FullyQualifiedNameForConcept.class,
-                    PreferredNameForConcept.class,
                     RelRestriction.class,
-                    RelationshipIsCircular.class,
                     LetItemKey.class,
                     AttributeSpecification.class,
                     StampPrecedence.class,
                     Status.class,
-                    StatusEnumSetAdaptor.class
+                    StatusEnumSetAdaptor.class,
+                    ReferencedComponentIs.class,
+                    ReferencedComponentIsActive.class,
+                    ReferencedComponentIsKindOf.class,
+                    ReferencedComponentIsMemberOf.class,
+                    ReferencedComponentIsNotActive.class,
+                    ReferencedComponentIsNotKindOf.class,
+                    ReferencedComponentIsNotMemberOf.class
             );
         } catch (JAXBException ex) {
             throw new RuntimeException(ex);
         }
     }
     public static Marshaller createMarshaller() throws JAXBException {
-        return jaxb.jc.createMarshaller();
+        return JAXB.jc.createMarshaller();
     }
     public static Unmarshaller createUnmarshaller() throws JAXBException {
-        return jaxb.jc.createUnmarshaller();
+        return JAXB.jc.createUnmarshaller();
     }
 }

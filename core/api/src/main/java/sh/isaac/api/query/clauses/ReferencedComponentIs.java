@@ -16,6 +16,7 @@
  */
 package sh.isaac.api.query.clauses;
 
+import sh.isaac.api.query.properties.ReferencedComponentClause;
 import java.util.EnumSet;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -26,7 +27,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -42,11 +42,11 @@ import sh.isaac.api.query.WhereClause;
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ReferencedComponentIs         
-        extends LeafClause {
+        extends LeafClause implements ReferencedComponentClause {
 
    /** The concept spec key. */
    @XmlElement
-   LetItemKey conceptSpecKey;
+   LetItemKey referencedComponentSpecKey;
 
 
    //~--- constructors --------------------------------------------------------
@@ -65,7 +65,7 @@ public class ReferencedComponentIs
    public ReferencedComponentIs(Query enclosingQuery,
                                 LetItemKey conceptSpecKey) {
       super(enclosingQuery);
-      this.conceptSpecKey    = conceptSpecKey;
+      this.referencedComponentSpecKey    = conceptSpecKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -78,17 +78,16 @@ public class ReferencedComponentIs
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-    getResultsCache().clear();
-    ConceptSpecification conceptSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(conceptSpecKey);
+    ConceptSpecification conceptSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(referencedComponentSpecKey);
 
     int conceptNid = conceptSpec.getNid();
-    for (int nid: Get.assemblageService().getSemanticNidsFromAssemblage(getAssemblageForIteration().getNid()).asArray()) {
+    NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+    for (int nid: possibleComponents.asArray()) {
         SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
-        if (sc.getReferencedComponentNid() == conceptNid) {
-            getResultsCache().add(nid);
+        if (sc.getReferencedComponentNid() != conceptNid) {
+            possibleComponents.remove(nid);
         }
     }
-    incomingPossibleComponents.put(getAssemblageForIteration(), getResultsCache());
     return incomingPossibleComponents;
    }
 
@@ -104,23 +103,7 @@ public class ReferencedComponentIs
       return PRE_ITERATION;
    }
 
-    public LetItemKey getConceptSpecKey() {
-        return conceptSpecKey;
-    }
 
-    public void setConceptSpecKey(LetItemKey conceptSpecKey) {
-        this.conceptSpecKey = conceptSpecKey;
-    }
-
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
-   @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {
-      // Nothing to do here...
-   }
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.REFERENCED_COMPONENT_IS;
@@ -138,14 +121,19 @@ public class ReferencedComponentIs
 
       whereClause.setSemantic(ClauseSemantic.REFERENCED_COMPONENT_IS);
       whereClause.getLetKeys()
-                 .add(this.conceptSpecKey);
+                 .add(this.referencedComponentSpecKey);
       return whereClause;
    }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.REFERENCED_COMPONENT_IS;
-   }
 
+    @Override
+    public LetItemKey getReferencedComponentSpecKey() {
+        return referencedComponentSpecKey;
+    }
+
+    @Override
+    public void setReferencedComponentSpecKey(LetItemKey referencedComponentSpecKey) {
+        this.referencedComponentSpecKey = referencedComponentSpecKey;
+    }
+   
 }
 

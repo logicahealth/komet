@@ -116,6 +116,23 @@ public class PostgresIdentifierProvider
         this.uuidIntMapMap.put(uuid, nidNew);
     }
 
+    private boolean isSolorRootUuidPresent() {
+        // SOLOR_ROOT "7c21b6c5-cf11-5af9-893b-743f004c97f5"
+        String sql = "SELECT * FROM uuid_primordial_table "
+            + "WHERE ouid = '7c21b6c5-cf11-5af9-893b-743f004c97f5'::uuid;";
+        try (Connection conn = this.ds.getConnection();
+            Statement stmt = conn.createStatement()) {
+            logSqlString(sql);
+            ResultSet resultSet = stmt.executeQuery(sql);
+            while (resultSet.next()) {
+                return true;
+            }
+        } catch (SQLException ex) {
+            LOG.error(ex.getLocalizedMessage(), ex);
+        }
+        return false;
+    }
+
     /**
      * Start me.
      */
@@ -180,9 +197,11 @@ public class PostgresIdentifierProvider
 
             this.uuidIntMapMap = new PostgresUuidToIntMap(ds);
 
-            //bootstrap our nids for core metadata concepts.  
-            for (ConceptSpecification cs : TermAux.getAllSpecs()) {
-                assignNid(cs.getUuids());
+            if (isSolorRootUuidPresent() == false) {
+                //bootstrap our nids for core metadata concepts.  
+                for (ConceptSpecification cs : TermAux.getAllSpecs()) {
+                    assignNid(cs.getUuids());
+                }
             }
 
         } catch (SQLException | IllegalArgumentException | UnsupportedOperationException ex) {
@@ -500,6 +519,11 @@ public class PostgresIdentifierProvider
             return false;
         }
 
+        @Override
+        public void enableInverseCache() {
+            // not supported
+        }
+
         private boolean putUuidNid(UUID uuidKey, int nid) {
             try (Connection conn = this.ds.getConnection()) {
                 try (PreparedStatement stmt = conn.prepareStatement(sqlCreateUuidPrimordial())) {
@@ -661,4 +685,11 @@ public class PostgresIdentifierProvider
 
     }
 
+    /**
+     * @see sh.isaac.api.IdentifierService#optimizeForOutOfOrderLoading()
+     */
+    @Override
+    public void optimizeForOutOfOrderLoading() {
+        uuidIntMapMap.enableInverseCache();
+    }
 }

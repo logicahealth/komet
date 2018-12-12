@@ -38,7 +38,6 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -82,39 +81,30 @@ public class And
     /**
      * Compute components.
      *
-     * @param incomingComponents the incoming components
+     * @param components the components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        final NidSet results = NidSet.of(incomingComponents.get(this.getAssemblageForIteration()).stream());
-
-        for (final Clause clause : getChildren()) {
-            results.and(clause.computeComponents(incomingComponents).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
+    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> components) {
+        for (Clause child: getChildren()) {
+            components = ForSet.and(components, child.computePossibleComponents(components));
         }
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+        return components;
     }
 
     /**
      * Compute possible components.
      *
-     * @param incomingPossibleComponents the incoming possible components
+     * @param possibleComponents the incoming possible components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        final NidSet results = NidSet.of(incomingPossibleComponents.get(this.getAssemblageForIteration()).stream());
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> possibleComponents) {
 
-        getChildren().stream().forEach((clause) -> {
-            results.and(clause.computePossibleComponents(incomingPossibleComponents).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+        for (Clause child: getChildren()) {
+            possibleComponents = ForSet.and(possibleComponents, child.computePossibleComponents(possibleComponents));
+        }
+        return possibleComponents;
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -140,11 +130,6 @@ public class And
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.AND;
-    }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.AND_QUERY_CLAUSE;
     }
 
     @Override

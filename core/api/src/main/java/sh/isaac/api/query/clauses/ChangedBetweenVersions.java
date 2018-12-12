@@ -43,18 +43,23 @@ package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
@@ -135,7 +140,30 @@ public class ChangedBetweenVersions
      */
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        this.getResultsCache().or(incomingPossibleComponents.get(this.getAssemblageForIteration()));
+        StampCoordinate stampCoordinateOne = (StampCoordinate) this.enclosingQuery.getLetDeclarations()
+                         .get(this.stampCoordinateOneKey);
+        StampCoordinate stampCoordinateTwo = (StampCoordinate) this.enclosingQuery.getLetDeclarations()
+                         .get(this.stampCoordinateTwoKey);
+        
+        NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+        
+        for (int nid: possibleComponents.asArray()) {
+            Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(nid);
+            if (optionalChronology.isPresent()) {
+                Chronology chronology = optionalChronology.get();
+                LatestVersion<Version> latestOne = chronology.getLatestVersion(stampCoordinateOne);
+                LatestVersion<Version> latestTwo = chronology.getLatestVersion(stampCoordinateTwo);
+                
+                if (latestOne.isPresent() && latestTwo.isPresent()) {
+                    if (latestOne.get().deepEquals(latestTwo.get())) {
+                        possibleComponents.remove(nid);
+                    }
+                } 
+            } else {
+                possibleComponents.remove(nid);
+            }
+            
+        }
         return incomingPossibleComponents;
     }
 
@@ -151,26 +179,6 @@ public class ChangedBetweenVersions
       return ITERATION;
    }
 
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
-   @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {
-      this.enclosingQuery.getLetDeclarations()
-                         .get(this.stampCoordinateOneKey);
-      throw new UnsupportedOperationException();
-
-      // TODO FIX BACK UP
-//    for (DescriptionVersionBI desc : conceptVersion.getDescriptionsActive()) {
-//        if (desc.getVersion(previousViewCoordinate) != null) {
-//            if (!desc.getVersion(previousViewCoordinate).equals(desc.getVersion(ViewCoordinates.getDevelopmentInferredLatestActiveOnly()))) {
-//                getResultsCache().add(desc.getConceptNid());
-//            }
-//        }
-//    }
-   }
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.CHANGED_FROM_PREVIOUS_VERSION;
@@ -190,11 +198,6 @@ public class ChangedBetweenVersions
       whereClause.getLetKeys()
                  .add(this.stampCoordinateOneKey);
       return whereClause;
-   }
-   
-   @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE;
    }
    
 }

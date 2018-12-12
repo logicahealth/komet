@@ -42,7 +42,6 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -53,16 +52,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
@@ -87,9 +85,6 @@ public class ConceptIsChildOf
    /** the manifold coordinate key. */
    @XmlElement
    LetItemKey manifoldCoordinateKey;
-
-   private ConceptSpecification childOfSpecification;
-   private ManifoldCoordinate manifoldCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
@@ -121,26 +116,38 @@ public class ConceptIsChildOf
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-      final int parentNid = this.childOfSpecification.getNid();
-      final NidSet childrenOfNidSet =
-              NidSet.of(
-                      Get.taxonomyService().getSnapshot(this.manifoldCoordinate).getTaxonomyChildConceptNids(parentNid));
-      getResultsCache().or(childrenOfNidSet);
-      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-      resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
-      return resultsMap;
+      final int parentNid         = ((ConceptSpecification) getLetItem(this.childOfSpecKey)).getNid();
+      final TaxonomySnapshot kindOfSnapshot = Get.taxonomyService().getSnapshot(getLetItem(manifoldCoordinateKey));
+      
+      NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+        
+      for (int nid: possibleComponents.asArray()) {
+          if (!kindOfSnapshot.isChildOf(nid, parentNid)) {
+              possibleComponents.remove(nid);
+          }
+      }
+      return incomingPossibleComponents;
+
    }
 
    //~--- get methods ---------------------------------------------------------
 
+    public LetItemKey getChildOfSpecKey() {
+        return childOfSpecKey;
+    }
 
-   public void setChildOfSpecification(ConceptSpecification childOfSpecification) {
-      this.childOfSpecification = childOfSpecification;
-   }
+    public void setChildOfSpecKey(LetItemKey childOfSpecKey) {
+        this.childOfSpecKey = childOfSpecKey;
+    }
 
-   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
-      this.manifoldCoordinate = manifoldCoordinate;
-   }
+    public LetItemKey getManifoldCoordinateKey() {
+        return manifoldCoordinateKey;
+    }
+
+    public void setManifoldCoordinateKey(LetItemKey manifoldCoordinateKey) {
+        this.manifoldCoordinateKey = manifoldCoordinateKey;
+    }
+
 
    /**
     * Gets the compute phases.
@@ -152,15 +159,6 @@ public class ConceptIsChildOf
       return PRE_AND_POST_ITERATION;
    }
 
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
-   @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {
-      // Nothing to do...
-   }
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.CONCEPT_IS_CHILD_OF;
@@ -182,11 +180,6 @@ public class ConceptIsChildOf
       whereClause.getLetKeys()
                  .add(this.manifoldCoordinateKey);
       return whereClause;
-   }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.CONCEPT_IS_CHILD_OF_QUERY_CLAUSE;
    }
 
 }

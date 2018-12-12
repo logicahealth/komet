@@ -138,6 +138,7 @@ public abstract class VersionImpl
     * @param other the object to compare.
     * @return true if all fields are equal, otherwise false.
     */
+   @Override
    public final boolean deepEquals(Object other) {
       if (!(other instanceof VersionImpl)) {
          return false;

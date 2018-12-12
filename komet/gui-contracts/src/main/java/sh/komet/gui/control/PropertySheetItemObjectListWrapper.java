@@ -28,6 +28,7 @@ import sh.komet.gui.manifold.Manifold;
 /**
  *
  * @author kec
+ * @param <T>
  */
 public class PropertySheetItemObjectListWrapper<T extends Object> implements PropertySheet.Item {
 

@@ -200,12 +200,12 @@ public class RRFDatabaseHandle
     * @return the list
     * @throws Exception the exception
     */
-   public List<TableDefinition> loadTableDefinitionsFromXML(InputStream is)
+   public HashMap<String, TableDefinition> loadTableDefinitionsFromXML(InputStream is)
             throws Exception {
       final SAXBuilder                 builder = new SAXBuilder();
       final Document                   d       = builder.build(is);
       final Element                    root    = d.getRootElement();
-      final ArrayList<TableDefinition> tables  = new ArrayList<>();
+      final HashMap<String, TableDefinition> tables  = new HashMap<>();
 
       for (final Element table: root.getChildren()) {
          final TableDefinition td = new TableDefinition(table.getAttributeValue("name"));
@@ -230,7 +230,7 @@ public class RRFDatabaseHandle
                                               allowNull)));
          }
 
-         tables.add(td);
+         tables.put(td.getTableName(), td);
          createTable(td);
       }
 

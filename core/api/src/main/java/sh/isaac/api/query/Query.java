@@ -40,7 +40,6 @@ package sh.isaac.api.query;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -48,8 +47,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import javafx.beans.property.ReadOnlyProperty;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -68,21 +65,12 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.query.clauses.ChangedBetweenVersions;
-import sh.isaac.api.query.clauses.ConceptForComponent;
 import sh.isaac.api.query.clauses.ConceptIs;
 import sh.isaac.api.query.clauses.ConceptIsChildOf;
 import sh.isaac.api.query.clauses.ConceptIsDescendentOf;
 import sh.isaac.api.query.clauses.ConceptIsKindOf;
-import sh.isaac.api.query.clauses.DescriptionActiveLuceneMatch;
-import sh.isaac.api.query.clauses.DescriptionActiveRegexMatch;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionRegexMatch;
-import sh.isaac.api.query.clauses.FullyQualifiedNameForConcept;
-import sh.isaac.api.query.clauses.PreferredNameForConcept;
-import sh.isaac.api.query.clauses.AssemblageContainsConcept;
-import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
-import sh.isaac.api.query.clauses.AssemblageContainsString;
-import sh.isaac.api.query.clauses.AssemblageLuceneMatch;
 import sh.isaac.api.query.clauses.RelRestriction;
 import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 import sh.isaac.api.xml.JaxbMap;
@@ -136,7 +124,7 @@ public class Query {
      * The concepts, stored as nids in a <code>NidSet</code>, that are
      * considered in the query.
      */
-    private ForSetsSpecification forSetSpecification;
+    private ForSet forSetSpecification;
     
     List<AttributeSpecification> attributeReturnSpecifications = new ArrayList();
 
@@ -148,7 +136,7 @@ public class Query {
      * For jaxb. 
      */
     public Query() {
-        this.forSetSpecification = new ForSetsSpecification();
+        this.forSetSpecification = new ForSet();
     }
 
     /**
@@ -157,10 +145,10 @@ public class Query {
      * @param assemblageToIterate
      */
     public Query(ConceptSpecification assemblageToIterate) {
-        this(new ForSetsSpecification(Arrays.asList(new ConceptSpecification[]{assemblageToIterate})));
+        this(new ForSet(Arrays.asList(new ConceptSpecification[]{assemblageToIterate})));
     }
 
-    public Query(ForSetsSpecification forSetSpecification) {
+    public Query(ForSet forSetSpecification) {
         this.forSetSpecification = forSetSpecification;
     }
 
@@ -232,17 +220,17 @@ public class Query {
         getLetDeclarations();
         this.rootClause = Where();
 
-        final Map<ConceptSpecification, NidSet> possibleComponentMap = this.rootClause.computePossibleComponents(For());
+        final Map<ConceptSpecification, NidSet> possibleComponentMap = this.rootClause.computePossibleComponents(this.forSetSpecification.getPossibleComponents());
 
         return this.rootClause.computeComponents(possibleComponentMap);
     }
 
     
-    public ForSetsSpecification getForSetSpecification() {
+    public ForSet getForSetSpecification() {
         return forSetSpecification;
     }
     
-    public void setForSetSpecification(ForSetsSpecification forSetSpecification) {
+    public void setForSetSpecification(ForSet forSetSpecification) {
         this.forSetSpecification = forSetSpecification;
     }
     
@@ -252,7 +240,7 @@ public class Query {
     protected List<ConceptSpecification> getForSet() {
         return forSetSpecification.getForSet();
     }
-    
+        
     @XmlElement(name = "AttributeSpecification")
     @XmlElementWrapper(name = "Return")
     public List<AttributeSpecification> getReturnAttributeList() {
@@ -368,35 +356,13 @@ public class Query {
     }
 
     /**
-     * Creates <code>ConceptForComponent</code> clause with input child clause.
-     *
-     * @param child the child
-     * @return the concept for component
-     */
-    protected ConceptForComponent ConceptForComponent(Clause child) {
-        return new ConceptForComponent(this, child);
-    }
-
-    /**
      * Concept is.
      *
      * @param conceptSpecKey the concept spec key
      * @return the concept is
      */
     protected ConceptIs ConceptIs(LetItemKey conceptSpecKey) {
-        return new ConceptIs(this, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
-    }
-
-    /**
-     * Creates <code>ConceptIs</code> clause with input
-     * <code>ViewCoordinate</code>.
-     *
-     * @param conceptSpecKey the concept spec key
-     * @param manifoldCoordinateKey the manifold coordinate key
-     * @return the concept is
-     */
-    protected ConceptIs ConceptIs(LetItemKey conceptSpecKey, LetItemKey manifoldCoordinateKey) {
-        return new ConceptIs(this, conceptSpecKey, manifoldCoordinateKey);
+        return new ConceptIs(this, conceptSpecKey);
     }
 
     /**
@@ -467,48 +433,6 @@ public class Query {
     }
 
     /**
-     * Description active lucene match.
-     *
-     * @param queryTextKey the query text key
-     * @return the description active lucene match
-     */
-    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(LetItemKey queryTextKey) {
-        return new DescriptionActiveLuceneMatch(this, queryTextKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
-    }
-
-    /**
-     * Description active lucene match.
-     *
-     * @param queryTextKey the query text key
-     * @param manifoldCoordinateKey the manifold coordinate key
-     * @return the description active lucene match
-     */
-    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(LetItemKey queryTextKey, LetItemKey manifoldCoordinateKey) {
-        return new DescriptionActiveLuceneMatch(this, queryTextKey, manifoldCoordinateKey);
-    }
-
-    /**
-     * Description active regex match.
-     *
-     * @param regexKey the regex key
-     * @return the description active regex match
-     */
-    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(LetItemKey regexKey) {
-        return new DescriptionActiveRegexMatch(this, regexKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
-    }
-
-    /**
-     * Description active regex match.
-     *
-     * @param regexKey the regex key
-     * @param manifoldCoordinateKey the manifold coordinate key
-     * @return the description active regex match
-     */
-    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(LetItemKey regexKey, LetItemKey manifoldCoordinateKey) {
-        return new DescriptionActiveRegexMatch(this, regexKey, manifoldCoordinateKey);
-    }
-
-    /**
      * Description lucene match.
      *
      * @param queryTextKey the query text key
@@ -525,18 +449,7 @@ public class Query {
      * @return the description regex match
      */
     protected DescriptionRegexMatch DescriptionRegexMatch(LetItemKey regexKey) {
-        return new DescriptionRegexMatch(this, regexKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
-    }
-
-    /**
-     * Description regex match.
-     *
-     * @param regexKey the regex key
-     * @param manifoldCoordinateKey the manifold coordinate key
-     * @return the description regex match
-     */
-    protected DescriptionRegexMatch DescriptionRegexMatch(LetItemKey regexKey, LetItemKey manifoldCoordinateKey) {
-        return new DescriptionRegexMatch(this, regexKey, manifoldCoordinateKey);
+        return new DescriptionRegexMatch(this, regexKey);
     }
 
     /**
@@ -546,18 +459,6 @@ public class Query {
      */
     protected final Map<ConceptSpecification, NidSet> For() {
         return this.forSetSpecification.getCollectionMap();
-    }
-
-    /**
-     * Fully specified name for concept.
-     *
-     * @param clause the clause
-     * @param stampCoordinateKey
-     * @param languageCoordinateKey
-     * @return the fully specified name for concept
-     */
-    protected FullyQualifiedNameForConcept FullySpecifiedNameForConcept(Clause clause, LetItemKey stampCoordinateKey, LetItemKey languageCoordinateKey) {
-        return new FullyQualifiedNameForConcept(this, clause, stampCoordinateKey, languageCoordinateKey);
     }
 
     /**
@@ -580,102 +481,6 @@ public class Query {
         return new Or(this, clauses);
     }
 
-    /**
-     * Preferred name for concept.
-     *
-     * @param clause the clause
-     * @param stampCoordinateKey
-     * @param languageCoordinateKey
-     * @return the preferred name for concept
-     */
-    protected PreferredNameForConcept PreferredNameForConcept(Clause clause, LetItemKey stampCoordinateKey, LetItemKey languageCoordinateKey) {
-        return new PreferredNameForConcept(this, clause, stampCoordinateKey, languageCoordinateKey);
-    }
-
-    /**
-     * Refset contains concept.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param conceptSpecKey the concept spec key
-     * @return the refset contains concept
-     */
-    protected AssemblageContainsConcept AssemblageContainsConcept(LetItemKey refsetSpecKey, LetItemKey conceptSpecKey) {
-        return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
-    }
-
-    /**
-     * Refset contains concept.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param conceptSpecKey the concept spec key
-     * @param manifoldCoordinateKey the manifold coordinate key
-     * @return the refset contains concept
-     */
-    protected AssemblageContainsConcept AssemblageContainsConcept(LetItemKey refsetSpecKey,
-            LetItemKey conceptSpecKey,
-            LetItemKey manifoldCoordinateKey) {
-        return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, manifoldCoordinateKey);
-    }
-
-    /**
-     * Refset contains kind of concept.
-     *
-     * @param assemblageSpecKey the refset spec key
-     * @param conceptSpecKey the concept spec key
-     * @return the refset contains kind of concept
-     */
-    protected AssemblageContainsKindOfConcept AssemblageContainsKindOfConcept(LetItemKey assemblageSpecKey, LetItemKey conceptSpecKey) {
-        return new AssemblageContainsKindOfConcept(this, assemblageSpecKey, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
-    }
-
-    /**
-     * Refset contains kind of concept.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param conceptSpecKey the concept spec key
-     * @param manifoldCoordinateKey the manifold coordinate key
-     * @return the refset contains kind of concept
-     */
-    protected AssemblageContainsKindOfConcept AssemblageContainsKindOfConcept(LetItemKey refsetSpecKey,
-            LetItemKey conceptSpecKey,
-            LetItemKey manifoldCoordinateKey) {
-        return new AssemblageContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, manifoldCoordinateKey);
-    }
-
-    /**
-     * Refset contains string.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param stringMatchKey the string match key
-     * @return the refset contains string
-     */
-    protected AssemblageContainsString AssemblageContainsString(LetItemKey refsetSpecKey, LetItemKey stringMatchKey) {
-        return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
-    }
-
-    /**
-     * Refset contains string.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param stringMatchKey the string match key
-     * @param manifoldCoordinateKey the manifold coordinate key
-     * @return the refset contains string
-     */
-    protected AssemblageContainsString AssemblageContainsString(LetItemKey refsetSpecKey,
-            LetItemKey stringMatchKey,
-            LetItemKey manifoldCoordinateKey) {
-        return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, manifoldCoordinateKey);
-    }
-
-    /**
-     * Refset lucene match.
-     *
-     * @param queryString the query string
-     * @return the refset lucene match
-     */
-    protected AssemblageLuceneMatch AssemblageLuceneMatch(LetItemKey queryString) {
-        return new AssemblageLuceneMatch(this, queryString, DEFAULT_MANIFOLD_COORDINATE_KEY);
-    }
 
     /**
      * Rel restriction.

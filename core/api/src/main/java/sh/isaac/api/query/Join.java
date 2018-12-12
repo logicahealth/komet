@@ -126,11 +126,6 @@ public class Join
     }
 
     @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.JOIN_QUERY_CLAUSE;
-    }
-
-    @Override
     public Clause[] getAllowedSubstutitionClauses() {
         return getParentClauses();
     }

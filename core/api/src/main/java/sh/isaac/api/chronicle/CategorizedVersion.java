@@ -237,5 +237,10 @@ public class CategorizedVersion
    public int getAssemblageNid() {
       return delegate.getAssemblageNid();
    }
+
+    @Override
+    public boolean deepEquals(Object other) {
+        return delegate.deepEquals(other);
+    }
 }
 

@@ -28,6 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.GlobalDatastoreConfiguration;
 import sh.isaac.api.LookupService;
@@ -141,16 +142,16 @@ public class ConfigurationTests {
 	
 	@Test(dependsOnGroups="beforeUser", groups="defaultEdit")
 	public void testDefaultEdit() {
-		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultClassifier(-1);
-		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultDescriptionLogicProfile(-2);
+		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultClassifier(TermAux.SNOROCKET_CLASSIFIER.getNid());
+		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultDescriptionLogicProfile(TermAux.EL_PLUS_PLUS_LOGIC_PROFILE.getNid());
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultDescriptionTypePreferenceList(new int[] { TermAux.PREFERRED.getNid() });
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultDialectAssemblagePreferenceList(new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getNid() });
-		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultInferredAssemblage(-5);
+		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultInferredAssemblage(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid());
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultLanguage( TermAux.ENGLISH_LANGUAGE.getNid() );
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultModule(-7);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPath(-8);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPremiseType(PremiseType.STATED);
-		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultStatedAssemblage(-9);
+		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultStatedAssemblage(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid());
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultTime(10);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultUser(-11);
 		
@@ -160,33 +161,33 @@ public class ConfigurationTests {
 		
 		GlobalDatastoreConfiguration c = Get.configurationService().getGlobalDatastoreConfiguration();
 		
-		Assert.assertEquals(-1, c.getDefaultLogicCoordinate().getClassifierNid());
-		Assert.assertEquals(-2, c.getDefaultLogicCoordinate().getDescriptionLogicProfileNid());
+		Assert.assertEquals(TermAux.SNOROCKET_CLASSIFIER.getNid(), c.getDefaultLogicCoordinate().getClassifierNid());
+		Assert.assertEquals(TermAux.EL_PLUS_PLUS_LOGIC_PROFILE.getNid(), c.getDefaultLogicCoordinate().getDescriptionLogicProfileNid());
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.PREFERRED.getNid()}, c.getDefaultLanguageCoordinate().getDescriptionTypePreferenceList()), 
 				"found " + Arrays.toString(c.getDefaultLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getNid() }, c.getDefaultLanguageCoordinate().getDialectAssemblagePreferenceList()),
 				"found " + Arrays.toString(c.getDefaultLanguageCoordinate().getDialectAssemblagePreferenceList()));
-		Assert.assertEquals(-5, c.getDefaultLogicCoordinate().getInferredAssemblageNid());
+		Assert.assertEquals(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid(), c.getDefaultLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.ENGLISH_LANGUAGE.getNid(), c.getDefaultLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(-7, c.getDefaultEditCoordinate().getModuleNid());
 		Assert.assertEquals(-8, c.getDefaultEditCoordinate().getPathNid());
 		Assert.assertEquals(PremiseType.STATED, c.getDefaultManifoldCoordinate().getTaxonomyPremiseType());
-		Assert.assertEquals(-9, c.getDefaultLogicCoordinate().getStatedAssemblageNid());
+		Assert.assertEquals(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid(), c.getDefaultLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(10, c.getDefaultStampCoordinate().getStampPosition().getTime());
 		Assert.assertEquals(-11, c.getDefaultEditCoordinate().getAuthorNid());
 		
 		//User prefs should follow:
 		UserConfiguration uc = Get.configurationService().getUserConfiguration(null);
-		Assert.assertEquals(-1, uc.getLogicCoordinate().getClassifierNid());
-		Assert.assertEquals(-2, uc.getLogicCoordinate().getDescriptionLogicProfileNid());
+		Assert.assertEquals(TermAux.SNOROCKET_CLASSIFIER.getNid(), uc.getLogicCoordinate().getClassifierNid());
+		Assert.assertEquals(TermAux.EL_PLUS_PLUS_LOGIC_PROFILE.getNid(), uc.getLogicCoordinate().getDescriptionLogicProfileNid());
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.PREFERRED.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getNid() }, uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
-		Assert.assertEquals(-5, uc.getLogicCoordinate().getInferredAssemblageNid());
+		Assert.assertEquals(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid(), uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.ENGLISH_LANGUAGE.getNid(), uc.getLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(-7, uc.getEditCoordinate().getModuleNid());
 		Assert.assertEquals(-8, uc.getEditCoordinate().getPathNid());
 		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getTaxonomyPremiseType());
-		Assert.assertEquals(-9, uc.getLogicCoordinate().getStatedAssemblageNid());
+		Assert.assertEquals(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid(), uc.getLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(10, uc.getStampCoordinate().getStampPosition().getTime());
 		Assert.assertEquals(-11, uc.getEditCoordinate().getAuthorNid());
 		

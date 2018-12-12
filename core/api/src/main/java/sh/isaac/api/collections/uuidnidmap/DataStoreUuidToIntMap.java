@@ -44,7 +44,7 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 	private final AtomicInteger NEXT_NID_PROVIDER = new AtomicInteger(Integer.MIN_VALUE);
 
 	// inverse, in memory cache only used for certain loader patterns.
-	private Cache<Integer, UUID[]> nidToPrimoridialCache = null;
+	private Cache<Integer, UUID[]> nidToPrimordialCache = null;
 	private final String MAX_NID_STORE_LOC = "-max-nid-assigned-"; 
 
 	public DataStoreUuidToIntMap(ExtendedStore datastore)
@@ -61,8 +61,9 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 		// Loader utility enables this when doing IBDF file creation to to get from nid back to UUID - this prevents it from doing table scans.
 		if (Get.configurationService().isInDBBuildMode(BuildMode.IBDF))
 		{
-			this.nidToPrimoridialCache = Caffeine.newBuilder().build();
+			enableInverseCache();
 		}
+		
 	}
 
 	/**
@@ -89,7 +90,16 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 	@Override
 	public boolean inverseCacheEnabled()
 	{
-		return nidToPrimoridialCache != null;
+		return nidToPrimordialCache != null;
+	}
+	
+	/**
+	 * @see sh.isaac.api.collections.uuidnidmap.UuidToIntMap#enableInverseCache()
+	 */
+	@Override
+	public void enableInverseCache()
+	{
+		this.nidToPrimordialCache = Caffeine.newBuilder().build();
 	}
 
 	/**
@@ -158,9 +168,9 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 	@Override
 	public UUID[] getKeysForValue(int nid)
 	{
-		if (this.nidToPrimoridialCache != null)
+		if (this.nidToPrimordialCache != null)
 		{
-			final UUID[] cacheHit = this.nidToPrimoridialCache.getIfPresent(nid);
+			final UUID[] cacheHit = this.nidToPrimordialCache.getIfPresent(nid);
 
 			if ((cacheHit != null) && (cacheHit.length > 0))
 			{
@@ -173,9 +183,9 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 
 		final UUID[] temp = uuids.toArray(new UUID[uuids.size()]);
 
-		if ((this.nidToPrimoridialCache != null) && (temp.length > 0))
+		if ((this.nidToPrimordialCache != null) && (temp.length > 0))
 		{
-			this.nidToPrimoridialCache.put(nid, temp);
+			this.nidToPrimordialCache.put(nid, temp);
 		}
 
 		return temp;
@@ -187,9 +197,9 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 	@Override
 	public boolean cacheContainsNid(int nid)
 	{
-		if (this.nidToPrimoridialCache != null)
+		if (this.nidToPrimordialCache != null)
 		{
-			return this.nidToPrimoridialCache.getIfPresent(nid) != null;
+			return this.nidToPrimordialCache.getIfPresent(nid) != null;
 		}
 		return false;
 	}
@@ -222,11 +232,11 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 	 */
 	private void updateCache(int nid, UUID uuidKey)
 	{
-		if (this.nidToPrimoridialCache != null)
+		if (this.nidToPrimordialCache != null)
 		{
-			synchronized (nidToPrimoridialCache)
+			synchronized (nidToPrimordialCache)
 			{
-				final UUID[] temp = this.nidToPrimoridialCache.getIfPresent(nid);
+				final UUID[] temp = this.nidToPrimordialCache.getIfPresent(nid);
 				UUID[] temp1;
 
 				if (temp == null)
@@ -239,7 +249,7 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 					temp1[temp.length] = uuidKey;
 				}
 
-				this.nidToPrimoridialCache.put(nid, temp1);
+				this.nidToPrimordialCache.put(nid, temp1);
 			}
 		}
 	}

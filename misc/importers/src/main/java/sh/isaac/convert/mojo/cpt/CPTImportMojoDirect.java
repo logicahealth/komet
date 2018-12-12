@@ -68,7 +68,6 @@ import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.convert.mojo.cpt.TextReader.CPTFileType;
-import sh.isaac.converters.sharedUtils.ComponentReference;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
@@ -246,7 +245,7 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		statusUpdates.accept("Loading content");
 
 		String firstThree = "";
-		ComponentReference parent = null;
+		UUID parent = null;
 		int cptConCount = 0;
 		int groupingConCount = 0;
 
@@ -269,9 +268,9 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			{
 				// Make a new grouping concept
 				firstThree = d.code.substring(0, 3);
-				parent = ComponentReference.fromConcept(dwh.makeConceptEnNoDialect(null, firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
-						new UUID[] {cptRootConcept}, Status.ACTIVE, contentTime));
-				dwh.makeDescriptionEnNoDialect(parent.getPrimordialUuid(), "Grouping concept for all codes that start with " + firstThree, 
+				parent = dwh.makeConceptEnNoDialect(null, firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						new UUID[] {cptRootConcept}, Status.ACTIVE, contentTime);
+				dwh.makeDescriptionEnNoDialect(parent, "Grouping concept for all codes that start with " + firstThree, 
 						MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, contentTime);
 				groupingConCount++;
 			}
@@ -289,7 +288,7 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			
 			UUID concept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(d.code), Status.ACTIVE, contentTime);
 
-			dwh.makeParentGraph(concept, parent.getPrimordialUuid(), Status.ACTIVE, contentTime);
+			dwh.makeParentGraph(concept, parent, Status.ACTIVE, contentTime);
 			dwh.makeBrittleStringAnnotation(MetaData.CODE____SOLOR.getPrimordialUuid(), concept, d.code, contentTime);
 
 			dwh.makeDynamicRefsetMember(allCPTConceptsRefset, concept, contentTime);

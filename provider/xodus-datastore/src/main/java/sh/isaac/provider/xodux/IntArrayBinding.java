@@ -18,6 +18,7 @@ package sh.isaac.provider.xodux;
 import jetbrains.exodus.ArrayByteIterable;
 import jetbrains.exodus.ByteIterable;
 import jetbrains.exodus.ByteIterator;
+import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 
 /**
  * Utility code to convert byte[] objects for xodus storage
@@ -56,8 +57,7 @@ public class IntArrayBinding
 		for (int objectPos = 0; objectPos < result.length; objectPos++) 
 		{
 			int offset = objectPos * 4;
-			result[objectPos] = ((bytes[0 + offset] << 24) | ((bytes[1 + offset] & 0xFF) << 16) 
-					| ((bytes[2 + offset] & 0xFF) << 8) | ((bytes[3 + offset] & 0xFF) << 0));
+			result[objectPos] = getInt(bytes, offset);
 		}
 		return result;
 	}

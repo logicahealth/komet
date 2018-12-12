@@ -17,7 +17,6 @@
 package sh.isaac.api.query.clauses;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -29,7 +28,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
@@ -71,54 +69,40 @@ public class ReferencedComponentIsActive extends LeafClause {
     }
 
     //~--- methods -------------------------------------------------------------
+    /**
+     * Compute possible components.
+     *
+     * @param possibleComponents the incoming possible components
+     * @return the nid set
+     */
     @Override
-    public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
+    public final Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> possibleComponents) {
         StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
-        
-        getResultsCache().and(incomingComponents.get(this.getAssemblageForIteration()));
-                
-        NidSet.of(getResultsCache()).stream().forEach((nid) -> {
+
+        NidSet possibleComponentSet = possibleComponents.get(getAssemblageForIteration());
+        for (int nid : possibleComponentSet.asArray()) {
             final Optional<? extends Chronology> chronology
                     = Get.identifiedObjectService()
                             .getChronology(nid);
             if (chronology.isPresent() && chronology.get() instanceof SemanticChronology) {
                 SemanticChronology semanticChronology = (SemanticChronology) chronology.get();
                 Optional<? extends Chronology> referencedComponentChronology
-                    = Get.identifiedObjectService()
-                            .getChronology(semanticChronology.getReferencedComponentNid());
-                if (referencedComponentChronology.isPresent() &&
-                        !referencedComponentChronology.get()
-                        .isLatestVersionActive(stampCoordinate)) {
-                    getResultsCache().remove(nid);
+                        = Get.identifiedObjectService()
+                                .getChronology(semanticChronology.getReferencedComponentNid());
+                if (referencedComponentChronology.isPresent()
+                        && !referencedComponentChronology.get()
+                                .isLatestVersionActive(stampCoordinate)) {
+                    possibleComponentSet.remove(nid);
                 }
             } else {
-                getResultsCache().remove(nid);
+                possibleComponentSet.remove(nid);
             }
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
-        return resultsMap;
-    }
-
-    /**
-     * Compute possible components.
-     *
-     * @param incomingPossibleComponents the incoming possible components
-     * @return the nid set
-     */
-    @Override
-    public final Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        NidSet possibleComponents = NidSet.of(Get.identifierService().getNidsForAssemblage(this.getAssemblageForIteration()));
-            getResultsCache().or(possibleComponents);
-        if (incomingPossibleComponents.get(this.getAssemblageForIteration()) != null) {
-            getResultsCache().or(incomingPossibleComponents.get(this.getAssemblageForIteration()));
         }
-        incomingPossibleComponents.put(this.getAssemblageForIteration(), getResultsCache());
-        return incomingPossibleComponents;
+        return possibleComponents;
+
     }
 
     //~--- get methods ---------------------------------------------------------
-
     /**
      * Gets the compute phases.
      *
@@ -127,16 +111,6 @@ public class ReferencedComponentIsActive extends LeafClause {
     @Override
     public EnumSet<ClauseComputeType> getComputePhases() {
         return ITERATION;
-    }
-
-    /**
-     * Gets the query matches.
-     *
-     * @param conceptVersion the concept version
-     */
-    @Override
-    public void getQueryMatches(ConceptVersion conceptVersion) {
-        getResultsCache();
     }
 
     @Override
@@ -155,11 +129,6 @@ public class ReferencedComponentIsActive extends LeafClause {
 
         whereClause.setSemantic(ClauseSemantic.REFERENCED_COMPONENT_IS_ACTIVE);
         return whereClause;
-    }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.REFERENCED_COMPONENT_IS_ACTIVE;
     }
 
     @XmlElement

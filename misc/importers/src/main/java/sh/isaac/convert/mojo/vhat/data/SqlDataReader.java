@@ -70,7 +70,7 @@ import sh.isaac.convert.mojo.vhat.data.dto.TypeImportDTO;
 import sh.isaac.convert.mojo.vhat.data.dto.Version;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
-
+@Deprecated //code was only for the VA project, was never completed, and that project is dead
 public class SqlDataReader {
 	
 	private Map<Long, ArrayList<PropertyImportDTO>>	_properties = new HashMap<>();

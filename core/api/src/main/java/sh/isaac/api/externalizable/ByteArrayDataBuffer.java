@@ -1020,15 +1020,13 @@ public class ByteArrayDataBuffer {
     */
    public int getInt(int position) {
       long lockStamp = this.sl.tryOptimisticRead();
-      int result = (((this.data[position]) << 24) | ((this.data[position + 1] & 0xff) << 16)
-                    | ((this.data[position + 2] & 0xff) << 8) | ((this.data[position + 3] & 0xff)));
+      int result = getInt(this.data, position);
 
       if (!this.sl.validate(lockStamp)) {
          lockStamp = this.sl.readLock();
 
          try {
-            result = (((this.data[position]) << 24) | ((this.data[position + 1] & 0xff) << 16)
-                      | ((this.data[position + 2] & 0xff) << 8) | ((this.data[position + 3] & 0xff)));
+            result = getInt(this.data, position);
          } finally {
             this.sl.unlockRead(lockStamp);
          }
@@ -1037,6 +1035,10 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   public static int getInt(byte[] data, int position) {
+       return (((data[position]) << 24) | ((data[position + 1] & 0xff) << 16)
+                      | ((data[position + 2] & 0xff) << 8) | ((data[position + 3] & 0xff)));
+   }
    /**
     * Gets the int array.
     *

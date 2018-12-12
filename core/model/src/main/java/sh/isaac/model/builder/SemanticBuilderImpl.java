@@ -60,6 +60,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.util.UuidFactory;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
@@ -469,6 +470,10 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                 refCompUuid = referencedComponentBuilder.getPrimordialUuid();
             } else {
                 refCompUuid = Get.identifierService().getUuidPrimordialForNid(referencedComponentNid);
+            }
+            
+            if (namespace == null) {
+               namespace = UuidT5Generator.PATH_ID_FROM_FS_DESC;
             }
             
             if (semanticType == VersionType.LOGIC_GRAPH) {

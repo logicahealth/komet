@@ -106,6 +106,7 @@ public class DialogProvider implements DialogService {
 
    @Override
    public void showErrorDialog(String message, Throwable throwable) {
+      LOG.error(message, throwable);
       Runnable showDialog = () -> {
          ExceptionDialog dlg = new ExceptionDialog(throwable);
          dlg.setTitle(throwable.getClass().getName());

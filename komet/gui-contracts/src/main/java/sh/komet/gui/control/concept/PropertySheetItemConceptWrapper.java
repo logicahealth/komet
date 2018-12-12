@@ -85,7 +85,7 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
         this.name = name;
         this.conceptProperty = (SimpleObjectProperty<ConceptSpecification>) conceptProperty;
         if (allowedValues.length > 0) {
-            this.conceptProperty.set(Get.concept(allowedValues[0]));
+            this.conceptProperty.set(allowedValues[0]);
         }
         this.allowedValues.addAll(Arrays.asList(allowedValues));
         this.observableWrapper = new SimpleObjectProperty<>(new ConceptSpecificationForControlWrapper(conceptProperty.get(), manifoldForDisplay));
@@ -199,10 +199,10 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
 
     @Override
     public void setValue(Object value) {
-        ConceptSpecificationForControlWrapper specValue;
+        ConceptSpecificationForControlWrapper specValue = null;
         if (value instanceof ConceptSpecificationForControlWrapper) {
             specValue = (ConceptSpecificationForControlWrapper) value;
-        } else {
+        } else if (value != null) {
             specValue = new ConceptSpecificationForControlWrapper((ConceptSpecification) value, manifoldForDisplay);
         }
         try {

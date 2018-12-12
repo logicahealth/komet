@@ -116,9 +116,9 @@ public class UuidIntMapMap
     private final MemoryManagedReference<ConcurrentUuidToIntHashMap>[] maps = new MemoryManagedReference[NUMBER_OF_MAPS];
 
     /**
-     * The nid to primoridial cache.
+     * The nid to primordial cache.
      */
-    private Cache<Integer, UUID[]> nidToPrimoridialCache = null;
+    private Cache<Integer, UUID[]> nidToPrimordialCache = null;
 
     /**
      * The lock.
@@ -147,7 +147,7 @@ public class UuidIntMapMap
 
         //Loader utility enables this when doing IBDF file creation to to get from nid back to UUID  - this prevents it from doing table scans.
         if (Get.configurationService().isInDBBuildMode(BuildMode.IBDF)) {
-            this.nidToPrimoridialCache = Caffeine.newBuilder().build();
+            enableInverseCache();
         }
         
         File params = new File(folder, "map.params");
@@ -168,8 +168,8 @@ public class UuidIntMapMap
      */
     @Override
     public boolean cacheContainsNid(int nid) {
-        if (this.nidToPrimoridialCache != null) {
-            return this.nidToPrimoridialCache.getIfPresent(nid) != null;
+        if (this.nidToPrimordialCache != null) {
+            return this.nidToPrimordialCache.getIfPresent(nid) != null;
         }
 
         return false;
@@ -352,9 +352,9 @@ public class UuidIntMapMap
      * @param uuidKey the uuid key
      */
     private void updateCache(int nid, UUID uuidKey) {
-        if (this.nidToPrimoridialCache != null) {
-            synchronized (nidToPrimoridialCache) {
-                final UUID[] temp = this.nidToPrimoridialCache.getIfPresent(nid);
+        if (this.nidToPrimordialCache != null) {
+            synchronized (nidToPrimordialCache) {
+                final UUID[] temp = this.nidToPrimordialCache.getIfPresent(nid);
                 UUID[] temp1;
     
                 if (temp == null) {
@@ -364,7 +364,7 @@ public class UuidIntMapMap
                     temp1[temp.length] = uuidKey;
                 }
     
-                this.nidToPrimoridialCache.put(nid, temp1);
+                this.nidToPrimordialCache.put(nid, temp1);
             }
         }
     }
@@ -383,8 +383,8 @@ public class UuidIntMapMap
      */
     @Override
     public UUID[] getKeysForValue(int nid) {
-        if (this.nidToPrimoridialCache != null) {
-            final UUID[] cacheHit = this.nidToPrimoridialCache.getIfPresent(nid);
+        if (this.nidToPrimordialCache != null) {
+            final UUID[] cacheHit = this.nidToPrimordialCache.getIfPresent(nid);
 
             if ((cacheHit != null) && (cacheHit.length > 0)) {
                 return cacheHit;
@@ -403,8 +403,8 @@ public class UuidIntMapMap
 
         final UUID[] temp = uuids.toArray(new UUID[uuids.size()]);
 
-        if ((this.nidToPrimoridialCache != null) && (temp.length > 0)) {
-            this.nidToPrimoridialCache.put(nid, temp);
+        if ((this.nidToPrimordialCache != null) && (temp.length > 0)) {
+            this.nidToPrimordialCache.put(nid, temp);
         }
 
         return temp;
@@ -511,6 +511,15 @@ public class UuidIntMapMap
      */
     @Override
     public boolean inverseCacheEnabled() {
-        return nidToPrimoridialCache != null;
+        return nidToPrimordialCache != null;
+    }
+
+    /**
+     * @see sh.isaac.api.collections.uuidnidmap.UuidToIntMap#enableInverseCache()
+     */
+    @Override
+    public void enableInverseCache()
+    {
+        this.nidToPrimordialCache = Caffeine.newBuilder().build();
     }
 }
