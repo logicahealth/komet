@@ -298,7 +298,8 @@ public abstract class Clause implements ConceptSpecification, AssemblageForItera
             new ReferencedComponentIsKindOf(),
             new ReferencedComponentIsNotKindOf(),
             new ReferencedComponentIsMemberOf(),
-            new ReferencedComponentIsNotMemberOf()
+            new ReferencedComponentIsNotMemberOf(),
+            new SemanticContainsString(),
             
 //            new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
 //            new AssemblageContainsString(), new AssemblageLuceneMatch(),

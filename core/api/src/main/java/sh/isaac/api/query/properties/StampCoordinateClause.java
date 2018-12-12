@@ -14,33 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.query;
+package sh.isaac.api.query.properties;
 
-import sh.isaac.api.component.concept.ConceptSpecification;
+import javax.xml.bind.annotation.XmlElement;
+import sh.isaac.api.query.LetItemKey;
 
 /**
  *
  * @author kec
  */
-public interface JoinSpecification {
+public interface StampCoordinateClause {
 
-    ConceptSpecification getFirstAssemblage();
-
-    ConceptSpecification getFirstField();
-
-    ConceptSpecification getSecondAssemblage();
-
-    ConceptSpecification getSecondField();
-
+    @XmlElement
     LetItemKey getStampCoordinateKey();
-
-    void setFirstAssemblage(ConceptSpecification firstAssemblage);
-
-    void setFirstField(ConceptSpecification firstField);
-
-    void setSecondAssemblage(ConceptSpecification secondAssemblage);
-
-    void setSecondField(ConceptSpecification secondField);
 
     void setStampCoordinateKey(LetItemKey stampCoordinateKey);
     

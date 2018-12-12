@@ -28,6 +28,8 @@ import sh.isaac.api.query.And;
 import sh.isaac.api.query.AndNot;
 import sh.isaac.api.query.AttributeSpecification;
 import sh.isaac.api.query.Clause;
+import sh.isaac.api.query.Join;
+import sh.isaac.api.query.JoinSpec;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.ManifoldCoordinateForQuery;
@@ -51,6 +53,7 @@ import sh.isaac.api.query.clauses.ReferencedComponentIsNotActive;
 import sh.isaac.api.query.clauses.ReferencedComponentIsNotKindOf;
 import sh.isaac.api.query.clauses.ReferencedComponentIsNotMemberOf;
 import sh.isaac.api.query.clauses.RelRestriction;
+import sh.isaac.api.query.clauses.SemanticContainsString;
 import sh.isaac.api.xml.JaxbMap;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.coordinate.LogicCoordinateImpl;
@@ -65,43 +68,45 @@ public class Jaxb {
     final JAXBContext jc;
     private Jaxb() {
         try {
-            jc = JAXBContext.newInstance(
-                    StampCoordinateImpl.class,
-                    LanguageCoordinateImpl.class,
-                    LogicCoordinateImpl.class,
-                    ManifoldCoordinateForQuery.class,
-                    ConceptSpecification.class,
-                    ConceptProxy.class, 
-                    JaxbMap.class, 
-                    Query.class,
-                    Clause.class, 
-                    Or.class,
-                    And.class,
+            jc = JAXBContext.newInstance(And.class,
                     AndNot.class,
-                    LeafClause.class,
-                    Not.class,
-                    Xor.class,
+                    AttributeSpecification.class,
                     ChangedBetweenVersions.class,
+                    Clause.class, 
                     ComponentIsActive.class,
+                    ConceptProxy.class, 
+                    ConceptSpecification.class,
                     ConceptIs.class,
                     ConceptIsChildOf.class,
                     ConceptIsDescendentOf.class,
                     ConceptIsKindOf.class,
                     DescriptionLuceneMatch.class,
                     DescriptionRegexMatch.class,
-                    RelRestriction.class,
+                    JaxbMap.class, 
+                    Join.class,
+                    JoinSpec.class,
+                    LanguageCoordinateImpl.class,
+                    LeafClause.class,
                     LetItemKey.class,
-                    AttributeSpecification.class,
-                    StampPrecedence.class,
-                    Status.class,
-                    StatusEnumSetAdaptor.class,
+                    LogicCoordinateImpl.class,
+                    ManifoldCoordinateForQuery.class,
+                    Not.class,
+                    Or.class,
+                    Query.class,
+                    RelRestriction.class,
                     ReferencedComponentIs.class,
                     ReferencedComponentIsActive.class,
                     ReferencedComponentIsKindOf.class,
                     ReferencedComponentIsMemberOf.class,
                     ReferencedComponentIsNotActive.class,
                     ReferencedComponentIsNotKindOf.class,
-                    ReferencedComponentIsNotMemberOf.class
+                    ReferencedComponentIsNotMemberOf.class,
+                    SemanticContainsString.class,
+                    StampCoordinateImpl.class,
+                    StampPrecedence.class,
+                    Status.class,
+                    StatusEnumSetAdaptor.class,
+                    Xor.class 
             );
         } catch (JAXBException ex) {
             throw new RuntimeException(ex);

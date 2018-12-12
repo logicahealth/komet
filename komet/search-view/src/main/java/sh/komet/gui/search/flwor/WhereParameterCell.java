@@ -1,4 +1,4 @@
-package sh.komet.gui.search.control;
+package sh.komet.gui.search.flwor;
 
 import javafx.scene.Node;
 import javafx.scene.control.TreeTableCell;

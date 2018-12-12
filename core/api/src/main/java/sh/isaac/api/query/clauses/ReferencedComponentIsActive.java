@@ -16,6 +16,7 @@
  */
 package sh.isaac.api.query.clauses;
 
+import sh.isaac.api.query.properties.StampCoordinateClause;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
@@ -24,7 +25,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -43,7 +43,7 @@ import sh.isaac.api.query.WhereClause;
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class ReferencedComponentIsActive extends LeafClause {
+public class ReferencedComponentIsActive extends LeafClause implements StampCoordinateClause {
 
     /**
      * the manifold coordinate key.
@@ -132,10 +132,12 @@ public class ReferencedComponentIsActive extends LeafClause {
     }
 
     @XmlElement
+    @Override
     public LetItemKey getStampCoordinateKey() {
         return stampCoordinateKey;
     }
 
+    @Override
     public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
         this.stampCoordinateKey = stampCoordinateKey;
     }

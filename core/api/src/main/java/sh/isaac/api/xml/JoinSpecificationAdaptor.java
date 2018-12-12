@@ -14,34 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.query;
+package sh.isaac.api.xml;
 
-import sh.isaac.api.component.concept.ConceptSpecification;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import sh.isaac.api.query.JoinSpec;
+import sh.isaac.api.query.JoinSpecification;
 
 /**
  *
  * @author kec
  */
-public interface JoinSpecification {
+public class JoinSpecificationAdaptor extends XmlAdapter<JoinSpec, JoinSpecification> {
 
-    ConceptSpecification getFirstAssemblage();
+    @Override
+    public JoinSpecification unmarshal(JoinSpec joinSpec) throws Exception {
+        return joinSpec;
+    }
 
-    ConceptSpecification getFirstField();
-
-    ConceptSpecification getSecondAssemblage();
-
-    ConceptSpecification getSecondField();
-
-    LetItemKey getStampCoordinateKey();
-
-    void setFirstAssemblage(ConceptSpecification firstAssemblage);
-
-    void setFirstField(ConceptSpecification firstField);
-
-    void setSecondAssemblage(ConceptSpecification secondAssemblage);
-
-    void setSecondField(ConceptSpecification secondField);
-
-    void setStampCoordinateKey(LetItemKey stampCoordinateKey);
+    @Override
+    public JoinSpec marshal(JoinSpecification v) throws Exception {
+        return new JoinSpec(v);
+    }
     
 }

@@ -1,6 +1,7 @@
-package sh.komet.gui.search.control;
+package sh.komet.gui.search.flwor;
 
 import java.util.HashMap;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
@@ -17,6 +18,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -63,6 +65,7 @@ public class LetPropertySheet {
     private final ObservableList<LetItemKey> logicCoordinateKeys = FXCollections.observableArrayList();
     private final ObservableList<LetItemKey> manifoldCoordinateKeys = FXCollections.observableArrayList();
     private final ObservableList<LetItemKey> conceptSpecificationKeys = FXCollections.observableArrayList();
+    private final ObservableList<LetItemKey> stringKeys = FXCollections.observableArrayList();
     
     private final FLWORQueryController fLWORQueryController;
     
@@ -113,6 +116,10 @@ public class LetPropertySheet {
     public ObservableList<LetItemKey> getManifoldCoordinateKeys() {
         return manifoldCoordinateKeys;
     }
+
+    public ObservableList<LetItemKey> getStringKeys() {
+        return stringKeys;
+    }
     
     private void letItemsChanged(MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) {
         LetItemKey key = change.getKey();
@@ -155,6 +162,11 @@ public class LetPropertySheet {
                   conceptSpecificationKeys.add(key);
               }
           }
+          if (change.getValueAdded() instanceof String) {
+              if (!stringKeys.contains(key)) {
+                  stringKeys.add(key);
+              }
+          }
         }
     }
     
@@ -185,6 +197,8 @@ public class LetPropertySheet {
         if (newObject instanceof StampCoordinate && 
                   !(newObject instanceof ManifoldCoordinate)) {
             addStampCoordinate(newLetItem, (StampCoordinate) newObject);
+        } else if (newObject instanceof String) {
+            addString(newLetItem, (String) newObject);
         } else if (newObject instanceof LanguageCoordinate && 
                   !(newObject instanceof ManifoldCoordinate)) {
             addLanguageCoordinate(newLetItem, (LanguageCoordinate) newObject);
@@ -200,6 +214,42 @@ public class LetPropertySheet {
             letItemObjectMap.put(newLetItem, newObject);
             FxGet.dialogs().showInformationDialog("Unsupported let item", "Can't create panel for " + newLetItem + ": " + newObject);
         }
+    }
+    public void addString(ActionEvent action) {
+        int sequence = 1;
+        String keyName = null;
+        boolean unique = false;
+        TRY_NEXT: while (!unique) {
+            if (sequence > 1) {
+                keyName = "String " + sequence++;
+            } else {
+                keyName = "String";
+                sequence++;
+            }
+            for (LetItemKey key: letItemObjectMap.keySet()) {
+                if (key.getItemName().equalsIgnoreCase(keyName)) {
+                    continue TRY_NEXT;
+                }
+            }
+            unique = true;
+        }
+        LetItemKey newLetItem = new LetItemKey(keyName);
+        addString(newLetItem, "edit-me");
+    }
+    public void addString(LetItemKey newLetItem, String string) {
+        SimpleStringProperty stringProperty = new SimpleStringProperty(this, MetaData.STRING____SOLOR.toExternalString(), string);
+        
+        this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
+        letItemObjectMap.put(newLetItem, string);
+        stringProperty.addListener((observable, oldValue, newValue) -> {
+            letItemObjectMap.put(newLetItem, string);
+        });
+        LetItemPanel newLetItemPanel = new LetItemPanel(manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), stringProperty, this);
+        letItemPanelMap.put(newLetItem, newLetItemPanel);
+
+        letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
+        
+        this.letItemsController.getLetListViewletListView().getSelectionModel().select(newLetItem);
     }
     
     public void addLanguageCoordinate(ActionEvent action) {
