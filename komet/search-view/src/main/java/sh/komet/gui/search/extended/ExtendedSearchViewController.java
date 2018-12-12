@@ -95,7 +95,6 @@ import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -113,6 +112,8 @@ import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.index.IndexStatusListener;
+import sh.isaac.api.query.CompositeQueryResult;
+import sh.isaac.api.query.QueryHandle;
 import sh.isaac.api.util.Interval;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
@@ -122,9 +123,6 @@ import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.index.SemanticIndexerConfiguration;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
-import sh.isaac.provider.query.search.CompositeSearchResult;
-import sh.isaac.provider.query.search.SearchHandle;
-import sh.isaac.provider.query.search.SearchHandler;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.NumericUtilsDynamic;
 import sh.isaac.utility.SimpleDisplayConcept;
@@ -142,7 +140,7 @@ import sh.komet.gui.util.ValidBooleanBinding;
  * @author ocarlsen
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
-public class ExtendedSearchViewController implements TaskCompleteCallback<SearchHandle>, IndexStatusListener {
+public class ExtendedSearchViewController implements TaskCompleteCallback<QueryHandle>, IndexStatusListener {
 
     private static final Logger LOG = LogManager.getLogger(ExtendedSearchViewController.class);
 
@@ -163,7 +161,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
     @FXML
     private ChoiceBox<Integer> searchLimit;
     @FXML
-    private ListView<CompositeSearchResult> searchResults;
+    private ListView<CompositeQueryResult> searchResults;
     @FXML
     private TitledPane optionsPane;
     @FXML
@@ -192,7 +190,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
     private Button adjustStampButton;
 
     private final BooleanProperty searchRunning = new SimpleBooleanProperty(false);
-    private SearchHandle ssh = null;
+    private QueryHandle ssh = null;
     private ConceptNode searchInSemantics;
     private final ObservableList<SimpleDisplayConcept> dynamicRefexList_ = new ObservableListWrapper<>(new ArrayList<>());
     private final Tooltip searchTextTooltip = new Tooltip();
@@ -223,10 +221,10 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         }
     }
 
-    void selectionChanged(ListChangeListener.Change<? extends CompositeSearchResult> c) {
+    void selectionChanged(ListChangeListener.Change<? extends CompositeQueryResult> c) {
         while (c.next()) {
             if (!c.getAddedSubList().isEmpty()) {
-                CompositeSearchResult result = c.getAddedSubList().get(0);
+                CompositeQueryResult result = c.getAddedSubList().get(0);
                 outsideManifold.setFocusedConceptChronology(result.getContainingConcept());
             }
         }
@@ -446,12 +444,12 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         searchInColumnsHolder.setVgap(5.0);
 
         searchResults.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        searchResults.setCellFactory(new Callback<ListView<CompositeSearchResult>, ListCell<CompositeSearchResult>>() {
+        searchResults.setCellFactory(new Callback<ListView<CompositeQueryResult>, ListCell<CompositeQueryResult>>() {
             @Override
-            public ListCell<CompositeSearchResult> call(ListView<CompositeSearchResult> arg0) {
-                return new ListCell<CompositeSearchResult>() {
+            public ListCell<CompositeQueryResult> call(ListView<CompositeQueryResult> arg0) {
+                return new ListCell<CompositeQueryResult>() {
                     @Override
-                    protected void updateItem(final CompositeSearchResult item, boolean empty) {
+                    protected void updateItem(final CompositeQueryResult item, boolean empty) {
                         try {
                             super.updateItem(item, empty);
                             if (!empty) {
@@ -660,20 +658,20 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         if (dynamicRefexList_.isEmpty()) {
             populateDynamicSememeList();
         }
-        if (descriptionTypeSelection.getItems().size() == 0) {
+        if (descriptionTypeSelection.getItems().isEmpty()) {
             populateDescriptionList();
         }
         return borderPane;
     }
 
     @Override
-    public void taskComplete(SearchHandle sh, long taskStartTime, Integer taskId) {
+    public void taskComplete(QueryHandle sh, long taskStartTime, Integer taskId) {
         // Run on JavaFX thread.
         Platform.runLater(()
                 -> {
             try {
                 if (!ssh.isCancelled()) {
-                    Collection<CompositeSearchResult> results = ssh.getResults();
+                    Collection<CompositeQueryResult> results = ssh.getResults();
 
                     searchResults.getItems().addAll(results);
                     long time = System.currentTimeMillis() - ssh.getSearchStartTime();
@@ -700,7 +698,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
         });
     }
 
-    public ListView<CompositeSearchResult> getSearchResults() {
+    public ListView<CompositeQueryResult> getSearchResults() {
         return searchResults;
     }
 
@@ -761,7 +759,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                         LOG.debug("Doing a description search on the extended type {}", descriptionTypeSelection.getValue().getDescription());
                         descriptionTypeRestriction = null;
                         extendedDescriptionTypeRestriction = new ConceptSpecification[]{new ConceptProxy(descriptionTypeSelection.getValue().getNid())};
-                    }   ssh = SearchHandler.search(()
+                    }   ssh = Get.queryHandler().search(()
                             -> {
                         return Get.service(IndexDescriptionQueryService.class).query(searchText.getText(), false, null,
                                 timeStatusRestriction == null ? null : timeStatusRestriction.getTimeStatusFilter(), amp, false, descriptionTypeRestriction,
@@ -776,7 +774,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                     {
                         LOG.debug("Doing an identifier search");
                         String searchString = searchText.getText().trim();
-                        ssh = SearchHandler.searchIdentifiers(searchString,
+                        ssh = Get.queryHandler().searchIdentifiers(searchString,
                                 searchInIdentifiers.getSelectionModel().getSelectedItem().getNid() == Integer.MIN_VALUE ? null
                                         : new int[]{searchInIdentifiers.getSelectionModel().getSelectedItem().getNid()},
                                 ((searchHandle) -> {
@@ -792,7 +790,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                         if (NumericUtils.isNumber(searchString) && !treatAsString.isSelected()) {
                             DynamicData data = NumericUtilsDynamic.wrapIntoRefexHolder(NumericUtilsDynamic.parseUnknown(searchString));
                             LOG.debug("Doing a semantic search with a numeric value");
-                            ssh = SearchHandler.search(()
+                            ssh = Get.queryHandler().search(()
                                     -> {
                                 return Get.service(IndexSemanticQueryService.class).queryData(data, false,
                                         currentlyEnteredAssemblageNid == null ? null : new int[]{currentlyEnteredAssemblageNid},
@@ -806,7 +804,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                         } else if (Interval.isInterval(searchString) && !treatAsString.isSelected()) {
                             Interval interval = new Interval(searchString);
                             LOG.debug("Doing a semantic search with an interval value");
-                            ssh = SearchHandler.search(()
+                            ssh = Get.queryHandler().search(()
                                     -> {
                                 return Get.service(IndexSemanticQueryService.class).queryNumericRange(
                                         interval.getLeft(), interval.isLeftInclusive(),
@@ -823,7 +821,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<Search
                         } else {
                             //run it as a string search
                             LOG.debug("Doing a semantic search as a string search");
-                            ssh = SearchHandler.search(()
+                            ssh = Get.queryHandler().search(()
                                     -> {
                                 return Get.service(IndexSemanticQueryService.class).queryData(new DynamicStringImpl(searchString), false,
                                         currentlyEnteredAssemblageNid == null ? null : new int[]{currentlyEnteredAssemblageNid},

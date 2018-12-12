@@ -1036,10 +1036,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                createConcept("For assemblage");
                createConcept("Query string");
+               createConcept("Query string is regex", "Is regex");
                createConcept("Let item key");
-               createConcept("Assemblage to join", "Join assemblage");
-               createConcept("Field to join", "Join field");
-               createConcept("For assemblage field to join", "Source field");
+               createConcept("Assemblage 1 to join", "Join assemblage 1");
+               createConcept("Assemblage 2 to join", "Join assemblage 2");
+               createConcept("Field 1 to join", "Join field 1");
+               createConcept("Field 2 to join", "Join field 2");
                createConcept(MANIFOLD_COORDINATE_REFERENCE);
                popParent();
             popParent(); 

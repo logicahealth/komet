@@ -17,22 +17,36 @@
 package sh.isaac.api.query;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import sh.isaac.api.bootstrap.TermAux;
+import javafx.beans.property.ReadOnlyProperty;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.observable.ObservableVersion;
 import static sh.isaac.api.query.Clause.getParentClauses;
+import sh.isaac.api.xml.JoinSpecificationAdaptor;
 
 /**
  *
  * @author kec
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class Join 
         extends ParentClause {
 
-    List<JoinSpecification> joinSpecifications = new ArrayList<>();
+    List<? extends JoinSpecification> joinSpecifications = new ArrayList<>();
+    List<int[]> joinResults = new ArrayList<>();
     
     /**
      * Default no arg constructor for Jaxb.
@@ -56,31 +70,20 @@ public class Join
     public void resetResults() {
         // no cached data in task. 
     }
-    /**
-     * Compute components.
-     *
-     * @param incomingComponents the incoming components
-     * @return the nid set
-     */
-    @Override
-    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        final NidSet results = new NidSet();
 
-        getChildren().stream().forEach((clause) -> {
-            results.or(clause.computeComponents(incomingComponents).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
-    }
-
-    public List<JoinSpecification> getJoinSpecifications() {
+    @XmlElement(name = "JoinSpecification")
+    @XmlJavaTypeAdapter(JoinSpecificationAdaptor.class)    
+    @XmlElementWrapper(name = "Join")
+    public List<? extends JoinSpecification> getJoinSpecifications() {
         return joinSpecifications;
     }
 
-    public void setJoinSpecifications(List<JoinSpecification> joinSpecifications) {
+    public void setJoinSpecifications(List<? extends JoinSpecification> joinSpecifications) {
         this.joinSpecifications = joinSpecifications;
+    }
+
+    public int[][] getJoinResults() {
+        return joinResults.toArray(new int[joinResults.size()][]);
     }
 
     /**
@@ -90,16 +93,46 @@ public class Join
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> searchSpace) {
-        final NidSet results = new NidSet();
+    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> searchSpace) {
+        joinResults.clear();
+        for (Clause child: getChildren()) {
+            child.computePossibleComponents(searchSpace);
+        }
+        for (JoinSpecification joinSpec: joinSpecifications) {
+            NidSet nidSet1 = searchSpace.get(joinSpec.getFirstAssemblage());
+            NidSet nidSet2 = searchSpace.get(joinSpec.getSecondAssemblage());
+            StampCoordinate stampCoordinate = getLetItem(joinSpec.getStampCoordinateKey());
+            for (int nid1: nidSet1.asArray()) {
+                ObservableChronology chron1 = Get.observableChronologyService().getObservableChronology(nid1);
+                LatestVersion<ObservableVersion> version1Latest = chron1.getLatestObservableVersion(stampCoordinate);
+                if (version1Latest.isPresent() && version1Latest.get().getPropertyMap().containsKey(joinSpec.getFirstField())) {
+                    ObservableVersion v1 = version1Latest.get();
+                    ReadOnlyProperty<?> v1Prop = v1.getPropertyMap().get(joinSpec.getFirstField());
+                    for (int nid2: nidSet2.asArray()) {
+                        ObservableChronology chron2 = Get.observableChronologyService().getObservableChronology(nid2);
+                        LatestVersion<ObservableVersion> version2Latest = chron2.getLatestObservableVersion(stampCoordinate);
+                        if (version2Latest.isPresent() && version2Latest.get().getPropertyMap().containsKey(joinSpec.getSecondField())) {
+                            ObservableVersion v2 = version2Latest.get();
+                            ReadOnlyProperty<?> v2Prop = v2.getPropertyMap().get(joinSpec.getSecondField());
+                            if (v1Prop.getValue().equals(v2Prop.getValue())) {
+                                joinResults.add(new int[] {nid1, nid2});
+                            } 
+                        } 
+                    }
+                } 
+            }
+        }
 
-        getChildren().stream().forEach((clause) -> {
-            results.or(clause.computePossibleComponents(searchSpace).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(searchSpace);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+        return searchSpace;
+    }
+
+    @Override
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+        joinResults.clear();
+        for (Clause child: getChildren()) {
+            child.computePossibleComponents(incomingPossibleComponents);
+        }
+        return incomingPossibleComponents;
     }
 
     //~--- get methods ---------------------------------------------------------

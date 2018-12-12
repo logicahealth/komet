@@ -37,9 +37,11 @@
 
 package sh.isaac.provider.query.search;
 
+import sh.isaac.api.query.QueryHandle;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+import sh.isaac.api.query.CompositeQueryResult;
 
 /**
  * Handle object to get search results.
@@ -47,7 +49,7 @@ import java.util.concurrent.Semaphore;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * @author ocarlsen
  */
-public class SearchHandle
+public class SearchHandle implements QueryHandle
 {
 	private final long searchStartTime = System.currentTimeMillis();
 
@@ -59,7 +61,7 @@ public class SearchHandle
 
 	private final Integer searchID;
 
-	private List<CompositeSearchResult> resultList;
+	private List<CompositeQueryResult> resultList;
 
 	private int offPathResultsFiltered = 0;
 
@@ -75,6 +77,7 @@ public class SearchHandle
 		resultBlock.acquireUninterruptibly();
 	}
 
+    @Override
 	public void cancel()
 	{
 		this.cancelled = true;
@@ -85,6 +88,7 @@ public class SearchHandle
 	 *
 	 * @return true, if cancelled
 	 */
+    @Override
 	public boolean isCancelled()
 	{
 		return this.cancelled;
@@ -102,11 +106,12 @@ public class SearchHandle
 	 * @return the hit count
 	 * @throws Exception the exception
 	 */
+    @Override
 	public int getHitCount() throws Exception
 	{
 		int result = 0;
 
-		for (final CompositeSearchResult csr : getResults())
+		for (final CompositeQueryResult csr : getResults())
 		{
 			result += csr.getMatchingComponents().size();
 		}
@@ -114,6 +119,7 @@ public class SearchHandle
 		return result;
 	}
 
+    @Override
 	public int getOffPathFilteredCount()
 	{
 		return offPathResultsFiltered;
@@ -125,7 +131,8 @@ public class SearchHandle
 	 * @return the results
 	 * @throws Exception the exception
 	 */
-	public Collection<CompositeSearchResult> getResults() throws Exception
+    @Override
+	public Collection<CompositeQueryResult> getResults() throws Exception
 	{
 		if (this.error != null)
 		{
@@ -158,7 +165,7 @@ public class SearchHandle
 	 *
 	 * @param results the new results
 	 */
-	protected void setResults(List<CompositeSearchResult> results, int offPathResultsFiltered)
+	public void setResults(List<CompositeQueryResult> results, int offPathResultsFiltered)
 	{
 		this.resultList = results;
 		this.offPathResultsFiltered = offPathResultsFiltered;
@@ -170,6 +177,7 @@ public class SearchHandle
 	 *
 	 * @return the search start time
 	 */
+    @Override
 	public long getSearchStartTime()
 	{
 		return this.searchStartTime;
@@ -180,6 +188,7 @@ public class SearchHandle
 	 *
 	 * @return the task id
 	 */
+    @Override
 	public Integer getTaskId()
 	{
 		return this.searchID;

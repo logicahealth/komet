@@ -19,10 +19,12 @@ package sh.komet.gui.search.flwor;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
 import sh.isaac.api.query.LetItemKey;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -35,17 +37,20 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.properties.AssemblageForIterationClause;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.Join;
+import sh.isaac.api.query.JoinSpecification;
 import sh.isaac.api.query.clauses.ComponentIsActive;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.properties.ManifoldClause;
+import sh.isaac.api.query.properties.QueryStringClause;
 import sh.isaac.api.query.properties.ReferencedComponentClause;
+import sh.isaac.api.query.properties.StampCoordinateClause;
+import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapperNoSearch;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.search.control.LetPropertySheet;
 import sh.komet.gui.util.FxGet;
 
 //~--- inner classes -------------------------------------------------------
@@ -146,29 +151,51 @@ public class QueryClause {
                 return new Label("XOR");
             case JOIN:
                 Join join = (Join) clauseProperty.get();
-                join.setJoinSpecifications(FXCollections.observableArrayList());
-                JoinSpecificationObservable joinCriterion = new JoinSpecificationObservable();
-                join.getJoinSpecifications().add(joinCriterion);
-                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "join",
-                        forSpecProperty, forPropertySheet.getForAssemblagesProperty()));
-                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "with",
-                        joinCriterion.assemblageToJoin, forPropertySheet.getForAssemblagesProperty()));
-                // need field list here
-                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "where",
-                        joinCriterion.sourceField, joinProperties));
-                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "equals",
-                        joinCriterion.joinField, joinProperties));
+                List<JoinSpecificationObservable> joinSpecifications = FXCollections.observableArrayList();
+                if (join.getJoinSpecifications().isEmpty()) {
+                    JoinSpecificationObservable joinCriterion = new JoinSpecificationObservable();
+                    joinSpecifications.add(joinCriterion);
+                } else {
+                    for (JoinSpecification joinSpec : join.getJoinSpecifications()) {
+                        if (joinSpec instanceof JoinSpecificationObservable) {
+                            joinSpecifications.add((JoinSpecificationObservable) joinSpec);
+                        } else {
+                            joinSpecifications.add(new JoinSpecificationObservable(joinSpec));
+                        }
+                    }
+                }
+                join.setJoinSpecifications(joinSpecifications);
+                String suffix = "";
+                int count = 0;
+                for (JoinSpecificationObservable joinSpec : joinSpecifications) {
+                    if (count > 0) {
+                        suffix = " " + count;
+                    }
+                    clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "join" + suffix,
+                            joinSpec.firstAssemblageProperty(), forPropertySheet.getForAssemblagesProperty()));
+                    clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "with",
+                            joinSpec.secondAssemblageProperty(), forPropertySheet.getForAssemblagesProperty()));
+                    // need field list here
+                    clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "where",
+                            joinSpec.firstFieldProperty(), joinProperties));
+                    clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "equals",
+                            joinSpec.secondFieldProperty, joinProperties));
+
+                    clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("stamp",
+                            joinSpec.stampCoordinateKeyProperty(), letPropertySheet.getStampCoordinateKeys()));
+                }
+
                 return clausePropertySheet;
 
             case COMPONENT_IS_ACTIVE:
                 ComponentIsActive componentIsActive = (ComponentIsActive) clauseProperty.get();
-                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "For each",
+                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "for each",
                         forSpecProperty, forPropertySheet.getForAssemblagesProperty()));
                 forSpecProperty.addListener((observable, oldValue, newValue) -> {
                     componentIsActive.setAssemblageForIteration(newValue);
                 });
 
-                clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("Stamp",
+                clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("stamp",
                         stampKeyProperty, letPropertySheet.getStampCoordinateKeys()));
                 stampKeyProperty.setValue(componentIsActive.getStampCoordinateKey());
 
@@ -178,47 +205,115 @@ public class QueryClause {
                 return clausePropertySheet;
 
             case REFERENCED_COMPONENT_IS:
-                setupAssemblageForIteration("For each");
+                setupAssemblageForIteration("for each");
                 return setupReferencedComponentClause("RC is");
             case REFERENCED_COMPONENT_IS_KIND_OF:
-                setupAssemblageForIteration("For each");
-                setupManifoldClause("Manifold");
+                setupAssemblageForIteration("for each");
+                setupManifoldClause("manifold");
                 return setupReferencedComponentClause("RC is kind of");
             case REFERENCED_COMPONENT_IS_MEMBER_OF:
-                setupAssemblageForIteration("For each");
-                setupManifoldClause("Manifold");
+                setupAssemblageForIteration("for each");
+                setupManifoldClause("manifold");
                 return setupReferencedComponentClause("RC is member of");
             case REFERENCED_COMPONENT_IS_NOT_KIND_OF:
-                setupAssemblageForIteration("For each");
-                setupManifoldClause("Manifold");
+                setupAssemblageForIteration("for each");
+                setupManifoldClause("manifold");
                 return setupReferencedComponentClause("RC is NOT kind of");
             case REFERENCED_COMPONENT_IS_NOT_MEMBER_OF:
-                setupAssemblageForIteration("For each");
-                setupManifoldClause("Manifold");
+                setupAssemblageForIteration("for each");
+                setupManifoldClause("manifold");
                 return setupReferencedComponentClause("RC is NOT member of");
+
+            case SEMANTIC_CONTAINS_TEXT:
+                setupAssemblageForIteration("for each");
+                return setupQueryStringClause("query string");
+                
+            case REFERENCED_COMPONENT_IS_ACTIVE:
+            case REFERENCED_COMPONENT_IS_INACTIVE:
+                setupAssemblageForIteration("for each");
+                return setupStampCoordinateClause("stamp key");
+                
 
             default:
                 throw new UnsupportedOperationException("Can't handle: " + this.clauseProperty.get().getClauseSemantic());
         }
     }
-    protected PropertySheet setupAssemblageForIteration(String keyName) {
-        AssemblageForIterationClause assemblageForIteration = (AssemblageForIterationClause) clauseProperty.get();
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, keyName,
-                forSpecProperty, forPropertySheet.getForAssemblagesProperty()));
-        forSpecProperty.addListener((observable, oldValue, newValue) -> {
-            assemblageForIteration.setAssemblageForIteration(newValue);
+    protected PropertySheet setupStampCoordinateClause(String keyName) {
+        StampCoordinateClause stampClause = (StampCoordinateClause) clauseProperty.get();
+        SimpleObjectProperty<LetItemKey> stampKeyForClauseProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
+        this.clauseSpecificProperties.add(stampKeyForClauseProperty);
+        if (stampClause.getStampCoordinateKey() == null &! letPropertySheet.getStampCoordinateKeys().isEmpty()) {
+            stampClause.setStampCoordinateKey(letPropertySheet.getStampCoordinateKeys().get(0));
+        }
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper(keyName,
+                stampKeyForClauseProperty, letPropertySheet.getStampCoordinateKeys()));
+        stampKeyForClauseProperty.addListener((observable, oldValue, newValue) -> {
+            stampClause.setStampCoordinateKey((LetItemKey) newValue);
         });
+        return clausePropertySheet;
+    }
+
+
+    protected PropertySheet setupQueryStringClause(String keyName) {
+        QueryStringClause queryStringClause = (QueryStringClause) clauseProperty.get();
+        SimpleObjectProperty<LetItemKey> queryKeyProperty = new SimpleObjectProperty<>(this, MetaData.LET_ITEM_KEY____SOLOR.toExternalString());
+        queryKeyProperty.setValue(queryStringClause.getQueryStringKey());
+        this.clauseSpecificProperties.add(queryKeyProperty);
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("string key",
+                queryKeyProperty, letPropertySheet.getStringKeys()));
+        if (queryStringClause.getQueryText() == null) {
+            letPropertySheet.getLetItemObjectMap().put(queryStringClause.getQueryStringKey(), "");
+        }
+
+        SimpleStringProperty queryStringProperty = new SimpleStringProperty(this, MetaData.QUERY_STRING____SOLOR.toExternalString(),
+                (String) letPropertySheet.getLetItemObjectMap().get(queryKeyProperty.get()));
+
+        queryStringProperty.addListener((observable, oldValue, newValue) -> {
+            letPropertySheet.getLetItemObjectMap().put(queryKeyProperty.get(), newValue);
+        });
+
+        clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold,
+                queryStringProperty));
+
+        SimpleBooleanProperty regexProperty = new SimpleBooleanProperty(this, MetaData.QUERY_STRING_IS_REGEX____SOLOR.toExternalString(), queryStringClause.isRegex());
+        this.clauseSpecificProperties.add(regexProperty);
+        regexProperty.addListener((observable, oldValue, newValue) -> {
+            queryStringClause.setRegex(newValue);
+        });
+        clausePropertySheet.getItems().add(new PropertySheetBooleanWrapper("is regex", regexProperty));
+
         return this.clausePropertySheet;
     }
-    
+
+    protected PropertySheet setupAssemblageForIteration(String keyName) {
+        AssemblageForIterationClause assemblageForIterationClause = (AssemblageForIterationClause) clauseProperty.get();
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, keyName,
+                forSpecProperty, forPropertySheet.getForAssemblagesProperty()));
+
+        forSpecProperty.addListener((observable, oldValue, newValue) -> {
+            assemblageForIterationClause.setAssemblageForIteration(newValue);
+        });
+
+        forPropertySheet.getForAssemblagesProperty().addListener((ListChangeListener.Change<? extends ConceptSpecification> c) -> {
+            if (assemblageForIterationClause.getAssemblageForIteration().equals(TermAux.UNINITIALIZED_COMPONENT_ID)) {
+                assemblageForIterationClause.setAssemblageForIteration(forPropertySheet.getForAssemblagesProperty().get(0));
+            }
+        });
+
+        if (!forPropertySheet.getForAssemblagesProperty().isEmpty() && assemblageForIterationClause.getAssemblageForIteration().equals(TermAux.UNINITIALIZED_COMPONENT_ID)) {
+            assemblageForIterationClause.setAssemblageForIteration(forPropertySheet.getForAssemblagesProperty().get(0));
+        }
+        return this.clausePropertySheet;
+    }
+
     protected PropertySheet setupManifoldClause(String keyName) {
         ManifoldClause manifoldClause = (ManifoldClause) clauseProperty.get();
         SimpleObjectProperty<LetItemKey> manifoldKeyProperty = new SimpleObjectProperty<>(this, MetaData.MANIFOLD_COORDINATE_REFERENCE____SOLOR.toExternalString());
         this.clauseSpecificProperties.add(manifoldKeyProperty);
-        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("Manifold",
-                        manifoldKeyProperty, letPropertySheet.getManifoldCoordinateKeys()));
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("manifold",
+                manifoldKeyProperty, letPropertySheet.getManifoldCoordinateKeys()));
         stampKeyProperty.addListener((observable, oldValue, newValue) -> {
-                     manifoldClause.setManifoldCoordinateKey((LetItemKey) newValue);
+            manifoldClause.setManifoldCoordinateKey((LetItemKey) newValue);
         });
         return clausePropertySheet;
     }

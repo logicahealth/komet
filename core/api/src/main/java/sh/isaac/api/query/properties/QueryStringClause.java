@@ -14,34 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.query;
+package sh.isaac.api.query.properties;
 
-import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.query.LetItemKey;
 
 /**
  *
  * @author kec
  */
-public interface JoinSpecification {
+public interface QueryStringClause {
 
-    ConceptSpecification getFirstAssemblage();
+    LetItemKey getQueryStringKey();
 
-    ConceptSpecification getFirstField();
+    String getQueryText();
 
-    ConceptSpecification getSecondAssemblage();
-
-    ConceptSpecification getSecondField();
-
-    LetItemKey getStampCoordinateKey();
-
-    void setFirstAssemblage(ConceptSpecification firstAssemblage);
-
-    void setFirstField(ConceptSpecification firstField);
-
-    void setSecondAssemblage(ConceptSpecification secondAssemblage);
-
-    void setSecondField(ConceptSpecification secondField);
-
-    void setStampCoordinateKey(LetItemKey stampCoordinateKey);
+    void setQueryStringKey(LetItemKey queryStringKey);
+    
+    boolean isRegex();
+    
+    void setRegex(boolean regex);
     
 }

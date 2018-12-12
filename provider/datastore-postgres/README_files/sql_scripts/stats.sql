@@ -23,4 +23,7 @@ SELECT COUNT(*) FROM stamp_committed_table;
 SELECT COUNT(*) FROM stamp_uncommitted_table;
 SELECT * FROM stamp_next_sequence;
 
+-- SELECT * FROM pg_indexes WHERE tablename = 'datastore_id_table'; -- exmple for individual tables
+-- SELECT * FROM pg_indexes WHERE schemaname='public';
+
 \set ECHO none

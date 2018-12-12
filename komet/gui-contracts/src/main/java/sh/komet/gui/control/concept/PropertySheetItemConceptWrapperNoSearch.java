@@ -33,6 +33,7 @@ import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptSpecificationWithLabel;
 import sh.komet.gui.manifold.Manifold;
@@ -42,7 +43,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecification, PropertySheet.Item, PreferenceChanged {
-
+    
     private final Manifold manifoldForDisplay;
     private final String name;
     private final SimpleObjectProperty<ConceptSpecification> conceptProperty;
@@ -50,25 +51,27 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
     private final SimpleBooleanProperty allowSearchProperty = new SimpleBooleanProperty(this, "allow search", true);
     private final SimpleBooleanProperty allowHistoryProperty = new SimpleBooleanProperty(this, "allow history", true);
     private final BooleanProperty changedProperty = new SimpleBooleanProperty(this, "changed", false);
-
+    
     private ConceptSpecification propertySpecification = null;
-
+    
     public PropertySheetItemConceptWrapperNoSearch(Manifold manifoldForDisplay,
             ObjectProperty<? extends ConceptSpecification> conceptProperty, ObservableList<ConceptSpecification> allowedValues) {
         this(manifoldForDisplay, manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptProperty.getName())), conceptProperty, allowedValues);
     }
-
+    
     public PropertySheetItemConceptWrapperNoSearch(Manifold manifoldForDisplay, String name,
             ObjectProperty<? extends ConceptSpecification> conceptProperty, ObservableList<ConceptSpecification> allowedValues) {
         this.manifoldForDisplay = manifoldForDisplay;
         this.name = name;
         this.allowedValues = allowedValues;
         this.conceptProperty = (SimpleObjectProperty<ConceptSpecification>) conceptProperty;
-        if (allowedValues.size() > 0) {
-            this.conceptProperty.set(allowedValues.get(0));
+        if (this.conceptProperty.get() == null || this.conceptProperty.get().equals(TermAux.UNINITIALIZED_COMPONENT_ID)) {
+            if (allowedValues.size() > 0) {
+                this.conceptProperty.set(allowedValues.get(0));
+            }
         }
         bindProperties();
-
+        
     }
     
     public PropertyEditor<ConceptSpecification> getEditor() {
@@ -77,7 +80,7 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
         conceptCombo.setButtonCell(new ListCell<ConceptSpecification>() {
             @Override
             protected void updateItem(ConceptSpecification item, boolean empty) {
-                super.updateItem(item, empty); 
+                super.updateItem(item, empty);                
                 if (!empty) {
                     if (item instanceof ConceptSpecificationWithLabel) {
                         this.setText(((ConceptSpecificationWithLabel) item).toString());
@@ -90,10 +93,10 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
             }
         });
         
-        conceptCombo.setCellFactory(c-> new ListCell<ConceptSpecification>() {
+        conceptCombo.setCellFactory(c -> new ListCell<ConceptSpecification>() {
             @Override
             protected void updateItem(ConceptSpecification item, boolean empty) {
-                super.updateItem(item, empty); 
+                super.updateItem(item, empty);                
                 if (!empty) {
                     if (item instanceof ConceptSpecificationWithLabel) {
                         this.setText(((ConceptSpecificationWithLabel) item).toString());
@@ -108,23 +111,24 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
         return new AbstractPropertyEditor<ConceptSpecification, ComboBox<ConceptSpecification>>(
                 this, conceptCombo, false) {
             
-            @Override protected ObservableValue<ConceptSpecification> getObservableValue() {
+            @Override
+            protected ObservableValue<ConceptSpecification> getObservableValue() {
                 return getEditor().getSelectionModel().selectedItemProperty();
             }
-
-            @Override public void setValue(ConceptSpecification value) {
+            
+            @Override
+            public void setValue(ConceptSpecification value) {
                 getEditor().getSelectionModel().select(value);
             }
         };
         
     }
     
- 
     @Override
     public BooleanProperty changedProperty() {
         return changedProperty;
     }
-
+    
     private void bindProperties() {
         
         this.conceptProperty.addListener((observable, oldValue, newValue) -> {
@@ -141,71 +145,70 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
             changedProperty.setValue(true);
         }));
     }
-
+    
     public boolean allowSearch() {
         return allowSearchProperty.get();
     }
-
+    
     public void setAllowSearch(boolean allowSearch) {
         this.allowSearchProperty.set(allowSearch);
     }
-
+    
     public SimpleBooleanProperty allowSearchProperty() {
         return allowSearchProperty;
     }
-
+    
     public SimpleBooleanProperty allowHistoryProperty() {
         return allowHistoryProperty;
     }
-
+    
     public boolean allowHistory() {
         return allowHistoryProperty.get();
     }
-
+    
     public void setAllowHistory(boolean allowHistory) {
         this.allowHistoryProperty.set(allowHistory);
     }
-
+    
     @Override
     public String getFullyQualifiedName() {
         return this.manifoldForDisplay.getFullySpecifiedDescriptionText(conceptProperty.get());
     }
-
+    
     @Override
     public Optional<String> getRegularName() {
         return Optional.of(manifoldForDisplay.getPreferredDescriptionText(conceptProperty.get()));
     }
-
+    
     @Override
     public List<UUID> getUuidList() {
         return new ConceptProxy(conceptProperty.getName()).getUuidList();
     }
-
+    
     @Override
     public Class<?> getType() {
         return ConceptSpecificationForControlWrapper.class;
     }
-
+    
     @Override
     public String getCategory() {
         return null;
     }
-
+    
     public ObservableList<ConceptSpecification> getAllowedValues() {
         return allowedValues;
     }
     
-
     @Override
     public String getName() {
         return this.name;
     }
-
+    
     @Override
     public String getDescription() {
         return "Select the proper concept value for the version you wish to create. ";
     }
-
+    
     @Override
     public ConceptSpecification getValue() {
         return this.conceptProperty.get();
@@ -214,28 +217,28 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
     public void setDefaultValue(Object value) {
         setValue(value);
     }
-
+    
     @Override
     public void setValue(Object value) {
         this.conceptProperty.setValue((ConceptSpecification) value);
     }
-
+    
     @Override
     public Optional<ObservableValue<? extends Object>> getObservableValue() {
         return Optional.of(this.conceptProperty);
     }
-
+    
     public ConceptSpecification getSpecification() {
         if (this.propertySpecification != null) {
             return this.propertySpecification;
         }
         return new ConceptProxy(this.conceptProperty.getName());
     }
-
+    
     public void setSpecification(ConceptSpecification propertySpecification) {
         this.propertySpecification = propertySpecification;
     }
-
+    
     @Override
     public String toString() {
         return "Property sheet item for "

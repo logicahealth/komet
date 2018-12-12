@@ -46,17 +46,7 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>stamp</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
          <artifactId>chronology</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>query</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>

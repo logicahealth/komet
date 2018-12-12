@@ -50,7 +50,7 @@
        <dependency>
            <groupId>sh.isaac.provider</groupId>
            <artifactId>query</artifactId>
-           <version>4.61-postgres-SNAPSHOT</version>
+          <version>${project.parent.version}</version>
        </dependency>
    </dependencies>
 </project>

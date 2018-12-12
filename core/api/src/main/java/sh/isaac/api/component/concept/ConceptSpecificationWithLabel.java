@@ -18,7 +18,6 @@ package sh.isaac.api.component.concept;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -97,10 +96,7 @@ public class ConceptSpecificationWithLabel implements ConceptSpecification {
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 59 * hash + Objects.hashCode(this.wrappedSpec);
-        hash = 59 * hash + Objects.hashCode(this.label);
-        return hash;
+        return this.wrappedSpec.hashCode();
     }
 
     @Override
@@ -111,17 +107,7 @@ public class ConceptSpecificationWithLabel implements ConceptSpecification {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final ConceptSpecificationWithLabel other = (ConceptSpecificationWithLabel) obj;
-        if (!Objects.equals(this.label, other.label)) {
-            return false;
-        }
-        if (!Objects.equals(this.wrappedSpec, other.wrappedSpec)) {
-            return false;
-        }
-        return true;
+        return this.wrappedSpec.equals(obj);
     }
     
     

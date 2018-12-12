@@ -34,26 +34,19 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
@@ -63,13 +56,12 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.query.properties.QueryStringClause;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * Calculates descriptions that match the specified Java Regular Expression.
  * Very slow when iterating over a large sets.
@@ -79,48 +71,42 @@ import sh.isaac.api.query.WhereClause;
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionRegexMatch
-        extends LeafClause {
-
-   /** The regex key. */
-   @XmlElement
-   LetItemKey regexKey;
+        extends QueryStringAbstract implements QueryStringClause {
 
 
-   //~--- constructors --------------------------------------------------------
+    //~--- constructors --------------------------------------------------------
+    /**
+     * Instantiates a new description regex match.
+     */
+    public DescriptionRegexMatch() {
+    }
 
-   /**
-    * Instantiates a new description regex match.
-    */
-   public DescriptionRegexMatch() {}
+    /**
+     * Instantiates a new description regex match.
+     *
+     * @param enclosingQuery the enclosing query
+     * @param regexKey the regex key
+     */
+    public DescriptionRegexMatch(Query enclosingQuery, LetItemKey regexKey) {
+        super(enclosingQuery, regexKey);
+    }
 
-   /**
-    * Instantiates a new description regex match.
-    *
-    * @param enclosingQuery the enclosing query
-    * @param regexKey the regex key
-    */
-   public DescriptionRegexMatch(Query enclosingQuery, LetItemKey regexKey) {
-      super(enclosingQuery);
-      this.regexKey          = regexKey;
-   }
-
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Compute possible components.
-    *
-    * @param incomingPossibleComponents the incoming possible components
-    * @return the nid set
-    */
-   @Override
-   public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-       String regex = getLetItem(regexKey);
-       NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
-        for (int nid: possibleComponents.asArray()) {
+    //~--- methods -------------------------------------------------------------
+    /**
+     * Compute possible components.
+     *
+     * @param incomingPossibleComponents the incoming possible components
+     * @return the nid set
+     */
+    @Override
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+        String regex = getQueryText();
+        NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+        for (int nid : possibleComponents.asArray()) {
             Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(nid);
             boolean found = false;
             if (c.isPresent() && c.get() instanceof SemanticChronology && c.get().getVersionType() == VersionType.DESCRIPTION) {
-                for (Version dv: c.get().getVersionList()) {
+                for (Version dv : c.get().getVersionList()) {
                     if (((DescriptionVersion) dv).getText().matches(regex)) {
                         found = true;
                         break;
@@ -131,41 +117,39 @@ public class DescriptionRegexMatch
                 possibleComponents.remove(nid);
             }
         }
-       
-      return incomingPossibleComponents;
-   }
 
-   //~--- get methods ---------------------------------------------------------
+        return incomingPossibleComponents;
+    }
 
-   /**
-    * Gets the compute phases.
-    *
-    * @return the compute phases
-    */
-   @Override
-   public EnumSet<ClauseComputeType> getComputePhases() {
-      return ITERATION;
-   }
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the compute phases.
+     *
+     * @return the compute phases
+     */
+    @Override
+    public EnumSet<ClauseComputeType> getComputePhases() {
+        return ITERATION;
+    }
 
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.DESCRIPTION_REGEX_MATCH;
     }
-   
 
-   /**
-    * Gets the where clause.
-    *
-    * @return the where clause
-    */
-   @Override
-   public WhereClause getWhereClause() {
-      final WhereClause whereClause = new WhereClause();
+    /**
+     * Gets the where clause.
+     *
+     * @return the where clause
+     */
+    @Override
+    public WhereClause getWhereClause() {
+        final WhereClause whereClause = new WhereClause();
 
-      whereClause.setSemantic(ClauseSemantic.DESCRIPTION_REGEX_MATCH);
-      whereClause.getLetKeys()
-                 .add(this.regexKey);
-      return whereClause;
-   }
+        whereClause.setSemantic(ClauseSemantic.DESCRIPTION_REGEX_MATCH);
+        whereClause.getLetKeys()
+                .add(this.getQueryStringKey());
+        return whereClause;
+    }
+
 }
-

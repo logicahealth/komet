@@ -37,25 +37,22 @@
 package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.isaac.api.query.properties.QueryStringClause;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.LookupService;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.index.IndexDescriptionQueryService;
@@ -70,17 +67,8 @@ import sh.isaac.api.query.LetItemKey;
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionLuceneMatch
-        extends LeafClause {
+        extends QueryStringAbstract implements QueryStringClause {
 
-    public static final LetItemKey DEFAULT_QUERY_STRING_KEY 
-            = new LetItemKey("Default query string key", 
-                    UUID.fromString("dd11c59a-9afd-4a15-a4a9-32fb414f3299"));
-    
-    /**
-     * the manifold coordinate key.
-     */
-
-    private LetItemKey queryStringKey = DEFAULT_QUERY_STRING_KEY;
     //~--- constructors --------------------------------------------------------
     /**
      * Instantiates a new description lucene match.
@@ -95,9 +83,9 @@ public class DescriptionLuceneMatch
      * @param queryStringKey the lucene match key
      */
     public DescriptionLuceneMatch(Query enclosingQuery, LetItemKey queryStringKey) {
-        super(enclosingQuery);
-        this.queryStringKey = queryStringKey;
+        super(enclosingQuery, queryStringKey);
     }
+    
     /**
      * Instantiates a new description lucene match using the DEFAULT_QUERY_STRING_KEY.
      *
@@ -126,7 +114,7 @@ public class DescriptionLuceneMatch
             throw new IllegalStateException("No description indexer found on classpath");
         }
 
-        final List<SearchResult> queryResults = descriptionIndexer.query((String) this.enclosingQuery.getLetDeclarations().get(queryStringKey), 1000);
+        final List<SearchResult> queryResults = descriptionIndexer.query((String) this.enclosingQuery.getLetDeclarations().get(getQueryStringKey()), 1000);
 
         queryResults.stream().forEach((s) -> {
             if (!possibleComponents.contains(s.getNid())) {
@@ -163,21 +151,9 @@ public class DescriptionLuceneMatch
 
         whereClause.setSemantic(ClauseSemantic.DESCRIPTION_LUCENE_MATCH);
         whereClause.getLetKeys()
-                .add(this.queryStringKey);
+                .add(this.getQueryStringKey());
         return whereClause;
     }
 
-    public void setQueryStringKey(LetItemKey queryStringKey) {
-        this.queryStringKey = queryStringKey;
-    }
-
-    @XmlElement
-    public LetItemKey getQueryStringKey() {
-        return this.queryStringKey;
-    }    
-    
-    public String getQueryText() {
-        return getLetItem(queryStringKey);
-    }
     
 }

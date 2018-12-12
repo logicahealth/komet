@@ -251,9 +251,15 @@ public class LookupService {
          get().getAllServiceHandles(DatastoreServices.class).forEach(handle -> {
             if (handle.isActive()) {
                   if (!expected.equals(handle.getService().getDataStoreId().orElse(null))) {
-                     throw new RuntimeException("Inconsistent Data Store state!  Provider " + handle.getActiveDescriptor().getImplementation()  
-                           + " has an id of " + handle.getService().getDataStoreId() 
-                           + ".  Expected " + expected);
+                      StringBuilder builder = new StringBuilder();
+                      builder.append("Inconsistent Data Store state!  Provider ")
+                              .append(handle.getActiveDescriptor().getImplementation())
+                              .append(" has an id of ").append(handle.getService().getDataStoreId())
+                              .append(".  Expected ")
+                              .append(expected);
+                      LOG.warn(builder);
+                   //TODO, add a configuration paramater. 
+                  // throw new RuntimeException(builder.toString());
                   }
                }
             });
@@ -345,9 +351,16 @@ public class LookupService {
          if (handle.isActive()) {
                if (discoveredValidityValue != handle.getService().getDataStoreStartState() && 
                      !(handle.getService() instanceof IndexQueryService)) {
-                  throw new RuntimeException("Inconsistent Data Store state!  Provider " + handle.getActiveDescriptor().getImplementation()  
-                        + " has start state of " + handle.getService().getDataStoreStartState() 
-                        + ".  Expected " + discoveredValidityValue);
+                   StringBuilder builder = new StringBuilder();
+                   builder.append("Inconsistent Data Store state!  Provider ")
+                           .append(handle.getActiveDescriptor().getImplementation())
+                           .append(" has start state of ")
+                           .append(handle.getService().getDataStoreStartState())
+                           .append(".  Expected ")
+                           .append(discoveredValidityValue);
+                   LOG.warn(builder);
+                   //TODO, add a configuration paramater. 
+                  // throw new RuntimeException(builder.toString());
                }
             }
          });

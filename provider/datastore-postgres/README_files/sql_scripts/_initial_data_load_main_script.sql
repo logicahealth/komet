@@ -1,5 +1,5 @@
 -- ------------------------------------------------------------
--- File: _import_all.sql
+-- File: _initial_bulk_import.sql
 -- ------------------------------------------------------------
 -- The following command sequence will do an initial bulk load.
 --
@@ -31,7 +31,22 @@
 \i initial_data_load.sql
 \timing off
 
--- 8. Verify row count
+-- 8. Add any index which is not otherwise automatically created
+\timing on
+CREATE UNIQUE INDEX uuid_primordial_table_ouid_key ON uuid_primordial_table USING btree (ouid);
+CREATE UNIQUE INDEX uuid_primordial_table_pkey     ON uuid_primordial_table USING btree (u_nid, ouid);
+
+CREATE UNIQUE INDEX uuid_additional_table_ouid_key ON uuid_additional_table USING btree (ouid);
+CREATE UNIQUE INDEX uuid_additional_table_pkey     ON uuid_additional_table USING btree (u_nid, ouid);
+
+CREATE UNIQUE INDEX concepts_table_pkey     ON concepts_table  USING btree (o_nid, version_stamp);
+
+CREATE UNIQUE INDEX semantics_table_pkey    ON semantics_table USING btree (o_nid, version_stamp);
+CREATE INDEX semantics_table_assemblage_idx ON semantics_table USING btree (assemblage_nid);
+CREATE INDEX semantics_table_referenced_component_idx ON semantics_table USING btree (referenced_component_nid);
+\timing off
+
+-- 9. Verify row count
 -- Get stats for what actually loaded.
 \i /PATH_TO/…/provider/datastore-postgres/README_files/sql_scripts/stats.sql
 

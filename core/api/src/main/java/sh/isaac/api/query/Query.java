@@ -284,8 +284,11 @@ public class Query {
                 return sort(resultArray);
             }
             throw new IllegalStateException("No entry found, though list is not empty. ");
+        } else if (assemlageMapResults.size() == 2 && getRoot() instanceof Join) { 
+            Join join = (Join) getRoot();
+            return sort(join.getJoinResults());
         } else {
-            throw new UnsupportedOperationException("Can't handle joins yet" + assemlageMapResults);
+            throw new UnsupportedOperationException("Can't handle complex joins yet" + assemlageMapResults);
         }
     }
 

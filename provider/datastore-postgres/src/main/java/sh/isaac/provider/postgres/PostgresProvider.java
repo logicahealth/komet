@@ -702,7 +702,8 @@ public class PostgresProvider
             stmt.setInt(1, conceptNid); // t_nid
             stmt.setInt(2, assemblageNid); // assemblage_nid
 
-            ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer((taxonomyData.length * 4) + 4); // 4 bytes per element + 4 bytes for length of array. 
+            // 4 bytes inbound taxonomyData int[] length + 4 bytes per element
+            ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer((taxonomyData.length * 4) + 4); 
             byteBuffer.putIntArray(taxonomyData);
 
             byte[] taxonomyBytes = byteBuffer.getData();

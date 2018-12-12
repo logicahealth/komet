@@ -46,11 +46,6 @@
          <version>${project.parent.version}</version>
       </dependency>
       <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>query</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
          <groupId>de.jensd</groupId>
          <artifactId>fontawesomefx-fontawesome</artifactId>
       </dependency>
