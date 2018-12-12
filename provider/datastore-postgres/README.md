@@ -5,6 +5,7 @@
 [Run KOMET Application](#RunApp) •
 [Command Line Launch](#CliLaunch) •
 [SQL Trace Logging](#SqlLogging) •
+[Initial Data Load](#InitialDataLoad) •
 [Resources](#Resources)
 
 > The example below are based on a macOS High Sierra computer which has [Java SE JDK 1.8](https://www.oracle.com/technetwork/java/javase/downloads/index.html), [Apache Maven 3.5.4](https://maven.apache.org/download.cgi) and [Netbeans IDE 8.2](https://netbeans.org/downloads/) installed.  The [Postgres.app](https://postgresapp.com/) is shown as the PostgreSQL installation.
@@ -185,6 +186,47 @@ Note: For full logging of java generated SQL statements, find and set `LOG_SQL_F
 ``` java
 private static final boolean LOG_SQL_FLAG = false;
 ```
+
+## Initial Data Load <a id="InitialDataLoad">[▴](#toc)</a>
+
+![](README_files/images/KometFileMenu.png)
+
+**Step 1 Create Native Format File.**
+
+Run a version of a filestore based KOMET in Netbeans which contains all the data to be used for an initial PostgreSQL database load. Execute menu item _File > Native format export to file…_ to created a `native-export.zip` file.
+
+**Step 2. Create PostgreSQL CSV Import Files.**
+
+Execute menu item _File > Native format file to CSV…_ on the previously created `native-export.zip` file.
+
+The menu time will generate several PostgreSQL style CSV files and one `initial_data_load.sql` script.  The files generated in a `…/target/csv` directory relative to where KOMET is running.
+
+```
+initial_data_load.sql
+stamp_committed_table.csv
+concepts_table.csv
+taxonomy_data_table.csv
+type_for_assemblage_table.csv
+uuid_additional_table.csv
+uuid_primordial_table.csv
+semantics_table.csv
+```
+
+The `initial_data_load.sql` script contains sequence initialization values based on the exported data. The `initial_data_load.sql` will be call by the `_initial_data_load_main_script.sql` script in Step 3.
+
+**Step 3. Import Initial PostgreSQL CSV Data.**
+
+Move a copy of the [`_initial_data_load_main_script.sql`](README_files/sql_scripts/_initial_data_load_main_script.sql), `initial_data_load.sql` and `*.csv` files to a directory that will be used for staging the import.
+
+The [`create_table_schema.sql`](README_files/sql_scripts/create_table_schema.sql), 
+[`drop_all.sql`](README_files/sql_scripts/drop_all.sql), and 
+[`stats.sql`](README_files/sql_scripts/stats.sql) scripts will also need to be on a known reachable system path(s) relative to where the data load will occur.
+
+Edit the `/PATH_TO/…` instances in `_initial_data_load_main_script.sql` based on the CSV files and helper SQL script have been located.
+
+Launch PostgreSQL. Run the `_initial_data_load_main_script.sql` script from an appropriate `psql` prompt.
+
+> Note: Steps 1 & 2 only need to run once for a given starting set of data. Once the CSV files and associcates SQL scripting are created, then the initial load can be done as needed for a new PostgreSQL database instance.
 
 ## Resources <a id="Resources">[▴](#toc)</a>
 

@@ -44,7 +44,6 @@ import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.search.control.LetPropertySheet;
 
 /**
  *
@@ -102,7 +101,14 @@ public class LetItemPanel {
         if (letItem instanceof ObservableConceptProxy) {
             setupConceptProxy((ObservableConceptProxy) letItem);
         }
+        if (letItem instanceof SimpleStringProperty) {
+            setupString((SimpleStringProperty) letItem);
+        }
     }
+    private void setupString(SimpleStringProperty stringItem) {
+        this.sheet.getItems().add(new PropertySheetTextWrapper(manifold, stringItem));
+    }
+    
     
     private void setupConceptProxy(ObservableConceptProxy conceptProxyItem) {
         this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, conceptProxyItem));

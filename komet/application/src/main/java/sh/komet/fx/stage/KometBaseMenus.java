@@ -193,10 +193,10 @@ public class KometBaseMenus implements MenuProvider {
                     });
                 });
 
-                MenuItem exportNative = new MenuItem("Export in native format to file...");
+                MenuItem exportNative = new MenuItem("Native format export to file...");
                 exportNative.setOnAction(this::exportNative);
 
-                MenuItem importNative = new MenuItem("Import from native format file...");
+                MenuItem importNative = new MenuItem("Native format file to CSV...");
                 importNative.setOnAction(this::importNative);
 
                 MenuItem executeFlwor = new MenuItem("Execute FLWOR...");

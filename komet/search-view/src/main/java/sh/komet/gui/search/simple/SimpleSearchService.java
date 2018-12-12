@@ -21,15 +21,14 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
-import sh.isaac.provider.query.search.CompositeSearchResult;
-import sh.isaac.provider.query.search.SearchHandle;
-import sh.isaac.provider.query.search.SearchHandler;
 
 import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.query.CompositeQueryResult;
 import sh.isaac.api.query.Query;
+import sh.isaac.api.query.QueryHandle;
 
 /**
  * @author aks8m
@@ -98,11 +97,11 @@ public class SimpleSearchService extends Service<NidSet> {
                     
                     try {
                         CountDownLatch searchComplete = new CountDownLatch(1);
-                        SearchHandle ssh = SearchHandler.searchIdentifiers(queryString,
+                        QueryHandle ssh = Get.queryHandler().searchIdentifiers(queryString,
                                 null,
                                 ((searchHandle) -> {
                                     try {
-                                        for (CompositeSearchResult result : searchHandle.getResults()) {
+                                        for (CompositeQueryResult result : searchHandle.getResults()) {
                                             ConceptChronology containingConcept = result.getContainingConcept();
                                             for (SemanticChronology description : containingConcept.getConceptDescriptionList()) {
                                                 results.add(description.getNid());

@@ -32,7 +32,6 @@ import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptSpecificationWithLabel;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
@@ -58,7 +57,11 @@ public abstract class ControllerForSpecification {
     final ObservableMap<LetItemKey, Object> letItemObjectMap;
     final ObservableList<AttributeFunction> attributeFunctions;
 
-    public ControllerForSpecification(SimpleListProperty<ConceptSpecification> forAssemblagesProperty, Manifold manifold, ObservableList<MenuItem> addFieldItems, ObservableList<ConceptSpecification> joinProperties, ObservableMap<LetItemKey, Object> letItemObjectMap, ObservableList<AttributeFunction> attributeFunctions) {
+    public ControllerForSpecification(SimpleListProperty<ConceptSpecification> forAssemblagesProperty, 
+            Manifold manifold, ObservableList<MenuItem> addFieldItems, 
+            ObservableList<ConceptSpecification> joinProperties, 
+            ObservableMap<LetItemKey, Object> letItemObjectMap, 
+            ObservableList<AttributeFunction> attributeFunctions) {
         this.forAssemblagesProperty = forAssemblagesProperty;
         this.manifold = manifold;
         this.addFieldItems = addFieldItems;
@@ -87,7 +90,7 @@ public abstract class ControllerForSpecification {
                     QueryFieldSpecification row = makeQueryFieldSpecification(new AttributeFunction(""), specificationName, assemblageSpec.getNid(), property.getSpec(), property.getIndex());
                     
                     addFieldItems.add(makeMenuItem(specificationName, row));
-                    joinProperties.add(new ConceptSpecificationWithLabel(row.getPropertySpecification(), row.getColumnName()));
+                    joinProperties.add(row.getPropertySpecification());
                 }
             }
             List<LatestVersion<Nid1_Int2_Version>> semanticFields = snapshot.getLatestSemanticVersionsForComponentFromAssemblage(assemblageSpec);
@@ -114,7 +117,7 @@ public abstract class ControllerForSpecification {
                 String specificationName = manifold.getPreferredDescriptionText(assemblageSpec) + ":" + manifold.getPreferredDescriptionText(semanticField.getNid1());
                 QueryFieldSpecification row = makeQueryFieldSpecification(new AttributeFunction(""), specificationName, assemblageSpec.getNid(), Get.conceptSpecification(semanticField.getNid1()), ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex() + semanticField.getInt2());
                 addFieldItems.add(makeMenuItem(specificationName, row));
-                joinProperties.add(new ConceptSpecificationWithLabel(row.getPropertySpecification(), row.getColumnName()));
+                joinProperties.add(row.getPropertySpecification());
             }
         }
     }

@@ -61,6 +61,7 @@ import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.SearchResult;
+import sh.isaac.api.query.CompositeQueryResult;
 
 /**
  * A class that returns richer search results than {@link SearchResult} -
@@ -69,7 +70,7 @@ import sh.isaac.api.index.SearchResult;
  *
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
-public class CompositeSearchResult implements Comparable<CompositeSearchResult> {
+public class CompositeSearchResult implements CompositeQueryResult {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -121,6 +122,7 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult> 
      *
      * @return the found concept
      */
+    @Override
     public ConceptChronology getContainingConcept() {
         if (containingConcept == null) {
             locateContainingConcept(matchingComponents.keySet().iterator().next());
@@ -134,6 +136,7 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult> 
      *
      * @return the text
      */
+    @Override
     public String getContainingConceptText() {
         ConceptChronology cc = getContainingConcept();
         return Get.conceptService().getSnapshot(manifoldCoord).conceptDescriptionText(cc.getNid());
@@ -176,6 +179,7 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult> 
      *
      * @return the best score
      */
+    @Override
     public float getBestScore() {
         return this.bestScore;
     }
@@ -186,10 +190,16 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult> 
      *
      * @return the matching components
      */
+    @Override
     public Set<Chronology> getMatchingComponents() {
         return this.matchingComponents.keySet();
     }
 
+    @Override
+    public LinkedHashMap<Chronology, Function<Chronology, LatestVersion<Version>>> getExpandedMatchingComponents() {
+        return this.matchingComponents;
+    }
+    
     /**
      * Gets the versions of matching components. Note, this filters on the
      * provided stamp, and if the match is not on the path of the given stamp
@@ -197,6 +207,7 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult> 
      *
      * @return the matching components
      */
+    @Override
     public List<Version> getMatchingComponentVersions() {
         ArrayList<Version> matchingVersions = new ArrayList<>();
         for (Entry<Chronology, Function<Chronology, LatestVersion<Version>>> vp : matchingComponents.entrySet()) {
@@ -213,17 +224,17 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult> 
      *
      * @param other the other one to merge in
      */
-    protected void merge(CompositeSearchResult other) {
+    public void merge(CompositeQueryResult other) {
         if (this.getContainingConcept().getNid() != other.getContainingConcept().getNid()) {
             throw new RuntimeException("Unmergeable!");
         }
 
-        if (other.bestScore > this.bestScore) {
-            this.bestScore = other.bestScore;
+        if (other.getBestScore() > this.bestScore) {
+            this.bestScore = other.getBestScore();
         }
 
-        this.matchingComponents.putAll(other.matchingComponents);
-    }
+        this.matchingComponents.putAll(other.getExpandedMatchingComponents());
+    } 
 
     /**
      * {@inheritDoc}
@@ -259,6 +270,7 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult> 
      *
      * @return the matching strings
      */
+    @Override
     public List<String> getMatchingStrings() {
         final ArrayList<String> strings = new ArrayList<>();
 
@@ -320,13 +332,13 @@ public class CompositeSearchResult implements Comparable<CompositeSearchResult> 
      * {@inheritDoc}
      */
     @Override
-    public int compareTo(CompositeSearchResult o) {
-        int c = Float.compare(this.bestScore, o.bestScore) * -1;
+    public int compareTo(CompositeQueryResult o) {
+        int c = Float.compare(this.bestScore, o.getBestScore()) * -1;
         if (c != 0) {
             return c;
         }
 
-        c = Integer.compare(this.matchingComponents.size(), o.matchingComponents.size()) * -1;
+        c = Integer.compare(this.matchingComponents.size(), o.getMatchingComponents().size()) * -1;
         if (c != 0) {
             return c;
         }

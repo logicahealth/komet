@@ -53,6 +53,7 @@ import javafx.collections.ObservableList;
 
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -144,6 +145,8 @@ public interface ObservableChronology
     */
    LatestVersion<? extends ObservableVersion> getLatestVersion(Class<? extends StampedVersion> type,
                                                             StampCoordinate coordinate);
+
+   <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampCoordinate coordinate);
 
    /**
     * This creates an observable version that is not added to the version list,

@@ -486,7 +486,12 @@ public class TaxonomyProvider
             final int assemblageNid = tc.getLogicCoordinate().getConceptAssemblageNid();
             @Override
             public int[] apply(int conceptNid) {
-                return store.getTaxonomyData(assemblageNid, conceptNid);
+                try {
+                    return store.getTaxonomyData(assemblageNid, conceptNid);
+            } catch (IllegalStateException ex) {
+                LOG.error(ex.getLocalizedMessage() + " retrieving " + Get.conceptDescriptionText(conceptNid), ex);
+                return new int[0];
+            }
             }
         };
         
@@ -879,8 +884,13 @@ public class TaxonomyProvider
 
         @Override
         public int[] getTaxonomyChildConceptNids(int parentId) {
-            TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(parentId);
-            return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, tc);
+            try {
+                TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(parentId);
+                return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, tc);
+            } catch (IllegalStateException ex) {
+                LOG.error(ex.getLocalizedMessage() + " retrieving " + Get.conceptDescriptionText(parentId), ex);
+                return new int[0];
+            }
         }
 
         @Override

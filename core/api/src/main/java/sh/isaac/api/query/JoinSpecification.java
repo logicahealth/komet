@@ -24,16 +24,24 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  */
 public interface JoinSpecification {
 
-    ConceptSpecification getAssemblageToJoin();
+    ConceptSpecification getFirstAssemblage();
 
-    ConceptSpecification getJoinField();
+    ConceptSpecification getFirstField();
 
-    ConceptSpecification getSourceField();
+    ConceptSpecification getSecondAssemblage();
 
-    void setAssemblageToJoin(ConceptSpecification assemblageToJoin);
+    ConceptSpecification getSecondField();
 
-    void setJoinField(ConceptSpecification joinField);
+    LetItemKey getStampCoordinateKey();
 
-    void setSourceField(ConceptSpecification sourceField);
+    void setFirstAssemblage(ConceptSpecification firstAssemblage);
+
+    void setFirstField(ConceptSpecification firstField);
+
+    void setSecondAssemblage(ConceptSpecification secondAssemblage);
+
+    void setSecondField(ConceptSpecification secondField);
+
+    void setStampCoordinateKey(LetItemKey stampCoordinateKey);
     
 }

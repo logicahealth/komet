@@ -98,6 +98,7 @@ import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.progress.CompletedTasks;
+import sh.isaac.api.query.QueryHandler;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.WorkExecutors;
 
@@ -249,6 +250,10 @@ public class Get
       }
 
       return assemblageService;
+   }
+   
+   public static QueryHandler queryHandler() {
+       return getService(QueryHandler.class);
    }
    
    public static PreferencesService preferencesService() {

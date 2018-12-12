@@ -131,8 +131,6 @@ import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.search.control.LetPropertySheet;
-import sh.komet.gui.search.control.WhereParameterCell;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
@@ -602,6 +600,7 @@ public class FLWORQueryController
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()
                 .get(CLAUSE);
+        clause.setEnclosingQuery(query);
 
         treeItem.getChildren()
                 .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet,
@@ -615,6 +614,7 @@ public class FLWORQueryController
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()
                 .get(CLAUSE);
+        clause.setEnclosingQuery(query);
 
         treeItem.getParent()
                 .getChildren()
@@ -633,6 +633,7 @@ public class FLWORQueryController
         ConceptAction conceptAction = (ConceptAction) ((MenuItem) event.getSource()).getOnAction();
         Clause clause = (Clause) conceptAction.getProperties()
                 .get(CLAUSE);
+        clause.setEnclosingQuery(query);
 
         treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet,
                 joinProperties, letPropertySheet));

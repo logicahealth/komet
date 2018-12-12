@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>komet</artifactId>
-        <version>4.60-postgres</version>
+        <version>4.62</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>application</artifactId>
@@ -86,11 +86,6 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.provider</groupId>
-            <artifactId>stamp</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sh.isaac.provider</groupId>
             <artifactId>chronology</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -113,12 +108,6 @@
             <groupId>sh.isaac.provider</groupId>
             <artifactId>logic</artifactId>
             <version>${project.parent.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>sh.isaac.provider</groupId>
-                    <artifactId>taxonomy</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>sh.isaac.provider</groupId>
@@ -137,11 +126,6 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.provider</groupId>
-            <artifactId>query</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sh.isaac.provider</groupId>
             <artifactId>observable</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -155,12 +139,6 @@
             <artifactId>gui-contracts</artifactId>
             <version>${project.parent.version}</version>
             <type>jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>sh.isaac.provider</groupId>
-                    <artifactId>datastore-locator</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>sh.isaac.komet</groupId>
@@ -576,6 +554,16 @@
                     <artifactId>datastore-locator</artifactId>
                     <version>${project.version}</version>
                 </dependency>
+                <dependency>
+                    <groupId>sh.isaac.provider</groupId>
+                    <artifactId>query</artifactId>
+                    <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>sh.isaac.provider</groupId>
+                    <artifactId>stamp</artifactId>
+                    <version>${project.parent.version}</version>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
@@ -591,18 +579,6 @@
                     <groupId>sh.isaac.provider</groupId>
                     <artifactId>postgress</artifactId>
                     <version>${project.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>sh.isaac.provider</groupId>
-                    <artifactId>stamp</artifactId>
-                    <version>${project.parent.version}</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>sh.isaac.provider</groupId>
-                    <artifactId>identifier</artifactId>
-                    <version>${project.parent.version}</version>
-                    <scope>provided</scope>
                 </dependency>
             </dependencies>
         </profile>

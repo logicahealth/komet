@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.60-postgres</version>
+      <version>4.62</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>search-view</artifactId>
@@ -43,11 +43,6 @@
       <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>taxonomy-view</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.provider</groupId>
-         <artifactId>query</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
       <dependency>

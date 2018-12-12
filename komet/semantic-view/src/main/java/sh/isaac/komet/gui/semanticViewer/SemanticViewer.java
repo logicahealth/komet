@@ -54,7 +54,6 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 import com.sun.javafx.collections.ObservableMapWrapper;
@@ -1391,7 +1390,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		});
 	}
 	
-	private synchronized void loadRealData() throws IOException, NumberFormatException, InterruptedException, ParseException
+	private synchronized void loadRealData() throws IOException, NumberFormatException, InterruptedException
 	{
 		Platform.runLater(() ->
 		{
@@ -1706,7 +1705,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	
 
 	private ArrayList<TreeItem<SemanticGUI>> getDataRows(int nid) 
-			throws IOException, InterruptedException, NumberFormatException, ParseException
+			throws IOException, InterruptedException, NumberFormatException
 	{
 		Platform.runLater(() ->
 		{

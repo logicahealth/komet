@@ -301,5 +301,10 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
     public <T extends ObservableVersion> T createAutonomousMutableVersion(EditCoordinate ec) {
         return getChronology().createAutonomousMutableVersion(ec);
     }
+
+    @Override
+    public <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampCoordinate coordinate) {
+        return getChronology().getLatestObservableVersion(coordinate);
+    }
    
 }

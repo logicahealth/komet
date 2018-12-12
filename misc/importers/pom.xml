@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
 		<artifactId>misc</artifactId>
-		<version>4.60-postgres</version>
+		<version>4.62</version>
 	</parent>
 	<groupId>sh.isaac.misc</groupId>
 	<artifactId>importers</artifactId>
@@ -51,11 +51,6 @@
 			<groupId>sh.isaac.solor</groupId>
 			<artifactId>direct-import</artifactId>
 			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>datastore-locator</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.opencsv</groupId>
