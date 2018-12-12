@@ -4,12 +4,12 @@
     <parent>
     <artifactId>komet</artifactId>
     <groupId>sh.isaac</groupId>
-    <version>4.60-postgres</version>
+    <version>4.61-postgres-SNAPSHOT</version>
   </parent>
 
     <groupId>sh.isaac.komet</groupId>
     <artifactId>changeset-view</artifactId>
-    <version>4.60-postgres</version>
+    <version>4.61-postgres-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>ISAAC’s KOMET: Changeset view</name>
