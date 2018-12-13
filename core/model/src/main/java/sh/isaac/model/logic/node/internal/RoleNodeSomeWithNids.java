@@ -64,16 +64,17 @@ import sh.isaac.model.logic.node.external.RoleNodeSomeWithUuids;
 public final class RoleNodeSomeWithNids
         extends TypedNodeWithNids {
    /**
-    * Instantiates a new role node some with sequences.
+    * Instantiates a new role node some with uuids.
     *
     * @param externalForm the external form
     */
    public RoleNodeSomeWithNids(RoleNodeSomeWithUuids externalForm) {
       super(externalForm);
+      validate();
    }
 
    /**
-    * Instantiates a new role node some with sequences.
+    * Instantiates a new role node some with serialized data.
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
@@ -81,6 +82,7 @@ public final class RoleNodeSomeWithNids
    public RoleNodeSomeWithNids(LogicalExpressionImpl logicGraphVersion,
                                     ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
+      //will skip validate here, since it is highly unlikely it was created without being validated in the first place.
    }
 
    /**
@@ -94,6 +96,14 @@ public final class RoleNodeSomeWithNids
                                     int typeConceptId,
                                     AbstractLogicNode child) {
       super(logicGraphVersion, typeConceptId, child);
+      validate();
+   }
+   
+   private void validate()
+   {
+      if (getOnlyChild().getNodeSemantic() != NodeSemantic.AND) {
+         throw new RuntimeException("The child of a Role_Some was expected to be an AND, not " + getOnlyChild().getNodeSemantic());
+      }
    }
 
    //~--- methods -------------------------------------------------------------
