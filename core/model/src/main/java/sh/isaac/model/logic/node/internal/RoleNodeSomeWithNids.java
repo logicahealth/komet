@@ -101,8 +101,9 @@ public final class RoleNodeSomeWithNids
    
    private void validate()
    {
-      if (getOnlyChild().getNodeSemantic() != NodeSemantic.AND) {
-         throw new RuntimeException("The child of a Role_Some was expected to be an AND, not " + getOnlyChild().getNodeSemantic());
+      NodeSemantic childSemantic = getOnlyChild().getNodeSemantic();
+      if (childSemantic == NodeSemantic.OR) {
+         throw new RuntimeException("The child of a Role_Some must not be " + getOnlyChild().getNodeSemantic());
       }
    }
 
