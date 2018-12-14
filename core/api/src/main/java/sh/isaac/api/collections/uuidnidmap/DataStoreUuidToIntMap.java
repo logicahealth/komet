@@ -99,7 +99,10 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 	@Override
 	public void enableInverseCache()
 	{
-		this.nidToPrimordialCache = Caffeine.newBuilder().build();
+		if (this.nidToPrimordialCache == null)
+		{
+			this.nidToPrimordialCache = Caffeine.newBuilder().build();
+		}
 	}
 
 	/**
