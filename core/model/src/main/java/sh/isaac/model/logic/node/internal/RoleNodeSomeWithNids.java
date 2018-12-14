@@ -70,7 +70,7 @@ public final class RoleNodeSomeWithNids
     */
    public RoleNodeSomeWithNids(RoleNodeSomeWithUuids externalForm) {
       super(externalForm);
-      validate();
+      //can't run validation here due to problems with this constructor pattern.  
    }
 
    /**

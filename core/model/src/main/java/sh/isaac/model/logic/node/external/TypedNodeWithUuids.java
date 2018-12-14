@@ -81,6 +81,8 @@ public abstract class TypedNodeWithUuids
 
    /**
     * Instantiates a new typed node with uuids.
+    * 
+    * Note that this constructor is not safe for all uses, and is only intended to aid in serialization / deserialization.
     *
     * @param internalForm the internal form
     */

@@ -71,6 +71,8 @@ public class RoleNodeAllWithUuids
         extends TypedNodeWithUuids {
    /**
     * Instantiates a new role node all with uuids.
+    * 
+    * Note that this constructor is not safe for all uses, and is only intended to aid in serialization / deserialization.
     *
     * @param internalFrom the internal from
     */
