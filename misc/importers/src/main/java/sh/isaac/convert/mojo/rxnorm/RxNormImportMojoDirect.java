@@ -643,16 +643,6 @@ public class RxNormImportMojoDirect extends DirectConverterBaseMojo implements D
 	}
 
 	/**
-	 * Clear target files.
-	 */
-	private void clearTargetFiles()
-	{
-		new File(this.outputDirectory, "RxNormUUIDDebugMap.txt").delete();
-		new File(this.outputDirectory, "ConsoleOutput.txt").delete();
-		new File(this.outputDirectory, "RRF.jbin").delete();
-	}
-
-	/**
 	 * Creates the CUI concept UUID.
 	 *
 	 * @param cui the cui
@@ -741,8 +731,6 @@ public class RxNormImportMojoDirect extends DirectConverterBaseMojo implements D
 	 */
 	private void init() throws Exception
 	{
-		clearTargetFiles();
-
 		final String fileNameDatePortion = loadDatabase();
 		final SimpleDateFormat sdf = new SimpleDateFormat("MMddyyyy");
 		defaultTime = sdf.parse(fileNameDatePortion).getTime();
