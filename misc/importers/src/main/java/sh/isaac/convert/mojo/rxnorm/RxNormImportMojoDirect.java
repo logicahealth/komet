@@ -1087,11 +1087,13 @@ public class RxNormImportMojoDirect extends DirectConverterBaseMojo implements D
 					{
 						log.info("No Abbreviation Expansion found for " + abbreviation + " using FSN: " + abbreviation + "  Alt:" + altName + " description:"
 								+ description);
-						dwh.makeAttributeTypeConcept(null, abbreviation, null, altName, description, false, DynamicDataType.STRING, null, defaultTime);
+						dwh.makeAttributeTypeConcept(converterUUID.createNamespaceUUIDFromStrings(abbreviation, "ATN"), 
+								abbreviation, null, altName, description, false, DynamicDataType.STRING, null, defaultTime);
 					}
 					else
 					{
-						dwh.makeAttributeTypeConcept(null, ae.getExpansion(), null, ae.getAbbreviation(), ae.getDescription(), false, DynamicDataType.STRING, null, defaultTime);
+						dwh.makeAttributeTypeConcept(converterUUID.createNamespaceUUIDFromStrings(ae.getExpansion(), "ATN"), 
+								ae.getExpansion(), null, ae.getAbbreviation(), ae.getDescription(), false, DynamicDataType.STRING, null, defaultTime);
 					}
 				}
 			}
@@ -1162,11 +1164,13 @@ public class RxNormImportMojoDirect extends DirectConverterBaseMojo implements D
 					if (ae == null)
 					{
 						log.error("No Abbreviation Expansion found for " + tty + " using fsn: " + tty + " alt: " + expandedForm);
-						descType = dwh.makeDescriptionTypeConcept(null, tty, expandedForm, null, getCoreType(tty, classes), null, defaultTime);  
+						descType = dwh.makeDescriptionTypeConcept(converterUUID.createNamespaceUUIDFromStrings(tty, "TTY"), 
+								tty, expandedForm, null, getCoreType(tty, classes), null, defaultTime);  
 					}
 					else
 					{
-						descType = dwh.makeDescriptionTypeConcept(null, ae.getExpansion(), ae.getAbbreviation(), null, getCoreType(ae.getExpansion(), classes), 
+						descType = dwh.makeDescriptionTypeConcept(converterUUID.createNamespaceUUIDFromStrings(ae.getExpansion(), "TTY"), 
+								ae.getExpansion(), ae.getAbbreviation(), null, getCoreType(ae.getExpansion(), classes), 
 								null, defaultTime); 
 						if (StringUtils.isNotBlank(ae.getDescription()))
 						{
