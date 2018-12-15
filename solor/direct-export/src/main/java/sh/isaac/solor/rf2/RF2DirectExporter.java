@@ -202,9 +202,9 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
 
     private void runZipTask(){
         try {
+            String zipFilePath = this.artifactsToZip.keySet().stream().findFirst().get().getZipFilePath();
             ZipExportFilesTask zipExportFilesTask =
-                    new ZipExportFilesTask(this.exportDirectory, this.artifactsToZip, this.readSemaphore,
-                            RF2ConfigType.ZIP.getFilePathWithDateTime(this.localDateTimeNow, false));
+                    new ZipExportFilesTask(this.exportDirectory, this.artifactsToZip, this.readSemaphore, zipFilePath);
             Get.executor().submit(zipExportFilesTask).get();
         }catch (InterruptedException | ExecutionException e){
             e.printStackTrace();

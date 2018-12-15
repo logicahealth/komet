@@ -36,6 +36,10 @@ public class RF2Configuration {
                 .replace("LANGUAGE1", LanguageCoordinates.conceptNidToIso639(languageNid));
     }
 
+    public String getZipFilePath(){
+        return RF2ConfigType.ZIP.getFilePathWithDateTime(this.localDateTime, false);
+    }
+
     public RF2ConfigType getRf2ConfigType() {
         return rf2ConfigType;
     }
