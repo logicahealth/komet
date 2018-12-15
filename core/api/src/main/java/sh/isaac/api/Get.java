@@ -64,6 +64,7 @@ import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitService;
@@ -86,6 +87,7 @@ import sh.isaac.api.externalizable.BinaryDataServiceFactory;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacExternalizableSpliterator;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.GenerateIndexes;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.index.IndexDescriptionQueryService;
@@ -394,6 +396,15 @@ public class Get
      if (conceptNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
+     if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
+         SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
+         if (sc.getVersionType() == VersionType.DESCRIPTION) {
+             LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate());
+             if (latestDescription.isPresent()) {
+                 return "Desc: " + latestDescription.get().getText();
+             }
+         }
+     }
       final LatestVersion<DescriptionVersion> descriptionOptional =
          defaultConceptSnapshotService().getDescriptionOptional(conceptNid);
 
