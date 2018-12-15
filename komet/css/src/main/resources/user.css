@@ -697,6 +697,11 @@ limitations under the License.
    -fx-font-size:15;
 }
 
+.tree-table-row-cell:selected * .concept-text {
+   -fx-fill: white;
+   -fx-font-size:15;
+}
+
 .semantic-text {
    -fx-fill: black;
    -fx-font-size:15;
