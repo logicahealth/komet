@@ -1,6 +1,7 @@
 package sh.isaac.solor.rf2.config;
 
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.model.configuration.LanguageCoordinates;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +29,11 @@ public class RF2Configuration {
 
     public String getFilePath() {
         return this.rf2ConfigType.getFilePathWithDateTime(this.localDateTime, true);
+    }
+
+    public String getLanguageRefsetFilePath(int languageNid){
+        return getFilePath()
+                .replace("LANGUAGE1", LanguageCoordinates.conceptNidToIso639(languageNid));
     }
 
     public RF2ConfigType getRf2ConfigType() {

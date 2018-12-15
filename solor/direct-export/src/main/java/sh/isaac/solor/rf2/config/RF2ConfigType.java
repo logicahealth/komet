@@ -95,11 +95,11 @@ public enum RF2ConfigType {
         this.chronologyStream = chronologyStream;
     }
 
-    public String getFileHeader() {
+    protected String getFileHeader() {
         return fileHeader;
     }
 
-    public String getFilePathWithDateTime(LocalDateTime localDateTime, boolean replaceTwice) {
+    protected String getFilePathWithDateTime(LocalDateTime localDateTime, boolean replaceTwice) {
 
         if(replaceTwice){
             return filePath.replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
@@ -109,17 +109,11 @@ public enum RF2ConfigType {
         }
     }
 
-    public String getFilePathWithDateTimeAndLanguage(LocalDateTime localDateTime, int languageNid){
-        return filePath.replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
-                .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime))
-                .replace("LANGUAGE1", LanguageCoordinates.conceptNidToIso639(languageNid));
-    }
-
-    public String getMessage() {
+    protected String getMessage() {
         return message;
     }
 
-    public Stream<? extends Chronology> getChronologyStream() {
+    protected Stream<? extends Chronology> getChronologyStream() {
         return chronologyStream;
     }
 }

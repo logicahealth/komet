@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-public class RF2LanguageRefset extends TimedTaskWithProgressTracker<List<String>> {
+public class RF2LanguageRefsetReader extends TimedTaskWithProgressTracker<List<String>> {
 
     private final RF2ExportHelper rf2ExportHelper;
     private final List<Chronology> chronologies;
     private final Semaphore readSemaphore;
     private final Manifold manifold;
 
-    public RF2LanguageRefset(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, String message) {
+    public RF2LanguageRefsetReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, String message) {
         this.chronologies = chronologies;
         this.readSemaphore = readSemaphore;
         this.manifold = manifold;
