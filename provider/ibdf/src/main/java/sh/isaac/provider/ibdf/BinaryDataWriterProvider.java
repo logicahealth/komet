@@ -169,7 +169,8 @@ public class BinaryDataWriterProvider
 
       this.dataPath = path;
       this.dataPath.toFile().getParentFile().mkdirs();
-      this.output = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(), true)));
+      //todo why is this append mode? For change sets?
+      this.output = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(), false)));
       LOG.info("ibdf changeset writer has been configured to write to " + this.dataPath.toAbsolutePath().toString());
 
       if (!Get.configurationService().isInDBBuildMode()) {

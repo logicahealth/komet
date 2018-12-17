@@ -37,22 +37,9 @@
 
 package sh.isaac.api;
 
-import java.awt.GraphicsEnvironment;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.WeakHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.function.BiConsumer;
+import com.sun.javafx.application.PlatformImpl;
+import javafx.application.Platform;
+import net.sagebits.HK2Utilities.HK2RuntimeInitializer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,14 +48,18 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import org.glassfish.hk2.runlevel.RunLevelFuture;
-import com.sun.javafx.application.PlatformImpl;
-import javafx.application.Platform;
-import net.sagebits.HK2Utilities.HK2RuntimeInitializer;
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.progress.Stoppable;
-import sh.isaac.api.util.HeadlessToolkit;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
+import java.util.function.BiConsumer;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -174,10 +165,11 @@ public class LookupService {
             if (!fxPlatformUp) {
                System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 
-               if (GraphicsEnvironment.isHeadless()) {
-                  LOG.info("Installing headless toolkit");
-                  HeadlessToolkit.installToolkit();
-               }
+//               if (GraphicsEnvironment.isHeadless()) {
+//                  LOG.info("Installing headless toolkit");
+//                  //todo: is this still needed with jdk 11...
+//                  //HeadlessToolkit.installToolkit();
+//               }
 
                LOG.debug("Starting JavaFX Platform");
                PlatformImpl.startup(() -> {

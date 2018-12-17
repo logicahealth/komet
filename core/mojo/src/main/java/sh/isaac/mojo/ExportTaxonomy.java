@@ -199,6 +199,7 @@ public class ExportTaxonomy
                                          taxonomy.getClass()
                                                .getSimpleName() + ".json");
 
+         getLog().info("Exporting taxonomy to: " + ibdfPath);
          taxonomy.export(Optional.of(jsonPath), Optional.of(ibdfPath));
          
          //Sanity check
