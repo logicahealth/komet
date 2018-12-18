@@ -67,7 +67,7 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                 .filter(currentAssemblages::contains)
                 .forEach(activeLanguageNid -> this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.LANGUAGE_REFSET,
                         this.localDateTimeNow,
-                        languageConfigTemplate.getChronologyStream()
+                        () -> languageConfigTemplate.getChronologyStream()
                                 .filter(chronology -> chronology.getAssemblageNid() == activeLanguageNid),
                         activeLanguageNid)));
     }

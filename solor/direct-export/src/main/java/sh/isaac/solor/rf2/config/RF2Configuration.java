@@ -5,8 +5,9 @@ import sh.isaac.model.configuration.LanguageCoordinates;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.*;
 
 public class RF2Configuration {
 
@@ -20,15 +21,16 @@ public class RF2Configuration {
     public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime) {
         this.rf2ConfigType = rf2ConfigType;
         this.localDateTime = localDateTime;
-        this.chronologyStream = rf2ConfigType.getChronologyStream();
+        this.chronologyStream = rf2ConfigType.getChronologystreamSupplier().get();
         this.fileHeader = rf2ConfigType.getFileHeader();
         this.setFilePath();
     }
 
-    public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime, Stream<? extends Chronology> chronologyStream, int languageNid) {
+    public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime,
+                            Supplier<Stream<? extends Chronology>> chronologyStreamSupplier, int languageNid) {
         this.rf2ConfigType = rf2ConfigType;
         this.localDateTime = localDateTime;
-        this.chronologyStream = chronologyStream;
+        this.chronologyStream = chronologyStreamSupplier.get();
         this.fileHeader = rf2ConfigType.getFileHeader();
         this.setFilePath(languageNid);
         this.setMessage(rf2ConfigType.getMessage() + " - " + LanguageCoordinates.conceptNidToIso639(languageNid));
