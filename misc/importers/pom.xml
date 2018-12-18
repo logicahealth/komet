@@ -219,20 +219,20 @@
 							</schemaIncludes>
 						</configuration>
 					</execution-->
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<id>mif</id>
-						<configuration>
-							<generatePackage>mifschema</generatePackage>
-							<schemaDirectory>src/main/resources/hl7v3/mif</schemaDirectory>
-							<schemaIncludes>
-								<include>xhtml1-strict.xsd</include>
-								<include>mif-COMPLETE.xsd</include>
-							</schemaIncludes>
-						</configuration>
-					</execution>
+					<!--<execution>-->
+						<!--<goals>-->
+							<!--<goal>generate</goal>-->
+						<!--</goals>-->
+						<!--<id>mif</id>-->
+						<!--<configuration>-->
+							<!--<generatePackage>mifschema</generatePackage>-->
+							<!--<schemaDirectory>src/main/resources/hl7v3/mif</schemaDirectory>-->
+							<!--<schemaIncludes>-->
+								<!--<include>xhtml1-strict.xsd</include>-->
+								<!--<include>mif-COMPLETE.xsd</include>-->
+							<!--</schemaIncludes>-->
+						<!--</configuration>-->
+					<!--</execution>-->
 				</executions>
 			</plugin>
 			
