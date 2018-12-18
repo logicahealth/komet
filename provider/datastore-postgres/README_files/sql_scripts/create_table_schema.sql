@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS uuid_additional_table
     () INHERITS (uuid_table);
 
 CREATE SEQUENCE IF NOT EXISTS nid_sequence 
-    AS INTEGER  MINVALUE -2147483647 START WITH -2147483647;
+    MINVALUE -2147483647 START WITH -2147483647;
+-- :PSQLv10: can use "AS INTEGER"
 
 
 -- ------------
@@ -43,7 +44,8 @@ CREATE TABLE IF NOT EXISTS stamp_uncommitted_table (
     PRIMARY KEY (stamp_uncommitted_sequence) );
 
 CREATE SEQUENCE IF NOT EXISTS stamp_next_sequence
-    AS INTEGER  MINVALUE 1 START WITH 1;
+    MINVALUE 1 START WITH 1;
+-- :PSQLv10: can use "AS INTEGER"
 
 -- ------------------
 -- Identified Objects

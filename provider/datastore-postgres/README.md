@@ -6,21 +6,28 @@
 [Command Line Launch](#CliLaunch) •
 [SQL Trace Logging](#SqlLogging) •
 [Initial Data Load](#InitialDataLoad) •
+[PostgreSQL v9 & v10 Notes](#PostgreSQLv9v10) •
 [Resources](#Resources)
 
-> The example below are based on a macOS High Sierra computer which has [Java SE JDK 1.8](https://www.oracle.com/technetwork/java/javase/downloads/index.html), [Apache Maven 3.5.4](https://maven.apache.org/download.cgi) and [Netbeans IDE 8.2](https://netbeans.org/downloads/) installed.  The [Postgres.app](https://postgresapp.com/) is shown as the PostgreSQL installation.
+_The examples below are for PostgreSQL 9.6 and based on a macOS High Sierra computer configured with:_
+
+* [Java SE JDK 1.8](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* [Apache Maven 3.5.4](https://maven.apache.org/download.cgi)
+* [Netbeans IDE 8.2](https://netbeans.org/downloads/)
+* [Postgres.app v2.2](https://postgresapp.com/) _additional release (provides PostgreSQL 9.5, 9.6, 10 and 11)_
 
 ## Setup <a id="Setup">[▴](#toc)</a>
 
 **Step A.1. Setup PostgreSQL**
 
-Download [Postgres.app](https://postgresapp.com/downloads.html) with PostgreSQL 9.5, 9.6, 10 and 11. Mount Postgres-2.1.5.dmg. Drag Postgres.app to the /Applications folder.
+Download [Postgres.app](https://postgresapp.com/downloads.html) with PostgreSQL 9.5, 9.6, 10 and 11. Mount Postgres-2.2-9.5-9.6-10-11.dmg or newer. Drag Postgres.app to the /Applications folder.
 
 Configure `$PATH` in a terminal window:
 
 ``` sh
+## Note: use specific version "9.6" or "10" or else "current" version.
 sudo mkdir -p /etc/paths.d &&
-echo /Applications/Postgres.app/Contents/Versions/latest/bin | \
+echo /Applications/Postgres.app/Contents/Versions/9.6/bin | \
 sudo tee /etc/paths.d/postgresapp
 ```
 
@@ -28,20 +35,32 @@ Close and reopen the terminal window for the `$PATH` change to take effect. Veri
 
 ``` sh
 which -a psql
-# /Applications/Postgres.app/Contents/Versions/latest/bin/psql
+# /Applications/Postgres.app/Contents/Versions/9.6/bin/psql
 psql --version
-# psql (PostgreSQL) 10.5
+# psql (PostgreSQL) 9.6.10
 ```
 
-Launch Postgres.app.
+Launch Postgres.app. Stop any other running version of server. Open the left server panel.
 
-![](README_files/images/PostgresApp.01.png)
+![](README_files/images/PostgresApp.10.SideBar.png)
+
+Create a new PostgreSQL server with the `+` in the lower left.
+
+![](README_files/images/PostgresApp.11.AddServer.v96.png)
 
 Click "Initialize".
 
-![](README_files/images/PostgresApp.02.png)
+![](README_files/images/PostgresApp.12.Initialize.v96.png)
 
-In the terminal, log into PostgreSQL via `psql`.
+For convenience, check "Automatically start server" in "Server Settings…".
+
+![](README_files/images/PostgresApp.13.AutoStart.v96.png)
+
+Quit and restart Postgres.app. Verify that the PostgreSQL 9.6 server is running.
+
+![](README_files/images/PostgresApp.14.Running.v96.png)
+
+Log into a PostgreSQL terminal session by either double clicking the postgresql database in Postgres.app, or else by using the terminal command line `psql` command.
 
 ``` sh
 psql --username=$USER
@@ -55,7 +74,9 @@ CREATE USER isaac_user WITH ENCRYPTED PASSWORD 'isaac_pwd';
 GRANT ALL PRIVILEGES ON DATABASE isaac_db TO isaac_user;
 ```
 
-![](README_files/images/PostgresApp.03.png)
+![](README_files/images/PostgresApp.16.Terminal.v96.png)
+
+![](README_files/images/PostgresApp.17.isaac_db.v96.png)
 
 A double click the `isaac_db` image in the Postgres.app window will launch a terminal command line instance logged into `isaac_db`.
 
@@ -98,10 +119,11 @@ mkdir ~/psql
 
 ``` sh
 psql -p5432 --username=isaac_user --dbname=isaac_db
-#psql (10.5)
-#Type "help" for help.
+# psql (9.6.10)
+# Type "help" for help.
 
-isaac_db=#\i psql/stat.sql
+isaac_db=#\i psql/create_table_schema.sql
+isaac_db=#\i psql/stats.sql
 isaac_db=#\i psql/drop_all.sql
 ```
 
@@ -134,7 +156,7 @@ Verify that the `isaac_db` database is empty with either `\d` or `\i psql/stats.
 isaac_db=#\i psql/stats.sql
 isaac_db=#\i psql/drop_all.sql
 isaac_db=#\d
-# verify: "did not find any relations.""
+# verify: "did not find any relations."
 ```
 
 **Step B.3. Run ISAAC KOMET**
@@ -218,8 +240,8 @@ The `initial_data_load.sql` script contains sequence initialization values based
 
 Move a copy of the [`_initial_data_load_main_script.sql`](README_files/sql_scripts/_initial_data_load_main_script.sql), `initial_data_load.sql` and `*.csv` files to a directory that will be used for staging the import.
 
-The [`create_table_schema.sql`](README_files/sql_scripts/create_table_schema.sql), 
-[`drop_all.sql`](README_files/sql_scripts/drop_all.sql), and 
+The [`create_table_schema.sql`](README_files/sql_scripts/create_table_schema.sql),
+[`drop_all.sql`](README_files/sql_scripts/drop_all.sql), and
 [`stats.sql`](README_files/sql_scripts/stats.sql) scripts will also need to be on a known reachable system path(s) relative to where the data load will occur.
 
 Edit the `/PATH_TO/…` instances in `_initial_data_load_main_script.sql` based on the CSV files and helper SQL script have been located.
@@ -227,6 +249,12 @@ Edit the `/PATH_TO/…` instances in `_initial_data_load_main_script.sql` based 
 Launch PostgreSQL. Run the `_initial_data_load_main_script.sql` script from an appropriate `psql` prompt.
 
 > Note: Steps 1 & 2 only need to run once for a given starting set of data. Once the CSV files and associcates SQL scripting are created, then the initial load can be done as needed for a new PostgreSQL database instance.
+
+## PostgreSQL v9 & v10 Notes <a id="PostgreSQLv9v10">[▴](#toc)</a>
+
+PostgreSQL v9.6 does not support the ANSI/ISO SQL Standard expression `AS data_type` for a `SEQUENCE`. Any `SEQUENCE` in v9.6 is type uses type `BIGINT`.
+
+Obtaining the next value is done using the `nextval()` function instead of the standard's `NEXT VALUE FOR` expression.
 
 ## Resources <a id="Resources">[▴](#toc)</a>
 
@@ -237,4 +265,4 @@ Launch PostgreSQL. Run the `_initial_data_load_main_script.sql` script from an a
 * [Oracle Java SE JDK ⇗](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
 * [GitHub: OSEHRA/ISAAC ⇗](https://github.com/OSEHRA/ISAAC)
 * [Postgres.app ⇗](https://postgresapp.com/)
-
+* PostgreSQL Docs: [9.6⇗](https://www.postgresql.org/docs/9.6/)

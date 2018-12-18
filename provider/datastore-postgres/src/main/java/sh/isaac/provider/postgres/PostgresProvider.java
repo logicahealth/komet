@@ -197,9 +197,37 @@ public class PostgresProvider
                 }
 
                 try (Statement stmt = conn.createStatement()) {
+                    String sqlCreate = "CREATE UNIQUE INDEX IF NOT EXISTS concepts_table_pkey "
+                        + "ON concepts_table  USING btree (o_nid, version_stamp); ";
+                    logSqlString(sqlCreate);
+                    stmt.execute(sqlCreate);
+                }
+
+                try (Statement stmt = conn.createStatement()) {
                     String sqlCreate = "CREATE TABLE IF NOT EXISTS semantics_table "
                         + "(referenced_component_nid INTEGER) "
                         + "INHERITS (identified_objects_table); ";
+                    logSqlString(sqlCreate);
+                    stmt.execute(sqlCreate);
+                }
+
+                try (Statement stmt = conn.createStatement()) {
+                    String sqlCreate = "CREATE UNIQUE INDEX IF NOT EXISTS semantics_table_pkey "
+                        + "ON semantics_table USING btree (o_nid, version_stamp); ";
+                    logSqlString(sqlCreate);
+                    stmt.execute(sqlCreate);
+                }
+
+                try (Statement stmt = conn.createStatement()) {
+                    String sqlCreate = "CREATE INDEX IF NOT EXISTS semantics_table_assemblage_idx "
+                        + "ON semantics_table USING btree (assemblage_nid); ";
+                    logSqlString(sqlCreate);
+                    stmt.execute(sqlCreate);
+                }
+
+                try (Statement stmt = conn.createStatement()) {
+                    String sqlCreate = "CREATE INDEX IF NOT EXISTS semantics_table_referenced_component_idx "
+                        + "ON semantics_table USING btree (referenced_component_nid); ";
                     logSqlString(sqlCreate);
                     stmt.execute(sqlCreate);
                 }
@@ -703,7 +731,7 @@ public class PostgresProvider
             stmt.setInt(2, assemblageNid); // assemblage_nid
 
             // 4 bytes inbound taxonomyData int[] length + 4 bytes per element
-            ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer((taxonomyData.length * 4) + 4); 
+            ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer((taxonomyData.length * 4) + 4);
             byteBuffer.putIntArray(taxonomyData);
 
             byte[] taxonomyBytes = byteBuffer.getData();
