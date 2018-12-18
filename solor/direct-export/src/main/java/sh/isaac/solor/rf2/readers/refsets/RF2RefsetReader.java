@@ -1,4 +1,4 @@
-package sh.isaac.solor.rf2.readers.core;
+package sh.isaac.solor.rf2.readers.refsets;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;

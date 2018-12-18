@@ -2,7 +2,12 @@ package sh.isaac.solor.rf2.readers.refsets;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
 import sh.komet.gui.manifold.Manifold;
 
@@ -38,10 +43,30 @@ public class RF2LanguageRefsetReader extends TimedTaskWithProgressTracker<List<S
         try{
 
             for(Chronology chronology : chronologies){
-                returnList.add(this.rf2ExportHelper.getRF2CommonElements(chronology)
-//                        .append(getConceptPrimitiveOrSufficientDefinedSCTID(chronology.getNid()))
-                        .append("\r")
-                        .toString());
+                StringBuilder stringBuilder = new StringBuilder();
+
+                for(SemanticChronology dialect : chronology.getSemanticChronologyList()) {
+
+                    if(dialect.getVersionType() == VersionType.COMPONENT_NID) {//Assuming a dialect semantic
+                        ObservableComponentNidVersion descriptionDialect =
+                                ((LatestVersion<ObservableComponentNidVersion>)
+                                        rf2ExportHelper.getSnapshotService().getObservableSemanticVersion(dialect.getNid()))
+                                        .get();
+                        int stampNid = rf2ExportHelper.getSnapshotService()
+                                .getObservableSemanticVersion(dialect.getNid()).getStamps().findFirst().getAsInt();
+
+                        stringBuilder.append(descriptionDialect.getPrimordialUuid().toString() + "\t")
+                                .append(rf2ExportHelper.getTimeString(stampNid) + "\t")
+                                .append(rf2ExportHelper.getActiveString(stampNid) + "\t")
+                                .append(rf2ExportHelper.getModuleString(stampNid) + "\t")
+                                .append(rf2ExportHelper.getIdString(descriptionDialect.getAssemblageNid()) + "\t")
+                                .append(rf2ExportHelper.getIdString(chronology) + "\t")
+                                .append(rf2ExportHelper.getIdString(descriptionDialect.getComponentNid()))
+                                .append("\r");
+                    }
+                }
+
+                returnList.add(stringBuilder.toString());
                 completedUnitOfWork();
             }
 

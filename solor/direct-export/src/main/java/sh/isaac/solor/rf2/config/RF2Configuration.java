@@ -4,6 +4,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.model.configuration.LanguageCoordinates;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -21,23 +22,41 @@ public class RF2Configuration {
         this.localDateTime = localDateTime;
         this.chronologyStream = rf2ConfigType.getChronologyStream();
         this.fileHeader = rf2ConfigType.getFileHeader();
+        this.setFilePath();
+    }
+
+    public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime, Stream<? extends Chronology> chronologyStream, int languageNid) {
+        this.rf2ConfigType = rf2ConfigType;
+        this.localDateTime = localDateTime;
+        this.chronologyStream = chronologyStream;
+        this.fileHeader = rf2ConfigType.getFileHeader();
+        this.setFilePath(languageNid);
+        this.setMessage(rf2ConfigType.getMessage() + " - " + LanguageCoordinates.conceptNidToIso639(languageNid));
     }
 
     public void addHeaderToExport(List<String> listToExport){
         listToExport.add(0, this.fileHeader);
     }
 
-    public String getFilePath() {
-        return this.rf2ConfigType.getFilePathWithDateTime(this.localDateTime, true);
+    private void setFilePath(){
+        this.filePath = this.rf2ConfigType.getFilePath()
+                .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
+                .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime));
     }
 
-    public String getLanguageRefsetFilePath(int languageNid){
-        return getFilePath()
+    private void setFilePath(int languageNid){
+        this.filePath = this.rf2ConfigType.getFilePath()
+                .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
+                .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime))
                 .replace("LANGUAGE1", LanguageCoordinates.conceptNidToIso639(languageNid));
     }
 
-    public String getZipFilePath(){
-        return RF2ConfigType.ZIP.getFilePathWithDateTime(this.localDateTime, false);
+    private void setMessage(String message){
+        this.message = message;
+    }
+
+    public String getFilePath() {
+        return this.filePath ;
     }
 
     public RF2ConfigType getRf2ConfigType() {

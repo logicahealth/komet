@@ -74,12 +74,6 @@ public enum RF2ConfigType {
             "Language Refset",
             Get.assemblageService().getSemanticChronologyStream()
                     .filter(semanticChronology -> semanticChronology.getVersionType() == VersionType.DESCRIPTION)
-    ),
-
-    ZIP("",
-            "/SnomedCT_SolorRF2_PRODUCTION_TIME1.zip",
-            "",
-            null
     );
 
 
@@ -99,14 +93,8 @@ public enum RF2ConfigType {
         return fileHeader;
     }
 
-    protected String getFilePathWithDateTime(LocalDateTime localDateTime, boolean replaceTwice) {
-
-        if(replaceTwice){
-            return filePath.replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
-                    .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime));
-        }else {
-            return filePath.replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime));
-        }
+    protected String getFilePath(){
+        return filePath;
     }
 
     protected String getMessage() {
