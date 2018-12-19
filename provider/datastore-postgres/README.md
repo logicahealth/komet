@@ -52,7 +52,7 @@ Click "Initialize".
 
 ![](README_files/images/PostgresApp.12.Initialize.v96.png)
 
-For convenience, check "Automatically start server" in "Server Settings…".
+For convenience, check "Automatically start server" in "Server Settings…" for ISAAC Server v9.6. Also, verify that "Automatically start server" is not checked for other server instances.
 
 ![](README_files/images/PostgresApp.13.AutoStart.v96.png)
 
@@ -107,7 +107,7 @@ Edit `~/.m2/settings.xml` with `nano` or some other [plain text editor](https://
 
 **Step A.3. Install SQL Scripts**
 
-Place the SQL scripts _[drop_all.sql](README_files/sql_scripts/drop_all.sql)_ and _[stats.sql](README_files/sql_scripts/stats.sql)_ somewhere convenient for command line use, for example `~/psql`. The `~/psql` directory is used in the following examples.
+Place the SQL scripts _[\_initial\_data\_load\_main\_script.sql](README_files/sql_scripts/_initial_data_load_main_script.sql)_, _[create\_table\_schema.sql](README_files/sql_scripts/create_table_schema.sql)_, _[drop\_all.sql](README_files/sql_scripts/drop_all.sql)_ and _[stats.sql](README_files/sql_scripts/stats.sql)_ somewhere convenient for command line use, for example `~/psql`. The `~/psql` directory is used in the following examples.
 
 ``` sh
 mkdir ~/psql
