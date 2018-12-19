@@ -17,19 +17,17 @@ public class RF2RefsetReader extends TimedTaskWithProgressTracker<List<String>> 
     private final List<Chronology> chronologies;
     private final Semaphore readSemaphore;
     private final Manifold manifold;
-    private final String assemblageName;
 
-    public RF2RefsetReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, RF2Configuration RF2Configuration) {
+    public RF2RefsetReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, String message) {
         this.chronologies = chronologies;
         this.readSemaphore = readSemaphore;
         this.manifold = manifold;
-        this.assemblageName = RF2Configuration.getMessage();
         this.rf2ExportHelper = new RF2ExportHelper(this.manifold);
 
         readSemaphore.acquireUninterruptibly();
 
-        updateTitle("Reading " + this.assemblageName + " assemblage batch of size: " + chronologies.size());
-        updateMessage("Processing batch of " + this.assemblageName + " concepts for RF2 Export");
+        updateTitle("Reading " + message + " assemblage batch of size: " + chronologies.size());
+        updateMessage("Processing batch of " + message + " concepts for RF2 Export");
         addToTotalWork(chronologies.size());
         Get.activeTasks().add(this);
     }

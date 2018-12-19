@@ -72,6 +72,15 @@ public enum RF2ConfigType {
             "Language Refset",
             () -> Get.assemblageService().getSemanticChronologyStream()
                     .filter(semanticChronology -> semanticChronology.getVersionType() == VersionType.DESCRIPTION)
+    ),
+
+    REFSET("id\teffectiveTime\tactive\tmoduleId\trefsetId\treferencedComponentId\t",
+            "SnomedCT_SolorRF2_PRODUCTION_TIME1/Snapshot/Refset/der2_PATTERNRefset_SUMMARYSnapshot_TIME2.txt",
+            "Refset",
+            () -> Get.assemblageService().getSemanticChronologyStream()
+                    .filter(semanticChronology ->
+                            RF2Configuration.GetVersionTypesToExportAsRefsets()
+                                    .contains(semanticChronology.getVersionType()))
     );
 
 

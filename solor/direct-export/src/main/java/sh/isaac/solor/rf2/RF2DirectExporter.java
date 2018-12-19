@@ -10,6 +10,7 @@ import sh.isaac.solor.rf2.config.RF2ConfigType;
 import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.readers.core.*;
 import sh.isaac.solor.rf2.readers.refsets.RF2LanguageRefsetReader;
+import sh.isaac.solor.rf2.readers.refsets.RF2RefsetReader;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
@@ -35,6 +36,9 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
     private final Semaphore readSemaphore = new Semaphore(READ_PERMITS);
     private final static int BATCH_SIZE = 102400;
 
+    final List<Integer> currentAssemblages = Arrays.stream(Get.assemblageService().getAssemblageConceptNids())
+            .boxed().collect(Collectors.toList());
+
 
     public RF2DirectExporter(Manifold manifold, File exportDirectory, String exportMessage){
         this.manifold = manifold;
@@ -51,6 +55,7 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
         this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.TRANSITIVE_CLOSURE, this.localDateTimeNow));
         this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.VERSIONED_TRANSITIVE_CLOSURE, this.localDateTimeNow));
         configureAllLanguageRF2Configurations();
+        configureAllRefsetRF2Configurations();
 
         updateTitle("Export " + this.exportMessage);
         addToTotalWork(this.exportConfigurations.size() + 2);
@@ -58,18 +63,41 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
     }
 
     private void configureAllLanguageRF2Configurations(){
-        final List<Integer> currentAssemblages = Arrays.stream(Get.assemblageService().getAssemblageConceptNids())
-                .boxed().collect(Collectors.toList());
-        final RF2Configuration languageConfigTemplate = new RF2Configuration(RF2ConfigType.LANGUAGE_REFSET, this.localDateTimeNow);
+
+        //TODO Combine with Refset
 
         Arrays.stream(Get.taxonomyService().getSnapshot(this.manifold)
                 .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
-                .filter(currentAssemblages::contains)
-                .forEach(activeLanguageNid -> this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.LANGUAGE_REFSET,
-                        this.localDateTimeNow,
-                        () -> languageConfigTemplate.getChronologyStream()
-                                .filter(chronology -> chronology.getAssemblageNid() == activeLanguageNid),
-                        activeLanguageNid)));
+                .filter(this.currentAssemblages::contains)
+                .forEach(activeLanguageNid -> this.exportConfigurations.add(
+                        new RF2Configuration(RF2ConfigType.LANGUAGE_REFSET,
+                                this.localDateTimeNow,
+                                () -> RF2Configuration.GetRefsetStreamSupplier().get()
+                                        .filter(chronology -> chronology.getAssemblageNid() == activeLanguageNid),
+                                activeLanguageNid)
+                        )
+                );
+    }
+
+    private void configureAllRefsetRF2Configurations(){
+
+        //TODO Combine with Language
+
+        this.currentAssemblages.stream()
+                .map(Get::concept)
+                .filter(conceptChronology -> RF2Configuration.GetVersionTypesToExportAsRefsets()
+                        .contains(Get.assemblageService().getVersionTypeForAssemblage(conceptChronology.getNid())))
+                .forEach(conceptChronology -> this.exportConfigurations.add(
+                        new RF2Configuration(RF2ConfigType.REFSET,
+                                this.localDateTimeNow,
+                                () -> RF2Configuration.GetRefsetStreamSupplier().get()
+                                        .filter(semanticChronology ->
+                                                semanticChronology.getAssemblageNid() == conceptChronology.getNid()
+                                        ),
+                                Get.assemblageService().getVersionTypeForAssemblage(conceptChronology.getNid()),
+                                conceptChronology.getFullyQualifiedName()
+                        )
+                ));
     }
 
     @Override
@@ -121,6 +149,12 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                             futures.add(Get.executor().submit(
                                     new RF2LanguageRefsetReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
                                     new ArrayList<>()));
+                            break;
+                        case REFSET:
+                            futures.add(Get.executor().submit(
+                                    new RF2RefsetReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
+                                    new ArrayList<>()));
+                            break;
                     }
                 }
 
