@@ -74,7 +74,7 @@ public enum RF2ConfigType {
                     .filter(semanticChronology -> semanticChronology.getVersionType() == VersionType.DESCRIPTION)
     ),
 
-    REFSET("id\teffectiveTime\tactive\tmoduleId\trefsetId\treferencedComponentId\t",
+    REFSET("id\teffectiveTime\tactive\tmoduleId\trefsetId\treferencedComponentId\r",
             "SnomedCT_SolorRF2_PRODUCTION_TIME1/Snapshot/Refset/der2_PATTERNRefset_SUMMARYSnapshot_TIME2.txt",
             "Refset",
             () -> Get.assemblageService().getSemanticChronologyStream()

@@ -48,10 +48,6 @@ public class RF2Configuration {
         return RF2ConfigType.REFSET.getChronologystreamSupplier();
     }
 
-    public RF2Configuration(RF2ConfigType rf2ConfigType) {
-        this.chronologyStreamSupplier = rf2ConfigType.getChronologystreamSupplier();
-    }
-
     public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime) {
         this.rf2ConfigType = rf2ConfigType;
         this.localDateTime = localDateTime;
@@ -100,6 +96,7 @@ public class RF2Configuration {
 
     private void setFilePath(VersionType versionType, String assemblageFQN){//Refsets
         String pattern = "";
+
 
         switch (versionType){
             case MEMBER:
@@ -154,7 +151,7 @@ public class RF2Configuration {
                 .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
                 .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime))
                 .replace("PATTERN", pattern)
-                .replace("SUMMARY", assemblageFQN);
+                .replace("SUMMARY", assemblageFQN).replace(" ", "");
     }
 
     public static List<VersionType> GetVersionTypesToExportAsRefsets() {
@@ -179,5 +176,9 @@ public class RF2Configuration {
 
     public Supplier<Stream<? extends Chronology>> getChronologyStreamSupplier() {
         return chronologyStreamSupplier;
+    }
+
+    public void updateFileHeader(String headerUpdate){
+        this.fileHeader = this.fileHeader + headerUpdate;
     }
 }
