@@ -46,8 +46,10 @@ import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.Get;
+import static sh.isaac.api.Get.defaultCoordinate;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -270,12 +272,22 @@ public interface LanguageCoordinate extends Coordinate {
     */
    default Optional<String> getRegularName(int componentNid, StampCoordinate stampCoordinate) {
       switch (Get.identifierService().getObjectTypeForComponent(componentNid)) {
-         case CONCEPT:
+         case CONCEPT: {
             LatestVersion<DescriptionVersion> latestDescription
                = getPreferredDescription(Get.conceptService().getConceptDescriptions(componentNid), stampCoordinate);
             return latestDescription.isPresent() ? Optional.of(latestDescription.get().getText()) : Optional.empty();
-         case SEMANTIC:
+         }
+         case SEMANTIC: {
+             SemanticChronology sc = Get.assemblageService().getSemanticChronology(componentNid);
+             if (sc.getVersionType() == VersionType.DESCRIPTION) {
+                LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(stampCoordinate);
+                if (latestDescription.isPresent()) {
+                    return Optional.of("desc: " + latestDescription.get().getText());
+                }
+                return Optional.of("inactive desc: " + ((DescriptionVersion) sc.getVersionList().get(0)).getText());
+             }
             return Optional.of(Get.assemblageService().getSemanticChronology(componentNid).getVersionType().toString());
+         }
          case UNKNOWN:
          default:
            return Optional.empty();

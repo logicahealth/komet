@@ -497,7 +497,8 @@ public class PostgresStampProvider
 
             try (Statement stmt = conn.createStatement()) {
                 String sqlCreate = "CREATE SEQUENCE IF NOT EXISTS stamp_next_sequence "
-                    + "AS INTEGER  MINVALUE 1 START WITH 1; ";
+                    + "MINVALUE 1 START WITH 1; ";
+                // :PSQL10: AS INTEGER
                 logSqlString(sqlCreate);
                 boolean result = stmt.execute(sqlCreate);
                 if (result) {

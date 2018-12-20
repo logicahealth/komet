@@ -173,6 +173,20 @@ public class PostgresIdentifierProvider
                 }
 
                 try (Statement stmt = conn.createStatement()) {
+                    String sqlCreate = "CREATE UNIQUE INDEX IF NOT EXISTS uuid_primordial_table_ouid_key "
+                        + "ON uuid_primordial_table USING btree (ouid); ";
+                    logSqlString(sqlCreate);
+                    stmt.execute(sqlCreate);
+                }
+
+                try (Statement stmt = conn.createStatement()) {
+                    String sqlCreate = "CREATE UNIQUE INDEX IF NOT EXISTS uuid_primordial_table_pkey "
+                        + "ON uuid_primordial_table USING btree (u_nid, ouid); ";
+                    logSqlString(sqlCreate);
+                    stmt.execute(sqlCreate);
+                }
+
+                try (Statement stmt = conn.createStatement()) {
                     String sqlCreate = "CREATE TABLE IF NOT EXISTS uuid_additional_table ( "
                         + ") INHERITS (uuid_table); ";
                     logSqlString(sqlCreate);
@@ -180,8 +194,23 @@ public class PostgresIdentifierProvider
                 }
 
                 try (Statement stmt = conn.createStatement()) {
+                    String sqlCreate = "CREATE UNIQUE INDEX IF NOT EXISTS uuid_additional_table_ouid_key "
+                        + "ON uuid_additional_table USING btree (ouid); ";
+                    logSqlString(sqlCreate);
+                    stmt.execute(sqlCreate);
+                }
+
+                try (Statement stmt = conn.createStatement()) {
+                    String sqlCreate = "CREATE UNIQUE INDEX IF NOT EXISTS uuid_additional_table_pkey "
+                        + "ON uuid_additional_table USING btree (u_nid, ouid); ";
+                    logSqlString(sqlCreate);
+                    stmt.execute(sqlCreate);
+                }
+
+                try (Statement stmt = conn.createStatement()) {
                     String sqlCreate = "CREATE SEQUENCE IF NOT EXISTS nid_sequence "
-                        + "AS INTEGER  MINVALUE -2147483647 START WITH -2147483647; ";
+                        + "MINVALUE -2147483647 START WITH -2147483647; ";
+                    // :PSQL10: AS INTEGER
                     logSqlString(sqlCreate);
                     boolean result = stmt.execute(sqlCreate);
                     if (result) {
