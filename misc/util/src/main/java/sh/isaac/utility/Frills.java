@@ -2127,31 +2127,17 @@ public class Frills
     * Returns the set of terminology types (which are concepts directly under {@link MetaData#MODULE____SOLOR} for any concept in the system as a 
     * set of concept nids.
     * 
-    * Also, if the concept is a child of {@link MetaData#METADATA____SOLOR}, then it will also be marked with the terminology type of 
-    * {@link MetaData#SOLOR_MODULE____SOLOR} -even if there is no concept version that exists using the MetaData#SOLOR_MODULE____SOLOR} module - this gives 
-    * an easy way to identify "metadata" concepts.
-    * 
-    * @param oc
-    *           - the concept to read modules for
-    * @param stamp
-    *           - if null, return the modules ignoring coordinates. If not null, only return modules visible on the given coordinate
+    * @param oc the concept to read modules for
+    * @param stamp optional - if null, return the modules ignoring coordinates.  If not null, only return modules visible on the given coordinate
     * @return the types
     */
    public static HashSet<Integer> getTerminologyTypes(ConceptChronology oc, StampCoordinate stamp) {
       HashSet<Integer> modules = new HashSet<>();
       HashSet<Integer> terminologyTypes = new HashSet<>();
       
-      TaxonomySnapshot tss = Get.taxonomyService().getStatedLatestSnapshot(
-            (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathSpecification().getNid() : stamp.getStampPosition().getStampPathSpecification().getNid()),
-            (stamp == null ? new HashSet<>() : stamp.getModuleSpecifications()),
-            (stamp == null ? Status.ACTIVE_ONLY_SET : stamp.getAllowedStates()), false);
-
       if (stamp == null) {
          for (int stampSequence : oc.getVersionStampSequences()) {
             modules.add(Get.stampService().getModuleNidForStamp(stampSequence));
-         }
-         if (tss.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid())) {
-            terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
          }
       } else {
          oc.getVersionList().stream().filter(version -> {
@@ -2160,15 +2146,7 @@ public class Frills
          }).forEach(version -> {
             modules.add(version.getModuleNid());
          });
-         
-         if (tss.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid()))
-         {
-            terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
-         }
       }
-      
-      //This isn't a valid module to ask for terminology type on
-      modules.remove(MetaData.MODULE____SOLOR.getNid());
 
       for (int moduleNid : modules) {
          terminologyTypes.add(getTerminologyTypeForModule(moduleNid, stamp));
