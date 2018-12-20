@@ -72,7 +72,7 @@ import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 @XmlRootElement(name = "Clause")
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class Clause implements ConceptSpecification, AssemblageForIterationClause {
-    private static final Logger LOG = LogManager.getLogger();
+    public static final Logger LOG = LogManager.getLogger();
 
     /**
      * The Constant PRE_AND_POST_ITERATION.

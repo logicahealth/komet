@@ -71,8 +71,12 @@ public class ComponentIsActive extends LeafClause {
     public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
         StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
         NidSet possibleComponents = incomingComponents.get(getAssemblageForIteration());
-        
+        // -2135831940
+        // -2135831939
         for (int nid: possibleComponents.asArray()) {
+            if (nid == -2135831940 || nid == -2135831939) {
+                LOG.info("Found watch: " + nid);
+            }
             final Optional<? extends Chronology> chronology
                     = Get.identifiedObjectService()
                             .getChronology(nid);
