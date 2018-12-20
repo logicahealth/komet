@@ -63,16 +63,13 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
     }
 
     private void configureAllLanguageRF2Configurations(){
-
-        //TODO Combine with Refset
-
         Arrays.stream(Get.taxonomyService().getSnapshot(this.manifold)
                 .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
                 .filter(this.currentAssemblages::contains)
                 .forEach(activeLanguageNid -> this.exportConfigurations.add(
                         new RF2Configuration(RF2ConfigType.LANGUAGE_REFSET,
                                 this.localDateTimeNow,
-                                () -> RF2Configuration.GetRefsetStreamSupplier().get()
+                                () -> RF2Configuration.GetLanguageStreamSupplier().get()
                                         .filter(chronology -> chronology.getAssemblageNid() == activeLanguageNid),
                                 activeLanguageNid)
                         )
@@ -80,9 +77,6 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
     }
 
     private void configureAllRefsetRF2Configurations(){
-
-        //TODO Combine with Language
-
         this.currentAssemblages.stream()
                 .map(Get::concept)
                 .filter(conceptChronology -> RF2Configuration.GetVersionTypesToExportAsRefsets()

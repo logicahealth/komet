@@ -42,9 +42,6 @@ public class RF2DescriptionReader extends TimedTaskWithProgressTracker<List<Stri
         try{
 
             for(Chronology chronology : this.chronologies) {
-
-                System.out.print(chronology.getVersionType());
-
                 returnList.add(
                         rf2ExportHelper.getRF2CommonElements(chronology)
                                 .append(rf2ExportHelper.getIdString(Get.concept(((SemanticChronology) chronology).getReferencedComponentNid())) + "\t") //conceptId
