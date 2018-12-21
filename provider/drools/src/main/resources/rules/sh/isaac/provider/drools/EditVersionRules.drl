@@ -64,6 +64,18 @@ then
    propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
+rule "Given a AddEditVersionMenuItems, with VersionType.COMPONENT_NID, add known dialect editing options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.COMPONENT_NID 
+       && (getAssemblageForVersion().equals(MetaData.US_ENGLISH_DIALECT____SOLOR) || 
+           getAssemblageForVersion().equals(MetaData.GB_ENGLISH_DIALECT____SOLOR)));
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
+   propertySheetMenuItem.addPropertyToEdit("acceptability", MetaData.COMPONENT_NID_FOR_SEMANTIC____SOLOR, PropertyEditorType.CONCEPT);
+end
+
+
 rule "Given a AddEditVersionMenuItems, with VersionType.Nid1_Int2, add editing options"
    lock-on-active true
 when

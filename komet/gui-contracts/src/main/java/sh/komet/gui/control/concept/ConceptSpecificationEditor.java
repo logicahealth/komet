@@ -156,7 +156,9 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         this.popOver.setTitle("");
         this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifold);
+        Manifold manifoldClone = manifold.deepClone();
+        manifoldClone.setGroupName(Manifold.ManifoldGroup.UNLINKED.getGroupName());
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifoldClone);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);
