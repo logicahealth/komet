@@ -168,8 +168,21 @@ public enum IsaacObjectType {
    }
 
    public void readAndValidateHeader(ByteArrayDataBuffer data) {
+      int pos = data.getPosition();
       byte readToken = data.getByte();
 
+      if (this.token != readToken) {
+          // check for alternative format
+         if (readToken == 0) {
+             // see if has zero integer on the beginning
+             data.setPosition(pos);
+             int start = data.getInt();
+             if (start == 0) {
+                 readToken = data.getByte();
+             }
+         }         
+      }
+      
       if (this.token != readToken) {
          throw new IllegalStateException("Expecting token for: " + this + " found: " + 
                  fromToken(readToken) + "(token: " + readToken + ")");

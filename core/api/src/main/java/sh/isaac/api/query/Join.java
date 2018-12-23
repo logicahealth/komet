@@ -96,7 +96,7 @@ public class Join
     public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> searchSpace) {
         joinResults.clear();
         for (Clause child: getChildren()) {
-            child.computePossibleComponents(searchSpace);
+            child.computeComponents(searchSpace);
         }
         for (JoinSpecification joinSpec: joinSpecifications) {
             NidSet nidSet1 = searchSpace.get(joinSpec.getFirstAssemblage());

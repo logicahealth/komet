@@ -17,6 +17,7 @@
 package sh.isaac.provider.drools;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalInt;
@@ -57,6 +58,7 @@ public class AddAttachmentMenuItems {
     final Manifold manifold;
     final ObservableCategorizedVersion categorizedVersion;
     final BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer;
+    final HashMap<String, PropertySheetMenuItem> propertySheetMenuItems = new HashMap<>();
 
     public AddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
             BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
@@ -82,7 +84,11 @@ public class AddAttachmentMenuItems {
     }
 
     public PropertySheetMenuItem makePropertySheetMenuItem(String menuText, ConceptSpecification assemblageSpecification) {
+        if (propertySheetMenuItems.containsKey(menuText)) {
+            return propertySheetMenuItems.get(menuText);
+        }
         PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion);
+        propertySheetMenuItems.put(menuText, propertySheetMenuItem);
         MenuItem menuItem = new MenuItem(menuText);
         menuItem.setOnAction((event) -> {
             try {

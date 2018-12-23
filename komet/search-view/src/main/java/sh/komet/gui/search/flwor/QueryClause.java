@@ -165,56 +165,31 @@ public class QueryClause {
                     }
                 }
                 join.setJoinSpecifications(joinSpecifications);
-                String suffix = "";
                 int count = 0;
                 for (JoinSpecificationObservable joinSpec : joinSpecifications) {
-                    if (count > 0) {
-                        suffix = " " + count;
-                    }
-                    clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "join" + suffix,
-                            joinSpec.firstAssemblageProperty(), forPropertySheet.getForAssemblagesProperty()));
-                    clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "with",
-                            joinSpec.secondAssemblageProperty(), forPropertySheet.getForAssemblagesProperty()));
-                    // need field list here
-                    clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "where",
-                            joinSpec.firstFieldProperty(), joinProperties));
-                    clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "equals",
-                            joinSpec.secondFieldProperty, joinProperties));
-
-                    clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("stamp",
-                            joinSpec.stampCoordinateKeyProperty(), letPropertySheet.getStampCoordinateKeys()));
+                    setupJoinSpec(count++, joinSpec);
                 }
 
                 return clausePropertySheet;
 
             case COMPONENT_IS_ACTIVE:
-                ComponentIsActive componentIsActive = (ComponentIsActive) clauseProperty.get();
-                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "for each",
-                        forSpecProperty, forPropertySheet.getForAssemblagesProperty()));
-                forSpecProperty.addListener((observable, oldValue, newValue) -> {
-                    componentIsActive.setAssemblageForIteration(newValue);
-                });
-
-                clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("stamp",
-                        stampKeyProperty, letPropertySheet.getStampCoordinateKeys()));
-                stampKeyProperty.setValue(componentIsActive.getStampCoordinateKey());
-
-                stampKeyProperty.addListener((observable, oldValue, newValue) -> {
-                    componentIsActive.setStampCoordinateKey((LetItemKey) newValue);
-                });
-                return clausePropertySheet;
+                setupAssemblageForIteration("for each");
+                return setupStampCoordinateClause("stamp");
 
             case REFERENCED_COMPONENT_IS:
                 setupAssemblageForIteration("for each");
                 return setupReferencedComponentClause("RC is");
+
             case REFERENCED_COMPONENT_IS_KIND_OF:
                 setupAssemblageForIteration("for each");
                 setupManifoldClause("manifold");
                 return setupReferencedComponentClause("RC is kind of");
+
             case REFERENCED_COMPONENT_IS_MEMBER_OF:
                 setupAssemblageForIteration("for each");
                 setupManifoldClause("manifold");
                 return setupReferencedComponentClause("RC is member of");
+
             case REFERENCED_COMPONENT_IS_NOT_KIND_OF:
                 setupAssemblageForIteration("for each");
                 setupManifoldClause("manifold");
@@ -227,24 +202,49 @@ public class QueryClause {
             case SEMANTIC_CONTAINS_TEXT:
                 setupAssemblageForIteration("for each");
                 return setupQueryStringClause("query string");
-                
+
             case REFERENCED_COMPONENT_IS_ACTIVE:
             case REFERENCED_COMPONENT_IS_INACTIVE:
                 setupAssemblageForIteration("for each");
                 return setupStampCoordinateClause("stamp key");
-                
 
             default:
                 throw new UnsupportedOperationException("Can't handle: " + this.clauseProperty.get().getClauseSemantic());
         }
     }
+
+    protected void setupJoinSpec(int count, JoinSpecificationObservable joinSpec) {
+        String suffix = "";
+        if (count > 0) {
+            suffix = " " + count;
+        }
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "join" + suffix,
+                joinSpec.firstAssemblageProperty(), forPropertySheet.getForAssemblagesProperty()));
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "with",
+                joinSpec.secondAssemblageProperty(), forPropertySheet.getForAssemblagesProperty()));
+        // need field list here
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "where",
+                joinSpec.firstFieldProperty(), joinProperties));
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "equals",
+                joinSpec.secondFieldProperty, joinProperties));
+
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("stamp",
+                joinSpec.stampCoordinateKeyProperty(), letPropertySheet.getStampCoordinateKeys()));
+        if (joinSpec.getStampCoordinateKey() == null & !letPropertySheet.getStampCoordinateKeys().isEmpty()) {
+            joinSpec.setStampCoordinateKey(letPropertySheet.getStampCoordinateKeys().get(0));
+        }
+        joinSpec.stampCoordinateKeyProperty().set(joinSpec.getStampCoordinateKey());
+    }
+
     protected PropertySheet setupStampCoordinateClause(String keyName) {
         StampCoordinateClause stampClause = (StampCoordinateClause) clauseProperty.get();
         SimpleObjectProperty<LetItemKey> stampKeyForClauseProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
         this.clauseSpecificProperties.add(stampKeyForClauseProperty);
-        if (stampClause.getStampCoordinateKey() == null &! letPropertySheet.getStampCoordinateKeys().isEmpty()) {
+        if (stampClause.getStampCoordinateKey() == null & !letPropertySheet.getStampCoordinateKeys().isEmpty()) {
             stampClause.setStampCoordinateKey(letPropertySheet.getStampCoordinateKeys().get(0));
         }
+        stampKeyForClauseProperty.set(stampClause.getStampCoordinateKey());
+
         clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper(keyName,
                 stampKeyForClauseProperty, letPropertySheet.getStampCoordinateKeys()));
         stampKeyForClauseProperty.addListener((observable, oldValue, newValue) -> {
@@ -252,7 +252,6 @@ public class QueryClause {
         });
         return clausePropertySheet;
     }
-
 
     protected PropertySheet setupQueryStringClause(String keyName) {
         QueryStringClause queryStringClause = (QueryStringClause) clauseProperty.get();
@@ -289,6 +288,12 @@ public class QueryClause {
         AssemblageForIterationClause assemblageForIterationClause = (AssemblageForIterationClause) clauseProperty.get();
         clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, keyName,
                 forSpecProperty, forPropertySheet.getForAssemblagesProperty()));
+
+        if (assemblageForIterationClause.getAssemblageForIteration() == null || assemblageForIterationClause.getAssemblageForIteration().equals(TermAux.UNINITIALIZED_COMPONENT_ID)) {
+            if (!forPropertySheet.getForAssemblagesProperty().isEmpty()) {
+                assemblageForIterationClause.setAssemblageForIteration(forPropertySheet.getForAssemblagesProperty().get(0));
+            }
+        }
 
         forSpecProperty.addListener((observable, oldValue, newValue) -> {
             assemblageForIterationClause.setAssemblageForIteration(newValue);

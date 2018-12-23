@@ -69,6 +69,10 @@ public class ConceptProxy
 
    public static final String METADATA_SEMANTIC_TAG = "SOLOR";
    
+   public static ConceptProxy make(String descriptionText, String uuidStr) {
+    return new ConceptProxy(descriptionText, UUID.fromString(uuidStr));
+   }
+   
    /**
     * Universal identifiers for the concept proxied by the is object.
     */

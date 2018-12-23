@@ -145,6 +145,19 @@ public class ManifoldLinkedConceptLabel
     //~--- methods -------------------------------------------------------------
     private MenuItem makeCopyMenuItem() {
         Menu copyMenu = new Menu("copy");
+        MenuItem conceptUuidMenuItem = new MenuItem("Concept uuid");
+        copyMenu.getItems().add(conceptUuidMenuItem);
+        conceptUuidMenuItem.setOnAction((event) -> {
+            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            if (concept.isPresent()) {
+                String uuidStr = concept.get().getPrimordialUuid().toString();
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(uuidStr);
+                clipboard.setContent(content);
+            }
+        });
+
         MenuItem docBookInlineReferenceMenuItem = new MenuItem("Docbook inline concept reference");
         copyMenu.getItems().add(docBookInlineReferenceMenuItem);
         docBookInlineReferenceMenuItem.setOnAction((event) -> {
@@ -157,7 +170,6 @@ public class ManifoldLinkedConceptLabel
                 clipboard.setContent(content);
             }
         });
-
 
         MenuItem copyDocBookMenuItem = new MenuItem("Docbook glossary entry");
         copyMenu.getItems().add(copyDocBookMenuItem);

@@ -267,51 +267,10 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
 
     // Analog to ProstgresProvider getDataList(...)
     private List<byte[]> getDataList(ChronologySerializeable chronology) {
-
-        TreeSet<byte[]> dataTree = new TreeSet<>((o1, o2) -> {
-            if (o1.length != o2.length) {
-                return Integer.compare(o1.length, o2.length);
-            }
-            for (int i = 0; i < o1.length; i++) {
-                if (o1[i] != o2[i]) {
-                    return Integer.compare(o1[i], o2[i]);
-                }
-            }
-            return 0;
-        });
-
-        byte[] dataToSplit = chronology.getChronologyVersionDataToWrite();
-        int versionStartPosition = ((ChronologyImpl) chronology).getVersionStartPosition();
-        if (versionStartPosition < 0) {
-            throw new IllegalStateException("versionStartPosition is not set");
+        if (chronology.getNid() == -2135832767) {
+            LOG.info("Found watch: " + chronology);
         }
-
-        byte[] chronicleBytes = new byte[versionStartPosition];
-        for (int i = 0; i < chronicleBytes.length; i++) {
-            chronicleBytes[i] = dataToSplit[i];
-        }
-        byte[] first = chronicleBytes;
-
-        int versionStart = versionStartPosition;
-        int versionSize = getInt(dataToSplit, versionStart);
-
-        while (versionSize != 0) {
-            int versionTo = versionStart + versionSize;
-            int newLength = versionTo - versionStart;
-            if (versionTo < 0) {
-                LOG.error("Error versionTo: " + versionTo);
-            }
-            if (newLength < 0) {
-                LOG.error("Error newLength: " + newLength);
-            }
-            dataTree.add(Arrays.copyOfRange(dataToSplit, versionStart, versionTo));
-            versionStart = versionStart + versionSize;
-            versionSize = getInt(dataToSplit, versionStart);
-        }
-        List<byte[]> dataArray = new ArrayList<>();
-        dataArray.add(first);
-        dataArray.addAll(dataTree);
-        return dataArray;
+        return ChronologyImpl.getDataList(chronology);
 
     }
 }

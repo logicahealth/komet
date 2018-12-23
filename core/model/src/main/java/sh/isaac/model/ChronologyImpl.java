@@ -646,24 +646,16 @@ public abstract class ChronologyImpl
     @Override
     public byte[] getChronologyVersionDataToWrite() {
 
-        if (this.uncommittedVersions == null) {
-
-            // creating a brand new object
-            final ByteArrayDataBuffer db = new ByteArrayDataBuffer(40);
-
-            writeChronicleData(db);
-            db.putInt(0);  // zero length version record.
-            db.trimToSize();
-            return db.getData();
-        }
-
         final ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
         writeChronicleData(db);
 
         this.versionStartPosition = db.getPosition();
+        OpenIntHashSet writtenStamps = new OpenIntHashSet();
         for (Version version : getVersionList()) {
+            int stampSequence = version.getStampSequence();
             if (Get.stampService()
-                    .isNotCanceled(version.getStampSequence())) {
+                    .isNotCanceled(stampSequence) &! writtenStamps.contains(stampSequence)) {
+                writtenStamps.add(stampSequence);
                 writeVersion(db, version);
             }
         }
@@ -698,9 +690,13 @@ public abstract class ChronologyImpl
     {
         List<Version> versionList = getVersionList();
         ArrayList<byte[]> result = new ArrayList<>(versionList.size());
+        OpenIntHashSet writtenStamps = new OpenIntHashSet();
         for (Version version : versionList)
         {
-            if (Get.stampService().isNotCanceled(version.getStampSequence())) {
+            int stampSequence = version.getStampSequence();
+            if (Get.stampService().isNotCanceled(stampSequence)
+                    &! writtenStamps.contains(stampSequence)) {
+                writtenStamps.add(stampSequence);
                 final ByteArrayDataBuffer db = new ByteArrayDataBuffer(64);
                 writeVersion(db, version);
                 db.flip();

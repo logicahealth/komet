@@ -1,26 +1,26 @@
 package sh.isaac.solor.rf2;
 
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.solor.ZipExportFilesTask;
-import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.config.RF2ConfigType;
+import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.readers.core.*;
 import sh.isaac.solor.rf2.readers.refsets.RF2LanguageRefsetReader;
+import sh.isaac.solor.rf2.readers.refsets.RF2RefsetReader;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
@@ -36,6 +36,9 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
     private final Semaphore readSemaphore = new Semaphore(READ_PERMITS);
     private final static int BATCH_SIZE = 102400;
 
+    final List<Integer> currentAssemblages = Arrays.stream(Get.assemblageService().getAssemblageConceptNids())
+            .boxed().collect(Collectors.toList());
+
 
     public RF2DirectExporter(Manifold manifold, File exportDirectory, String exportMessage){
         this.manifold = manifold;
@@ -43,20 +46,52 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
         this.exportMessage = exportMessage;
         this.localDateTimeNow = LocalDateTime.now();
 
-        //Can be UI driven (e.g. based on selections compose the correct Class of Readers and output)
-        exportConfigurations = new ArrayList<>();
-        exportConfigurations.add(new RF2Configuration(RF2ConfigType.CONCEPT, this.localDateTimeNow));
-        exportConfigurations.add(new RF2Configuration(RF2ConfigType.DESCRIPTION, this.localDateTimeNow));
-        exportConfigurations.add(new RF2Configuration(RF2ConfigType.RELATIONSHIP, this.localDateTimeNow));
-        exportConfigurations.add(new RF2Configuration(RF2ConfigType.STATED_RELATIONSHIP, this.localDateTimeNow));
-        exportConfigurations.add(new RF2Configuration(RF2ConfigType.IDENTIFIER, this.localDateTimeNow));
-        exportConfigurations.add(new RF2Configuration(RF2ConfigType.TRANSITIVE_CLOSURE, this.localDateTimeNow));
-        exportConfigurations.add(new RF2Configuration(RF2ConfigType.VERSIONED_TRANSITIVE_CLOSURE, this.localDateTimeNow));
-        exportConfigurations.add(new RF2Configuration(RF2ConfigType.LANGUAGE_REFSET, this.localDateTimeNow));
+        this.exportConfigurations = new ArrayList<>();
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.CONCEPT, this.localDateTimeNow));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.DESCRIPTION, this.localDateTimeNow));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.RELATIONSHIP, this.localDateTimeNow));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.STATED_RELATIONSHIP, this.localDateTimeNow));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.IDENTIFIER, this.localDateTimeNow));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.TRANSITIVE_CLOSURE, this.localDateTimeNow));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.VERSIONED_TRANSITIVE_CLOSURE, this.localDateTimeNow));
+        configureAllLanguageRF2Configurations();
+        configureAllRefsetRF2Configurations();
 
         updateTitle("Export " + this.exportMessage);
         addToTotalWork(this.exportConfigurations.size() + 2);
         Get.activeTasks().add(this);
+    }
+
+    private void configureAllLanguageRF2Configurations(){
+        Arrays.stream(Get.taxonomyService().getSnapshot(this.manifold)
+                .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
+                .filter(this.currentAssemblages::contains)
+                .forEach(activeLanguageNid -> this.exportConfigurations.add(
+                        new RF2Configuration(RF2ConfigType.LANGUAGE_REFSET,
+                                this.localDateTimeNow,
+                                () -> RF2Configuration.GetLanguageStreamSupplier().get()
+                                        .filter(chronology -> chronology.getAssemblageNid() == activeLanguageNid),
+                                activeLanguageNid)
+                        )
+                );
+    }
+
+    private void configureAllRefsetRF2Configurations(){
+        this.currentAssemblages.stream()
+                .map(Get::concept)
+                .filter(conceptChronology -> RF2Configuration.GetVersionTypesToExportAsRefsets()
+                        .contains(Get.assemblageService().getVersionTypeForAssemblage(conceptChronology.getNid())))
+                .forEach(conceptChronology -> this.exportConfigurations.add(
+                        new RF2Configuration(RF2ConfigType.REFSET,
+                                this.localDateTimeNow,
+                                () -> RF2Configuration.GetRefsetStreamSupplier().get()
+                                        .filter(semanticChronology ->
+                                                semanticChronology.getAssemblageNid() == conceptChronology.getNid()
+                                        ),
+                                Get.assemblageService().getVersionTypeForAssemblage(conceptChronology.getNid()),
+                                conceptChronology.getFullyQualifiedName()
+                        )
+                ));
     }
 
     @Override
@@ -69,67 +104,53 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                 final List<Future<List<String>>> futures = new ArrayList<>();
                 final List<String> readerResults = new ArrayList<>();
 
-                if(rf2Configuration.getRf2ConfigType() == RF2ConfigType.LANGUAGE_REFSET){
-                    List<Map<Integer, List<List<Chronology>>>> batchesOfLanguageRefsets =
-                            batchLanguageReaderStream(rf2Configuration.getChronologyStream());
+                List<List<Chronology>> batches = batchReaderStream(rf2Configuration.getChronologyStream());
 
-                    for(Map<Integer, List<List<Chronology>>> languageNidtoChronologyMap : batchesOfLanguageRefsets){
-                        for(Map.Entry<Integer, List<List<Chronology>>> entry : languageNidtoChronologyMap.entrySet()){
-                            int languageNid = entry.getKey();
-                            for(List<Chronology> batch : entry.getValue()){
-                                futures.add(Get.executor().submit(
-                                        new RF2LanguageRefsetReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
-                                        new ArrayList<>()));
-
-
-
-                            }
-                        }
-                    }
-
-
-
-                }else {
-                    List<List<Chronology>> batches = batchReaderStream(rf2Configuration.getChronologyStream());
-
-                    for (List<Chronology> batch : batches) {
-                        switch (rf2Configuration.getRf2ConfigType()) {
-                            case CONCEPT:
-                                futures.add(Get.executor().submit(
-                                        new RF2ConceptReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
-                                        new ArrayList<>()));
-                                break;
-                            case DESCRIPTION:
-                                futures.add(Get.executor().submit(
-                                        new RF2DescriptionReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
-                                        new ArrayList<>()));
-                                break;
-                            case RELATIONSHIP:
-                            case STATED_RELATIONSHIP:
-                                futures.add(Get.executor().submit(
-                                        new RF2RelationshipReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
-                                        new ArrayList<>()));
-                                break;
-                            case IDENTIFIER:
-                                futures.add(Get.executor().submit(
-                                        new RF2IdentifierReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
-                                        new ArrayList<>()));
-                                break;
-                            case TRANSITIVE_CLOSURE:
-                                futures.add(Get.executor().submit(
-                                        new RF2TransitiveClosureReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
-                                        new ArrayList<>()));
-                                break;
-                            case VERSIONED_TRANSITIVE_CLOSURE:
-                                futures.add(Get.executor().submit(
-                                        new RF2VersionedTransitiveClosureReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
-                                        new ArrayList<>()));
-                                break;
-                        }
+                for (List<Chronology> batch : batches) {
+                    switch (rf2Configuration.getRf2ConfigType()) {
+                        case CONCEPT:
+                            futures.add(Get.executor().submit(
+                                    new RF2ConceptReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
+                                    new ArrayList<>()));
+                            break;
+                        case DESCRIPTION:
+                            futures.add(Get.executor().submit(
+                                    new RF2DescriptionReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
+                                    new ArrayList<>()));
+                            break;
+                        case RELATIONSHIP:
+                        case STATED_RELATIONSHIP:
+                            futures.add(Get.executor().submit(
+                                    new RF2RelationshipReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
+                                    new ArrayList<>()));
+                            break;
+                        case IDENTIFIER:
+                            futures.add(Get.executor().submit(
+                                    new RF2IdentifierReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
+                                    new ArrayList<>()));
+                            break;
+                        case TRANSITIVE_CLOSURE:
+                            futures.add(Get.executor().submit(
+                                    new RF2TransitiveClosureReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
+                                    new ArrayList<>()));
+                            break;
+                        case VERSIONED_TRANSITIVE_CLOSURE:
+                            futures.add(Get.executor().submit(
+                                    new RF2VersionedTransitiveClosureReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
+                                    new ArrayList<>()));
+                            break;
+                        case LANGUAGE_REFSET:
+                            futures.add(Get.executor().submit(
+                                    new RF2LanguageRefsetReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
+                                    new ArrayList<>()));
+                            break;
+                        case REFSET:
+                            futures.add(Get.executor().submit(
+                                    new RF2RefsetReader(batch, readSemaphore, manifold, rf2Configuration.getMessage()),
+                                    new ArrayList<>()));
+                            break;
                     }
                 }
-
-
 
                 readSemaphore.acquireUninterruptibly(READ_PERMITS);
 
@@ -147,7 +168,12 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
             completedUnitOfWork();
 
             updateMessage("Zipping SOLOR" + this.exportMessage + " Export...");
-            runZipTask();
+            String zipFilePath = "/SnomedCT_SolorRF2_PRODUCTION_TIME1.zip"
+                    .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'")
+                            .format(this.localDateTimeNow));
+            ZipExportFilesTask zipExportFilesTask =
+                    new ZipExportFilesTask(this.exportDirectory, this.artifactsToZip, this.readSemaphore, zipFilePath);
+            Get.executor().submit(zipExportFilesTask).get();
 
             completedUnitOfWork();
 
@@ -159,7 +185,6 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
 
         return null;
     }
-
 
     private List<List<Chronology>> batchReaderStream(Stream<? extends Chronology> totalChronologyStream){
         final List<Chronology> batch = new ArrayList<>(BATCH_SIZE);
@@ -180,35 +205,4 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
 
         return batches;
     }
-
-    private List<Map<Integer, List<List<Chronology>>>>
-                                        batchLanguageReaderStream(Stream<? extends Chronology> totalDescriptionStream){
-
-        final List<Map<Integer, List<List<Chronology>>>> returnList = new ArrayList<>();
-        final Map<Integer, List<List<Chronology>>> mappedAndBatchedChronologyByLanguage = new HashMap<>();
-
-        //for each assemblage, see which refer to language concept
-
-        //stream filter the items for each type of used language
-
-        //batch chronologies as List<List<Chronology>> and the language Nid
-
-
-
-
-
-        return returnList;
-    }
-
-    private void runZipTask(){
-        try {
-            String zipFilePath = this.artifactsToZip.keySet().stream().findFirst().get().getZipFilePath();
-            ZipExportFilesTask zipExportFilesTask =
-                    new ZipExportFilesTask(this.exportDirectory, this.artifactsToZip, this.readSemaphore, zipFilePath);
-            Get.executor().submit(zipExportFilesTask).get();
-        }catch (InterruptedException | ExecutionException e){
-            e.printStackTrace();
-        }
-    }
-
 }
