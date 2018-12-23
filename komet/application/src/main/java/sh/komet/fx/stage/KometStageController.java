@@ -50,8 +50,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -82,13 +80,10 @@ import sh.isaac.solor.direct.LoincDirectImporter;
 import sh.isaac.solor.direct.LoincExpressionToConcept;
 import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
-import sh.komet.fx.tabpane.DndTabPaneFactory;
-import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
 import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.NodeFactory.PanelPlacement;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.isaac.komet.gui.exporter.ExportView;
-import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -96,7 +91,6 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.drag.drop.TabDragAndDropHandler;
 import sh.komet.gui.provider.concept.builder.ConceptBuilderNode;
 
 //~--- classes ----------------------------------------------------------------
@@ -260,7 +254,7 @@ public class KometStageController
             
             MenuItem artifactImport = new MenuItem("Artifact Import");
             artifactImport.setOnAction((ActionEvent event) -> {
-                ArtifactImporter.startArtifactImport(topGridPane.getScene().getWindow());
+                //ArtifactImporter.startArtifactImport(topGridPane.getScene().getWindow());
             });
             items.add(artifactImport);
         }
@@ -425,9 +419,7 @@ public class KometStageController
 
     @SuppressWarnings("unchecked")
     private Pane createWrappedTabPane(PanelPlacement panelPlacement) {
-        Pane pane = DndTabPaneFactory.createDefaultDnDPane(FeedbackType.OUTLINE, true, (tabPane -> setupTabPane(tabPane, panelPlacement)));
-        TabPane tabPane = (TabPane) pane.getChildren()
-                .get(0);
+        TabPane tabPane = new TabPane();
 
         tabPanes.add(tabPane);
 
@@ -446,7 +438,7 @@ public class KometStageController
                             .compareTo(o2.getText());
                 });
 
-        Pane wrapped = TabWrapper.wrap(pane, menuItems.toArray(new MenuItem[menuItems.size()]));
+        Pane wrapped = TabWrapper.wrap(tabPane, menuItems.toArray(new MenuItem[menuItems.size()]));
 
         HBox.setHgrow(wrapped, Priority.ALWAYS);
         return wrapped;
@@ -499,7 +491,7 @@ public class KometStageController
                     if (en instanceof DetailNode) {
                         DetailNode dt = (DetailNode) en;
                         if (!(en instanceof ConceptBuilderNode)) {
-                            TabDragAndDropHandler.setupTab(tab, dt);
+                            //TabDragAndDropHandler.setupTab(tab, dt);
                         }
                         
                         //TODO this is broken by design, if more than one tab requests focus on change...

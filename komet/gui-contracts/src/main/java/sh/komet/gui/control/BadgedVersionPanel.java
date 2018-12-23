@@ -109,7 +109,6 @@ import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.flags.CountryFlagImages;
 import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.textarea.TextAreaReadOnly;
-import sh.komet.gui.control.textarea.TextAreaUtils;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -241,16 +240,7 @@ public abstract class BadgedVersionPanel
         if (optionalPropertySheetMenuItem.isPresent()) {
             PropertySheetMenuItem item = optionalPropertySheetMenuItem.get();
             item.cancel();
-            Platform.runLater(() -> {
-                cancelButton.setVisible(false);
-                commitButton.setVisible(false);
-                gridpane.getChildren().remove(item.getPropertySheet());
-                optionalPropertySheetMenuItem = Optional.empty();
-                pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
-                editControl.getItems().setAll(getEditMenuItems());
-                editControl.setVisible(!editControl.getItems().isEmpty());
-                redoLayout();
-            });
+            cleanupAfterCommitOrCancel(item);
         }
     }
 
@@ -259,17 +249,21 @@ public abstract class BadgedVersionPanel
         if (optionalPropertySheetMenuItem.isPresent()) {
             PropertySheetMenuItem item = optionalPropertySheetMenuItem.get();
             item.commit();
-            Platform.runLater(() -> {
-                cancelButton.setVisible(false);
-                commitButton.setVisible(false);
-                gridpane.getChildren().remove(item.getPropertySheet());
-                optionalPropertySheetMenuItem = Optional.empty();
-                pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
-                editControl.getItems().setAll(getEditMenuItems());
-                editControl.setVisible(!editControl.getItems().isEmpty());
-                redoLayout();
-            });
+            cleanupAfterCommitOrCancel(item);
         }
+    }
+
+    private void cleanupAfterCommitOrCancel(PropertySheetMenuItem item) {
+        Platform.runLater(() -> {
+            cancelButton.setVisible(false);
+            commitButton.setVisible(false);
+            gridpane.getChildren().remove(item.getPropertySheet());
+            optionalPropertySheetMenuItem = Optional.empty();
+            pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
+            editControl.getItems().setAll(getEditMenuItems());
+            editControl.setVisible(!editControl.getItems().isEmpty());
+            redoLayout();
+        });
     }
 
     public void debugTextLayoutListener(ObservableValue<? extends Bounds> bounds, Bounds oldBounds, Bounds newBounds) {
@@ -623,7 +617,14 @@ public abstract class BadgedVersionPanel
         wrappingWidth = (int) (layoutBoundsProperty().get()
                 .getWidth() - (5 * badgeWidth));
 
-        double height = TextAreaUtils.computeTextHeight(componentText.getFont(), componentText.getText(), wrappingWidth, TextBoundsType.LOGICAL) + 10;
+
+
+
+        componentText.setMinWidth(wrappingWidth);
+        componentText.setPrefWidth(wrappingWidth);
+        componentText.setMaxWidth(wrappingWidth);
+
+        double height = componentText.computeTextHeight(wrappingWidth);
         if (componentText.getWidth() != wrappingWidth
                 || componentText.getHeight() != height) {
             componentText.setPrefSize(wrappingWidth, height);

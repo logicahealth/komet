@@ -109,7 +109,6 @@ final public class MultiParentTreeCell
    MultiParentTreeCell(TreeView<ConceptChronology> treeView) {
       super();
       updateTreeView(treeView);
-      setSkin(new MultiParentTreeCellSkin(this));
 
       // Allow drags
       

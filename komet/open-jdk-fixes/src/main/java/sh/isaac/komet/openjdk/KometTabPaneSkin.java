@@ -25,6 +25,7 @@
 
 package sh.isaac.komet.openjdk;
 
+import com.sun.javafx.scene.control.skin.BehaviorSkinBase;
 import com.sun.javafx.util.Utils;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -89,7 +90,6 @@ import java.util.List;
 import com.sun.javafx.css.converters.EnumConverter;
 import com.sun.javafx.scene.control.MultiplePropertyChangeListenerHandler;
 import com.sun.javafx.scene.control.behavior.TabPaneBehavior;
-import com.sun.javafx.scene.control.skin.BehaviorSkinBase;
 import static com.sun.javafx.scene.control.skin.resources.ControlResources.getString;
 import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.TraversalEngine;

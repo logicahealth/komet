@@ -16,7 +16,12 @@
  */
 package sh.komet.gui.control.textarea;
 
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.text.TextBoundsType;
 
 /**
  *
@@ -31,5 +36,30 @@ public class TextAreaReadOnly extends TextArea {
             selectRange(0,0);
         });
     }
-    
+
+    public double computeTextHeight(double wrappingWidth) {
+        TextAreaReadOnly forLayout = new TextAreaReadOnly();
+        forLayout.setText(this.getText());
+        forLayout.setFont(this.getFont());
+        forLayout.setWrapText(true);
+        forLayout.setMinWidth(wrappingWidth);
+        forLayout.setPrefWidth(wrappingWidth);
+        forLayout.setMaxWidth(wrappingWidth);
+        forLayout.getStyleClass().addAll(this.getStyleClass());
+        HBox.setHgrow(forLayout, Priority.NEVER);
+
+        HBox hbox = new HBox();
+        hbox.setFillHeight(false);
+        hbox.setAlignment(Pos.BASELINE_LEFT);
+        Scene snapshotScene = new Scene(hbox, 1000, 1000);
+
+        hbox.getChildren().addAll(forLayout);
+        hbox.applyCss();
+        hbox.layout();
+
+        forLayout.getLayoutBounds();
+        return forLayout.getHeight() + 10;
+    }
+
+
 }

@@ -40,11 +40,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import org.controlsfx.control.ToggleSwitch;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
@@ -62,7 +62,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
    final Manifold manifold;
    final Supplier<List<MenuItem>> menuSupplier;
    final GridPane toolBarGrid = new GridPane();
-   final OnOffToggleSwitch focusOnChange = new OnOffToggleSwitch();
+   final ToggleSwitch focusOnChange = new ToggleSwitch();
 
 
    public void manifoldEventHandler(Event event) {

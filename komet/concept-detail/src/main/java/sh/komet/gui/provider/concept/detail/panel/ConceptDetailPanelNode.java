@@ -88,6 +88,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
+import org.controlsfx.control.ToggleSwitch;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -113,7 +114,6 @@ import sh.komet.gui.control.ComponentPanel;
 import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.ExpandControl;
-import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.control.StampControl;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
@@ -152,7 +152,7 @@ public class ConceptDetailPanelNode
     private final GridPane versionBrancheGrid = new GridPane();
     private final GridPane toolGrid = new GridPane();
     private final ExpandControl expandControl = new ExpandControl();
-    private final OnOffToggleSwitch historySwitch = new OnOffToggleSwitch();
+    private final ToggleSwitch historySwitch = new ToggleSwitch();
     private final Label expandControlLabel = new Label("Expand All", expandControl);
     private final OpenIntIntHashMap stampOrderHashMap = new OpenIntIntHashMap();
     private final Button addDescriptionButton = new Button("+ Add");

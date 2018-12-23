@@ -40,25 +40,14 @@ package sh.komet.gui.util;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
-import javafx.scene.Node;
-import javafx.scene.control.ButtonBase;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 //~--- JDK imports ------------------------------------------------------------
-import com.sun.javafx.tk.FontLoader;
-import com.sun.javafx.tk.Toolkit;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
@@ -105,32 +94,6 @@ public class FxUtils {
 
    //~--- methods -------------------------------------------------------------
 
-   public static void assignImageToButton(ButtonBase button, ImageView imageView) {
-        FxUtils.assignImageToButton(button, imageView, "");
-    }
-
-    public static void assignImageToButton(ButtonBase button, ImageView imageView, String tooltip) {
-        button.setText("");
-        button.setGraphic(imageView);
-        button.setTooltip(new Tooltip(tooltip));
-    }
-
-    public static double calculateNecessaryWidthOfBoldLabel(Label l) {
-        Font f = new Font("System Bold", 13.0);
-
-        return Toolkit.getToolkit()
-                .getFontLoader()
-                .computeStringWidth(l.getText(), f);
-    }
-
-    public static double calculateNecessaryWidthOfLabel(Label l) {
-        Font f = new Font("System", 13.0);
-
-        return Toolkit.getToolkit()
-                .getFontLoader()
-                .computeStringWidth(l.getText(), f);
-    }
-
     /**
      * Makes sure thread is NOT the FX application thread.
      */
@@ -161,76 +124,6 @@ public class FxUtils {
         }
     }
 
-    /**
-     * Call this after adding all label content to a column, to prevent it from
-     * shrinking smaller than the labels returns the calculated width, for
-     * convenience
-     *
-     * @param gp
-     * @param colNumber
-     * @return
-     */
-    public static double preventColCollapse(GridPane gp, int colNumber) {
-        double largestWidth = 0;
-        FontLoader fl = Toolkit.getToolkit()
-                .getFontLoader();
-
-        for (Node node : gp.getChildrenUnmodifiable()) {
-            Integer colIndex = GridPane.getColumnIndex(node);
-
-            if ((colIndex != null) && (colIndex == colNumber)) {
-                String textValue = "";
-                double extraWidth = 0;
-                Font font = null;
-
-                if (node instanceof Label) {
-                    textValue = ((Label) node).getText();
-                    font = ((Label) node).getFont();
-                    extraWidth = ((Label) node).getInsets()
-                            .getLeft() + ((Label) node).getInsets().getRight();
-                } else if (node instanceof CheckBox) {
-                    textValue = ((CheckBox) node).getText();
-                    font = ((CheckBox) node).getFont();
-                    extraWidth = 25;
-                } else if (node instanceof RadioButton) {
-                    textValue = ((RadioButton) node).getText();
-                    font = ((RadioButton) node).getFont();
-                    extraWidth = 25;
-                }
-
-                if (font != null) {
-                    double width = fl.computeStringWidth(textValue, font) + extraWidth;
-
-                    if (width > largestWidth) {
-                        largestWidth = width;
-                    }
-                }
-            }
-        }
-
-        // don't let the column shrink less than the labels
-        if (gp.getColumnConstraints()
-                .isEmpty()) {
-            if (colNumber > 0) {
-                throw new RuntimeException("Sorry, not handled");
-            }
-
-            ColumnConstraints cc = new ColumnConstraints();
-
-            cc.setMinWidth(largestWidth);
-            cc.setPrefWidth(largestWidth);
-            gp.getColumnConstraints()
-                    .add(cc);
-        } else {
-            ColumnConstraints cc = gp.getColumnConstraints()
-                    .get(colNumber);
-
-            cc.setMinWidth(largestWidth);
-            cc.setPrefWidth(largestWidth);
-        }
-
-        return largestWidth;
-    }
 
     public static AnchorPane setupHeaderPanel(String... strings) {
         AnchorPane anchorPane = new AnchorPane();

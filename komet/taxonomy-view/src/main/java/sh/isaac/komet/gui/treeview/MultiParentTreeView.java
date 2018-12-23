@@ -79,6 +79,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
+import org.controlsfx.control.ToggleSwitch;
 import sh.isaac.api.Get;
 import sh.isaac.api.RefreshListener;
 import sh.isaac.api.Status;
@@ -101,7 +102,6 @@ import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
 import static sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory.MENU_TEXT;
-import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.layout.LayoutAnimator;
 
@@ -131,7 +131,7 @@ public class MultiParentTreeView
     //~--- fields --------------------------------------------------------------
     private final SimpleStringProperty titleProperty = new SimpleStringProperty(MENU_TEXT);
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Multi-parent taxonomy view");
-    private final OnOffToggleSwitch historySwitch = new OnOffToggleSwitch();
+    private final ToggleSwitch historySwitch = new ToggleSwitch();
     private final ToolBar toolBar = new ToolBar();
     private MultiParentTreeItemDisplayPolicies displayPolicies;
     private final SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
@@ -342,8 +342,6 @@ public class MultiParentTreeView
      * Tell the tree to stop whatever threading operations it has running, since
      * the application is exiting.
      *
-     * @see
-     * gov.va.isaac.interfaces.utility.ShutdownBroadcastListenerI#shutdown()
      */
     public static void globalShutdownRequested() {
         shutdownRequested = true;

@@ -1053,5 +1053,5 @@ limitations under the License.
 }
 
 .tab-pane {
-    -fx-skin: "sh.isaac.komet.openjdk.KometTabPaneSkin";
+    /* -fx-skin: "sh.isaac.komet.openjdk.KometTabPaneSkin"; */
 }
