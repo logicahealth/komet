@@ -20,7 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import static sh.komet.gui.control.BadgedVersionPanel.FIRST_COLUMN_WIDTH;
+import static sh.komet.gui.control.badged.old.BadgedVersionPanel.FIRST_COLUMN_WIDTH;
 import static sh.komet.gui.style.StyleClasses.STAMP_INDICATOR;
 
 /**

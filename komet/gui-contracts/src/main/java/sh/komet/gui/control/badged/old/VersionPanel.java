@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.control;
+package sh.komet.gui.control.badged.old;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -23,6 +23,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.komet.gui.control.badged.old.BadgedVersionPanel;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 

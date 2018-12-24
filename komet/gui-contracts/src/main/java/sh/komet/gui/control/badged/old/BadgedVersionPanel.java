@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.komet.gui.control;
+package sh.komet.gui.control.badged.old;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
@@ -70,7 +70,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextBoundsType;
 
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.controlsfx.control.PropertySheet;
@@ -93,6 +92,7 @@ import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.komet.iconography.Iconography;
 
+import sh.komet.gui.control.*;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
@@ -141,7 +141,7 @@ public abstract class BadgedVersionPanel
     protected final int rowHeight = 25;
     protected final StampControl stampControl = new StampControl();
     protected int wrappingWidth = 300;
-    protected final ObservableList<ComponentPanel> extensionPanels = FXCollections.observableArrayList();
+    protected final ObservableList<ComponentPane> extensionPanels = FXCollections.observableArrayList();
     protected final ObservableList<VersionPanel> versionPanels = FXCollections.observableArrayList();
     protected final CheckBox revertCheckBox = new CheckBox();
     private final ObservableCategorizedVersion categorizedVersion;
@@ -294,7 +294,7 @@ public abstract class BadgedVersionPanel
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(manifold);
 
-        ComponentPanel newPanel = new ComponentPanel(getManifold(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap);
+        ComponentPane newPanel = new ComponentPane(getManifold(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap);
         extensionPanels.add(newPanel);
         this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
         propertySheetMenuItem.addCompletionListener((observable, oldValue, newValue) -> {

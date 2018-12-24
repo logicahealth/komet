@@ -23,7 +23,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import sh.isaac.api.collections.NativeIntIntHashMap;
-import sh.komet.gui.control.ComponentPanel;
+import sh.komet.gui.control.badged.old.ComponentPane;
 
 /**
  *
@@ -37,8 +37,8 @@ public class ComponentPanelTester extends Application {
         FlowPane flowPane = new FlowPane(Orientation.VERTICAL);
         Scene scene = new Scene(flowPane, 400, 200);
         scene.setFill(Color.LIGHTGREEN);
-        flowPane.getChildren().add(new ComponentPanel(null, null,  new NativeIntIntHashMap()));
-        flowPane.getChildren().add(new ComponentPanel(null, null, new NativeIntIntHashMap()));
+        flowPane.getChildren().add(new ComponentPane(null, null,  new NativeIntIntHashMap()));
+        flowPane.getChildren().add(new ComponentPane(null, null, new NativeIntIntHashMap()));
         
         primaryStage.setScene(scene);
         primaryStage.show();

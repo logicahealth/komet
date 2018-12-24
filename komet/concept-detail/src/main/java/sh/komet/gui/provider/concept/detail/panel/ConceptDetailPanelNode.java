@@ -110,7 +110,8 @@ import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.komet.iconography.Iconography;
 
-import sh.komet.gui.control.ComponentPanel;
+import sh.komet.gui.control.badged.ComponentPaneModel;
+import sh.komet.gui.control.badged.old.ComponentPane;
 import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.ExpandControl;
@@ -158,7 +159,7 @@ public class ConceptDetailPanelNode
     private final Button addDescriptionButton = new Button("+ Add");
     private final ToggleButton versionGraphToggle = new ToggleButton("", Iconography.SOURCE_BRANCH_1.getIconographic());
     private final ArrayList<Integer> sortedStampSequences = new ArrayList<>();
-    private final List<ComponentPanel> componentPanels = new ArrayList<>();
+    private final List<ComponentPaneModel> componentPaneModels = new ArrayList<>();
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final Manifold conceptDetailManifold;
     private final ScrollPane scrollPane;
@@ -262,7 +263,7 @@ public class ConceptDetailPanelNode
     }
 
     private void addChronology(ObservableChronology observableChronology, ParallelTransition parallelTransition) {
-        if (ComponentPanel.isSemanticTypeSupported(observableChronology.getVersionType())) {
+        if (ComponentPane.isSemanticTypeSupported(observableChronology.getVersionType())) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
                             this.conceptDetailManifold);
@@ -309,15 +310,15 @@ public class ConceptDetailPanelNode
                     "Categorized version has no latest version or uncommitted version: \n" + categorizedVersions);
         }
 
-        ComponentPanel panel = new ComponentPanel(conceptDetailManifold, categorizedVersion, stampOrderHashMap);
+        ComponentPaneModel componentPaneModel = new ComponentPaneModel(conceptDetailManifold, categorizedVersion, stampOrderHashMap);
 
-        componentPanels.add(panel);
-        panel.setOpacity(0);
-        VBox.setMargin(panel, new Insets(1, 5, 1, 5));
+        componentPaneModels.add(componentPaneModel);
+        componentPaneModel.getBadgedPane().setOpacity(0);
+        VBox.setMargin(componentPaneModel.getBadgedPane(), new Insets(1, 5, 1, 5));
         componentPanelBox.getChildren()
-                .add(panel);
+                .add(componentPaneModel.getBadgedPane());
 
-        FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_ON_TIME), panel);
+        FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_ON_TIME), componentPaneModel.getBadgedPane());
 
         ft.setFromValue(0);
         ft.setToValue(1);
@@ -533,7 +534,7 @@ public class ConceptDetailPanelNode
     private void expandAllAction(ObservableValue<? extends ExpandAction> observable,
             ExpandAction oldValue,
             ExpandAction newValue) {
-        componentPanels.forEach((panel) -> panel.doExpandAllAction(newValue));
+        componentPaneModels.forEach((componentPaneModel) -> componentPaneModel.doExpandAllAction(newValue));
     }
 
     private void populateVersionBranchGrid() {
@@ -658,7 +659,7 @@ public class ConceptDetailPanelNode
 
         stampOrderHashMap.clear();
         updateStampControls(newValue);
-        componentPanels.clear();
+        componentPaneModels.clear();
 
         IntArrayList stampSequences = stampOrderHashMap.keys();
         sortedStampSequences.clear();

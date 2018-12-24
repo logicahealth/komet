@@ -1,43 +1,87 @@
-package sh.komet.gui.control.badged;
+/* 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * You may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributions from 2013-2017 where performed either by US government 
+ * employees, or under US Veterans Health Administration contracts. 
+ *
+ * US Veterans Health Administration contributions by government employees
+ * are work of the U.S. Government and are not subject to copyright
+ * protection in the United States. Portions contributed by government 
+ * employees are USGovWork (17USC §105). Not subject to copyright. 
+ * 
+ * Contribution by contractors to the US Veterans Health Administration
+ * during this period are contractually contributed under the
+ * Apache License, Version 2.0.
+ *
+ * See: https://www.usa.gov/government-works
+ * 
+ * Contributions prior to 2013:
+ *
+ * Copyright (C) International Health Terminology Standards Development Organisation.
+ * Licensed under the Apache License, Version 2.0.
+ *
+ */
+package sh.komet.gui.control.badged.old;
 
+//~--- non-JDK imports --------------------------------------------------------
+import java.util.Optional;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
+
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.control.ComponentPanel;
+
 import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.control.VersionPanel;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
-
-import java.util.Optional;
-
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
-public class Component extends BadgedVersion {
+//~--- classes ----------------------------------------------------------------
+/**
+ *
+ * @author kec
+ */
+public final class ComponentPane
+        extends BadgedVersionPanel {
+
+    private int extraGridRows = 1;
     private final CategorizedVersions<ObservableCategorizedVersion> categorizedVersions;
     private final AnchorPane extensionHeaderPanel = setupHeaderPanel("Extensions:");
     private final AnchorPane versionHeaderPanel = setupHeaderPanel("Change history:", "Revert");
 
     //~--- constructors --------------------------------------------------------
-    public Component(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
-                          OpenIntIntHashMap stampOrderHashMap) {
+    public ComponentPane(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
+                         OpenIntIntHashMap stampOrderHashMap) {
         super(manifold, categorizedVersion, stampOrderHashMap);
 
         this.categorizedVersions = categorizedVersion.getCategorizedVersions();
 
         // gridpane.gridLinesVisibleProperty().set(true);
-        getPane().getStyleClass()
+        this.getStyleClass()
                 .add(StyleClasses.COMPONENT_PANEL.toString());
 
         ObservableVersion observableVersion = getCategorizedVersion().getObservableVersion();
@@ -54,6 +98,9 @@ public class Component extends BadgedVersion {
             if (propertySheetMenuItem.isPresent()) {
                 this.addEditingPropertySheet(propertySheetMenuItem.get());
             } else {
+//                if (uncommittedVersion.getAuthorNid() == ) {
+//                    
+//                }
                 System.err.println("Error: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion.getPrimordialUuid()
                         + "\n       " + uncommittedVersion);
             }
@@ -114,7 +161,7 @@ public class Component extends BadgedVersion {
                 return false;
 
             default:
-                //may consider supporting more types in the future.
+                //may consider supporting more types in the future. 
                 return false;
         }
     }
@@ -164,16 +211,16 @@ public class Component extends BadgedVersion {
         if (isSemanticTypeSupported(observableChronology)) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
-                    getManifold());
+                            getManifold());
 
             if (oscCategorizedVersions.getLatestVersion()
                     .isPresent()) {
-                ComponentPanel newPanel = new ComponentPanel(getManifold(),
+                ComponentPane newPanel = new ComponentPane(getManifold(),
                         oscCategorizedVersions.getLatestVersion().get(), stampOrderHashMap);
 
                 extensionPanels.add(newPanel);
             } else if (!oscCategorizedVersions.getUncommittedVersions().isEmpty()) {
-                ComponentPanel newPanel = new ComponentPanel(getManifold(),
+                ComponentPane newPanel = new ComponentPane(getManifold(),
                         oscCategorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap);
                 extensionPanels.add(newPanel);
             }
@@ -182,7 +229,7 @@ public class Component extends BadgedVersion {
 
     private void addPanel(Node panel) {
         extraGridRows++;
-        getPane().getChildren()
+        gridpane.getChildren()
                 .remove(panel);
         GridPane.setConstraints(
                 panel,

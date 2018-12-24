@@ -6,9 +6,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -26,14 +29,12 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.flags.CountryFlagImages;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.*;
-import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
@@ -44,28 +45,27 @@ import java.util.*;
 
 import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
 
-public abstract class BadgedVersion {
+public abstract class BadgedVersionPaneModel {
     protected static final int BADGE_WIDTH = 25;
-    protected static final String PROPERTY_SHEET_ATTACHMENT = BadgedVersion.class.getCanonicalName() + ".PROPERTY_SHEET_ATTACHMENT";
+    protected static final String PROPERTY_SHEET_ATTACHMENT = BadgedVersionPaneModel.class.getCanonicalName() + ".PROPERTY_SHEET_ATTACHMENT";
 
-    public static Pane make(Manifold manifold,
-                           ObservableCategorizedVersion categorizedVersion,
-                           OpenIntIntHashMap stampOrderHashMap) {
-        BadgedVersion badgedVersion = new BadgedVersion(manifold,
-                categorizedVersion, stampOrderHashMap);
-        return badgedVersion.getPane();
-
-    }
-
-    private final VBox outerPane = new VBox();
-    protected final Text componentType = new Text();
+    protected final FlowPane editControlFlow = new FlowPane(Orientation.VERTICAL);
+    protected final FlowPane badgeFlow = new FlowPane();
     protected final TextArea componentText = new TextArea();
+    private final BorderPane primaryPane = new BorderPane();
+    {
+        primaryPane.setLeft(this.badgeFlow);
+        primaryPane.setCenter(this.componentText);
+        primaryPane.setRight(this.editControlFlow);
+    }
+    private final VBox outerPane = new VBox(primaryPane);
+    protected final Text componentType = new Text();
     protected final MenuButton editControl = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
     protected final MenuButton addAttachmentControl = new MenuButton("", Iconography.combine(Iconography.PLUS, Iconography.PAPERCLIP));
     protected final ExpandControl expandControl = new ExpandControl();
     protected final ArrayList<Node> badges = new ArrayList<>();
-    protected final ObservableList<ComponentPanel> extensionPanels = FXCollections.observableArrayList();
-    protected final ObservableList<VersionPanel> versionPanels = FXCollections.observableArrayList();
+    protected final ObservableList<ComponentPaneModel> extensionPaneModels = FXCollections.observableArrayList();
+    protected final ObservableList<VersionPaneModel> versionPanes = FXCollections.observableArrayList();
     protected final CheckBox revertCheckBox = new CheckBox();
 
     private final Button cancelButton = new Button("Cancel");
@@ -114,9 +114,9 @@ public abstract class BadgedVersion {
 
     }
 
-    protected BadgedVersion(Manifold manifold,
-                         ObservableCategorizedVersion categorizedVersion,
-                         OpenIntIntHashMap stampOrderHashMap) {
+    protected BadgedVersionPaneModel(Manifold manifold,
+                                     ObservableCategorizedVersion categorizedVersion,
+                                     OpenIntIntHashMap stampOrderHashMap) {
         this.manifold = manifold;
         this.stampOrderHashMap = stampOrderHashMap;
         this.categorizedVersion = categorizedVersion;
@@ -142,6 +142,7 @@ public abstract class BadgedVersion {
         this.editControl.getItems().addAll(getEditMenuItems());
         this.editControl.setVisible(!editControl.getItems().isEmpty());
 
+
         ObservableVersion observableVersion = categorizedVersion.getObservableVersion();
         if (observableVersion instanceof DescriptionVersion) {
             this.isDescription.set(true);
@@ -155,6 +156,7 @@ public abstract class BadgedVersion {
         } else {
             setupOther(observableVersion);
         }
+        redoLayout();
     }
 
     protected abstract boolean isLatestPanel();
@@ -198,8 +200,9 @@ public abstract class BadgedVersion {
             componentType.setText("");
         }
 
-        LogicalExpression expression = logicGraphVersion.getLogicalExpression();
-        this.logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, manifold);
+        //TODO fix back up
+        //LogicalExpression expression = logicGraphVersion.getLogicalExpression();
+        //this.logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, manifold);
     }
 
     protected final void setupOther(Version version) {
@@ -410,8 +413,14 @@ public abstract class BadgedVersion {
             }
         }
     }
+    public void doExpandAllAction(ExpandAction action) {
+        expandControl.setExpandAction(action);
+        extensionPaneModels.forEach((panel) -> panel.doExpandAllAction(action));
+    }
 
-    public Pane getPane() {
+    protected abstract void addExtras();
+
+    public Pane getBadgedPane() {
         return this.outerPane;
     }
 
@@ -421,7 +430,33 @@ public abstract class BadgedVersion {
         redoLayout();
     }
     private void redoLayout() {
-        throw new UnsupportedOperationException();
+
+        setupBadges();
+        setupEditControls();
+
+    }
+
+    private void setupEditControls() {
+        this.editControlFlow.getChildren().clear();
+        if (!this.editControl.getItems().isEmpty()) {
+            this.editControlFlow.getChildren().add(this.editControl);
+        }
+        if (!this.addAttachmentControl.getItems().isEmpty()) {
+            this.editControlFlow.getChildren().add(this.addAttachmentControl);
+        }
+    }
+    private void setupBadges() {
+        this.badgeFlow.getChildren().clear();
+
+        double flowWidth = (BADGE_WIDTH + 2) * 3;
+        this.badgeFlow.setMaxWidth(flowWidth);
+        this.badgeFlow.setMinWidth(flowWidth);
+        this.badgeFlow.setPrefWidth(flowWidth);
+        this.badgeFlow.getChildren().add(this.expandControl);
+        this.badgeFlow.getChildren().add(this.componentType);
+        for (Node badge: badges) {
+            badgeFlow.getChildren().add(badge);
+        }
     }
 
     private void cancel(ActionEvent event) {
@@ -486,8 +521,8 @@ public abstract class BadgedVersion {
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(manifold);
 
-        ComponentPanel newPanel = new ComponentPanel(getManifold(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap);
-        extensionPanels.add(newPanel);
+        ComponentPaneModel componentPane = new ComponentPaneModel(getManifold(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap);
+        extensionPaneModels.add(componentPane);
         this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
         propertySheetMenuItem.addCompletionListener((observable, oldValue, newValue) -> {
             observableVersion.removeUserObject(PROPERTY_SHEET_ATTACHMENT);
