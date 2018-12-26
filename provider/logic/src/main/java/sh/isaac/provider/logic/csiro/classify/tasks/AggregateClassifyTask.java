@@ -79,17 +79,23 @@ public class AggregateClassifyTask
 
    //~--- get methods ---------------------------------------------------------
 
-    @Override
+   @Override
    protected ClassifierResults call() throws Exception {
-      LookupService.getService(MemoryManagementService.class)
-                   .addState(ApplicationStates.CLASSIFYING);
+      //Logic service doesn't depend on the memory management service, so this isn't safe without checking....
+      if (LookupService.hasService(MemoryManagementService.class))
+      {
+         LookupService.getService(MemoryManagementService.class)
+                  .addState(ApplicationStates.CLASSIFYING);
+      }
        try {
         return super.call(); 
        } finally {
-           LookupService.getService(MemoryManagementService.class)
-                   .removeState(ApplicationStates.CLASSIFYING);
-           Get.service(LogicProvider.class).getPendingLogicTasks().remove(this);
-
+          if (LookupService.hasService(MemoryManagementService.class))
+          {
+             LookupService.getService(MemoryManagementService.class)
+                     .removeState(ApplicationStates.CLASSIFYING);
+          }
+          Get.service(LogicProvider.class).getPendingLogicTasks().remove(this);
        }
    }
 
