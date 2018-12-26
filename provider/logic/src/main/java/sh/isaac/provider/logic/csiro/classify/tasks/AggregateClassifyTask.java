@@ -94,7 +94,7 @@ public class AggregateClassifyTask
    }
 
     /**
-     * Gets the.
+     * When this method returns, the task is already executing.
      *
      * @param stampCoordinate the stamp coordinate
      * @param logicCoordinate the logic coordinate
