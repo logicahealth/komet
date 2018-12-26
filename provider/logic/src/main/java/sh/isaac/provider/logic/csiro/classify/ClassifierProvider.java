@@ -51,6 +51,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.model.configuration.ManifoldCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.taxonomy.GraphCollector;
@@ -104,14 +105,8 @@ public class ClassifierProvider
       this.editCoordinate = editCoordinate;
    }
 
-   //~--- methods -------------------------------------------------------------
-   /**
-    * Classify.
-    *
-    * @return the task
-    */
    @Override
-   public Task<ClassifierResults> classify() {
+   public TimedTask<ClassifierResults> classify() {
       return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate);
    }
 
@@ -124,7 +119,7 @@ public class ClassifierProvider
     * @return the concept nid for expression
     */
    @Override
-   public Task<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate) {
+   public TimedTask<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate) {
       return GetConceptNidForExpressionTask.create(expression, this, editCoordinate);
    }
 

@@ -126,7 +126,6 @@ public abstract class TimedTask<T>
         this.progressUpdateDuration = progressUpdateDuration;
     }
 
-    //~--- methods -------------------------------------------------------------
     /**
      * Done.
      */
@@ -179,7 +178,6 @@ public abstract class TimedTask<T>
         updateTimer.start();
     }
 
-    //~--- set methods ---------------------------------------------------------
     /**
      * Sets the complete message generator.
      *
@@ -189,7 +187,6 @@ public abstract class TimedTask<T>
         this.completeMessageGenerator = consumer;
     }
 
-    //~--- get methods ---------------------------------------------------------
     /**
      * Gets the duration.
      *
@@ -216,7 +213,6 @@ public abstract class TimedTask<T>
         return DurationUtil.format(getDuration());
     }
 
-    //~--- set methods ---------------------------------------------------------
     /**
      * Sets the progress message generator.
      *
@@ -235,5 +231,12 @@ public abstract class TimedTask<T>
 
     public Instant getStartTime() {
         return startTime;
+    }
+    
+    /**
+     * @return a unique ID (within this JVM) for the task being executed.
+     */
+    public int getTaskId() {
+        return taskSequenceId;
     }
 }
