@@ -39,17 +39,12 @@
 
 package sh.isaac.api.classifier;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.commit.CommitRecord;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class ClassifierResults.
@@ -58,15 +53,18 @@ import sh.isaac.api.commit.CommitRecord;
  */
 public class ClassifierResults {
    /** The affected concepts. */
-   final Set<Integer> affectedConcepts;
+   private final Set<Integer> affectedConcepts;
 
    /** The equivalent sets. */
-   final Set<IntArrayList> equivalentSets;
+   private final Set<IntArrayList> equivalentSets;
 
    /** The commit record. */
-   final Optional<CommitRecord> commitRecord;
-
-   //~--- constructors --------------------------------------------------------
+   private final Optional<CommitRecord> commitRecord;
+   
+   //A map of a concept nid, to a HashSet of int arrays, where each int[] is a cycle present on the concept.
+   private Optional<Map<Integer, Set<int[]>>> conceptsWithCycles = Optional.empty();
+   
+   private HashSet<Integer> orphanedConcepts = new HashSet<>();
 
    /**
     * Instantiates a new classifier results.
@@ -82,21 +80,26 @@ public class ClassifierResults {
       this.equivalentSets   = equivalentSets;
       this.commitRecord     = commitRecord;
    }
-
-   //~--- methods -------------------------------------------------------------
-
+   
    /**
-    * To string.
-    *
-    * @return the string
+    * This constructor is only intended to be used when a classification wasn't performed, because there were cycles present.
+    * @param conceptsWithCycles
+    * @param orphans
     */
-   @Override
-   public String toString() {
-      return "ClassifierResults{" + "affectedConcepts=" + this.affectedConcepts.size() + ", equivalentSets=" +
-             this.equivalentSets.size() + '}';
+   public ClassifierResults(Map<Integer, Set<int[]>> conceptsWithCycles, Set<Integer> orphans) {
+      this.affectedConcepts = new HashSet<>();
+      this.equivalentSets   = new HashSet<>();
+      this.commitRecord     = Optional.empty();
+      this.conceptsWithCycles = Optional.of(conceptsWithCycles);
+      this.orphanedConcepts.addAll(orphans);
    }
 
-   //~--- get methods ---------------------------------------------------------
+   @Override
+   public String toString() {
+      return "ClassifierResults{" + "affectedConcepts=" + this.affectedConcepts.size() + ", equivalentSets=" 
+            + this.equivalentSets.size() + ", Orphans detected=" + orphanedConcepts.size() 
+            + " Concepts with cycles=" + (conceptsWithCycles.isPresent() ? conceptsWithCycles.get().size() : 0) + '}';
+   }
 
    /**
     * Gets the affected concepts.
@@ -124,5 +127,31 @@ public class ClassifierResults {
    public Set<IntArrayList> getEquivalentSets() {
       return this.equivalentSets;
    }
+   
+   /**
+    * If this returns a value, then the classification was not performed due to these cycles that were found.
+    * 
+    * When a cycle was detected, the rest of the classification is aborted, so no other details in this class are populated.
+    * 
+    * @return A map of concept nids to sets of nid arrays, each set represents a cycle that the concept nid is 
+    * involved in, and the nid[] is the cycle path.  Returns an empty object, if no cycles were detected.
+    */
+   public Optional<Map<Integer, Set<int[]>>> getCycles() {
+      return conceptsWithCycles;
+   }
+   
+   /**
+    * Add concept nids that were detected as orphans
+    * @param orphans
+    */
+   public void addOrphans(Set<Integer> orphans) {
+      orphanedConcepts.addAll(orphans);
+   }
+   
+   /**
+    * @return The list of orphaned concept nids that were detected during classification
+    */
+   public Set<Integer> getOrphans() {
+      return orphanedConcepts;
+   }
 }
-

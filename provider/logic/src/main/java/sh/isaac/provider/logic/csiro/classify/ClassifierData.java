@@ -36,36 +36,29 @@
  */
 package sh.isaac.provider.logic.csiro.classify;
 
-//~--- JDK imports ------------------------------------------------------------
-import au.csiro.ontology.Node;
 import java.time.Instant;
-
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicReference;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import au.csiro.ontology.Node;
 import au.csiro.ontology.Ontology;
 import au.csiro.ontology.classification.IReasoner;
 import au.csiro.snorocket.core.SnorocketReasoner;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.model.ModelGet;
 
-//~--- classes ----------------------------------------------------------------
+
 /**
  * The Class ClassifierData.
  *
@@ -84,7 +77,6 @@ public class ClassifierData
      */
     private static final AtomicReference<ClassifierData> SINGLETON = new AtomicReference<>();
 
-    //~--- fields --------------------------------------------------------------
     /**
      * The listener uuid.
      */
@@ -135,9 +127,6 @@ public class ClassifierData
      */
     LogicCoordinate logicCoordinate;
 
-    private final int conceptAssemblageNid;
-
-    //~--- constructors --------------------------------------------------------
     /**
      * Instantiates a new classifier data.
      *
@@ -147,7 +136,6 @@ public class ClassifierData
     private ClassifierData(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
         this.stampCoordinate = stampCoordinate;
         this.logicCoordinate = logicCoordinate;
-        this.conceptAssemblageNid = logicCoordinate.getConceptAssemblageNid();
     }
 
     //~--- methods -------------------------------------------------------------
@@ -158,7 +146,7 @@ public class ClassifierData
      */
     public IReasoner classify() {
         this.loadedConcepts = 
-                new ConcurrentSkipListSet(this.allGraphsToAxiomTranslator.getLoadedConcepts());
+                new ConcurrentSkipListSet<>(this.allGraphsToAxiomTranslator.getLoadedConcepts());
         this.allGraphsToAxiomTranslator.clear();
         this.lastClassifyInstant = Instant.now();
 
@@ -251,11 +239,6 @@ public class ClassifierData
         }
     }
 
-    /**
-     * Handle commit.
-     *
-     * @param commitRecord the commit record
-     */
     @Override
     public void handleCommit(CommitRecord commitRecord) {
         // already handled with the handle change above.
@@ -277,11 +260,6 @@ public class ClassifierData
 
     }
 
-    /**
-     * To string.
-     *
-     * @return the string
-     */
     @Override
     public String toString() {
         return "ClassifierData{" + "graphToAxiomTranslator=" + this.allGraphsToAxiomTranslator
@@ -392,13 +370,16 @@ public class ClassifierData
         return this.lastClassifyInstant;
     }
 
-    /**
-     * Gets the listener uuid.
-     *
-     * @return the listener uuid
-     */
     @Override
     public UUID getListenerUuid() {
         return this.listenerUuid;
+    }
+    
+    public LogicCoordinate getLogicCoordinate() {
+        return logicCoordinate;
+    }
+    
+    public StampCoordinate getStampCoordinate() {
+        return stampCoordinate;
     }
 }

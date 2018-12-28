@@ -39,9 +39,6 @@ package sh.isaac.provider.logic.csiro.classify;
 import java.util.Optional;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import javafx.concurrent.Task;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.classifier.ClassifierResults;
@@ -59,7 +56,6 @@ import sh.isaac.model.tree.HashTreeBuilder;
 import sh.isaac.model.tree.HashTreeWithIntArraySets;
 import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class ClassifierProvider.
  *
@@ -68,12 +64,6 @@ import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 public class ClassifierProvider
         implements ClassifierService {
 
-   /**
-    * The Constant log.
-    */
-   private static final Logger log = LogManager.getLogger();
-
-   //~--- fields --------------------------------------------------------------
    /**
     * The stamp coordinate.
     */
@@ -89,7 +79,6 @@ public class ClassifierProvider
     */
    EditCoordinate editCoordinate;
 
-   //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new classifier provider.
     *
@@ -107,7 +96,12 @@ public class ClassifierProvider
 
    @Override
    public TimedTask<ClassifierResults> classify() {
-      return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate);
+      return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate, false);
+   }
+   
+   @Override
+   public TimedTask<ClassifierResults> classify(boolean cycleCheck) {
+      return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate, cycleCheck);
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -39,17 +39,10 @@
 
 package sh.isaac.api.task;
 
-//~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collection;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.concurrent.Task;
-
 import sh.isaac.api.Get;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class SequentialAggregateTask.
@@ -65,10 +58,8 @@ public class SequentialAggregateTask<T>
    /** The sub tasks. */
    Task<?>[] subTasks;
 
-   //~--- constructors --------------------------------------------------------
-
    /**
-    * Instantiates a new sequential aggregate task.
+    * Instantiates a new sequential aggregate task.  The final task in the collection must return a result of type T.
     *
     * @param title the title
     * @param subTasks the sub tasks
@@ -78,7 +69,7 @@ public class SequentialAggregateTask<T>
    }
 
    /**
-    * Instantiates a new sequential aggregate task.
+    * Instantiates a new sequential aggregate task.  The final task in the collection must return a result of type T.
     *
     * @param title Title for the aggregate task
     * @param subTasks the sub tasks
@@ -104,11 +95,11 @@ public class SequentialAggregateTask<T>
                                        });
    }
 
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Sequentially execute the subTasks using the WorkExecutor service, and
     * return the value of the last task in the sequence.
+    * @see javafx.concurrent.Task#call()
     *
     * @return T value returned by call() method of the last task
     * @throws Exception exception thrown by any subtask
@@ -116,12 +107,16 @@ public class SequentialAggregateTask<T>
    @Override
    protected T call()
             throws Exception {
+      Get.activeTasks().add(this);
       setStartTime();
 
       try {
          Object returnValue = null;
 
          for (; this.currentTask < this.subTasks.length; this.currentTask++) {
+            if (this.subTasks[this.currentTask] instanceof AggregateTaskInput) {
+               ((AggregateTaskInput)this.subTasks[this.currentTask]).setInput(returnValue);
+            }
             Get.workExecutors()
                .getExecutor()
                .execute(this.subTasks[this.currentTask]);
@@ -135,8 +130,6 @@ public class SequentialAggregateTask<T>
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the sub tasks.
     *
@@ -146,4 +139,3 @@ public class SequentialAggregateTask<T>
       return this.subTasks;
    }
 }
-

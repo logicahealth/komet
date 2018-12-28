@@ -36,109 +36,92 @@
  */
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
-//~--- JDK imports ------------------------------------------------------------
+
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.concurrent.Task;
-
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.mahout.math.list.IntArrayList;
 import au.csiro.ontology.Node;
 import au.csiro.ontology.Ontology;
-import java.util.OptionalInt;
-import org.apache.mahout.math.list.IntArrayList;
-
+import javafx.concurrent.Task;
+import sh.isaac.api.AssemblageService;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
+import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
+import sh.isaac.api.task.AggregateTaskInput;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.SemanticBuilder;
-import sh.isaac.api.component.semantic.SemanticBuilderService;
-import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.model.ModelGet;
-import sh.isaac.api.bootstrap.TestConcept;
-
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class ProcessClassificationResults.
  *
  * @author kec
  */
 public class ProcessClassificationResults
-        extends TimedTaskWithProgressTracker<ClassifierResults> {
+        extends TimedTaskWithProgressTracker<ClassifierResults> implements AggregateTaskInput {
 
-    /**
-     * The stamp coordinate.
-     */
-    StampCoordinate stampCoordinate;
-
-    /**
-     * The logic coordinate.
-     */
-    LogicCoordinate logicCoordinate;
-
-    final int assemblageNid;
+    ClassifierData inputData;
 
     int classificationDuplicateCount = -1;
     int classificationCountDuplicatesToNote = 10;
 
-    //~--- constructors --------------------------------------------------------
     /**
      * Instantiates a new process classification results.
      *
      * @param stampCoordinate the stamp coordinate
      * @param logicCoordinate the logic coordinate
      */
-    public ProcessClassificationResults(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-        this.stampCoordinate = stampCoordinate;
-        this.logicCoordinate = logicCoordinate;
-        this.assemblageNid = logicCoordinate.getConceptAssemblageNid();
+    public ProcessClassificationResults() {
         updateTitle("Retrieve inferred axioms");
-        Get.activeTasks().add(this);
+    }
+    
+    /**
+     * Must pass in a {@link ClassifierData} prior to executing this task 
+     * @see sh.isaac.api.task.AggregateTaskInput#setInput(java.lang.Object)
+     */
+    @Override
+    public void setInput(Object inputData)  {
+       if (!(inputData instanceof ClassifierData)) {
+          throw new RuntimeException("Input data to LoadAxioms must be " + ClassifierData.class.getName());
+       }
+       this.inputData = (ClassifierData)inputData;
     }
 
-    //~--- methods -------------------------------------------------------------
-    /**
-     * Call.
-     *
-     * @return the classifier results
-     * @throws Exception the exception
-     */
     @Override
     protected ClassifierResults call()
             throws Exception {
+        Get.activeTasks().add(this);
         try {
-            final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
-            final Ontology inferredAxioms = cd.getClassifiedOntology();
-            Set<Integer> affectedConceptNids = cd.getAffectedConceptNidSet();
+            if (inputData == null) {
+                throw new RuntimeException("Input data to ProcessClassificationResults must be specified by calling setInput prior to executing");
+            }
+            final Ontology inferredAxioms = this.inputData.getClassifiedOntology();
+            Set<Integer> affectedConceptNids = this.inputData.getAffectedConceptNidSet();
             this.addToTotalWork(affectedConceptNids.size());
             final ClassifierResults classifierResults = collectResults(inferredAxioms, affectedConceptNids);
 
@@ -261,10 +244,9 @@ public class ProcessClassificationResults
      */
     private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, Set<Integer> affectedConcepts) {
         final AssemblageService assemblageService = Get.assemblageService();
-        final IdentifierService idService = Get.identifierService();
         final AtomicInteger sufficientSets = new AtomicInteger();
         final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
-        final SemanticBuilderService semanticBuilderService = Get.semanticBuilderService();
+        final SemanticBuilderService<? extends SemanticChronology> semanticBuilderService = Get.semanticBuilderService();
         final CommitService commitService = Get.commitService();
 
         // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  
@@ -278,10 +260,10 @@ public class ProcessClassificationResults
 
                 final NidSet inferredSemanticNids
                         = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
-                                this.logicCoordinate.getInferredAssemblageNid());
+                                this.inputData.getLogicCoordinate().getInferredAssemblageNid());
                 final NidSet statedSemanticNids
                         = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
-                                this.logicCoordinate.getStatedAssemblageNid());
+                                this.inputData.getLogicCoordinate().getStatedAssemblageNid());
 
                 // TODO need to fix merge issues with metadata and snomed..... this is failing on numerous concepts.
                 // TODO also, what to do when there isn't a graph on a concept?  SCT has orphans....
@@ -298,7 +280,7 @@ public class ProcessClassificationResults
                     final SemanticChronology rawStatedChronology
                             = assemblageService.getSemanticChronology(statedSemanticNidOptional.getAsInt());
                     final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
-                            = ((SemanticChronology) rawStatedChronology).getLatestVersion(this.stampCoordinate);
+                            = ((SemanticChronology) rawStatedChronology).getLatestVersion(this.inputData.getStampCoordinate());
 
                     if (latestStatedDefinitionOptional.isPresent()) {
                         final LogicalExpressionBuilder inferredBuilder
@@ -346,10 +328,10 @@ public class ProcessClassificationResults
                             final LogicalExpression inferredExpression = inferredBuilder.build();
 
                             if (inferredSemanticNids.isEmpty()) {
-                                final SemanticBuilder builder
+                                final SemanticBuilder<? extends SemanticChronology> builder
                                         = semanticBuilderService.getLogicalExpressionBuilder(inferredExpression,
                                                 conceptNid,
-                                                this.logicCoordinate.getInferredAssemblageNid());
+                                                this.inputData.getLogicCoordinate().getInferredAssemblageNid());
 
                 if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
                     LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
@@ -370,7 +352,7 @@ public class ProcessClassificationResults
 
                                 // check to see if changed from old...
                                 final LatestVersion<LogicGraphVersion> latestDefinitionOptional
-                                        = inferredChronology.getLatestVersion(this.stampCoordinate);
+                                        = inferredChronology.getLatestVersion(this.inputData.getStampCoordinate());
 
                                 if (latestDefinitionOptional.isPresent()) {
                                     if (!latestDefinitionOptional.get()
@@ -419,8 +401,8 @@ public class ProcessClassificationResults
                 LOG.warn("Inferred duplicates found: " + classificationDuplicateCount);
             }
             LOG.info("Processed " + sufficientSets + " sufficient sets.");
-            LOG.info("stampCoordinate: " + this.stampCoordinate);
-            LOG.info("logicCoordinate: " + this.logicCoordinate);
+            LOG.info("stampCoordinate: " + this.inputData.getStampCoordinate());
+            LOG.info("logicCoordinate: " + this.inputData.getLogicCoordinate());
             return commitRecord;
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);

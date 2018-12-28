@@ -50,11 +50,19 @@ import sh.isaac.api.task.TimedTask;
  */
 public interface ClassifierService {
    /**
-    * Will perform a full or incremental classification as necessary.
+    * Will perform a full or incremental classification as necessary.  No cycle check is performed.
     * @return A task that can be used to block, if the caller wishes to wait
     * for the results.  The task is already executed, when returned.
     */
-	TimedTask<ClassifierResults> classify();
+   TimedTask<ClassifierResults> classify();
+   
+   /**
+    * Will perform a full or incremental classification as necessary.
+    * @param cycleCheck perform a cycle check first, when true.
+    * @return A task that can be used to block, if the caller wishes to wait
+    * for the results.  The task is already executed, when returned.
+    */
+   TimedTask<ClassifierResults> classify(boolean cycleCheck);
 
    /**
     * NOTE: this method call may cause a full or incremental classification if
@@ -67,5 +75,5 @@ public interface ClassifierService {
     * @return  A task that can be used to block, if the caller wishes to wait
     * for the results.
     */
-	TimedTask<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate);
+   TimedTask<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate);
 }
