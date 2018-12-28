@@ -11,11 +11,9 @@ public final class VersionPaneModel extends BadgedVersionPaneModel {
         if (categorizedVersion.getStampSequence() == -1) {
             throw new IllegalStateException("StampSequence = -1: \n" + categorizedVersion);
         }
-        this.revertCheckBox.setSelected(false);
         getBadgedPane().getStyleClass()
                 .add(StyleClasses.VERSION_PANEL.toString());
         this.expandControl.setVisible(false);
-        this.addAttachmentControl.setVisible(false);
     }
 
 
@@ -23,18 +21,10 @@ public final class VersionPaneModel extends BadgedVersionPaneModel {
     public void addExtras() {
 
         // move the badge, replace edit control with revert  checkbox.
-        getBadgedPane().getChildren()
-                .remove(editControl);
-        getBadgedPane().getChildren()
-                .remove(stampControl);
-        getBadgedPane().getChildren()
-                .remove(revertCheckBox);
-        //GridPane.setConstraints(stampControl, 0, 0, 1, 1, HPos.LEFT, VPos.BASELINE, Priority.NEVER, Priority.NEVER);
-        getBadgedPane().getChildren()
-                .add(stampControl);
-        //GridPane.setConstraints(revertCheckBox, columns, 0, 1, 1, HPos.RIGHT, VPos.BASELINE, Priority.NEVER, Priority.NEVER, new Insets(0,4,1,0));
-        getBadgedPane().getChildren()
-                .add(revertCheckBox);
+        editControlTiles.getChildren().clear();
+        editControlTiles.getChildren().add(redoButton);
+        badgeFlow.getChildren().clear();
+        badgeFlow.getChildren().add(badgeTiles);
     }
 
     @Override

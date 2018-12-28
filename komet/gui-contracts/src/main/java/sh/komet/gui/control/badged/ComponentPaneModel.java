@@ -19,8 +19,8 @@ import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
 public class ComponentPaneModel extends BadgedVersionPaneModel {
     private final CategorizedVersions<ObservableCategorizedVersion> categorizedVersions;
-    private final AnchorPane extensionHeaderPanel = setupHeaderPanel("Extensions:");
-    private final AnchorPane versionHeaderPanel = setupHeaderPanel("Change history:", "Revert");
+    private final AnchorPane extensionHeaderPanel = setupHeaderPanel("Attachments:");
+    private final AnchorPane versionHeaderPanel = setupHeaderPanel("Change history:");
 
     //~--- constructors --------------------------------------------------------
     public ComponentPaneModel(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
@@ -122,30 +122,30 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
                             .remove(versionHeaderPanel);
                 }
                 versionPanes.forEach(
-                        (panel) -> {
+                        (paneModel) -> {
                             getBadgedPane().getChildren()
-                                    .remove(panel);
+                                    .remove(paneModel.getBadgedPane());
                         });
                 if (!extensionPaneModels.isEmpty()) {
                     getBadgedPane().getChildren()
                             .remove(extensionHeaderPanel);
                 }
                 extensionPaneModels.forEach(
-                        (panel) -> {
+                        (paneModel) -> {
                             getBadgedPane().getChildren()
-                                    .remove(panel);
+                                    .remove(paneModel.getBadgedPane());
                         });
                 break;
 
             case SHOW_CHILDREN:
                 if (!versionPanes.isEmpty()) {
-                    addChildPane(versionHeaderPanel);
+                    addVersionPane(versionHeaderPanel);
                 }
-                versionPanes.forEach(this::addChildPane);
+                versionPanes.forEach(this::addVersionPane);
                 if (!extensionPaneModels.isEmpty()) {
-                    addChildPane(extensionHeaderPanel);
+                    addAttachmentPane(extensionHeaderPanel);
                 }
-                extensionPaneModels.forEach(this::addChildPane);
+                extensionPaneModels.forEach(this::addAttachmentPane);
                 break;
 
             default:
@@ -172,15 +172,23 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
             }
         }
     }
-    private void addChildPane(VersionPaneModel versionPane) {
-        addChildPane(versionPane.getBadgedPane());
+    private void addVersionPane(VersionPaneModel versionPane) {
+        addVersionPane(versionPane.getBadgedPane());
     }
 
-    private void addChildPane(ComponentPaneModel componentPane) {
-        addChildPane(componentPane.getBadgedPane());
+    private void addAttachmentPane(ComponentPaneModel componentPane) {
+        componentPane.wrapAttachmentPane();
+        addVersionPane(componentPane.getBadgedPane());
     }
 
-    private void addChildPane(Node panel) {
+    private void addVersionPane(Node panel) {
+        getBadgedPane().getChildren()
+                .remove(panel);
+        getBadgedPane().getChildren()
+                .add(panel);
+    }
+
+    private void addAttachmentPane(Node panel) {
         getBadgedPane().getChildren()
                 .remove(panel);
         getBadgedPane().getChildren()

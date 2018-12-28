@@ -16,8 +16,8 @@
  */
 package sh.isaac.komet.iconography;
 
-//import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-//import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
+//import de.jensd.fx.de.jensd.fx.glyphs.glyphs.fontawesome.FontAwesomeIconView;
+//import de.jensd.fx.de.jensd.fx.glyphs.glyphs.materialdesignicons.MaterialDesignIconView;
 //import java.io.IOException;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;

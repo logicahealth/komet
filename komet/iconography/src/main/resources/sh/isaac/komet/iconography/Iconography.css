@@ -932,3 +932,10 @@ limitations under the License.
    -glyph-name: "DELETE_FOREVER";
    -glyph-size: 22; 
 }
+
+.redo {
+   -glyph-name: "ROTATE_LEFT";
+   -glyph-size: 18;
+   -icons-color: #52646d;
+
+}

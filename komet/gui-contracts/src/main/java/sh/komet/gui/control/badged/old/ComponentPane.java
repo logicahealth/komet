@@ -70,7 +70,7 @@ public final class ComponentPane
 
     private int extraGridRows = 1;
     private final CategorizedVersions<ObservableCategorizedVersion> categorizedVersions;
-    private final AnchorPane extensionHeaderPanel = setupHeaderPanel("Extensions:");
+    private final AnchorPane extensionHeaderPanel = setupHeaderPanel("Attachments:");
     private final AnchorPane versionHeaderPanel = setupHeaderPanel("Change history:", "Revert");
 
     //~--- constructors --------------------------------------------------------

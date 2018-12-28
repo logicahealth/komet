@@ -748,8 +748,38 @@ limitations under the License.
    -fx-grid-lines-visible: false;
 }
 
-.component-panel:uncommitted * .property-pane {
+.tool-bar:uncommitted {
    -fx-background-color: -komet-uncommitted-fill;
+}
+
+.tool-bar:uncommitted * .cancel-button {
+    -fx-background-color: white;
+   -fx-border-color: -komet-uncommitted-border;
+      -fx-border-radius: 2;
+      -fx-border-width:2;
+      -fx-font-size:12;
+      -fx-padding:2 4 2 4;
+      -fx-font-weight: bold;
+}
+
+.tool-bar:uncommitted * .commit-button {
+   -fx-background-color: white;
+   -fx-border-color: -komet-uncommitted-border;
+      -fx-border-radius: 2;
+      -fx-border-width:2;
+      -fx-font-size:12;
+      -fx-padding:2 4 2 4;
+      -fx-font-weight: bold;
+}
+
+.property-sheet:uncommitted {
+    -fx-background-color: -komet-uncommitted-fill;
+}
+
+.property-sheet * .property-pane {
+    -fx-background-color: -komet-uncommitted-fill;
+    -fx-vbar-policy: never;
+    -fx-hbar-policy: never;
 }
 
 .component-panel:uncommitted * .cancel-button {

@@ -284,6 +284,7 @@ public class ConceptDetailPanelNode
 
         panel.setOpacity(0);
         VBox.setMargin(panel, insets);
+        VBox.setVgrow(panel, Priority.NEVER);
         componentPanelBox.getChildren()
                 .add(panel);
 
@@ -315,6 +316,7 @@ public class ConceptDetailPanelNode
         componentPaneModels.add(componentPaneModel);
         componentPaneModel.getBadgedPane().setOpacity(0);
         VBox.setMargin(componentPaneModel.getBadgedPane(), new Insets(1, 5, 1, 5));
+        VBox.setVgrow(componentPaneModel.getBadgedPane(), Priority.NEVER);
         componentPanelBox.getChildren()
                 .add(componentPaneModel.getBadgedPane());
 
@@ -352,12 +354,12 @@ public class ConceptDetailPanelNode
         });
     }
     private void clearAnimationComplete(ActionEvent completeEvent) {
+        componentPanelBox.getChildren().clear();
+
         AtomicBoolean axiomHeaderAdded = new AtomicBoolean(false);
         populateVersionBranchGrid();
-        componentPanelBox.getChildren()
-                .clear();
-        componentPanelBox.getChildren()
-                .add(toolGrid);
+        componentPanelBox.getChildren().add(toolGrid);
+
 
         Optional<ConceptSpecification> focusedConceptSpec = this.conceptDetailManifold.getFocusedConcept();
 

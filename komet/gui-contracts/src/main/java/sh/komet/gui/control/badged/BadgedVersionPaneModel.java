@@ -6,16 +6,15 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.geometry.Orientation;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -29,12 +28,14 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.flags.CountryFlagImages;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.*;
+import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
@@ -43,33 +44,71 @@ import sh.komet.gui.util.FxGet;
 
 import java.util.*;
 
-import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
-
 public abstract class BadgedVersionPaneModel {
     protected static final int BADGE_WIDTH = 25;
     protected static final String PROPERTY_SHEET_ATTACHMENT = BadgedVersionPaneModel.class.getCanonicalName() + ".PROPERTY_SHEET_ATTACHMENT";
 
-    protected final FlowPane editControlFlow = new FlowPane(Orientation.VERTICAL);
+    protected final TilePane editControlTiles = new TilePane();
+    protected final TilePane badgeTiles = new TilePane();
     protected final FlowPane badgeFlow = new FlowPane();
-    protected final TextArea componentText = new TextArea();
+    protected final Label componentText = new Label();
     private final BorderPane primaryPane = new BorderPane();
+    private boolean primaryPaneWrappedForAttachment = false;
     {
-        primaryPane.setLeft(this.badgeFlow);
-        primaryPane.setCenter(this.componentText);
-        primaryPane.setRight(this.editControlFlow);
+
+        componentText.setWrapText(true);
+        BorderPane.setAlignment(componentText, Pos.TOP_LEFT);
+        editControlTiles.setPrefTileHeight(BADGE_WIDTH);
+        editControlTiles.setPrefTileWidth(BADGE_WIDTH);
+        editControlTiles.setPrefColumns(1);
+        editControlTiles.setPrefRows(2);
+        primaryPane.setLeft(badgeFlow);
+        primaryPane.setCenter(componentText);
+        primaryPane.setRight(this.editControlTiles);
+        VBox.setVgrow(primaryPane, Priority.NEVER);
+
+
+        double flowWidth = (BADGE_WIDTH + 2) * 3;
+        this.badgeFlow.setMaxWidth(flowWidth);
+        this.badgeFlow.setMinWidth(flowWidth);
+        this.badgeFlow.setPrefWidth(flowWidth);
+        this.badgeFlow.setHgap(0);
+        this.badgeTiles.setHgap(0);
+        this.badgeTiles.setPrefTileHeight(BADGE_WIDTH);
+        this.badgeTiles.setPrefTileWidth(BADGE_WIDTH);
+
     }
     private final VBox outerPane = new VBox(primaryPane);
     protected final Text componentType = new Text();
     protected final MenuButton editControl = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
-    protected final MenuButton addAttachmentControl = new MenuButton("", Iconography.combine(Iconography.PLUS, Iconography.PAPERCLIP));
+    protected final Menu editMenu = new Menu("Edit");
+    protected final Menu attachMenu = new Menu("Attach");
+
+    {
+        editControl.getItems().add(editMenu);
+        editControl.getItems().add(attachMenu);
+    }
     protected final ExpandControl expandControl = new ExpandControl();
     protected final ArrayList<Node> badges = new ArrayList<>();
     protected final ObservableList<ComponentPaneModel> extensionPaneModels = FXCollections.observableArrayList();
     protected final ObservableList<VersionPaneModel> versionPanes = FXCollections.observableArrayList();
-    protected final CheckBox revertCheckBox = new CheckBox();
+    protected final Button redoButton = new Button("", Iconography.REDO.getIconographic());
+    {
+        redoButton.setOnAction(this::redo);
+    }
 
     private final Button cancelButton = new Button("Cancel");
     private final Button commitButton = new Button("Commit");
+    private final Region spacer = new Region();
+    {
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        spacer.setMinWidth(Region.USE_PREF_SIZE);
+    }
+    private final ToolBar editToolBar = new ToolBar(spacer, cancelButton, commitButton);
+    private final BorderPane editBorderPane = new BorderPane();
+    {
+        editBorderPane.setTop(editToolBar);
+    }
 
 
     private final ObservableCategorizedVersion categorizedVersion;
@@ -99,8 +138,7 @@ public abstract class BadgedVersionPaneModel {
                 .add(StyleClasses.COMPONENT_VERSION_WHAT_CELL.toString());
         componentText.getStyleClass()
                 .setAll(StyleClasses.COMPONENT_TEXT.toString());
-        componentText.setWrapText(true);
-        addAttachmentControl.getStyleClass().setAll(ADD_ATTACHMENT.toString());
+        //componentText.setWrapText(true);
         editControl.getStyleClass().setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
 
         cancelButton.getStyleClass()
@@ -109,8 +147,9 @@ public abstract class BadgedVersionPaneModel {
         commitButton.getStyleClass()
                 .add(StyleClasses.COMMIT_BUTTON.toString());
         commitButton.setOnAction(this::commit);
-        cancelButton.setVisible(false);
-        commitButton.setVisible(false);
+
+//        componentText.setBorder(new Border(new BorderStroke(Color.RED,
+//                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
     }
 
@@ -137,10 +176,9 @@ public abstract class BadgedVersionPaneModel {
                     -1);
         }
         this.badges.add(this.stampControl);
-        this.addAttachmentControl.getItems().addAll(getAttachmentMenuItems());
-        this.addAttachmentControl.setVisible(!addAttachmentControl.getItems().isEmpty());
-        this.editControl.getItems().addAll(getEditMenuItems());
-        this.editControl.setVisible(!editControl.getItems().isEmpty());
+        this.attachMenu.getItems().addAll(getAttachmentMenuItems());
+        this.editMenu.getItems().addAll(getEditMenuItems());
+        this.editControl.setVisible(!(editMenu.getItems().isEmpty() && attachMenu.getItems().isEmpty()));
 
 
         ObservableVersion observableVersion = categorizedVersion.getObservableVersion();
@@ -159,6 +197,27 @@ public abstract class BadgedVersionPaneModel {
         redoLayout();
     }
 
+    protected void wrapAttachmentPane() {
+        if (!primaryPaneWrappedForAttachment) {
+            BorderPane attachmentWrapperPane = new BorderPane();
+            this.outerPane.getChildren().clear();
+            this.outerPane.getChildren().add(attachmentWrapperPane);
+            attachmentWrapperPane.setCenter(this.primaryPane);
+            Node paperClip = Iconography.PAPERCLIP.getIconographic();
+            BorderPane.setAlignment(paperClip, Pos.TOP_LEFT);
+
+            TilePane clipPane = new TilePane();
+            clipPane.setPrefTileWidth(BADGE_WIDTH);
+            clipPane.setPrefTileWidth(BADGE_WIDTH);
+            TilePane.setMargin(paperClip, new Insets(7,10,0,5));
+            clipPane.getChildren().add(paperClip);
+
+
+            attachmentWrapperPane.setLeft(clipPane);
+            this.primaryPaneWrappedForAttachment = true;
+        }
+
+    }
     protected abstract boolean isLatestPanel();
 
     protected final void setupConcept(ConceptVersion conceptVersion) {
@@ -200,9 +259,10 @@ public abstract class BadgedVersionPaneModel {
             componentType.setText("");
         }
 
-        //TODO fix back up
-        //LogicalExpression expression = logicGraphVersion.getLogicalExpression();
-        //this.logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, manifold);
+        LogicalExpression expression = logicGraphVersion.getLogicalExpression();
+        Pane logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, manifold);
+        BorderPane.setAlignment(logicDetailPanel, Pos.TOP_LEFT);
+        primaryPane.setCenter(logicDetailPanel);
     }
 
     protected final void setupOther(Version version) {
@@ -433,33 +493,40 @@ public abstract class BadgedVersionPaneModel {
 
         setupBadges();
         setupEditControls();
+        addExtras();
 
     }
 
     private void setupEditControls() {
-        this.editControlFlow.getChildren().clear();
-        if (!this.editControl.getItems().isEmpty()) {
-            this.editControlFlow.getChildren().add(this.editControl);
-        }
-        if (!this.addAttachmentControl.getItems().isEmpty()) {
-            this.editControlFlow.getChildren().add(this.addAttachmentControl);
+        this.editControlTiles.getChildren().clear();
+        if (!(editMenu.getItems().isEmpty() && attachMenu.getItems().isEmpty())) {
+            this.editControlTiles.getChildren().add(this.editControl);
         }
     }
     private void setupBadges() {
         this.badgeFlow.getChildren().clear();
+        this.badgeTiles.getChildren().clear();
 
-        double flowWidth = (BADGE_WIDTH + 2) * 3;
-        this.badgeFlow.setMaxWidth(flowWidth);
-        this.badgeFlow.setMinWidth(flowWidth);
-        this.badgeFlow.setPrefWidth(flowWidth);
         this.badgeFlow.getChildren().add(this.expandControl);
         this.badgeFlow.getChildren().add(this.componentType);
+        this.badgeFlow.getChildren().add(this.badgeTiles);
+        badgeTiles.setPrefColumns(3);
+        badgeTiles.setPrefRows(badges.size()/3 + 1);
+
         for (Node badge: badges) {
-            badgeFlow.getChildren().add(badge);
+            badgeTiles.getChildren().add(badge);
         }
     }
 
+    private void redo(ActionEvent event) {
+        List<MenuItem> menuItems = getEditMenuItems();
+        if (!menuItems.isEmpty()) {
+            MenuItem itemToExecute = menuItems.get(0);
+            itemToExecute.getOnAction().handle(event);
+        }
+    }
     private void cancel(ActionEvent event) {
+        primaryPane.setTop(null);
         if (optionalPropertySheetMenuItem.isPresent()) {
             PropertySheetMenuItem item = optionalPropertySheetMenuItem.get();
             item.cancel();
@@ -468,6 +535,7 @@ public abstract class BadgedVersionPaneModel {
     }
 
     private void commit(ActionEvent event) {
+        primaryPane.setTop(null);
         if (this.optionalPropertySheetMenuItem.isPresent()) {
             PropertySheetMenuItem item = this.optionalPropertySheetMenuItem.get();
             item.commit();
@@ -477,13 +545,16 @@ public abstract class BadgedVersionPaneModel {
 
     private void cleanupAfterCommitOrCancel(PropertySheetMenuItem item) {
         Platform.runLater(() -> {
-            this.cancelButton.setVisible(false);
-            this.commitButton.setVisible(false);
-            this.outerPane.getChildren().remove(item.getPropertySheet());
+            this.primaryPane.setTop(null);
             this.optionalPropertySheetMenuItem = Optional.empty();
-            this.outerPane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
-            this.editControl.getItems().setAll(getEditMenuItems());
-            this.editControl.setVisible(!editControl.getItems().isEmpty());
+            this.editBorderPane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
+            this.editToolBar.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
+            this.editControl.setVisible(false);
+            this.editMenu.getItems().setAll(getEditMenuItems());
+            this.editControl.setVisible(!(editMenu.getItems().isEmpty() && attachMenu.getItems().isEmpty()));
+            if (this instanceof VersionPaneModel) {
+                this.redoButton.setVisible(true);
+            }
             redoLayout();
         });
     }
@@ -494,12 +565,18 @@ public abstract class BadgedVersionPaneModel {
     }
 
     protected void addEditingPropertySheet(PropertySheetMenuItem propertySheetMenuItem) {
+        PropertySheet propertySheet = propertySheetMenuItem.getPropertySheet();
+        propertySheet.getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
+        this.primaryPane.setTop(this.editBorderPane);
         ObservableVersion observableVersion = propertySheetMenuItem.getVersionInFlight();
-        this.outerPane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, true);
+        this.editBorderPane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, true);
+        this.editToolBar.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, true);
+        propertySheet.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, true);
         this.editControl.setVisible(false);
-        this.cancelButton.setVisible(true);
-        this.commitButton.setVisible(true);
+        this.redoButton.setVisible(false);
         this.optionalPropertySheetMenuItem = Optional.of(propertySheetMenuItem);
+        this.editBorderPane.setCenter(propertySheet);
+
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
         propertySheetMenuItem.addCompletionListener((observable, oldValue, newValue) -> {
             observableVersion.removeUserObject(PROPERTY_SHEET_ATTACHMENT);
