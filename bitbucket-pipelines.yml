@@ -1,4 +1,4 @@
-image: flate/maven-openjfx:latest
+image: 3.6.0-jdk-11
 
 options:
   size: 2x
