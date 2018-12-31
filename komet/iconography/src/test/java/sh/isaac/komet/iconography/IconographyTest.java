@@ -21,7 +21,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
 
 /**
@@ -34,7 +34,7 @@ public class IconographyTest extends Application {
    public void start(Stage stage) throws Exception {
       SvgImageLoaderFactory.install();
       
-      FlowPane iconsPane = new FlowPane(3, 3);
+      TilePane iconsPane = new TilePane(3, 3);
 
       FontAwesomeIconView thumbsUpIcon = new FontAwesomeIconView();
       thumbsUpIcon.setStyleClass("thumbs-up-icon");

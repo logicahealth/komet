@@ -116,12 +116,15 @@ public class DescriptionLuceneMatch
 
         final List<SearchResult> queryResults = descriptionIndexer.query((String) this.enclosingQuery.getLetDeclarations().get(getQueryStringKey()), 1000);
 
-        queryResults.stream().forEach((s) -> {
-            if (!possibleComponents.contains(s.getNid())) {
-                possibleComponents.remove(s.getNid());
+        NidSet matchedComponents = new NidSet();
+        for (SearchResult result: queryResults) {
+            if (possibleComponents.contains(result.getNid())) {
+                matchedComponents.add(result.getNid());
             }
-        });
-      return incomingPossibleComponents;
+        }
+        
+        incomingPossibleComponents.put(getAssemblageForIteration(), matchedComponents);
+        return incomingPossibleComponents;
     }
 
     //~--- get methods ---------------------------------------------------------
