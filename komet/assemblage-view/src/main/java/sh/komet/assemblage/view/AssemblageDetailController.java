@@ -32,6 +32,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.komet.gui.cell.treetable.TreeTableAuthorTimeCellFactory;
@@ -41,7 +42,6 @@ import sh.komet.gui.cell.treetable.TreeTableModulePathCellFactory;
 import sh.komet.gui.cell.treetable.TreeTableTimeCellFactory;
 import sh.komet.gui.cell.treetable.TreeTableWhatCellFactory;
 import sh.komet.gui.manifold.Manifold;
-import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 /**
  *
@@ -114,8 +114,8 @@ public class AssemblageDetailController {
    }
 
    private void addChildren(TreeItem<ObservableCategorizedVersion> parent,
-           ObservableList<ObservableSemanticChronology> children, boolean addSemantics) {
-      for (ObservableSemanticChronology child : children) {
+           ObservableList<? extends ObservableChronology> children, boolean addSemantics) {
+      for (ObservableChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifold);
 
@@ -143,6 +143,7 @@ public class AssemblageDetailController {
                        .add(historicTreeItem);
             }
             if (addSemantics) {
+                
                addChildren(childTreeItem, child.getObservableSemanticList(), addSemantics);
             }
          }
@@ -163,11 +164,11 @@ public class AssemblageDetailController {
                          manifold);
 
          TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
-         ObservableList<ObservableSemanticChronology> children = FXCollections.observableArrayList();
+         ObservableList<ObservableChronology> children = FXCollections.observableArrayList();
          ObservableChronologyService observableChronologyService = Get.observableChronologyService();
-         Get.assemblageService().getSemanticNidsFromAssemblage(observableConceptChronology.getNid())
-                 .stream().forEach((semanticId) -> 
-                 children.add(observableChronologyService.getObservableSemanticChronology(semanticId)));
+         Get.identifierService().getNidsForAssemblage(newValue)
+                 .forEach((nid) -> 
+                 children.add(observableChronologyService.getObservableChronology(nid)));
          addChildren(assemblageRoot, children, true);
          assemblageExtensionTreeTable.setRoot(assemblageRoot);
       }
