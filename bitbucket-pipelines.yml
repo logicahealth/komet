@@ -1,4 +1,4 @@
-image: maven/3-jdk-11
+image: maven/maven:3-jdk-11
 
 options:
   size: 2x
