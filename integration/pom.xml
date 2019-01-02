@@ -12,9 +12,9 @@
    <packaging>pom</packaging>
    <modules>
       <module>db-builder</module>
-      <!--<module>db-config-builder</module>-->
-      <!--<module>db-config-builder-ui</module>-->
+      <module>db-config-builder</module>
+      <module>db-config-builder-ui</module>
       <module>import-utils</module>
-      <!--<module>tests</module>-->
+      <module>tests</module>
    </modules>
 </project>

@@ -83,7 +83,6 @@
       <HK2Utilities.version>1.5.2</HK2Utilities.version>
       <httpclient.version>4.5.5</httpclient.version>
       <javassist.version>3.22.0-GA</javassist.version>
-      <jaxb-impl.version>2.3.0</jaxb-impl.version>
       <jaxb2-maven-plugin.version>2.3.1</jaxb2-maven-plugin.version>
       <jbpm.version>6.5.0.Final</jbpm.version>
       <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
@@ -100,13 +99,13 @@
       <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
       <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
       <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-      <maven-core.version>3.5.2</maven-core.version>
+      <maven-core.version>3.6.0</maven-core.version>
       <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
       <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
       <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
       <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
       <maven-javadoc-plugin.version>3.0.0</maven-javadoc-plugin.version>
-      <maven-jaxb2-plugin.version>0.13.3</maven-jaxb2-plugin.version>
+      <maven-jaxb2-plugin.version>0.14.0</maven-jaxb2-plugin.version>
       <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
       <maven-plugin-annotations.version>3.5</maven-plugin-annotations.version>
       <maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
@@ -160,15 +159,6 @@
       <system>Jira</system>
       <url>http://issues.osehra.org/projects/ISAAC/summary</url>
    </issueManagement>
-   
-   <repositories>
-      <repository>
-         <!-- Fontawesomefx -->
-         <id>bintray-jerady-maven</id>
-         <name>bintray-plugins</name>
-         <url>http://dl.bintray.com/jerady/maven</url>
-      </repository>
-   </repositories>
 
    <dependencyManagement>
       <dependencies>
@@ -200,11 +190,6 @@
           <dependency>
               <groupId>com.sun.xml.bind</groupId>
               <artifactId>jaxb-core</artifactId>
-              <version>${jaxb.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.sun.xml.bind</groupId>
-              <artifactId>jaxb-impl</artifactId>
               <version>${jaxb.version}</version>
           </dependency>
           <dependency>
@@ -297,7 +282,7 @@
          <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>${jaxb-impl.version}</version>
+            <version>${jaxb.version}</version>
          </dependency>
          <dependency>
             <groupId>javax.activation</groupId>
@@ -712,6 +697,18 @@
          <artifactId>log4j-jul</artifactId>
          <scope>test</scope>
       </dependency>
+      
+      <!--dependency>
+      		<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-component-metadata</artifactId>
+			<version>1.7.1</version>
+			<exclusions> <!- - Terribly outdated, doesn't even support java 9 - ->
+				<exclusion>
+					<groupId>org.ow2.asm</groupId>
+					<artifactId>asm-all</artifactId>
+				</exclusion>
+			</exclusions>
+      </dependency-->
    </dependencies>
 
    <build>
@@ -771,6 +768,21 @@
                   </dependency>
                </dependencies>
             </plugin>
+            
+         <!--plugin>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-component-metadata</artifactId>
+				<version>1.7.1</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.ow2.asm</groupId>
+						<artifactId>asm</artifactId>
+						<version>7.0</version>
+					</dependency>
+				</dependencies>
+				
+         </plugin-->
+            
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-deploy-plugin</artifactId>
