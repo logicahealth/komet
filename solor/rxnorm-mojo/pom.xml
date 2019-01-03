@@ -9,7 +9,7 @@
 	
    <groupId>sh.isaac.solor</groupId>
    <artifactId>rxnorm-mojo</artifactId>
-	
+
    <packaging>maven-plugin</packaging>
 
    <name>ISAAC SOLOR: RxNorm converter</name>

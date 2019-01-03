@@ -932,8 +932,8 @@
                         </pluginExecution>
                         <pluginExecution>
                            <pluginExecutionFilter>
-                              <groupId> sh.isaac.modules </groupId>
-                              <artifactId> ochre-mojo </artifactId>
+                              <groupId> sh.isaac.core </groupId>
+                              <artifactId> mojo </artifactId>
                               <versionRange> [2.0,) </versionRange>
                               <goals>
                                  <goal>export-taxonomy</goal>
