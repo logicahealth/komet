@@ -56,18 +56,18 @@
             <version>${project.parent.version}</version>
             <type>jar</type>
         </dependency>
-      <dependency>
-         <groupId>sh.isaac.solor</groupId>
-         <artifactId>direct-import</artifactId>
-         <version>${project.parent.version}</version>
-         <scope>compile</scope>
-      </dependency>
-      <!--<dependency>-->
-         <!--<groupId>sh.isaac.misc</groupId>-->
-         <!--<artifactId>importers</artifactId>-->
-         <!--<version>${project.parent.version}</version>-->
-         <!--<scope>compile</scope>-->
-      <!--</dependency>-->
+        <dependency>
+            <groupId>sh.isaac.solor</groupId>
+            <artifactId>direct-import</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.misc</groupId>
+            <artifactId>importers</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>sh.isaac.misc</groupId>
             <artifactId>util</artifactId>
@@ -78,10 +78,10 @@
             <artifactId>db-config-builder</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-      <dependency>
-         <groupId>sh.isaac.core</groupId>
-         <artifactId>mojo</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>mojo</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 </project>

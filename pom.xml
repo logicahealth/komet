@@ -697,18 +697,6 @@
          <artifactId>log4j-jul</artifactId>
          <scope>test</scope>
       </dependency>
-      
-      <!--dependency>
-      		<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-component-metadata</artifactId>
-			<version>1.7.1</version>
-			<exclusions> <!- - Terribly outdated, doesn't even support java 9 - ->
-				<exclusion>
-					<groupId>org.ow2.asm</groupId>
-					<artifactId>asm-all</artifactId>
-				</exclusion>
-			</exclusions>
-      </dependency-->
    </dependencies>
 
    <build>
@@ -768,21 +756,6 @@
                   </dependency>
                </dependencies>
             </plugin>
-            
-         <!--plugin>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-component-metadata</artifactId>
-				<version>1.7.1</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.ow2.asm</groupId>
-						<artifactId>asm</artifactId>
-						<version>7.0</version>
-					</dependency>
-				</dependencies>
-				
-         </plugin-->
-            
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-deploy-plugin</artifactId>
