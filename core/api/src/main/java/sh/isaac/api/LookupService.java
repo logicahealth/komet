@@ -37,9 +37,22 @@
 
 package sh.isaac.api;
 
-import com.sun.javafx.application.PlatformImpl;
-import javafx.application.Platform;
-import net.sagebits.HK2Utilities.HK2RuntimeInitializer;
+import java.awt.GraphicsEnvironment;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.WeakHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,20 +61,15 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import org.glassfish.hk2.runlevel.RunLevelFuture;
+import com.sun.javafx.application.PlatformImpl;
+import javafx.application.Platform;
+import net.sagebits.HK2Utilities.HK2RuntimeInitializer;
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.progress.Stoppable;
+import sh.isaac.api.util.HeadlessToolkit;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
-import java.util.function.BiConsumer;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class LookupService.
@@ -69,7 +77,6 @@ import java.util.function.BiConsumer;
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@SuppressWarnings("restriction")
 public class LookupService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
@@ -165,16 +172,41 @@ public class LookupService {
             if (!fxPlatformUp) {
                System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 
-//               if (GraphicsEnvironment.isHeadless()) {
-//                  LOG.info("Installing headless toolkit");
-//                  //todo: is this still needed with jdk 11...
-//                  //HeadlessToolkit.installToolkit();
-//               }
+               if (GraphicsEnvironment.isHeadless()) {
+                  LOG.info("Installing headless toolkit");
+                  HeadlessToolkit.installToolkit();
+               }
 
                LOG.debug("Starting JavaFX Platform");
-               PlatformImpl.startup(() -> {
-                  // No need to do anything here
-               });
+               try {
+                  if (LookupService.class.getClassLoader().toString().startsWith("ClassRealm[plugin"))  //we are running in maven.
+                  {
+                     //Stupid (really stupid) hack to not run into issues with native libraries from javafx...
+                     //JavaFX is dumping theor dll files out to a path that uses javafx.version.  Maven runs each instance of a plugin in a different 
+                     //classloader, but then doesn't release refs / doesn't garbage collect the class loaders.  So any second attempt to start a javafx 
+                     //app during a maven build will fail, because the dll's were loaded by a different classloader.  Forcing it to cache the dll's to a different
+                     //location is the easiest way to avoid the double-loading issue.
+                     String s = System.getProperty("javafxHack");
+                     int i = 0;
+                     if (!StringUtils.isBlank(s))
+                     {
+                        i = Integer.parseInt(s);
+                        i++;
+                     }
+                     System.setProperty("javafxHack", i + "");
+                     System.setProperty("javafx.version", "mavenHack" + i);
+                  }
+                  PlatformImpl.startup(() -> {
+                     // No need to do anything here
+                  }, true);
+               } catch (IllegalStateException e) {
+                  if (e.getMessage().equals("Toolkit already initialized")) {
+                     //ignore - this happens sometimes in maven builds
+                  }
+                  else {
+                     throw e;
+                  }
+               }
                fxPlatformUp = true;
             }
          }

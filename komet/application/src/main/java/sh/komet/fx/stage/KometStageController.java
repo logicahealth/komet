@@ -50,6 +50,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
@@ -73,6 +75,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
@@ -353,28 +356,28 @@ public class KometStageController
             File beer = new File("../../integration/tests/src/test/resources/turtle/bevontology-0.8.ttl");
             if (beer.isFile()) {
                 // This should only appear if you are running from eclipse / netbeans....
-//                MenuItem convertBeer = new MenuItem("Beer me!");
-//                convertBeer.setOnAction((ActionEvent event) -> {
-//                    Get.executor().execute(() -> {
-//                        try {
-//                            TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
-//                            timd.configure(null, beer.toPath(),"0.8", null);
-//                            timd.convertContent(update -> {}, (work, totalWork) -> {});
-//                            Get.indexDescriptionService().refreshQueryEngine();
-//                            Platform.runLater(() -> {
-//                                Alert alert = new Alert(AlertType.INFORMATION);
-//                                alert.setTitle("Beer has arrived!");
-//                                alert.setHeaderText("Beer has been imported!");
-//                                alert.initOwner(topGridPane.getScene().getWindow());
-//                                alert.showAndWait();
-//                            });
-//                        }
-//                        catch (Exception e) {
-//                            LOG.error("Beer failure", e);
-//                        }
-//                    });
-//                });
-//                items.add(convertBeer);
+                MenuItem convertBeer = new MenuItem("Beer me!");
+                convertBeer.setOnAction((ActionEvent event) -> {
+                    Get.executor().execute(() -> {
+                        try {
+                            TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
+                            timd.configure(null, beer.toPath(),"0.8", null);
+                            timd.convertContent(update -> {}, (work, totalWork) -> {});
+                            Get.indexDescriptionService().refreshQueryEngine();
+                            Platform.runLater(() -> {
+                                Alert alert = new Alert(AlertType.INFORMATION);
+                                alert.setTitle("Beer has arrived!");
+                                alert.setHeaderText("Beer has been imported!");
+                                alert.initOwner(topGridPane.getScene().getWindow());
+                                alert.showAndWait();
+                            });
+                        }
+                        catch (Exception e) {
+                            LOG.error("Beer failure", e);
+                        }
+                    });
+                });
+                items.add(convertBeer);
             }
         }
         return items;

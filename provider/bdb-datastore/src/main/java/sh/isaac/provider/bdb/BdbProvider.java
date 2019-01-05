@@ -928,7 +928,7 @@ public class BdbProvider
          try {
             updateMessage("Writing assemblage nids...");
 
-            NidSet assemblageNidSet = NidSet.of(assemblageNids);
+            NidSet assemblageNidSet = NidSet.of(assemblageNids.toArray(new Integer[0]));
 
             putNidSet(ASSEMBLAGE_NIDS, assemblageNidSet);
             completedUnitOfWork();

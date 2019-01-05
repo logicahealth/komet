@@ -58,6 +58,7 @@ import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 import com.sun.javafx.collections.ObservableMapWrapper;
 import com.sun.javafx.tk.Toolkit;
+import com.sun.javafx.tk.FontLoader;
 import javafx.application.Platform;
 import javafx.beans.binding.FloatBinding;
 import javafx.beans.property.BooleanProperty;
@@ -1275,7 +1276,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 										? (nCol.getGraphic() instanceof Label ? ((Label)nCol.getGraphic()).getText() 
 												: ((Label)((HBox)nCol.getGraphic()).getChildren().get(0)).getText()) 
 										: nCol.getText());
-							nCol.setMinWidth(Toolkit.getToolkit().getFontLoader().computeStringWidth(text, f) + 70);
+							nCol.setMinWidth(computeStringWidth(text, f) + 70);
 							if (text.equalsIgnoreCase(SemanticGUIColumnType.TIME.toString()))
 							{
 								nCol.setPrefWidth(150);
@@ -1308,7 +1309,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 											temp += nCol.getWidth();
 										}
 									}
-									float parentColWidth = Toolkit.getToolkit().getFontLoader().computeStringWidth(col.getText(), f) + 70;
+									float parentColWidth = computeStringWidth(col.getText(), f) + 70;
 									if (temp < parentColWidth)
 									{
 										//bump the size of the first nested column, so the parent doesn't get clipped
@@ -1348,7 +1349,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 							}
 							else
 							{
-								col.setMinWidth(Toolkit.getToolkit().getFontLoader().computeStringWidth(text, f) + 70);
+								col.setMinWidth(computeStringWidth(text, f) + 70);
 							}
 						}
 					}
@@ -1388,6 +1389,17 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 				noRefresh_.getAndDecrement();
 			}
 		});
+	}
+	
+	private float computeStringWidth(String s, Font f)
+	{
+		float width = 0;
+		FontLoader fl = Toolkit.getToolkit().getFontLoader();
+		for (int i = 0; i < s.length(); i++)
+		{
+			width += fl.getCharWidth(s.charAt(i), f);
+		}
+		return width;
 	}
 	
 	private synchronized void loadRealData() throws IOException, NumberFormatException, InterruptedException

@@ -207,7 +207,7 @@
 							<generateDirectory>${project.build.directory}/generated-sources/mvx</generateDirectory>
 						</configuration>
 					</execution>
-					<!--execution>
+					<execution>
 						<goals>
 							<goal>generate</goal>
 						</goals>
@@ -218,21 +218,21 @@
 								<include>hl7-r2_datatypes.xsd</include>
 							</schemaIncludes>
 						</configuration>
-					</execution-->
-					<!--<execution>-->
-						<!--<goals>-->
-							<!--<goal>generate</goal>-->
-						<!--</goals>-->
-						<!--<id>mif</id>-->
-						<!--<configuration>-->
-							<!--<generatePackage>mifschema</generatePackage>-->
-							<!--<schemaDirectory>src/main/resources/hl7v3/mif</schemaDirectory>-->
-							<!--<schemaIncludes>-->
-								<!--<include>xhtml1-strict.xsd</include>-->
-								<!--<include>mif-COMPLETE.xsd</include>-->
-							<!--</schemaIncludes>-->
-						<!--</configuration>-->
-					<!--</execution>-->
+					</execution>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<id>mif</id>
+						<configuration>
+							<generatePackage>mifschema</generatePackage>
+							<schemaDirectory>src/main/resources/hl7v3/mif</schemaDirectory>
+							<schemaIncludes>
+								<include>xhtml1-strict.xsd</include>
+								<include>mif-COMPLETE.xsd</include>
+							</schemaIncludes>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			
