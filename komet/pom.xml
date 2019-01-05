@@ -24,7 +24,7 @@
         <module>assemblage-view</module>
         <module>scripting</module>
         <module>statement-view</module>
-        <module>semantic-view</module>
+        <!--<module>semantic-view</module>-->
         <module>countries-flags</module>
         <module>export-view</module>
           <!--<module>open-jdk-fixes</module>-->
