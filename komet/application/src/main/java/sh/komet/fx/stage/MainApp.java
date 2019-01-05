@@ -38,6 +38,7 @@ package sh.komet.fx.stage;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.List;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,7 +77,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.komet.preferences.ConfigurationPreferences;
+import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.PreferenceGroup;
 import sh.isaac.komet.preferences.RootPreferences;
 import sh.isaac.komet.statement.StatementView;
@@ -84,7 +85,10 @@ import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.isaac.api.util.SystemUtils;
 import sh.komet.gui.contract.AppMenu;
+import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.WindowPreferenceItems;
 import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
@@ -131,7 +135,7 @@ public class MainApp
 
         SvgImageLoaderFactory.install();
         LookupService.startupPreferenceProvider();
-        configurationPreferences = FxGet.configurationNode(ConfigurationPreferences.class);
+        configurationPreferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
 
         if (configurationPreferences.getBoolean(PreferenceGroup.Keys.INITIALIZED, false)) {
             firstRun = false;
@@ -148,7 +152,9 @@ public class MainApp
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             System.out.println("Beta features enabled");
         }
-        FxGet.kometPreferences().loadPreferences(Manifold.make(ManifoldGroup.TAXONOMY));
+        KometPreferences kometPreferences = FxGet.kometPreferences();
+        kometPreferences.loadPreferences(FxGet.getManifold(ManifoldGroup.TAXONOMY));
+
 
         if (Get.metadataService()
                 .wasMetadataImported()) {
@@ -169,32 +175,42 @@ public class MainApp
 
         // open one new stage with defaults
         // Create a node for stage preferences
-        UUID stageUuid = UUID.randomUUID();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-        BorderPane root = loader.load();
-        KometStageController controller = loader.getController();
+        for (WindowPreferenceItems windowPreference: kometPreferences.getWindowPreferences()) {
+            UUID stageUuid = UUID.randomUUID();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
+            BorderPane root = loader.load();
+            KometStageController controller = loader.getController();
+            controller.setWindowPreferenceItems(windowPreference);
+            root.setId(stageUuid.toString());
+            stage.setTitle(FxGet.getConfigurationName());
+            Scene scene = new Scene(setupStageMenus(stage, root));
+            stage.setScene(scene);
+            stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
+            stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
 
-        root.setId(stageUuid.toString());
+            windowPreference.getWindowName().addListener((observable, oldValue, newValue) -> {
+                stage.setTitle(newValue);
+            });
+            stage.setTitle(windowPreference.getWindowName().getValue());
+            // GraphController.setSceneForControllers(scene);
+            scene.getStylesheets()
+                    .add(FxGet.fxConfiguration().getUserCSSURL().toString());
+            scene.getStylesheets()
+                    .add(Iconography.getStyleSheetStringUrl());
+            FxGet.statusMessageService()
+                    .addScene(scene, controller::reportStatus);
+            stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
+            stage.show();
 
-        stage.setTitle(FxGet.getConfigurationName());
-        FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
-            stage.setTitle(newValue);
-        });
-        
-        Scene scene = new Scene(setupStageMenus(stage, root));
-        stage.setScene(scene);
-        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
-        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
+        }
 
-        // GraphController.setSceneForControllers(scene);
-        scene.getStylesheets()
-                .add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        scene.getStylesheets()
-                .add(Iconography.getStyleSheetStringUrl());
-        FxGet.statusMessageService()
-                .addScene(scene, controller::reportStatus);
-        stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
-        stage.show();
+
+
+
+
+
+
+
 
         // SNAPSHOT
         // Chronology
@@ -356,7 +372,7 @@ public class MainApp
     }
 
     private void newStatement(ActionEvent event) {
-        Manifold statementManifold = Manifold.make(ManifoldGroup.CLINICAL_STATEMENT);
+        Manifold statementManifold = FxGet.getManifold(ManifoldGroup.CLINICAL_STATEMENT);
         StatementViewController statementController = StatementView.show(statementManifold, 
                 MenuProvider::handleCloseRequest);
 
@@ -424,7 +440,7 @@ public class MainApp
     }
 
     private void handlePrefs(ActionEvent event) {
-        FxGet.kometPreferences().showPreferences(Manifold.make(ManifoldGroup.TAXONOMY));
+        FxGet.kometPreferences().showPreferences(FxGet.getManifold(ManifoldGroup.TAXONOMY));
     }
 
     private void handleAbout(ActionEvent event) {

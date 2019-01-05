@@ -69,14 +69,6 @@ public class KometBaseMenus implements MenuProvider {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    private final HashMap<Manifold.ManifoldGroup, Manifold> manifolds = new HashMap<>();
-
-    public KometBaseMenus() {
-        for (Manifold.ManifoldGroup mg : Manifold.ManifoldGroup.values()) {
-            manifolds.put(mg, Manifold.make(mg));
-        }
-    }
-
     @Override
     public EnumSet<AppMenu> getParentMenus() {
         return EnumSet.of(AppMenu.FILE, AppMenu.TOOLS);
@@ -88,16 +80,16 @@ public class KometBaseMenus implements MenuProvider {
             case FILE: {
                 MenuItem selectiveImport = new MenuItem("Selective import and transform");
                 selectiveImport.setOnAction((ActionEvent event) -> {
-                    ImportView.show(manifolds.get(Manifold.ManifoldGroup.TAXONOMY));
+                    ImportView.show(FxGet.getManifold(Manifold.ManifoldGroup.TAXONOMY));
                 });
 
                 MenuItem selectiveExport = new MenuItem("Selective export");
-                selectiveExport.setOnAction(event -> ExportView.show(manifolds.get(Manifold.ManifoldGroup.UNLINKED)));
+                selectiveExport.setOnAction(event -> ExportView.show(FxGet.getManifold(Manifold.ManifoldGroup.UNLINKED)));
 
                 MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
 
                 importTransformFull.setOnAction((ActionEvent event) -> {
-                    ImportAndTransformTask itcTask = new ImportAndTransformTask(manifolds.get(Manifold.ManifoldGroup.TAXONOMY),
+                    ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.getManifold(Manifold.ManifoldGroup.TAXONOMY),
                             ImportType.FULL);
                     Get.executor().submit(itcTask);
 
@@ -224,7 +216,7 @@ public class KometBaseMenus implements MenuProvider {
                 completeClassify.setOnAction((ActionEvent event) -> {
                     //TODO change how we get the edit coordinate. 
                     EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                    ClassifierService classifierService = Get.logicService().getClassifierService(manifolds.get(Manifold.ManifoldGroup.SEARCH), editCoordinate);
+                    ClassifierService classifierService = Get.logicService().getClassifierService(FxGet.getManifold(Manifold.ManifoldGroup.SEARCH), editCoordinate);
                     classifierService.classify();
                 });
 
@@ -246,7 +238,7 @@ public class KometBaseMenus implements MenuProvider {
 
                 MenuItem addLabNavigationConcepts = new MenuItem("Add lab navigation concepts");
                 addLabNavigationConcepts.setOnAction((ActionEvent event) -> {
-                    LoincExpressionToNavConcepts conversionTask = new LoincExpressionToNavConcepts(manifolds.get(Manifold.ManifoldGroup.UNLINKED));
+                    LoincExpressionToNavConcepts conversionTask = new LoincExpressionToNavConcepts(FxGet.getManifold(Manifold.ManifoldGroup.UNLINKED));
                     Get.executor().execute(conversionTask);
                 });
 

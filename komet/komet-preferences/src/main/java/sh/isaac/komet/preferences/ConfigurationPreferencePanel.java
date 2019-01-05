@@ -25,9 +25,10 @@ import sh.isaac.MetaData;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.preferences.IsaacPreferences;
-import static sh.isaac.komet.preferences.ConfigurationPreferences.Keys.ENABLE_EDITING;
+import static sh.isaac.komet.preferences.ConfigurationPreferencePanel.Keys.ENABLE_EDITING;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import sh.isaac.model.observable.ObservableFields;
+import sh.komet.gui.contract.preferences.ConfigurationPreference;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.manifold.Manifold;
@@ -37,7 +38,7 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public class ConfigurationPreferences extends AbstractPreferences {
+public class ConfigurationPreferencePanel extends AbstractPreferences implements ConfigurationPreference {
 
     public enum Keys {
         ENABLE_EDITING,
@@ -51,8 +52,8 @@ public class ConfigurationPreferences extends AbstractPreferences {
     private final SimpleStringProperty datastoreLocationProperty
             = new SimpleStringProperty(this, MetaData.DATASTORE_LOCATION____SOLOR.toExternalString());
 
-    public ConfigurationPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
-            KometPreferencesController kpc) {
+    public ConfigurationPreferencePanel(IsaacPreferences preferencesNode, Manifold manifold,
+                                        KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "KOMET"), manifold, 
                 kpc);
         nameProperty.set(groupNameProperty().get());

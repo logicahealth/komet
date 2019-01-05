@@ -36,12 +36,12 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public abstract class ParentPanelPreferences extends AbstractPreferences {
+public abstract class ParentPanel extends AbstractPreferences {
 
     Stack<PreferencesTreeItem> childrenToAdd = new Stack<>();
     
-    public ParentPanelPreferences(IsaacPreferences preferencesNode, String groupName, 
-            Manifold manifold, KometPreferencesController kpc) {
+    public ParentPanel(IsaacPreferences preferencesNode, String groupName,
+                       Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, groupName, manifold, kpc);
     }
 
@@ -64,9 +64,9 @@ public abstract class ParentPanelPreferences extends AbstractPreferences {
     }
     
     final void addChildPanel(UUID childUuid) {
-        IsaacPreferences actionPreferencesNode = getPreferencesNode().node(childUuid.toString());
+        IsaacPreferences preferencesNode = getPreferencesNode().node(childUuid.toString());
         addChild(childUuid.toString(), getChildClass());
-        Optional<PreferencesTreeItem> optionalActionItem = PreferencesTreeItem.from(actionPreferencesNode,
+        Optional<PreferencesTreeItem> optionalActionItem = PreferencesTreeItem.from(preferencesNode,
                 getManifold(), kpc);
         if (optionalActionItem.isPresent()) {
             PreferencesTreeItem actionItem = optionalActionItem.get();
@@ -104,7 +104,7 @@ public abstract class ParentPanelPreferences extends AbstractPreferences {
 
     private void resetConfigurationAndUserItems(ActionEvent actionEvent) {
         try {
-            IsaacPreferences configurationNode = FxGet.configurationNode(ConfigurationPreferences.class).node(getPreferencesNode().absolutePath());
+            IsaacPreferences configurationNode = FxGet.configurationNode(ConfigurationPreferencePanel.class).node(getPreferencesNode().absolutePath());
             configurationNode.remove(CHILDREN_NODES);
             configurationNode.sync();
             FxGet.kometPreferences().resetUserPreferences();

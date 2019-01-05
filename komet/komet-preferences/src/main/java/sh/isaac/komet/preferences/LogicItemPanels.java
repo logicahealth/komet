@@ -19,20 +19,21 @@ package sh.isaac.komet.preferences;
 import java.util.prefs.BackingStoreException;
 import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+
 import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
-public class LogicItems extends ParentPanelPreferences {
+public class LogicItemPanels extends ParentPanel {
 
     
-    public LogicItems(IsaacPreferences preferencesNode, Manifold manifold, 
-            KometPreferencesController kpc) {
+    public LogicItemPanels(IsaacPreferences preferencesNode, Manifold manifold,
+                           KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "Logic actions"), 
                 manifold, kpc);
-        revertFields();
+        revert();
         save();
     }
 

@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
 import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -72,5 +73,10 @@ public class TreeViewExplorationNodeFactory
    @Override
    public PanelPlacement getPanelPlacement() {
       return PanelPlacement.LEFT;
+   }
+
+   @Override
+   public ConceptSpecification getPanelType() {
+      return MetaData.TAXONOMY_PANEL____SOLOR;
    }
 }

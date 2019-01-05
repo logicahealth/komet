@@ -189,12 +189,6 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.komet</groupId>
-            <artifactId>semantic-view</artifactId>
-            <version>${project.parent.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>sh.isaac.komet</groupId>
             <artifactId>export-view</artifactId>
             <version>${project.parent.version}</version>
             <type>jar</type>
@@ -301,10 +295,10 @@
     <profiles>
 
         <profile>
-            <id>solor-database</id>
+            <id>solor-database-11</id>
             <activation>
                 <property>
-                    <name>database</name>
+                    <name>database-11</name>
                     <value>solor</value>
                 </property>
             </activation>
@@ -346,10 +340,10 @@
             </build>
         </profile>
         <profile>
-            <id>solor-full-database</id>
+            <id>solor-full-database-11</id>
             <activation>
                 <property>
-                    <name>database</name>
+                    <name>database-11</name>
                     <value>solor-full</value>
                 </property>
             </activation>

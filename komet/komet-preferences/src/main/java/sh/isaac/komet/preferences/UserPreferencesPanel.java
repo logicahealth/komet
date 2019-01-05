@@ -45,6 +45,7 @@ import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import sh.isaac.model.coordinate.EditCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
+import sh.komet.gui.contract.preferences.UserPreferenceItems;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.SessionProperty;
@@ -55,7 +56,7 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public final class UserPreferences extends AbstractPreferences {
+public final class UserPreferencesPanel extends AbstractPreferences implements UserPreferenceItems {
     enum Keys {
         USER_CONCEPT,
         USER_CONCEPT_OPTIONS,
@@ -91,8 +92,8 @@ public final class UserPreferences extends AbstractPreferences {
     
     
     
-    public UserPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
-            KometPreferencesController kpc) {
+    public UserPreferencesPanel(IsaacPreferences preferencesNode, Manifold manifold,
+                                KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "User"), manifold, 
                 kpc);
         this.userConceptWrapper = new PropertySheetItemConceptWrapper(manifold, userConceptProperty);

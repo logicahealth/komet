@@ -19,6 +19,8 @@ package sh.komet.gui.provider.concept.builder;
 import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
@@ -69,4 +71,9 @@ public class ConceptBuilderProviderFactory implements DetailNodeFactory {
    public PanelPlacement getPanelPlacement() {
       return PanelPlacement.CENTER;
    }
+
+    @Override
+    public ConceptSpecification getPanelType() {
+        return MetaData.CONCEPT_BUILDER_PANEL____SOLOR;
+    }
 }

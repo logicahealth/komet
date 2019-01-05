@@ -18,6 +18,7 @@ package sh.komet.gui.contract;
 
 import org.jvnet.hk2.annotations.Contract;
 import javafx.scene.Node;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
@@ -76,4 +77,10 @@ public interface NodeFactory<T extends ExplorationNode> {
     * @return the desired placement
     */
    PanelPlacement getPanelPlacement();
+
+   /**
+    *
+    * @return a ConceptSpecification that defines the type of this panel.
+    */
+   ConceptSpecification getPanelType();
 }

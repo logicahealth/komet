@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.contract;
+package sh.komet.gui.contract.preferences;
 
+import javafx.collections.ObservableList;
 import org.jvnet.hk2.annotations.Contract;
 import sh.komet.gui.manifold.Manifold;
 
@@ -30,4 +31,13 @@ public interface KometPreferences {
     void reloadPreferences();
     void resetUserPreferences();
     void closePreferences();
+
+    ObservableList<AttachmentItem> getAttachmentItems();
+    ObservableList<ConfigurationPreference> getConfigurationPreferences();
+    ObservableList<LogicItem> getLogicItems();
+    ObservableList<SynchronizationItem> getSynchronizationItems();
+    ObservableList<TaxonomyItem> getTaxonomyItems();
+    ObservableList<UserPreferenceItems> getUserPreferences();
+    ObservableList<WindowPreferenceItems> getWindowPreferences();
+
 }

@@ -917,6 +917,20 @@ public interface IsaacPreferences {
         put(key, builder.toString());
     }
 
+    default void putConceptList(Enum key, List<? extends ConceptSpecification> list) {
+        putConceptList(enumToGeneralKey(key), list);
+    }
+    default void putConceptList(String key, List<? extends ConceptSpecification> list) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            builder.append(list.get(i).toExternalString());
+            if (i < list.size() - 1) {
+                builder.append("|!%|");
+            }
+        }
+        put(key, builder.toString());
+    }
+
     default List<String> getList(Enum key) {
         return getList(enumToGeneralKey(key));
     }
@@ -929,6 +943,42 @@ public interface IsaacPreferences {
         return list;
     }
 
+    default List<ConceptProxy> getConceptList(Enum key) {
+        return getConceptList(enumToGeneralKey(key));
+    }
+    default List<ConceptProxy> getConceptList(String key) {
+        List<String> list = getList(key);
+        List<ConceptProxy> proxyList = new ArrayList<>(list.size());
+        for (String proxyString: list) {
+            proxyList.add(new ConceptProxy(proxyString));
+        }
+        return proxyList;
+    }
+    default Optional<List<ConceptProxy>> getOptionalConceptList(String key) {
+        Optional<List<String>> optionalList = getOptionalList(key);
+        if (optionalList.isPresent()) {
+            List<String> list = optionalList.get();
+            List<ConceptProxy> proxyList = new ArrayList<>(list.size());
+            for (String proxyString: list) {
+                proxyList.add(new ConceptProxy(proxyString));
+            }
+            return Optional.of(proxyList);
+        }
+        return Optional.empty();
+     }
+
+    default List<ConceptProxy> getConceptList(Enum key, List<? extends ConceptSpecification> defaultList) {
+        Optional<List<ConceptProxy>> optionalList = getOptionalConceptList(enumToGeneralKey(key));
+        if (optionalList.isEmpty()) {
+            List<ConceptProxy> proxyList = new ArrayList<>(defaultList.size());
+            for (ConceptSpecification spec: defaultList) {
+                proxyList.add(new ConceptProxy(spec.toExternalString()));
+            }
+            return proxyList;
+        }
+        return optionalList.get();
+    }
+
     default List<String> getList(String key, List<String> defaultList) {
         List<String> list = getList(key);
         if (list.isEmpty()) {
@@ -937,6 +987,13 @@ public interface IsaacPreferences {
         return list;
     }
 
+    default Optional<List<String>> getOptionalList(String key) {
+        Optional<String> value = get(key);
+        if (value.isPresent()) {
+            return Optional.of(getList(key));
+        }
+        return Optional.empty();
+    }
     default List<String> getList(String key) {
         Optional<String> value = get(key);
         if (value.isPresent()) {

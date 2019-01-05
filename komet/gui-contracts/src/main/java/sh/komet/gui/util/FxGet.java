@@ -16,10 +16,8 @@
  */
 package sh.komet.gui.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.TreeMap;
+import java.util.*;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -47,22 +45,20 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.tree.TaxonomyAmalgam;
-import sh.isaac.api.tree.Tree;
-import sh.komet.gui.contract.DialogService;
-import sh.komet.gui.contract.GuiConceptBuilder;
-import sh.komet.gui.contract.GuiSearcher;
-import sh.komet.gui.contract.KometPreferences;
-import sh.komet.gui.contract.RulesDrivenKometService;
-import sh.komet.gui.contract.StatusMessageService;
+import sh.komet.gui.contract.*;
+import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.SessionProperty;
+import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.provider.StatusMessageProvider;
 
@@ -73,6 +69,8 @@ import sh.komet.gui.provider.StatusMessageProvider;
 @Service
 @Singleton
 public class FxGet implements StaticIsaacCache {
+    private static final HashMap<Manifold.ManifoldGroup, Manifold> MANIFOLDS = new HashMap<>();
+
 
     private static DialogService DIALOG_SERVICE = null;
     private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
@@ -316,5 +314,33 @@ public class FxGet implements StaticIsaacCache {
         }
         TaxonomyAmalgam amalgam = taxonomyConfiguration(configurationName);
         return amalgam.makeAnalog(manifold);
+    }
+
+
+    public static <T extends ExplorationNode> Optional<NodeFactory<T>> nodeFactory(ConceptSpecification nodeSpecConcept) {
+        NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(nodeSpecConcept.getNid(), TermAux.PROVIDER_CLASS_ASSEMBLAGE.getNid());
+        for (int nid: semanticNids.asArray()) {
+            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(nid);
+            LatestVersion<StringVersion> optionalProviderClassStr = chronology.getLatestVersion(FxGet.getManifold(Manifold.ManifoldGroup.KOMET));
+            if (optionalProviderClassStr.isPresent()) {
+                StringVersion providerClassString = optionalProviderClassStr.get();
+                try {
+                    return Optional.of((NodeFactory<T>) Get.service(Class.forName(providerClassString.getString())));
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    public static Manifold getManifold(Manifold.ManifoldGroup manifoldGroup) {
+        if (MANIFOLDS.isEmpty()) {
+            for (Manifold.ManifoldGroup mg : Manifold.ManifoldGroup.values()) {
+                MANIFOLDS.put(mg, Manifold.make(mg));
+            }
+
+        }
+        return MANIFOLDS.get(manifoldGroup);
     }
 }

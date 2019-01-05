@@ -32,6 +32,9 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class PreferencesTreeItem extends TreeItem<PreferenceGroup> {
      private static final Logger LOG = LogManager.getLogger();
+
+
+
   public enum Properties {
         PROPERTY_SHEET_CLASS,
         CHILDREN_NODES
@@ -73,15 +76,16 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup> {
         if (optionalPropertySheetClass.isPresent()) {
             try {
                 String propertySheetClassName = optionalPropertySheetClass.get();
+                // These are for upgrade from obsolete classes.
                 if (propertySheetClassName.equals("sh.isaac.komet.preferences.GeneralPreferences")) {
-                    propertySheetClassName = "sh.isaac.komet.preferences.ConfigurationPreferences";
+                    propertySheetClassName = "sh.komet.gui.contract.preferences.ConfigurationPreferences";
                 } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.ChangeSetPreferences")) {
-                    propertySheetClassName = "sh.isaac.komet.preferences.SynchronizationItems";
+                    propertySheetClassName = "sh.komet.gui.contract.preferences.SynchronizationItems";
                 } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.AttachmentActionPreferences")) {
-                    propertySheetClassName = "sh.isaac.komet.preferences.AttachmentItems";
+                    propertySheetClassName = "sh.komet.gui.contract.preferences.AttachmentItems";
                 } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.LogicActionPreferences")) {
-                    propertySheetClassName = "sh.isaac.komet.preferences.LogicItems";
-                } 
+                    propertySheetClassName = "sh.komet.gui.contract.preferences.LogicItems";
+                }
                 Class preferencesSheetClass = Class.forName(propertySheetClassName);
                 Constructor<PreferenceGroup> c = preferencesSheetClass.getConstructor(
                         IsaacPreferences.class, 

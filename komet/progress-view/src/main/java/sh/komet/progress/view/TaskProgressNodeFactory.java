@@ -45,6 +45,8 @@ import org.jvnet.hk2.annotations.Service;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.scene.Node;
+import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -102,5 +104,10 @@ public class TaskProgressNodeFactory
   public ManifoldGroup[] getDefaultManifoldGroups() {
      return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
   }
+
+   @Override
+   public ConceptSpecification getPanelType() {
+      return MetaData.ACTIVITIES_PANEL____SOLOR;
+   }
 }
 

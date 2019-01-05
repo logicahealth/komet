@@ -154,7 +154,9 @@ public interface ConceptBuilder
      * @return the ConceptBuilder for a fluent interface. 
      */
     ConceptBuilder addComponentIntSemantic(ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage);
-    
+
+    ConceptBuilder addStringSemantic(String text, ConceptSpecification assemblage);
+
     ConceptBuilder addComponentSemantic(ConceptSpecification semanticSpecification, ConceptSpecification assemblage);
     
     ConceptBuilder addFieldSemanticConcept(String fieldName, int fieldIndex);

@@ -54,6 +54,7 @@ import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -556,6 +557,12 @@ public class ConceptBuilderImpl
         addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(conceptUuid), fieldIndex, this, TermAux.SEMANTIC_TYPE.getNid()));
         return this;
     }
-   
-   
+
+   @Override
+   public ConceptBuilder addStringSemantic(String text, ConceptSpecification assemblage) {
+      addSemantic(Get.semanticBuilderService().getStringSemanticBuilder(text,
+              this,
+              assemblage.getNid()));
+      return this;
+   }
 }

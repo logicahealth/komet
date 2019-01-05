@@ -30,6 +30,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.model.observable.ObservableFields;
+import sh.komet.gui.contract.preferences.LogicItem;
 import sh.komet.gui.control.PropertyEditorType;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
@@ -41,7 +42,7 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public class LogicActionPanel extends AbstractPreferences {
+public class LogicActionPanel extends AbstractPreferences implements LogicItem {
 
     public enum Keys {
         ACTION_NAME,

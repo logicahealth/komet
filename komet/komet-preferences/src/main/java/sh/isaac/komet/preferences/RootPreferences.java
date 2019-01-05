@@ -36,12 +36,13 @@ public class RootPreferences extends AbstractPreferences {
                 kpc);
         if (!initialized()) {
             // Add children nodes and reflection classes for children
-            addChild("Configuration", ConfigurationPreferences.class);
-            addChild("User", UserPreferences.class);
+            addChild("Configuration", ConfigurationPreferencePanel.class);
+            addChild("User", UserPreferencesPanel.class);
             addChild(SYNCHRONIZATION_ITEMS_GROUP_NAME, SynchronizationItems.class);
             addChild("Attachment actions", AttachmentItems.class);
-            addChild("Logic actions", LogicItems.class);
+            addChild("Logic actions", LogicItemPanels.class);
             addChild("Taxonomy configurations", TaxonomyItems.class);
+            addChild("Window configurations", WindowPreferences.class);
         }
         List<String> childPreferences = this.preferencesNode.getList(CHILDREN_NODES);
         if (childPreferences.contains("Change sets")) {
@@ -65,4 +66,6 @@ public class RootPreferences extends AbstractPreferences {
     void revertFields() {
         // No additional fields. Nothing to do. 
     }
+
+
 }

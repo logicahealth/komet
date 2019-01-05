@@ -392,6 +392,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(TermAux.ASSEMBLAGE);
             pushParent(current());
                createConcept(TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
+               createConcept(TermAux.REFLECTION_CLASS_ASSEMBLAGE);
+               createConcept(TermAux.PROVIDER_CLASS_ASSEMBLAGE);
                createConcept(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
                createConcept("Issue managment assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
                pushParent(current());
@@ -742,6 +744,61 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept("Configuration name", "Configuration name").setModule(TermAux.KOMET_MODULE);
                   createConcept("Datastore location", "Datastore location").setModule(TermAux.KOMET_MODULE);
+                  popParent();
+               createConcept("Window configuration properties").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                  createConcept("Window configuration name").getPreferredDescriptionBuilder().setDescriptionText("Window name").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Left tab nodes").getPreferredDescriptionBuilder().setDescriptionText("Left tab").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Right tab nodes").getPreferredDescriptionBuilder().setDescriptionText("Right tab").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Center tab nodes").getPreferredDescriptionBuilder().setDescriptionText("Center tab nodes").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Exploration nodes").setModule(TermAux.KOMET_MODULE);
+                  pushParent(current());
+                     createConcept("Simple search panel").addStringSemantic("sh.komet.gui.search.simple.SimpleSearchViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Simple search")
+                             .setModule(TermAux.KOMET_MODULE);
+
+
+                     createConcept("Extended search panel").addStringSemantic("sh.komet.gui.search.extended.ExtendedSearchViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Extended search").setModule(TermAux.KOMET_MODULE);
+
+                     createConcept("FLWOR query panel").addStringSemantic("sh.komet.gui.search.flwor.FLWORQueryViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("FLWOR query").setModule(TermAux.KOMET_MODULE);
+
+                     createConcept("Activities panel").addStringSemantic("sh.komet.progress.view.TaskProgressNodeFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Activities").setModule(TermAux.KOMET_MODULE);
+
+                     createConcept("Completion panel").addStringSemantic("sh.komet.progress.view.TasksCompletedNodeFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Completions").setModule(TermAux.KOMET_MODULE);
+
+                     createConcept("Assemblage panel").addStringSemantic("sh.komet.assemblage.view.AssemblageViewProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Assemblage").setModule(TermAux.KOMET_MODULE);
+
+                     createConcept("Taxonomy panel").addStringSemantic("sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Taxonomy").setModule(TermAux.KOMET_MODULE);
+
+                     createConcept("Dynamic assemblage definition panel").addStringSemantic("sh.komet.?", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Dynamic assemblage definition").setModule(TermAux.KOMET_MODULE);
+
+                     createConcept("System dashboard panel").addStringSemantic("sh.komet.gui.action.dashboard.DashboardNodeFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("System dashboard").setModule(TermAux.KOMET_MODULE);
+
+                     createConcept("Groovy scripting panel").addStringSemantic("sh.komet.scripting.groovy.GroovyViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Groovy").setModule(TermAux.KOMET_MODULE);
+
+                     popParent();
+                  createConcept("Detail nodes").getPreferredDescriptionBuilder().setModule(TermAux.KOMET_MODULE);
+                  pushParent(current());
+                     createConcept("Concept details panel").addStringSemantic("sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Concept details").setModule(TermAux.KOMET_MODULE);
+                     createConcept("Concept details tree table").addStringSemantic("sh.komet.gui.provider.concept.detail.treetable.ConceptDetailTreeTableProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Concept details tree table").setModule(TermAux.KOMET_MODULE);
+                     createConcept("Semantic tree table panel").addStringSemantic("sh.komet.gui.search.simple.?", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Semantic table").setModule(TermAux.KOMET_MODULE);
+                     createConcept("Concept builder panel").addStringSemantic("sh.komet.gui.provider.concept.builder.ConceptBuilderProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Concept builder").setModule(TermAux.KOMET_MODULE);
+                     createConcept("Logic details panel").addStringSemantic("sh.komet.gui.provider.concept.detail.logic.LogicDetailProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Logic details").setModule(TermAux.KOMET_MODULE);
+                     popParent();
                   popParent();
                createConcept("Taxonomy configuration properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());

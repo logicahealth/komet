@@ -19,6 +19,8 @@ package sh.komet.progress.view;
 import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -74,4 +76,9 @@ public class TasksCompletedNodeFactory
   public ManifoldGroup[] getDefaultManifoldGroups() {
      return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
   }
+
+   @Override
+   public ConceptSpecification getPanelType() {
+      return MetaData.COMPLETION_PANEL____SOLOR;
+   }
 }

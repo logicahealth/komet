@@ -35,6 +35,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.model.observable.ObservableFields;
+import sh.komet.gui.contract.preferences.AttachmentItem;
 import sh.komet.gui.control.PropertyEditorType;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
@@ -49,7 +50,7 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public class AttachmentActionPanel extends AbstractPreferences {
+public class AttachmentActionPanel extends AbstractPreferences implements AttachmentItem {
 
     public enum Keys {
         ITEM_NAME,

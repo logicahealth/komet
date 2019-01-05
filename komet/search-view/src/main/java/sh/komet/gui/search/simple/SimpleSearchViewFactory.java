@@ -21,6 +21,8 @@ import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -78,5 +80,10 @@ public class SimpleSearchViewFactory implements ExplorationNodeFactory {
    @Override
    public PanelPlacement getPanelPlacement() {
       return PanelPlacement.RIGHT;
+   }
+
+   @Override
+   public ConceptSpecification getPanelType() {
+      return MetaData.SIMPLE_SEARCH_PANEL____SOLOR;
    }
 }

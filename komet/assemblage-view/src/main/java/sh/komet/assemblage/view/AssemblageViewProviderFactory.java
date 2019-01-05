@@ -19,6 +19,8 @@ package sh.komet.assemblage.view;
 import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.manifold.Manifold;
@@ -28,7 +30,8 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
  *
  * @author kec
  */
-@Service(name = "Assemblage View Provider")
+@Service(name = "Assemblage View Provider",
+         metadata = "fqn={Assemblage panel (SOLOR)},uuid={3173cdfe-8721-51ee-9e21-a9bb61a6d4ae}")
 @Singleton
 public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
 
@@ -67,5 +70,10 @@ public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
    @Override
    public PanelPlacement getPanelPlacement() {
       return null;
+   }
+
+   @Override
+   public ConceptSpecification getPanelType() {
+      return MetaData.ASSEMBLAGE_PANEL____SOLOR;
    }
 }
