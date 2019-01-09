@@ -67,6 +67,7 @@ public class CountConcepts
    @Override
    public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
       getLog().info("Concept count: " + Get.conceptService().getConceptCount());
    }
 }

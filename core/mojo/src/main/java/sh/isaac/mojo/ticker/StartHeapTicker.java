@@ -48,6 +48,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import sh.isaac.api.memory.HeapUseTicker;
+import sh.isaac.mojo.Headless;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -74,6 +75,7 @@ public class StartHeapTicker
    @Override
    public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
       HeapUseTicker.start(Integer.parseInt(this.intervalInSeconds));
    }
 }

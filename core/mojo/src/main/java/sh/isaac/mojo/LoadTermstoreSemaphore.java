@@ -123,6 +123,7 @@ public class LoadTermstoreSemaphore
     @Override
     public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
         Get.configurationService()
                 .setDBBuildMode(BuildMode.DB);
 

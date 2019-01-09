@@ -61,6 +61,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import sh.isaac.api.LookupService;
 import sh.isaac.api.sync.SyncFiles;
+import sh.isaac.mojo.Headless;
 import sh.isaac.mojo.external.QuasiMojo;
 
 //~--- classes ----------------------------------------------------------------
@@ -163,6 +164,7 @@ public abstract class ProfilesMojoBase
    @Override
    public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
       if (StringUtils.isNotBlank(this.changeSetURL) &&
             !this.changeSetURLType.equalsIgnoreCase("GIT") &&
             !this.changeSetURLType.equalsIgnoreCase("SVN")) {

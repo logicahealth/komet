@@ -57,6 +57,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import sh.isaac.api.LookupService;
+import sh.isaac.mojo.Headless;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -115,6 +116,7 @@ public class ExternalCodeExecutor
    @Override
    public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
       try {
          if (this.skipExecution) {
             getLog().info("Skipping execution of " + this.quasiMojoName);

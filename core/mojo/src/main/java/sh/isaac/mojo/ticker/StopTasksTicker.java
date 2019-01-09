@@ -47,6 +47,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import sh.isaac.api.progress.ActiveTasksTicker;
+import sh.isaac.mojo.Headless;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -67,6 +68,7 @@ public class StopTasksTicker
    @Override
    public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
       ActiveTasksTicker.stop();
    }
 }

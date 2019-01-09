@@ -241,6 +241,7 @@ public class LoadTermstore
    @Override
    public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
       //Quiet down some noisy xodus loggers
       SLF4jUtils.quietDownXodus();
       

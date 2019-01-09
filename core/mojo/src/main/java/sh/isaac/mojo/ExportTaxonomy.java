@@ -113,6 +113,7 @@ public class ExportTaxonomy
    @Override
    public void execute()
             throws MojoExecutionException, MojoFailureException {
+      Headless.setHeadless();
       try {
          final IsaacTaxonomy taxonomy = LookupService.get()
                                                      .getService(IsaacTaxonomy.class);

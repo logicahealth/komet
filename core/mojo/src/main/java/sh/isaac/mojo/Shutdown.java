@@ -66,6 +66,7 @@ public class Shutdown
    @Override
    public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
       try {
          getLog().info("Shutdown terminology store");
 

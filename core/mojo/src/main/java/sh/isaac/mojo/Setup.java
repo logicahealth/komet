@@ -117,6 +117,7 @@ public class Setup
    @Override
    public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
       getLog().info("Setup terminology store");
 
       try {
