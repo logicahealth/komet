@@ -101,10 +101,12 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -1878,5 +1880,10 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	{
 		return (FxGet.fxConfiguration().isShowBetaFeaturesEnabled() && 
                         !FxGet.fxConfiguration().showKometFeaturesOnly())? PanelPlacement.CENTER : null;
+	}
+
+	@Override
+	public ConceptSpecification getPanelType() {
+		return MetaData.SEMANTIC_TREE_TABLE_PANEL____SOLOR;
 	}
 }
