@@ -8,7 +8,7 @@
 			<vendor>openjdk</vendor>
 		</provides>
 		<configuration>
-			<jdkHome>~/openjdk11</jdkHome>
+			<jdkHome>/home/travis/openjdk11</jdkHome>
 		</configuration>
 	</toolchain>
 </toolchains>

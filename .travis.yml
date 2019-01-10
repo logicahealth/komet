@@ -4,8 +4,7 @@ cache:
   directories:
   - $HOME/.m2
 install: 
-  - curl -o $HOME/.m2/toolchains.xml
-    https://raw.githubusercontent.com/OSEHRA/ISAAC/develop-fx11/travis-toolchains.xml
+  - cp travis-toolchains.xml $HOME/.m2/toolchains.xml
 script: mvn -B -e clean verify
 notifications:
   webhooks:
