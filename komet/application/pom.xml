@@ -182,6 +182,12 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.komet</groupId>
+            <artifactId>semantic-view</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
             <artifactId>export-view</artifactId>
             <version>${project.parent.version}</version>
             <type>jar</type>
