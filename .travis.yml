@@ -1,5 +1,8 @@
 language: java
 jdk: openjdk11
+cache:
+  directories:
+  - $HOME/.m2
 install: 
   - curl -o $HOME/.m2/toolchains.xml
     https://raw.githubusercontent.com/OSEHRA/ISAAC/develop/travis-toolchains.xml
