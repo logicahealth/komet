@@ -5,7 +5,7 @@ cache:
   - $HOME/.m2
 install: 
   - curl -o $HOME/.m2/settings.xml
-    https:https://raw.githubusercontent.com/OSEHRA/ISAAC/develop/travis-toolchains.xml
+    https://raw.githubusercontent.com/OSEHRA/ISAAC/develop/travis-toolchains.xml
 script: mvn -B -e clean verify
 notifications:
   webhooks:
