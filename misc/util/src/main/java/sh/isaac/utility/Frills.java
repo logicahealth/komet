@@ -2219,7 +2219,12 @@ public class Frills
       }
 
       for (int moduleNid : modules) {
-         terminologyTypes.add(getTerminologyTypeForModule(moduleNid, stamp));
+         try {
+            terminologyTypes.add(getTerminologyTypeForModule(moduleNid, stamp));
+         }
+         catch (Exception e) {
+            LOG.error("Error reading terminology type for: {} with stamp: {}.  The error is: {}", oc, stamp, e);
+         }
       }
       return terminologyTypes;
    }
