@@ -173,12 +173,11 @@ public class ICD10ImportMojoDirect extends DirectConverterBaseMojo implements Di
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.ICD10_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				termName, false);
 
+		setupModule(termName, MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid(), contentTime);
+
 		// Normally, the importer configures this to the parent ICD10 modules UUID - but then we get duplicates generated between CM and PCS.
 		// Need to use a different namespace for each.
-//		Get.service(ConverterUUID.class).configureNamespace(UuidT5Generator.get(MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid().toString() 
-//				+ sourceType.toUpperCase()));
-		
-		setupModule(termName, MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid(), contentTime);
+		converterUUID.configureNamespace(Get.identifierService().getUuidPrimordialForNid(dwh.getModuleNid()));
 		
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
