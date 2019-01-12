@@ -881,6 +881,14 @@ public class DirectWriteHelper
 	{
 		return metadataRoot;
 	}
+	
+	/**
+	 * @return The module we are currently configured to use
+	 */
+	public int getModuleNid()
+	{
+		return moduleNid;
+	}
 
 	/**
 	 * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
