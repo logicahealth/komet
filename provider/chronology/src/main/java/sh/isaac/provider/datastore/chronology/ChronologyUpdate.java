@@ -187,7 +187,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
 //         }
 
         } else if (result.length == start.length) {
-            LOG.error("Did not grow");
+            LOG.error("Did not grow processing taxonomy update for {}", logicGraphChronology);
         }
     }
 
