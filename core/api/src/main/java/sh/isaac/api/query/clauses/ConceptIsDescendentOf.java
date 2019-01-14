@@ -53,7 +53,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.ClauseComputeType;
@@ -62,6 +61,8 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.query.LetItemKey;
+import sh.isaac.api.query.properties.ConceptClause;
+import sh.isaac.api.query.properties.ManifoldClause;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,7 +78,7 @@ import sh.isaac.api.query.LetItemKey;
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsDescendentOf
-        extends LeafClause {
+        extends LeafClause implements ConceptClause, ManifoldClause {
    /** The descendent of spec key. */
    @XmlElement
    LetItemKey descendentOfSpecKey;
@@ -171,10 +172,22 @@ public class ConceptIsDescendentOf
         this.descendentOfSpecKey = descendentOfSpecKey;
     }
 
+    @Override
+    public LetItemKey getConceptSpecKey() {
+        return getDescendentOfSpecKey();
+    }
+
+    @Override
+    public void setConceptSpecKey(LetItemKey conceptSpecKey) {
+        setDescendentOfSpecKey(conceptSpecKey);
+    }
+
+   @Override
     public LetItemKey getManifoldCoordinateKey() {
         return manifoldCoordinateKey;
     }
 
+   @Override
     public void setManifoldCoordinateKey(LetItemKey manifoldCoordinateKey) {
         this.manifoldCoordinateKey = manifoldCoordinateKey;
     }

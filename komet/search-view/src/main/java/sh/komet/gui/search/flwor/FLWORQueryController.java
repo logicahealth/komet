@@ -275,13 +275,6 @@ public class FLWORQueryController
 
     ObservableList<AttributeFunction> cellFunctions = FXCollections.observableArrayList();
 
-    {
-        cellFunctions.add(new AttributeFunction(""));
-        cellFunctions.add(new AttributeFunction("Primoridal uuid"));
-        cellFunctions.add(new AttributeFunction("All uuids"));
-        cellFunctions.add(new AttributeFunction("Epoch to 8601 date/time"));
-    }
-
     double resultTableMouseX = 0;
     double resultTableMouseY = 0;
 
@@ -473,33 +466,37 @@ public class FLWORQueryController
 
     @FXML
     void cancelQuery(ActionEvent event) {
+        resultTable.getItems().clear();
         FxGet.statusMessageService()
                 .reportSceneStatus(anchorPane.getScene(), "FLWOR query canceled. (Cancel not completely implemented)");
-        resultTable.getItems().clear();
     }
     @FXML
     void executeQuery(ActionEvent event) {
         FxGet.statusMessageService()
                 .reportSceneStatus(anchorPane.getScene(), "Starting FLWOR query...");
-        long msStart = System.currentTimeMillis();
-        this.query.reset();
-        this.query.getLetDeclarations().putAll(this.letPropertySheet.getLetItemObjectMap());
-        ClauseTreeItem itemToProcess = this.root;
-        Clause rootClause = itemToProcess.getValue()
-                .getClause();
-
-        this.query.setRoot(rootClause);
-        rootClause.setEnclosingQuery(query);
-
-        int[][] resultArray = query.reify();
-        ForSet forSet = query.getForSetSpecification();
-
-        NumberFormat formatter = new DecimalFormat("#0.000");
-        FxGet.statusMessageService()
-                .reportSceneStatus(anchorPane.getScene(), "Query result count: " + 
-                        resultArray.length + " in " + 
-                        formatter.format((System.currentTimeMillis() - msStart)/1000.0) + " seconds");
-        displayResults(resultArray, forSet.getAssembalgeToIndexMap());
+        try {
+            long msStart = System.currentTimeMillis();
+            this.query.reset();
+            this.query.getLetDeclarations().putAll(this.letPropertySheet.getLetItemObjectMap());
+            ClauseTreeItem itemToProcess = this.root;
+            Clause rootClause = itemToProcess.getValue()
+                    .getClause();
+            
+            this.query.setRoot(rootClause);
+            rootClause.setEnclosingQuery(query);
+            
+            int[][] resultArray = query.reify();
+            ForSet forSet = query.getForSetSpecification();
+            
+            NumberFormat formatter = new DecimalFormat("#0.000");
+            FxGet.statusMessageService()
+                    .reportSceneStatus(anchorPane.getScene(), "Query result count: "
+                            + resultArray.length + " in "
+                            + formatter.format((System.currentTimeMillis() - msStart) / 1000.0) + " seconds");
+            displayResults(resultArray, forSet.getAssembalgeToIndexMap());
+        } catch (Exception e) {
+            FxGet.dialogs().showErrorDialog("Error during query...", e);
+        }
     }
 
     @FXML  // This method is called by the FXMLLoader when initialization is complete
@@ -825,6 +822,7 @@ public class FLWORQueryController
     void setQuery(Query query) {
         this.resultTable.getItems().clear();
         this.resultTable.getColumns().clear();
+        this.returnAddRowButton.getItems().clear();
         this.query = query;
         this.joinProperties.clear();
         forPropertySheet.getForAssemblagesProperty().clear();
@@ -874,7 +872,7 @@ public class FLWORQueryController
         returnStampCoordinateColumn.setCellValueFactory((param) -> {
             return param.getValue().stampCoordinateKeyProperty();
         });
-        returnStampCoordinateColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(this.letPropertySheet.getStampCoordinateKeys()));
+        returnStampCoordinateColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(this.letPropertySheet.getManifoldCoordinateKeys()));
 
         returnFunctionColumn.setCellValueFactory((param) -> {
             return param.getValue().attributeFunctionProperty();
@@ -949,16 +947,20 @@ public class FLWORQueryController
         this.sortSpecificationController = new ControllerForSortSpecification(
                 this.forPropertySheet.getForAssemblagesProperty(),
                 this.letPropertySheet.getLetItemObjectMap(),
-                this.cellFunctions, joinProperties,
+                this.cellFunctions, 
+                this.joinProperties,
                 this.orderAddRowButton.getItems(),
+                this.resultTable,
                 this.manifold);
         this.orderTable.setItems(this.sortSpecificationController.getSpecificationRows());
         
         this.returnSpecificationController = new ControllerForReturnSpecification(
                 this.forPropertySheet.getForAssemblagesProperty(),
                 this.letPropertySheet.getLetItemObjectMap(),
-                this.cellFunctions, joinProperties,
+                this.cellFunctions, 
+                this.joinProperties,
                 this.returnAddRowButton.getItems(),
+                this.resultTable,
                 this.manifold);
         this.returnSpecificationController.addReturnSpecificationListener(this::returnSpecificationListener);
         this.returnTable.setItems(this.returnSpecificationController.getReturnSpecificationRows());
@@ -966,6 +968,7 @@ public class FLWORQueryController
 
     public void returnSpecificationListener(ListChangeListener.Change<? extends AttributeSpecification> c) {
         try {
+            resultTable.getItems().clear();
             resultTable.getColumns().clear();
             resultColumns.clear();
             int columnIndex = 0;
@@ -973,7 +976,7 @@ public class FLWORQueryController
                 final int currentIndex = columnIndex++;
                 TableColumn<List<String>, String> column
                         = new TableColumn<>(rowSpecification.getColumnName());
-                column.setCellValueFactory(param
+                column.setCellValueFactory(param // TableColumn$CellDataFeatures
                         -> new ReadOnlyObjectWrapper<>(param.getValue().get(currentIndex)));
                 column.setComparator(new NaturalOrder());
                 resultTable.getColumns().add(column);

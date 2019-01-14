@@ -20,14 +20,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javafx.beans.property.SimpleObjectProperty;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 
 /**
  *
  * @author kec
  */
 
+@XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
 public class ObservableConceptProxy extends SimpleObjectProperty<ConceptProxy> implements ConceptSpecification {
 
     public ObservableConceptProxy(Object bean, ConceptProxy conceptProxy) {

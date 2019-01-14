@@ -16,12 +16,14 @@
  */
 package sh.komet.gui.search.flwor;
 
+import java.util.List;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.AttributeFunction;
 import sh.isaac.api.query.LetItemKey;
@@ -42,8 +44,9 @@ public class ControllerForSortSpecification extends ControllerForSpecification {
             ObservableList<AttributeFunction> cellFunctions,
             ObservableList<ConceptSpecification> joinProperties,
             ObservableList<MenuItem> addFieldItems,
+            TableView<List<String>> resultTable,
             Manifold manifold) {
-        super(forAssemblagesProperty, manifold, addFieldItems, joinProperties, letItemObjectMap, cellFunctions);
+        super(forAssemblagesProperty, manifold, addFieldItems, joinProperties, letItemObjectMap, cellFunctions, resultTable);
     }
 
     @Override
