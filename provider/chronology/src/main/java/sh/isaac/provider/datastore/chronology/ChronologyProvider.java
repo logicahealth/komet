@@ -86,6 +86,7 @@ import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.datastore.DataStore;
@@ -722,6 +723,7 @@ public class ChronologyProvider
          * The manifold coordinate.
          */
         ManifoldCoordinate manifoldCoordinate;
+        LanguageCoordinate regNameCoord;
 
         //~--- constructors -----------------------------------------------------
         /**
@@ -731,6 +733,7 @@ public class ChronologyProvider
          */
         public ConceptSnapshotProvider(ManifoldCoordinate manifoldCoordinate) {
             this.manifoldCoordinate = manifoldCoordinate;
+            this.regNameCoord = LanguageCoordinates.getRegularNameCoordinate();
         }
 
         //~--- methods ----------------------------------------------------------
@@ -814,7 +817,7 @@ public class ChronologyProvider
             LatestVersion<DescriptionVersion> lv = this.manifoldCoordinate.getDescription(getDescriptionList(conceptId));
             if (lv.isAbsent()) {
                //Use a coordinate that will return anything
-               return LanguageCoordinates.getRegularNameCoordinate().getDescription(getDescriptionList(conceptId), this.manifoldCoordinate);
+               return regNameCoord.getDescription(getDescriptionList(conceptId), this.manifoldCoordinate);
             }
             else {
                return lv;

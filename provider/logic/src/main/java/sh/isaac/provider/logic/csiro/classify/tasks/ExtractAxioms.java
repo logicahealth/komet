@@ -39,24 +39,21 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.concurrent.atomic.AtomicInteger;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
-import sh.isaac.api.component.semantic.SemanticSnapshotService;
-import sh.isaac.api.bootstrap.TestConcept;
 
-//~--- classes ----------------------------------------------------------------
+
 
 /**
  * The Class ExtractAxioms.
@@ -64,14 +61,12 @@ import sh.isaac.api.bootstrap.TestConcept;
  * @author kec
  */
 public class ExtractAxioms
-        extends TimedTaskWithProgressTracker<Void> {
-   /** The stamp coordinate. */
+        extends TimedTaskWithProgressTracker<ClassifierData> {
+
+   Logger log = LogManager.getLogger();
    StampCoordinate stampCoordinate;
 
-   /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new extract axioms.
@@ -83,20 +78,13 @@ public class ExtractAxioms
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
       updateTitle("Extract axioms");
-      Get.activeTasks().add(this);
+      
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Call.
-    *
-    * @return the void
-    * @throws Exception the exception
-    */
    @Override
-   protected Void call()
+   protected ClassifierData call()
             throws Exception {
+      Get.activeTasks().add(this);
        try {
            final AtomicInteger logicGraphMembers = new AtomicInteger();
            final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
@@ -108,7 +96,7 @@ public class ExtractAxioms
                processAllStatedAxioms(this.stampCoordinate, this.logicCoordinate, cd, logicGraphMembers);
            }
            
-           return null;
+           return cd;
        } finally {
            Get.activeTasks().remove(this);
        }
@@ -148,7 +136,6 @@ public class ExtractAxioms
                                 }
                              });
       
-      System.out.println("Extracted " + logicGraphMembers + " logical definitions from: " + Get.conceptDescriptionText(logicCoordinate.getStatedAssemblageNid()));
+      log.info("Extracted " + logicGraphMembers + " logical definitions from: " + Get.conceptDescriptionText(logicCoordinate.getStatedAssemblageNid()));
    }
 }
-

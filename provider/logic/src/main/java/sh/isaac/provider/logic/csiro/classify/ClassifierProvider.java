@@ -39,9 +39,6 @@ package sh.isaac.provider.logic.csiro.classify;
 import java.util.Optional;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import javafx.concurrent.Task;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.classifier.ClassifierResults;
@@ -51,6 +48,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.model.configuration.ManifoldCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.taxonomy.GraphCollector;
@@ -58,7 +56,6 @@ import sh.isaac.model.tree.HashTreeBuilder;
 import sh.isaac.model.tree.HashTreeWithIntArraySets;
 import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class ClassifierProvider.
  *
@@ -67,12 +64,6 @@ import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 public class ClassifierProvider
         implements ClassifierService {
 
-   /**
-    * The Constant log.
-    */
-   private static final Logger log = LogManager.getLogger();
-
-   //~--- fields --------------------------------------------------------------
    /**
     * The stamp coordinate.
     */
@@ -88,7 +79,6 @@ public class ClassifierProvider
     */
    EditCoordinate editCoordinate;
 
-   //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new classifier provider.
     *
@@ -104,15 +94,14 @@ public class ClassifierProvider
       this.editCoordinate = editCoordinate;
    }
 
-   //~--- methods -------------------------------------------------------------
-   /**
-    * Classify.
-    *
-    * @return the task
-    */
    @Override
-   public Task<ClassifierResults> classify() {
-      return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate);
+   public TimedTask<ClassifierResults> classify() {
+      return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate, false);
+   }
+   
+   @Override
+   public TimedTask<ClassifierResults> classify(boolean cycleCheck) {
+      return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate, cycleCheck);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -124,7 +113,7 @@ public class ClassifierProvider
     * @return the concept nid for expression
     */
    @Override
-   public Task<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate) {
+   public TimedTask<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate) {
       return GetConceptNidForExpressionTask.create(expression, this, editCoordinate);
    }
 

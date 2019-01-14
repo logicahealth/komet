@@ -83,6 +83,8 @@ public class FeatureNodeWithUuids
 
    /**
     * Instantiates a new feature node with uuids.
+    * 
+    * Note that this constructor is not safe for all uses, and is only intended to aid in serialization / deserialization.
     *
     * @param internalNode the internal node
     */

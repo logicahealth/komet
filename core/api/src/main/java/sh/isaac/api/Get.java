@@ -603,6 +603,9 @@ public class Get
       return configurationService().getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate();
    }
 
+   /**
+    * @return The ISAAC common {@link ThreadPoolExecutor} 
+    */
    public static ThreadPoolExecutor executor() {
       return workExecutors().getExecutor();
    }
