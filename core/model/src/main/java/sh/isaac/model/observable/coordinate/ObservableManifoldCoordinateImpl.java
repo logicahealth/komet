@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -93,9 +92,6 @@ public class ObservableManifoldCoordinateImpl
 
    /** The logic coordinate property. */
    volatile ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty;
-
-   /** The uuid property. */
-   ObjectProperty<UUID> uuidProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -279,23 +275,6 @@ public class ObservableManifoldCoordinateImpl
       return "ObservableManifoldCoordinateImpl{" + this.manifoldCoordinate + '}';
    }
 
-   /**
-    * Uuid property.
-    *
-    * @return the object property
-    */
-   @Override
-   public ObjectProperty<UUID> uuidProperty() {
-      if (this.uuidProperty == null) {
-         this.uuidProperty = new SimpleObjectProperty<>(this,
-               ObservableFields.UUID_FOR_TAXONOMY_COORDINATE.toExternalString(),
-               this.manifoldCoordinate.getCoordinateUuid());
-         this.uuidProperty.addListener((invalidation) -> fireValueChangedEvent());
-      }
-
-      return this.uuidProperty;
-   }
-
    //~--- get methods ---------------------------------------------------------
 
    /**
@@ -342,15 +321,6 @@ public class ObservableManifoldCoordinateImpl
       return hash;
    }
 
-   /**
-    * Gets the uuid.
-    *
-    * @return the uuid
-    */
-   @Override
-   public UUID getCoordinateUuid() {
-      return uuidProperty().get();
-   }
    
    @Override
    public ObservableManifoldCoordinateImpl deepClone() {

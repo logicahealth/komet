@@ -41,8 +41,13 @@ package sh.isaac.api.util;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import sh.isaac.api.Get;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -110,5 +115,30 @@ public class UUIDUtil {
    public static boolean isUUID(String string) {
       return (getUUID(string).isPresent());
    }
+   
+   public static UUID fromList(UUID... uuids) {
+       List<String> uuidStrList = new ArrayList<>();
+       for (UUID uuid: uuids) {
+           uuidStrList.add(uuid.toString());
+       }
+       uuidStrList.sort((String o1, String o2) -> o1.compareTo(o2));
+       StringBuilder buff = new StringBuilder();
+       for (String uuidStr: uuidStrList) {
+           buff.append(uuidStr);
+       }
+       return UUID.fromString(buff.toString());
+   }
+   
+    public static void addSortedUuids(List<UUID> uuidList, int... nids) throws NoSuchElementException {
+        for (int nid: nids) {
+            UUID[] uuids = Get.identifierService().getUuidArrayForNid(nid);
+            Arrays.sort(uuids);
+            for (UUID nidUuid: Get.identifierService().getUuidArrayForNid(nid)) {
+                uuidList.add(nidUuid);
+            }
+        }
+    }
+    
+   
 }
 

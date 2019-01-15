@@ -45,6 +45,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import javax.xml.bind.annotation.XmlElement;
 
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
@@ -80,9 +81,6 @@ public class ManifoldCoordinateImpl
 
    /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
-
-   /** The uuid. */
-   UUID uuid = null;
 
    //~--- constructors --------------------------------------------------------
 
@@ -128,38 +126,48 @@ public class ManifoldCoordinateImpl
 
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Equals.
-    *
-    * @param obj the obj
-    * @return true, if successful
-    */
    @Override
-   public boolean equals(Object obj) {
-      if (obj == null) {
-         return false;
-      }
-
-      if (getClass() != obj.getClass()) {
-         return false;
-      }
-
-      final ManifoldCoordinateImpl other = (ManifoldCoordinateImpl) obj;
-
-      if (this.taxonomyPremiseType != other.taxonomyPremiseType) {
-         return false;
-      }
-
-      if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
-         return false;
-      }
-
-      if (!Objects.equals(this.logicCoordinate, other.logicCoordinate)) {
-         return false;
-      }
-
-      return Objects.equals(this.languageCoordinate, other.languageCoordinate);
+   @XmlElement
+   public UUID getManifoldCoordinateUuid() {
+      return ManifoldCoordinate.super.getManifoldCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
    }
+   
+   private void setManifoldCoordinateUuid(UUID uuid) {
+        // noop for jaxb
+   }
+
+    /**
+     * Equals.
+     *
+     * @param obj the obj
+     * @return true, if successful
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        
+        final ManifoldCoordinateImpl other = (ManifoldCoordinateImpl) obj;
+        
+        if (this.taxonomyPremiseType != other.taxonomyPremiseType) {
+            return false;
+        }
+        
+        if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
+            return false;
+        }
+        
+        if (!Objects.equals(this.logicCoordinate, other.logicCoordinate)) {
+            return false;
+        }
+        
+        return Objects.equals(this.languageCoordinate, other.languageCoordinate);
+    }
 
    /**
     * Hash code.
@@ -286,18 +294,6 @@ public class ManifoldCoordinateImpl
    }
    public void setTaxonomyPremiseType(PremiseType taxonomyPremiseType) {
        this.taxonomyPremiseType = taxonomyPremiseType;
-   }
-   /**
-    * Gets the uuid.
-    *
-    * @return the uuid
-    */
-   @Override
-   public UUID getCoordinateUuid() {
-      if (this.uuid == null) {
-         uuid = UUID.randomUUID();
-      }
-      return this.uuid;
    }
 
    //~--- inner classes -------------------------------------------------------

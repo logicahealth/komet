@@ -41,10 +41,12 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import javax.xml.bind.annotation.XmlElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -53,6 +55,7 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.util.UUIDUtil;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -63,7 +66,20 @@ import sh.isaac.api.logic.LogicalExpression;
  */
 public interface ManifoldCoordinate
         extends StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy {
-   /**
+    /**
+     * 
+     * @return a content based uuid, such that identical manifold coordinates
+     * will have identical uuids, and that different manifold coordinates will 
+     * always have different uuids.
+     */
+    default UUID getManifoldCoordinateUuid() {
+       ArrayList<UUID> uuidList = new ArrayList();
+       UUIDUtil.addSortedUuids(uuidList, getTaxonomyPremiseType().getPremiseTypeConcept().getNid());
+       uuidList.add(getStampCoordinateUuid());
+       uuidList.add(getLanguageCoordinateUuid());
+       uuidList.add(getLogicCoordinateUuid());
+       return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
+   }   /**
     * Make analog.
     *
     * @param taxonomyType the {@code PremiseType} for the analog
@@ -86,7 +102,9 @@ public interface ManifoldCoordinate
     *
     * @return a UUID that uniquely identifies this manifold coordinate.
     */
-   UUID getCoordinateUuid();
+   default UUID getCoordinateUuid() {
+       return getManifoldCoordinateUuid();
+   }
    
    
    /**

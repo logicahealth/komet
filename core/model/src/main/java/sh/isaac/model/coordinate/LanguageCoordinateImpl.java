@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -59,6 +60,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.util.ArrayUtil;
@@ -72,7 +74,7 @@ import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
  */
 @XmlRootElement(name = "LanguageCoordinate")
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlType(propOrder={"languageConcept","dialectAssemblageSpecPreferenceList", 
+@XmlType(propOrder={"languageCoordinateUuid", "languageConcept","dialectAssemblageSpecPreferenceList", 
     "descriptionTypeSpecPreferenceList", "moduleSpecPreferenceListForLanguage"})
 public class LanguageCoordinateImpl
         implements LanguageCoordinate {
@@ -148,6 +150,16 @@ public class LanguageCoordinateImpl
             int[] dialectAssemblagePreferenceList,
             ConceptSpecification[] descriptionTypePreferenceList) {
         this(new ConceptProxy(languageConcept), dialectAssemblagePreferenceList, descriptionTypePreferenceList, new int[]{});
+    }
+
+    @Override
+    @XmlElement
+    public UUID getLanguageCoordinateUuid() {
+        return LanguageCoordinate.super.getLanguageCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+    }
+  
+    private void setLanguageCoordinateUuid(UUID uuid) {
+        // noop for jaxb
     }
 
     @Override
