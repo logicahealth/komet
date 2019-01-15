@@ -1,5 +1,6 @@
 package sh.isaac.solor.rf2.readers.core;
 
+import org.apache.commons.lang.ArrayUtils;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
@@ -13,38 +14,46 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
+import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
+import sh.isaac.solor.rf2.utility.RF2FileWriter;
 import sh.komet.gui.manifold.Manifold;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
-public class RF2TransitiveClosureReader extends TimedTaskWithProgressTracker<List<String>> {
+public class RF2TransitiveClosureReader extends TimedTaskWithProgressTracker<Void> {
 
     private final RF2ExportHelper rf2ExportHelper;
-    private final List<Chronology> chronologies;
+    private final Stream<? extends Chronology> streamPage;
     private final Semaphore readSemaphore;
     private final Manifold manifold;
+    private final RF2Configuration rf2Configuration;
+    private final RF2FileWriter rf2FileWriter;
 
-    public RF2TransitiveClosureReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, String message) {
-        this.chronologies = chronologies;
+    public RF2TransitiveClosureReader(Stream streamPage, Semaphore readSemaphore, Manifold manifold,
+                                      RF2Configuration rf2Configuration, long pageSize) {
+        this.streamPage = streamPage;
         this.readSemaphore = readSemaphore;
         this.manifold = manifold;
+        this.rf2Configuration = rf2Configuration;
         rf2ExportHelper = new RF2ExportHelper(this.manifold);
+        this.rf2FileWriter = new RF2FileWriter();
 
         readSemaphore.acquireUninterruptibly();
 
-        updateTitle("Reading " + message + " batch of size: " + chronologies.size());
+        updateTitle("Reading " + this.rf2Configuration.getMessage() + " batch of size: " + pageSize);
         updateMessage("Processing batch of relationships for RF2 Export");
-        addToTotalWork(chronologies.size());
+        addToTotalWork(pageSize + 1);
         Get.activeTasks().add(this);
     }
 
     @Override
-    protected List<String> call() throws Exception {
-        ArrayList<String> returnList = new ArrayList<>();
+    protected Void call() throws Exception {
+        ArrayList<Byte[]> writeBytes = new ArrayList<>();
 
         final AtomicInteger roleGroup = new AtomicInteger(0);
         String isASCTID = rf2ExportHelper.getIdString(Get.concept(TermAux.IS_A));
@@ -52,64 +61,70 @@ public class RF2TransitiveClosureReader extends TimedTaskWithProgressTracker<Lis
 
         try{
 
-            for(Chronology chronology : this.chronologies){
+            this.streamPage
+                    .forEach(chronology -> {
+                        LogicalExpression logicalExpression = ((LatestVersion<ObservableLogicGraphVersion>)
+                                this.rf2ExportHelper.getSnapshotService()
+                                        .getObservableSemanticVersion(chronology.getNid())).get().getLogicalExpression();
 
-                LogicalExpression logicalExpression = ((LatestVersion<ObservableLogicGraphVersion>)
-                        this.rf2ExportHelper.getSnapshotService()
-                                .getObservableSemanticVersion(chronology.getNid())).get().getLogicalExpression();
+                        logicalExpression.processDepthFirst((logicNode, treeNodeVisitData) -> {
 
-                logicalExpression.processDepthFirst((logicNode, treeNodeVisitData) -> {
+                            if (logicNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
 
-                    if (logicNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+                                ConceptChronology conceptChronology = Get.concept(logicNode.getNidForConceptBeingDefined());
 
-                        ConceptChronology conceptChronology = Get.concept(logicNode.getNidForConceptBeingDefined());
+                                LogicNode parentNode = null;
+                                LogicNode tempNode = logicNode;
 
-                        LogicNode parentNode = null;
-                        LogicNode tempNode = logicNode;
+                                do {
+                                    if (parentNode != null)
+                                        tempNode = parentNode;
 
-                        do {
-                            if (parentNode != null)
-                                tempNode = parentNode;
+                                    int parentIndex = treeNodeVisitData.getPredecessorNid(tempNode.getNodeIndex()).getAsInt();
+                                    parentNode = logicalExpression.getNode(parentIndex);
 
-                            int parentIndex = treeNodeVisitData.getPredecessorNid(tempNode.getNodeIndex()).getAsInt();
-                            parentNode = logicalExpression.getNode(parentIndex);
+                                } while (!(parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET ||
+                                        parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET ||
+                                        parentNode.getNodeSemantic() == NodeSemantic.ROLE_ALL |
+                                                parentNode.getNodeSemantic() == NodeSemantic.ROLE_SOME));
 
-                        } while (!(parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET ||
-                                parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET ||
-                                parentNode.getNodeSemantic() == NodeSemantic.ROLE_ALL |
-                                        parentNode.getNodeSemantic() == NodeSemantic.ROLE_SOME));
+                                if (parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET || parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET) {
+                                    final StringBuilder sb1 = new StringBuilder();
 
-                        if (parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET || parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET) {
-                            StringBuilder sb1 = new StringBuilder();
+                                    writeBytes.add(ArrayUtils.toObject(sb1.append(rf2ExportHelper.getIdString(conceptChronology) + "\t")
+                                            .append(rf2ExportHelper.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())) + "\r")
+                                            .toString().getBytes(Charset.forName("UTF-8"))));
 
-                            returnList.add(sb1.append(rf2ExportHelper.getIdString(conceptChronology) + "\t")
-                                    .append(rf2ExportHelper.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())) + "\r")
-                                    .toString()
-                            );
+                                } else if (parentNode instanceof RoleNodeAllWithNids) {
 
-                        } else if (parentNode instanceof RoleNodeAllWithNids) {
+                                    final StringBuilder sb2 = new StringBuilder();
 
-                            StringBuilder sb2 = new StringBuilder();
+                                    writeBytes.add(ArrayUtils.toObject(sb2.append(rf2ExportHelper.getIdString(conceptChronology) + "\t")
+                                            .append(rf2ExportHelper.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())) + "\r")
+                                            .toString().getBytes(Charset.forName("UTF-8"))));
 
-                            returnList.add(sb2.append(rf2ExportHelper.getIdString(conceptChronology) + "\t")
-                                    .append(rf2ExportHelper.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())) + "\r")
-                                    .toString()
-                            );
+                                } else if (parentNode instanceof RoleNodeSomeWithNids) {
 
-                        } else if (parentNode instanceof RoleNodeSomeWithNids) {
+                                    final StringBuilder sb3 = new StringBuilder();
 
-                            StringBuilder sb3 = new StringBuilder();
+                                    writeBytes.add(ArrayUtils.toObject(sb3.append(rf2ExportHelper.getIdString(conceptChronology) + "\t")
+                                            .append(rf2ExportHelper.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())) + "\r")
+                                            .toString().getBytes(Charset.forName("UTF-8"))));
 
-                            returnList.add(sb3.append(rf2ExportHelper.getIdString(conceptChronology) + "\t")
-                                    .append(rf2ExportHelper.getIdString(Get.concept(((ConceptNodeWithNids) logicNode).getConceptNid())) + "\r")
-                                    .toString()
-                            );
-                        }
-                    }
-                });
+                                }
+                            }
+                        });
 
-                completedUnitOfWork();
-            }
+                        completedUnitOfWork();
+
+                    });
+
+            updateTitle("Writing " + rf2Configuration.getMessage() + " RF2 file");
+            updateMessage("Writing to " + rf2Configuration.getFilePath());
+
+            rf2FileWriter.writeToFile(writeBytes, this.rf2Configuration);
+
+            completedUnitOfWork();
 
 
         }finally {
@@ -117,6 +132,6 @@ public class RF2TransitiveClosureReader extends TimedTaskWithProgressTracker<Lis
             Get.activeTasks().remove(this);
         }
 
-        return returnList;
+        return null;
     }
 }

@@ -1,5 +1,6 @@
 package sh.isaac.solor.rf2.readers.core;
 
+import org.apache.commons.lang.ArrayUtils;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
@@ -7,52 +8,68 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
+import sh.isaac.solor.rf2.utility.RF2FileWriter;
 import sh.komet.gui.manifold.Manifold;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Stream;
 
-public class RF2DescriptionReader extends TimedTaskWithProgressTracker<List<String>> {
+public class RF2DescriptionReader extends TimedTaskWithProgressTracker<Void> {
 
     private final RF2ExportHelper rf2ExportHelper;
-    private final List<Chronology> chronologies;
+    private final Stream<? extends Chronology> streamPage;
     private final Semaphore readSemaphore;
     private final Manifold manifold;
+    private final RF2Configuration rf2Configuration;
+    private final RF2FileWriter rf2FileWriter;
 
-    public RF2DescriptionReader(List<Chronology> chronologies, Semaphore readSemaphore, Manifold manifold, String message) {
-        this.chronologies = chronologies;
+    public RF2DescriptionReader(Stream streamPage, Semaphore readSemaphore, Manifold manifold,
+                                RF2Configuration rf2Configuration, long pageSize) {
+        this.streamPage = streamPage;
         this.readSemaphore = readSemaphore;
         this.manifold = manifold;
+        this.rf2Configuration = rf2Configuration;
         rf2ExportHelper = new RF2ExportHelper(this.manifold);
+        this.rf2FileWriter = new RF2FileWriter();
 
         readSemaphore.acquireUninterruptibly();
 
-        updateTitle("Reading " + message + " batch of size: " + chronologies.size());
+        updateTitle("Reading " + this.rf2Configuration.getMessage() + " batch of size: " + pageSize);
         updateMessage("Processing batch of descriptions for RF2 Export");
-        addToTotalWork(chronologies.size());
+        addToTotalWork(pageSize + 1);
         Get.activeTasks().add(this);
     }
 
     @Override
-    protected List<String> call() throws Exception {
-        ArrayList<String> returnList = new ArrayList<>();
+    protected Void call() throws Exception {
+        ArrayList<Byte[]> writeBytes = new ArrayList<>();
 
         try{
 
-            for(Chronology chronology : this.chronologies) {
-                returnList.add(
-                        rf2ExportHelper.getRF2CommonElements(chronology)
+            this.streamPage
+                    .forEach(chronology -> {
+                        writeBytes.add(ArrayUtils.toObject(rf2ExportHelper.getRF2CommonElements(chronology)
                                 .append(rf2ExportHelper.getIdString(Get.concept(((SemanticChronology) chronology).getReferencedComponentNid())) + "\t") //conceptId
                                 .append(getLanguageCode(chronology) + "\t") //languageCode
                                 .append(getTypeId(chronology) + "\t") //typeId
                                 .append(getTerm(chronology) + "\t") //term
                                 .append(getCaseSignificanceId(chronology)) //caseSignificanceId
                                 .append("\r")
-                                .toString());
-                completedUnitOfWork();
-            }
+                                .toString().getBytes(Charset.forName("UTF-8"))));
+                        completedUnitOfWork();
+
+                    });
+
+            updateTitle("Writing " + rf2Configuration.getMessage() + " RF2 file");
+            updateMessage("Writing to " + rf2Configuration.getFilePath());
+
+            rf2FileWriter.writeToFile(writeBytes, this.rf2Configuration);
+
+            completedUnitOfWork();
 
 
         }finally {
@@ -60,7 +77,7 @@ public class RF2DescriptionReader extends TimedTaskWithProgressTracker<List<Stri
             Get.activeTasks().remove(this);
         }
 
-        return returnList;
+        return null;
     }
 
     private String getLanguageCode(Chronology chronology){
