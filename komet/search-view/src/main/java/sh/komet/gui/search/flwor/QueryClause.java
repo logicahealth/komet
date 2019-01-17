@@ -322,13 +322,13 @@ public class QueryClause {
     protected PropertySheet setupManifoldClause(String keyName) {
         ManifoldClause manifoldClause = (ManifoldClause) clauseProperty.get();
         SimpleObjectProperty<LetItemKey> manifoldKeyProperty = new SimpleObjectProperty<>(this, MetaData.MANIFOLD_COORDINATE_REFERENCE____SOLOR.toExternalString());
+        manifoldKeyProperty.set(manifoldClause.getManifoldCoordinateKey());
         this.clauseSpecificProperties.add(manifoldKeyProperty);
         clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("manifold",
                 manifoldKeyProperty, letPropertySheet.getManifoldCoordinateKeys()));
         manifoldKeyProperty.addListener((observable, oldValue, newValue) -> {
             manifoldClause.setManifoldCoordinateKey((LetItemKey) newValue);
         });
-        manifoldClause.setManifoldCoordinateKey(manifoldKeyProperty.get());
         return clausePropertySheet;
     }
     protected PropertySheet setupConceptClause(String keyName) {

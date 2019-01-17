@@ -190,10 +190,10 @@ public class LetPropertySheet {
 
     public void reset() {
         this.letItemPanelMap.clear();
-        this.letItemObjectMap.clear();
         this.stampCoordinateKeys.clear();
         this.languageCoordinateKeys.clear();
         this.letItemsController.reset();
+        this.letItemObjectMap.clear();
     }
 
     public void addItem(LetItemKey newLetItem, Object newObject) {
@@ -345,7 +345,14 @@ public class LetPropertySheet {
                     newConceptSpecification.setValue(null);
                 }
                 if (change.wasAdded()) {
-                    newConceptSpecification.setValue((ConceptProxy) change.getValueAdded());
+                    Object obj = change.getValueAdded();
+                    if (obj instanceof ConceptProxy) {
+                        newConceptSpecification.setValue((ConceptProxy) change.getValueAdded());
+                    } else if (obj instanceof ObservableConceptProxy) {
+                        ObservableConceptProxy proxy = (ObservableConceptProxy) obj;
+                        newConceptSpecification.setValue(new ConceptProxy());
+                    }
+                    
                 }
             }
         });
