@@ -36,6 +36,7 @@
  */
 package sh.isaac.provider.datastore.chronology;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -153,6 +155,35 @@ public class ChronologyProvider
     }
 
     @Override
+    public boolean reimportMetadata() throws Exception {
+        AtomicBoolean changed = new AtomicBoolean(false);
+        LOG.info("reloading system metadata");
+         final CommitService commitService = Get.commitService();
+
+         try (BinaryDataReaderService reader = getMetadataStream()) {
+             reader.getStream()
+                     .forEach(
+                             (object) -> {
+                                 try {
+                                     commitService.importIfContentChanged(object);
+                                 } catch (Throwable e) {
+                                     e.printStackTrace();
+                                     throw e;
+                                 }
+                             });
+        }
+
+        commitService.postProcessImportNoChecks();
+        return changed.get();
+    }
+
+    private BinaryDataReaderService getMetadataStream() throws FileNotFoundException {
+        InputStream dataStream = this.getClass()
+                .getClassLoader()
+                .getResourceAsStream("sh/isaac/IsaacMetadataAuxiliary.ibdf");
+        return Get.binaryDataReader(dataStream);
+    }
+    @Override
     public Future<?> sync() {
         return this.store.sync();
     }
@@ -192,24 +223,22 @@ public class ChronologyProvider
 
     private void loadMetaData()
             throws Exception {
-        InputStream dataStream = this.getClass()
-                .getClassLoader()
-                .getResourceAsStream("sh/isaac/IsaacMetadataAuxiliary.ibdf");
-        final BinaryDataReaderService reader = Get.binaryDataReader(dataStream);
-        final CommitService commitService = Get.commitService();
 
-        reader.getStream()
-                .forEach(
-                        (object) -> {
-                            try {
-                                commitService.importNoChecks(object);
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                                throw e;
-                            }
-                        });
-        commitService.postProcessImportNoChecks();
-        
+        try (BinaryDataReaderService reader = getMetadataStream()) {
+            final CommitService commitService = Get.commitService();
+            reader.getStream()
+                    .forEach(
+                            (object) -> {
+                                try {
+                                    commitService.importNoChecks(object);
+                                } catch (Throwable e) {
+                                    e.printStackTrace();
+                                    throw e;
+                                }
+                            });
+            commitService.postProcessImportNoChecks();
+        }
+
       //Store the DB id as a semantic
       Get.semanticBuilderService()
             .getStringSemanticBuilder(getDataStoreId().get().toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
@@ -796,7 +825,6 @@ public class ChronologyProvider
         /**
          * Gets the description list.
          *
-         * @param conceptId the concept id
          * @return the description list
          */
         private List<SemanticChronology> getDescriptionList(int conceptNid) {

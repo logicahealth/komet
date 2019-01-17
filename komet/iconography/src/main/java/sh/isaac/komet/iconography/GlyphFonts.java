@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the 
+ * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,37 +16,54 @@
  */
 package sh.isaac.komet.iconography;
 
-//import de.jensd.fx.de.jensd.fx.glyphs.glyphs.fontawesome.FontAwesomeIconView;
-//import de.jensd.fx.de.jensd.fx.glyphs.glyphs.materialdesignicons.MaterialDesignIconView;
-//import java.io.IOException;
+import sh.isaac.komet.iconography.wrappers.EmojiOneWrapper;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
-//import org.controlsfx.glyphfont.GlyphFont;
+import org.controlsfx.glyphfont.GlyphFont;
+import org.controlsfx.glyphfont.GlyphFontRegistry;
+import sh.isaac.komet.iconography.wrappers.Icons525Wrapper;
+import sh.isaac.komet.iconography.wrappers.MaterialDesignWebfontWrapper;
+import sh.isaac.komet.iconography.wrappers.MaterialDesignIconWrapper;
+import sh.isaac.komet.iconography.wrappers.OctIconWrapper;
 
 /**
  *
  * @author kec
  */
 public class GlyphFonts {
-//   private static final GlyphFonts fonts = new GlyphFonts();
-   
-//   public static GlyphFont fontAwesome() {
-//      return fonts.fontAwesome;
-//   }
-//   
-//   public static GlyphFont materialDesignIcon() {
-//      return fonts.materialDesignIcon;
-//   }
-//   
-//   private final GlyphFont fontAwesome;
-//   private final GlyphFont materialDesignIcon;
-//   
-//   private GlyphFonts() {
-//      try {
-//         fontAwesome = new GlyphFont("FontAwesome", 12, FontAwesomeIconView.class.getResource(FontAwesomeIconView.TTF_PATH).openStream());
-//         materialDesignIcon = new GlyphFont("Material Design Icons", 12, MaterialDesignIconView.class.getResource(MaterialDesignIconView.TTF_PATH).openStream());
-//      } catch (IOException ex) {
-//         throw new RuntimeException(ex);
-//      }
-//   }
+
+    private static final GlyphFonts FONTS = new GlyphFonts();
+
+    public static GlyphFont fontAwesome() {
+        return GlyphFontRegistry.font("FontAwesome");
+    }
+
+    public static GlyphFont materialIcon() {
+        return GlyphFontRegistry.font(MaterialDesignIconWrapper.FONT_NAME);
+    }
+
+    public static GlyphFont materialDesignWebfont() {
+        return GlyphFontRegistry.font(MaterialDesignWebfontWrapper.FONT_NAME);
+    }
+
+    public static GlyphFont emojiOne() {
+        return GlyphFontRegistry.font(EmojiOneWrapper.FONT_NAME);
+    }
+
+    public static GlyphFont icons525() {
+        return GlyphFontRegistry.font(Icons525Wrapper.FONT_NAME);
+    }
+
+    public static GlyphFont octIcon() {
+        return GlyphFontRegistry.font(OctIconWrapper.FONT_NAME);
+    }
+
+
+    private GlyphFonts() {
+        GlyphFontRegistry.register(new EmojiOneWrapper());
+        GlyphFontRegistry.register(new MaterialDesignIconWrapper());
+        GlyphFontRegistry.register(new MaterialDesignWebfontWrapper());
+        GlyphFontRegistry.register(new Icons525Wrapper());
+        GlyphFontRegistry.register(new OctIconWrapper());
+    }
 }

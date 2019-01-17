@@ -181,6 +181,17 @@ public interface CommitService
     * @param isaacExternalizable the object to be imported.
     */
    void importNoChecks(IsaacExternalizable isaacExternalizable);
+   /**
+    * Import a object if more than the time of a version has changed,
+    * and immediately write to the proper service with no checks other than commit time of any type performed.
+    * Semantics and concepts will have their versions  merged with existing versions if they exist.
+    *
+    * one MUST call {@link CommitService#postProcessImportNoChecks()} when your import batch is complete
+    * to ensure data integrity.
+    *
+    * @param isaacExternalizable the object to be imported.
+    */
+   void importIfContentChanged(IsaacExternalizable isaacExternalizable);
 
    /**
     * Increment and get sequence.

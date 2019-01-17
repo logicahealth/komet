@@ -17,24 +17,29 @@
 package sh.isaac.komet.iconography;
 
 import de.jensd.fx.glyphs.emojione.EmojiOneView;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.jensd.fx.glyphs.icons525.Icons525View;
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import de.jensd.fx.glyphs.octicons.OctIconView;
+import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import static sh.isaac.komet.iconography.Iconography.IconSource.EMOJI_ONE;
-import static sh.isaac.komet.iconography.Iconography.IconSource.FONT_AWSOME;
-import static sh.isaac.komet.iconography.Iconography.IconSource.ICONS_525;
-import static sh.isaac.komet.iconography.Iconography.IconSource.MATERIAL_DESIGNS_ICON;
-import static sh.isaac.komet.iconography.Iconography.IconSource.MATERIAL_DESIGNS_WEBFONT;
-import static sh.isaac.komet.iconography.Iconography.IconSource.OCT_ICON;
-import static sh.isaac.komet.iconography.Iconography.IconSource.SVG;
+import javafx.scene.layout.StackPane;
+
+import static sh.isaac.komet.iconography.IconSource.EMOJI_ONE;
+import static sh.isaac.komet.iconography.IconSource.FONT_AWSOME;
+import static sh.isaac.komet.iconography.IconSource.ICONS_525;
+import static sh.isaac.komet.iconography.IconSource.MATERIAL_DESIGNS_ICON;
+import static sh.isaac.komet.iconography.IconSource.MATERIAL_DESIGNS_WEBFONT;
+import static sh.isaac.komet.iconography.IconSource.OCT_ICON;
+import static sh.isaac.komet.iconography.IconSource.SVG;
 
 /**
  *
@@ -44,16 +49,16 @@ public enum Iconography {
    
    
 //TODO make Iconagraphy a service/provider 
-   TAXONOMY_ICON(MATERIAL_DESIGNS_WEBFONT, "taxonomy-icon"),
-   TAXONOMY_ROOT_ICON(MATERIAL_DESIGNS_WEBFONT, "taxonomy-root-icon"),
-   TAXONOMY_DEFINED_MULTIPARENT_OPEN(MATERIAL_DESIGNS_WEBFONT, "taxonomy-defined-multiparent-open-icon"),
-   TAXONOMY_DEFINED_MULTIPARENT_CLOSED(MATERIAL_DESIGNS_WEBFONT, "taxonomy-defined-multiparent-closed-icon"),
-   TAXONOMY_PRIMITIVE_MULTIPARENT_OPEN(MATERIAL_DESIGNS_WEBFONT, "taxonomy-primitive-multiparent-open-icon"),
-   TAXONOMY_PRIMITIVE_MULTIPARENT_CLOSED(MATERIAL_DESIGNS_WEBFONT, "taxonomy-primitive-multiparent-closed-icon"),
-   TAXONOMY_PRIMITIVE_SINGLE_PARENT(MATERIAL_DESIGNS_WEBFONT, "taxonomy-primitive-singleparent-icon"),
-   TAXONOMY_DEFINED_SINGLE_PARENT(MATERIAL_DESIGNS_WEBFONT, "taxonomy-defined-singleparent-icon"),
-   TAXONOMY_CLICK_TO_CLOSE(FONT_AWSOME, "taxonomy-closed-icon"),
-   TAXONOMY_CLICK_TO_OPEN(FONT_AWSOME, "taxonomy-open-icon"),
+   TAXONOMY_ICON(MATERIAL_DESIGNS_WEBFONT, "taxonomy-icon", MaterialDesignIcon.FILE_TREE),
+   TAXONOMY_ROOT_ICON(MATERIAL_DESIGNS_WEBFONT, "taxonomy-root-icon", MaterialDesignIcon.HEXAGON_OUTLINE),
+   TAXONOMY_DEFINED_MULTIPARENT_OPEN(MATERIAL_DESIGNS_WEBFONT, "taxonomy-defined-multiparent-open-icon", MaterialDesignIcon.ARROW_UP_BOLD_CIRCLE_OUTLINE),
+   TAXONOMY_DEFINED_MULTIPARENT_CLOSED(MATERIAL_DESIGNS_WEBFONT, "taxonomy-defined-multiparent-closed-icon", MaterialDesignIcon.ARROW_UP_BOLD_CIRCLE_OUTLINE),
+   TAXONOMY_PRIMITIVE_MULTIPARENT_OPEN(MATERIAL_DESIGNS_WEBFONT, "taxonomy-primitive-multiparent-open-icon", MaterialDesignIcon.ARROW_UP_BOLD_HEXAGON_OUTLINE),
+   TAXONOMY_PRIMITIVE_MULTIPARENT_CLOSED(MATERIAL_DESIGNS_WEBFONT, "taxonomy-primitive-multiparent-closed-icon", MaterialDesignIcon.ARROW_UP_BOLD_HEXAGON_OUTLINE),
+   TAXONOMY_PRIMITIVE_SINGLE_PARENT(MATERIAL_DESIGNS_WEBFONT, "taxonomy-primitive-singleparent-icon", MaterialDesignIcon.HEXAGON),
+   TAXONOMY_DEFINED_SINGLE_PARENT(MATERIAL_DESIGNS_WEBFONT, "taxonomy-defined-singleparent-icon", MaterialDesignIcon.CHECKBOX_BLANK_CIRCLE_OUTLINE),
+   TAXONOMY_CLICK_TO_CLOSE(FONT_AWSOME, "taxonomy-closed-icon", FontAwesomeIcon.CARET_DOWN),
+   TAXONOMY_CLICK_TO_OPEN(FONT_AWSOME, "taxonomy-open-icon", FontAwesomeIcon.CARET_RIGHT),
    STATED_VIEW(SVG, "stated-view"),
    INFERRED_VIEW(SVG, "inferred-view"),
    SHORT_TEXT(MATERIAL_DESIGNS_ICON, "short-text"),
@@ -216,10 +221,18 @@ public enum Iconography {
 
    String cssClass;
    IconSource source;
+   Enum unicode;
+
+   private Iconography(IconSource source, String cssClass, Enum unicode) {
+      this.source = source;
+      this.cssClass = cssClass;
+      this.unicode = unicode;
+   }
 
    private Iconography(IconSource source, String cssClass) {
       this.source = source;
       this.cssClass = cssClass;
+      this.unicode = null;
    }
 
    public ImageView getImageView() {
@@ -230,12 +243,28 @@ public enum Iconography {
        Image image = node.snapshot(snapshotParameters, null);
        return new ImageView(image);
    }
+
+   public Node getIconographic(double size) {
+      Node node = getIconographic();
+      StackPane.setMargin(node, new Insets(0,0,5,0));
+      StackPane stack = new StackPane(node);
+      stack.setMinSize(size, size);
+      stack.setMaxSize(size, size);
+      stack.setPrefSize(size, size);
+      return stack;
+   }
    
    public Node getIconographic() {
       switch (source) {
          case MATERIAL_DESIGNS_WEBFONT:
+            if (unicode != null) {
+               return new MaterialDesignIconView((MaterialDesignIcon) unicode).setStyleClass(cssClass);
+            }
             return new MaterialDesignIconView().setStyleClass(cssClass);
          case FONT_AWSOME:
+            if (unicode != null) {
+               return new FontAwesomeIconView((FontAwesomeIcon) unicode).setStyleClass(cssClass);
+            }
             return new FontAwesomeIconView().setStyleClass(cssClass);
          case SVG:
             return new SvgIconographic().setStyleClass(cssClass);
@@ -252,10 +281,7 @@ public enum Iconography {
       }
    }
 
-   enum IconSource {
-      MATERIAL_DESIGNS_WEBFONT, MATERIAL_DESIGNS_ICON, FONT_AWSOME, SVG, EMOJI_ONE, 
-      ICONS_525, OCT_ICON,
-   };
+
    public static ImageView getImage(String resourceLocation, int size) {
       ImageView imageView = new ImageView(Iconography.class.getResource(resourceLocation).toString());
       imageView.setPreserveRatio(true);

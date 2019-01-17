@@ -39,7 +39,15 @@ public interface MetadataService {
     * @throws Exception 
     */
    void importMetadata() throws Exception;
-   
+
+   /**
+    * Will reimport metadata into database, even if database is not empty. Used to update the underlying database
+    * with updated metadata even if the database is already loaded.
+    * @return true if new metadata was encountered.
+    * @throws Exception
+    */
+   boolean reimportMetadata() throws Exception;
+
    
    /**
     * @return return true, if metadata was imported (via a call to {@link #importMetadata()}) during the startup sequence.  Returns false, if 

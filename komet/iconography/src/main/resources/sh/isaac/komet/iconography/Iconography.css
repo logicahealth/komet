@@ -131,7 +131,7 @@ limitations under the License.
    -glyph-name: "CARET_DOWN";
    -glyph-size: 14pt;
    -icons-color: grey;
-   /* -fx-padding: 4 18 4 20; */
+   -fx-padding: 4 4 4 4;
    -fx-background-color: transparent;
 }
 .taxonomy-closed-icon:hover{
@@ -142,7 +142,7 @@ limitations under the License.
    -glyph-name: "CARET_RIGHT";
    -glyph-size: 14pt;
    -icons-color: grey;
-   /* -fx-padding: 2 24 4 14;  top right bottom left*/
+   -fx-padding: 4 4 4 4;
    -fx-background-color: transparent;
 }
 .taxonomy-open-icon:hover{

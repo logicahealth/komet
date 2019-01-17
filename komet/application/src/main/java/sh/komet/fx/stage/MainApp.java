@@ -173,6 +173,11 @@ public class MainApp
             final ClassifierResults classifierResults = classifyTask.get();
         }
 
+        // To update metadata if new metadata is available after database was built.
+
+        Get.metadataService().reimportMetadata();
+        kometPreferences.reloadPreferences();
+
         // open one new stage with defaults
         // Create a node for stage preferences
         for (WindowPreferenceItems windowPreference: kometPreferences.getWindowPreferences()) {

@@ -54,7 +54,7 @@ limitations under the License.
 /*    -fx-border-width:1 2 3 4;
     -fx-border-color: red blue green yellow; */
     -fx-label-padding: 10 0 2 30; /* top, right, bottom, and left edges */
-    -fx-padding:-8 0 0 0;
+    -fx-padding:1 0 1 1;
     -fx-graphic-text-gap:0;
     /* -fx-rotate:30; */
 /*    -fx-scale-x:0.25;
@@ -1085,3 +1085,4 @@ limitations under the License.
 .tab-pane {
     /* -fx-skin: "sh.isaac.komet.openjdk.KometTabPaneSkin"; */
 }
+

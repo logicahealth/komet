@@ -230,6 +230,9 @@ public class KometStageController
         vanityImage.setSmooth(true);
         vanityImage.setCache(true);
         vanityBox.setGraphic(vanityImage);
+        this.leftTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
+        this.centerTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
+        this.rightTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
     }
 
     private List<MenuItem> getTaskMenuItems() {
@@ -438,7 +441,7 @@ public class KometStageController
                 long start = System.currentTimeMillis();
                 NodeFactory<ExplorationNode> factory = optionalFactory.get();
 
-                ExplorationNode en = factory.createNode(FxGet.getManifold(factory.getDefaultManifoldGroups()[0]));
+                ExplorationNode en = factory.createNode(FxGet.getManifold(factory.getDefaultManifoldGroups()[0]).deepClone());
                 Tab tab = new Tab();
                 tab.setGraphic(en.getMenuIcon());
                 tab.setContent(new BorderPane(en.getNode()));
