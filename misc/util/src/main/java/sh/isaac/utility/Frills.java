@@ -135,7 +135,6 @@ import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.mapping.constants.IsaacMappingConstants;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.concept.ConceptVersionImpl;
-import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
@@ -1894,58 +1893,53 @@ public class Frills
     * @return the nid for SCTID
     */
    public static Optional<Integer> getNidForSCTID(long sctID) {
-      final IndexQueryService si = LookupService.get().getService(IndexSemanticQueryService.class);
-
-      if (si != null) {
-         // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-         final List<SearchResult> result = si.query(sctID + " ",
-                                                     true,
-                                                     new int[] { MetaData.SCTID____SOLOR.getNid() },
-                                                     null,
-                                                     null,
-                                                     5,
-                                                     Long.MIN_VALUE);
-
-         if (result.size() > 0) {
-            return Optional.of(Get.assemblageService().getSemanticChronology(result.get(0).getNid()).getReferencedComponentNid());
-         }
-      } else {
-         LOG.warn("Semantic Index not available - can't lookup SCTID");
+      List<Integer> r = getNidForAltId(MetaData.SCTID____SOLOR.getNid(), sctID + "");
+      if (r.size() > 0) {
+         return Optional.of(r.get(0));
       }
-
       return Optional.empty();
    }
 
    /**
     * Gets the nid for VUID.
     *
-    * @param vuID the vu ID
+    * @param vuID the vuID
     * @return the nid for VUID
     */
    public static Optional<Integer> getNidForVUID(long vuID) {
+      List<Integer> r = getNidForAltId(MetaData.VUID____SOLOR.getNid(), vuID + "");
+      if (r.size() > 0) {
+         return Optional.of(r.get(0));
+      }
+      return Optional.empty();
+   }
+
+   /**
+    * Lookup a concept or semantic (returning its nid) via an alt id - which should be one of the types that is a child of 
+    * {@link MetaData#IDENTIFIER_SOURCE____SOLOR}
+    * 
+    * IDs should typically only identify one component, this will return at most, 50 matches.
+    * 
+    * @param idType - The type you are looking up - should be a child of {@link MetaData#IDENTIFIER_SOURCE____SOLOR} 
+    * @param id - the id to find
+    * @return the nid of the concept or semantic that has this ID attached to it.
+    */
+   public static List<Integer> getNidForAltId(int idType, String id) {
       final IndexSemanticQueryService si = LookupService.get().getService(IndexSemanticQueryService.class);
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-         final List<SearchResult> result = si.query(vuID + " ",
-                                                     true,
-                                                     new int[] { MetaData.VUID____SOLOR.getNid() },
-                                                     null, 
-                                                     null,
-                                                     5,
-                                                     Long.MIN_VALUE);
-
-         if (result.size() > 0) {
-            return Optional.of(Get.assemblageService()
-                                  .getSemanticChronology(result.get(0)
-                                        .getNid())
-                                  .getReferencedComponentNid());
+         final List<SearchResult> result = si.query(id + " ", true, new int[] { idType }, null, null, 50, Long.MIN_VALUE);
+         ArrayList<Integer> nids = new ArrayList<>(result.size());
+         
+         for (SearchResult sr : result) {
+            nids.add(Get.assemblageService().getSemanticChronology(sr.getNid()).getReferencedComponentNid());
          }
+         return nids;
       } else {
          LOG.warn("Semantic Index not available - can't lookup VUID");
       }
-
-      return Optional.empty();
+      return new ArrayList<>();
    }
    
    /**
@@ -2019,16 +2013,32 @@ public class Frills
     * @return the id, if found, or empty (will not return null)
     */
    public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
+     Optional<String> s = getAltId(MetaData.SCTID____SOLOR.getNid(), componentNid, stamp);
+     if (s.isPresent()) {
+        return Optional.of(Long.parseLong(s.get()));
+     }
+     return Optional.empty();
+   }
+   
+   /**
+    * Find the alt id for a component (if it has one).
+    * 
+    * @param idType The type you are looking for - should be a child of {@link MetaData#IDENTIFIER_SOURCE____SOLOR} 
+    * @param componentNid the concept or semantic to look at
+    * @param stamp (optional) the stamp to use for readback, uses the system default, if not provided.
+    * @return 
+    */
+   public static Optional<String> getAltId(int idType, int componentNid, StampCoordinate stamp) {
       try {
          final List<LatestVersion<StringVersionImpl>> semantic = Get.assemblageService()
                .getSnapshot(StringVersionImpl.class, (stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
-               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.SCTID____SOLOR.getNid());
+               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, idType);
 
          if (semantic.size() > 0 && semantic.get(0).isPresent()) {
-            return Optional.of(Long.parseLong(semantic.get(0).get().getString()));
+            return Optional.of(semantic.get(0).get().getString());
          }
       } catch (final Exception e) {
-         LOG.error("Unexpected error trying to find SCTID for nid " + componentNid, e);
+         LOG.error("Unexpected error trying to find alt id of type " + idType + " for nid " + componentNid, e);
       }
 
       return Optional.empty();
@@ -2337,35 +2347,12 @@ public class Frills
     * @return the id, if found, or empty (will not return null)
     */
    public static Optional<Long> getVuId(int componentNid, StampCoordinate stamp) {
-      try {
-         final ArrayList<Long> vuids = new ArrayList<>(1);
-
-         Get.assemblageService().getSnapshot(SemanticVersion.class, (stamp == null) ? 
-               Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
-               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.VUID____SOLOR.getNid()).forEach(latestSemantic -> {
-                  // expected path
-                  if (latestSemantic.get().getChronology().getVersionType() == VersionType.STRING) {
-                     vuids.add(Long.parseLong(((StringVersion) latestSemantic.get()).getString()));
-                  }
-
-                  // Data model bug path (can go away, after bug is fixed)
-                  else if (latestSemantic.get().getChronology().getVersionType() == VersionType.DYNAMIC) {
-                     vuids.add(Long.parseLong(((DynamicVersion<?>) latestSemantic.get()).getData()[0].dataToString()));
-                  }
-               });
-
-         if (vuids.size() > 1) {
-            LOG.warn("Found multiple VUIDs on component " + Get.identifierService().getUuidPrimordialForNid(componentNid));
-         }
-
-         if (vuids.size() > 0) {
-            return Optional.of(vuids.get(0));
-         }
-      } catch (final Exception e) {
-         LOG.error("Unexpected error trying to find VUID for nid " + componentNid, e);
-      }
-
-      return Optional.empty();
+      
+        Optional<String> s = getAltId(MetaData.VUID____SOLOR.getNid(), componentNid, stamp);
+        if (s.isPresent()) {
+           return Optional.of(Long.parseLong(s.get()));
+        }
+        return Optional.empty();
    }
    
    /**
