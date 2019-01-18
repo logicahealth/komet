@@ -637,7 +637,7 @@ public class ChronologyProvider
        
        for (int assemblageNid : assemblageConceptNids) {
           if (assemblageNid >= 0) {
-             throw new IndexOutOfBoundsException("Assemblage identifiers must be negative. Found: " + componentNid);
+             throw new IndexOutOfBoundsException("Assemblage identifiers must be negative. Found: " + assemblageNid);
           }
        }
        IdentifierService identifierService = ModelGet.identifierService();
