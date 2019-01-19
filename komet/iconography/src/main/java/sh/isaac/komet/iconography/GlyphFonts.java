@@ -17,6 +17,13 @@
 package sh.isaac.komet.iconography;
 
 import sh.isaac.komet.iconography.wrappers.EmojiOneWrapper;
+import de.jensd.fx.glyphs.emojione.EmojiOneView;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import de.jensd.fx.glyphs.icons525.Icons525View;
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
+import de.jensd.fx.glyphs.materialicons.MaterialIconView;
+import de.jensd.fx.glyphs.octicons.OctIconView;
+import java.io.IOException;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
 import org.controlsfx.glyphfont.GlyphFont;

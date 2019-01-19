@@ -52,7 +52,6 @@ import javax.xml.bind.annotation.XmlElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.ClauseComputeType;
@@ -61,6 +60,8 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.query.LetItemKey;
+import sh.isaac.api.query.properties.ConceptClause;
+import sh.isaac.api.query.properties.ManifoldClause;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -73,7 +74,7 @@ import sh.isaac.api.query.LetItemKey;
  */
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsKindOf
-        extends LeafClause {
+        extends LeafClause implements ConceptClause, ManifoldClause {
    /** The kind of spec key. */
    @XmlElement
    LetItemKey kindOfSpecKey;
@@ -175,10 +176,23 @@ public class ConceptIsKindOf
         this.kindOfSpecKey = kindOfSpecKey;
     }
 
+    @Override
+    public LetItemKey getConceptSpecKey() {
+        return getKindOfSpecKey();
+    }
+
+    @Override
+    public void setConceptSpecKey(LetItemKey conceptSpecKey) {
+        setKindOfSpecKey(conceptSpecKey);
+    }
+
+    
+   @Override
     public LetItemKey getManifoldCoordinateKey() {
         return manifoldCoordinateKey;
     }
 
+   @Override
     public void setManifoldCoordinateKey(LetItemKey manifoldCoordinateKey) {
         this.manifoldCoordinateKey = manifoldCoordinateKey;
     }

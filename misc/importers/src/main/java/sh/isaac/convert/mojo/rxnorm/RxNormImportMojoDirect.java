@@ -643,16 +643,6 @@ public class RxNormImportMojoDirect extends DirectConverterBaseMojo implements D
 	}
 
 	/**
-	 * Clear target files.
-	 */
-	private void clearTargetFiles()
-	{
-		new File(this.outputDirectory, "RxNormUUIDDebugMap.txt").delete();
-		new File(this.outputDirectory, "ConsoleOutput.txt").delete();
-		new File(this.outputDirectory, "RRF.jbin").delete();
-	}
-
-	/**
 	 * Creates the CUI concept UUID.
 	 *
 	 * @param cui the cui
@@ -741,8 +731,6 @@ public class RxNormImportMojoDirect extends DirectConverterBaseMojo implements D
 	 */
 	private void init() throws Exception
 	{
-		clearTargetFiles();
-
 		final String fileNameDatePortion = loadDatabase();
 		final SimpleDateFormat sdf = new SimpleDateFormat("MMddyyyy");
 		defaultTime = sdf.parse(fileNameDatePortion).getTime();
@@ -1087,11 +1075,13 @@ public class RxNormImportMojoDirect extends DirectConverterBaseMojo implements D
 					{
 						log.info("No Abbreviation Expansion found for " + abbreviation + " using FSN: " + abbreviation + "  Alt:" + altName + " description:"
 								+ description);
-						dwh.makeAttributeTypeConcept(null, abbreviation, null, altName, description, false, DynamicDataType.STRING, null, defaultTime);
+						dwh.makeAttributeTypeConcept(converterUUID.createNamespaceUUIDFromStrings(abbreviation, "ATN"), 
+								abbreviation, null, altName, description, false, DynamicDataType.STRING, null, defaultTime);
 					}
 					else
 					{
-						dwh.makeAttributeTypeConcept(null, ae.getExpansion(), null, ae.getAbbreviation(), ae.getDescription(), false, DynamicDataType.STRING, null, defaultTime);
+						dwh.makeAttributeTypeConcept(converterUUID.createNamespaceUUIDFromStrings(ae.getExpansion(), "ATN"), 
+								ae.getExpansion(), null, ae.getAbbreviation(), ae.getDescription(), false, DynamicDataType.STRING, null, defaultTime);
 					}
 				}
 			}
@@ -1162,11 +1152,13 @@ public class RxNormImportMojoDirect extends DirectConverterBaseMojo implements D
 					if (ae == null)
 					{
 						log.error("No Abbreviation Expansion found for " + tty + " using fsn: " + tty + " alt: " + expandedForm);
-						descType = dwh.makeDescriptionTypeConcept(null, tty, expandedForm, null, getCoreType(tty, classes), null, defaultTime);  
+						descType = dwh.makeDescriptionTypeConcept(converterUUID.createNamespaceUUIDFromStrings(tty, "TTY"), 
+								tty, expandedForm, null, getCoreType(tty, classes), null, defaultTime);  
 					}
 					else
 					{
-						descType = dwh.makeDescriptionTypeConcept(null, ae.getExpansion(), ae.getAbbreviation(), null, getCoreType(ae.getExpansion(), classes), 
+						descType = dwh.makeDescriptionTypeConcept(converterUUID.createNamespaceUUIDFromStrings(ae.getExpansion(), "TTY"), 
+								ae.getExpansion(), ae.getAbbreviation(), null, getCoreType(ae.getExpansion(), classes), 
 								null, defaultTime); 
 						if (StringUtils.isNotBlank(ae.getDescription()))
 						{

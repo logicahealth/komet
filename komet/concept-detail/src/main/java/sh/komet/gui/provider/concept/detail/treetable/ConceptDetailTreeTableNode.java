@@ -67,86 +67,90 @@ import sh.komet.gui.style.StyleClasses;
 public class ConceptDetailTreeTableNode
         implements DetailNode, Supplier<List<MenuItem>> {
 
-   private final BorderPane conceptDetailPane = new BorderPane();
-   private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
-   private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
-   private final Manifold conceptDetailManifold;
-   private ManifoldLinkedConceptLabel titleLabel = null;
-   private final ConceptLabelToolbar conceptLabelToolbar;
+    private final BorderPane conceptDetailPane = new BorderPane();
+    private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
+    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
+    private final Manifold conceptDetailManifold;
+    private ManifoldLinkedConceptLabel titleLabel = null;
+    private final ConceptLabelToolbar conceptLabelToolbar;
 
-   //~--- constructors --------------------------------------------------------
-   public ConceptDetailTreeTableNode(Manifold conceptDetailManifold) {
-      try {
-         this.conceptDetailManifold = conceptDetailManifold;
-         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
-         conceptDetailManifold.focusedConceptProperty()
-                 .addListener(
-                         (ObservableValue<? extends ConceptSpecification> observable,
-                                 ConceptSpecification oldValue,
-                                 ConceptSpecification newValue) -> {
-                            if (titleLabel == null) {
-                               if (newValue == null) {
-                                  titleProperty.set("empty");
-                                  toolTipProperty.set(
-                                          "concept details for: empty");
-                               } else {
-                                  titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
-                                  toolTipProperty.set(
-                                          "concept details for: "
-                                          + this.conceptDetailManifold.getFullySpecifiedDescriptionText(
-                                                  newValue));
-                               }
-                            }
+    //~--- constructors --------------------------------------------------------
+    public ConceptDetailTreeTableNode(Manifold conceptDetailManifold) {
+        try {
+            this.conceptDetailManifold = conceptDetailManifold;
+            this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
+            conceptDetailManifold.focusedConceptProperty()
+                    .addListener(this::updateTitle);
+            this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(true));
+            conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
+            conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
 
-                         });
-         this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(true));
-         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
-         conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/sh/komet/gui/provider/concept/detail/ConceptDetail.fxml"));
 
-         FXMLLoader loader = new FXMLLoader(
-                 getClass().getResource("/sh/komet/gui/provider/concept/detail/ConceptDetail.fxml"));
+            loader.load();
 
-         loader.load();
+            ConceptDetailTreeTableController conceptDetailController = loader.getController();
 
-         ConceptDetailTreeTableController conceptDetailController = loader.getController();
+            conceptDetailController.setManifold(conceptDetailManifold);
+            updateTitle(conceptDetailManifold.focusedConceptProperty(), null, 
+                    conceptDetailManifold.getFocusedConcept().get());
+            conceptDetailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-         conceptDetailController.setManifold(conceptDetailManifold);
-         conceptDetailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
-      } catch (IOException ex) {
-         throw new RuntimeException(ex);
-      }
-   }
+    private void updateTitle(ObservableValue<? extends ConceptSpecification> observable,
+            ConceptSpecification oldValue,
+            ConceptSpecification newValue) {
+        if (titleLabel == null) {
+            if (newValue == null) {
+                titleProperty.set("empty");
+                toolTipProperty.set(
+                        "concept details for: empty");
+            } else {
+                titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
+                toolTipProperty.set(
+                        "concept details for: "
+                        + this.conceptDetailManifold.getFullySpecifiedDescriptionText(
+                                newValue));
+            }
+        }
 
-   //~--- get methods ---------------------------------------------------------
-   @Override
-   public ReadOnlyProperty<String> getTitle() {
-      return this.titleProperty;
-   }
+    }
+    //~--- get methods ---------------------------------------------------------
 
-   @Override
-   public Node getMenuIcon() {
-      return Iconography.CONCEPT_TABLE.getIconographic();
-   }
+    @Override
+    public ReadOnlyProperty<String> getTitle() {
+        return this.titleProperty;
+    }
 
-   @Override
-   public Node getNode() {
-      return conceptDetailPane;
-   }
+    @Override
+    public Node getMenuIcon() {
+        return Iconography.CONCEPT_TABLE.getIconographic();
+    }
 
-@Override
-   public Optional<Node> getTitleNode() {
-      if (titleLabel == null) {
-         this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);
-         this.titleLabel.setGraphic(Iconography.CONCEPT_TABLE.getIconographic());
-         this.titleProperty.set("");
-      }
-      return Optional.of(titleLabel);
-   }
+    @Override
+    public Node getNode() {
+        return conceptDetailPane;
+    }
 
-   @Override
-   public ReadOnlyProperty<String> getToolTip() {
-      return this.toolTipProperty;
-   }
+    @Override
+    public Optional<Node> getTitleNode() {
+        if (titleLabel == null) {
+            this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);
+            this.titleLabel.setGraphic(Iconography.CONCEPT_TABLE.getIconographic());
+            this.titleProperty.set("");
+        }
+        return Optional.of(titleLabel);
+    }
+
+    @Override
+    public ReadOnlyProperty<String> getToolTip() {
+        return this.toolTipProperty;
+    }
+
     @Override
     public List<MenuItem> get() {
         List<MenuItem> assemblageMenuList = new ArrayList<>();

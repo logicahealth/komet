@@ -272,24 +272,24 @@ public class Query {
      * @return an array of component nids in an array...
      */
     public int[][] reify() {
-        Map<ConceptSpecification, NidSet> assemlageMapResults = compute();
-        assemlageMapResults.remove(TermAux.UNINITIALIZED_COMPONENT_ID); // TODO remove cause, not the symptom...
-        if (assemlageMapResults.size() == 1) {
-            for (Map.Entry<ConceptSpecification, NidSet> entry : assemlageMapResults.entrySet()) {
-                int[][] resultArray = new int[entry.getValue().size()][];
-                int row = 0;
-                for (int nid : entry.getValue().asArray()) {
-                    resultArray[row++] = new int[]{nid};
+            Map<ConceptSpecification, NidSet> assemlageMapResults = compute();
+            assemlageMapResults.remove(TermAux.UNINITIALIZED_COMPONENT_ID); // TODO remove cause, not the symptom...
+            if (assemlageMapResults.size() == 1) {
+                for (Map.Entry<ConceptSpecification, NidSet> entry : assemlageMapResults.entrySet()) {
+                    int[][] resultArray = new int[entry.getValue().size()][];
+                    int row = 0;
+                    for (int nid : entry.getValue().asArray()) {
+                        resultArray[row++] = new int[]{nid};
+                    }
+                    return sort(resultArray);
                 }
-                return sort(resultArray);
+                throw new IllegalStateException("No entry found, though list is not empty. ");
+            } else if (assemlageMapResults.size() == 2 && getRoot() instanceof Join) {                
+                Join join = (Join) getRoot();
+                return sort(join.getJoinResults());
+            } else {
+                throw new UnsupportedOperationException("Can't handle complex joins yet" + assemlageMapResults);
             }
-            throw new IllegalStateException("No entry found, though list is not empty. ");
-        } else if (assemlageMapResults.size() == 2 && getRoot() instanceof Join) { 
-            Join join = (Join) getRoot();
-            return sort(join.getJoinResults());
-        } else {
-            throw new UnsupportedOperationException("Can't handle complex joins yet" + assemlageMapResults);
-        }
     }
 
     private int[][] sort(int[][] resultArray) {

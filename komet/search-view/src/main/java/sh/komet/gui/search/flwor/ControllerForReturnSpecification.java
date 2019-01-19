@@ -17,6 +17,7 @@
 package sh.komet.gui.search.flwor;
 
 import java.util.Collection;
+import java.util.List;
 import sh.isaac.api.query.AttributeFunction;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.AttributeSpecification;
@@ -27,6 +28,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableView;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.QueryFieldSpecification;
 import sh.komet.gui.manifold.Manifold;
@@ -48,8 +50,9 @@ public class ControllerForReturnSpecification extends ControllerForSpecification
             ObservableList<AttributeFunction> cellFunctions,
             ObservableList<ConceptSpecification> joinProperties,
             ObservableList<MenuItem> addFieldItems,
+            TableView<List<String>> resultTable,
             Manifold manifold) {
-        super(forAssemblagesProperty, manifold, addFieldItems, joinProperties, letItemObjectMap, cellFunctions);
+        super(forAssemblagesProperty, manifold, addFieldItems, joinProperties, letItemObjectMap, cellFunctions, resultTable);
     }
 
     public ObservableList<MenuItem> getAddFieldItems() {
@@ -58,7 +61,8 @@ public class ControllerForReturnSpecification extends ControllerForSpecification
 
     @Override
     protected void clearForChange() {
-       returnSpecificationRows.clear();
+        this.resultTable.getItems().clear();
+        returnSpecificationRows.clear();
     }
     
     public ObservableList<AttributeSpecification> getReturnSpecificationRows() {
@@ -79,6 +83,7 @@ public class ControllerForReturnSpecification extends ControllerForSpecification
     }
 
     void reset() {
+        this.resultTable.getItems().clear();
         this.returnSpecificationRows.clear();
         this.addFieldItems.clear();
         this.forAssemblagesProperty.clear();

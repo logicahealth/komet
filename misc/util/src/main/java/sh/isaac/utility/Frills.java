@@ -107,6 +107,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -1453,6 +1454,7 @@ public class Frills
     * Determine if a particular description semantic is flagged as preferred IN
     * ANY LANGUAGE. Returns false if there is no acceptability semantic.
     *
+    * Note that this will never return true for external description types, if they don't utilize snomed style preferred / acceptable.
     * @param descriptionSemanticNid the description semantic nid
     * @param stamp - optional - if not provided, uses default from config service
     * @return true, if description is preferred in some language
@@ -1495,11 +1497,79 @@ public class Frills
              });
 
       if (answer.get() == null) {
-         LOG.warn("Description nid {} does not have an acceptability semantic!", descriptionSemanticNid);
          return false;
       }
 
       return answer.get();
+   }
+   
+   /**
+    * For a given description, determine if it is marked as an "inverse" style description.  This is typically done for concepts that represent 
+    * an association, where you want to have descriptions of both "is A" and "has parent".
+    * @param descriptionChronology the description to check for an inverse annotation marker. 
+    * @param stamp optional - default from system configuration used if not provided.
+    * @param activeOnly - if true, only return true if the  inverse annotation is active.  If false, ignore the state of
+    *     the inverse annotation, and just return true if any inverse annotation is found.
+    * @return
+    */
+   public static boolean isDescriptionInverse(SemanticChronology descriptionChronology, StampCoordinate stamp, boolean activeOnly) {
+     return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionChronology.getNid(),
+            DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getNid()).anyMatch(semanticC -> {
+               return activeOnly ? descriptionChronology
+                     .isLatestVersionActive((stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate(): stamp)
+                     : true;
+            });
+   }
+   
+   /**
+    * Determine the "core" description type for a given description type.  If the given description type is already a core type, this 
+    * method is essentially a no-op.  Otherwise, reads the annotations to determine the core type linked to the external description type.
+    * 
+    * @param descriptionVersion the description to check the type on.
+    * @param stamp optional - used system defaults if not provided.
+    * @return the nid of the core description type, one of {@link MetaData#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, 
+    *     {@link MetaData#REGULAR_NAME_DESCRIPTION_TYPE____SOLOR}, or {@link MetaData#DEFINITION_DESCRIPTION_TYPE____SOLOR}.
+    *     In the case of a data error, and the core type is missing, a runtime exception is thrown.
+    */
+   public static int getDescriptionType(DescriptionVersion descriptionVersion, StampCoordinate stamp) {
+      if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid();
+      }
+      else if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid();
+      }
+      else if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid();
+      }
+      else {
+         //This must be an external description type.  External description types should have an annotation on them that links them to a core
+         //type description.
+         StampCoordinate stampToUse = (stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
+         AtomicReference<UUID> type = new AtomicReference<>();
+         Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionVersion.getDescriptionTypeConceptNid(),
+               DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(semanticChronlogy ->
+               {
+                  //This semantic is defined as a dynamic semantic with a single column of UUID data, which MUST be one of the three
+                  //core description types.  There should only be one active core type ref on a description type.
+                  LatestVersion<DynamicVersion<? extends DynamicVersion<?>>> lv =  semanticChronlogy.getLatestVersion(stampToUse);
+                  if (lv.isPresent()) {
+                     DynamicUUID uuid = (DynamicUUID)lv.get().getData(0);
+                     if (type.get() != null) {
+                        LOG.error("Description {} has multiple active core type annotations!  Result will be arbitrary", descriptionVersion);
+                     }
+                     else {
+                        type.set(uuid.getDataUUID());
+                     }
+                  }
+               });
+         if (type.get() == null) {
+            LOG.error("External typed description {} has no active core type annotation on the specified stamp: {}", descriptionVersion, stampToUse);
+            throw new RuntimeException("Core description type is unknown due to a data error");
+         }
+         else {
+            return Get.identifierService().getNidForUuids(type.get());
+         }
+      }
    }
 
    /**
@@ -2127,31 +2197,17 @@ public class Frills
     * Returns the set of terminology types (which are concepts directly under {@link MetaData#MODULE____SOLOR} for any concept in the system as a 
     * set of concept nids.
     * 
-    * Also, if the concept is a child of {@link MetaData#METADATA____SOLOR}, then it will also be marked with the terminology type of 
-    * {@link MetaData#SOLOR_MODULE____SOLOR} -even if there is no concept version that exists using the MetaData#SOLOR_MODULE____SOLOR} module - this gives 
-    * an easy way to identify "metadata" concepts.
-    * 
-    * @param oc
-    *           - the concept to read modules for
-    * @param stamp
-    *           - if null, return the modules ignoring coordinates. If not null, only return modules visible on the given coordinate
+    * @param oc the concept to read modules for
+    * @param stamp optional - if null, return the modules ignoring coordinates.  If not null, only return modules visible on the given coordinate
     * @return the types
     */
    public static HashSet<Integer> getTerminologyTypes(ConceptChronology oc, StampCoordinate stamp) {
       HashSet<Integer> modules = new HashSet<>();
       HashSet<Integer> terminologyTypes = new HashSet<>();
       
-      TaxonomySnapshot tss = Get.taxonomyService().getStatedLatestSnapshot(
-            (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathSpecification().getNid() : stamp.getStampPosition().getStampPathSpecification().getNid()),
-            (stamp == null ? new HashSet<>() : stamp.getModuleSpecifications()),
-            (stamp == null ? Status.ACTIVE_ONLY_SET : stamp.getAllowedStates()), false);
-
       if (stamp == null) {
          for (int stampSequence : oc.getVersionStampSequences()) {
             modules.add(Get.stampService().getModuleNidForStamp(stampSequence));
-         }
-         if (tss.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid())) {
-            terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
          }
       } else {
          oc.getVersionList().stream().filter(version -> {
@@ -2160,15 +2216,7 @@ public class Frills
          }).forEach(version -> {
             modules.add(version.getModuleNid());
          });
-         
-         if (tss.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid()))
-         {
-            terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
-         }
       }
-      
-      //This isn't a valid module to ask for terminology type on
-      modules.remove(MetaData.MODULE____SOLOR.getNid());
 
       for (int moduleNid : modules) {
          terminologyTypes.add(getTerminologyTypeForModule(moduleNid, stamp));

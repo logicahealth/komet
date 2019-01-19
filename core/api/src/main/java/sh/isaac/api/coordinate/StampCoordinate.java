@@ -41,16 +41,20 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import javax.xml.bind.annotation.XmlElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.util.UUIDUtil;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -70,7 +74,31 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  */
 public interface StampCoordinate
         extends TimeBasedAnalogMaker<StampCoordinate>, StateBasedAnalogMaker<StampCoordinate>, Coordinate {
-   /**
+
+    /**
+     * 
+     * @return a content based uuid, such that identical stamp coordinates
+     * will have identical uuids, and that different stamp coordinates will 
+     * always have different uuids.
+     */
+    default UUID getStampCoordinateUuid() {
+        ArrayList<UUID> uuidList = new ArrayList();
+        for (Status status: getAllowedStates()) {
+            UUIDUtil.addSortedUuids(uuidList, status.getSpecifyingConcept().getNid());
+        }
+        UUIDUtil.addSortedUuids(uuidList, getModuleNids().asArray());
+        UUIDUtil.addSortedUuids(uuidList, getStampPosition().getStampPath().getPathConceptNid());
+        UUIDUtil.addSortedUuids(uuidList, getStampPrecedence().getSpecifyingConcept().getNid());
+        for (ConceptSpecification spec: getModulePreferenceOrderForVersions()) {
+            UUIDUtil.addSortedUuids(uuidList, spec.getNid());
+        }
+        StringBuilder b = new StringBuilder();
+        b.append(uuidList.toString());
+        b.append(getStampPosition().getTime());
+        return UUID.nameUUIDFromBytes(b.toString().getBytes());
+    }
+
+    /**
     * Determine what states should be included in results based on this
     * stamp coordinate. If current—but inactive—versions are desired,
     * the allowed states must include {@code Status.INACTIVE}

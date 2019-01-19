@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+ * Copyright 2019 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.iconography;
+package sh.isaac.api.query.properties;
+
+import sh.isaac.api.query.LetItemKey;
 
 /**
  *
  * @author kec
  */
-public enum IconSource {
-      MATERIAL_DESIGNS_WEBFONT, MATERIAL_ICON, FONT_AWSOME, SVG, EMOJI_ONE, 
-      ICONS_525, OCT_ICON;     
-};
+public interface ConceptClause {
+    LetItemKey getConceptSpecKey();
+
+    void setConceptSpecKey(LetItemKey conceptSpecKey);
+    
+}

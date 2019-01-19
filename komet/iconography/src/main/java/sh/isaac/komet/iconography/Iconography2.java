@@ -18,11 +18,7 @@ package sh.isaac.komet.iconography;
 
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import org.controlsfx.glyphfont.Glyph;
 import org.controlsfx.glyphfont.GlyphFont;
 
@@ -47,8 +43,8 @@ public enum Iconography2 {
     TAXONOMY_CLICK_TO_OPEN(FONT_AWSOME, "CARET_RIGHT", "taxonomy-open-icon"),
     STATED_VIEW(SVG, "", "stated-view"),
     INFERRED_VIEW(SVG, "", "inferred-view"),
-    SHORT_TEXT(MATERIAL_DESIGNS_ICON, "SHORT_TEXT", "short-text"),
-    LONG_TEXT(MATERIAL_DESIGNS_ICON, "WRAP_TEXT", "long-text"),
+    SHORT_TEXT(MATERIAL_ICON, "SHORT_TEXT", "short-text"),
+    LONG_TEXT(MATERIAL_ICON, "WRAP_TEXT", "long-text"),
     VANITY_BOX(SVG, "", "vanity-box"),
     SET_AND(SVG, "", "set-and"),
     SET_OR(SVG, "", "set-or"),
@@ -70,7 +66,7 @@ public enum Iconography2 {
     HIERARCHICAL_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "CROWN", "hierarchical-layout"),
 
     PIN(OCT_ICON, "PIN", "pin-slider-open"),
-    PINNED_CLOSE(MATERIAL_DESIGNS_ICON, "HIGHLIGHT_OFF", "close_slider"),
+    PINNED_CLOSE(MATERIAL_ICON, "HIGHLIGHT_OFF", "close_slider"),
 
 
 
@@ -83,8 +79,8 @@ public enum Iconography2 {
     MAGNIFY(MATERIAL_DESIGNS_WEBFONT, "MAGNIFY", "magnify"),
     MAGNIFY_PLUS(MATERIAL_DESIGNS_WEBFONT, "MAGNIFY_PLUS", "magnify-plus"),
     MAGNIFY_MINUS(MATERIAL_DESIGNS_WEBFONT, "MAGNIFY_MINUS", "magnify-minus"),
-    ONE_TO_ONE(MATERIAL_DESIGNS_ICON, "FULLSCREEN_EXIT", "one-to-one"),
-    ZOOM_TO_FIT(MATERIAL_DESIGNS_ICON, "FULLSCREEN", "zoom-to-fit"),
+    ONE_TO_ONE(MATERIAL_ICON, "FULLSCREEN_EXIT", "one-to-one"),
+    ZOOM_TO_FIT(MATERIAL_ICON, "FULLSCREEN", "zoom-to-fit"),
 
     CIRCLE_A(EMOJI_ONE, "REGIONAL_INDICATOR_A", "circle-a"),
     CIRCLE_B(EMOJI_ONE, "REGIONAL_INDICATOR_B", "circle-b"),
@@ -143,7 +139,7 @@ public enum Iconography2 {
     SOURCE_BRANCH(OCT_ICON, "GIT_BRANCH", "branch"),
     SOURCE_BRANCH_1(MATERIAL_DESIGNS_WEBFONT, "SOURCE_BRANCH", "branch-1"),
     PLUS(OCT_ICON, "PLUS", "plus"),
-    CONCEPT_DETAILS(MATERIAL_DESIGNS_ICON, "VIEW_WEEK", "concept-details"),
+    CONCEPT_DETAILS(MATERIAL_ICON, "VIEW_WEEK", "concept-details"),
     CONCEPT_TABLE(MATERIAL_DESIGNS_WEBFONT, "TABLE", "concept-table"),
     KOMET(EMOJI_ONE, "COMET", "komet"),
     SPINNER(ICONS_525, "SPINNER", "spinner"),
@@ -157,7 +153,7 @@ public enum Iconography2 {
     SPINNER7(ICONS_525, "SPINNER", "spinner-7"),
     STOP_CIRCLE(FONT_AWSOME, "STOP_CIRCLE", "stop-circle"),
     STOP_STOP(ICONS_525, "STOP_SIGN", "stop-sign"),
-    STOP_SQUARE(MATERIAL_DESIGNS_ICON, "STOP", "stop-square"),
+    STOP_SQUARE(MATERIAL_ICON, "STOP", "stop-square"),
     ALERT_CONFIRM(SVG, "", "alert-confirm"),
     ALERT_INFORM(SVG, "", "alert-info"),
     ALERT_ERROR(SVG, "", "alert-error"),
@@ -166,7 +162,7 @@ public enum Iconography2 {
     ALERT_INFORM2(ICONS_525, "INFO_CIRCLE", "alert-info-2"),
     ALERT_ERROR2(MATERIAL_DESIGNS_WEBFONT, "ALERT_OCTAGON", "alert-error-2"),
     ALERT_WARN2(MATERIAL_DESIGNS_WEBFONT, "ALERT_CIRCLE_OUTLINE", "alert-warn-2"),
-    TEMPORARY_FIX(MATERIAL_DESIGNS_ICON, "HEALING", "temporary-fix"),
+    TEMPORARY_FIX(MATERIAL_ICON, "HEALING", "temporary-fix"),
     CHECK(FONT_AWSOME, "CHECK", "check"),
     CHECKERED_FLAG(EMOJI_ONE, "CHECKERED_FLAG", "checkered-flag"),
     // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
@@ -182,8 +178,8 @@ public enum Iconography2 {
     LINK_EXTERNAL(OCT_ICON, "LINK_EXTERNAL", "link-external"),
     NEW_CONCEPT(MATERIAL_DESIGNS_WEBFONT, "SHAPE_CIRCLE_PLUS", "new-concept"),
     CANCEL(ICONS_525, "CIRCLEDELETE", "cancel"),
-    DUPLICATE(MATERIAL_DESIGNS_ICON, "QUEUE", "duplicate"),
-    ADD(MATERIAL_DESIGNS_ICON, "ADD_BOX", "add"),
+    DUPLICATE(MATERIAL_ICON, "QUEUE", "duplicate"),
+    ADD(MATERIAL_ICON, "ADD_BOX", "add"),
     // Icons525.CIRCLEDELETE
     // MaterialIcon.QUEUE
     OPEN(MATERIAL_DESIGNS_WEBFONT, "MENU_DOWN", "open"),
@@ -191,11 +187,11 @@ public enum Iconography2 {
     FEATURE_FUNCTION(MATERIAL_DESIGNS_WEBFONT, "FUNCTION", "feature-function"),
     FEATURE_INFO(ICONS_525, "INFO", "feature-info"),
     FEATURE_RULER(MATERIAL_DESIGNS_WEBFONT, "RULER", "feature-ruler"),
-    LITERAL_STRING(MATERIAL_DESIGNS_ICON, "FORMAT_QUOTE", "literal-string"),
+    LITERAL_STRING(MATERIAL_ICON, "FORMAT_QUOTE", "literal-string"),
     LITERAL_NUMERIC(FONT_AWSOME, "HASHTAG", "literal-numeric"),
     ARROW_UP(MATERIAL_DESIGNS_WEBFONT, "ARROW_UP_BOLD", "arrow-up"),
     ARROW_DOWN(MATERIAL_DESIGNS_WEBFONT, "ARROW_DOWN_BOLD", "arrow-down"),
-    DELETE_TRASHCAN(MATERIAL_DESIGNS_ICON, "DELETE_FOREVER", "delete-trashcan"),
+    DELETE_TRASHCAN(MATERIAL_ICON, "DELETE_FOREVER", "delete-trashcan"),
 
     // MaterialDesignIcon.MENU_DOWN
     // MaterialDesignIcon.MENU_RIGHT
@@ -227,7 +223,7 @@ public enum Iconography2 {
             case MATERIAL_DESIGNS_WEBFONT:
                 font = GlyphFonts.materialDesignWebfont();
                 break;
-            case MATERIAL_DESIGNS_ICON:
+            case MATERIAL_ICON:
                 font = GlyphFonts.materialIcon();
                 break;
             case OCT_ICON:
@@ -253,7 +249,7 @@ public enum Iconography2 {
             case ICONS_525:
                 font = GlyphFonts.icons525();
                 break;
-            case MATERIAL_DESIGNS_ICON:
+            case MATERIAL_ICON:
                 font = GlyphFonts.materialIcon();
                 break;
             case MATERIAL_DESIGNS_WEBFONT:

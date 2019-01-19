@@ -53,4 +53,9 @@ public class ObservableConceptProxy extends SimpleObjectProperty<ConceptProxy> i
         return get().getUuidList();
     }
     
-}
+    @Override
+    public UUID[] getUuids() {
+        return getUuidList().toArray(new UUID[0]);
+    }
+
+ }

@@ -38,8 +38,8 @@ import sh.isaac.api.query.properties.AssemblageForIterationClause;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.Join;
 import sh.isaac.api.query.JoinSpecification;
-import sh.isaac.api.query.clauses.ComponentIsActive;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
+import sh.isaac.api.query.properties.ConceptClause;
 import sh.isaac.api.query.properties.ManifoldClause;
 import sh.isaac.api.query.properties.QueryStringClause;
 import sh.isaac.api.query.properties.ReferencedComponentClause;
@@ -102,14 +102,22 @@ public class QueryClause {
                 return new Label("ASSEMBLAGE_CONTAINS_COMPONENT");
             case CHANGED_FROM_PREVIOUS_VERSION:
                 return new Label("CHANGED_FROM_PREVIOUS_VERSION");
-            case CONCEPT_IS:
-                return new Label("CONCEPT_IS");
+            case CONCEPT_IS: {
+                setupAssemblageForIteration("for each");
+                return setupConceptClause("is");
+            }
             case CONCEPT_IS_CHILD_OF:
-                return new Label("CONCEPT_IS_CHILD_OF");
+                setupAssemblageForIteration("for each");
+                setupManifoldClause("manifold");
+                return setupConceptClause("is child of");
             case CONCEPT_IS_DESCENDENT_OF:
-                return new Label("CONCEPT_IS_DESCENDENT_OF");
+                setupAssemblageForIteration("for each");
+                setupManifoldClause("manifold");
+                return setupConceptClause("is descendent of");
             case CONCEPT_IS_KIND_OF:
-                return new Label("CONCEPT_IS_KIND_OF");
+                setupAssemblageForIteration("for each");
+                setupManifoldClause("manifold");
+                return setupConceptClause("is kind of");
             case DESCRIPTION_ACTIVE_LUCENE_MATCH:
                 return new Label("DESCRIPTION_ACTIVE_LUCENE_MATCH");
             case DESCRIPTION_ACTIVE_REGEX_MATCH:
@@ -314,11 +322,57 @@ public class QueryClause {
     protected PropertySheet setupManifoldClause(String keyName) {
         ManifoldClause manifoldClause = (ManifoldClause) clauseProperty.get();
         SimpleObjectProperty<LetItemKey> manifoldKeyProperty = new SimpleObjectProperty<>(this, MetaData.MANIFOLD_COORDINATE_REFERENCE____SOLOR.toExternalString());
+        manifoldKeyProperty.set(manifoldClause.getManifoldCoordinateKey());
         this.clauseSpecificProperties.add(manifoldKeyProperty);
         clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("manifold",
                 manifoldKeyProperty, letPropertySheet.getManifoldCoordinateKeys()));
-        stampKeyProperty.addListener((observable, oldValue, newValue) -> {
+        manifoldKeyProperty.addListener((observable, oldValue, newValue) -> {
             manifoldClause.setManifoldCoordinateKey((LetItemKey) newValue);
+        });
+        return clausePropertySheet;
+    }
+    protected PropertySheet setupConceptClause(String keyName) {
+        SimpleObjectProperty<LetItemKey> conceptSpecificationKeyProperty = new SimpleObjectProperty<>(this, MetaData.CONCEPT_REFERENCE____SOLOR.toExternalString());
+        this.clauseSpecificProperties.add(conceptSpecificationKeyProperty);
+        SimpleObjectProperty<ConceptSpecification> conceptSpecProperty = new SimpleObjectProperty<>(this, MetaData.CONCEPT_FIELD____SOLOR.toExternalString());
+        this.clauseSpecificProperties.add(conceptSpecProperty);
+        ConceptClause conceptClauseAbstract = (ConceptClause) clauseProperty.get();
+
+        LetItemKey conceptKey = conceptClauseAbstract.getConceptSpecKey();
+        if (conceptKey == null) {
+            conceptKey = new LetItemKey(keyName);
+            conceptClauseAbstract.setConceptSpecKey(conceptKey);
+            letPropertySheet.getLetItemObjectMap().put(conceptKey, TermAux.UNINITIALIZED_COMPONENT_ID);
+        }
+
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("key",
+                conceptSpecificationKeyProperty, this.letPropertySheet.getConceptSpecificationKeys()));
+
+        conceptSpecificationKeyProperty.addListener((observable, oldValue, newValue) -> {
+            conceptClauseAbstract.setConceptSpecKey((LetItemKey) newValue);
+            conceptSpecProperty.set((ConceptSpecification) letPropertySheet.getLetItemObjectMap().get(newValue));
+        });
+        letPropertySheet.getLetItemObjectMap().addListener((MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) -> {
+            LetItemKey key = change.getKey();
+            if (key.equals(conceptSpecificationKeyProperty.get())) {
+                if (change.wasRemoved() & !change.wasAdded()) {
+                    conceptSpecProperty.setValue(null);
+                }
+                if (change.wasAdded()) {
+                    conceptSpecProperty.setValue((ConceptSpecification) change.getValueAdded());
+                }
+            }
+        });
+
+        conceptSpecificationKeyProperty.set(conceptKey);
+
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapper(manifold,
+                "concept", conceptSpecProperty));
+        conceptSpecProperty.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                newValue = new ConceptProxy(newValue);
+            }
+            letPropertySheet.getLetItemObjectMap().put(conceptClauseAbstract.getConceptSpecKey(), newValue);
         });
         return clausePropertySheet;
     }

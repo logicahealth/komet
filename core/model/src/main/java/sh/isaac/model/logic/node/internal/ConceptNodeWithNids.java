@@ -71,6 +71,9 @@ public final class ConceptNodeWithNids
 
    /**
     * Instantiates a new concept node with sequences.
+    * 
+    * Note that this constructor is not safe for all uses, and is only intended to aid in serialization / deserialization.
+    * This should be protected, but can't be, due to current package structure.
     *
     * @param externalForm the external form
     */

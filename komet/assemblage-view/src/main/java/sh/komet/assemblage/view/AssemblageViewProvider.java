@@ -88,10 +88,10 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
       }
       titleProperty.set(manifold.getPreferredDescriptionText(newValue));
       toolTipProperty.set("View of all " + manifold.getPreferredDescriptionText(newValue) + " assemblage members");
-      int count = Get.assemblageService().getSemanticCount(newValue.getNid());
-      this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " semantics");
-
+      int count = (int) Get.identifierService().getNidsForAssemblage(newValue.getNid()).count();
+      this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " elements");
    }
+   
    @Override
    public Node getMenuIcon() {
       return Iconography.PAPERCLIP.getIconographic();

@@ -44,7 +44,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
@@ -55,6 +54,7 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.query.properties.ConceptClause;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -66,7 +66,7 @@ import sh.isaac.api.query.WhereClause;
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIs
-        extends LeafClause {
+        extends LeafClause implements ConceptClause {
 
     /**
      * The concept spec string.
@@ -105,10 +105,11 @@ public class ConceptIs
 
         NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
 
-        for (int nid : possibleComponents.asArray()) {
-            if (nid != conceptNid) {
-                possibleComponents.remove(nid);
-            }
+        if (possibleComponents.contains(conceptNid)) {
+            possibleComponents.clear();
+            possibleComponents.add(conceptNid);
+        } else {
+            possibleComponents.clear();
         }
         return incomingPossibleComponents;
     }
@@ -144,11 +145,13 @@ public class ConceptIs
         return whereClause;
     }
 
-    public LetItemKey getConceptSpecString() {
+    @Override
+    public LetItemKey getConceptSpecKey() {
         return conceptSpecString;
     }
 
-    public void setConceptSpecString(LetItemKey conceptSpecString) {
+    @Override
+    public void setConceptSpecKey(LetItemKey conceptSpecString) {
         this.conceptSpecString = conceptSpecString;
     }
 

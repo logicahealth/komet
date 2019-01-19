@@ -18,6 +18,7 @@ package sh.isaac.api.query;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -27,6 +28,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.api.util.time.DateTimeUtil;
 
 /**
@@ -77,12 +79,12 @@ public class AttributeFunction {
                 };
             case "Primoridal uuid":
                 return (string, stampCoordinate, query) -> {
-                    int nid = Integer.parseInt(string);
+                    int nid = getNidFromString(string);
                     return Get.identifierService().getUuidPrimordialForNid(nid).toString();
                 };
             case "All uuids":
                 return (string, stampCoordinate, query) -> {
-                    int nid = Integer.parseInt(string);
+                    int nid = getNidFromString(string);
                     return Get.identifierService().getUuidsForNid(nid).toString();
                 };
             case "Epoch to 8601 date/time":
@@ -101,10 +103,29 @@ public class AttributeFunction {
                             }
                         }
                         if (lc != null) {
-                            int nid = Integer.parseInt(string);
+                            int nid = getNidFromString(string);
                             LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(nid, stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
+                            }
+                            return "No current preferred name";
+                        }
+                        throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
+                    };
+                } else if (functionName.endsWith(" preferred name UUID")) {
+                    return (string, stampCoordinate, query) -> {
+                        LanguageCoordinate lc = null;
+                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
+                            if (functionName.startsWith(entry.getKey().getItemName())) {
+                                lc = (LanguageCoordinate) entry.getValue();
+                                break;
+                            }
+                        }
+                        if (lc != null) {
+                            int nid = getNidFromString(string);
+                            LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(nid, stampCoordinate);
+                            if (description.isPresent()) {
+                                return description.get().getPrimordialUuid().toString();
                             }
                             return "No current preferred name";
                         }
@@ -120,10 +141,30 @@ public class AttributeFunction {
                             }
                         }
                         if (lc != null) {
-                            int nid = Integer.parseInt(string);
+                            int nid = getNidFromString(string);
+                            
                             LatestVersion<DescriptionVersion> description = lc.getFullySpecifiedDescription(nid, stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
+                            }
+                            return "No current FQN";
+                        }
+                        throw new IllegalStateException("Cannot find LetItemKey for " + functionName + " " + query.getLetDeclarations().entrySet());
+                    };
+                } else if (functionName.endsWith(" FQN UUID")) {
+                    return (string, stampCoordinate, query) -> {
+                        LanguageCoordinate lc = null;
+                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
+                            if (functionName.startsWith(entry.getKey().getItemName())) {
+                                lc = (LanguageCoordinate) entry.getValue();
+                                break;
+                            }
+                        }
+                        if (lc != null) {
+                            int nid = getNidFromString(string);
+                            LatestVersion<DescriptionVersion> description = lc.getFullySpecifiedDescription(nid, stampCoordinate);
+                            if (description.isPresent()) {
+                                return description.get().getPrimordialUuid().toString();
                             }
                             return "No current FQN";
                         }
@@ -139,7 +180,7 @@ public class AttributeFunction {
                             }
                         }
                         if (lc != null) {
-                            int nid = Integer.parseInt(string);
+                            int nid = getNidFromString(string);
                             LatestVersion<DescriptionVersion> description = lc.getDefinitionDescription(Get.concept(nid).getConceptDescriptionList(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
@@ -148,9 +189,38 @@ public class AttributeFunction {
                         }
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
                     };
+                } else if (functionName.endsWith(" definition UUID")) {
+                    return (string, stampCoordinate, query) -> {
+                        LanguageCoordinate lc = null;
+                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
+                            if (functionName.startsWith(entry.getKey().getItemName())) {
+                                lc = (LanguageCoordinate) entry.getValue();
+                                break;
+                            }
+                        }
+                        if (lc != null) {
+                            int nid = getNidFromString(string);
+                            LatestVersion<DescriptionVersion> description = lc.getDefinitionDescription(Get.concept(nid).getConceptDescriptionList(), stampCoordinate);
+                            if (description.isPresent()) {
+                                return description.get().getPrimordialUuid().toString();
+                            }
+                            return "No current definition";
+                        }
+                        throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
+                    };
                 }
         }    
         throw new IllegalStateException("No function for " + functionName);
+    }
+
+    protected static int getNidFromString(String string) throws NumberFormatException {
+        int nid;
+        if (UUIDUtil.isUUID(string)) {
+            nid = Get.nidForUuids(UUID.fromString(string));
+        } else {
+            nid = Integer.parseInt(string);
+        }
+        return nid;
     }
     
     public final void setFunctionName(String functionName) {
