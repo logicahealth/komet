@@ -39,20 +39,22 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class ControllerForReturnSpecification extends ControllerForSpecification {
 
-
     final ObservableList<AttributeSpecification> returnSpecificationRows
             = FXCollections.observableArrayList(returnSpecificationRow
                     -> new Observable[]{
                 returnSpecificationRow.columnNameProperty()});
 
     public ControllerForReturnSpecification(SimpleListProperty<ConceptSpecification> forAssemblagesProperty,
+            ObservableList<LetItemKey> letItemKeys,
             ObservableMap<LetItemKey, Object> letItemObjectMap,
             ObservableList<AttributeFunction> cellFunctions,
             ObservableList<ConceptSpecification> joinProperties,
             ObservableList<MenuItem> addFieldItems,
             TableView<List<String>> resultTable,
             Manifold manifold) {
-        super(forAssemblagesProperty, manifold, addFieldItems, joinProperties, letItemObjectMap, cellFunctions, resultTable);
+        super(forAssemblagesProperty, manifold, letItemKeys, addFieldItems, joinProperties, letItemObjectMap, cellFunctions, resultTable);
+        this.setupAttributeFunctions();
+
     }
 
     public ObservableList<MenuItem> getAddFieldItems() {

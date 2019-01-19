@@ -108,7 +108,6 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
-import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -957,11 +956,16 @@ public class FLWORQueryController
         this.whereTreeTable.setFixedCellSize(-1);
 
         this.forAnchorPane.getChildren().add(this.forPropertySheet.getNode());
+        
+         FXMLLoader letItemsLoader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/LetItems.fxml"));
+         letItemsLoader.load();
+         this.setLetItemsController(letItemsLoader.getController());
 
         this.letAnchorPane.getChildren()
                 .add(letPropertySheet.getNode());
         this.sortSpecificationController = new ControllerForSortSpecification(
                 this.forPropertySheet.getForAssemblagesProperty(),
+                this.letItemsController.getLetListViewletListView().getItems(),
                 this.letPropertySheet.getLetItemObjectMap(),
                 this.cellFunctions,
                 this.joinProperties,
@@ -972,6 +976,7 @@ public class FLWORQueryController
 
         this.returnSpecificationController = new ControllerForReturnSpecification(
                 this.forPropertySheet.getForAssemblagesProperty(),
+                this.letItemsController.getLetListViewletListView().getItems(),
                 this.letPropertySheet.getLetItemObjectMap(),
                 this.cellFunctions,
                 this.joinProperties,
@@ -981,9 +986,6 @@ public class FLWORQueryController
         this.returnSpecificationController.addReturnSpecificationListener(this::returnSpecificationListener);
         this.returnTable.setItems(this.returnSpecificationController.getReturnSpecificationRows());
 
-         FXMLLoader letItemsLoader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/LetItems.fxml"));
-         letItemsLoader.load();
-         this.setLetItemsController(letItemsLoader.getController());
     }
 
     public void returnSpecificationListener(ListChangeListener.Change<? extends AttributeSpecification> c) {

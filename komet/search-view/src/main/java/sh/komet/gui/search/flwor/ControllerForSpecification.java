@@ -42,6 +42,10 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.query.AttributeFunction;
+import static sh.isaac.api.query.AttributeFunction.CHILD_OF_PREFIX;
+import static sh.isaac.api.query.AttributeFunction.DESCENDENT_OF_PREFIX;
+import static sh.isaac.api.query.AttributeFunction.KIND_OF_PREFIX;
+import static sh.isaac.api.query.AttributeFunction.MANIFOLD_PREFIX;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.QueryFieldSpecification;
 import sh.komet.gui.manifold.Manifold;
@@ -63,7 +67,9 @@ public abstract class ControllerForSpecification {
 
 
     public ControllerForSpecification(SimpleListProperty<ConceptSpecification> forAssemblagesProperty, 
-            Manifold manifold, ObservableList<MenuItem> addFieldItems, 
+            Manifold manifold, 
+            ObservableList<LetItemKey> letItemKeys,
+            ObservableList<MenuItem> addFieldItems, 
             ObservableList<ConceptSpecification> joinProperties, 
             ObservableMap<LetItemKey, Object> letItemObjectMap, 
             ObservableList<AttributeFunction> attributeFunctions, 
@@ -75,11 +81,11 @@ public abstract class ControllerForSpecification {
         this.letItemObjectMap = letItemObjectMap;
         this.attributeFunctions = attributeFunctions;
         this.forAssemblagesProperty.addListener(this::forAssemblagesListener);
-        this.letItemObjectMap.addListener(this::letItemsListener);
         this.resultTable = resultTable;
+        letItemKeys.addListener(this::letItemsListListener);
+        this.letItemObjectMap.addListener(this::letItemsMapListener);
+        
     }
-
-
 
     protected abstract void clearForChange();
 
@@ -130,19 +136,30 @@ public abstract class ControllerForSpecification {
         }
     }
 
-    protected void letItemsListener(MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) {
+    protected void letItemsMapListener(MapChangeListener.Change<? extends LetItemKey, ? extends Object> c) {
         setupAttributeFunctions();
-      }
-
-    protected void setupAttributeFunctions() {
+    }
+    protected void letItemsListListener(ListChangeListener.Change<? extends LetItemKey> c) {
+        setupAttributeFunctions();
+    }
+    protected final void setupAttributeFunctions() {
         this.resultTable.getItems().clear();
         this.attributeFunctions.clear();
         this.attributeFunctions.add(new AttributeFunction(""));
         this.attributeFunctions.add(new AttributeFunction("Primoridal uuid"));
         this.attributeFunctions.add(new AttributeFunction("All uuids"));
         this.attributeFunctions.add(new AttributeFunction("Epoch to 8601 date/time"));
+        
+        List<Map.Entry<LetItemKey, Object>> manifolds = new ArrayList<>();
+        List<Map.Entry<LetItemKey, Object>> conceptSpecs = new ArrayList<>();
 
         for (Map.Entry<LetItemKey, Object> entry: letItemObjectMap.entrySet()) {
+            if (entry.getValue() instanceof ManifoldCoordinate) {
+                manifolds.add(entry);
+            }
+            if (entry.getValue() instanceof ConceptSpecification) {
+                conceptSpecs.add(entry);
+            }
             if (entry.getValue() instanceof StampCoordinate &! (entry.getValue() instanceof ManifoldCoordinate)) {
                 this.lastStampCoordinateKey = entry.getKey();
                 for (QueryFieldSpecification row : getSpecificationRows()) {
@@ -158,6 +175,17 @@ public abstract class ControllerForSpecification {
                 attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + " FQN UUID"));
                 attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + " definition"));
                 attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + " definition UUID"));
+            }
+        }
+        for (Map.Entry<LetItemKey, Object> manifoldForFunction: manifolds) {
+            for (Map.Entry<LetItemKey, Object> conceptSpec: conceptSpecs) {
+                attributeFunctions.add(new AttributeFunction(KIND_OF_PREFIX + conceptSpec.getKey() + MANIFOLD_PREFIX + manifoldForFunction.getKey()));
+            }
+            for (Map.Entry<LetItemKey, Object> conceptSpec: conceptSpecs) {
+                attributeFunctions.add(new AttributeFunction(CHILD_OF_PREFIX + conceptSpec.getKey() + MANIFOLD_PREFIX + manifoldForFunction.getKey()));
+            }
+            for (Map.Entry<LetItemKey, Object> conceptSpec: conceptSpecs) {
+                attributeFunctions.add(new AttributeFunction(DESCENDENT_OF_PREFIX + conceptSpec.getKey() + MANIFOLD_PREFIX + manifoldForFunction.getKey()));
             }
         }
     }

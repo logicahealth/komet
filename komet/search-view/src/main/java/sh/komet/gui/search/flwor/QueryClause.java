@@ -34,6 +34,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.query.properties.AssemblageForIterationClause;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.Join;
@@ -139,7 +140,6 @@ public class QueryClause {
                 queryText.setValue(descriptionLuceneMatch.getQueryText());
                 queryText.addListener((observable, oldValue, newValue) -> {
                     descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), newValue);
-
                 });
 
                 clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold, queryText));
@@ -355,11 +355,13 @@ public class QueryClause {
         letPropertySheet.getLetItemObjectMap().addListener((MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) -> {
             LetItemKey key = change.getKey();
             if (key.equals(conceptSpecificationKeyProperty.get())) {
-                if (change.wasRemoved() & !change.wasAdded()) {
-                    conceptSpecProperty.setValue(null);
-                }
                 if (change.wasAdded()) {
-                    conceptSpecProperty.setValue((ConceptSpecification) change.getValueAdded());
+                    if (change.getValueAdded() instanceof ObservableConceptProxy) {
+                        conceptSpecProperty.setValue(((ObservableConceptProxy) change.getValueAdded()).get());
+                    } else {
+                        conceptSpecProperty.setValue((ConceptSpecification) change.getValueAdded());
+                    }
+                    
                 }
             }
         });
