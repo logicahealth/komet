@@ -138,6 +138,9 @@ public class DirectWriteHelper
 	 * If you create ANY logic graphs, ensure that you call {@link #processTaxonomyUpdates()} before allowing this helper to be
 	 * garbage collected.
 	 * 
+	 * Note, this method also reconfigured the passed in converterUUID to use the namespace of the  passed in module, as a convenience, 
+	 * as that is the typical use pattern.
+	 * 
 	 * @param author The default author to use for creates
 	 * @param module The default module to use for creates
 	 * @param path The default path to use for creates
@@ -162,6 +165,9 @@ public class DirectWriteHelper
 		this.loadStats = new LoadStats();
 		this.terminologyName = terminologyName;
 		this.delayValidations = delayValidations;
+		
+		converterUUID.configureNamespace(Get.identifierService().getUuidPrimordialForNid(module));
+		
 	}
 
 	/**
