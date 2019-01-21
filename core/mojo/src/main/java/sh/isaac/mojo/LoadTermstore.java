@@ -54,6 +54,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -73,6 +74,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
@@ -483,18 +485,54 @@ public class LoadTermstore extends AbstractMojo
 										// We already loaded a stated logic graph for this concept.  Now the incoming content has another stated
 										// graph for this tree.  If this is for something that involves metadata, merge them.  Otherwise, log a warning.
 										final List<LogicalExpression> listToMerge = new ArrayList<>();
+										final HashSet<Integer> uniqueNids = new HashSet<>();
 										boolean foundMetadataModule = false;
 										
 										SemanticChronology existingChronology = null;
 										for (int nid : nids.asArray())
 										{
-											existingChronology = Get.assemblageService().getSemanticChronology(nid);
-											LogicGraphVersion existingVersion = ((LogicGraphVersion) existingChronology
-													.getLatestVersion(StampCoordinates.getDevelopmentLatest()).get());
-											listToMerge.add(existingVersion.getLogicalExpression());
-											if (existingVersion.getModuleNid() == TermAux.CORE_METADATA_MODULE.getNid())
+											Optional<? extends SemanticChronology> eco = Get.assemblageService().getOptionalSemanticChronology(nid);
+											int i = 0;
+											while (!eco.isPresent())
 											{
-												foundMetadataModule = true;
+												//This can happen, due to threading within the BinaryDataStreamReader.  Keep retrying until the data is present.
+												try
+												{
+													Thread.sleep(1);
+													if (i++ > 200)
+													{
+														break;
+													}
+													eco = Get.assemblageService().getOptionalSemanticChronology(nid);
+												}
+												catch (InterruptedException e)
+												{
+													// noop
+												}
+											}
+											if (!eco.isPresent()) {
+												//This should no longer happen, with the loop above, but just incase - ignore, we aren't merging those anyway.
+												getLog().warn("Nid " + nid + " was listed on an assemblage, but not available from the semantic service! uuid: " + 
+														Get.identifierService().getUuidPrimoridalStringForNid(nid) + " referenced component: " + 
+														Get.identifierService().getUuidPrimoridalStringForNid(sc.getReferencedComponentNid()));
+												continue;
+											}
+											
+											for (Version v : eco.get().getVersionList())
+											{
+												if (v.getModuleNid()== TermAux.CORE_METADATA_MODULE.getNid())
+												{
+													foundMetadataModule = true;
+												}
+											}
+											
+											existingChronology = eco.get();
+											LatestVersion<Version> lgvo = existingChronology.getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
+											if (lgvo.isPresent())
+											{
+												LogicGraphVersion lgv = ((LogicGraphVersion) lgvo.get());
+												listToMerge.add(lgv.getLogicalExpression());
+												uniqueNids.add(nid);
 											}
 										}
 
@@ -507,51 +545,60 @@ public class LoadTermstore extends AbstractMojo
 												foundMetadataModule = true;
 											}
 										}
-										
-										listToMerge.add(latestIncoming.getLogicalExpression());
 
-										if (foundMetadataModule)
+										if (latestIncoming.isActive())
 										{
-											//This involves metadata, go ahead and merge the parents into a new graph.
-											
-											if (nids.size() > 1)
-											{
-												//We shouldn't have loaded more than one semantics that involved metadata for a concept, if merge
-												//is working correctly.  Fail.
-												throw new RuntimeException("Multiple loaded stated graphs for concept prior to addition of: " + sc);
-											}
-											
-											Set<Integer> mergedParents = new HashSet<>();
-											for (LogicalExpression le : listToMerge)
-											{
-												mergedParents.addAll(getParentConceptSequencesFromLogicExpression(le));
-											}
-											Assertion[] assertions = new Assertion[mergedParents.size()];
-											LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-											int i = 0;
-											for (Integer parent : mergedParents)
-											{
-												assertions[i++] = ConceptAssertion(parent, leb);
-											}
-
-											NecessarySet(And(assertions));
-											byte[][] data = leb.build().getData(DataTarget.INTERNAL);
-											mergeCount++;
-
-											int stampSequence = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(),
-													TermAux.USER.getNid(), TermAux.SOLOR_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
-											MutableLogicGraphVersion newVersion = (MutableLogicGraphVersion) existingChronology.createMutableVersion(stampSequence);
-											newVersion.setGraphData(data);
-											sc = existingChronology;
+											listToMerge.add(latestIncoming.getLogicalExpression());
+											uniqueNids.add(sc.getNid());
 										}
-										else
+
+										if (listToMerge.size() > 1)
 										{
-											//don't merge non-metadata graphs.  Builders of IBDF files should have their own file built properly.
-											if (duplicateCount < duplicatesToPrint)
+											if (foundMetadataModule)
 											{
-												getLog().warn("Multiple stated graphs found for concept.  Not merging.  New graph: " + sc);
+												//This involves metadata, go ahead and merge the parents into a new graph.
+												
+												if (nids.size() > 1)
+												{
+													//We shouldn't have loaded more than one semantics that involved metadata for a concept, if merge
+													//is working correctly.  Fail.
+													throw new RuntimeException("Multiple loaded, active stated graphs for concept prior to addition of: " + sc);
+												}
+												
+												Set<Integer> mergedParents = new HashSet<>();
+												for (LogicalExpression le : listToMerge)
+												{
+													mergedParents.addAll(getParentConceptSequencesFromLogicExpression(le));
+												}
+												Assertion[] assertions = new Assertion[mergedParents.size()];
+												LogicalExpressionBuilder leb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+												int i = 0;
+												for (Integer parent : mergedParents)
+												{
+													assertions[i++] = ConceptAssertion(parent, leb);
+												}
+	
+												NecessarySet(And(assertions));
+												byte[][] data = leb.build().getData(DataTarget.INTERNAL);
+												mergeCount++;
+	
+												int stampSequence = Get.stampService().getStampSequence(Status.ACTIVE, System.currentTimeMillis(),
+														TermAux.USER.getNid(), TermAux.SOLOR_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
+												MutableLogicGraphVersion newVersion = (MutableLogicGraphVersion) existingChronology.createMutableVersion(stampSequence);
+												newVersion.setGraphData(data);
+												sc = existingChronology;
 											}
-											duplicateCount++;
+											else if (uniqueNids.size() > 1)
+											{
+												//don't merge non-metadata graphs.  Builders of IBDF files should have their own file built properly.
+												//But, if there is more than one nid, that means we have multiple stated graphs (not multiple versions of a single
+												//graph - thats an error
+												if (duplicateCount < duplicatesToPrint)
+												{
+													getLog().warn("Multiple active stated graphs found for concept.  Not merging.  New graph: " + sc);
+												}
+												duplicateCount++;
+											}
 										}
 									}
 								}
