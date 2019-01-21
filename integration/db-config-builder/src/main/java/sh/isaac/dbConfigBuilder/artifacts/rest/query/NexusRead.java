@@ -37,7 +37,9 @@ import sh.isaac.pombuilder.diff.DiffExecutionCreator;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
 
 /**
- * An implementation that uses the Nexus Rest API to query nexus for available artifacts
+ * An implementation that uses the Nexus Rest API to query nexus for available artifacts.
+ * 
+ * TODO Note, this currently supports Nexus 3, not Nexus 2.  I should have a second implementation for Nexus 2....
  * 
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
@@ -255,8 +257,17 @@ public class NexusRead implements ArtifactSearch
 		int i = temp.indexOf("/repository");
 		if (i < 0)
 		{
-			throw new RuntimeException(temp + " is not a known Nexus URL format");
+			if (temp.indexOf("content/repositories") >= 0)
+			{
+				throw new RuntimeException(temp + " looks like a nexus 2 connection - which isn't yet supported.");
+			}
+			else
+			{
+				throw new RuntimeException(temp + " is not a known Nexus URL format");
+			}
 		}
+		
+		// Looks like Nexus 3
 		// Create a URL like https://sagebits.net/nexus/service/rest/
 		temp = temp.substring(0, i);
 		return temp + "/service/rest/";
