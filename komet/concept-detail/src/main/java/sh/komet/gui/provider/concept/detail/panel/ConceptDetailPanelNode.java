@@ -115,6 +115,7 @@ import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.ExpandControl;
 import sh.komet.gui.control.StampControl;
+import sh.komet.gui.control.toggle.OnOffToggleSwitch;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
@@ -152,7 +153,7 @@ public class ConceptDetailPanelNode
     private final GridPane versionBrancheGrid = new GridPane();
     private final GridPane toolGrid = new GridPane();
     private final ExpandControl expandControl = new ExpandControl();
-    private final ToggleSwitch historySwitch = new ToggleSwitch();
+    private final OnOffToggleSwitch historySwitch = new OnOffToggleSwitch();
     private final Label expandControlLabel = new Label("Expand All", expandControl);
     private final OpenIntIntHashMap stampOrderHashMap = new OpenIntIntHashMap();
     private final Button addDescriptionButton = new Button("+ Add");

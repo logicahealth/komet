@@ -45,6 +45,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.toggle.OnOffToggleSwitch;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
@@ -62,7 +63,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
    final Manifold manifold;
    final Supplier<List<MenuItem>> menuSupplier;
    final GridPane toolBarGrid = new GridPane();
-   final ToggleSwitch focusOnChange = new ToggleSwitch();
+   final OnOffToggleSwitch focusOnChange = new OnOffToggleSwitch();
 
 
    public void manifoldEventHandler(Event event) {

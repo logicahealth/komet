@@ -98,6 +98,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.komet.gui.alert.AlertPanel;
 import sh.komet.gui.control.ChoiceBoxControls;
+import sh.komet.gui.control.toggle.OnOffToggleSwitch;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
@@ -131,7 +132,7 @@ public class MultiParentTreeView
     //~--- fields --------------------------------------------------------------
     private final SimpleStringProperty titleProperty = new SimpleStringProperty(MENU_TEXT);
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Multi-parent taxonomy view");
-    private final ToggleSwitch historySwitch = new ToggleSwitch();
+    private final OnOffToggleSwitch historySwitch = new OnOffToggleSwitch();
     private final ToolBar toolBar = new ToolBar();
     private MultiParentTreeItemDisplayPolicies displayPolicies;
     private final SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(

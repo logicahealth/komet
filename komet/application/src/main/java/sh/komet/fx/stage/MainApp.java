@@ -36,16 +36,9 @@
  */
 package sh.komet.fx.stage;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.List;
-import java.util.UUID;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.sun.javafx.application.PlatformImpl;
 import de.codecentric.centerdevice.MenuToolkit;
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
-import java.util.prefs.BackingStoreException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -64,6 +57,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.MultiException;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
@@ -76,6 +71,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.util.SystemUtils;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.PreferenceGroup;
@@ -83,16 +79,19 @@ import sh.isaac.komet.preferences.RootPreferences;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
-import sh.isaac.api.util.SystemUtils;
 import sh.komet.gui.contract.AppMenu;
-import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.WindowPreferenceItems;
 import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
+
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.UUID;
+import java.util.prefs.BackingStoreException;
 
 //~--- classes ----------------------------------------------------------------
 public class MainApp
