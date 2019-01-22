@@ -359,10 +359,6 @@ public class VHATImportMojoDirect extends DirectConverterBaseMojo implements Dir
 				}
 			}
 
-			VhatUtil.check(dwh, rootConceptUUID, missingSDORefset);
-
-			log.info("Sanity checked static UUIDs - all ok");
-
 			// Put in names instead of IDs so the load stats print nicer:
 			Hashtable<String, String> stringsToSwap = new Hashtable<String, String>();
 			for (SubsetImportDTO subset : terminology.getSubsets())
@@ -415,6 +411,10 @@ public class VHATImportMojoDirect extends DirectConverterBaseMojo implements Dir
 					fw.close();
 				}
 			}
+			
+			VhatUtil.check(dwh, rootConceptUUID, missingSDORefset);
+
+			log.info("Sanity checked static UUIDs - all ok");
 		}
 		catch (Exception ex)
 		{

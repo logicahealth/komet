@@ -65,34 +65,34 @@ public class VHATConstants implements ModuleProvidedConstants, StaticIsaacCache
 {
 
 	public final static MetadataConceptConstant VHAT_HAS_PARENT_ASSOCIATION_TYPE = new MetadataConceptConstant("has_parent",
-			UUID.fromString("6c2913ab-70c6-5547-9055-df62e6599bfb")){};
+			UUID.fromString("a46d0a85-ec37-52b2-a5bc-9a1ae90af43a")){};
 
 	public final static MetadataConceptConstant VHAT_ABBREVIATION = new MetadataConceptConstant("Abbreviation",
-			UUID.fromString("9e31289b-e317-5700-88b2-93f377787b05")){};
+			UUID.fromString("35048f0f-1392-5f44-a876-66f9c9e8c0ec")){};
 
 	public final static MetadataConceptConstant VHAT_FULLY_SPECIFIED_NAME = new MetadataConceptConstant("Fully Specified Name",
-			UUID.fromString("82ffe8f8-e844-511c-a4af-67f766b2a42d")){};
+			UUID.fromString("a3aa024e-fd5f-5e38-83be-5f6682e10bb7")){};
 
 	public final static MetadataConceptConstant VHAT_PREFERRED_NAME = new MetadataConceptConstant("Preferred Name",
-			UUID.fromString("db3f8cba-e736-5f02-a58e-0a64f562e281")){};
+			UUID.fromString("675f30d6-b9a2-53d2-83f7-e5133b193125")){};
 
 	public final static MetadataConceptConstant VHAT_SYNONYM = 
-			new MetadataConceptConstant("Synonym", UUID.fromString("2e2f63ec-afed-5256-b0c8-d8ee99df51ae")){};
+			new MetadataConceptConstant("Synonym", UUID.fromString("81cfd2fd-b7e4-5cba-aa65-ac01ec606a56")){};
 
 	public final static MetadataConceptConstant VHAT_VISTA_NAME = new MetadataConceptConstant("VistA Name",
-			UUID.fromString("7943e9ae-7049-57e4-bf73-3c34c75e8484")){};
+			UUID.fromString("6648a4f9-e8de-5064-baf0-a16af698b691")){};
 
 	public final static MetadataConceptConstant VHAT_ATTRIBUTE_TYPES = new MetadataConceptConstant("VHAT Attribute Types",
-			UUID.fromString("f82bf8c1-f1a0-5aef-b03e-d5f4e3566c64")){};
+			UUID.fromString("c05291a6-4be9-51bb-b575-32c5487fc22f")){};
 
 	public final static MetadataConceptConstant VHAT_REFSETS = new MetadataConceptConstant("VHAT Refsets",
-			UUID.fromString("1fe57571-5203-5475-9741-9b5e34c4e6a2")){};
+			UUID.fromString("a4a9a58a-fba2-53f1-96e9-111692865fc1")){};
 
 	public final static MetadataConceptConstant VHAT_ROOT_CONCEPT = 
-			new MetadataConceptConstant("VHAT", UUID.fromString("a742e928-c86a-51e0-93b5-8fd72e022e34")){};
+			new MetadataConceptConstant("VHAT", UUID.fromString("6e60d7fd-3729-5dd3-9ce7-6d97c8f75447")){};
 
 	public final static MetadataConceptConstant VHAT_DESCRIPTION_TYPES = new MetadataConceptConstant("VHAT Description Types",
-			UUID.fromString("e8c6aa5f-243f-5f99-b0b5-84c046a79b7a")){};
+			UUID.fromString("0085c2ad-355f-57a7-a72e-3e7ee81b7dbd")){};
 
 	public final static MetadataConceptConstant VHAT_ALL_CONCEPTS = new MetadataConceptConstant("All VHAT Concepts",
 			UUID.fromString("30230ef4-41ac-5b76-95be-94ed60b607e3")){};
@@ -101,7 +101,7 @@ public class VHATConstants implements ModuleProvidedConstants, StaticIsaacCache
 			UUID.fromString("52460eeb-1388-512d-a5e4-fddd64fe0aee")){};
 
 	public final static MetadataConceptConstant VHAT_ASSOCIATION_TYPES = new MetadataConceptConstant("VHAT Association Types",
-			UUID.fromString("60bfef74-0ff2-50f3-8083-ff400a682324")){};
+			UUID.fromString("c8db1ba1-ffbf-5acf-8d13-e92a302c1d00")){};
 
 	@Override
 	public MetadataConceptConstant[] getConstantsToCreate()
