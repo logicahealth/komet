@@ -471,10 +471,17 @@ public class ChronologyProvider
 
     @Override
     public Optional<? extends SemanticChronology> getOptionalSemanticChronology(int semanticNid) {
-       if (hasSemantic(semanticNid)) {
-          return Optional.of(getSemanticChronology(semanticNid));
-       }
-       return Optional.empty();
+        if (hasSemantic(semanticNid)) {
+            try {
+                return Optional.of(getSemanticChronology(semanticNid));
+            }
+            //There are some rare, but possible timing issues if reads and writes are happening in parallel, where hasSemantic might return true, but
+            //it is in fact, not yet readable.
+            catch (NoSuchElementException e) {
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
