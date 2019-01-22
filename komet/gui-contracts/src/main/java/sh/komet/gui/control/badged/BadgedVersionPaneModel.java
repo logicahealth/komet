@@ -36,6 +36,8 @@ import sh.isaac.komet.flags.CountryFlagImages;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.*;
 import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.control.text.StackLabelText;
+import sh.komet.gui.control.text.TextAreaReadOnly;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
@@ -45,13 +47,14 @@ import sh.komet.gui.util.FxGet;
 import java.util.*;
 
 public abstract class BadgedVersionPaneModel {
+    public static final int FIRST_COLUMN_WIDTH = 32;
     protected static final int BADGE_WIDTH = 25;
     protected static final String PROPERTY_SHEET_ATTACHMENT = BadgedVersionPaneModel.class.getCanonicalName() + ".PROPERTY_SHEET_ATTACHMENT";
 
     protected final TilePane editControlTiles = new TilePane();
     protected final TilePane badgeTiles = new TilePane();
     protected final FlowPane badgeFlow = new FlowPane();
-    protected final Label componentText = new Label();
+    protected final StackLabelText componentText = new StackLabelText();
     private final BorderPane primaryPane = new BorderPane();
     private boolean primaryPaneWrappedForAttachment = false;
     {

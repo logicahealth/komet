@@ -111,7 +111,6 @@ import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.control.badged.ComponentPaneModel;
-import sh.komet.gui.control.badged.old.ComponentPane;
 import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.ExpandControl;
@@ -263,7 +262,7 @@ public class ConceptDetailPanelNode
     }
 
     private void addChronology(ObservableChronology observableChronology, ParallelTransition parallelTransition) {
-        if (ComponentPane.isSemanticTypeSupported(observableChronology.getVersionType())) {
+        if (ComponentPaneModel.isSemanticTypeSupported(observableChronology.getVersionType())) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
                             this.conceptDetailManifold);

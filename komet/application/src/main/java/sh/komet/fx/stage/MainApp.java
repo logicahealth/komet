@@ -206,7 +206,7 @@ public class MainApp
                     .addScene(scene, controller::reportStatus);
             stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
             stage.show();
-
+            //ScenicView.show(scene);
         }
 
 
@@ -229,6 +229,8 @@ public class MainApp
         // Knowledge, Language, Dialect, Chronology
         // KOLDAC
         configurationPreferences.sync();
+
+
     }
 
     protected Parent setupStageMenus(Stage stage, BorderPane root) throws MultiException {

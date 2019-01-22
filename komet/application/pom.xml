@@ -32,6 +32,10 @@
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
         </dependency>
         <dependency>
@@ -421,6 +425,19 @@
                     <groupId>sh.isaac.provider</groupId>
                     <artifactId>postgress</artifactId>
                     <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>scenic-view</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>sh.isaac</groupId>
+                    <artifactId>scenic-view</artifactId>
+                    <version>11.0</version>
                 </dependency>
             </dependencies>
         </profile>

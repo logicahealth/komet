@@ -17,7 +17,7 @@
             </packagings>
             <goals>
                 <goal>process-classes</goal>
-                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.6.0:exec</goal>
             </goals>
             <properties>
                 <exec.args>-DSHOW_BETA_FEATURES=true -DFAIL_ON_DATABASE_IDENTITY_MISMATCH=false -DSHOW_KOMET_ONLY_PROPERTY=true -Xmx10g -Xms10g -classpath %classpath sh.komet.fx.stage.MainApp -e</exec.args>
@@ -31,7 +31,7 @@
             </packagings>
             <goals>
                 <goal>process-classes</goal>
-                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.6.0:exec</goal>
             </goals>
             <properties>
                 <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -DDATA_STORE_INIT=NO_DATA_LOAD -DISAAC_PSQL_URL="jdbc:postgresql://localhost/kec" -DISAAC_PSQL_UNAME=kec -DISAAC_PSQL_UPWD="" -DSHOW_BETA_FEATURES=true -DFAIL_ON_DATABASE_IDENTITY_MISMATCH=false -DSHOW_KOMET_ONLY_PROPERTY=true -Xmx10g -Xms10g -classpath %classpath sh.komet.fx.stage.MainApp -e</exec.args>
@@ -46,7 +46,7 @@
             </packagings>
             <goals>
                 <goal>process-classes</goal>
-                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.6.0:exec</goal>
             </goals>
             <properties>
                 <exec.args>-DSHOW_BETA_FEATURES=true -DSHOW_KOMET_ONLY_PROPERTY=true -Xmx10g -Xms10g -classpath %classpath sh.komet.fx.stage.MainApp -e</exec.args>
