@@ -237,7 +237,6 @@ public class MainApp
          // Get the toolkit
         MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
         MenuBar mb = new MenuBar();
-
         for (AppMenu ap : AppMenu.values()) {
             if (ap == AppMenu.NEW_WINDOW) {
                 continue;
@@ -333,7 +332,7 @@ public class MainApp
         }
 
         if (tk != null) {
-            // this is used on Mac... I don't think its uses anywhere else... 
+            // this is used on Mac... I don't think its uses anywhere else...
             // Dan notes, code is rather confusing, and I can't test... it was making both an appMenu and a defaultApplicationMenu
             //but not being consistent about things, no idea which was actually being used on mac.
             // TBD: services menu

@@ -36,8 +36,8 @@
     <components />
   </files>
   <launchers>
-    <launcher name="SOLOR Viewer" id="60" customizedId="" external="false" excludeFromMenu="false" unixMode="755" unixAutoStart="true" menuName="Viewer" icnsFile="../../main/resources/icons/KOMET.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="" useCustomMacosExecutableName="false" customMacosExecutableName="" useJavaMinVersionOverride="false" javaMinVersionOverride="" useJavaMaxVersionOverride="false" javaMaxVersionOverride="" checkUpdater="false" updateExecutionMode="unattendedProgress" unattendedUpdateTitle="${i18n:updater.WindowTitle(&quot;${compiler:sys.fullName}&quot;)}">
-      <executable name="SOLOR Viewer" type="1" iconSet="true" iconFile="../../main/resources/icons/KOMET.ico" executableDir="" redirectStderr="true" stderrFile="logs/error.log" stderrMode="append" redirectStdout="true" stdoutFile="logs/output.log" stdoutMode="append" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="." singleInstance="true" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false" singleInstanceActivate="true" dpiAware="true">
+    <launcher name="SOLOR Viewer" id="60" customizedId="" external="false" excludeFromMenu="false" unixMode="755" unixAutoStart="true" menuName="KOMET" icnsFile="../../main/resources/icons/KOMET.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="" useCustomMacosExecutableName="false" customMacosExecutableName="" useJavaMinVersionOverride="false" javaMinVersionOverride="" useJavaMaxVersionOverride="false" javaMaxVersionOverride="" checkUpdater="false" updateExecutionMode="unattendedProgress" unattendedUpdateTitle="${i18n:updater.WindowTitle(&quot;${compiler:sys.fullName}&quot;)}">
+      <executable name="SOLOR's KOMET" type="1" iconSet="true" iconFile="../../main/resources/icons/KOMET.ico" executableDir="" redirectStderr="true" stderrFile="logs/error.log" stderrMode="append" redirectStdout="true" stdoutFile="logs/output.log" stdoutMode="append" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="." singleInstance="true" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false" singleInstanceActivate="true" dpiAware="true">
         <versionInfo include="false" fileVersion="1.0.0.0" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
       <splashScreen show="false" width="0" height="0" bitmapFile="../../main/resources/images/SOLOR-Twitter-Banner.png" textOverlay="false">
@@ -58,7 +58,8 @@
       <includedFiles />
       <unextractableFiles />
       <vmOptionsFile mode="content" overwriteMode="0" fileMode="644">
-        <content>-Xmx6000m</content>
+        <content>-Xmx6000m
+-DSHOW_BETA_FEATURES=true</content>
       </vmOptionsFile>
       <customScript mode="1" file="">
         <content />

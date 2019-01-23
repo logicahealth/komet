@@ -238,13 +238,6 @@
             <version>${project.parent.version}</version>
             <type>jar</type>
         </dependency>
-        <!--dependency>
-           <groupId>javafx-packager</groupId>
-           <artifactId>javafx-packager</artifactId>
-           <version>1.8.0_20</version>
-           <scope>system</scope>
-           <systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
-        </dependency-->
         <dependency>
             <groupId>sh.isaac.komet</groupId>
             <artifactId>progress-view</artifactId>
@@ -272,7 +265,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/jfx/libs</outputDirectory>
-                            <excludeArtifactIds>fontawesomefx-commons</excludeArtifactIds>
+                            <excludeArtifactIds>fontawesomefx-commons,solor-db,solor-snap-db</excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
