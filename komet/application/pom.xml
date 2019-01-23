@@ -272,6 +272,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/jfx/libs</outputDirectory>
+                            <excludeArtifactIds>fontawesomefx-commons</excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
