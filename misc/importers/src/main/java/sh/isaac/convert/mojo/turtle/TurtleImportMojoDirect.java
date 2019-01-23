@@ -345,7 +345,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				if (!Get.conceptService().hasConcept(Get.identifierService().getNidForUuids(parentModule)))
 				{
 					//We don't have a module of our own yet, so put the "grouping" concept on the solor module.
-					moduleNid = MetaData.MODULE____SOLOR.getNid();
+					moduleNid = MetaData.CORE_METADATA_MODULE____SOLOR.getNid();
 					dwh = new DirectWriteHelper(MetaData.USER____SOLOR.getNid(), moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 							termName, true);
 					dwh.makeConcept(parentModule, Status.ACTIVE, releaseTime);

@@ -433,6 +433,12 @@ public class LanguageCoordinateImpl
         return Optional.ofNullable(this.nextProrityLanguageCoordinate);
     }
 
+    /**
+     * If the current language coordinate fails to return a requested description, 
+     * then the next priority language coordinate will be tried until a description is found, 
+     * or until there are no next priority language coordinates left. 
+     * @param languageCoordinate the next coordinate to fall back to
+     */
     public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
         this.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
         altDescriptionTypeListCache.clear();

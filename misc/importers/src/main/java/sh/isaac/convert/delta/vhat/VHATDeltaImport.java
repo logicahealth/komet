@@ -203,6 +203,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 		converterUUID = new ConverterUUID(TermAux.VHAT_MODULES.getPrimordialUuid(), false);
 		
 		dwh = new DirectWriteHelper(Get.nidForUuids(author), Get.nidForUuids(module), Get.nidForUuids(path), converterUUID, "VHAT", false);
+		converterUUID.configureNamespace(TermAux.VHAT_MODULES.getPrimordialUuid());  //Keep this on the vhat modules, rather than the passed in module.
 		
 		dwh.changeModule(Get.nidForUuids(module));
 
