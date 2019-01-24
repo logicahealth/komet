@@ -250,11 +250,10 @@ public class ProcessClassificationResults
         final CommitService commitService = Get.commitService();
 
         // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  
-        // JVisualVM tells me that all of this
-        // work is occurring on a single thread.  Need to figure out why...
+        // JVisualVM tells me that all of this work is occurring on a single thread.  Need to figure out why...
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             try {
-                if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
+                if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
                     LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
                 }
 
@@ -265,8 +264,6 @@ public class ProcessClassificationResults
                         = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
                                 this.inputData.getLogicCoordinate().getStatedAssemblageNid());
 
-                // TODO need to fix merge issues with metadata and snomed..... this is failing on numerous concepts.
-                // TODO also, what to do when there isn't a graph on a concept?  SCT has orphans....
                 testForProperSetSize(inferredSemanticNids,
                         conceptNid,
                         statedSemanticNids,
@@ -333,17 +330,14 @@ public class ProcessClassificationResults
                                                 conceptNid,
                                                 this.inputData.getLogicCoordinate().getInferredAssemblageNid());
 
-                if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
-                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
-                    TestConcept.WATCH_NID_SET.add(builder.getNid());
-                }
                                 // get classifier edit coordinate...
                                 builder.build(EditCoordinates.getClassifierSolorOverlay(),
                                         ChangeCheckerMode.INACTIVE);
-                if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
-                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
-                    TestConcept.WATCH_NID_SET.add(builder.getNid());
-                }
+                                
+                                if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
+                                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
+                                    TestConcept.WATCH_NID_SET.add(builder.getNid());
+                                }
                             } else {
                                 final SemanticChronology inferredChronology
                                         = assemblageService.getSemanticChronology(inferredSemanticNids.stream()
