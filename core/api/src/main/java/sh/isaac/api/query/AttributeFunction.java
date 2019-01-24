@@ -47,7 +47,7 @@ public class AttributeFunction {
     public static final String MANIFOLD_PREFIX = " per ";
 
     String functionName;
-    AttributeQuadFunction<String, String, StampCoordinate, Query, String> function;
+    AttributeQuadFunction<String, Long, StampCoordinate, Query, String> function;
 
     /**
      * No arg constructor for Jaxb
@@ -61,7 +61,13 @@ public class AttributeFunction {
     }
 
     public String apply(String dataIn, StampCoordinate stampCoordinate, Query query) {
-        return function.apply(functionName, dataIn, stampCoordinate, query);
+        if (UUIDUtil.isUUID(dataIn)) {
+            return function.apply(functionName, new Long(Get.nidForUuids(UUID.fromString(dataIn))), stampCoordinate, query);
+        }
+        if (functionName.equals("Identity") || functionName.equals("")) {
+            return dataIn;
+        }
+        return function.apply(functionName, Long.parseLong(dataIn), stampCoordinate, query);
     }
 
     @Override
@@ -74,34 +80,31 @@ public class AttributeFunction {
         return functionName;
     }
 
-    public static AttributeQuadFunction<String, String, StampCoordinate, Query, String> getFunctionFromName(String functionName) {
+    public static AttributeQuadFunction<String, Long, StampCoordinate, Query, String> getFunctionFromName(String functionName) {
         switch (functionName) {
             case "":
-                return (funcName, uuidStr, stampCoordinate, query) -> {
-                    return uuidStr;
+                return (funcName, nid, stampCoordinate, query) -> {
+                    return nid.toString();
                 };
             case "Identity":
-                return (funcName, uuidStr, stampCoordinate, query) -> {
-                    return uuidStr;
+                return (funcName, nid, stampCoordinate, query) -> {
+                    return nid.toString();
                 };
             case "Primoridal uuid":
-                return (funcName, uuidStr, stampCoordinate, query) -> {
-                    int nid = getNidFromString(uuidStr);
-                    return Get.identifierService().getUuidPrimordialForNid(nid).toString();
+                return (funcName, nid, stampCoordinate, query) -> {
+                    return Get.identifierService().getUuidPrimordialForNid(nid.intValue()).toString();
                 };
             case "All uuids":
-                return (funcName, uuidStr, stampCoordinate, query) -> {
-                    int nid = getNidFromString(uuidStr);
-                    return Get.identifierService().getUuidsForNid(nid).toString();
+                return (funcName, nid, stampCoordinate, query) -> {
+                    return Get.identifierService().getUuidsForNid(nid.intValue()).toString();
                 };
             case "Epoch to 8601 date/time":
-                return (funcName, uuidStr, stampCoordinate, query) -> {
-                    long epochTime = Long.parseLong(uuidStr);
-                    return DateTimeUtil.format(epochTime);
+                return (funcName, time, stampCoordinate, query) -> {
+                    return DateTimeUtil.format(time);
                 };
             default:
                 if (functionName.endsWith(" preferred name")) {
-                    return (funcName, uuidStr, stampCoordinate, query) -> {
+                    return (funcName, nid, stampCoordinate, query) -> {
                         LanguageCoordinate lc = null;
                         for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
                             if (functionName.startsWith(entry.getKey().getItemName())) {
@@ -110,8 +113,7 @@ public class AttributeFunction {
                             }
                         }
                         if (lc != null) {
-                            int nid = getNidFromString(uuidStr);
-                            LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(nid, stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
                             }
@@ -120,7 +122,7 @@ public class AttributeFunction {
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
                     };
                 } else if (functionName.endsWith(" preferred name UUID")) {
-                    return (funcName, uuidStr, stampCoordinate, query) -> {
+                    return (funcName, nid, stampCoordinate, query) -> {
                         LanguageCoordinate lc = null;
                         for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
                             if (functionName.startsWith(entry.getKey().getItemName())) {
@@ -129,8 +131,7 @@ public class AttributeFunction {
                             }
                         }
                         if (lc != null) {
-                            int nid = getNidFromString(uuidStr);
-                            LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(nid, stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getPrimordialUuid().toString();
                             }
@@ -139,7 +140,7 @@ public class AttributeFunction {
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
                     };
                 } else if (functionName.endsWith(" FQN")) {
-                    return (funcName, uuidStr, stampCoordinate, query) -> {
+                    return (funcName, nid, stampCoordinate, query) -> {
                         LanguageCoordinate lc = null;
                         for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
                             if (functionName.startsWith(entry.getKey().getItemName())) {
@@ -148,9 +149,7 @@ public class AttributeFunction {
                             }
                         }
                         if (lc != null) {
-                            int nid = getNidFromString(uuidStr);
-
-                            LatestVersion<DescriptionVersion> description = lc.getFullySpecifiedDescription(nid, stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.getFullySpecifiedDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
                             }
@@ -159,7 +158,7 @@ public class AttributeFunction {
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName + " " + query.getLetDeclarations().entrySet());
                     };
                 } else if (functionName.endsWith(" FQN UUID")) {
-                    return (funcName, uuidStr, stampCoordinate, query) -> {
+                    return (funcName, nid, stampCoordinate, query) -> {
                         LanguageCoordinate lc = null;
                         for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
                             if (functionName.startsWith(entry.getKey().getItemName())) {
@@ -168,8 +167,7 @@ public class AttributeFunction {
                             }
                         }
                         if (lc != null) {
-                            int nid = getNidFromString(uuidStr);
-                            LatestVersion<DescriptionVersion> description = lc.getFullySpecifiedDescription(nid, stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.getFullySpecifiedDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getPrimordialUuid().toString();
                             }
@@ -178,7 +176,7 @@ public class AttributeFunction {
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName + " " + query.getLetDeclarations().entrySet());
                     };
                 } else if (functionName.endsWith(" definition")) {
-                    return (funcName, uuidStr, stampCoordinate, query) -> {
+                    return (funcName, nid, stampCoordinate, query) -> {
                         LanguageCoordinate lc = null;
                         for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
                             if (functionName.startsWith(entry.getKey().getItemName())) {
@@ -187,8 +185,7 @@ public class AttributeFunction {
                             }
                         }
                         if (lc != null) {
-                            int nid = getNidFromString(uuidStr);
-                            LatestVersion<DescriptionVersion> description = lc.getDefinitionDescription(Get.concept(nid).getConceptDescriptionList(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.getDefinitionDescription(Get.concept(nid.intValue()).getConceptDescriptionList(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
                             }
@@ -197,7 +194,7 @@ public class AttributeFunction {
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
                     };
                 } else if (functionName.endsWith(" definition UUID")) {
-                    return (funcName, uuidStr, stampCoordinate, query) -> {
+                    return (funcName, nid, stampCoordinate, query) -> {
                         LanguageCoordinate lc = null;
                         for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
                             if (functionName.startsWith(entry.getKey().getItemName())) {
@@ -206,8 +203,7 @@ public class AttributeFunction {
                             }
                         }
                         if (lc != null) {
-                            int nid = getNidFromString(uuidStr);
-                            LatestVersion<DescriptionVersion> description = lc.getDefinitionDescription(Get.concept(nid).getConceptDescriptionList(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.getDefinitionDescription(Get.concept(nid.intValue()).getConceptDescriptionList(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getPrimordialUuid().toString();
                             }
@@ -216,23 +212,23 @@ public class AttributeFunction {
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
                     };
                 } else if (functionName.startsWith(KIND_OF_PREFIX)) {
-                    return (funcName, uuidStr, stampCoordinate, query) -> {
-                        return doTaxonomyQuery(functionName, KIND_OF_PREFIX, query, uuidStr);
+                    return (funcName, nid, stampCoordinate, query) -> {
+                        return doTaxonomyQuery(functionName, KIND_OF_PREFIX, query, nid.intValue());
                     };
                 } else if (functionName.startsWith(CHILD_OF_PREFIX)) {
-                    return (funcName, uuidStr, stampCoordinate, query) -> {
-                        return doTaxonomyQuery(functionName, CHILD_OF_PREFIX, query, uuidStr);
+                    return (funcName, nid, stampCoordinate, query) -> {
+                        return doTaxonomyQuery(functionName, CHILD_OF_PREFIX, query, nid.intValue());
                     };
                 } else if (functionName.startsWith(DESCENDENT_OF_PREFIX)) {
-                    return (funcName, uuidStr, stampCoordinate, query) -> {
-                        return doTaxonomyQuery(functionName, DESCENDENT_OF_PREFIX, query, uuidStr);
+                    return (funcName, nid, stampCoordinate, query) -> {
+                        return doTaxonomyQuery(functionName, DESCENDENT_OF_PREFIX, query, nid.intValue());
                     };
                 }
         }
         throw new IllegalStateException("No function for " + functionName);
     }
 
-    protected static String doTaxonomyQuery(String functionName1, String prefix, Query query, String uuidStr) throws NoSuchElementException {
+    protected static String doTaxonomyQuery(String functionName1, String prefix, Query query, int nid) throws NoSuchElementException {
         String conceptKeyName = functionName1.substring(prefix.length(), functionName1.indexOf(MANIFOLD_PREFIX));
         String manifoldKeyName = functionName1.substring(functionName1.indexOf(MANIFOLD_PREFIX) + MANIFOLD_PREFIX.length());
         ManifoldCoordinateForQuery manifold = null;
@@ -250,17 +246,17 @@ public class AttributeFunction {
         if (manifold != null && kindOfSpec != null) {
             switch (prefix) {
                 case KIND_OF_PREFIX:
-                    if (Get.taxonomyService().getSnapshotNoTree(manifold).isKindOf(Get.nidForUuids(UUID.fromString(uuidStr)), kindOfSpec.getNid())) {
+                    if (Get.taxonomyService().getSnapshotNoTree(manifold).isKindOf(nid, kindOfSpec.getNid())) {
                         return "true";
                     }
                     break;
                 case CHILD_OF_PREFIX:
-                    if (Get.taxonomyService().getSnapshotNoTree(manifold).isChildOf(Get.nidForUuids(UUID.fromString(uuidStr)), kindOfSpec.getNid())) {
+                    if (Get.taxonomyService().getSnapshotNoTree(manifold).isChildOf(nid, kindOfSpec.getNid())) {
                         return "true";
                     }
                     break;
                 case DESCENDENT_OF_PREFIX:
-                    if (Get.taxonomyService().getSnapshotNoTree(manifold).isDescendentOf(Get.nidForUuids(UUID.fromString(uuidStr)), kindOfSpec.getNid())) {
+                    if (Get.taxonomyService().getSnapshotNoTree(manifold).isDescendentOf(nid, kindOfSpec.getNid())) {
                         return "true";
                     }
                     break;
