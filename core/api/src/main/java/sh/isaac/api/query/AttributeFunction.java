@@ -64,6 +64,9 @@ public class AttributeFunction {
         if (UUIDUtil.isUUID(dataIn)) {
             return function.apply(functionName, new Long(Get.nidForUuids(UUID.fromString(dataIn))), stampCoordinate, query);
         }
+        if (functionName.equals("Identity") || functionName.equals("")) {
+            return dataIn;
+        }
         return function.apply(functionName, Long.parseLong(dataIn), stampCoordinate, query);
     }
 
