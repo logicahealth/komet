@@ -77,7 +77,7 @@ public class QueryProviderTest {
 		timd.convertContent(update -> {}, (work, total) ->{});
 		
 		di = LookupService.get().getService(DescriptionIndexer.class);
-		di.forceMerge();  //Just a way to force the query readers to refresh more quickly than they would
+		di.forceMerge();  //Just a way to force the query exporters to refresh more quickly than they would
 		si = LookupService.get().getService(SemanticIndexer.class);
 		si.forceMerge();
 	}

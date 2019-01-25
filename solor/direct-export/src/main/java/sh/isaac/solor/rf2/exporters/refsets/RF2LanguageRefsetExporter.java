@@ -1,60 +1,43 @@
-package sh.isaac.solor.rf2.readers.refsets;
+package sh.isaac.solor.rf2.exporters.refsets;
 
-import org.apache.commons.lang.ArrayUtils;
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
-import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.solor.rf2.config.RF2Configuration;
+import sh.isaac.solor.rf2.exporters.RF2DefaultExporter;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
-import sh.isaac.solor.rf2.utility.RF2FileWriter;
-import sh.komet.gui.manifold.Manifold;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
-public class RF2LanguageRefsetReader extends TimedTaskWithProgressTracker<Void> {
+public class RF2LanguageRefsetExporter extends RF2DefaultExporter {
 
     private final RF2ExportHelper rf2ExportHelper;
-    private final Stream<? extends Chronology> streamPage;
+    private final IntStream intStream;
     private final Semaphore readSemaphore;
-    private final Manifold manifold;
-    private final RF2Configuration rf2Configuration;
-    private final RF2FileWriter rf2FileWriter;
 
-    public RF2LanguageRefsetReader(Stream streamPage, Semaphore readSemaphore, Manifold manifold,
-                                   RF2Configuration rf2Configuration, long pageSize) {
-        this.streamPage = streamPage;
+    public RF2LanguageRefsetExporter(RF2Configuration rf2Configuration, RF2ExportHelper rf2ExportHelper, IntStream intStream, Semaphore readSemaphore) {
+        super(rf2Configuration);
+        this.rf2ExportHelper = rf2ExportHelper;
+        this.intStream = intStream;
         this.readSemaphore = readSemaphore;
-        this.manifold = manifold;
-        this.rf2Configuration = rf2Configuration;
-        rf2ExportHelper = new RF2ExportHelper(this.manifold);
-        this.rf2FileWriter = new RF2FileWriter();
 
         readSemaphore.acquireUninterruptibly();
-
-        updateTitle("Reading " + this.rf2Configuration.getMessage() + " batch of size: " + pageSize);
-        updateMessage("Processing batch of descriptions for RF2 Export");
-        addToTotalWork(pageSize + 1);
         Get.activeTasks().add(this);
     }
 
     @Override
     protected Void call() {
-        ArrayList<Byte[]> writeBytes = new ArrayList<>();
 
         try{
 
-            this.streamPage
-                    .forEach(chronology -> {
+            this.intStream
+                    .forEach(nid -> {
                         final StringBuilder stringBuilder = new StringBuilder();
 
-                        for(SemanticChronology dialect : chronology.getSemanticChronologyList()) {
+                        for(SemanticChronology dialect : Get.assemblageService().getSemanticChronology(nid).getSemanticChronologyList()) {
 
                             if(dialect.getVersionType() == VersionType.COMPONENT_NID) {//Assuming a dialect semantic
                                 ObservableComponentNidVersion descriptionDialect =
@@ -69,25 +52,14 @@ public class RF2LanguageRefsetReader extends TimedTaskWithProgressTracker<Void> 
                                         .append(rf2ExportHelper.getActiveString(stampNid) + "\t")
                                         .append(rf2ExportHelper.getModuleString(stampNid) + "\t")
                                         .append(rf2ExportHelper.getIdString(descriptionDialect.getAssemblageNid()) + "\t")
-                                        .append(rf2ExportHelper.getIdString(chronology) + "\t")
+                                        .append(rf2ExportHelper.getIdString(nid) + "\t")
                                         .append(rf2ExportHelper.getIdString(descriptionDialect.getComponentNid()))
                                         .append("\r");
                             }
+
+                            super.writeToFile(stringBuilder.toString());
                         }
-
-                        writeBytes.add(ArrayUtils.toObject(stringBuilder.toString().getBytes(Charset.forName("UTF-8"))));
-
-                        completedUnitOfWork();
-
                     });
-
-            updateTitle("Writing " + rf2Configuration.getMessage() + " RF2 file");
-            updateMessage("Writing to " + rf2Configuration.getFilePath());
-
-            rf2FileWriter.writeToFile(writeBytes, this.rf2Configuration);
-
-            completedUnitOfWork();
-
 
         }finally {
             this.readSemaphore.release();
