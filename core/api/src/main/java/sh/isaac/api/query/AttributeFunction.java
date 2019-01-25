@@ -90,7 +90,7 @@ public class AttributeFunction {
                 return (funcName, nid, stampCoordinate, query) -> {
                     return nid.toString();
                 };
-            case "Primoridal uuid":
+            case "Primordial uuid":
                 return (funcName, nid, stampCoordinate, query) -> {
                     return Get.identifierService().getUuidPrimordialForNid(nid.intValue()).toString();
                 };

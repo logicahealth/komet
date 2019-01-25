@@ -203,7 +203,7 @@ public interface IdentifierService
     * @return A string representation of the uuid, or new UUID(0,0) 
     * if one has not been assigned. 
     */
-   default String getUuidPrimoridalStringForNid(int nid) {
+   default String getUuidPrimordialStringForNid(int nid) {
        try {
            return getUuidPrimordialForNid(nid).toString();
        } catch (NoSuchElementException ex) {

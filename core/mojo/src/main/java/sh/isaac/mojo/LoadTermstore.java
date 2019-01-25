@@ -513,8 +513,8 @@ public class LoadTermstore extends AbstractMojo
 											if (!eco.isPresent()) {
 												//This should no longer happen, with the loop above, but just incase - ignore, we aren't merging those anyway.
 												getLog().warn("Nid " + nid + " was listed on an assemblage, but not available from the semantic service! uuid: " + 
-														Get.identifierService().getUuidPrimoridalStringForNid(nid) + " referenced component: " + 
-														Get.identifierService().getUuidPrimoridalStringForNid(sc.getReferencedComponentNid()));
+														Get.identifierService().getUuidPrimordialStringForNid(nid) + " referenced component: " + 
+														Get.identifierService().getUuidPrimordialStringForNid(sc.getReferencedComponentNid()));
 												continue;
 											}
 											

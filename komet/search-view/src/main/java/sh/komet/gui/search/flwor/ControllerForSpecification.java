@@ -146,7 +146,7 @@ public abstract class ControllerForSpecification {
         this.resultTable.getItems().clear();
         this.attributeFunctions.clear();
         this.attributeFunctions.add(new AttributeFunction(""));
-        this.attributeFunctions.add(new AttributeFunction("Primoridal uuid"));
+        this.attributeFunctions.add(new AttributeFunction("Primordial uuid"));
         this.attributeFunctions.add(new AttributeFunction("All uuids"));
         this.attributeFunctions.add(new AttributeFunction("Epoch to 8601 date/time"));
         
