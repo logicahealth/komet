@@ -441,6 +441,7 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy PRESSURE_MEASURE_SEMANTICS = new ConceptProxy("Pressure measure semantic", "Pressure measurement", UUID.fromString("62728a7c-7546-5f70-83c4-2859e08dd9be"));
     public static ConceptProxy MM_HG = new ConceptProxy("Milimeters of mercury", "mm Hg", UUID.fromString("713876c4-a832-5302-8baa-41cd7e7bcd2d"));
     public static ConceptProxy TIME_MEASUREMENT_SEMANTIC = new ConceptProxy("Time measurement semantic", "Time measurement", UUID.fromString("6bd7c916-2bf1-5ae4-996a-6390074bf27f"));
+    public static ConceptProxy EXISTENTIAL_MEASUREMENT_SEMANTIC = new ConceptProxy("Existential measurement semantic", "Existential measurement", UUID.fromString("57e1643b-da06-5684-a2ef-044727c25b81"));
 
     public static ConceptProxy MILLIGRAM = new ConceptProxy("milligram", "mg", UUID.fromString("64b14d8e-5893-5927-a165-28d7ea0a1357"));
     public static ConceptProxy MASS_MEASUREMENT_SEMANTIC = new ConceptProxy("Mass measurement semantic", "Mass measurement", UUID.fromString("cda282b6-5c4f-539e-ad88-64f88a61263e"));
@@ -512,7 +513,6 @@ public class TermAux implements StaticIsaacCache {
     
    
     /*
-    public static ConceptProxy SPEC87 = new ConceptProxy("", "", UUID.fromString("57e1643b-da06-5684-a2ef-044727c25b81"));
     public static ConceptProxy SPEC88 = new ConceptProxy("", "", UUID.fromString("8551edb2-6e34-52fe-9113-d25b742b303a"));
     public static ConceptProxy SPEC89 = new ConceptProxy("", "", UUID.fromString("5c31cb70-a042-59b8-a21c-6aca1c03f907"));
     public static ConceptProxy SPEC90 = new ConceptProxy("", "", UUID.fromString("cd9ea037-0af9-586b-9369-7bc044cdb8f7"));
