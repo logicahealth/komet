@@ -66,6 +66,10 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
     *           semantic tags - which will disallow the use of the lucene query parser "grouping" feature, if the group appears
     *           to be a semantic tag (if it appears at the end of the string)
     *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
+    *           
+    *           The Lucene query indexer also supports handling regular expressions - submit your query surrounding by forward slashes to indicate
+    *           a regular expression:  /dat[^a].*./
+    *           
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching that would be done
     *           to implement a type-ahead style search. Does not use the Lucene Query parser. Every term (or token) that is part of the query
     *           string will be required to be found in the result.
