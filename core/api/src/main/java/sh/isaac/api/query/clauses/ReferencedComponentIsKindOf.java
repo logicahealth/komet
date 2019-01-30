@@ -24,7 +24,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -73,13 +75,19 @@ public class ReferencedComponentIsKindOf
 
         ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations().get(manifoldCoordinateKey);
         ConceptSpecification parentSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(referencedComponentSpecKey);
+        ConceptChronology parentConcept = Get.concept(parentSpec);
+        if (!parentConcept.isLatestVersionActive(manifoldCoordinate)) {
+            throw new IllegalStateException("Parent concept in kind-of query is inactive.");
+        }
 
         TaxonomySnapshot snapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+        NidSet kindOfSet = snapshot.getKindOfConceptNidSet(parentSpec.getNid());
 
         NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
         
         for (int nid: possibleComponents.asArray()) {
-            if (!test(snapshot, nid, parentSpec.getNid())) {
+            SemanticChronology semanticChronology = Get.assemblageService().getSemanticChronology(nid);
+            if (!kindOfSet.contains(semanticChronology.getReferencedComponentNid())) {
                 possibleComponents.remove(nid);
             }
         }

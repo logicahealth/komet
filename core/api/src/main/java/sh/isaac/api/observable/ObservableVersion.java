@@ -72,16 +72,17 @@ import sh.isaac.api.coordinate.EditCoordinate;
 public interface ObservableVersion
         extends Version {
     public enum PROPERTY_INDEX {
-        PRIMORDIAL_UUID(0, new ConceptProxy("Primordial UUID for chronicle", UUID.fromString("e0fcafbc-7191-5cdc-b14a-19d4d97f71bd"))),
-        STATUS(1, TermAux.STATUS_FOR_VERSION),
-        TIME(2, TermAux.TIME_FOR_VERSION),
-        AUTHOR(3, TermAux.AUTHOR_NID_FOR_VERSION),
-        MODULE(4, TermAux.MODULE_NID_FOR_VERSION),
-        PATH(5, TermAux.PATH_NID_FOR_VERSION),
-        COMMITTED_STATE(6, TermAux.COMMITTED_STATE_FOR_VERSION),
-        ASSEMBLAGE(7, TermAux.ASSEMBLAGE_NID_FOR_COMPONENT),
-        REFERENCED_COMPONENT(8, TermAux.REFERENCED_COMPONENT_NID_FOR_SEMANTIC),
-        SEMANTIC_FIELD_START(9, null);
+        PRIMORDIAL_UUID(0, new ConceptProxy("Native id for component", UUID.fromString("7e93198d-fa02-596e-943c-34aebff860a5"))),
+        NID(1, new ConceptProxy("Primordial UUID for chronicle", UUID.fromString("e0fcafbc-7191-5cdc-b14a-19d4d97f71bd"))),
+        STATUS(2, TermAux.STATUS_FOR_VERSION),
+        TIME(3, TermAux.TIME_FOR_VERSION),
+        AUTHOR(4, TermAux.AUTHOR_NID_FOR_VERSION),
+        MODULE(5, TermAux.MODULE_NID_FOR_VERSION),
+        PATH(6, TermAux.PATH_NID_FOR_VERSION),
+        COMMITTED_STATE(7, TermAux.COMMITTED_STATE_FOR_VERSION),
+        ASSEMBLAGE(8, TermAux.ASSEMBLAGE_NID_FOR_COMPONENT),
+        REFERENCED_COMPONENT(9, TermAux.REFERENCED_COMPONENT_NID_FOR_SEMANTIC),
+        SEMANTIC_FIELD_START(10, null);
         //
         final int index;
        final ConceptSpecification spec;
@@ -168,7 +169,9 @@ public interface ObservableVersion
 
    default Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {
       Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap = new HashMap<>();
-      getProperties().forEach((property) -> propertyMap.put(new ConceptProxy(property.getName()), property));
+      getProperties().forEach((property) -> 
+              propertyMap.put(new ConceptProxy(property.getName()), property)
+      );
       return propertyMap;
    }
    

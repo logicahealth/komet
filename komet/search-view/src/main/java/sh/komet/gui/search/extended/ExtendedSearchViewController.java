@@ -954,7 +954,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                 }
             }
             if (timeStatusRestriction != null) {
-                if (timeStatusRestriction.getState() != null) {
+                if (timeStatusRestriction.getAllowedStates() != null) {
                     sb.append("status, ");
                 }
                 if (timeStatusRestriction.afterTime != null || timeStatusRestriction.beforeTime != null) {
@@ -987,6 +987,8 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
         outsideManifold.getLanguageCoordinate().addListener((invalidation) -> resetReadManifold());
         outsideManifold.getStampCoordinate().stampPrecedenceProperty().addListener((invalidation) -> resetReadManifold());
         outsideManifold.getStampCoordinate().stampPositionProperty().get().stampPathConceptSpecificationProperty().addListener((invalidation) -> resetReadManifold());
+        timeStatusRestriction = new TimeStatusRestriction(null, null, Status.makeActiveOnlySet(), outsideManifold);
+        updateStampLabels();        
     }
 
     private void resetReadManifold() {

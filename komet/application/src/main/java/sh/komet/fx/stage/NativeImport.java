@@ -94,14 +94,14 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
 
         // PASS Identifier 1: Primordial UUIDs
         int uuidPrimordialCount = 0;
-        //PsqlIdentifierRow[] uuidPrimoridalArray;
+        //PsqlIdentifierRow[] uuidPrimordialArray;
         int uuidAdditionalCount = 0;
         //ArrayList<PsqlIdentifierRow> uuidAdditionalArray = new ArrayList();
         try (DataInputStream dis = new DataInputStream(zipFile.getInputStream(zipEntryIdentifier))) {
             uuidPrimordialCount = dis.readInt();
             LOG.info(":TIME:Identifiers: begin processing (" + uuidPrimordialCount + ")");
 
-            //uuidPrimoridalArray = new PsqlIdentifierRow[uuidPrimordialCount];
+            //uuidPrimordialArray = new PsqlIdentifierRow[uuidPrimordialCount];
             BufferedWriter uuidPrimordialWriter = new BufferedWriter(
                 new FileWriter(new File(csvDir, "uuid_primordial_table.csv"))
             );
@@ -124,7 +124,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
                     //PsqlIdentifierRow row = new PsqlIdentifierRow(nid, uuid);
                     if (uuidIndex == 0) {
                         uuidPrimordialWriter.write(nid + "," + uuid.toString() + "\n");
-                        //uuidPrimoridalArray[i] = row;
+                        //uuidPrimordialArray[i] = row;
                         //IsaacObjectType objectType = IsaacObjectType.fromToken(dis.readByte());
                         dis.readByte(); // skip  objectType
                         // :!!!: cacheObjectTypeToNidMap.put(objectType, nid);

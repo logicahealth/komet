@@ -250,7 +250,7 @@ public abstract class IsomorphicResultsAbstract
     @Override
     public final String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("Path Hash Isomorphic Analysis for:").append(Get.conceptDescriptionText(this.referenceExpression.getConceptBeingDefinedNid())).append("\n     ").append(Get.identifierService().getUuidPrimoridalStringForNid(this.referenceExpression.getConceptBeingDefinedNid())).append("\n\n");
+        builder.append("Path Hash Isomorphic Analysis for:").append(Get.conceptDescriptionText(this.referenceExpression.getConceptBeingDefinedNid())).append("\n     ").append(Get.identifierService().getUuidPrimordialStringForNid(this.referenceExpression.getConceptBeingDefinedNid())).append("\n\n");
         builder.append("Reference expression:\n\n ");
         builder.append(this.referenceExpression.toString("r"));
         builder.append("\nComparison expression:\n\n ");

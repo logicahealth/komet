@@ -34,6 +34,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
@@ -178,7 +179,10 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
             this.popOver.hide(Duration.ZERO);
         }
         if (this.findSelectedConceptSpecification.get() != null) {
-            this.conceptSpecificationValue.set(this.findSelectedConceptSpecification.get());
+            ConceptSpecification selectedConcept = this.findSelectedConceptSpecification.get();
+            selectedConcept = new ConceptProxy(selectedConcept);
+            ConceptSpecificationForControlWrapper newConceptSpec = new ConceptSpecificationForControlWrapper(selectedConcept, manifold);
+            this.conceptSpecificationValue.set(newConceptSpec);
         }
     }
 }

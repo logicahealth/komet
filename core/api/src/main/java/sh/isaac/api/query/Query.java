@@ -218,6 +218,7 @@ public class Query {
     public Map<ConceptSpecification, NidSet> compute() {
         setup();
         getLetDeclarations();
+        validateLet();
         this.rootClause = Where();
 
         final Map<ConceptSpecification, NidSet> possibleComponentMap = this.rootClause.computePossibleComponents(this.forSetSpecification.getPossibleComponents());
@@ -225,6 +226,25 @@ public class Query {
         return this.rootClause.computeComponents(possibleComponentMap);
     }
 
+    private void validateLet() {
+        boolean error = false;
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<LetItemKey, Object> entry: this.letDeclarations.entrySet()) {
+            if (entry.getValue() == null) {
+                error = true;
+                sb.append(entry.getKey()).append(" has null value\n");
+            } else if (entry.getValue() instanceof ConceptSpecification) {
+                ConceptSpecification spec = (ConceptSpecification) entry.getValue();
+                if (TermAux.UNINITIALIZED_COMPONENT_ID.equals(spec)) {
+                    error = true;
+                    sb.append(entry.getKey()).append(" has uninitialized value\n");
+                }
+            }
+        }
+        if (error) {
+            throw new IllegalStateException(sb.toString());
+        }
+    }
     
     public ForSet getForSetSpecification() {
         return forSetSpecification;

@@ -6,28 +6,26 @@ package sh.isaac.solor.rf2.utility;
  * aks8m - 9/6/18
  */
 
-import mifschema.Concept;
-import org.apache.lucene.index.Term;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.observable.ObservableSnapshotService;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
+import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.komet.gui.manifold.Manifold;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.UUID;
+import java.util.Optional;
 
 public class RF2ExportHelper {
 
@@ -43,63 +41,80 @@ public class RF2ExportHelper {
         return snapshotService;
     }
 
-    public StringBuilder getRF2CommonElements(Chronology chronology){
+    public StringBuilder getRF2CommonElements(int nid){
 
         int stampNid = 0;
-
-        if(chronology instanceof ConceptChronology)
-            stampNid = snapshotService.getObservableConceptVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
-        else if(chronology instanceof SemanticChronology)
-            stampNid = snapshotService.getObservableSemanticVersion(chronology.getNid()).getStamps().findFirst().getAsInt();
-
-
-        return new StringBuilder()
-                .append(getIdString(chronology) + "\t")       //id
-                .append(getTimeString(stampNid) + "\t")        //time
-                .append(getActiveString(stampNid) + "\t")      //active
-                .append(getModuleString(stampNid) + "\t");     //moduleId
-    }
-
-    public StringBuilder getRF2CommonElements(Version version){
-
-        return new StringBuilder()
-                .append(getIdString(version) + "\t")        //id
-                .append(getTimeString(version) + "\t")      //time
-                .append(getActiveString(version) + "\t")    //active
-                .append(getModuleString(version) + "\t");   //moduleId
-    }
-
-    public String getIdString(Chronology chronology){
-
-        if (RF2ExportLookUpCache.isSCTID(chronology)) {
-            return lookUpIdentifierFromSemantic(snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), chronology);
-        } else if (RF2ExportLookUpCache.isLoinc(chronology)) {
-            final String loincId = lookUpIdentifierFromSemantic(snapshotService, MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(), chronology);
-            return UuidT5Generator.makeSolorIdFromLoincId(loincId);
-        } else if (RF2ExportLookUpCache.isRxNorm(chronology)) {
-            final String rxnormId = lookUpIdentifierFromSemantic(snapshotService, MetaData.RXNORM_CUI____SOLOR.getNid(), chronology);
-            return UuidT5Generator.makeSolorIdFromRxNormId(rxnormId);
-        } else {
-            return UuidT5Generator.makeSolorIdFromUuid(chronology.getPrimordialUuid());
-        }
-    }
-
-
-
-    public String getIdString(int nID){
-
-        Chronology chronology = null;
-        switch (Get.identifierService().getObjectTypeForComponent(nID)){
+        IsaacObjectType chronologyType = IsaacObjectType.UNKNOWN;
+        switch (Get.identifierService().getObjectTypeForComponent(nid)){
             case CONCEPT:
-                chronology = Get.concept(nID);
+                stampNid = snapshotService.getObservableConceptVersion(nid).getStamps().findFirst().getAsInt();
+                chronologyType = IsaacObjectType.CONCEPT;
                 break;
             case SEMANTIC:
-                chronology = Get.assemblageService().getSemanticChronology(nID);
+                stampNid = snapshotService.getObservableSemanticVersion(nid).getStamps().findFirst().getAsInt();
+                chronologyType = IsaacObjectType.SEMANTIC;
                 break;
         }
 
-        return chronology != null? getIdString(chronology) : "null_chronology";
+        return new StringBuilder()
+                .append(getIdString(nid, chronologyType) + "\t")                //id
+                .append(getTimeString(stampNid) + "\t")         //time
+                .append(getActiveString(stampNid) + "\t")       //active
+                .append(getModuleString(stampNid) + "\t");      //moduleId
     }
+
+    public String getIdString(int nid){
+
+        IsaacObjectType chronologyType = IsaacObjectType.UNKNOWN;
+
+        switch (Get.identifierService().getObjectTypeForComponent(nid)){
+            case CONCEPT:
+                chronologyType = IsaacObjectType.CONCEPT;
+                break;
+            case SEMANTIC:
+                chronologyType = IsaacObjectType.SEMANTIC;
+                break;
+        }
+
+        return getIdString(nid, chronologyType);
+    }
+
+    private String getIdString(int nid, IsaacObjectType chronologyType){
+
+        NidSet nidSet;
+        int[] identifierAssemblagesNids = new int[]{
+                TermAux.SNOMED_IDENTIFIER.getNid(),
+                MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
+                MetaData.RXNORM_CUI____SOLOR.getNid()
+        };
+
+        for(int assemblageNid : identifierAssemblagesNids){
+            nidSet = lookupNidSetForAssemblage(nid, assemblageNid);
+
+            if(nidSet.size() > 0){
+                String id = lookUpIdentifierFromSemantic(nidSet.findFirst().getAsInt());
+
+                if(assemblageNid == TermAux.SNOMED_IDENTIFIER.getNid()){
+                    return id;
+                } else if (assemblageNid == MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid()){
+                    return UuidT5Generator.makeSolorIdFromLoincId(id);
+                } else if (assemblageNid == MetaData.RXNORM_CUI____SOLOR.getNid()){
+                    return UuidT5Generator.makeSolorIdFromRxNormId(id);
+                }
+            }
+
+        }
+
+        switch (chronologyType){
+            case CONCEPT:
+                return UuidT5Generator.makeSolorIdFromUuid(Get.concept(nid).getPrimordialUuid());
+            case SEMANTIC:
+                return UuidT5Generator.makeSolorIdFromUuid(Get.assemblageService().getSemanticChronology(nid).getPrimordialUuid());
+        }
+
+        return "00000000000";
+    }
+
 
     public String getTimeString(int stampNid){
         return new SimpleDateFormat("YYYYMMdd").format(new Date(Get.stampService().getTimeForStamp(stampNid)));
@@ -110,77 +125,86 @@ public class RF2ExportHelper {
     }
 
     public String getModuleString(int stampNid){
-        ConceptChronology moduleConcept = Get.concept(Get.stampService().getModuleNidForStamp(stampNid));
-        if (RF2ExportLookUpCache.isSCTID(moduleConcept)) {
-            return lookUpIdentifierFromSemantic(snapshotService, TermAux.SNOMED_IDENTIFIER.getNid(), moduleConcept);
-        } else {
-            return UuidT5Generator.makeSolorIdFromUuid(moduleConcept.getPrimordialUuid());
-        }
+        return getIdString(Get.concept(Get.stampService().getModuleNidForStamp(stampNid)).getNid());
     }
 
-    private String lookUpIdentifierFromSemantic(ObservableSnapshotService snapshotService
-            , int identifierAssemblageNid, Chronology chronology){
+    private NidSet lookupNidSetForAssemblage(int conceptNid, int assemblageNid){
+        return Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, assemblageNid);
+    }
+
+    private String lookUpIdentifierFromSemantic(int semanticIdentifierNid){
 
         LatestVersion<ObservableStringVersion> stringVersion =
-                (LatestVersion<ObservableStringVersion>) snapshotService.getObservableSemanticVersion(
-                        chronology.getSemanticChronologyList().stream()
-                                .filter(semanticChronology -> semanticChronology.getAssemblageNid() == identifierAssemblageNid)
-                                .findFirst().get().getNid()
-                );
+                (LatestVersion<ObservableStringVersion>) this.snapshotService.getObservableSemanticVersion(semanticIdentifierNid);
 
         return stringVersion.isPresent() ? stringVersion.get().getString() : "";
     }
 
-    public String getIdString(Version version){
+    public String getConceptPrimitiveOrSufficientDefinedSCTID(int conceptNid) {
+        //primitive vs sufficiently
+        //If the stated definition contains a sufficient set, it is sufficiently defined, if not it is primitive.
+        Optional<LogicalExpression> conceptExpression = this.manifold.getLogicalExpression(conceptNid, PremiseType.STATED);
 
-        Chronology chronology = version.getChronology();
-
-        if (RF2ExportLookUpCache.isSCTID(chronology)) {
-            return lookUpIdentifierFromSemantic(TermAux.SNOMED_IDENTIFIER, chronology);
-        } else if (RF2ExportLookUpCache.isLoinc(chronology)) {
-            return UuidT5Generator.makeSolorIdFromLoincId(
-                    lookUpIdentifierFromSemantic(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR, chronology)
-            );
-        } else if (RF2ExportLookUpCache.isRxNorm(chronology)) {
-            return UuidT5Generator.makeSolorIdFromRxNormId(
-                    lookUpIdentifierFromSemantic(MetaData.RXNORM_CUI____SOLOR, chronology)
-            );
-        } else {
-            return UuidT5Generator.makeSolorIdFromUuid(chronology.getPrimordialUuid());
+        if (!conceptExpression.isPresent()) {
+            return "900000000000074008"; //This seems to happen e.g. SOLOR Concept & SOLOR Concept (SOLOR)
+        }else{
+            if(conceptExpression.get().contains(NodeSemantic.SUFFICIENT_SET)){
+                return "900000000000073002"; //sufficiently defined SCTID
+            }else{
+                return "900000000000074008"; //primitive SCTID
+            }
         }
     }
 
-    public String getTimeString(Version version){
-        return new SimpleDateFormat("YYYYMMdd").format(new Date(version.getTime()));
+    public String getTypeId(int nid){
+        //Definition (core metadata concept)			-	900000000000550004
+        //Fully specified name (core metadata concept)	-	900000000000003001
+        //Synonym (core metadata concept) 				-	900000000000013009
+
+        final int typeNid = ((LatestVersion<ObservableDescriptionVersion>)
+                this.getSnapshotService().getObservableSemanticVersion(nid)).get().getDescriptionTypeConceptNid();
+
+        if(typeNid == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid())
+            return "900000000000550004";
+        else if(typeNid == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid())
+            return "900000000000003001";
+        else if(typeNid == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid())
+            return "900000000000013009";
+
+        return "¯\\_(ツ)_/¯";
     }
 
-    public String getActiveString(Version version){
-        return version.isActive() ? "1" : "0";
+    public String getTerm(int nid){
+        return ((LatestVersion<ObservableDescriptionVersion>) this.getSnapshotService().getObservableSemanticVersion(nid)).get().getText();
     }
 
-    public String getModuleString(Version version){
+    public String getCaseSignificanceId(int nid){
+        //Entire term case insensitive (core metadata concept)				-	900000000000448009
+        //Entire term case sensitive (core metadata concept)				-	900000000000017005
+        //Only initial character case insensitive (core metadata concept)	-	900000000000020002
 
-        ConceptChronology moduleConcept = Get.concept(version.getModuleNid());
-        if (RF2ExportLookUpCache.isSCTID(moduleConcept)) {
-            return lookUpIdentifierFromSemantic(TermAux.SNOMED_IDENTIFIER, moduleConcept);
-        } else {
-            return UuidT5Generator.makeSolorIdFromUuid(moduleConcept.getPrimordialUuid());
-        }
+        final int caseSigNid = ((LatestVersion<ObservableDescriptionVersion>)
+                this.getSnapshotService().getObservableSemanticVersion(nid)).get().getCaseSignificanceConceptNid();
+
+
+        if( caseSigNid == TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getNid())
+            return "900000000000448009";
+        else if(caseSigNid == TermAux.DESCRIPTION_CASE_SENSITIVE.getNid())
+            return "900000000000017005";
+        else if(caseSigNid == TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getNid())
+            return "900000000000020002";
+
+        return "¯\\_(ツ)_/¯";
     }
 
-    private String lookUpIdentifierFromSemantic(ConceptSpecification assemblageConceptSpec, Chronology chronology){
+    public String getLanguageCode(int nid){
 
-        if(
+        int languageNID = Get.assemblageService().getSemanticChronology(nid).getAssemblageNid();
 
-        chronology.getSemanticChronologyList().stream()
-                .filter(semanticChronology -> semanticChronology.getAssemblageNid() == assemblageConceptSpec.getNid())
-                .findFirst()
-                .get()
-                .getVersionList()
-                .size() > 1
-        )
-            System.out.println("More than one versioned ID");
+        if(languageNID == TermAux.ENGLISH_LANGUAGE.getNid())
+            return "en";
+        else
+            return "¯\\_(ツ)_/¯";
 
-        return "0000000";
     }
 }

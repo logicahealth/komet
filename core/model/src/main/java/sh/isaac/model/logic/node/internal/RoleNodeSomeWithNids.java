@@ -138,7 +138,7 @@ public final class RoleNodeSomeWithNids
     @Override
     public void addToBuilder(StringBuilder builder) {
         builder.append("\n       SomeRole(");
-        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimoridalStringForNid(typeConceptNid)).append("\")");
+        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimordialStringForNid(typeConceptNid)).append("\")");
         builder.append(", ");
         for (AbstractLogicNode child: getChildren()) {
             child.addToBuilder(builder);

@@ -564,6 +564,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                popParent();
             createConcept("Measurement semantic");
             pushParent(current());
+                createConcept(TermAux.EXISTENTIAL_MEASUREMENT_SEMANTIC);
                 createConcept(TermAux.TIME_MEASUREMENT_SEMANTIC);
                 pushParent(current());
                     createConcept(TermAux.ISO_8601);

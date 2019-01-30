@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.JoinProperty;
 import java.util.List;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -40,13 +41,15 @@ public class ControllerForSortSpecification extends ControllerForSpecification {
             = FXCollections.observableArrayList();
     
     public ControllerForSortSpecification(SimpleListProperty<ConceptSpecification> forAssemblagesProperty,
+            ObservableList<LetItemKey> letItemKeys,
             ObservableMap<LetItemKey, Object> letItemObjectMap,
             ObservableList<AttributeFunction> cellFunctions,
-            ObservableList<ConceptSpecification> joinProperties,
+            ObservableList<JoinProperty> joinProperties,
             ObservableList<MenuItem> addFieldItems,
             TableView<List<String>> resultTable,
             Manifold manifold) {
-        super(forAssemblagesProperty, manifold, addFieldItems, joinProperties, letItemObjectMap, cellFunctions, resultTable);
+        super(forAssemblagesProperty, manifold, letItemKeys, addFieldItems, joinProperties, letItemObjectMap, cellFunctions, resultTable);
+        this.setupAttributeFunctions();
     }
 
     @Override
@@ -61,7 +64,7 @@ public class ControllerForSortSpecification extends ControllerForSpecification {
 
     @Override
     protected MenuItem makeMenuItem(String specificationName, QueryFieldSpecification queryFieldSpecification) {
-        return new MenuItemForSortSpecification("Add " + specificationName, (SortSpecification) queryFieldSpecification, sortSpecificationRows);
+        return new MenuItemForSortSpecification("Add " + specificationName, (SortSpecification) queryFieldSpecification, getSpecificationRows());
     }
 
     @Override

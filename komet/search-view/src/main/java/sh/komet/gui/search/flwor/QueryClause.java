@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.JoinProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.Property;
@@ -34,6 +35,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.query.properties.AssemblageForIterationClause;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.Join;
@@ -61,7 +63,7 @@ public class QueryClause {
     Manifold manifold;
     SimpleObjectProperty<ConceptSpecification> forSpecProperty = new SimpleObjectProperty<>(this, MetaData.FOR_ASSEMBLAGE____SOLOR.toExternalString());
     SimpleObjectProperty<LetItemKey> stampKeyProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE____SOLOR.toExternalString());
-    ObservableList<ConceptSpecification> joinProperties;
+    ObservableList<JoinProperty> joinProperties;
     PropertySheet clausePropertySheet = null;
 
     final ForPanel forPropertySheet;
@@ -70,7 +72,7 @@ public class QueryClause {
     List<Property<?>> clauseSpecificProperties = new ArrayList();
 
     //~--- constructors -----------------------------------------------------
-    protected QueryClause(Clause clause, Manifold manifold, ForPanel forPropertySheet, ObservableList<ConceptSpecification> joinProperties,
+    protected QueryClause(Clause clause, Manifold manifold, ForPanel forPropertySheet, ObservableList<JoinProperty> joinProperties,
             LetPropertySheet letPropertySheet) {
         this.manifold = manifold;
         this.forPropertySheet = forPropertySheet;
@@ -139,7 +141,6 @@ public class QueryClause {
                 queryText.setValue(descriptionLuceneMatch.getQueryText());
                 queryText.addListener((observable, oldValue, newValue) -> {
                     descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), newValue);
-
                 });
 
                 clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold, queryText));
@@ -231,9 +232,9 @@ public class QueryClause {
         clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "with",
                 joinSpec.secondAssemblageProperty(), forPropertySheet.getForAssemblagesProperty()));
         // need field list here
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "where",
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("where",
                 joinSpec.firstFieldProperty(), joinProperties));
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "equals",
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("equals",
                 joinSpec.secondFieldProperty, joinProperties));
 
         clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("stamp",
@@ -355,11 +356,13 @@ public class QueryClause {
         letPropertySheet.getLetItemObjectMap().addListener((MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) -> {
             LetItemKey key = change.getKey();
             if (key.equals(conceptSpecificationKeyProperty.get())) {
-                if (change.wasRemoved() & !change.wasAdded()) {
-                    conceptSpecProperty.setValue(null);
-                }
                 if (change.wasAdded()) {
-                    conceptSpecProperty.setValue((ConceptSpecification) change.getValueAdded());
+                    if (change.getValueAdded() instanceof ObservableConceptProxy) {
+                        conceptSpecProperty.setValue(((ObservableConceptProxy) change.getValueAdded()).get());
+                    } else {
+                        conceptSpecProperty.setValue((ConceptSpecification) change.getValueAdded());
+                    }
+                    
                 }
             }
         });

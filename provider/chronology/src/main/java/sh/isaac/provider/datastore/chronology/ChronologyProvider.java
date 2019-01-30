@@ -220,6 +220,9 @@ public class ChronologyProvider
     @Override
     public void writeSemanticChronology(SemanticChronology semanticChronicle) {
         store.putChronologyData((ChronologyImpl) semanticChronicle);
+//        if (semanticChronicle.getVersionType().equals(VersionType.LOGIC_GRAPH)) {
+//            Get.taxonomyService().updateTaxonomy(semanticChronicle);
+//        }
     }
 
     private void loadMetaData()
@@ -500,10 +503,17 @@ public class ChronologyProvider
 
     @Override
     public Optional<? extends SemanticChronology> getOptionalSemanticChronology(int semanticNid) {
-       if (hasSemantic(semanticNid)) {
-          return Optional.of(getSemanticChronology(semanticNid));
-       }
-       return Optional.empty();
+        if (hasSemantic(semanticNid)) {
+            try {
+                return Optional.of(getSemanticChronology(semanticNid));
+            }
+            //There are some rare, but possible timing issues if reads and writes are happening in parallel, where hasSemantic might return true, but
+            //it is in fact, not yet readable.
+            catch (NoSuchElementException e) {
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -666,7 +676,7 @@ public class ChronologyProvider
        
        for (int assemblageNid : assemblageConceptNids) {
           if (assemblageNid >= 0) {
-             throw new IndexOutOfBoundsException("Assemblage identifiers must be negative. Found: " + componentNid);
+             throw new IndexOutOfBoundsException("Assemblage identifiers must be negative. Found: " + assemblageNid);
           }
        }
        IdentifierService identifierService = ModelGet.identifierService();

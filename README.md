@@ -117,7 +117,7 @@ REPO_PASSWORD
 Make sure that offline is set to false in your settings.xml file. 
 ```
 $ mvn jgitflow:release-start jgitflow:release-finish \
-         -DreleaseVersion=3.08 -DdevelopmentVersion=3.09-SNAPSHOT
+         -DreleaseVersion=4.64 -DdevelopmentVersion=4.65-SNAPSHOT
 
 $ mvn jgitflow:release-start jgitflow:release-finish -Prelease-deploy
 ```

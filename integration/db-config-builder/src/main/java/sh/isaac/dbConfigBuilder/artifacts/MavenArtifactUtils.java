@@ -90,7 +90,7 @@ public class MavenArtifactUtils
 				}
 				catch (Exception e)
 				{
-					log.error("Error reading nexus repository", e);
+					log.error("Error reading nexus repository: " + e );
 				}
 
 				ArrayList<SDOSourceContent> results = new ArrayList<>();

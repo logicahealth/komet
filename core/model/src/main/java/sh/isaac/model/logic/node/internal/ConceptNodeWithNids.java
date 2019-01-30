@@ -207,7 +207,7 @@ public final class ConceptNodeWithNids
    @Override
     public void addToBuilder(StringBuilder builder) {
         builder.append("\n       ConceptAssertion(");
-        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimoridalStringForNid(conceptNid)).append("\")");
+        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimordialStringForNid(conceptNid)).append("\")");
         builder.append(", leb)\n");
     }
 

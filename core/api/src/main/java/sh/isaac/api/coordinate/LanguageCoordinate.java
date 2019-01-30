@@ -95,7 +95,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return 
     */
    Optional<LanguageCoordinate> getNextProrityLanguageCoordinate();
-   
+
    /**
     * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
     *
