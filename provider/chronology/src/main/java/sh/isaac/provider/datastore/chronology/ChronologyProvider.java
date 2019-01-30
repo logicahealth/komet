@@ -189,6 +189,9 @@ public class ChronologyProvider
     @Override
     public void writeSemanticChronology(SemanticChronology semanticChronicle) {
         store.putChronologyData((ChronologyImpl) semanticChronicle);
+//        if (semanticChronicle.getVersionType().equals(VersionType.LOGIC_GRAPH)) {
+//            Get.taxonomyService().updateTaxonomy(semanticChronicle);
+//        }
     }
 
     private void loadMetaData()

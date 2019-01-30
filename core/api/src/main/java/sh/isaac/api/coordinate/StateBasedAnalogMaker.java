@@ -62,7 +62,7 @@ public interface StateBasedAnalogMaker<T> {
    T makeCoordinateAnalog(Status... status);
    
    default StampCoordinate getImmutableAllStateAnalog() {
-       throw new UnsupportedOperationException();
+       throw new UnsupportedOperationException("Not supported by: " + this.getClass().getName());
    }
    
    

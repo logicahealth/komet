@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.CheckBox;
@@ -35,6 +36,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import sh.isaac.MetaData;
+import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.AuthorModulePathRestriction;
@@ -98,7 +100,7 @@ public class StampSelectionController
 		status.getItems().add(ACTIVE);
 		status.getItems().add(ACTIVE_AND_INACTIVE);
 		status.getItems().add(INACTIVE);
-		status.getSelectionModel().clearAndSelect(1);
+		status.getSelectionModel().select(ACTIVE);
 		
 		timeSelectStart.getItems().add("Any");
 		timeSelectStart.getItems().add("Newer Than");
@@ -280,11 +282,11 @@ public class StampSelectionController
 		
 		if (tsr != null)
 		{
-			if (tsr.activeOnly == null)
+			if (tsr.getAllowedStates() == null || tsr.getAllowedStates().equals(Status.ANY_STATUS_SET))
 			{
 				status.getSelectionModel().select(ACTIVE_AND_INACTIVE);
 			}
-			else if (tsr.activeOnly.booleanValue())
+			else if (tsr.getAllowedStates().equals(Status.ACTIVE_ONLY_SET))
 			{
 				status.getSelectionModel().select(ACTIVE);
 			}
@@ -445,13 +447,26 @@ public class StampSelectionController
 
 	public TimeStatusRestriction getTimeStatusRestriction()
 	{
+            EnumSet<Status> allowedStatuses;
+            switch(status.getSelectionModel().getSelectedItem()) {
+                case ACTIVE:
+                    allowedStatuses = Status.makeActiveOnlySet();
+                    break;
+                case ACTIVE_AND_INACTIVE:
+                    allowedStatuses = Status.makeAnyStateSet();
+                    break;
+                case INACTIVE:
+                    allowedStatuses = Status.INACTIVE_STATUS_SET;
+                    break;
+                default: 
+                    throw new UnsupportedOperationException(status.getSelectionModel().getSelectedItem());
+                
+            }
 		return new TimeStatusRestriction(timeSelectStart.getSelectionModel().getSelectedIndex() == 0 ? null 
 				: timeStart.getDateTimeValue().atZone(ZoneOffset.systemDefault()).toInstant().toEpochMilli(), 
 				timeSelectEnd.getSelectionModel().getSelectedIndex() == 0 ? null 
 						: timeEnd.getDateTimeValue().atZone(ZoneOffset.systemDefault()).toInstant().toEpochMilli(), 
-						status.getSelectionModel().getSelectedItem().equals(ACTIVE) ? new Boolean(true) 
-								: status.getSelectionModel().getSelectedItem().equals(INACTIVE) ? new Boolean(false)
-										: null
+						allowedStatuses, readManifoldCoordinate
 							);
 	}
 

@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.JoinProperty;
 import java.util.Collection;
 import java.util.List;
 import sh.isaac.api.query.AttributeFunction;
@@ -48,7 +49,7 @@ public class ControllerForReturnSpecification extends ControllerForSpecification
             ObservableList<LetItemKey> letItemKeys,
             ObservableMap<LetItemKey, Object> letItemObjectMap,
             ObservableList<AttributeFunction> cellFunctions,
-            ObservableList<ConceptSpecification> joinProperties,
+            ObservableList<JoinProperty> joinProperties,
             ObservableList<MenuItem> addFieldItems,
             TableView<List<String>> resultTable,
             Manifold manifold) {
@@ -71,7 +72,7 @@ public class ControllerForReturnSpecification extends ControllerForSpecification
         return returnSpecificationRows;
     }
 
-    public ObservableList<ConceptSpecification> getJoinProperties() {
+    public ObservableList<JoinProperty> getJoinProperties() {
         return joinProperties;
     }
 

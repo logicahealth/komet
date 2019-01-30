@@ -166,4 +166,9 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public StampCoordinate getImmutableAllStateAnalog() {
+        return getStampCoordinate().getImmutableAllStateAnalog(); 
+    }
+
 }

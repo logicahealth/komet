@@ -54,6 +54,7 @@ package sh.komet.gui.search.flwor;
 * See the License for the specific language governing permissions and
 * limitations under the License.
  */
+import sh.isaac.api.query.JoinProperty;
 import sh.isaac.api.query.AttributeFunction;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.AttributeSpecification;
@@ -108,6 +109,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
+import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -131,6 +133,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.xml.Jaxb;
 
 import sh.komet.gui.action.ConceptAction;
+import sh.komet.gui.control.concept.ConceptSpecificationForControlWrapper;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -272,7 +275,7 @@ public class FLWORQueryController
     private Query query;
     private final List<AttributeSpecification> resultColumns = new ArrayList();
 
-    ObservableList<ConceptSpecification> joinProperties = FXCollections.observableArrayList();
+    ObservableList<JoinProperty> joinProperties = FXCollections.observableArrayList();
 
     ObservableList<AttributeFunction> cellFunctions = FXCollections.observableArrayList();
 
@@ -397,6 +400,10 @@ public class FLWORQueryController
                         value = ((ObservableLogicCoordinate) value).getLogicCoordinate();
                     } else if (value instanceof ObservableConceptProxy) {
                         value = ((ObservableConceptProxy) value).get();
+                    }
+                    
+                    if (value instanceof ConceptSpecificationForControlWrapper) {
+                        value = new ConceptProxy((ConceptSpecification) value);
                     }
                     mapForExport.put(key, value);
                     
@@ -614,7 +621,7 @@ public class FLWORQueryController
             orderTable.getItems().remove(rowIndex);
             orderTable.getSelectionModel().select(rowIndex);
         });
-
+        
     }
 
     private void addChildClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {

@@ -26,21 +26,21 @@ public interface JoinSpecification {
 
     ConceptSpecification getFirstAssemblage();
 
-    ConceptSpecification getFirstField();
+    JoinProperty getFirstField();
 
     ConceptSpecification getSecondAssemblage();
 
-    ConceptSpecification getSecondField();
+    JoinProperty getSecondField();
 
     LetItemKey getStampCoordinateKey();
 
     void setFirstAssemblage(ConceptSpecification firstAssemblage);
 
-    void setFirstField(ConceptSpecification firstField);
+    void setFirstField(JoinProperty firstField);
 
     void setSecondAssemblage(ConceptSpecification secondAssemblage);
 
-    void setSecondField(ConceptSpecification secondField);
+    void setSecondField(JoinProperty secondField);
 
     void setStampCoordinateKey(LetItemKey stampCoordinateKey);
     

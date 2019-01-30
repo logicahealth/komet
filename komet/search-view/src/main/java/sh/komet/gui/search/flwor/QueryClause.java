@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.JoinProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.Property;
@@ -62,7 +63,7 @@ public class QueryClause {
     Manifold manifold;
     SimpleObjectProperty<ConceptSpecification> forSpecProperty = new SimpleObjectProperty<>(this, MetaData.FOR_ASSEMBLAGE____SOLOR.toExternalString());
     SimpleObjectProperty<LetItemKey> stampKeyProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE____SOLOR.toExternalString());
-    ObservableList<ConceptSpecification> joinProperties;
+    ObservableList<JoinProperty> joinProperties;
     PropertySheet clausePropertySheet = null;
 
     final ForPanel forPropertySheet;
@@ -71,7 +72,7 @@ public class QueryClause {
     List<Property<?>> clauseSpecificProperties = new ArrayList();
 
     //~--- constructors -----------------------------------------------------
-    protected QueryClause(Clause clause, Manifold manifold, ForPanel forPropertySheet, ObservableList<ConceptSpecification> joinProperties,
+    protected QueryClause(Clause clause, Manifold manifold, ForPanel forPropertySheet, ObservableList<JoinProperty> joinProperties,
             LetPropertySheet letPropertySheet) {
         this.manifold = manifold;
         this.forPropertySheet = forPropertySheet;
@@ -231,9 +232,9 @@ public class QueryClause {
         clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "with",
                 joinSpec.secondAssemblageProperty(), forPropertySheet.getForAssemblagesProperty()));
         // need field list here
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "where",
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("where",
                 joinSpec.firstFieldProperty(), joinProperties));
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "equals",
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("equals",
                 joinSpec.secondFieldProperty, joinProperties));
 
         clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("stamp",

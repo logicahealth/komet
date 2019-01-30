@@ -30,18 +30,18 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class JoinSpec implements JoinSpecification {
     ConceptSpecification firstAssemblage;
-    ConceptSpecification firstField;
+    JoinProperty firstField;
     ConceptSpecification secondAssemblage;
-    ConceptSpecification secondField;
+    JoinProperty secondField;
     LetItemKey stampCoordinateKey;
     
     public JoinSpec() {
     }
 
     public JoinSpec(ConceptSpecification firstAssemblage,
-            ConceptSpecification firstField, 
+            JoinProperty firstField, 
             ConceptSpecification secondAssemblage, 
-            ConceptSpecification secondField,
+            JoinProperty secondField,
             LetItemKey stampCoordinateKey) {
         this.firstAssemblage = firstAssemblage;
         this.firstField = firstField;
@@ -71,12 +71,12 @@ public class JoinSpec implements JoinSpecification {
 
     @XmlElement
     @Override
-    public ConceptSpecification getFirstField() {
+    public JoinProperty getFirstField() {
         return firstField;
     }
 
     @Override
-    public void setFirstField(ConceptSpecification firstField) {
+    public void setFirstField(JoinProperty firstField) {
         this.firstField = firstField;
     }
 
@@ -93,12 +93,12 @@ public class JoinSpec implements JoinSpecification {
 
     @XmlElement
     @Override
-    public ConceptSpecification getSecondField() {
+    public JoinProperty getSecondField() {
         return secondField;
     }
 
     @Override
-    public void setSecondField(ConceptSpecification secondField) {
+    public void setSecondField(JoinProperty secondField) {
         this.secondField = secondField;
     }
 

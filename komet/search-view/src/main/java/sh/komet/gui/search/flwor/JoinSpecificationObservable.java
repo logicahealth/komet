@@ -19,6 +19,7 @@ package sh.komet.gui.search.flwor;
 import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.query.JoinProperty;
 import sh.isaac.api.query.JoinSpecification;
 import sh.isaac.api.query.LetItemKey;
 
@@ -33,10 +34,10 @@ public class JoinSpecificationObservable implements JoinSpecification {
     SimpleObjectProperty<ConceptSpecification> secondAssemblageProperty 
             = new SimpleObjectProperty<>(this, MetaData.ASSEMBLAGE_2_TO_JOIN____SOLOR.toExternalString());
     
-    SimpleObjectProperty<ConceptSpecification> firstFieldProperty 
+    SimpleObjectProperty<JoinProperty> firstFieldProperty 
             = new SimpleObjectProperty<>(this, MetaData.FIELD_1_TO_JOIN____SOLOR.toExternalString());
     
-    SimpleObjectProperty<ConceptSpecification> secondFieldProperty 
+    SimpleObjectProperty<JoinProperty> secondFieldProperty 
             = new SimpleObjectProperty<>(this, MetaData.FIELD_2_TO_JOIN____SOLOR.toExternalString());
 
     SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty 
@@ -46,9 +47,9 @@ public class JoinSpecificationObservable implements JoinSpecification {
     }
 
     public JoinSpecificationObservable(ConceptSpecification firstAssemblage, 
-            ConceptSpecification firstField, 
+            JoinProperty firstField, 
             ConceptSpecification secondAssemblage, 
-            ConceptSpecification secondField, 
+            JoinProperty secondField, 
             LetItemKey stampCoordinateKey) {
         firstAssemblageProperty.set(firstAssemblage);
         secondAssemblageProperty.set(secondAssemblage);
@@ -98,12 +99,12 @@ public class JoinSpecificationObservable implements JoinSpecification {
     }
 
     @Override
-    public ConceptSpecification getSecondField() {
+    public JoinProperty getSecondField() {
         return secondFieldProperty.get();
     }
 
     @Override
-    public ConceptSpecification getFirstField() {
+    public JoinProperty getFirstField() {
         return firstFieldProperty.get();
     }
 
@@ -113,12 +114,12 @@ public class JoinSpecificationObservable implements JoinSpecification {
     }
 
     @Override
-    public void setSecondField(ConceptSpecification joinField) {
+    public void setSecondField(JoinProperty joinField) {
         this.secondFieldProperty.set(joinField);
     }
 
     @Override
-    public void setFirstField(ConceptSpecification sourceField) {
+    public void setFirstField(JoinProperty sourceField) {
         this.firstFieldProperty.set(sourceField);
     }
 
@@ -130,11 +131,11 @@ public class JoinSpecificationObservable implements JoinSpecification {
         return secondAssemblageProperty;
     }
 
-    public SimpleObjectProperty<ConceptSpecification> firstFieldProperty() {
+    public SimpleObjectProperty<JoinProperty> firstFieldProperty() {
         return firstFieldProperty;
     }
 
-    public SimpleObjectProperty<ConceptSpecification> secondFieldProperty() {
+    public SimpleObjectProperty<JoinProperty> secondFieldProperty() {
         return secondFieldProperty;
     }
 

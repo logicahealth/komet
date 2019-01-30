@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.JoinProperty;
 import java.util.List;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -43,7 +44,7 @@ public class ControllerForSortSpecification extends ControllerForSpecification {
             ObservableList<LetItemKey> letItemKeys,
             ObservableMap<LetItemKey, Object> letItemObjectMap,
             ObservableList<AttributeFunction> cellFunctions,
-            ObservableList<ConceptSpecification> joinProperties,
+            ObservableList<JoinProperty> joinProperties,
             ObservableList<MenuItem> addFieldItems,
             TableView<List<String>> resultTable,
             Manifold manifold) {
