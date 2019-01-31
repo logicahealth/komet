@@ -282,8 +282,8 @@
                             <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <sourceFile>${project.build.directory}/${artifactId}-${version}.jar</sourceFile>
-                            <destinationFile>${project.build.directory}/jfx/${artifactId}-${version}.jar</destinationFile>
+                            <sourceFile>${project.build.directory}/${project.artifactId}-${project.version}.jar</sourceFile>
+                            <destinationFile>${project.build.directory}/jfx/${project.artifactId}-${project.version}.jar</destinationFile>
                         </configuration>
                     </execution>
                 </executions>
