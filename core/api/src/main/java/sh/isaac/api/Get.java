@@ -644,6 +644,25 @@ public class Get
    public static int nidForUuids(UUID... uuids) {
        return identifierService().getNidForUuids(uuids);
    }
+   
+   /**
+    * Assigns a nid for the UUIDs if a nid does not already exist.
+    * @param uuids
+    * @return 
+    */
+   public static int nidWithAssignment(UUID... uuids) {
+       return identifierService().assignNid(uuids);
+   }
+   
+   /**
+    * 
+    * @return a new random UUID that has been assigned a nid. 
+    */
+   public static UUID newUuidWithAssignment() {
+       UUID uuid = UUID.randomUUID();
+       identifierService().assignNid(uuid);
+       return uuid;
+   }
 
    /**
     * Inferred definition chronology.

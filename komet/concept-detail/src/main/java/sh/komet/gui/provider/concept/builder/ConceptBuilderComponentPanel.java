@@ -45,6 +45,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
@@ -242,7 +243,7 @@ public class ConceptBuilderComponentPanel
                     // add the semantic type to assemblage
                     ConceptSpecification semanticType = conceptEditor.getSemanticTypeForAssemblage();
                     ObservableComponentNidVersionImpl semanticTypeSemanticVersion
-                            = new ObservableComponentNidVersionImpl(UUID.randomUUID(),
+                            = new ObservableComponentNidVersionImpl(Get.newUuidWithAssignment(),
                                     this.observableVersion.getPrimordialUuid(),
                                     TermAux.SEMANTIC_TYPE.getNid());
                     semanticTypeSemanticVersion.setComponentNid(semanticType.getNid());
@@ -256,7 +257,7 @@ public class ConceptBuilderComponentPanel
 
                         // create the concept
                         ObservableConceptVersionImpl fieldConcept
-                                = new ObservableConceptVersionImpl(UUID.randomUUID(), MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
+                                = new ObservableConceptVersionImpl(Get.newUuidWithAssignment(), MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
                         fieldConcept.setStatus(Status.ACTIVE);
                         fieldConcept.setAuthorNid(this.observableVersion.getAuthorNid());
                         fieldConcept.setModuleNid(this.observableVersion.getModuleNid());
@@ -287,7 +288,7 @@ public class ConceptBuilderComponentPanel
                         addDescriptionAndDialect(fieldConcept, fsnFieldName, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR, versionsToCommit);
 
                         // Add concept for field to proper refset. 
-                        Observable_Nid1_Int2_VersionImpl fieldAssociation = new Observable_Nid1_Int2_VersionImpl(UUID.randomUUID(),
+                        Observable_Nid1_Int2_VersionImpl fieldAssociation = new Observable_Nid1_Int2_VersionImpl(Get.newUuidWithAssignment(),
                                 this.observableVersion.getPrimordialUuid(),
                                 TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid());
                         fieldAssociation.setNid1(fieldConcept.getNid());
@@ -319,7 +320,7 @@ public class ConceptBuilderComponentPanel
     protected void addDescriptionAndDialect(ObservableConceptVersionImpl concept, String description,
             ConceptSpecification descriptionType, List<ObservableVersion> versionsToCommit) throws NoSuchElementException {
         // create a name
-        ObservableDescriptionVersionImpl preferredName = new ObservableDescriptionVersionImpl(UUID.randomUUID(),
+        ObservableDescriptionVersionImpl preferredName = new ObservableDescriptionVersionImpl(Get.newUuidWithAssignment(),
                 concept.getPrimordialUuid(),
                 MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
         preferredName.setText(description);
@@ -332,7 +333,7 @@ public class ConceptBuilderComponentPanel
         preferredName.setPathNid(this.observableVersion.getPathNid());
         versionsToCommit.add(preferredName);
 
-        ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(UUID.randomUUID(),
+        ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(Get.newUuidWithAssignment(),
                 preferredName.getPrimordialUuid(),
                 TermAux.US_DIALECT_ASSEMBLAGE.getNid());
         dialect.setStatus(Status.ACTIVE);

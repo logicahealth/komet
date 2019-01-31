@@ -114,7 +114,7 @@ public class AddAttachmentMenuItems {
                     || semanticTypeNid == MetaData.COMPONENT_SEMANTIC____SOLOR.getNid()) {
 
                 ObservableComponentNidVersionImpl version
-                        = new ObservableComponentNidVersionImpl(UUID.randomUUID(),
+                        = new ObservableComponentNidVersionImpl(Get.newUuidWithAssignment(),
                                 this.categorizedVersion.getPrimordialUuid(),
                                 assemblageSpecification.getNid());
                 version.setComponentNid(TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
@@ -123,19 +123,19 @@ public class AddAttachmentMenuItems {
                 return version;
             } else if (semanticTypeNid == MetaData.INTEGER_SEMANTIC____SOLOR.getNid()) {
 
-                ObservableLongVersionImpl version = new ObservableLongVersionImpl(UUID.randomUUID(),
+                ObservableLongVersionImpl version = new ObservableLongVersionImpl(Get.newUuidWithAssignment(),
                         this.categorizedVersion.getPrimordialUuid(),
                         assemblageSpecification.getNid());
                 version.setLongValue(-1);
                 setupWithChronicle(version);
             } else if (semanticTypeNid == MetaData.MEMBERSHIP_SEMANTIC____SOLOR.getNid()) {
-                ObservableSemanticVersionImpl version = new ObservableSemanticVersionImpl(UUID.randomUUID(),
+                ObservableSemanticVersionImpl version = new ObservableSemanticVersionImpl(Get.newUuidWithAssignment(),
                         this.categorizedVersion.getPrimordialUuid(),
                         assemblageSpecification.getNid());
                 setupWithChronicle(version);
                 return version;
             } else if (semanticTypeNid == MetaData.STRING_SEMANTIC____SOLOR.getNid()) {
-                ObservableStringVersionImpl version = new ObservableStringVersionImpl(UUID.randomUUID(),
+                ObservableStringVersionImpl version = new ObservableStringVersionImpl(Get.newUuidWithAssignment(),
                         this.categorizedVersion.getPrimordialUuid(),
                         assemblageSpecification.getNid());
                 version.setString("");
@@ -147,7 +147,7 @@ public class AddAttachmentMenuItems {
         }
 
         LOG.warn("No semantic type defined for assemblge: " + Get.conceptDescriptionText(assemblageSpecification.getNid()));
-        ObservableStringVersionImpl version = new ObservableStringVersionImpl(UUID.randomUUID(),
+        ObservableStringVersionImpl version = new ObservableStringVersionImpl(Get.newUuidWithAssignment(),
                 this.categorizedVersion.getPrimordialUuid(),
                 assemblageSpecification.getNid());
         version.setString("");
