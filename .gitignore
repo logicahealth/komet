@@ -12,3 +12,4 @@ komet/application/data/*
 *.iml
 /komet/application/target copy/
 PostgresProviderPath/
+komet/application/src/installer/install4j/*~
