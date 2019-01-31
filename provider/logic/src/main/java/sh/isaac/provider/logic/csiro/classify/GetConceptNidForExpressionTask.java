@@ -176,7 +176,7 @@ public class GetConceptNidForExpressionTask
 
          updateMessage("Building new concept...");
 
-         final UUID                  uuidForNewConcept     = UUID.randomUUID();
+         final UUID                  uuidForNewConcept     = Get.newUuidWithAssignment();
          final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
          conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
