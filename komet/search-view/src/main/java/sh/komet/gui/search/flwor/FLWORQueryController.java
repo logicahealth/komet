@@ -319,6 +319,9 @@ public class FLWORQueryController
             AttributeSpecification columnSpecification = resultColumns.get(column);
             if (columnSpecification.getStampCoordinateKey() != null) {
                 StampCoordinate stamp = (StampCoordinate) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampCoordinateKey());
+                if (stamp == null) {
+                    throw new IllegalStateException("No coordinate for key: " + columnSpecification.getStampCoordinateKey());
+                }
                 snapshotArray[column] = Get.observableSnapshotService(stamp);
             }
         }
@@ -849,15 +852,15 @@ public class FLWORQueryController
         this.returnSpecificationController.getReturnSpecificationRows().clear();
 
         if (this.query != null) {
-            for (ConceptSpecification assemblageSpec : this.query.getForSetSpecification().getForSet()) {
-                forPropertySheet.getForAssemblagesProperty().add(assemblageSpec);
-            }
-            this.query.setForSetSpecification(forPropertySheet.getForSetSpecification());
             for (Map.Entry<LetItemKey, Object> entry : this.query.getLetDeclarations().entrySet()) {
                 this.letPropertySheet.addItem(entry.getKey(), entry.getValue());
             }
             this.query.setLetDeclarations(this.letPropertySheet.getLetItemObjectMap());
 
+            for (ConceptSpecification assemblageSpec : this.query.getForSetSpecification().getForSet()) {
+                forPropertySheet.getForAssemblagesProperty().add(assemblageSpec);
+            }
+            this.query.setForSetSpecification(forPropertySheet.getForSetSpecification());
             QueryClause rootQueryClause = new QueryClause(this.query.getRoot(), this.manifold,
                     this.forPropertySheet,
                     this.joinProperties,
@@ -894,7 +897,7 @@ public class FLWORQueryController
         returnStampCoordinateColumn.setCellValueFactory((param) -> {
             return param.getValue().stampCoordinateKeyProperty();
         });
-        returnStampCoordinateColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(this.letPropertySheet.getManifoldCoordinateKeys()));
+        returnStampCoordinateColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(this.letPropertySheet.getStampCoordinateKeys()));
 
         returnFunctionColumn.setCellValueFactory((param) -> {
             return param.getValue().attributeFunctionProperty();

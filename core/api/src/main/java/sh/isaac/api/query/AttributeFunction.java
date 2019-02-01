@@ -55,12 +55,15 @@ public class AttributeFunction {
     public static final String DEFINITION = " definition";
     public static final String FQN_UUID = " FQN UUID";
     public static final String FQN = " FQN";
+    public static final String DESCRIPTION = " description";
+    public static final String DESCRIPTION_UUID = " description UUID";
     public static final String PREFERRED_NAME_UUID = " preferred name UUID";
     public static final String PREFERRED_NAME = " preferred name";
     public static final String IS_PREFERRED = " is preferred";
     public static final String EPOCH_TO_8601_DATETIME = "Epoch to 8601 date/time";
     public static final String ALL_UUIDS = "All uuids";
     public static final String PRIMORDIAL_UUID = "Primordial uuid";
+    public static final String MISSPELLED_PRIMORDIAL_UUID = "Primoridal uuid";
     public static final String IDENTITY = "Identity";
     public static final String EMPTY = "";
     public static final String SCT_ID = "SCT id";
@@ -112,6 +115,7 @@ public class AttributeFunction {
                     return nid.toString();
                 };
             case PRIMORDIAL_UUID:
+            case MISSPELLED_PRIMORDIAL_UUID:
                 return (funcName, nid, stampCoordinate, query) -> {
                     return Get.identifierService().getUuidPrimordialForNid(nid.intValue()).toString();
                 };
@@ -141,7 +145,7 @@ public class AttributeFunction {
                         Object coordinate = null;
                         for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
                             if (functionName.startsWith(entry.getKey().getItemName())) {
-                                coordinate = (LanguageCoordinate) entry.getValue();
+                                coordinate = entry.getValue();
                                 break;
                             }
                         }
@@ -162,16 +166,10 @@ public class AttributeFunction {
                     };
                 } else if (functionName.endsWith(IS_PREFERRED)) {
                     return (funcName, nid, stampCoordinate, query) -> {
-                        LanguageCoordinate lc = null;
-                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
-                            if (functionName.startsWith(entry.getKey().getItemName())) {
-                                lc = (LanguageCoordinate) entry.getValue();
-                                break;
-                            }
-                        }
+                        Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
                             SemanticChronology descChronolgy = Get.assemblageService().getSemanticChronology(nid.intValue());
-                            LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(descChronolgy.getReferencedComponentNid(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getPreferredDescription(descChronolgy.getReferencedComponentNid(), stampCoordinate);
                             if (description.isPresent() && description.get().getNid() == nid.intValue()) {
                                 return Boolean.TRUE.toString();
                             }
@@ -180,17 +178,35 @@ public class AttributeFunction {
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
                         
                     };
+                } else if (functionName.endsWith(DESCRIPTION)) {
+                    return (funcName, nid, stampCoordinate, query) -> {
+                        Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
+                        if (lc != null) {
+                            LatestVersion<DescriptionVersion> description = lc.get().getDescription(nid.intValue(), stampCoordinate);
+                            if (description.isPresent()) {
+                                return description.get().getText();
+                            }
+                            return "No current description";
+                        }
+                        throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
+                    };
+                } else if (functionName.endsWith(DESCRIPTION_UUID)) {
+                    return (funcName, nid, stampCoordinate, query) -> {
+                        Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
+                        if (lc != null) {
+                            LatestVersion<DescriptionVersion> description = lc.get().getDescription(nid.intValue(), stampCoordinate);
+                            if (description.isPresent()) {
+                                return description.get().getPrimordialUuid().toString();
+                            }
+                            return "No current description uuid";
+                        }
+                        throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
+                    };
                 } else if (functionName.endsWith(PREFERRED_NAME)) {
                     return (funcName, nid, stampCoordinate, query) -> {
-                        LanguageCoordinate lc = null;
-                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
-                            if (functionName.startsWith(entry.getKey().getItemName())) {
-                                lc = (LanguageCoordinate) entry.getValue();
-                                break;
-                            }
-                        }
+                        Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(nid.intValue(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getPreferredDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
                             }
@@ -200,33 +216,21 @@ public class AttributeFunction {
                     };
                 } else if (functionName.endsWith(PREFERRED_NAME_UUID)) {
                     return (funcName, nid, stampCoordinate, query) -> {
-                        LanguageCoordinate lc = null;
-                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
-                            if (functionName.startsWith(entry.getKey().getItemName())) {
-                                lc = (LanguageCoordinate) entry.getValue();
-                                break;
-                            }
-                        }
+                        Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.getPreferredDescription(nid.intValue(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getPreferredDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getPrimordialUuid().toString();
                             }
-                            return "No current preferred name";
+                            return "No current preferred name uuid";
                         }
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
                     };
                 } else if (functionName.endsWith(FQN)) {
                     return (funcName, nid, stampCoordinate, query) -> {
-                        LanguageCoordinate lc = null;
-                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
-                            if (functionName.startsWith(entry.getKey().getItemName())) {
-                                lc = (LanguageCoordinate) entry.getValue();
-                                break;
-                            }
-                        }
+                        Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.getFullySpecifiedDescription(nid.intValue(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getFullySpecifiedDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
                             }
@@ -236,33 +240,21 @@ public class AttributeFunction {
                     };
                 } else if (functionName.endsWith(FQN_UUID)) {
                     return (funcName, nid, stampCoordinate, query) -> {
-                        LanguageCoordinate lc = null;
-                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
-                            if (functionName.startsWith(entry.getKey().getItemName())) {
-                                lc = (LanguageCoordinate) entry.getValue();
-                                break;
-                            }
-                        }
+                        Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.getFullySpecifiedDescription(nid.intValue(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getFullySpecifiedDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getPrimordialUuid().toString();
                             }
-                            return "No current FQN";
+                            return "No current FQN uuid";
                         }
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName + " " + query.getLetDeclarations().entrySet());
                     };
                 } else if (functionName.endsWith(DEFINITION)) {
                     return (funcName, nid, stampCoordinate, query) -> {
-                        LanguageCoordinate lc = null;
-                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
-                            if (functionName.startsWith(entry.getKey().getItemName())) {
-                                lc = (LanguageCoordinate) entry.getValue();
-                                break;
-                            }
-                        }
+                        Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.getDefinitionDescription(Get.concept(nid.intValue()).getConceptDescriptionList(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getDefinitionDescription(Get.concept(nid.intValue()).getConceptDescriptionList(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
                             }
@@ -272,19 +264,13 @@ public class AttributeFunction {
                     };
                 } else if (functionName.endsWith(DEFINITION_UUID)) {
                     return (funcName, nid, stampCoordinate, query) -> {
-                        LanguageCoordinate lc = null;
-                        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
-                            if (functionName.startsWith(entry.getKey().getItemName())) {
-                                lc = (LanguageCoordinate) entry.getValue();
-                                break;
-                            }
-                        }
+                        Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.getDefinitionDescription(Get.concept(nid.intValue()).getConceptDescriptionList(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getDefinitionDescription(Get.concept(nid.intValue()).getConceptDescriptionList(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getPrimordialUuid().toString();
                             }
-                            return "No current definition";
+                            return "No current definition uuid";
                         }
                         throw new IllegalStateException("Cannot find LetItemKey for " + functionName);
                     };
@@ -303,6 +289,15 @@ public class AttributeFunction {
                 }
         }
         throw new IllegalStateException("No function for " + functionName);
+    }
+
+    protected static Optional<LanguageCoordinate> getLanguageCoordinate(Query query, String functionName1) {
+        for (Map.Entry<LetItemKey, Object> entry : query.getLetDeclarations().entrySet()) {
+            if (functionName1.startsWith(entry.getKey().getItemName())) {
+                return Optional.of((LanguageCoordinate) entry.getValue());
+            }
+        }
+        return Optional.empty();
     }
     protected static String doTaxonomyQuery(String functionName1, String prefix, Query query, int nid) throws NoSuchElementException {
         String conceptKeyName = functionName1.substring(prefix.length(), functionName1.indexOf(MANIFOLD_PREFIX));

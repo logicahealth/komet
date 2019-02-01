@@ -33,7 +33,7 @@ import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.ManifoldCoordinateForQuery;
-import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl; 
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableStampCoordinateImpl;
 import sh.komet.gui.util.FxGet;
