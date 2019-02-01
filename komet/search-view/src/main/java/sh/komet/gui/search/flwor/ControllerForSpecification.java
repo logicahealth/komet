@@ -64,6 +64,9 @@ import static sh.isaac.api.query.AttributeFunction.SCT_ID;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.QueryFieldSpecification;
 import sh.komet.gui.manifold.Manifold;
+import static sh.isaac.api.query.AttributeFunction.DESCRIPTION;
+import static sh.isaac.api.query.AttributeFunction.DESCRIPTION_UUID;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
@@ -115,8 +118,11 @@ public abstract class ControllerForSpecification {
                 if (property != ObservableVersion.PROPERTY_INDEX.COMMITTED_STATE) {
                     
                     String specificationName = manifold.getPreferredDescriptionText(assemblageSpec) + ":" + manifold.getPreferredDescriptionText(property.getSpec());
-                    
-                    QueryFieldSpecification row = makeQueryFieldSpecification(new AttributeFunction(EMPTY), this.manifold.getPreferredDescriptionText(assemblageSpec) + ": " + specificationName, assemblageSpec.getNid(), property.getSpec(), property.getIndex());
+                    AttributeFunction attributeFunction = new AttributeFunction(EMPTY);
+                    if (property.getSpec().equals(ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT)) {
+                        attributeFunction = new AttributeFunction(PRIMORDIAL_UUID);
+                    }
+                    QueryFieldSpecification row = makeQueryFieldSpecification(attributeFunction, specificationName, assemblageSpec.getNid(), property.getSpec(), property.getIndex());
                     
                     addFieldItems.add(makeMenuItem(specificationName, row));
                     joinProperties.add(new JoinProperty(assemblageSpec, row.getPropertySpecification(), manifold));
@@ -144,7 +150,7 @@ public abstract class ControllerForSpecification {
                 // add a sort...
                 // add extra fields (STAMP)
                 String specificationName = manifold.getPreferredDescriptionText(assemblageSpec) + ":" + manifold.getPreferredDescriptionText(semanticField.getNid1());
-                QueryFieldSpecification row = makeQueryFieldSpecification(new AttributeFunction(EMPTY), this.manifold.getPreferredDescriptionText(assemblageSpec) + ": " + specificationName, assemblageSpec.getNid(), Get.conceptSpecification(semanticField.getNid1()), ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex() + semanticField.getInt2());
+                QueryFieldSpecification row = makeQueryFieldSpecification(new AttributeFunction(EMPTY), specificationName, assemblageSpec.getNid(), Get.conceptSpecification(semanticField.getNid1()), ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex() + semanticField.getInt2());
                 addFieldItems.add(makeMenuItem(specificationName, row));
                 joinProperties.add(new JoinProperty(assemblageSpec, row.getPropertySpecification(), manifold));
             }
@@ -184,12 +190,16 @@ public abstract class ControllerForSpecification {
                     }
                 }
             }
+        }
+        for (Map.Entry<LetItemKey, Object> entry: letItemObjectMap.entrySet()) {
             if (entry.getValue() instanceof LanguageCoordinate &! (entry.getValue() instanceof ManifoldCoordinate)) {
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + DESCRIPTION));
                 attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + PREFERRED_NAME));
-                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + PREFERRED_NAME_UUID));
                 attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + FQN));
-                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + FQN_UUID));
                 attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + DEFINITION));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + DESCRIPTION_UUID));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + PREFERRED_NAME_UUID));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + FQN_UUID));
                 attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + DEFINITION_UUID));
                 attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + IS_PREFERRED));
             }

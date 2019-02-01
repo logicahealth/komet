@@ -86,7 +86,7 @@ public class And
     @Override
     public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> components) {
         for (Clause child: getChildren()) {
-            components = ForSet.and(components, child.computePossibleComponents(components));
+            components = ForSet.and(components, child.computeComponents(components));
         }
         return components;
     }
