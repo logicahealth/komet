@@ -107,7 +107,7 @@ public class ControllerForReturnSpecification extends ControllerForSpecification
 
     @Override
     protected QueryFieldSpecification makeQueryFieldSpecification(AttributeFunction attributeFunction, String specificationName, int assemblageNid, ConceptSpecification propertySpecification, int propertyIndex) {
-        return new AttributeSpecification(new AttributeFunction(""), specificationName, assemblageNid, propertySpecification, lastStampCoordinateKey, propertyIndex);
+        return new AttributeSpecification(attributeFunction, specificationName, assemblageNid, propertySpecification, lastStampCoordinateKey, propertyIndex);
     }
 
 }

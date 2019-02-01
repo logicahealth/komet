@@ -66,6 +66,7 @@ import sh.isaac.api.query.QueryFieldSpecification;
 import sh.komet.gui.manifold.Manifold;
 import static sh.isaac.api.query.AttributeFunction.DESCRIPTION;
 import static sh.isaac.api.query.AttributeFunction.DESCRIPTION_UUID;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
@@ -117,8 +118,11 @@ public abstract class ControllerForSpecification {
                 if (property != ObservableVersion.PROPERTY_INDEX.COMMITTED_STATE) {
                     
                     String specificationName = manifold.getPreferredDescriptionText(assemblageSpec) + ":" + manifold.getPreferredDescriptionText(property.getSpec());
-                    
-                    QueryFieldSpecification row = makeQueryFieldSpecification(new AttributeFunction(EMPTY), specificationName, assemblageSpec.getNid(), property.getSpec(), property.getIndex());
+                    AttributeFunction attributeFunction = new AttributeFunction(EMPTY);
+                    if (property.getSpec().equals(ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT)) {
+                        attributeFunction = new AttributeFunction(PRIMORDIAL_UUID);
+                    }
+                    QueryFieldSpecification row = makeQueryFieldSpecification(attributeFunction, specificationName, assemblageSpec.getNid(), property.getSpec(), property.getIndex());
                     
                     addFieldItems.add(makeMenuItem(specificationName, row));
                     joinProperties.add(new JoinProperty(assemblageSpec, row.getPropertySpecification(), manifold));

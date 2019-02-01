@@ -125,6 +125,7 @@ import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ForSet;
 import sh.isaac.api.query.Or;
+import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.SortSpecification;
 import sh.isaac.api.query.clauses.*;
@@ -659,6 +660,8 @@ public class FLWORQueryController
     private void changeClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
         ClauseTreeItem treeItem = (ClauseTreeItem) rowValue.getTreeItem();
         ClauseTreeItem parent = (ClauseTreeItem) treeItem.getParent();
+        
+        Clause originalClause = treeItem.getValue().getClause();
         if (parent != null) {
             treeItem.getValue().getClause().removeParent(parent.getValue().getClause());
         }
@@ -668,8 +671,17 @@ public class FLWORQueryController
                 .get(CLAUSE);
         clause.setEnclosingQuery(query);
 
+
         treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet,
                 joinProperties, letPropertySheet));
+        
+        if (originalClause instanceof ParentClause && clause instanceof ParentClause) {
+            for (Clause child: originalClause.getChildren()) {
+                child.setParent(clause);
+            }
+        } else {
+            treeItem.getChildren().clear();
+        }
     }
 
     // changeClause->, addSibling->, addChild->,
