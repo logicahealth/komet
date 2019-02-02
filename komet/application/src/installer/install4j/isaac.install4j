@@ -21,7 +21,7 @@
   <files keepModificationTimes="false" missingFilesStrategy="warn" globalExcludeSuffixes=".DS_Store" defaultOverwriteMode="4" defaultUninstallMode="0" launcherOverwriteMode="3" defaultFileMode="644" defaultDirMode="755">
     <filesets />
     <roots>
-      <root id="525" fileset="" location="${installer:solor.data}/" />
+      <root id="525" fileset="" location="${installer:sys.userHome}/Solor/${installer:sys.version}" />
     </roots>
     <mountPoints>
       <mountPoint id="59" root="" location="" mode="755" />
@@ -41,7 +41,7 @@
     <components />
   </files>
   <launchers>
-    <launcher name="SOLOR Semanticist" id="60" customizedId="" external="false" excludeFromMenu="false" unixMode="755" unixAutoStart="true" menuName="Solor" icnsFile="../../main/resources/icons/KOMET.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="" useCustomMacosExecutableName="false" customMacosExecutableName="" useJavaMinVersionOverride="false" javaMinVersionOverride="" useJavaMaxVersionOverride="false" javaMaxVersionOverride="" checkUpdater="false" updateExecutionMode="unattendedProgress" unattendedUpdateTitle="${i18n:updater.WindowTitle(&quot;${compiler:sys.fullName}&quot;)}">
+    <launcher name="SOLOR Semanticist" id="60" customizedId="" external="false" excludeFromMenu="false" unixMode="755" unixAutoStart="true" menuName="Solor Semanticist" icnsFile="../../main/resources/icons/KOMET.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="" useCustomMacosExecutableName="false" customMacosExecutableName="" useJavaMinVersionOverride="false" javaMinVersionOverride="" useJavaMaxVersionOverride="false" javaMaxVersionOverride="" checkUpdater="false" updateExecutionMode="unattendedProgress" unattendedUpdateTitle="${i18n:updater.WindowTitle(&quot;${compiler:sys.fullName}&quot;)}">
       <executable name="Semanticist" type="1" iconSet="true" iconFile="../../main/resources/icons/KOMET.ico" executableDir="" redirectStderr="true" stderrFile="${installer:sys.docsDir}/Solor/data/logs/error.log" stderrMode="append" redirectStdout="true" stdoutFile="${installer:sys.docsDir}/Solor/data/logs/output.log" stdoutMode="append" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="." singleInstance="true" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false" singleInstanceActivate="true" dpiAware="true">
         <versionInfo include="false" fileVersion="1.0.0.0" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
@@ -65,7 +65,7 @@
       <vmOptionsFile mode="content" overwriteMode="0" fileMode="644">
         <content>-Xmx6000m
 -DSHOW_BETA_FEATURES=true
--DDATA_STORE_ROOT_LOCATION_PROPERTY=${installer:solor.data}/data</content>
+-DDATA_STORE_ROOT_LOCATION_PROPERTY=${installer:sys.userHome}/Solor/1.3/data</content>
       </vmOptionsFile>
       <customScript mode="1" file="">
         <content />
@@ -370,75 +370,6 @@ return console.askOkCancel(message, true);
                   <propertyName>allowSpacesOnUnix</propertyName>
                   <propertyName>validationScript</propertyName>
                   <propertyName>standardValidation</propertyName>
-                </externalParametrizationPropertyNames>
-              </formComponent>
-            </formComponents>
-          </screen>
-          <screen name="Directory selection" id="536" customizedId="" beanClass="com.install4j.runtime.beans.screens.FormScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" styleId="" rollbackBarrier="false" rollbackBarrierExitCode="0" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.screens.FormScreen">
-                  <void property="title">
-                    <string>Select Solor data location</string>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <styleOverrides />
-            <condition />
-            <validation />
-            <preActivation />
-            <postActivation />
-            <actions />
-            <formComponents>
-              <formComponent name="" id="537" customizedId="" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="25" insetRight="" resetInitOnPrevious="false" useExternalParametrization="true" externalParametrizationName="Header" externalParametrizationMode="include">
-                <serializedBean>
-                  <java class="java.beans.XMLDecoder">
-                    <object class="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent">
-                      <void property="hideIfBlank">
-                        <boolean>true</boolean>
-                      </void>
-                    </object>
-                  </java>
-                </serializedBean>
-                <initScript />
-                <visibilityScript>!context.isConsole()</visibilityScript>
-                <externalParametrizationPropertyNames>
-                  <propertyName>labelText</propertyName>
-                </externalParametrizationPropertyNames>
-              </formComponent>
-              <formComponent name="" id="538" customizedId="" beanClass="com.install4j.runtime.beans.formcomponents.DirectoryChooserComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false" useExternalParametrization="true" externalParametrizationName="Directory" externalParametrizationMode="include">
-                <serializedBean>
-                  <java class="java.beans.XMLDecoder">
-                    <object class="com.install4j.runtime.beans.formcomponents.DirectoryChooserComponent">
-                      <void property="initialBrowserDirectory">
-                        <string>${installer:sys.userHome}/Solor/${installer:sys.version}</string>
-                      </void>
-                      <void property="initialFile">
-                        <string>${installer:sys.userHome}/Solor/${installer:sys.version}</string>
-                      </void>
-                      <void property="nextOnEnter">
-                        <boolean>true</boolean>
-                      </void>
-                      <void property="variableName">
-                        <string>solor.data</string>
-                      </void>
-                    </object>
-                  </java>
-                </serializedBean>
-                <initScript />
-                <visibilityScript />
-                <externalParametrizationPropertyNames>
-                  <propertyName>directoryDescription</propertyName>
-                  <propertyName>initialFile</propertyName>
-                  <propertyName>standardDirectoryName</propertyName>
-                  <propertyName>variableName</propertyName>
-                  <propertyName>allowSpacesOnUnix</propertyName>
-                  <propertyName>manualEntryAllowed</propertyName>
-                  <propertyName>validationScript</propertyName>
-                  <propertyName>standardValidation</propertyName>
-                  <propertyName>allowSpacesOnUnix</propertyName>
-                  <propertyName>onlyWritable</propertyName>
                 </externalParametrizationPropertyNames>
               </formComponent>
             </formComponents>
@@ -1279,5 +1210,5 @@ return console.askYesNo(message, true);
   <buildIds buildAll="false">
     <mediaSet refId="524" />
   </buildIds>
-  <buildOptions verbose="false" faster="true" disableSigning="false" disableJreBundling="false" debug="false" />
+  <buildOptions verbose="false" faster="true" disableSigning="true" disableJreBundling="false" debug="false" />
 </install4j>
