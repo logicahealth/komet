@@ -112,44 +112,8 @@ public class ForSet {
             possibleComponents.put(spec, NidSet.of(Get.identifierService().getNidsForAssemblage(spec)));
         }
         return possibleComponents;
-    }
-    
-    public static Map<ConceptSpecification, NidSet> or(Map<ConceptSpecification, NidSet> forSetA, Map<ConceptSpecification, NidSet> forSetB) {
-        Map<ConceptSpecification, NidSet> resultMap = new HashMap<>(forSetA.size());
-        for (Map.Entry<ConceptSpecification, NidSet> entry: forSetA.entrySet()) {
-            NidSet resultSet = NidSet.of(entry.getValue());
-            resultMap.put(entry.getKey(), resultSet.or(forSetB.get(entry.getKey())));
-        }
-        return resultMap;
-    }
-
-    public static Map<ConceptSpecification, NidSet> and(Map<ConceptSpecification, NidSet> forSetA, Map<ConceptSpecification, NidSet> forSetB) {
-        Map<ConceptSpecification, NidSet> resultMap = new HashMap<>(forSetA.size());
-        for (Map.Entry<ConceptSpecification, NidSet> entry: forSetA.entrySet()) {
-            NidSet resultSet = NidSet.of(entry.getValue());
-            resultMap.put(entry.getKey(), resultSet.and(forSetB.get(entry.getKey())));
-        }
-        return resultMap;
-    }
-
-    public static Map<ConceptSpecification, NidSet> andNot(Map<ConceptSpecification, NidSet> forSetA, Map<ConceptSpecification, NidSet> forSetB) {
-        Map<ConceptSpecification, NidSet> resultMap = new HashMap<>(forSetA.size());
-        for (Map.Entry<ConceptSpecification, NidSet> entry: forSetA.entrySet()) {
-            NidSet resultSet = NidSet.of(entry.getValue());
-            resultMap.put(entry.getKey(), resultSet.andNot(forSetB.get(entry.getKey())));
-        }
-        return resultMap;
-    }
-
-    public static Map<ConceptSpecification, NidSet> xor(Map<ConceptSpecification, NidSet> forSetA, Map<ConceptSpecification, NidSet> forSetB) {
-        Map<ConceptSpecification, NidSet> resultMap = new HashMap<>(forSetA.size());
-        for (Map.Entry<ConceptSpecification, NidSet> entry: forSetA.entrySet()) {
-            NidSet resultSet = NidSet.of(entry.getValue());
-            resultMap.put(entry.getKey(), resultSet.xor(forSetB.get(entry.getKey())));
-        }
-        return resultMap;
-    }
-
+    }        
+            
     public static Map<ConceptSpecification, NidSet> deepClone(Map<ConceptSpecification, NidSet> forSet) {
         Map<ConceptSpecification, NidSet> resultMap = new HashMap<>(forSet.size());
         for (Map.Entry<ConceptSpecification, NidSet> entry: forSet.entrySet()) {

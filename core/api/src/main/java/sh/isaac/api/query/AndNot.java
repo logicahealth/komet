@@ -38,13 +38,15 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.HashSet;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
-import sh.isaac.api.bootstrap.TermAux;
+import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import static sh.isaac.api.query.ForSet.deepClone;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -77,32 +79,55 @@ public class AndNot
     /**
      * Compute components.
      *
-     * @param components the components
+     * @param incomingComponents the components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> components) {
+    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
+        Set<ConceptSpecification> iteratedAssemblages = new HashSet<>();
+        Map<ConceptSpecification, NidSet> outgoingComponents = deepClone(incomingComponents);
+        
         for (Clause child: getChildren()) {
-            components = ForSet.andNot(components, child.computePossibleComponents(components));
+            Map<ConceptSpecification, NidSet> computedComponents = child.computeComponents(deepClone(incomingComponents));
+            if (iteratedAssemblages.contains(child.getAssemblageForIteration())) {
+                // Do an or with existing nid set...
+                NidSet childNids = computedComponents.get(child.getAssemblageForIteration());
+                outgoingComponents.put(child.getAssemblageForIteration(), childNids.andNot(outgoingComponents.get(child.getAssemblageForIteration())));
+            } else {
+                // Initilize with computed nid set. 
+                iteratedAssemblages.add(child.getAssemblageForIteration());
+                outgoingComponents.put(child.getAssemblageForIteration(), computedComponents.get(child.getAssemblageForIteration()));
+            }
         }
-        return components;
+        return outgoingComponents;
     }
 
     /**
      * Compute possible components.
      *
-     * @param possibleComponents the incoming possible components
+     * @param incomingPossibleComponents the incoming possible components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> possibleComponents) {
-
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+        Set<ConceptSpecification> iteratedAssemblages = new HashSet<>();
+        Map<ConceptSpecification, NidSet> outgoingPossibleComponents = deepClone(incomingPossibleComponents);
+        
         for (Clause child: getChildren()) {
-            possibleComponents = ForSet.andNot(possibleComponents, child.computePossibleComponents(possibleComponents));
+            Map<ConceptSpecification, NidSet> computedComponents = child.computePossibleComponents(deepClone(incomingPossibleComponents));
+            if (iteratedAssemblages.contains(child.getAssemblageForIteration())) {
+                // Do an or with existing nid set...
+                NidSet childNids = computedComponents.get(child.getAssemblageForIteration());
+                outgoingPossibleComponents.put(child.getAssemblageForIteration(), childNids.andNot(outgoingPossibleComponents.get(child.getAssemblageForIteration())));
+            } else {
+                // Initilize with computed nid set. 
+                iteratedAssemblages.add(child.getAssemblageForIteration());
+                outgoingPossibleComponents.put(child.getAssemblageForIteration(), computedComponents.get(child.getAssemblageForIteration()));
+            }
         }
-        return possibleComponents;
+        return outgoingPossibleComponents;
     }
-
+  
     //~--- get methods ---------------------------------------------------------
     @Override
     public ClauseSemantic getClauseSemantic() {
