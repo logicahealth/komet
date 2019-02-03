@@ -172,4 +172,10 @@ public class ClassifierProvider
 
       return resultGraph;
    }
+
+   @Override
+   public String toString() {
+      return "ClassifierProvider stamp: {" + stampCoordinate.toString() + "} logicCoord: {" + logicCoordinate.toString() + "} editCoord: {" 
+            + editCoordinate.toString() + "}";
+   }
 }

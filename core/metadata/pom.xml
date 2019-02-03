@@ -192,12 +192,6 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
-                        <configuration>
-                            <jdkToolchain>
-                                <version>${java.version}</version>
-                                <vendor>${java.vendor}</vendor>
-                            </jdkToolchain>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

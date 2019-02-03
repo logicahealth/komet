@@ -52,7 +52,9 @@ import sh.isaac.api.commit.CommitRecord;
  * @author kec
  */
 public class ClassifierResults {
-   /** The affected concepts. */
+   /**
+    * Set of concepts potentially affected by the last classification.
+    */
    private final Set<Integer> affectedConcepts;
 
    /** The equivalent sets. */
@@ -96,13 +98,15 @@ public class ClassifierResults {
 
    @Override
    public String toString() {
-      return "ClassifierResults{" + "affectedConcepts=" + this.affectedConcepts.size() + ", equivalentSets=" 
+      return "ClassifierResults{" + "written semantics: " 
+            + (this.commitRecord.isPresent() && this.commitRecord.get().getSemanticNidsInCommit() != null ? this.commitRecord.get().getSemanticNidsInCommit().size(): "0") 
+            + " affectedConcepts=" + this.affectedConcepts.size() + ", equivalentSets=" 
             + this.equivalentSets.size() + ", Orphans detected=" + orphanedConcepts.size() 
             + " Concepts with cycles=" + (conceptsWithCycles.isPresent() ? conceptsWithCycles.get().size() : 0) + '}';
    }
 
    /**
-    * Gets the affected concepts.
+    * Get the set of concepts potentially affected by the last classification.
     *
     * @return the affected concepts
     */

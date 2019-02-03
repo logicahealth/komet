@@ -61,8 +61,11 @@ public interface IndexQueryService {
    
    /**
     * Simple query utilizing defaults suitable for most, across all indexed content in this index
-    *
+    * 
     * @param query The query to apply.
+    *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
+    *           The Lucene query indexer also supports handling regular expressions - submit your query surrounding by forward slashes to indicate
+    *           a regular expression:  /dat[^a].*./
     * @return a List of {@code SearchResult} that contains the nid of the component that matched, and the score of that match relative to other
     *         matches.
     */
@@ -73,6 +76,8 @@ public interface IndexQueryService {
     *
     * @param query The query to apply.  
     *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
+    *           The Lucene query indexer also supports handling regular expressions - submit your query surrounding by forward slashes to indicate
+    *           a regular expression:  /dat[^a].*./
     * @param sizeLimit - optional - The maximum size of the result list. Pass Integer.MAX_VALUE for unlimited results. Defaults to a system
     *           default size.
     * @return a List of {@code SearchResult} that contains the nid of the component that matched, and the score of that match relative to other
@@ -86,6 +91,8 @@ public interface IndexQueryService {
     *
     * @param query - The query to apply
     *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
+    *           The Lucene query indexer also supports handling regular expressions - submit your query surrounding by forward slashes to indicate
+    *           a regular expression:  /dat[^a].*./
     * @param assemblageConcepts - optional - The concept nid(s) of the assemblage that you wish to search within. If null, searches all indexed
     *           content in this index. This could be set to {@link MetaData#DESCRIPTION_ASSEMBLAGE____SOLOR} and/or
     *           {@link MetaData#SCTID____SOLOR} for example, to limit a search to content in those particular assemblages.
@@ -112,6 +119,8 @@ public interface IndexQueryService {
     *
     * @param query The query to apply.  In cases where prefixSearch is false, see 
     *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
+    *           The Lucene query indexer also supports handling regular expressions - submit your query surrounding by forward slashes to indicate
+    *           a regular expression:  /dat[^a].*./
     *           The query parser is not used in cases there prefixSearch is true.
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching that would be done
     *           to implement a type-ahead style search. Does not use the Lucene Query parser. Every term (or token) that is part of the query
@@ -153,6 +162,8 @@ public interface IndexQueryService {
     *
     * @param query The query to apply.  In cases where prefixSearch is false, see 
     *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
+    *           The Lucene query indexer also supports handling regular expressions - submit your query surrounding by forward slashes to indicate
+    *           a regular expression:  /dat[^a].*./
     *           The query parser is not used in cases there prefixSearch is true.
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching that would be done
     *           to implement a type-ahead style search. Does not use the Lucene Query parser. Every term (or token) that is part of the query
