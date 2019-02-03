@@ -107,6 +107,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -134,7 +135,6 @@ import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.mapping.constants.IsaacMappingConstants;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.concept.ConceptVersionImpl;
-import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
@@ -1453,6 +1453,7 @@ public class Frills
     * Determine if a particular description semantic is flagged as preferred IN
     * ANY LANGUAGE. Returns false if there is no acceptability semantic.
     *
+    * Note that this will never return true for external description types, if they don't utilize snomed style preferred / acceptable.
     * @param descriptionSemanticNid the description semantic nid
     * @param stamp - optional - if not provided, uses default from config service
     * @return true, if description is preferred in some language
@@ -1495,11 +1496,79 @@ public class Frills
              });
 
       if (answer.get() == null) {
-         LOG.warn("Description nid {} does not have an acceptability semantic!", descriptionSemanticNid);
          return false;
       }
 
       return answer.get();
+   }
+   
+   /**
+    * For a given description, determine if it is marked as an "inverse" style description.  This is typically done for concepts that represent 
+    * an association, where you want to have descriptions of both "is A" and "has parent".
+    * @param descriptionChronology the description to check for an inverse annotation marker. 
+    * @param stamp optional - default from system configuration used if not provided.
+    * @param activeOnly - if true, only return true if the  inverse annotation is active.  If false, ignore the state of
+    *     the inverse annotation, and just return true if any inverse annotation is found.
+    * @return
+    */
+   public static boolean isDescriptionInverse(SemanticChronology descriptionChronology, StampCoordinate stamp, boolean activeOnly) {
+     return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionChronology.getNid(),
+            DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getNid()).anyMatch(semanticC -> {
+               return activeOnly ? descriptionChronology
+                     .isLatestVersionActive((stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate(): stamp)
+                     : true;
+            });
+   }
+   
+   /**
+    * Determine the "core" description type for a given description type.  If the given description type is already a core type, this 
+    * method is essentially a no-op.  Otherwise, reads the annotations to determine the core type linked to the external description type.
+    * 
+    * @param descriptionVersion the description to check the type on.
+    * @param stamp optional - used system defaults if not provided.
+    * @return the nid of the core description type, one of {@link MetaData#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, 
+    *     {@link MetaData#REGULAR_NAME_DESCRIPTION_TYPE____SOLOR}, or {@link MetaData#DEFINITION_DESCRIPTION_TYPE____SOLOR}.
+    *     In the case of a data error, and the core type is missing, a runtime exception is thrown.
+    */
+   public static int getDescriptionType(DescriptionVersion descriptionVersion, StampCoordinate stamp) {
+      if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid();
+      }
+      else if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid();
+      }
+      else if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid();
+      }
+      else {
+         //This must be an external description type.  External description types should have an annotation on them that links them to a core
+         //type description.
+         StampCoordinate stampToUse = (stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
+         AtomicReference<UUID> type = new AtomicReference<>();
+         Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionVersion.getDescriptionTypeConceptNid(),
+               DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(semanticChronlogy ->
+               {
+                  //This semantic is defined as a dynamic semantic with a single column of UUID data, which MUST be one of the three
+                  //core description types.  There should only be one active core type ref on a description type.
+                  LatestVersion<DynamicVersion<? extends DynamicVersion<?>>> lv =  semanticChronlogy.getLatestVersion(stampToUse);
+                  if (lv.isPresent()) {
+                     DynamicUUID uuid = (DynamicUUID)lv.get().getData(0);
+                     if (type.get() != null) {
+                        LOG.error("Description {} has multiple active core type annotations!  Result will be arbitrary", descriptionVersion);
+                     }
+                     else {
+                        type.set(uuid.getDataUUID());
+                     }
+                  }
+               });
+         if (type.get() == null) {
+            LOG.error("External typed description {} has no active core type annotation on the specified stamp: {}", descriptionVersion, stampToUse);
+            throw new RuntimeException("Core description type is unknown due to a data error");
+         }
+         else {
+            return Get.identifierService().getNidForUuids(type.get());
+         }
+      }
    }
 
    /**
@@ -1824,58 +1893,53 @@ public class Frills
     * @return the nid for SCTID
     */
    public static Optional<Integer> getNidForSCTID(long sctID) {
-      final IndexQueryService si = LookupService.get().getService(IndexSemanticQueryService.class);
-
-      if (si != null) {
-         // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-         final List<SearchResult> result = si.query(sctID + " ",
-                                                     true,
-                                                     new int[] { MetaData.SCTID____SOLOR.getNid() },
-                                                     null,
-                                                     null,
-                                                     5,
-                                                     Long.MIN_VALUE);
-
-         if (result.size() > 0) {
-            return Optional.of(Get.assemblageService().getSemanticChronology(result.get(0).getNid()).getReferencedComponentNid());
-         }
-      } else {
-         LOG.warn("Semantic Index not available - can't lookup SCTID");
+      List<Integer> r = getNidForAltId(MetaData.SCTID____SOLOR.getNid(), sctID + "");
+      if (r.size() > 0) {
+         return Optional.of(r.get(0));
       }
-
       return Optional.empty();
    }
 
    /**
     * Gets the nid for VUID.
     *
-    * @param vuID the vu ID
+    * @param vuID the vuID
     * @return the nid for VUID
     */
    public static Optional<Integer> getNidForVUID(long vuID) {
+      List<Integer> r = getNidForAltId(MetaData.VUID____SOLOR.getNid(), vuID + "");
+      if (r.size() > 0) {
+         return Optional.of(r.get(0));
+      }
+      return Optional.empty();
+   }
+
+   /**
+    * Lookup a concept or semantic (returning its nid) via an alt id - which should be one of the types that is a child of 
+    * {@link MetaData#IDENTIFIER_SOURCE____SOLOR}
+    * 
+    * IDs should typically only identify one component, this will return at most, 50 matches.
+    * 
+    * @param idType - The type you are looking up - should be a child of {@link MetaData#IDENTIFIER_SOURCE____SOLOR} 
+    * @param id - the id to find
+    * @return the nid of the concept or semantic that has this ID attached to it.
+    */
+   public static List<Integer> getNidForAltId(int idType, String id) {
       final IndexSemanticQueryService si = LookupService.get().getService(IndexSemanticQueryService.class);
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-         final List<SearchResult> result = si.query(vuID + " ",
-                                                     true,
-                                                     new int[] { MetaData.VUID____SOLOR.getNid() },
-                                                     null, 
-                                                     null,
-                                                     5,
-                                                     Long.MIN_VALUE);
-
-         if (result.size() > 0) {
-            return Optional.of(Get.assemblageService()
-                                  .getSemanticChronology(result.get(0)
-                                        .getNid())
-                                  .getReferencedComponentNid());
+         final List<SearchResult> result = si.query(id + " ", true, new int[] { idType }, null, null, 50, Long.MIN_VALUE);
+         ArrayList<Integer> nids = new ArrayList<>(result.size());
+         
+         for (SearchResult sr : result) {
+            nids.add(Get.assemblageService().getSemanticChronology(sr.getNid()).getReferencedComponentNid());
          }
+         return nids;
       } else {
          LOG.warn("Semantic Index not available - can't lookup VUID");
       }
-
-      return Optional.empty();
+      return new ArrayList<>();
    }
    
    /**
@@ -1949,16 +2013,32 @@ public class Frills
     * @return the id, if found, or empty (will not return null)
     */
    public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
+     Optional<String> s = getAltId(MetaData.SCTID____SOLOR.getNid(), componentNid, stamp);
+     if (s.isPresent()) {
+        return Optional.of(Long.parseLong(s.get()));
+     }
+     return Optional.empty();
+   }
+   
+   /**
+    * Find the alt id for a component (if it has one).
+    * 
+    * @param idType The type you are looking for - should be a child of {@link MetaData#IDENTIFIER_SOURCE____SOLOR} 
+    * @param componentNid the concept or semantic to look at
+    * @param stamp (optional) the stamp to use for readback, uses the system default, if not provided.
+    * @return 
+    */
+   public static Optional<String> getAltId(int idType, int componentNid, StampCoordinate stamp) {
       try {
          final List<LatestVersion<StringVersionImpl>> semantic = Get.assemblageService()
                .getSnapshot(StringVersionImpl.class, (stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
-               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.SCTID____SOLOR.getNid());
+               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, idType);
 
          if (semantic.size() > 0 && semantic.get(0).isPresent()) {
-            return Optional.of(Long.parseLong(semantic.get(0).get().getString()));
+            return Optional.of(semantic.get(0).get().getString());
          }
       } catch (final Exception e) {
-         LOG.error("Unexpected error trying to find SCTID for nid " + componentNid, e);
+         LOG.error("Unexpected error trying to find alt id of type " + idType + " for nid " + componentNid, e);
       }
 
       return Optional.empty();
@@ -2127,31 +2207,17 @@ public class Frills
     * Returns the set of terminology types (which are concepts directly under {@link MetaData#MODULE____SOLOR} for any concept in the system as a 
     * set of concept nids.
     * 
-    * Also, if the concept is a child of {@link MetaData#METADATA____SOLOR}, then it will also be marked with the terminology type of 
-    * {@link MetaData#SOLOR_MODULE____SOLOR} -even if there is no concept version that exists using the MetaData#SOLOR_MODULE____SOLOR} module - this gives 
-    * an easy way to identify "metadata" concepts.
-    * 
-    * @param oc
-    *           - the concept to read modules for
-    * @param stamp
-    *           - if null, return the modules ignoring coordinates. If not null, only return modules visible on the given coordinate
+    * @param oc the concept to read modules for
+    * @param stamp optional - if null, return the modules ignoring coordinates.  If not null, only return modules visible on the given coordinate
     * @return the types
     */
    public static HashSet<Integer> getTerminologyTypes(ConceptChronology oc, StampCoordinate stamp) {
       HashSet<Integer> modules = new HashSet<>();
       HashSet<Integer> terminologyTypes = new HashSet<>();
       
-      TaxonomySnapshot tss = Get.taxonomyService().getStatedLatestSnapshot(
-            (stamp == null ? StampCoordinates.getDevelopmentLatest().getStampPosition().getStampPathSpecification().getNid() : stamp.getStampPosition().getStampPathSpecification().getNid()),
-            (stamp == null ? new HashSet<>() : stamp.getModuleSpecifications()),
-            (stamp == null ? Status.ACTIVE_ONLY_SET : stamp.getAllowedStates()), false);
-
       if (stamp == null) {
          for (int stampSequence : oc.getVersionStampSequences()) {
             modules.add(Get.stampService().getModuleNidForStamp(stampSequence));
-         }
-         if (tss.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid())) {
-            terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
          }
       } else {
          oc.getVersionList().stream().filter(version -> {
@@ -2160,18 +2226,15 @@ public class Frills
          }).forEach(version -> {
             modules.add(version.getModuleNid());
          });
-         
-         if (tss.isKindOf(oc.getNid(), MetaData.METADATA____SOLOR.getNid()))
-         {
-            terminologyTypes.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
-         }
       }
-      
-      //This isn't a valid module to ask for terminology type on
-      modules.remove(MetaData.MODULE____SOLOR.getNid());
 
       for (int moduleNid : modules) {
-         terminologyTypes.add(getTerminologyTypeForModule(moduleNid, stamp));
+         try {
+            terminologyTypes.add(getTerminologyTypeForModule(moduleNid, stamp));
+         }
+         catch (Exception e) {
+            LOG.error("Error reading terminology type for: {} with stamp: {}.  The error is: {}", oc, stamp, e);
+         }
       }
       return terminologyTypes;
    }
@@ -2284,35 +2347,12 @@ public class Frills
     * @return the id, if found, or empty (will not return null)
     */
    public static Optional<Long> getVuId(int componentNid, StampCoordinate stamp) {
-      try {
-         final ArrayList<Long> vuids = new ArrayList<>(1);
-
-         Get.assemblageService().getSnapshot(SemanticVersion.class, (stamp == null) ? 
-               Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
-               .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, MetaData.VUID____SOLOR.getNid()).forEach(latestSemantic -> {
-                  // expected path
-                  if (latestSemantic.get().getChronology().getVersionType() == VersionType.STRING) {
-                     vuids.add(Long.parseLong(((StringVersion) latestSemantic.get()).getString()));
-                  }
-
-                  // Data model bug path (can go away, after bug is fixed)
-                  else if (latestSemantic.get().getChronology().getVersionType() == VersionType.DYNAMIC) {
-                     vuids.add(Long.parseLong(((DynamicVersion<?>) latestSemantic.get()).getData()[0].dataToString()));
-                  }
-               });
-
-         if (vuids.size() > 1) {
-            LOG.warn("Found multiple VUIDs on component " + Get.identifierService().getUuidPrimordialForNid(componentNid));
-         }
-
-         if (vuids.size() > 0) {
-            return Optional.of(vuids.get(0));
-         }
-      } catch (final Exception e) {
-         LOG.error("Unexpected error trying to find VUID for nid " + componentNid, e);
-      }
-
-      return Optional.empty();
+      
+        Optional<String> s = getAltId(MetaData.VUID____SOLOR.getNid(), componentNid, stamp);
+        if (s.isPresent()) {
+           return Optional.of(Long.parseLong(s.get()));
+        }
+        return Optional.empty();
    }
    
    /**

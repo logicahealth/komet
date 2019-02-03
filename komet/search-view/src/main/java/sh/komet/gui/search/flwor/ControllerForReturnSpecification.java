@@ -16,7 +16,9 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.JoinProperty;
 import java.util.Collection;
+import java.util.List;
 import sh.isaac.api.query.AttributeFunction;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.AttributeSpecification;
@@ -27,6 +29,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableView;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.QueryFieldSpecification;
 import sh.komet.gui.manifold.Manifold;
@@ -37,19 +40,22 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class ControllerForReturnSpecification extends ControllerForSpecification {
 
-
     final ObservableList<AttributeSpecification> returnSpecificationRows
             = FXCollections.observableArrayList(returnSpecificationRow
                     -> new Observable[]{
                 returnSpecificationRow.columnNameProperty()});
 
     public ControllerForReturnSpecification(SimpleListProperty<ConceptSpecification> forAssemblagesProperty,
+            ObservableList<LetItemKey> letItemKeys,
             ObservableMap<LetItemKey, Object> letItemObjectMap,
             ObservableList<AttributeFunction> cellFunctions,
-            ObservableList<ConceptSpecification> joinProperties,
+            ObservableList<JoinProperty> joinProperties,
             ObservableList<MenuItem> addFieldItems,
+            TableView<List<String>> resultTable,
             Manifold manifold) {
-        super(forAssemblagesProperty, manifold, addFieldItems, joinProperties, letItemObjectMap, cellFunctions);
+        super(forAssemblagesProperty, manifold, letItemKeys, addFieldItems, joinProperties, letItemObjectMap, cellFunctions, resultTable);
+        this.setupAttributeFunctions();
+
     }
 
     public ObservableList<MenuItem> getAddFieldItems() {
@@ -58,14 +64,15 @@ public class ControllerForReturnSpecification extends ControllerForSpecification
 
     @Override
     protected void clearForChange() {
-       returnSpecificationRows.clear();
+        this.resultTable.getItems().clear();
+        returnSpecificationRows.clear();
     }
     
     public ObservableList<AttributeSpecification> getReturnSpecificationRows() {
         return returnSpecificationRows;
     }
 
-    public ObservableList<ConceptSpecification> getJoinProperties() {
+    public ObservableList<JoinProperty> getJoinProperties() {
         return joinProperties;
     }
 
@@ -79,6 +86,7 @@ public class ControllerForReturnSpecification extends ControllerForSpecification
     }
 
     void reset() {
+        this.resultTable.getItems().clear();
         this.returnSpecificationRows.clear();
         this.addFieldItems.clear();
         this.forAssemblagesProperty.clear();
@@ -99,7 +107,7 @@ public class ControllerForReturnSpecification extends ControllerForSpecification
 
     @Override
     protected QueryFieldSpecification makeQueryFieldSpecification(AttributeFunction attributeFunction, String specificationName, int assemblageNid, ConceptSpecification propertySpecification, int propertyIndex) {
-        return new AttributeSpecification(new AttributeFunction(""), specificationName, assemblageNid, propertySpecification, lastStampCoordinateKey, propertyIndex);
+        return new AttributeSpecification(attributeFunction, specificationName, assemblageNid, propertySpecification, lastStampCoordinateKey, propertyIndex);
     }
 
 }

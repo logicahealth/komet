@@ -41,7 +41,6 @@ package sh.isaac.api.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -86,13 +85,6 @@ public interface ObservableManifoldCoordinate
     * @return the object property
     */
    ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty();
-
-   /**
-    * Uuid property.
-    *
-    * @return the object property
-    */
-   ObjectProperty<UUID> uuidProperty();
 
    /**
     * 

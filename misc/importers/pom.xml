@@ -4,17 +4,14 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
 		<artifactId>misc</artifactId>
-		<version>4.63</version>
+		<version>4.64</version>
 	</parent>
 	<groupId>sh.isaac.misc</groupId>
 	<artifactId>importers</artifactId>
 	<packaging>maven-plugin</packaging>
 	
 	<name>ISAAC misc: Importers</name>
-	
-	<properties>
-	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>sh.isaac.misc</groupId>
@@ -51,6 +48,21 @@
 			<groupId>sh.isaac.solor</groupId>
 			<artifactId>direct-import</artifactId>
 			<version>${project.parent.version}</version>
+		</dependency>
+ 		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>datastore-locator</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>stamp</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>query</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.opencsv</groupId>

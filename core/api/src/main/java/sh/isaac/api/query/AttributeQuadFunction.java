@@ -21,16 +21,17 @@ package sh.isaac.api.query;
  * @author kec
  */
 @FunctionalInterface
-public interface AttributeTriFunction<T, U, V, R> {
+public interface AttributeQuadFunction<F, T, N, V, R> {
 
     /**
      * Applies this function to the given arguments.
      *
-     * @param t the first function argument
-     * @param u the second function argument
-     * @param v the third function argument
+     * @param f the first function argument
+     * @param t the second function argument
+     * @param n the third function argument
+     * @param v the fourth function argument
      * @return the function result
      */
-    R apply(T t, U u, V v);
+    R apply(F f, T t, N n, V v);
     
 }

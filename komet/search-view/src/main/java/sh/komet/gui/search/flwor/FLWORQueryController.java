@@ -54,6 +54,7 @@ package sh.komet.gui.search.flwor;
 * See the License for the specific language governing permissions and
 * limitations under the License.
  */
+import sh.isaac.api.query.JoinProperty;
 import sh.isaac.api.query.AttributeFunction;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.AttributeSpecification;
@@ -62,6 +63,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import java.util.*;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -78,6 +81,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 
 import javafx.scene.Node;
@@ -105,12 +109,14 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
+import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -119,6 +125,7 @@ import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ForSet;
 import sh.isaac.api.query.Or;
+import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.SortSpecification;
 import sh.isaac.api.query.clauses.*;
@@ -127,6 +134,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.xml.Jaxb;
 
 import sh.komet.gui.action.ConceptAction;
+import sh.komet.gui.control.concept.ConceptSpecificationForControlWrapper;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -214,7 +222,7 @@ public class FLWORQueryController
 
     @FXML
     private Button orderTrashButton;
-    
+
     @FXML // fx:id="returnTable"
     private TableView<AttributeSpecification> returnTable; // Value injected by FXMLLoader
 
@@ -230,20 +238,19 @@ public class FLWORQueryController
     @FXML // fx:id="spacerLabel"
     private Label spacerLabel; // Value injected by FXMLLoader
 
-    @FXML 
-    private TableView<SortSpecification> orderTable; 
-    @FXML 
+    @FXML
+    private TableView<SortSpecification> orderTable;
+    @FXML
     private TableColumn<SortSpecification, AttributeFunction> orderFunctionColumn; // Value injected by FXMLLoader
 
-    @FXML 
+    @FXML
     private TableColumn<SortSpecification, String> orderColumnNameColumn; // Value injected by FXMLLoader
 
-    @FXML 
+    @FXML
     private TableColumn<SortSpecification, LetItemKey> orderStampCoordinateColumn; // Value injected by FXMLLoader
 
-    @FXML 
+    @FXML
     private TableColumn<SortSpecification, TableColumn.SortType> orderSortColumn; // Value injected by FXMLLoader
-
 
     @FXML
     private MenuItem importFlwor;
@@ -262,23 +269,16 @@ public class FLWORQueryController
     private LetPropertySheet letPropertySheet;
     private ForPanel forPropertySheet;
     private ControllerForReturnSpecification returnSpecificationController;
-    
+
     private ControllerForSortSpecification sortSpecificationController;
 
     private LetItemsController letItemsController;
     private Query query;
     private final List<AttributeSpecification> resultColumns = new ArrayList();
 
-    ObservableList<ConceptSpecification> joinProperties = FXCollections.observableArrayList();
+    ObservableList<JoinProperty> joinProperties = FXCollections.observableArrayList();
 
     ObservableList<AttributeFunction> cellFunctions = FXCollections.observableArrayList();
-
-    {
-        cellFunctions.add(new AttributeFunction(""));
-        cellFunctions.add(new AttributeFunction("Primoridal uuid"));
-        cellFunctions.add(new AttributeFunction("All uuids"));
-        cellFunctions.add(new AttributeFunction("Epoch to 8601 date/time"));
-    }
 
     double resultTableMouseX = 0;
     double resultTableMouseY = 0;
@@ -306,12 +306,12 @@ public class FLWORQueryController
 
     
      */
-    void displayResults(int[][] resultArray, Map<ConceptSpecification, Integer> assembalgeToIndexMap) {
+    void displayResults(int[][] resultArray, Map<ConceptSpecification, Integer> assemblageToIndexMap) {
         ObservableList<List<String>> tableItems = resultTable.getItems();
         int columnCount = resultTable.getColumns().size();
         tableItems.clear();
         OpenIntIntHashMap fastAssemblageNidToIndexMap = new OpenIntIntHashMap();
-        for (Map.Entry<ConceptSpecification, Integer> entry : assembalgeToIndexMap.entrySet()) {
+        for (Map.Entry<ConceptSpecification, Integer> entry : assemblageToIndexMap.entrySet()) {
             fastAssemblageNidToIndexMap.put(entry.getKey().getNid(), entry.getValue());
         }
         //ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
@@ -320,6 +320,9 @@ public class FLWORQueryController
             AttributeSpecification columnSpecification = resultColumns.get(column);
             if (columnSpecification.getStampCoordinateKey() != null) {
                 StampCoordinate stamp = (StampCoordinate) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampCoordinateKey());
+                if (stamp == null) {
+                    throw new IllegalStateException("No coordinate for key: " + columnSpecification.getStampCoordinateKey());
+                }
                 snapshotArray[column] = Get.observableSnapshotService(stamp);
             }
         }
@@ -362,6 +365,8 @@ public class FLWORQueryController
         File selectedFile = fileChooser.showOpenDialog(spacerLabel.getScene().getWindow());
         if (selectedFile != null) {
             try (FileReader reader = new FileReader(selectedFile)) {
+                setManifold(this.manifold);
+                setQuery(null);
                 Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
                 Query queryFromDisk = (Query) unmarshaller.unmarshal(reader);
                 queryFromDisk.getRoot().setEnclosingQuery(queryFromDisk);
@@ -386,6 +391,9 @@ public class FLWORQueryController
 
                 this.query.reset();
 
+                Map<LetItemKey, Object> currentMap = this.query.getLetDeclarations();
+                HashMap<LetItemKey, Object> mapForExport = new HashMap();
+                
                 for (LetItemKey key : this.letPropertySheet.getLetItemObjectMap().keySet()) {
                     Object value = this.letPropertySheet.getLetItemObjectMap().get(key);
                     if (value instanceof ObservableStampCoordinate) {
@@ -394,10 +402,18 @@ public class FLWORQueryController
                         value = ((ObservableLanguageCoordinate) value).getLanguageCoordinate();
                     } else if (value instanceof ObservableLogicCoordinate) {
                         value = ((ObservableLogicCoordinate) value).getLogicCoordinate();
+                    } else if (value instanceof ObservableConceptProxy) {
+                        value = ((ObservableConceptProxy) value).get();
                     }
-                    this.query.let(key, value);
+                    
+                    if (value instanceof ConceptSpecificationForControlWrapper) {
+                        value = new ConceptProxy((ConceptSpecification) value);
+                    }
+                    mapForExport.put(key, value);
+                    
                 }
 
+                this.query.setLetDeclarations(mapForExport);
                 ClauseTreeItem itemToProcess = this.root;
                 Clause rootClause = itemToProcess.getValue()
                         .getClause();
@@ -408,6 +424,7 @@ public class FLWORQueryController
 
                 rootClause.setEnclosingQuery(query);
                 marshaller.marshal(query, new FileWriter(selectedFile));
+                this.query.setLetDeclarations(currentMap);
             }
 
         } catch (JAXBException | IOException ex) {
@@ -470,22 +487,39 @@ public class FLWORQueryController
     }
 
     @FXML
-    void executeQuery(ActionEvent event) {
-        this.query.reset();
-        this.query.getLetDeclarations().putAll(this.letPropertySheet.getLetItemObjectMap());
-        ClauseTreeItem itemToProcess = this.root;
-        Clause rootClause = itemToProcess.getValue()
-                .getClause();
-
-        this.query.setRoot(rootClause);
-        rootClause.setEnclosingQuery(query);
-
-        int[][] resultArray = query.reify();
-        ForSet forSet = query.getForSetSpecification();
-
+    void cancelQuery(ActionEvent event) {
+        resultTable.getItems().clear();
         FxGet.statusMessageService()
-                .reportSceneStatus(anchorPane.getScene(), "Query result count: " + resultArray.length);
-        displayResults(resultArray, forSet.getAssembalgeToIndexMap());
+                .reportSceneStatus(anchorPane.getScene(), "FLWOR query canceled. (Cancel not completely implemented)");
+    }
+
+    @FXML
+    void executeQuery(ActionEvent event) {
+        FxGet.statusMessageService()
+                .reportSceneStatus(anchorPane.getScene(), "Starting FLWOR query...");
+        try {
+            long msStart = System.currentTimeMillis();
+            this.query.reset();
+            this.query.getLetDeclarations().putAll(this.letPropertySheet.getLetItemObjectMap());
+            ClauseTreeItem itemToProcess = this.root;
+            Clause rootClause = itemToProcess.getValue()
+                    .getClause();
+
+            this.query.setRoot(rootClause);
+            rootClause.setEnclosingQuery(query);
+
+            int[][] resultArray = query.reify();
+            ForSet forSet = query.getForSetSpecification();
+
+            NumberFormat formatter = new DecimalFormat("#0.000");
+            FxGet.statusMessageService()
+                    .reportSceneStatus(anchorPane.getScene(), "Query result count: "
+                            + resultArray.length + " in "
+                            + formatter.format((System.currentTimeMillis() - msStart) / 1000.0) + " seconds");
+            displayResults(resultArray, forSet.getAssembalgeToIndexMap());
+        } catch (Exception e) {
+            FxGet.dialogs().showErrorDialog("Error during query...", e);
+        }
     }
 
     @FXML  // This method is called by the FXMLLoader when initialization is complete
@@ -552,7 +586,7 @@ public class FLWORQueryController
                 returnTable.getSelectionModel().select(rowIndex + 1);
             }
         });
-        
+
         this.returnTrashButton.setGraphic(Iconography.DELETE_TRASHCAN.getIconographic());
         this.returnTrashButton.setOnAction((event) -> {
             int rowIndex = returnTable.getSelectionModel().getSelectedIndex();
@@ -574,7 +608,7 @@ public class FLWORQueryController
                 orderTable.getSelectionModel().select(rowIndex - 1);
             }
         });
-        
+
         this.orderDownButton.setGraphic(Iconography.ARROW_DOWN.getIconographic());
         this.orderDownButton.setOnAction((event) -> {
             int rowIndex = orderTable.getSelectionModel().getSelectedIndex();
@@ -626,6 +660,8 @@ public class FLWORQueryController
     private void changeClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
         ClauseTreeItem treeItem = (ClauseTreeItem) rowValue.getTreeItem();
         ClauseTreeItem parent = (ClauseTreeItem) treeItem.getParent();
+        
+        Clause originalClause = treeItem.getValue().getClause();
         if (parent != null) {
             treeItem.getValue().getClause().removeParent(parent.getValue().getClause());
         }
@@ -635,8 +671,17 @@ public class FLWORQueryController
                 .get(CLAUSE);
         clause.setEnclosingQuery(query);
 
+
         treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet,
                 joinProperties, letPropertySheet));
+        
+        if (originalClause instanceof ParentClause && clause instanceof ParentClause) {
+            for (Clause child: originalClause.getChildren()) {
+                child.setParent(clause);
+            }
+        } else {
+            treeItem.getChildren().clear();
+        }
     }
 
     // changeClause->, addSibling->, addChild->,
@@ -669,7 +714,7 @@ public class FLWORQueryController
                 Clause[] siblings = new Clause[]{};
                 if (treeItem.getParent() != null) {
                     siblings = clause.getClause()
-                        .getAllowedSiblingClauses();
+                            .getAllowedSiblingClauses();
                 }
                 Clause[] children = clause.getClause()
                         .getAllowedChildClauses();
@@ -811,34 +856,38 @@ public class FLWORQueryController
     void setQuery(Query query) {
         this.resultTable.getItems().clear();
         this.resultTable.getColumns().clear();
+        this.returnAddRowButton.getItems().clear();
         this.query = query;
         this.joinProperties.clear();
-        forPropertySheet.getForAssemblagesProperty().clear();
-        for (ConceptSpecification assemblageSpec : this.query.getForSetSpecification().getForSet()) {
-            forPropertySheet.getForAssemblagesProperty().add(assemblageSpec);
-        }
-        this.query.setForSetSpecification(forPropertySheet.getForSetSpecification());
+        this.forPropertySheet.getForAssemblagesProperty().clear();
         this.letPropertySheet.reset();
-        for (Map.Entry<LetItemKey, Object> entry : this.query.getLetDeclarations().entrySet()) {
-            this.letPropertySheet.addItem(entry.getKey(), entry.getValue());
-        }
-        this.query.setLetDeclarations(this.letPropertySheet.getLetItemObjectMap());
-
-        QueryClause rootQueryClause = new QueryClause(this.query.getRoot(), this.manifold,
-                this.forPropertySheet,
-                this.joinProperties,
-                this.letPropertySheet);
-        this.root = new ClauseTreeItem(rootQueryClause);
-        addChildren(this.query.getRoot(), this.root);
-        this.root.setExpanded(true);
-        this.whereTreeTable.setRoot(root);
-
-        // add return specifications
         this.returnSpecificationController.getReturnSpecificationRows().clear();
-        for (AttributeSpecification attributeSpecification : query.getReturnAttributeList()) {
-            this.returnSpecificationController.getReturnSpecificationRows().add(attributeSpecification);
+
+        if (this.query != null) {
+            for (Map.Entry<LetItemKey, Object> entry : this.query.getLetDeclarations().entrySet()) {
+                this.letPropertySheet.addItem(entry.getKey(), entry.getValue());
+            }
+            this.query.setLetDeclarations(this.letPropertySheet.getLetItemObjectMap());
+
+            for (ConceptSpecification assemblageSpec : this.query.getForSetSpecification().getForSet()) {
+                forPropertySheet.getForAssemblagesProperty().add(assemblageSpec);
+            }
+            this.query.setForSetSpecification(forPropertySheet.getForSetSpecification());
+            QueryClause rootQueryClause = new QueryClause(this.query.getRoot(), this.manifold,
+                    this.forPropertySheet,
+                    this.joinProperties,
+                    this.letPropertySheet);
+            this.root = new ClauseTreeItem(rootQueryClause);
+            addChildren(this.query.getRoot(), this.root);
+            this.root.setExpanded(true);
+            this.whereTreeTable.setRoot(root);
+
+            // add return specifications
+            for (AttributeSpecification attributeSpecification : this.query.getReturnAttributeList()) {
+                this.returnSpecificationController.getReturnSpecificationRows().add(attributeSpecification);
+            }
+            this.query.setReturnAttributeList(this.returnSpecificationController.getReturnSpecificationRows());
         }
-        query.setReturnAttributeList(this.returnSpecificationController.getReturnSpecificationRows());
     }
 
     private void addChildren(Clause parent, ClauseTreeItem parentTreeItem) {
@@ -854,7 +903,7 @@ public class FLWORQueryController
     }
 
     //~--- set methods ---------------------------------------------------------
-    public void setManifold(Manifold manifold) {
+    public void setManifold(Manifold manifold) throws IOException {
         this.manifold = manifold;
         this.letPropertySheet = new LetPropertySheet(this.manifold.deepClone(), this);
         returnStampCoordinateColumn.setCellValueFactory((param) -> {
@@ -930,28 +979,40 @@ public class FLWORQueryController
 
         this.forAnchorPane.getChildren().add(this.forPropertySheet.getNode());
         
+         FXMLLoader letItemsLoader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/LetItems.fxml"));
+         letItemsLoader.load();
+         this.setLetItemsController(letItemsLoader.getController());
+
         this.letAnchorPane.getChildren()
                 .add(letPropertySheet.getNode());
         this.sortSpecificationController = new ControllerForSortSpecification(
                 this.forPropertySheet.getForAssemblagesProperty(),
+                this.letItemsController.getLetListViewletListView().getItems(),
                 this.letPropertySheet.getLetItemObjectMap(),
-                this.cellFunctions, joinProperties,
+                this.cellFunctions,
+                this.joinProperties,
                 this.orderAddRowButton.getItems(),
+                this.resultTable,
                 this.manifold);
         this.orderTable.setItems(this.sortSpecificationController.getSpecificationRows());
-        
+
         this.returnSpecificationController = new ControllerForReturnSpecification(
                 this.forPropertySheet.getForAssemblagesProperty(),
+                this.letItemsController.getLetListViewletListView().getItems(),
                 this.letPropertySheet.getLetItemObjectMap(),
-                this.cellFunctions, joinProperties,
+                this.cellFunctions,
+                this.joinProperties,
                 this.returnAddRowButton.getItems(),
+                this.resultTable,
                 this.manifold);
         this.returnSpecificationController.addReturnSpecificationListener(this::returnSpecificationListener);
         this.returnTable.setItems(this.returnSpecificationController.getReturnSpecificationRows());
+
     }
 
     public void returnSpecificationListener(ListChangeListener.Change<? extends AttributeSpecification> c) {
         try {
+            resultTable.getItems().clear();
             resultTable.getColumns().clear();
             resultColumns.clear();
             int columnIndex = 0;
@@ -959,13 +1020,13 @@ public class FLWORQueryController
                 final int currentIndex = columnIndex++;
                 TableColumn<List<String>, String> column
                         = new TableColumn<>(rowSpecification.getColumnName());
-                column.setCellValueFactory(param
+                column.setCellValueFactory(param // TableColumn$CellDataFeatures
                         -> new ReadOnlyObjectWrapper<>(param.getValue().get(currentIndex)));
                 column.setComparator(new NaturalOrder());
                 resultTable.getColumns().add(column);
                 resultColumns.add(rowSpecification);
             }
-        
+
         } catch (Exception e) {
             FxGet.dialogs().showErrorDialog("Error modifying return specifications.", e);
         }
@@ -1032,7 +1093,7 @@ public class FLWORQueryController
 
             // set clipboard content
             Clipboard.getSystemClipboard().setContent(clipboardContent);
-            
+
         }
     }
 

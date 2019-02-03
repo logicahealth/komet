@@ -241,5 +241,7 @@ public class ConceptDetailTreeTableController {
       conceptPathColumn.setVisible(false);
       conceptPathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence"));
       conceptPathColumn.setCellFactory(this.conceptCellFactory::call);
+      
+      focusConceptChanged(this.manifold.focusedConceptProperty(), null, this.manifold.focusedConceptProperty().get());
    }
 }

@@ -78,7 +78,7 @@ public abstract class AbstractLogicNode
    private short nodeIndex = Short.MIN_VALUE;
 
    /** The node uuid. */
-   protected UUID nodeUuid = null;
+   private UUID nodeUuid = null;
 
    /** The logic graph version. */
    LogicalExpressionImpl logicalExpression;
@@ -87,10 +87,13 @@ public abstract class AbstractLogicNode
 
    /**
     * Instantiates a new abstract logic node.
+    * 
+    * Note that this constructor is not safe for all uses, and is only intended to aid in serialization / deserialization.
+    * This should be protected, but can't be, due to current package structure.
     *
     * @param anotherNode the another node
     */
-   protected AbstractLogicNode(AbstractLogicNode anotherNode) {
+   public AbstractLogicNode(AbstractLogicNode anotherNode) {
       this.nodeIndex = anotherNode.nodeIndex;
       this.nodeUuid  = anotherNode.nodeUuid;
    }

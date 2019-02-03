@@ -71,6 +71,9 @@ public final class ConceptNodeWithNids
 
    /**
     * Instantiates a new concept node with sequences.
+    * 
+    * Note that this constructor is not safe for all uses, and is only intended to aid in serialization / deserialization.
+    * This should be protected, but can't be, due to current package structure.
     *
     * @param externalForm the external form
     */
@@ -204,7 +207,7 @@ public final class ConceptNodeWithNids
    @Override
     public void addToBuilder(StringBuilder builder) {
         builder.append("\n       ConceptAssertion(");
-        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimoridalStringForNid(conceptNid)).append("\")");
+        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimordialStringForNid(conceptNid)).append("\")");
         builder.append(", leb)\n");
     }
 

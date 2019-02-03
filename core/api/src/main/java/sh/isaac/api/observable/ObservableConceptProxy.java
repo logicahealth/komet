@@ -28,13 +28,13 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  * @author kec
  */
 
-public class ObservableConceptProxy extends SimpleObjectProperty<ConceptProxy> implements ConceptSpecification {
+public class ObservableConceptProxy extends SimpleObjectProperty<ConceptSpecification> implements ConceptSpecification {
 
-    public ObservableConceptProxy(Object bean, ConceptProxy conceptProxy) {
+    public ObservableConceptProxy(Object bean, ConceptSpecification conceptProxy) {
         super(bean, conceptProxy.toExternalString(), conceptProxy);
     }
 
-    public ObservableConceptProxy(Object bean, String name, ConceptProxy conceptProxy) {
+    public ObservableConceptProxy(Object bean, String name, ConceptSpecification conceptProxy) {
         super(bean, name, conceptProxy);
     }
 
@@ -53,4 +53,9 @@ public class ObservableConceptProxy extends SimpleObjectProperty<ConceptProxy> i
         return get().getUuidList();
     }
     
-}
+    @Override
+    public UUID[] getUuids() {
+        return getUuidList().toArray(new UUID[0]);
+    }
+
+ }

@@ -96,7 +96,7 @@ public class Join
     public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> searchSpace) {
         joinResults.clear();
         for (Clause child: getChildren()) {
-            child.computePossibleComponents(searchSpace);
+            child.computeComponents(searchSpace);
         }
         for (JoinSpecification joinSpec: joinSpecifications) {
             NidSet nidSet1 = searchSpace.get(joinSpec.getFirstAssemblage());
@@ -105,15 +105,15 @@ public class Join
             for (int nid1: nidSet1.asArray()) {
                 ObservableChronology chron1 = Get.observableChronologyService().getObservableChronology(nid1);
                 LatestVersion<ObservableVersion> version1Latest = chron1.getLatestObservableVersion(stampCoordinate);
-                if (version1Latest.isPresent() && version1Latest.get().getPropertyMap().containsKey(joinSpec.getFirstField())) {
+                if (version1Latest.isPresent() && version1Latest.get().getPropertyMap().containsKey(joinSpec.getFirstField().getFieldSpec())) {
                     ObservableVersion v1 = version1Latest.get();
-                    ReadOnlyProperty<?> v1Prop = v1.getPropertyMap().get(joinSpec.getFirstField());
+                    ReadOnlyProperty<?> v1Prop = v1.getPropertyMap().get(joinSpec.getFirstField().getFieldSpec());
                     for (int nid2: nidSet2.asArray()) {
                         ObservableChronology chron2 = Get.observableChronologyService().getObservableChronology(nid2);
                         LatestVersion<ObservableVersion> version2Latest = chron2.getLatestObservableVersion(stampCoordinate);
-                        if (version2Latest.isPresent() && version2Latest.get().getPropertyMap().containsKey(joinSpec.getSecondField())) {
+                        if (version2Latest.isPresent() && version2Latest.get().getPropertyMap().containsKey(joinSpec.getSecondField().getFieldSpec())) {
                             ObservableVersion v2 = version2Latest.get();
-                            ReadOnlyProperty<?> v2Prop = v2.getPropertyMap().get(joinSpec.getSecondField());
+                            ReadOnlyProperty<?> v2Prop = v2.getPropertyMap().get(joinSpec.getSecondField().getFieldSpec());
                             if (v1Prop.getValue().equals(v2Prop.getValue())) {
                                 joinResults.add(new int[] {nid1, nid2});
                             } 

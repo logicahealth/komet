@@ -1,104 +1,175 @@
 package sh.isaac.solor.rf2.config;
 
-import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.MetaData;
+import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.observable.semantic.version.brittle.Observable_Nid1_Nid2_Int3_Version;
+import sh.isaac.api.observable.semantic.version.brittle.Observable_Nid1_Nid2_Str3_Version;
+import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.configuration.LanguageCoordinates;
+import sh.isaac.solor.rf2.utility.PreExportUtility;
+import sh.komet.gui.manifold.Manifold;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.*;
+import java.util.stream.IntStream;
 
 public class RF2Configuration {
 
     private String fileHeader;
-    private String filePath;
+    private Path filePath;
     private RF2ConfigType rf2ConfigType;
     private String message;
     private LocalDateTime localDateTime;
-    private Supplier<Stream<? extends Chronology>> chronologyStreamSupplier;
+    private Supplier<IntStream> intStreamSupplier;
+    private final String parentDirectory;
+    private final String exportDirectory;
+    private final String zipDirectory;
+    private final Manifold manifold;
+    private static HashMap<Integer, Integer[]> refsetDescriptorHeaders;
 
-    private static List<VersionType> versionTypesToExportAsRefsets = new ArrayList<>();
-    static {
-        versionTypesToExportAsRefsets.add(VersionType.MEMBER);
-        versionTypesToExportAsRefsets.add(VersionType.LOINC_RECORD);
-        versionTypesToExportAsRefsets.add(VersionType.COMPONENT_NID);
-        versionTypesToExportAsRefsets.add(VersionType.STRING);
-        versionTypesToExportAsRefsets.add(VersionType.LONG);
-        versionTypesToExportAsRefsets.add(VersionType.Nid1_Int2);
-        versionTypesToExportAsRefsets.add(VersionType.Nid1_Nid2);
-        versionTypesToExportAsRefsets.add(VersionType.Nid1_Str2);
-        versionTypesToExportAsRefsets.add(VersionType.Str1_Str2);
-        versionTypesToExportAsRefsets.add(VersionType.Nid1_Nid2_Int3);
-        versionTypesToExportAsRefsets.add(VersionType.Nid1_Nid2_Str3);
-        versionTypesToExportAsRefsets.add(VersionType.Str1_Nid2_Nid3_Nid4);
-        versionTypesToExportAsRefsets.add(VersionType.Str1_Str2_Nid3_Nid4);
-        versionTypesToExportAsRefsets.add(VersionType.Str1_Str2_Nid3_Nid4_Nid5);
-        versionTypesToExportAsRefsets.add(VersionType.Nid1_Int2_Str3_Str4_Nid5_Nid6);
-        versionTypesToExportAsRefsets.add(VersionType.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7);
-        versionTypesToExportAsRefsets.add(VersionType.Str1_Str2_Str3_Str4_Str5_Str6_Str7);
-    }
-
-    public static Supplier<Stream<? extends Chronology>> GetLanguageStreamSupplier(){
-        return RF2ConfigType.LANGUAGE_REFSET.getChronologystreamSupplier();
-    }
-
-    public static Supplier<Stream<? extends Chronology>> GetRefsetStreamSupplier(){
-        return RF2ConfigType.REFSET.getChronologystreamSupplier();
-    }
-
-    public RF2Configuration(RF2ConfigType rf2ConfigType) {
-        this.chronologyStreamSupplier = rf2ConfigType.getChronologystreamSupplier();
-    }
-
-    public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime) {
+    public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime, File exportDirectory,
+                            Manifold manifold) {
         this.rf2ConfigType = rf2ConfigType;
         this.localDateTime = localDateTime;
-        this.chronologyStreamSupplier = rf2ConfigType.getChronologystreamSupplier();
         this.fileHeader = rf2ConfigType.getFileHeader();
-        this.setFilePath();
         this.message = rf2ConfigType.getMessage();
+        this.parentDirectory = "/SnomedCT_SolorRF2_PRODUCTION_TIME1/"
+                .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(this.localDateTime));
+        this.exportDirectory = exportDirectory.toString();
+        this.manifold = manifold;
+        this.zipDirectory = this.exportDirectory + this.parentDirectory.substring(0, this.parentDirectory.length() -1) + ".zip";
+
+        refsetDescriptorHeaders = null;
+
+        setIntStreamSupplier();
+        setFilePath();
     }
 
-    public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime,
-                            Supplier<Stream<? extends Chronology>> chronologyStreamSupplier, int languageNid) {
+    public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime, int languageNid,
+                            File exportDirectory, Manifold manifold, PreExportUtility preExportUtility) {
         this.rf2ConfigType = rf2ConfigType;
         this.localDateTime = localDateTime;
-        this.chronologyStreamSupplier = chronologyStreamSupplier;
         this.fileHeader = rf2ConfigType.getFileHeader();
-        this.setFilePath(languageNid);
         this.message = rf2ConfigType.getMessage() + " - " + LanguageCoordinates.conceptNidToIso639(languageNid);
+        this.parentDirectory = "/SnomedCT_SolorRF2_PRODUCTION_TIME1/"
+                .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(this.localDateTime));
+        this.exportDirectory = exportDirectory.toString();
+        this.manifold = manifold;
+        this.zipDirectory = this.exportDirectory + this.parentDirectory.substring(0, this.parentDirectory.length() -1) + ".zip";
+
+        refsetDescriptorHeaders = preExportUtility.getRefsetDescriptorHeaders();
+
+        setIntStreamSupplier(languageNid);
+        setFilePath(languageNid);
+        setFileHeader(languageNid);
     }
 
-    public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime,
-                            Supplier<Stream<? extends Chronology>> chronologyStreamSupplier, VersionType versionType, String assemblageFQN) {
+    public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime, int assemblageNid,
+                            String assemblageFQN, VersionType versionType, File exportDirectory, Manifold manifold,
+                            PreExportUtility preExportUtility) {
         this.rf2ConfigType = rf2ConfigType;
         this.localDateTime = localDateTime;
-        this.chronologyStreamSupplier = chronologyStreamSupplier;
-        this.fileHeader = rf2ConfigType.getFileHeader();
-        this.setFilePath(versionType, assemblageFQN);
+        this.parentDirectory = "/SnomedCT_SolorRF2_PRODUCTION_TIME1/"
+                .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(this.localDateTime));
+        this.exportDirectory = exportDirectory.toString();
+        this.manifold = manifold;
+        this.zipDirectory = this.exportDirectory + this.parentDirectory.substring(0, this.parentDirectory.length() -1) + ".zip";
         this.message = rf2ConfigType.getMessage() + " " + assemblageFQN;
+
+        refsetDescriptorHeaders = preExportUtility.getRefsetDescriptorHeaders();
+
+        setFilePath(versionType, assemblageFQN);
+        setIntStreamSupplier(assemblageNid);
+        setFileHeader(assemblageNid);
     }
 
-    public void addHeaderToExport(List<String> listToExport){
-        listToExport.add(0, this.fileHeader);
+    private void setFileHeader(int assemblageNid){
+
+        if(refsetDescriptorHeaders.containsKey(assemblageNid)){
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(this.rf2ConfigType.getFileHeader());
+            Integer[] tempColumns = refsetDescriptorHeaders.get(assemblageNid);
+            for(int i = 1; i < tempColumns.length; i++){
+                if(tempColumns[i] == null)
+                    continue;
+                stringBuilder.append(formatHeaderName(Get.concept(tempColumns[i]).getFullyQualifiedName().replace(" ", "")).toLowerCase())
+                        .append("\t");
+            }
+
+            stringBuilder.append("\r");
+            this.fileHeader = stringBuilder.append("\r").toString();
+        }else{
+            this.fileHeader = rf2ConfigType.getFileHeader();
+        }
     }
 
-    private void setFilePath(){//Core Files
-        this.filePath = this.rf2ConfigType.getFilePath()
+    private String formatHeaderName(String orignicalHeader){
+        return orignicalHeader.replace(orignicalHeader.substring(orignicalHeader.indexOf("("), orignicalHeader.indexOf(")") + 1),"");
+    }
+
+    private void setIntStreamSupplier(){
+
+        switch (this.rf2ConfigType){
+            case CONCEPT:
+                this.intStreamSupplier = () -> Get.conceptService().getConceptNidStream();
+                break;
+            case DESCRIPTION:
+                this.intStreamSupplier = () -> Arrays.stream(
+                        Get.taxonomyService().getSnapshot(manifold)
+                                .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
+                        .flatMap(nid -> Get.assemblageService().getSemanticNidStream(nid));
+                break;
+            case RELATIONSHIP:
+                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid());
+                break;
+            case STATED_RELATIONSHIP:
+                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid());
+                break;
+            case IDENTIFIER:
+                this.intStreamSupplier = () -> IntStream.concat(
+                        Get.conceptService().getConceptNidStream(),
+                        Get.assemblageService().getSemanticNidStream());
+            case TRANSITIVE_CLOSURE:
+                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid());
+                break;
+            case VERSIONED_TRANSITIVE_CLOSURE:
+                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid());
+                break;
+        }
+    }
+
+    private void setIntStreamSupplier(int assemblageNid){
+        this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(assemblageNid);
+    }
+
+    private void setFilePath(){
+
+        this.filePath = Paths.get(this.exportDirectory + this.parentDirectory +
+                this.rf2ConfigType.getFilePath()
                 .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
-                .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime));
+                .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime)));
     }
 
-    private void setFilePath(int languageNid){//Language Refsets
-        this.filePath = this.rf2ConfigType.getFilePath()
+    private void setFilePath(int languageNid){
+
+        this.filePath = Paths.get(this.exportDirectory + this.parentDirectory +  this.rf2ConfigType.getFilePath()
                 .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
                 .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime))
-                .replace("LANGUAGE1", LanguageCoordinates.conceptNidToIso639(languageNid));
+                .replace("LANGUAGE1", LanguageCoordinates.conceptNidToIso639(languageNid)));
     }
 
-    private void setFilePath(VersionType versionType, String assemblageFQN){//Refsets
+    private void setFilePath(VersionType versionType, String assemblageFQN){
         String pattern = "";
 
         switch (versionType){
@@ -150,19 +221,29 @@ public class RF2Configuration {
                 break;
         }
 
-        this.filePath = this.rf2ConfigType.getFilePath()
+        this.filePath = Paths.get(this.exportDirectory + this.parentDirectory + this.rf2ConfigType.getFilePath()
                 .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
                 .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime))
                 .replace("PATTERN", pattern)
-                .replace("SUMMARY", assemblageFQN);
+                .replace("SUMMARY", assemblageFQN
+                        .replace(assemblageFQN.substring(assemblageFQN.indexOf("("), assemblageFQN.indexOf(")") + 1),""))
+                .replace(" ", ""));
     }
 
-    public static List<VersionType> GetVersionTypesToExportAsRefsets() {
-        return versionTypesToExportAsRefsets;
+    public Path getFilePath(){
+        return this.filePath;
     }
 
-    public String getFilePath() {
-        return this.filePath ;
+    public String getZipDirectory() {
+        return zipDirectory;
+    }
+
+    public String getRootDirectory(){
+        return this.exportDirectory + this.parentDirectory;
+    }
+
+    public String getFileHeader() {
+        return fileHeader;
     }
 
     public RF2ConfigType getRf2ConfigType() {
@@ -173,11 +254,8 @@ public class RF2Configuration {
         return this.message;
     }
 
-    public Stream<? extends Chronology> getChronologyStream() {
-        return this.chronologyStreamSupplier.get();
+    public IntStream getIntStream() {
+        return this.intStreamSupplier.get();
     }
 
-    public Supplier<Stream<? extends Chronology>> getChronologyStreamSupplier() {
-        return chronologyStreamSupplier;
-    }
 }

@@ -24,6 +24,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.query.And;
 import sh.isaac.api.query.AndNot;
 import sh.isaac.api.query.AttributeSpecification;
@@ -91,6 +92,7 @@ public class Jaxb {
                     LogicCoordinateImpl.class,
                     ManifoldCoordinateForQuery.class,
                     Not.class,
+                    ObservableConceptProxy.class,
                     Or.class,
                     Query.class,
                     RelRestriction.class,

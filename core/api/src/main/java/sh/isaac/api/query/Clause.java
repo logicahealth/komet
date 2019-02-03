@@ -72,7 +72,7 @@ import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 @XmlRootElement(name = "Clause")
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class Clause implements ConceptSpecification, AssemblageForIterationClause {
-    private static final Logger LOG = LogManager.getLogger();
+    public static final Logger LOG = LogManager.getLogger();
 
     /**
      * The Constant PRE_AND_POST_ITERATION.
@@ -290,6 +290,10 @@ public abstract class Clause implements ConceptSpecification, AssemblageForItera
     public static Clause[] getAllClauses() {
         return new Clause[]{new And(), new AndNot(), new Not(), new Or(), new Xor(),
             new Join(),
+            new ConceptIs(),
+            new ConceptIsKindOf(),
+            new ConceptIsDescendentOf(),
+            new ConceptIsChildOf(),
             new ComponentIsActive(),
             new ComponentIsInactive(),
             new ReferencedComponentIsActive(),
@@ -300,14 +304,14 @@ public abstract class Clause implements ConceptSpecification, AssemblageForItera
             new ReferencedComponentIsMemberOf(),
             new ReferencedComponentIsNotMemberOf(),
             new SemanticContainsString(),
+            new DescriptionLuceneMatch(),
+            new DescriptionRegexMatch()
             
 //            new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
 //            new AssemblageContainsString(), new AssemblageLuceneMatch(),
 //            new ChangedBetweenVersions(), new ConceptForComponent(),
-//            new ConceptIs(), new ConceptIsChildOf(), new ConceptIsDescendentOf(),
-//            new ConceptIsKindOf(), new DescriptionActiveLuceneMatch(),
-//            new DescriptionActiveRegexMatch(), new DescriptionLuceneMatch(),
-//            new DescriptionRegexMatch(), new FullyQualifiedNameForConcept(),
+//            new DescriptionActiveRegexMatch(),
+//            new FullyQualifiedNameForConcept(),
 //            new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular(), 
         };
     }

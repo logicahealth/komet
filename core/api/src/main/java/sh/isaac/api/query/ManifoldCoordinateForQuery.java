@@ -40,8 +40,6 @@ import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl implements ManifoldCoordinate, ObservableCoordinate {
 
-    UUID coordinateUuid = UUID.randomUUID();
-
     SimpleObjectProperty<PremiseType> premiseTypeProperty = new SimpleObjectProperty<>(this, TermAux.PREMISE_TYPE_FOR_MANIFOLD.toExternalString(), PremiseType.INFERRED);
 
     SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.STAMP_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
@@ -72,6 +70,15 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     }
     
     
+   @Override
+   @XmlElement
+   public UUID getManifoldCoordinateUuid() {
+      return ManifoldCoordinate.super.getManifoldCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+   }
+   
+   private void setManifoldCoordinateUuid(UUID uuid) {
+        // noop for jaxb
+   }
 
     public void setQuery(Query query) {
         this.query = query;
@@ -80,11 +87,6 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     @Override
     public PremiseType getTaxonomyPremiseType() {
         return premiseTypeProperty.get();
-    }
-
-    @Override
-    public UUID getCoordinateUuid() {
-        return coordinateUuid;
     }
 
     @XmlElement
@@ -162,6 +164,11 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     @Override
     public ManifoldCoordinate deepClone() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public StampCoordinate getImmutableAllStateAnalog() {
+        return getStampCoordinate().getImmutableAllStateAnalog(); 
     }
 
 }

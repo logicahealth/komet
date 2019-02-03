@@ -34,6 +34,7 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.query.properties.StampCoordinateClause;
 
 /**
  *
@@ -41,7 +42,7 @@ import sh.isaac.api.query.WhereClause;
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class ComponentIsActive extends LeafClause {
+public class ComponentIsActive extends LeafClause implements StampCoordinateClause {
 
     /**
      * the manifold coordinate key.
@@ -71,7 +72,6 @@ public class ComponentIsActive extends LeafClause {
     public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
         StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
         NidSet possibleComponents = incomingComponents.get(getAssemblageForIteration());
-        
         for (int nid: possibleComponents.asArray()) {
             final Optional<? extends Chronology> chronology
                     = Get.identifiedObjectService()

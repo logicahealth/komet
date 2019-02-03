@@ -37,16 +37,18 @@
 package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.UUID;
+import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.Get;
-import static sh.isaac.api.Get.defaultCoordinate;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
@@ -56,6 +58,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.util.UUIDUtil;
 
 //~--- interfaces -------------------------------------------------------------
 /**
@@ -66,6 +69,24 @@ import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 public interface LanguageCoordinate extends Coordinate {
 
    final static Logger LOG = LogManager.getLogger();
+    /**
+     * 
+     * @return a content based uuid, such that identical language coordinates
+     * will have identical uuids, and that different language coordinates will 
+     * always have different uuids.
+     */
+   default UUID getLanguageCoordinateUuid() {
+       ArrayList<UUID> uuidList = new ArrayList();
+       if (getNextProrityLanguageCoordinate().isPresent()) {
+           uuidList.add(getNextProrityLanguageCoordinate().get().getLanguageCoordinateUuid());
+       }
+       UUIDUtil.addSortedUuids(uuidList, getDescriptionTypePreferenceList());
+       UUIDUtil.addSortedUuids(uuidList, getDialectAssemblagePreferenceList());
+       UUIDUtil.addSortedUuids(uuidList, getLanguageConceptNid());
+       UUIDUtil.addSortedUuids(uuidList, getModulePreferenceListForLanguage());
+       return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
+   }
+    
    /**
     * If the current language coordinate fails to return a requested description, 
     * then the next priority language coordinate will be tried until a description is found, 
@@ -74,7 +95,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return 
     */
    Optional<LanguageCoordinate> getNextProrityLanguageCoordinate();
-    
+
    /**
     * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
     *

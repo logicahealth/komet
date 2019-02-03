@@ -178,7 +178,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    @Override
    public UUID getPrimordialUuid() {
       if (this.primordialUuid == null) {
-         this.primordialUuid = UUID.randomUUID();  // This is a slow operation - lazy load.
+         this.primordialUuid = Get.newUuidWithAssignment();  // This is a slow operation - lazy load.
       }
 
       return this.primordialUuid;

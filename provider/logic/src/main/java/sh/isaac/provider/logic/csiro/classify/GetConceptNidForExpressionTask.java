@@ -48,7 +48,6 @@ import java.util.concurrent.ExecutionException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.concurrent.Task;
 import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
@@ -64,6 +63,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
@@ -76,7 +76,7 @@ import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
  * @author kec
  */
 public class GetConceptNidForExpressionTask
-        extends Task<Integer> {
+        extends TimedTask<Integer> {
    /** The expression. */
    LogicalExpression expression;
 
@@ -176,7 +176,7 @@ public class GetConceptNidForExpressionTask
 
          updateMessage("Building new concept...");
 
-         final UUID                  uuidForNewConcept     = UUID.randomUUID();
+         final UUID                  uuidForNewConcept     = Get.newUuidWithAssignment();
          final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
          conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);

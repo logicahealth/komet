@@ -45,6 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ObjectProperty;
@@ -83,7 +84,7 @@ import sh.isaac.model.xml.StatusEnumSetAdaptor;
  */
 @XmlRootElement(name = "StampCoordinate")
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlType(propOrder = {"stampPosition", "allowedStates",
+@XmlType(propOrder = {"stampCoordinateUuid", "stampPosition", "allowedStates",
     "stampPrecedence", "moduleSpecifications", "modulePreferenceOrderForVersions"})
 public class StampCoordinateImpl
         implements StampCoordinate {
@@ -116,6 +117,15 @@ public class StampCoordinateImpl
      * No arg constructor for JAXB.
      */
     public StampCoordinateImpl() {
+    }
+
+    @Override
+    @XmlElement
+    public UUID getStampCoordinateUuid() {
+        return StampCoordinate.super.getStampCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+    }
+    private void setStampCoordinateUuid(UUID uuid) {
+        // noop for jaxb
     }
 
     /**

@@ -134,7 +134,7 @@
                           <items>
                             <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeQuery" text="execute" />
                               <ProgressBar fx:id="progressBar" prefWidth="200.0" progress="0.0" />
-                              <Button fx:id="cancelButton" mnemonicParsing="false" text="cancel" />
+                              <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#cancelQuery" text="cancel" />
                               <Label fx:id="spacerLabel" maxWidth="1.7976931348623157E308" prefHeight="17.0" prefWidth="54.0" />
                               <MenuButton mnemonicParsing="false" text="File">
                                 <items>

@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>4.63</version>
+   <version>4.64</version>
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
@@ -142,7 +142,7 @@
       <testng.version>6.13.1</testng.version>
       <tilesfx.version>1.5.2</tilesfx.version>
       <wagon-provider-api.version>3.0.0</wagon-provider-api.version>
-      <jackson-databind.version>2.9.6</jackson-databind.version>
+      <jackson-databind.version>2.9.8</jackson-databind.version>
    </properties>
 
    <developers>

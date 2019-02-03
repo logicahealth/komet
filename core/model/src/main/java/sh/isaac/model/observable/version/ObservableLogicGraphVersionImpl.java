@@ -53,6 +53,7 @@ import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 
 import sh.isaac.api.chronicle.Version;
@@ -87,7 +88,7 @@ public class ObservableLogicGraphVersionImpl
 
    //~--- constructors --------------------------------------------------------
    public ObservableLogicGraphVersionImpl(UUID referencedComponentUuid, int assemblageNid) {
-      super(VersionType.LOGIC_GRAPH, UUID.randomUUID(), referencedComponentUuid, assemblageNid);
+      super(VersionType.LOGIC_GRAPH, Get.newUuidWithAssignment(), referencedComponentUuid, assemblageNid);
        LogicalExpressionBuilderImpl builder = new LogicalExpressionBuilderImpl();
        LogicalExpression emptyExpression = builder.build();
        setGraphData(emptyExpression.getData(DataTarget.INTERNAL));

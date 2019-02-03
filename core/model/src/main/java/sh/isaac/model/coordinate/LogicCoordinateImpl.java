@@ -41,6 +41,7 @@ package sh.isaac.model.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -58,6 +59,7 @@ import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -131,6 +133,15 @@ public class LogicCoordinateImpl
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    @XmlElement
+    public UUID getLogicCoordinateUuid() {
+        return LogicCoordinate.super.getLogicCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void setLogicCoordinateUuid(UUID uuid) {
+        // noop for jaxb
+    }
 
    /**
     * Equals.

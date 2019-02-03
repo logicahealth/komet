@@ -36,6 +36,13 @@ import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.ThreadPoolExecutorFixed;
 
 /**
+ * Due to threading within this for the processing of input objects, it is unsafe to read back from the datastore while this import is happening.
+ * 
+ * This applies to the passed in BiConsumer as well - it is unsafe to perform reads on the datastore within the logic of the BiConsumer.
+ * 
+ * If you want to do readbacks during the load, you may need to special-handle obscure errors, or, you can use the constructor with 
+ * processInOrder set to true, which will hurt performance, but make readback safe within the BiConsumer.  It will still not be safe
+ * from other threads in the application...
  *
  * @author kec
  */

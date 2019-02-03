@@ -65,10 +65,12 @@ public abstract class ConnectorNode
 
    /**
     * Instantiates a new connector node.
+    * 
+    * Note that this constructor is not safe for all uses, and is only intended to aid in serialization / deserialization.
     *
     * @param another the another
     */
-   public ConnectorNode(AbstractLogicNode another) {
+   protected ConnectorNode(AbstractLogicNode another) {
       super(another);
       this.childIndices = new ShortArrayList(another.getChildren().length);
 

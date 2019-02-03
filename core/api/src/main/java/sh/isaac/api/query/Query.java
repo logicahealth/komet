@@ -218,6 +218,7 @@ public class Query {
     public Map<ConceptSpecification, NidSet> compute() {
         setup();
         getLetDeclarations();
+        validateLet();
         this.rootClause = Where();
 
         final Map<ConceptSpecification, NidSet> possibleComponentMap = this.rootClause.computePossibleComponents(this.forSetSpecification.getPossibleComponents());
@@ -225,6 +226,25 @@ public class Query {
         return this.rootClause.computeComponents(possibleComponentMap);
     }
 
+    private void validateLet() {
+        boolean error = false;
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<LetItemKey, Object> entry: this.letDeclarations.entrySet()) {
+            if (entry.getValue() == null) {
+                error = true;
+                sb.append(entry.getKey()).append(" has null value\n");
+            } else if (entry.getValue() instanceof ConceptSpecification) {
+                ConceptSpecification spec = (ConceptSpecification) entry.getValue();
+                if (TermAux.UNINITIALIZED_COMPONENT_ID.equals(spec)) {
+                    error = true;
+                    sb.append(entry.getKey()).append(" has uninitialized value\n");
+                }
+            }
+        }
+        if (error) {
+            throw new IllegalStateException(sb.toString());
+        }
+    }
     
     public ForSet getForSetSpecification() {
         return forSetSpecification;
@@ -272,24 +292,24 @@ public class Query {
      * @return an array of component nids in an array...
      */
     public int[][] reify() {
-        Map<ConceptSpecification, NidSet> assemlageMapResults = compute();
-        assemlageMapResults.remove(TermAux.UNINITIALIZED_COMPONENT_ID); // TODO remove cause, not the symptom...
-        if (assemlageMapResults.size() == 1) {
-            for (Map.Entry<ConceptSpecification, NidSet> entry : assemlageMapResults.entrySet()) {
-                int[][] resultArray = new int[entry.getValue().size()][];
-                int row = 0;
-                for (int nid : entry.getValue().asArray()) {
-                    resultArray[row++] = new int[]{nid};
+            Map<ConceptSpecification, NidSet> assemlageMapResults = compute();
+            assemlageMapResults.remove(TermAux.UNINITIALIZED_COMPONENT_ID); // TODO remove cause, not the symptom...
+            if (assemlageMapResults.size() == 1) {
+                for (Map.Entry<ConceptSpecification, NidSet> entry : assemlageMapResults.entrySet()) {
+                    int[][] resultArray = new int[entry.getValue().size()][];
+                    int row = 0;
+                    for (int nid : entry.getValue().asArray()) {
+                        resultArray[row++] = new int[]{nid};
+                    }
+                    return sort(resultArray);
                 }
-                return sort(resultArray);
+                throw new IllegalStateException("No entry found, though list is not empty. ");
+            } else if (assemlageMapResults.size() == 2 && getRoot() instanceof Join) {                
+                Join join = (Join) getRoot();
+                return sort(join.getJoinResults());
+            } else {
+                throw new UnsupportedOperationException("Can't handle complex joins yet" + assemlageMapResults);
             }
-            throw new IllegalStateException("No entry found, though list is not empty. ");
-        } else if (assemlageMapResults.size() == 2 && getRoot() instanceof Join) { 
-            Join join = (Join) getRoot();
-            return sort(join.getJoinResults());
-        } else {
-            throw new UnsupportedOperationException("Can't handle complex joins yet" + assemlageMapResults);
-        }
     }
 
     private int[][] sort(int[][] resultArray) {

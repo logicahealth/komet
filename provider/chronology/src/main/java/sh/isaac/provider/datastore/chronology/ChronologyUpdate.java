@@ -80,6 +80,9 @@ import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 /**
  *
  * @author kec
+ * 
+ * TODO why is all of the important stuff in this class static?  Why aren't we just handling this as a Singleton with HK2?
+ * Seems to be just creating unnecessary logic and potential problems.
  */
 @Service
 @Singleton
@@ -92,6 +95,8 @@ public class ChronologyUpdate implements StaticIsaacCache {
     private static int ROLE_GROUP_NID;
     private static IdentifierService IDENTIFIER_SERVICE;
     private static TaxonomyProvider TAXONOMY_SERVICE;
+    
+    private static boolean verboseDebugEnabled = false;
 
     private ChronologyUpdate() {
         //For HK2 only
@@ -105,6 +110,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
             ROLE_GROUP_NID = TermAux.ROLE_GROUP.getNid();
             IDENTIFIER_SERVICE = Get.identifierService();
             TAXONOMY_SERVICE = Get.service(TaxonomyProvider.class);
+            verboseDebugEnabled = Get.configurationService().isVerboseDebugEnabled();
         }
     }
 
@@ -174,7 +180,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
                 start, ChronologyUpdate::merge);
         //result = result.clone();
         if (start.length > result.length) {
-            TaxonomyRecord taxonomyRecordResult = new TaxonomyRecord(result);
+//            TaxonomyRecord taxonomyRecordResult = new TaxonomyRecord(result);
             LOG.error("Accumulate shrank");
 //         origin_DestinationTaxonomyRecord_Map.put(logicGraphChronology.getReferencedComponentNid(), begin);
 //         int[] result2 = origin_DestinationTaxonomyRecord_Map.accumulateAndGet(
@@ -187,7 +193,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
 //         }
 
         } else if (result.length == start.length) {
-            LOG.error("Did not grow");
+            LOG.error("Did not grow processing taxonomy update for {}", logicGraphChronology);
         }
     }
 
@@ -411,7 +417,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
                         comparisonExpression);
                 isomorphicResults.call();
                 long elapsedTime = System.currentTimeMillis() - startTime;
-                if (isomporphicTime.get() < elapsedTime) {
+                if (verboseDebugEnabled && isomporphicTime.get() < elapsedTime) {
                     isomporphicTime.set(elapsedTime);
                     LOG.info("\n\n\nNew isomorphic record: " + elapsedTime + "\n" + isomorphicResults + "\n\n");
                     

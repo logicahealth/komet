@@ -39,15 +39,10 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.task.AggregateTaskInput;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class ClassifyAxioms.
@@ -55,47 +50,42 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
  * @author kec
  */
 public class ClassifyAxioms
-        extends TimedTaskWithProgressTracker<Void> {
-   /** The stamp coordinate. */
-   StampCoordinate stampCoordinate;
+        extends TimedTaskWithProgressTracker<ClassifierData> implements AggregateTaskInput {
 
-   /** The logic coordinate. */
-   LogicCoordinate logicCoordinate;
-
-   //~--- constructors --------------------------------------------------------
+   ClassifierData inputData;
 
    /**
     * Instantiates a new classify axioms.
-    *
-    * @param stampCoordinate the stamp coordinate
-    * @param logicCoordinate the logic coordinate
     */
-   public ClassifyAxioms(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-      this.stampCoordinate = stampCoordinate;
-      this.logicCoordinate = logicCoordinate;
+   public ClassifyAxioms() {
       updateTitle("Classify axioms");
-      Get.activeTasks().add(this);
    }
-
-   //~--- methods -------------------------------------------------------------
-
+   
    /**
-    * Call.
-    *
-    * @return the void
-    * @throws Exception the exception
+    * Must pass in a {@link ClassifierData} prior to executing this task 
+    * @see sh.isaac.api.task.AggregateTaskInput#setInput(java.lang.Object)
     */
    @Override
-   protected Void call()
+   public void setInput(Object inputData)  {
+      if (!(inputData instanceof ClassifierData)) {
+         throw new RuntimeException("Input data to LoadAxioms must be " + ClassifierData.class.getName());
+      }
+      this.inputData = (ClassifierData)inputData;
+   }
+
+   @Override
+   protected ClassifierData call()
             throws Exception {
+      Get.activeTasks().add(this);
        try {
-           final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
+          if (inputData == null) {
+              throw new RuntimeException("Input data to ClassifyAxioms must be specified by calling setInput prior to executing");
+           }
            
-           cd.classify();
-           return null;
+           inputData.classify();
+           return inputData;
        } finally {
            Get.activeTasks().remove(this);
        }
    }
 }
-

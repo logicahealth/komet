@@ -34,6 +34,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
@@ -156,7 +157,9 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         this.popOver.setTitle("");
         this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifold);
+        Manifold manifoldClone = manifold.deepClone();
+        manifoldClone.setGroupName(Manifold.ManifoldGroup.UNLINKED.getGroupName());
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifoldClone);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);
@@ -176,7 +179,10 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
             this.popOver.hide(Duration.ZERO);
         }
         if (this.findSelectedConceptSpecification.get() != null) {
-            this.conceptSpecificationValue.set(this.findSelectedConceptSpecification.get());
+            ConceptSpecification selectedConcept = this.findSelectedConceptSpecification.get();
+            selectedConcept = new ConceptProxy(selectedConcept);
+            ConceptSpecificationForControlWrapper newConceptSpec = new ConceptSpecificationForControlWrapper(selectedConcept, manifold);
+            this.conceptSpecificationValue.set(newConceptSpec);
         }
     }
 }

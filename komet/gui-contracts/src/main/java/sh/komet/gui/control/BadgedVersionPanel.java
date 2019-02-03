@@ -36,18 +36,19 @@
  */
 package sh.komet.gui.control;
 
-//~--- JDK imports ------------------------------------------------------------
+import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.controlsfx.control.PropertySheet;
 import javafx.application.Platform;
-
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -55,7 +56,6 @@ import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
-
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -71,45 +71,38 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
-
-import org.apache.mahout.math.map.OpenIntIntHashMap;
-import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.komet.flags.CountryFlagImages;
 import sh.isaac.komet.iconography.Iconography;
-
+import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.control.textarea.TextAreaReadOnly;
+import sh.komet.gui.control.textarea.TextAreaUtils;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
-
-import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
 import sh.komet.gui.util.FxGet;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.komet.flags.CountryFlagImages;
-import sh.komet.gui.control.axiom.AxiomView;
-import sh.komet.gui.control.textarea.TextAreaReadOnly;
-import sh.komet.gui.control.textarea.TextAreaUtils;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -120,6 +113,8 @@ public abstract class BadgedVersionPanel
         extends Pane {
 
     public static final int FIRST_COLUMN_WIDTH = 32;
+    
+    private final Logger log = LogManager.getLogger();
 
     protected static final String PROPERTY_SHEET_ATTACHMENT = BadgedVersionPanel.class.getCanonicalName() + ".PROPERTY_SHEET_ATTACHMENT";
 
@@ -237,7 +232,7 @@ public abstract class BadgedVersionPanel
     }
 
     private void cancel(ActionEvent event) {
-        System.out.println("cancel");
+        log.debug("cancel");
         if (optionalPropertySheetMenuItem.isPresent()) {
             PropertySheetMenuItem item = optionalPropertySheetMenuItem.get();
             item.cancel();
@@ -255,7 +250,7 @@ public abstract class BadgedVersionPanel
     }
 
     private void commit(ActionEvent event) {
-        System.out.println("commit");
+        log.debug("commit");
         if (optionalPropertySheetMenuItem.isPresent()) {
             PropertySheetMenuItem item = optionalPropertySheetMenuItem.get();
             item.commit();
@@ -273,14 +268,14 @@ public abstract class BadgedVersionPanel
     }
 
     public void debugTextLayoutListener(ObservableValue<? extends Bounds> bounds, Bounds oldBounds, Bounds newBounds) {
-        if (this.getParent() != null && componentText.getText().startsWith("SNOMED CT has been")) {
-            System.out.println("SCT has been layout: " + newBounds + "\n panel bounds: " + this.getLayoutBounds());
+        if (Get.configurationService().isVerboseDebugEnabled() && this.getParent() != null && componentText.getText().startsWith("SNOMED CT has been")) {
+            log.info("SCT has been layout: " + newBounds + "\n panel bounds: " + this.getLayoutBounds());
             if (newBounds.getHeight() >= this.getLayoutBounds().getHeight()) {
                 this.setMinHeight(newBounds.getHeight());
                 this.setPrefHeight(newBounds.getHeight());
                 this.setHeight(newBounds.getHeight());
                 Platform.runLater(() -> this.getParent().requestLayout());
-                System.out.println("Requested layout ");
+                log.debug("Requested layout ");
             }
         }
     }

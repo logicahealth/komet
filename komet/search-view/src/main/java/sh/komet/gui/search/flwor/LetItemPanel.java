@@ -111,7 +111,11 @@ public class LetItemPanel {
     
     
     private void setupConceptProxy(ObservableConceptProxy conceptProxyItem) {
-        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, conceptProxyItem));
+        PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(manifold, conceptProxyItem);
+        conceptProxyItem.addListener((observable, oldValue, newValue) -> {
+            this.letPropertySheet.getLetItemObjectMap().put(letItemKey, newValue);
+        });
+        this.sheet.getItems().add(conceptWrapper);
     }
     
     public Node getNode() {

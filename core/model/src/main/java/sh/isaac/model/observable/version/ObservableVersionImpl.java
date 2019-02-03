@@ -51,6 +51,7 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,6 +70,7 @@ import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableFields;
+import static sh.isaac.model.observable.ObservableFields.NATIVE_ID_FOR_COMPONENT;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -80,6 +82,8 @@ public abstract class ObservableVersionImpl
         implements ObservableVersion, CommittableComponent {
 
     protected static final Logger LOG = LogManager.getLogger();
+
+    IntegerProperty nidProperty;
 
     /**
      * The primordial uuid property.
@@ -175,6 +179,15 @@ public abstract class ObservableVersionImpl
             this.primordialUuidProperty.set(chronology.getPrimordialUuid());
         }
         return this.primordialUuidProperty;
+    }
+
+    protected IntegerProperty nidProperty() {
+        if (this.nidProperty == null) {
+            this.nidProperty = new SimpleIntegerProperty(this, 
+                    ObservableFields.NATIVE_ID_FOR_COMPONENT.toExternalString(), 
+                    Get.nidForUuids(this.getPrimordialUuid()));
+        }
+        return this.nidProperty;
     }
 
     /**
@@ -755,6 +768,7 @@ public abstract class ObservableVersionImpl
         return new ArrayList(
                 Arrays.asList(new Property[]{
             primordialUuidProperty(),
+            nidProperty(),
             stateProperty(), timeProperty(), authorNidProperty(), moduleNidProperty(), pathNidProperty(),
             commitStateProperty()}));
     }

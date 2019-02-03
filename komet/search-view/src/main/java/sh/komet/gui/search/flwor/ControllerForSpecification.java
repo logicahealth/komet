@@ -16,9 +16,11 @@
  */
 package sh.komet.gui.search.flwor;
 
+import sh.isaac.api.query.JoinProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.ListChangeListener;
@@ -26,6 +28,7 @@ import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableView;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.SingleAssemblageSnapshot;
@@ -35,13 +38,35 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
+import sh.isaac.api.coordinate.Coordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.query.AttributeFunction;
+import static sh.isaac.api.query.AttributeFunction.ALL_UUIDS;
+import static sh.isaac.api.query.AttributeFunction.CHILD_OF_PREFIX;
+import static sh.isaac.api.query.AttributeFunction.COORDINATE_UUID;
+import static sh.isaac.api.query.AttributeFunction.DEFINITION;
+import static sh.isaac.api.query.AttributeFunction.DEFINITION_UUID;
+import static sh.isaac.api.query.AttributeFunction.DESCENDENT_OF_PREFIX;
+import static sh.isaac.api.query.AttributeFunction.EMPTY;
+import static sh.isaac.api.query.AttributeFunction.EPOCH_TO_8601_DATETIME;
+import static sh.isaac.api.query.AttributeFunction.FQN;
+import static sh.isaac.api.query.AttributeFunction.FQN_UUID;
+import static sh.isaac.api.query.AttributeFunction.IS_PREFERRED;
+import static sh.isaac.api.query.AttributeFunction.KIND_OF_PREFIX;
+import static sh.isaac.api.query.AttributeFunction.MANIFOLD_PREFIX;
+import static sh.isaac.api.query.AttributeFunction.PREFERRED_NAME;
+import static sh.isaac.api.query.AttributeFunction.PREFERRED_NAME_UUID;
+import static sh.isaac.api.query.AttributeFunction.PRIMORDIAL_UUID;
+import static sh.isaac.api.query.AttributeFunction.SCT_ID;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.QueryFieldSpecification;
 import sh.komet.gui.manifold.Manifold;
+import static sh.isaac.api.query.AttributeFunction.DESCRIPTION;
+import static sh.isaac.api.query.AttributeFunction.DESCRIPTION_UUID;
+import sh.isaac.model.observable.ObservableFields;
 
 /**
  *
@@ -52,16 +77,21 @@ public abstract class ControllerForSpecification {
     final SimpleListProperty<ConceptSpecification> forAssemblagesProperty;
     final Manifold manifold;
     final ObservableList<MenuItem> addFieldItems;
-    final ObservableList<ConceptSpecification> joinProperties;
+    final ObservableList<JoinProperty> joinProperties;
     LetItemKey lastStampCoordinateKey = null;
     final ObservableMap<LetItemKey, Object> letItemObjectMap;
     final ObservableList<AttributeFunction> attributeFunctions;
+    final TableView<List<String>> resultTable;
+
 
     public ControllerForSpecification(SimpleListProperty<ConceptSpecification> forAssemblagesProperty, 
-            Manifold manifold, ObservableList<MenuItem> addFieldItems, 
-            ObservableList<ConceptSpecification> joinProperties, 
+            Manifold manifold, 
+            ObservableList<LetItemKey> letItemKeys,
+            ObservableList<MenuItem> addFieldItems, 
+            ObservableList<JoinProperty> joinProperties, 
             ObservableMap<LetItemKey, Object> letItemObjectMap, 
-            ObservableList<AttributeFunction> attributeFunctions) {
+            ObservableList<AttributeFunction> attributeFunctions, 
+            TableView<List<String>> resultTable) {
         this.forAssemblagesProperty = forAssemblagesProperty;
         this.manifold = manifold;
         this.addFieldItems = addFieldItems;
@@ -69,16 +99,18 @@ public abstract class ControllerForSpecification {
         this.letItemObjectMap = letItemObjectMap;
         this.attributeFunctions = attributeFunctions;
         this.forAssemblagesProperty.addListener(this::forAssemblagesListener);
-        this.letItemObjectMap.addListener(this::letItemsListener);
+        this.resultTable = resultTable;
+        letItemKeys.addListener(this::letItemsListListener);
+        this.letItemObjectMap.addListener(this::letItemsMapListener);
+        
     }
-
-
 
     protected abstract void clearForChange();
 
     protected void forAssemblagesListener(ListChangeListener.Change<? extends ConceptSpecification> change) {
-        joinProperties.clear();
-        addFieldItems.clear();
+        this.resultTable.getItems().clear();
+        this.joinProperties.clear();
+        this.addFieldItems.clear();
         SingleAssemblageSnapshot<Nid1_Int2_Version> snapshot = Get.assemblageService().getSingleAssemblageSnapshot(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS, Nid1_Int2_Version.class, manifold);
         for (ConceptSpecification assemblageSpec : change.getList()) {
             for (int i = 0; i < ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex(); i++) {
@@ -86,11 +118,14 @@ public abstract class ControllerForSpecification {
                 if (property != ObservableVersion.PROPERTY_INDEX.COMMITTED_STATE) {
                     
                     String specificationName = manifold.getPreferredDescriptionText(assemblageSpec) + ":" + manifold.getPreferredDescriptionText(property.getSpec());
-                    
-                    QueryFieldSpecification row = makeQueryFieldSpecification(new AttributeFunction(""), specificationName, assemblageSpec.getNid(), property.getSpec(), property.getIndex());
+                    AttributeFunction attributeFunction = new AttributeFunction(EMPTY);
+                    if (property.getSpec().equals(ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT)) {
+                        attributeFunction = new AttributeFunction(PRIMORDIAL_UUID);
+                    }
+                    QueryFieldSpecification row = makeQueryFieldSpecification(attributeFunction, specificationName, assemblageSpec.getNid(), property.getSpec(), property.getIndex());
                     
                     addFieldItems.add(makeMenuItem(specificationName, row));
-                    joinProperties.add(row.getPropertySpecification());
+                    joinProperties.add(new JoinProperty(assemblageSpec, row.getPropertySpecification(), manifold));
                 }
             }
             List<LatestVersion<Nid1_Int2_Version>> semanticFields = snapshot.getLatestSemanticVersionsForComponentFromAssemblage(assemblageSpec);
@@ -115,46 +150,74 @@ public abstract class ControllerForSpecification {
                 // add a sort...
                 // add extra fields (STAMP)
                 String specificationName = manifold.getPreferredDescriptionText(assemblageSpec) + ":" + manifold.getPreferredDescriptionText(semanticField.getNid1());
-                QueryFieldSpecification row = makeQueryFieldSpecification(new AttributeFunction(""), specificationName, assemblageSpec.getNid(), Get.conceptSpecification(semanticField.getNid1()), ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex() + semanticField.getInt2());
+                QueryFieldSpecification row = makeQueryFieldSpecification(new AttributeFunction(EMPTY), specificationName, assemblageSpec.getNid(), Get.conceptSpecification(semanticField.getNid1()), ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex() + semanticField.getInt2());
                 addFieldItems.add(makeMenuItem(specificationName, row));
-                joinProperties.add(row.getPropertySpecification());
+                joinProperties.add(new JoinProperty(assemblageSpec, row.getPropertySpecification(), manifold));
             }
         }
     }
 
-    protected void letItemsListener(MapChangeListener.Change<? extends LetItemKey, ? extends Object> change) {
-        LetItemKey key = change.getKey();
-        if (change.wasRemoved()) {
-            if (key.equals(lastStampCoordinateKey)) {
-                lastStampCoordinateKey = null;
+    protected void letItemsMapListener(MapChangeListener.Change<? extends LetItemKey, ? extends Object> c) {
+        setupAttributeFunctions();
+    }
+    protected void letItemsListListener(ListChangeListener.Change<? extends LetItemKey> c) {
+        setupAttributeFunctions();
+    }
+    protected final void setupAttributeFunctions() {
+        this.resultTable.getItems().clear();
+        this.attributeFunctions.clear();
+        this.attributeFunctions.add(new AttributeFunction(EMPTY));
+        this.attributeFunctions.add(new AttributeFunction(PRIMORDIAL_UUID));
+        this.attributeFunctions.add(new AttributeFunction(ALL_UUIDS));
+        this.attributeFunctions.add(new AttributeFunction(EPOCH_TO_8601_DATETIME));
+        this.attributeFunctions.add(new AttributeFunction(SCT_ID));
+        
+        List<Map.Entry<LetItemKey, Object>> manifolds = new ArrayList<>();
+        List<Map.Entry<LetItemKey, Object>> conceptSpecs = new ArrayList<>();
+
+        for (Map.Entry<LetItemKey, Object> entry: letItemObjectMap.entrySet()) {
+            if (entry.getValue() instanceof ManifoldCoordinate) {
+                manifolds.add(entry);
             }
-            for (QueryFieldSpecification row : getSpecificationRows()) {
-                if (row.getStampCoordinateKey() != null && row.getStampCoordinateKey().equals(key)) {
-                    row.setStampCoordinateKey(null);
-                }
+            if (entry.getValue() instanceof ConceptSpecification) {
+                conceptSpecs.add(entry);
             }
-            ArrayList<AttributeFunction> toDelete = new ArrayList();
-            for (AttributeFunction attributeFunction : attributeFunctions) {
-                if (key.getItemName().startsWith(attributeFunction.getFunctionName())) {
-                    toDelete.add(attributeFunction);
-                }
-            }
-            attributeFunctions.removeAll(toDelete);
-        }
-        if (change.wasAdded()) {
-            if (change.getValueAdded() instanceof StampCoordinate) {
-                this.lastStampCoordinateKey = key;
+            if (entry.getValue() instanceof StampCoordinate &! (entry.getValue() instanceof ManifoldCoordinate)) {
+                this.lastStampCoordinateKey = entry.getKey();
                 for (QueryFieldSpecification row : getSpecificationRows()) {
                     if (row.getStampCoordinateKey() == null) {
-                        row.setStampCoordinateKey(key);
+                        row.setStampCoordinateKey(entry.getKey());
                     }
                 }
             }
-            if (change.getValueAdded() instanceof LanguageCoordinate) {
-                LanguageCoordinate lc = (LanguageCoordinate) change.getValueAdded();
-                attributeFunctions.add(new AttributeFunction(key.getItemName() + " preferred name"));
-                attributeFunctions.add(new AttributeFunction(key.getItemName() + " FQN"));
-                attributeFunctions.add(new AttributeFunction(key.getItemName() + " definition"));
+        }
+        for (Map.Entry<LetItemKey, Object> entry: letItemObjectMap.entrySet()) {
+            if (entry.getValue() instanceof LanguageCoordinate &! (entry.getValue() instanceof ManifoldCoordinate)) {
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + DESCRIPTION));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + PREFERRED_NAME));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + FQN));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + DEFINITION));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + DESCRIPTION_UUID));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + PREFERRED_NAME_UUID));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + FQN_UUID));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + DEFINITION_UUID));
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + IS_PREFERRED));
+            }
+        }
+        for (Map.Entry<LetItemKey, Object> manifoldForFunction: manifolds) {
+            for (Map.Entry<LetItemKey, Object> conceptSpec: conceptSpecs) {
+                attributeFunctions.add(new AttributeFunction(KIND_OF_PREFIX + conceptSpec.getKey() + MANIFOLD_PREFIX + manifoldForFunction.getKey()));
+            }
+            for (Map.Entry<LetItemKey, Object> conceptSpec: conceptSpecs) {
+                attributeFunctions.add(new AttributeFunction(CHILD_OF_PREFIX + conceptSpec.getKey() + MANIFOLD_PREFIX + manifoldForFunction.getKey()));
+            }
+            for (Map.Entry<LetItemKey, Object> conceptSpec: conceptSpecs) {
+                attributeFunctions.add(new AttributeFunction(DESCENDENT_OF_PREFIX + conceptSpec.getKey() + MANIFOLD_PREFIX + manifoldForFunction.getKey()));
+            }
+        }
+        for (Map.Entry<LetItemKey, Object> entry: letItemObjectMap.entrySet()) {
+            if (entry.getValue() instanceof Coordinate) {
+                attributeFunctions.add(new AttributeFunction(entry.getKey().getItemName() + COORDINATE_UUID));
             }
         }
     }
