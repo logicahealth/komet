@@ -147,7 +147,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
                         // See if the concept is created (from the SNOMED/LOINC expressions. 
                         UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincRecord[LOINC_NUM]);
-                        int conceptNid = identifierService.getNidForUuids(conceptUuid);
+                        int conceptNid = Get.nidWithAssignment(conceptUuid);
                         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
                         if (optionalConcept.isPresent()) {
                             // only import the ones with expressions already imported...
