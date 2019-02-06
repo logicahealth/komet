@@ -29,18 +29,26 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
+import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 
 /**
@@ -196,9 +204,16 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         int conceptNid = Get.nidWithAssignment(conceptUuid);
                         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
                         if (!optionalConcept.isPresent()) {
+
                             // Need to create new concept, and a stated definition...
+                            LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                            builder.necessarySet(builder.and(builder.conceptAssertion(MetaData.UNCATEGORIZED_PHENOMENON____SOLOR)));
+                            LogicalExpression logicalExpression = builder.build();
+                            logicalExpression.getNodeCount();
+                            addLogicGraph(loincRecord[LOINC_NUM],
+                                    logicalExpression);
+
                         }
-                        // If expressions already imported...
                         // make 2 LOINC descriptions
                         String longCommonName = loincRecord[LONG_COMMON_NAME];
                         if (longCommonName == null || longCommonName.isEmpty()) {
@@ -286,4 +301,73 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         index(dialectToWrite);
         assemblageService.writeSemanticChronology(dialectToWrite);
     }
+    
+
+    /**
+     * Adds the logic graph.
+     *
+     * @param loincCode the LOINC code
+     * @param logicalExpression the logical expression
+     * @return the semantic chronology
+     */
+    public SemanticChronology addLogicGraph(String loincCode,
+            LogicalExpression logicalExpression) {
+
+        int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
+                commitTime, TermAux.USER.getNid(),
+                TermAux.SOLOR_OVERLAY_MODULE.getNid(),
+                TermAux.DEVELOPMENT_PATH.getNid());
+        UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
+        Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
+        if (!optionalConcept.isPresent()) {
+            ConceptChronologyImpl conceptToWrite
+                    = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+            conceptToWrite.createMutableVersion(stamp);
+            Get.conceptService().writeConcept(conceptToWrite);
+            index(conceptToWrite);
+
+            // add to loinc identifier assemblage
+            UUID loincIdentifierUuid = UuidT5Generator.get(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getPrimordialUuid(),
+                    loincCode);
+            SemanticChronologyImpl loincIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
+                    loincIdentifierUuid,
+                    MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
+                    conceptToWrite.getNid());
+
+            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);
+            loincIdVersion.setString(loincCode);
+            index(loincIdentifierToWrite);
+            Get.assemblageService().writeSemanticChronology(loincIdentifierToWrite);
+        }
+
+        int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
+
+        final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
+              Get.identifierService().getNidForUuids(conceptUuid),
+                graphAssemblageNid);
+
+        UUID nameSpace = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid();
+
+        // Create UUID from seed and assign SemanticBuilder the value
+        final UUID generatedGraphPrimordialUuid
+                = UuidT5Generator.get(nameSpace, conceptUuid.toString());
+
+        sb.setPrimordialUuid(generatedGraphPrimordialUuid);
+
+        final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+
+        final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
+                builtObjects);
+        // There should be no other build objects, so ignore the builtObjects list...
+
+        if (builtObjects.size() != 1) {
+            throw new IllegalStateException("More than one build object: " + builtObjects);
+        }
+        index(sci);
+        Get.assemblageService().writeSemanticChronology(sci);
+
+        return sci;
+
+    }
+    
 }
