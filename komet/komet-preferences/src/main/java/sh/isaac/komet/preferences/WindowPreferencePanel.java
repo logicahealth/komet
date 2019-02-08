@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
-public class WindowPreferencePanel extends AbstractPreferences implements WindowPreferenceItems {
+public class WindowPreferencePanel extends ParentPanel implements WindowPreferenceItems {
     public enum Keys {
         ITEM_NAME,
         LEFT_TAB_NODES,
@@ -119,5 +119,10 @@ public class WindowPreferencePanel extends AbstractPreferences implements Window
     @Override
     public ObservableList<ConceptSpecification> getRightTabPanelSpecs() {
         return rightTabNodesProperty;
+    }
+
+    @Override
+    protected Class getChildClass() {
+        return WindowTabPanePreferencesPanel.class;
     }
 }

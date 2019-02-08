@@ -5,9 +5,14 @@ import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public final class VersionPaneModel extends BadgedVersionPaneModel {
-    public VersionPaneModel(Manifold manifold, ObservableCategorizedVersion categorizedVersion, OpenIntIntHashMap stampOrderHashMap) {
-        super(manifold, categorizedVersion, stampOrderHashMap);
+    public VersionPaneModel(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
+                            OpenIntIntHashMap stampOrderHashMap,
+                            HashMap<String, AtomicBoolean> disclosureStateMap) {
+        super(manifold, categorizedVersion, stampOrderHashMap, disclosureStateMap);
         if (categorizedVersion.getStampSequence() == -1) {
             throw new IllegalStateException("StampSequence = -1: \n" + categorizedVersion);
         }

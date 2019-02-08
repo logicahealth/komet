@@ -776,7 +776,7 @@ limitations under the License.
     -fx-background-color: -komet-uncommitted-fill;
 }
 
-.property-sheet * .property-pane {
+.property-sheet:uncommitted * .property-pane {
     -fx-background-color: -komet-uncommitted-fill;
     -fx-vbar-policy: never;
     -fx-hbar-policy: never;

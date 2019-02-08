@@ -17,6 +17,7 @@
 package sh.komet.gui.contract.preferences;
 
 import javafx.collections.ObservableList;
+import javafx.stage.Stage;
 import org.jvnet.hk2.annotations.Contract;
 import sh.komet.gui.manifold.Manifold;
 
@@ -26,7 +27,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 @Contract
 public interface KometPreferences {
-    void showPreferences(Manifold manifold);
+    Stage showPreferences(Manifold manifold);
     void loadPreferences(Manifold manifold);
     void reloadPreferences();
     void resetUserPreferences();

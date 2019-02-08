@@ -221,11 +221,12 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     }
 
     @Override
-    public void showPreferences(Manifold manifold) {
+    public Stage showPreferences(Manifold manifold) {
         IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
         setupPreferencesController(manifold, preferences);
         preferencesStage.show();
         preferencesStage.setAlwaysOnTop(true);
+        return preferencesStage;
     }
 
     @Override

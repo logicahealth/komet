@@ -37,11 +37,7 @@
 package sh.komet.gui.provider.concept.detail.panel;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,6 +52,7 @@ import javafx.application.Platform;
 
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -145,6 +142,7 @@ public class ConceptDetailPanelNode
     private static final int TRANSITION_ON_TIME = 750;
 
     //~--- fields --------------------------------------------------------------
+    private final HashMap<String, AtomicBoolean> disclosureStateMap = new HashMap<>();
     private final UUID listenerUuid = UUID.randomUUID();
     private final BorderPane conceptDetailPane = new BorderPane();
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
@@ -237,27 +235,22 @@ public class ConceptDetailPanelNode
             ConceptChronology focusedConcept = Get.concept(focusedConceptSpec);
             NidSet recursiveSemantics = focusedConcept.getRecursiveSemanticNids();
 
+            final Runnable runnable = () -> {
+                setConcept(
+                        conceptDetailManifold.focusedConceptProperty(),
+                        null,
+                        conceptDetailManifold.focusedConceptProperty()
+                                .get());
+            };
             if (commitRecord.getConceptsInCommit()
                     .contains(conceptDetailManifold.getFocusedConcept().get()
                             .getNid())) {
                 Platform.runLater(
-                        () -> {
-                            setConcept(
-                                    conceptDetailManifold.focusedConceptProperty(),
-                                    null,
-                                    conceptDetailManifold.focusedConceptProperty()
-                                            .get());
-                        });
+                        runnable);
             } else if (!recursiveSemantics.and(commitRecord.getSemanticNidsInCommit())
                     .isEmpty()) {
                 Platform.runLater(
-                        () -> {
-                            setConcept(
-                                    conceptDetailManifold.focusedConceptProperty(),
-                                    null,
-                                    conceptDetailManifold.focusedConceptProperty()
-                                            .get());
-                        });
+                        runnable);
             }
         }
     }
@@ -311,7 +304,8 @@ public class ConceptDetailPanelNode
                     "Categorized version has no latest version or uncommitted version: \n" + categorizedVersions);
         }
 
-        ComponentPaneModel componentPaneModel = new ComponentPaneModel(conceptDetailManifold, categorizedVersion, stampOrderHashMap);
+        ComponentPaneModel componentPaneModel = new ComponentPaneModel(conceptDetailManifold, categorizedVersion,
+                stampOrderHashMap, disclosureStateMap);
 
         componentPaneModels.add(componentPaneModel);
         componentPaneModel.getBadgedPane().setOpacity(0);
@@ -393,7 +387,8 @@ public class ConceptDetailPanelNode
             while (iter.hasNext()) {
                 ObservableDescriptionDialect descDialect = iter.next();
                 if (descDialect.getCommitState() == CommitStates.UNCOMMITTED) {
-                    ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(conceptDetailManifold, descDialect, true, null);
+                    ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(conceptDetailManifold,
+                            descDialect, true, null);
                     parallelTransition.getChildren().add(addComponent(descPanel));
                     descPanel.setCommitHandler((event) -> {
                         newDescriptions.remove(descDialect);

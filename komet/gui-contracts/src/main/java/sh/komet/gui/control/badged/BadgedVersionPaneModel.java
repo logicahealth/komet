@@ -2,6 +2,7 @@ package sh.komet.gui.control.badged;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,6 +27,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.*;
+import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
@@ -45,6 +47,7 @@ import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BadgedVersionPaneModel {
     public static final int FIRST_COLUMN_WIDTH = 32;
@@ -116,6 +119,8 @@ public abstract class BadgedVersionPaneModel {
 
     private final ObservableCategorizedVersion categorizedVersion;
     private final Manifold manifold;
+    private final HashMap<String, AtomicBoolean> disclosureStateMap;
+    private final AtomicBoolean disclosureBoolean;
     private final OpenIntIntHashMap stampOrderHashMap;
     protected final StampControl stampControl = new StampControl();
 
@@ -158,8 +163,10 @@ public abstract class BadgedVersionPaneModel {
 
     protected BadgedVersionPaneModel(Manifold manifold,
                                      ObservableCategorizedVersion categorizedVersion,
-                                     OpenIntIntHashMap stampOrderHashMap) {
+                                     OpenIntIntHashMap stampOrderHashMap,
+                                     HashMap<String, AtomicBoolean> disclosureStateMap) {
         this.manifold = manifold;
+        this.disclosureStateMap = disclosureStateMap;
         this.stampOrderHashMap = stampOrderHashMap;
         this.categorizedVersion = categorizedVersion;
         this.isInactive.set(categorizedVersion.getStatus() == Status.INACTIVE);
@@ -197,7 +204,31 @@ public abstract class BadgedVersionPaneModel {
         } else {
             setupOther(observableVersion);
         }
+
+        this.disclosureBoolean = this.disclosureStateMap.computeIfAbsent(componentType.getText(), (key) -> new AtomicBoolean());
+        if (this.disclosureBoolean.get()) {
+
+            Platform.runLater(() -> {
+                this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
+            });
+         }
+        this.expandControl.expandActionProperty().addListener((observable, oldValue, newValue) -> {
+            switch (newValue) {
+                case HIDE_CHILDREN:
+                    this.disclosureBoolean.set(false);
+                    break;
+                case SHOW_CHILDREN:
+                    this.disclosureBoolean.set(true);
+                    break;
+            }
+        });
+
+
         redoLayout();
+    }
+
+    public HashMap<String, AtomicBoolean> getDisclosureStateMap() {
+        return disclosureStateMap;
     }
 
     protected void wrapAttachmentPane() {
@@ -381,6 +412,31 @@ public abstract class BadgedVersionPaneModel {
                         componentType.setText("");
                     }
                     componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
+                    break;
+                case LOINC_RECORD:
+                    if (isLatestPanel()) {
+                        componentType.setText("LR");
+                    } else {
+                        componentType.setText("");
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
+                    LoincVersion lv = (LoincVersion) semanticVersion;
+                    sb.append("\ncomponent: ");
+                    sb.append(lv.getComponent());
+                    sb.append("\nmethod: ");
+                    sb.append(lv.getMethodType());
+                    sb.append("\nproperty: ");
+                    sb.append(lv.getProperty());
+                    sb.append("\nscale: ");
+                    sb.append(lv.getScaleType());
+                    sb.append("\nsystem: ");
+                    sb.append(lv.getSystem());
+                    sb.append("\ntiming: ");
+                    sb.append(lv.getTimeAspect());
+
+
+                    componentText.setText(sb.toString());
                     break;
 
                 case RF2_RELATIONSHIP:
@@ -601,7 +657,7 @@ public abstract class BadgedVersionPaneModel {
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(manifold);
 
-        ComponentPaneModel componentPane = new ComponentPaneModel(getManifold(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap);
+        ComponentPaneModel componentPane = new ComponentPaneModel(getManifold(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
         extensionPaneModels.add(componentPane);
         this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
         propertySheetMenuItem.addCompletionListener((observable, oldValue, newValue) -> {

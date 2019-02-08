@@ -60,6 +60,7 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.MultiException;
+//import org.scenicview.ScenicView;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -205,7 +206,7 @@ public class MainApp
                     .addScene(scene, controller::reportStatus);
             stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
             stage.show();
-            //ScenicView.show(scene);
+//            ScenicView.show(scene);
         }
 
 
@@ -445,7 +446,8 @@ public class MainApp
     }
 
     private void handlePrefs(ActionEvent event) {
-        FxGet.kometPreferences().showPreferences(FxGet.getManifold(ManifoldGroup.TAXONOMY));
+        Stage prefStage = FxGet.kometPreferences().showPreferences(FxGet.getManifold(ManifoldGroup.TAXONOMY));
+        //ScenicView.show(prefStage.getScene());
     }
 
     private void handleAbout(ActionEvent event) {

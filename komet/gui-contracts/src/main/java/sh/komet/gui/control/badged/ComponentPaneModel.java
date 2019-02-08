@@ -13,7 +13,9 @@ import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 
+import java.util.HashMap;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
@@ -24,8 +26,9 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
 
     //~--- constructors --------------------------------------------------------
     public ComponentPaneModel(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
-                              OpenIntIntHashMap stampOrderHashMap) {
-        super(manifold, categorizedVersion, stampOrderHashMap);
+                              OpenIntIntHashMap stampOrderHashMap,
+                              HashMap<String, AtomicBoolean> disclosureStateMap) {
+        super(manifold, categorizedVersion, stampOrderHashMap, disclosureStateMap);
 
         this.categorizedVersions = categorizedVersion.getCategorizedVersions();
 
@@ -59,7 +62,8 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
                     .forEach(
                             (contradiction) -> {
                                 if (contradiction.getStampSequence() != -1) {
-                                    versionPanes.add(new VersionPaneModel(manifold, contradiction, stampOrderHashMap));
+                                    versionPanes.add(new VersionPaneModel(manifold, contradiction, stampOrderHashMap,
+                                            getDisclosureStateMap()));
                                 }
                             });
         }
@@ -68,7 +72,8 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
                 .forEach(
                         (historicVersion) -> {
                             if (historicVersion.getStampSequence() != -1) {
-                                versionPanes.add(new VersionPaneModel(manifold, historicVersion, stampOrderHashMap));
+                                versionPanes.add(new VersionPaneModel(manifold, historicVersion, stampOrderHashMap,
+                                        getDisclosureStateMap()));
                             }
                         });
         observableVersion.getChronology()
@@ -101,6 +106,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
             case CONCEPT:
             case DESCRIPTION:
             case Nid1_Int2:
+            case LOINC_RECORD:
                 return true;
 
             case RF2_RELATIONSHIP:
@@ -162,12 +168,12 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
             if (oscCategorizedVersions.getLatestVersion()
                     .isPresent()) {
                 ComponentPaneModel newPanel = new ComponentPaneModel(getManifold(),
-                        oscCategorizedVersions.getLatestVersion().get(), stampOrderHashMap);
+                        oscCategorizedVersions.getLatestVersion().get(), stampOrderHashMap, getDisclosureStateMap());
 
                 extensionPaneModels.add(newPanel);
             } else if (!oscCategorizedVersions.getUncommittedVersions().isEmpty()) {
                 ComponentPaneModel newPanel = new ComponentPaneModel(getManifold(),
-                        oscCategorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap);
+                        oscCategorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
                 extensionPaneModels.add(newPanel);
             }
         }
