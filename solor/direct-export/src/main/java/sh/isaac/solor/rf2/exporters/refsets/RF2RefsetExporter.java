@@ -18,12 +18,14 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
     private final RF2ExportHelper rf2ExportHelper;
     private final IntStream intStream;
     private final Semaphore readSemaphore;
+    private final RF2Configuration rf2Configuration;
 
     public RF2RefsetExporter(RF2Configuration rf2Configuration, RF2ExportHelper rf2ExportHelper, IntStream intStream, Semaphore readSemaphore) {
         super(rf2Configuration);
         this.rf2ExportHelper = rf2ExportHelper;
         this.intStream = intStream;
         this.readSemaphore = readSemaphore;
+        this.rf2Configuration = rf2Configuration;
 
         readSemaphore.acquireUninterruptibly();
         Get.activeTasks().add(this);
@@ -53,7 +55,6 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
 
                         switch (Get.assemblageService().getSemanticChronology(nid).getVersionType()) {
                             case MEMBER:
-                            case CONCEPT:
                                 break;
                             case Nid1_Int2:
                                 Observable_Nid1_Int2_Version observable_nid1_int2_version =
@@ -217,8 +218,14 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
                                 break;
                         }
 
-                        super.writeToFile(refsetRow.append("\r").toString());
+                        super.writeStringToFile(refsetRow.append("\r").toString());
                     });
+
+            //Write out the rf2configuration additional List of descriptor stuff
+            if(this.rf2Configuration.isDescriptorAssemblage()){
+                writeStringsToFile(this.rf2Configuration.getRefsetDescriptorDefinitions());
+            }
+
 
         }finally {
             this.readSemaphore.release();

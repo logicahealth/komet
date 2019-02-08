@@ -87,7 +87,7 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
 
                                 if (parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET || parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET) {
 
-                                    super.writeToFile(
+                                    super.writeStringToFile(
                                             rf2ExportHelper.getRF2CommonElements(nid)
                                                     .append(rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
                                                     .append(rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
@@ -101,7 +101,7 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
 
                                 } else if (parentNode instanceof RoleNodeAllWithNids) {
 
-                                    super.writeToFile(
+                                    super.writeStringToFile(
                                             rf2ExportHelper.getRF2CommonElements(nid)
                                                     .append(rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
                                                     .append(rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
@@ -115,7 +115,7 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
 
                                 } else if (parentNode instanceof RoleNodeSomeWithNids) {
 
-                                    super.writeToFile(
+                                    super.writeStringToFile(
                                             rf2ExportHelper.getRF2CommonElements(nid)
                                                     .append(rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
                                                     .append(rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")

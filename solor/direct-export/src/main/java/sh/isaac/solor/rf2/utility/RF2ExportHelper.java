@@ -11,19 +11,19 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
-import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.komet.gui.manifold.Manifold;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
@@ -92,7 +92,7 @@ public class RF2ExportHelper {
             nidSet = lookupNidSetForAssemblage(nid, assemblageNid);
 
             if(nidSet.size() > 0){
-                String id = lookUpIdentifierFromSemantic(nidSet.findFirst().getAsInt());
+                String id = lookUpIdentifierStringValueFromSemantic(nidSet.findFirst().getAsInt());
 
                 if(assemblageNid == TermAux.SNOMED_IDENTIFIER.getNid()){
                     return id;
@@ -132,12 +132,36 @@ public class RF2ExportHelper {
         return Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, assemblageNid);
     }
 
-    private String lookUpIdentifierFromSemantic(int semanticIdentifierNid){
+    private String lookUpIdentifierStringValueFromSemantic(int semanticIdentifierNid){
 
-        LatestVersion<ObservableStringVersion> stringVersion =
-                (LatestVersion<ObservableStringVersion>) this.snapshotService.getObservableSemanticVersion(semanticIdentifierNid);
+        final StringBuilder stringBuilder = new StringBuilder();
 
-        return stringVersion.isPresent() ? stringVersion.get().getString() : "";
+        switch (Get.assemblageService().getSemanticChronology(semanticIdentifierNid).getVersionType()){
+            case STRING:
+                LatestVersion<ObservableStringVersion> stringVersion = (LatestVersion<ObservableStringVersion>) this.snapshotService.getObservableSemanticVersion(semanticIdentifierNid);
+                stringBuilder.append(stringVersion.get().getString());
+                break;
+            case LONG:
+                LatestVersion<ObservableLongVersion> longVersion = (LatestVersion<ObservableLongVersion>) this.snapshotService.getObservableSemanticVersion(semanticIdentifierNid);
+                stringBuilder.append(longVersion.get().getLongValue());
+                break;
+        }
+
+        return stringBuilder.toString();
+    }
+
+    public int getIndentifierAssemblageConceptNID(int semanticNid){
+
+        int[] identifierAssemblageNids = Get.taxonomyService().getSnapshot(manifold).getTaxonomyChildConceptNids(TermAux.IDENTIFIER_SOURCE.getNid());
+
+        for(int i=0; i < identifierAssemblageNids.length; i++ ){
+
+            if(Get.assemblageService().getSemanticNidsForComponent(identifierAssemblageNids[i]).contains(semanticNid)){
+                return identifierAssemblageNids[i];
+            }
+        }
+
+        return 0; //should only return if a Metadata
     }
 
     public String getConceptPrimitiveOrSufficientDefinedSCTID(int conceptNid) {
@@ -206,5 +230,9 @@ public class RF2ExportHelper {
         else
             return "¯\\_(ツ)_/¯";
 
+    }
+
+    public boolean isMetaDataConcept(int conceptNid){
+        return Get.taxonomyService().getSnapshot(this.manifold).isKindOf(conceptNid, MetaData.METADATA____SOLOR.getNid());
     }
 }

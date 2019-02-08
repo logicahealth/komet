@@ -30,7 +30,7 @@ public class RF2DescriptionExporter extends RF2DefaultExporter {
         try{
 
             this.intStream
-                    .forEach(nid -> super.writeToFile(
+                    .forEach(nid -> super.writeStringToFile(
                             rf2ExportHelper.getRF2CommonElements(nid)
                                     .append(rf2ExportHelper.getIdString(Get.concept((Get.assemblageService().getSemanticChronology(nid)).getReferencedComponentNid()).getNid()) + "\t") //conceptId
                                     .append(rf2ExportHelper.getLanguageCode(nid) + "\t") //languageCode

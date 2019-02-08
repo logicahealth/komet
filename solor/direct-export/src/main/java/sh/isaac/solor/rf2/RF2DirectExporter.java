@@ -2,8 +2,10 @@ package sh.isaac.solor.rf2;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.solor.rf2.config.RF2ConfigType;
 import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.exporters.core.*;
@@ -33,6 +35,7 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
     private final Semaphore readSemaphore = new Semaphore(READ_PERMITS);
     private final RF2ExportHelper rf2ExportHelper;
     private final PreExportUtility preExportUtility;
+    private boolean isDescriptorAssemblagePresent = false;
 
     public RF2DirectExporter(Manifold manifold, File exportDirectory, String exportMessage){
         this.manifold = manifold;
@@ -42,6 +45,8 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
         this.rf2ExportHelper = new RF2ExportHelper(this.manifold);
         this.exportConfigurations = new ArrayList<>();
         this.preExportUtility = new PreExportUtility(this.manifold);
+
+        isDescriptorAssemblagePresent = Get.identifierService().hasUuid(UuidT3Generator.fromSNOMED("900000000000456007"));
 
         Get.activeTasks().add(this);
     }
@@ -59,6 +64,8 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
 
         List<Integer> currentAssemblageNids = Arrays.stream(Get.assemblageService().getAssemblageConceptNids()).boxed().collect(Collectors.toList());
 
+        int descriptorAssemblageNid = isDescriptorAssemblagePresent? Get.concept(UuidT3Generator.fromSNOMED("900000000000456007")).getNid() : 0;
+
         //Add all languages TODO- Create a Factory and account for user specific selections
         Arrays.stream(
                 Get.taxonomyService().getSnapshot(manifold)
@@ -67,21 +74,38 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                 .forEach(languageNid ->
                         exportConfigurations.add(
                                 new RF2Configuration(RF2ConfigType.LANGUAGE_REFSET,
-                                        this.localDateTimeNow, languageNid, this.exportDirectory, this.manifold, this.preExportUtility)));
-//
-//        //Add all refsets TODO- Create a Factory and account for user specific selections
+                                        this.localDateTimeNow, languageNid, this.exportDirectory, this.manifold,
+                                        this.preExportUtility, this.isDescriptorAssemblagePresent)));
+
+        final ArrayList<VersionType> versionTypeIgnoreList = new ArrayList<>();
+        versionTypeIgnoreList.add(VersionType.CONCEPT);
+        versionTypeIgnoreList.add(VersionType.DESCRIPTION);
+        versionTypeIgnoreList.add(VersionType.DYNAMIC);
+        versionTypeIgnoreList.add(VersionType.LOGIC_GRAPH);
+        versionTypeIgnoreList.add(VersionType.RF2_RELATIONSHIP);
+//        versionTypeIgnoreList.add(VersionType.LOINC_RECORD);
+        //Add all refsets TODO- Create a Factory and account for user specific selections
         Arrays.stream(Get.assemblageService().getAssemblageConceptNids())
+                .filter(nid -> !versionTypeIgnoreList.contains(Get.assemblageService().getVersionTypeForAssemblage(nid)))
+                .filter(nid -> descriptorAssemblageNid != nid)
                 .forEach(assemblageNid -> exportConfigurations.add(
                         new RF2Configuration(RF2ConfigType.REFSET, this.localDateTimeNow, assemblageNid,
                                 Get.concept(assemblageNid).getFullyQualifiedName(),
                                 Get.assemblageService().getVersionTypeForAssemblage(assemblageNid),
-                                this.exportDirectory, this.manifold, this.preExportUtility)));
+                                this.exportDirectory, this.manifold, this.preExportUtility, this.isDescriptorAssemblagePresent)));
 
         updateTitle("Export " + this.exportMessage);
-        addToTotalWork(this.exportConfigurations.size() + 2);
 
         try {
-            completedUnitOfWork();
+
+            RF2Configuration descriptorAssemblageConfiguration = null;
+
+            if (isDescriptorAssemblagePresent) {
+                descriptorAssemblageConfiguration = new RF2Configuration(RF2ConfigType.REFSET, this.localDateTimeNow,
+                        descriptorAssemblageNid, Get.concept(descriptorAssemblageNid).getFullyQualifiedName(),
+                        Get.assemblageService().getVersionTypeForAssemblage(descriptorAssemblageNid),
+                        this.exportDirectory, this.manifold, this.preExportUtility, this.isDescriptorAssemblagePresent);
+            }
 
             for (RF2Configuration rf2Configuration : this.exportConfigurations) {
 
@@ -120,9 +144,14 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                                 new RF2RefsetExporter(rf2Configuration, rf2ExportHelper, rf2Configuration.getIntStream(), readSemaphore));
                         break;
                 }
-
-                completedUnitOfWork();
+                if(isDescriptorAssemblagePresent && rf2Configuration.getRefsetDescriptorDefinitions().size() > 0)
+                    descriptorAssemblageConfiguration.getRefsetDescriptorDefinitions().addAll(rf2Configuration.getRefsetDescriptorDefinitions());
             }
+
+            if(isDescriptorAssemblagePresent)
+                Get.executor().submit(
+                        new RF2RefsetExporter(descriptorAssemblageConfiguration, rf2ExportHelper,
+                                descriptorAssemblageConfiguration.getIntStream(), readSemaphore));
 
             readSemaphore.acquireUninterruptibly(READ_PERMITS);
 

@@ -57,7 +57,7 @@ public class RF2LanguageRefsetExporter extends RF2DefaultExporter {
                                         .append("\r");
                             }
 
-                            super.writeToFile(stringBuilder.toString());
+                            super.writeStringToFile(stringBuilder.toString());
                         }
                     });
 

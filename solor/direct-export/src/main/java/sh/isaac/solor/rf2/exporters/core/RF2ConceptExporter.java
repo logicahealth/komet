@@ -30,7 +30,7 @@ public class RF2ConceptExporter extends RF2DefaultExporter {
         try {
 
             this.intStream
-                    .forEach(nid -> super.writeToFile(
+                    .forEach(nid -> super.writeStringToFile(
                             this.rf2ExportHelper.getRF2CommonElements(nid)
                                     .append(this.rf2ExportHelper.getConceptPrimitiveOrSufficientDefinedSCTID(nid))
                                     .append("\r")

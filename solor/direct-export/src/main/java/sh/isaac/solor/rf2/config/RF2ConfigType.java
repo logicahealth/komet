@@ -49,7 +49,7 @@ public enum RF2ConfigType {
             "Versioned Transitive Closure"
     ),
 
-    LANGUAGE_REFSET("id\teffectiveTime\tactive\tmoduleId\trefsetId\treferencedComponentId\t",
+    LANGUAGE_REFSET("id\teffectiveTime\tactive\tmoduleId\trefsetId\treferencedComponentId\tacceptabilityId\r",
             "Snapshot/Refset/Language/der2_cRefset_LanguageSnapshot-LANGUAGE1_TIME2.txt",
             "Language Refset"
     ),
