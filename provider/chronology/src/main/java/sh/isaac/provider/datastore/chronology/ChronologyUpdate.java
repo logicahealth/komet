@@ -139,9 +139,6 @@ public class ChronologyUpdate implements StaticIsaacCache {
     public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
         initCheck();
         int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
-        if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == referencedComponentNid) {
-            LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
-        }
         OptionalInt optionalConceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(referencedComponentNid);
         int conceptAssemblageNid;
         if (optionalConceptAssemblageNid.isPresent()) {
@@ -374,6 +371,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
             LogicalExpression comparisonExpression) {
         switch (logicNode.getNodeSemantic()) {
             case CONCEPT:
+                
                 updateIsaRel(conceptNid,
                         ((ConceptNodeWithNids) logicNode).getConceptNid(),
                         taxonomyRecordForConcept,
