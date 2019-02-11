@@ -1999,6 +1999,14 @@ public class AxiomsFromLoincRecord {
                 break;
             case "Branemark scale":
                 break;
+
+            default:
+                addLoincMethod2(builder, loincField, assertions);
+        }
+    }
+
+    private void addLoincMethod2(LogicalExpressionBuilder builder, String loincField, List<Assertion> assertions) {
+        switch (loincField) {
             case "US.M-mode+Calculated by cube method":
                 assertions.add(builder.someRole(MetaData.ROLE_GROUP____SOLOR,
                         builder.and(builder.someRole(methodProxy.getNid(), builder.conceptAssertion(ultrasoundProxy)))));
@@ -4094,12 +4102,11 @@ public class AxiomsFromLoincRecord {
             case "US+Estimated from AC&FL.Hadlock 1985":
                 assertions.add(builder.someRole(MetaData.ROLE_GROUP____SOLOR,
                         builder.and(builder.someRole(methodProxy.getNid(), builder.conceptAssertion(ultrasoundProxy)))));
-                break;
+                break;            
             default:
                 System.out.println("Unknown loinc method: " + loincField);
         }
     }
-
     public void listMethods() {
         System.out.println("Methods: " + methods);
     }
