@@ -63,6 +63,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -442,14 +444,6 @@ public class DirectImporter
                             readVariantSummary(br,importSpecification, genomicGeneDescriptionsMap);
                             break;
 
-                        case GENE_SPECIFIC_SUMMARY:
-                            genomicGeneDescriptionsMap = readGeneSpecificSummary(br,importSpecification);
-                            break;
-
-                        case GENE_CONDITION_SOURCE:
-                            readGeneConditionSource(br,importSpecification);
-                            break;
-
                         default:
                             throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
                     }
@@ -583,16 +577,6 @@ public class DirectImporter
             entriesToImport1.add(new ImportSpecification(
                     contentProvider,
                     ImportStreamType.VARIANT_SUMMARY,
-                    isSOLORReleaseFormat));
-        } else if(entryName.endsWith("gene_specific_summary.txt")){
-            entriesToImport1.add(new ImportSpecification(
-                    contentProvider,
-                    ImportStreamType.GENE_SPECIFIC_SUMMARY,
-                    isSOLORReleaseFormat));
-        }else if(entryName.endsWith("gene_condition_source_id.txt")){
-            entriesToImport1.add(new ImportSpecification(
-                    contentProvider,
-                    ImportStreamType.GENE_CONDITION_SOURCE,
                     isSOLORReleaseFormat));
         }
 
@@ -2054,133 +2038,132 @@ public class DirectImporter
 
         String rowString;
         br.readLine();  // discard header row
-        HashSet<String> variantConceptSet = new HashSet<>();
-        HashMap<String, Set<String>> variantDescriptionMap = new HashMap<>();
-        HashMap<String, Set<String>> variantGeneRelationshipMap = new HashMap<>();
-        HashSet<String> geneConceptSet = new HashSet<>();
+        Set<String> variantConcepts = new HashSet<>();
+        Set<String> geneConcepts = new HashSet<>();
+        Map<String,String> geneDescriptions = new HashMap<>();
+        Set<String> variantToGeneRel = new HashSet<>();
+        Set<String> geneToSNOMEDCTRel = new HashSet<>();
+
+        final int VARIANT_ID_INDEX = 2;
+        final int GENE_ID_INDEX = 3;
+        final int GENE_SYMBOL_INDEX = 4;
+        final int PHENOTYPE_IDs_INDEX = 12;
+
+        //Create some high level taxonomy classes
 
 
         //Normalizing very repetitive CLINVAR data, seems to be designed for ease of research
         while ((rowString = br.readLine()) != null) {
             String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
-            //Apparently you can have a variant summary on an unknown, not yet created variant (e.g. ""/null)
-            if(!columns[1].equals("undetermined variant")) {
-                if(!columns[1].isEmpty() && !columns[2].isEmpty() && !columns[3].isEmpty()){
 
-                    variantConceptSet.add(columns[2]);
-                    geneConceptSet.add(columns[3]);
+            variantConcepts.add(columns[VARIANT_ID_INDEX]);
+            geneConcepts.add(columns[GENE_ID_INDEX]);
+            geneDescriptions.put(columns[GENE_ID_INDEX], columns[GENE_SYMBOL_INDEX]);
+            variantToGeneRel.add(columns[VARIANT_ID_INDEX] + "|" + columns[GENE_ID_INDEX]);
 
-                    if(!variantDescriptionMap.keySet().contains(columns[2])){
-                        Set<String> valueSet = new HashSet<>();
-                        valueSet.add("Clinvar Variant "+ columns[2]);
-                        variantDescriptionMap.put(columns[2], valueSet);
-                    }else{
-                        Set<String> value = variantDescriptionMap.get(columns[2]);
-                        value.add("Clinvar Variant "+ columns[2]);
-                    }
-
-                    if(!variantGeneRelationshipMap.keySet().contains(columns[2])){
-                        Set<String> valueSet = new HashSet<>();
-                        valueSet.add(columns[3]);
-                        variantGeneRelationshipMap.put(columns[2], valueSet);
-                    }else{
-                        Set<String> value = variantGeneRelationshipMap.get(columns[2]);
-                        value.add(columns[3]);
-                    }
+            if(columns[PHENOTYPE_IDs_INDEX].contains("SNOMED CT:")){
+                Matcher matcher = Pattern.compile("(SNOMED CT:\\d*)").matcher(columns[PHENOTYPE_IDs_INDEX]);
+                while(matcher.find()){
+                    geneToSNOMEDCTRel.add(columns[GENE_ID_INDEX] + "|" + matcher.group().split(":")[1]);
                 }
             }
         }
 
-        /**
-         * Writing variant and gene concepts
-         */
-        writeGenomicComponent(variantConceptSet, importSpecification, GenomicConceptType.VARIANT, 10240);
-
-        updateMessage("Waiting for Variant concepts file completion...");
-        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-            try {
-                indexer.sync().get();
-            } catch (Exception e) {
-                LOG.error("problem calling sync on index", e);
-            }
-        }
-        updateMessage("Synchronizing concept database...");
-        conceptService.sync();
-        this.writeSemaphore.release(WRITE_PERMITS);
-
-        writeGenomicComponent(geneConceptSet, importSpecification, GenomicConceptType.GENE, 10240);
-
-        updateMessage("Waiting for Genomic concepts file completion...");
-        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-            try {
-                indexer.sync().get();
-            } catch (Exception e) {
-                LOG.error("problem calling sync on index", e);
-            }
-        }
-        updateMessage("Synchronizing concept database...");
-        conceptService.sync();
-        this.writeSemaphore.release(WRITE_PERMITS);
 
 
-        /**
-         * Writing variant descriptions
-         */
-        writeGenomicDescriptions(variantDescriptionMap, importSpecification, GenomicConceptType.VARIANT, 10240);
 
-        updateMessage("Waiting for Variant description file completion...");
-        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing indexes...");
-        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-            try {
-                indexer.sync().get();
-            } catch (Exception e) {
-                LOG.error("problem calling sync on index", e);
-            }
-        }
-        updateMessage("Synchronizing description database...");
-        assemblageService.sync();
-        this.writeSemaphore.release(WRITE_PERMITS);
 
-        /**
-         * Writing gene descriptions
-         */
-        writeGenomicDescriptions(geneDescriptionMap, importSpecification, GenomicConceptType.GENE, 10240);
 
-        updateMessage("Waiting for Gene description file completion...");
-        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing indexes...");
-        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-            try {
-                indexer.sync().get();
-            } catch (Exception e) {
-                LOG.error("problem calling sync on index", e);
-            }
-        }
-        updateMessage("Synchronizing description database...");
-        assemblageService.sync();
-        this.writeSemaphore.release(WRITE_PERMITS);
-
-        /**
-         * Writing variant -> gene relationships
-         */
-        writeGenomicRelationships(variantGeneRelationshipMap, importSpecification, GenomicConceptType.VARIANT, 10240);
-
-        updateMessage("Waiting for Genomic relationship file completion...");
-        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing indexes...");
-        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-            try {
-                indexer.sync().get();
-            } catch (Exception e) {
-                LOG.error("problem calling sync on index", e);
-            }
-        }
-        updateMessage("Synchronizing relationship database...");
-        assemblageService.sync();
-        this.writeSemaphore.release(WRITE_PERMITS);
+//        /**
+//         * Writing variant and gene concepts
+//         */
+//        writeGenomicComponent(variantConceptSet, importSpecification, GenomicConceptType.VARIANT, 10240);
+//
+//        updateMessage("Waiting for Variant concepts file completion...");
+//        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+//        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+//            try {
+//                indexer.sync().get();
+//            } catch (Exception e) {
+//                LOG.error("problem calling sync on index", e);
+//            }
+//        }
+//        updateMessage("Synchronizing concept database...");
+//        conceptService.sync();
+//        this.writeSemaphore.release(WRITE_PERMITS);
+//
+//        writeGenomicComponent(geneConceptSet, importSpecification, GenomicConceptType.GENE, 10240);
+//
+//        updateMessage("Waiting for Genomic concepts file completion...");
+//        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+//        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+//            try {
+//                indexer.sync().get();
+//            } catch (Exception e) {
+//                LOG.error("problem calling sync on index", e);
+//            }
+//        }
+//        updateMessage("Synchronizing concept database...");
+//        conceptService.sync();
+//        this.writeSemaphore.release(WRITE_PERMITS);
+//
+//
+//        /**
+//         * Writing variant descriptions
+//         */
+//        writeGenomicDescriptions(variantDescriptionMap, importSpecification, GenomicConceptType.VARIANT, 10240);
+//
+//        updateMessage("Waiting for Variant description file completion...");
+//        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+//        updateMessage("Synchronizing indexes...");
+//        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+//            try {
+//                indexer.sync().get();
+//            } catch (Exception e) {
+//                LOG.error("problem calling sync on index", e);
+//            }
+//        }
+//        updateMessage("Synchronizing description database...");
+//        assemblageService.sync();
+//        this.writeSemaphore.release(WRITE_PERMITS);
+//
+//        /**
+//         * Writing gene descriptions
+//         */
+//        writeGenomicDescriptions(geneDescriptionMap, importSpecification, GenomicConceptType.GENE, 10240);
+//
+//        updateMessage("Waiting for Gene description file completion...");
+//        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+//        updateMessage("Synchronizing indexes...");
+//        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+//            try {
+//                indexer.sync().get();
+//            } catch (Exception e) {
+//                LOG.error("problem calling sync on index", e);
+//            }
+//        }
+//        updateMessage("Synchronizing description database...");
+//        assemblageService.sync();
+//        this.writeSemaphore.release(WRITE_PERMITS);
+//
+//        /**
+//         * Writing variant -> gene relationships
+//         */
+//        writeGenomicRelationships(variantGeneRelationshipMap, importSpecification, GenomicConceptType.VARIANT, 10240);
+//
+//        updateMessage("Waiting for Genomic relationship file completion...");
+//        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+//        updateMessage("Synchronizing indexes...");
+//        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+//            try {
+//                indexer.sync().get();
+//            } catch (Exception e) {
+//                LOG.error("problem calling sync on index", e);
+//            }
+//        }
+//        updateMessage("Synchronizing relationship database...");
+//        assemblageService.sync();
+//        this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void writeGenomicComponent(Set<String> genomicConcepts,

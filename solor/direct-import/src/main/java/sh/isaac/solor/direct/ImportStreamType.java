@@ -76,9 +76,7 @@ public enum ImportStreamType {
    DYNAMIC,
    RXNORM_CONSO,
    LOINC,
-    GENE_SPECIFIC_SUMMARY,
-   VARIANT_SUMMARY,
-   GENE_CONDITION_SOURCE
+   VARIANT_SUMMARY
    ;
 
    public VersionType getSemanticVersionType() {
