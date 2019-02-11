@@ -42,6 +42,7 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
+import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
@@ -108,52 +109,52 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     44: "1.0i",
     45:
      */
-    private static final int LOINC_NUM = 0;
-    private static final int COMPONENT = 1;
-    private static final int PROPERTY = 2;
-    private static final int TIME_ASPCT = 3;
-    private static final int SYSTEM = 4;
-    private static final int SCALE_TYP = 5;
-    private static final int METHOD_TYP = 6;
-    private static final int CLASS = 7;
-    private static final int VERSION_LAST_CHANGED = 8;
-    private static final int CHNG_TYPE = 9;
-    private static final int DEFINITION_DESCRIPTION = 10;
-    private static final int STATUS = 11;
-    private static final int CONSUMER_NAME = 12;
-    private static final int CLASSTYPE = 13;
-    private static final int FORMULA = 14;
-    private static final int SPECIES = 15;
-    private static final int EXMPL_ANSWERS = 16;
-    private static final int SURVEY_QUEST_TEXT = 17;
-    private static final int SURVEY_QUEST_SRC = 18;
-    private static final int UNITSREQUIRED = 19;
-    private static final int SUBMITTED_UNITS = 20;
-    private static final int RELATEDNAMES2 = 21;
-    private static final int SHORTNAME = 22;
-    private static final int ORDER_OBS = 23;
-    private static final int CDISC_COMMON_TESTS = 24;
-    private static final int HL7_FIELD_SUBFIELD_ID = 25;
-    private static final int EXTERNAL_COPYRIGHT_NOTICE = 26;
-    private static final int EXAMPLE_UNITS = 27;
-    private static final int LONG_COMMON_NAME = 28;
-    private static final int UNITS_AND_RANGE = 29;
-    private static final int DOCUMENT_SECTION = 30;
-    private static final int EXAMPLE_UCUM_UNITS = 31;
-    private static final int EXAMPLE_SI_UCUM_UNITS = 32;
-    private static final int STATUS_REASON = 33;
-    private static final int STATUS_TEXT = 34;
-    private static final int CHANGE_REASON_PUBLIC = 35;
-    private static final int COMMON_TEST_RANK = 36;
-    private static final int COMMON_ORDER_RANK = 37;
-    private static final int COMMON_SI_TEST_RANK = 38;
-    private static final int HL7_ATTACHMENT_STRUCTURE = 39;
-    private static final int EXTERNAL_COPYRIGHT_LINK = 40;
-    private static final int PANEL_TYPE = 41;
-    private static final int ASK_AT_ORDER_ENTRY = 42;
-    private static final int ASSOCIATED_OBSERVATIONS = 43;
-    private static final int VERSION_FIRST_RELEASED = 44;
-    private static final int VALID_HL7_ATTACHMENT_REQUEST = 45;
+    public static final int LOINC_NUM = 0;
+    public static final int COMPONENT = 1;
+    public static final int PROPERTY = 2;
+    public static final int TIME_ASPCT = 3;
+    public static final int SYSTEM = 4;
+    public static final int SCALE_TYP = 5;
+    public static final int METHOD_TYP = 6;
+    public static final int CLASS = 7;
+    public static final int VERSION_LAST_CHANGED = 8;
+    public static final int CHNG_TYPE = 9;
+    public static final int DEFINITION_DESCRIPTION = 10;
+    public static final int STATUS = 11;
+    public static final int CONSUMER_NAME = 12;
+    public static final int CLASSTYPE = 13;
+    public static final int FORMULA = 14;
+    public static final int SPECIES = 15;
+    public static final int EXMPL_ANSWERS = 16;
+    public static final int SURVEY_QUEST_TEXT = 17;
+    public static final int SURVEY_QUEST_SRC = 18;
+    public static final int UNITSREQUIRED = 19;
+    public static final int SUBMITTED_UNITS = 20;
+    public static final int RELATEDNAMES2 = 21;
+    public static final int SHORTNAME = 22;
+    public static final int ORDER_OBS = 23;
+    public static final int CDISC_COMMON_TESTS = 24;
+    public static final int HL7_FIELD_SUBFIELD_ID = 25;
+    public static final int EXTERNAL_COPYRIGHT_NOTICE = 26;
+    public static final int EXAMPLE_UNITS = 27;
+    public static final int LONG_COMMON_NAME = 28;
+    public static final int UNITS_AND_RANGE = 29;
+    public static final int DOCUMENT_SECTION = 30;
+    public static final int EXAMPLE_UCUM_UNITS = 31;
+    public static final int EXAMPLE_SI_UCUM_UNITS = 32;
+    public static final int STATUS_REASON = 33;
+    public static final int STATUS_TEXT = 34;
+    public static final int CHANGE_REASON_PUBLIC = 35;
+    public static final int COMMON_TEST_RANK = 36;
+    public static final int COMMON_ORDER_RANK = 37;
+    public static final int COMMON_SI_TEST_RANK = 38;
+    public static final int HL7_ATTACHMENT_STRUCTURE = 39;
+    public static final int EXTERNAL_COPYRIGHT_LINK = 40;
+    public static final int PANEL_TYPE = 41;
+    public static final int ASK_AT_ORDER_ENTRY = 42;
+    public static final int ASSOCIATED_OBSERVATIONS = 43;
+    public static final int VERSION_FIRST_RELEASED = 44;
+    public static final int VALID_HL7_ATTACHMENT_REQUEST = 45;
 
     private final List<String[]> loincRecords;
     private final Semaphore writeSemaphore;
@@ -190,6 +191,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
             int moduleNid = MetaData.LOINC_MODULES____SOLOR.getNid();
             int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
+            AxiomsFromLoincRecord loincAxiomMaker = new AxiomsFromLoincRecord();
 
             List<String[]> noSuchElementList = new ArrayList<>();
 
@@ -207,7 +209,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
                             // Need to create new concept, and a stated definition...
                             LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                            builder.necessarySet(builder.and(builder.conceptAssertion(MetaData.UNCATEGORIZED_PHENOMENON____SOLOR)));
+                            addAxioms(builder, loincRecord, loincAxiomMaker);
+                            
+                            
                             LogicalExpression logicalExpression = builder.build();
                             logicalExpression.getNodeCount();
                             addLogicGraph(loincRecord[LOINC_NUM],
@@ -259,10 +263,20 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             if (!noSuchElementList.isEmpty()) {
                 LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size());
             }
+            loincAxiomMaker.listMethods();
             return null;
         } finally {
             this.writeSemaphore.release();
             Get.activeTasks().remove(this);
+        }
+    }
+
+    private void addAxioms(LogicalExpressionBuilder builder, String[] loincRecord, AxiomsFromLoincRecord loincAxiomMaker) {
+        Assertion[] assertions = loincAxiomMaker.make(builder, loincRecord);
+        if (assertions.length == 0) {
+            builder.necessarySet(builder.and(builder.conceptAssertion(MetaData.UNCATEGORIZED_PHENOMENON____SOLOR)));
+        } else {
+            builder.necessarySet(builder.and(assertions));
         }
     }
 

@@ -19,6 +19,7 @@ package sh.isaac.solor.direct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import sh.isaac.MetaData;
@@ -38,7 +39,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.api.logic.LogicalExpressionBuilder;
+import sh.isaac.api.  logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
@@ -60,8 +61,13 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
     ConceptProxy inheresInProxy = new ConceptProxy("Inheres in (attribute)",
             UUID.fromString("c0403a4d-aa15-35ef-ba57-1c244ea7bda0"));
     
-    ConceptProxy processOutput = new ConceptProxy("Process output (attribute)",
+    ConceptProxy processOutputProxy = new ConceptProxy("Process output (attribute)",
             UUID.fromString("ef18b2b0-dc77-3ed9-a80f-0386da11c8e5"));
+
+    ConceptProxy methodProxy = new ConceptProxy("Method (attribute)",
+            UUID.fromString("d0f9e3b1-29e4-399f-b129-36693ba4acbc"));
+
+ ;
 
     private final List<IndexBuilderService> indexers;
     private final TaxonomyService taxonomyService;
@@ -143,19 +149,68 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservesComponent(new ConceptProxy("Medication (SOLOR)", 
                         UUID.fromString("5032532f-6b58-31f9-84c1-4a365dde4449")).getNid(), 
                         builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Ultrasound imaging - action (qualifier value)", 
+                        UUID.fromString("c02fd67b-db30-3371-be95-0b7a94509a10")).getNid(), 
+                        builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Imaging - action (qualifier value)", 
+                        UUID.fromString("627971bd-2f76-3b1f-a8a7-de93426cf3b7")).getNid(), 
+                        builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Cine imaging - action (qualifier value)", 
+                        UUID.fromString("5f8b31cd-d8e7-3b7e-aeb9-7cacb06ec632")).getNid(), 
+                        builderService, stamp);                
+                addObservedByMethod(new ConceptProxy("Illumination - action (qualifier value)", 
+                        UUID.fromString("28af16ae-e0d3-367a-a9ff-d4b003aafb07")).getNid(), 
+                        builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Magnetic resonance imaging - action (qualifier value)", 
+                        UUID.fromString("0145be15-1dc4-313b-9321-e6db22285cfe")).getNid(), 
+                        builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Radiographic imaging - action (qualifier value)", 
+                        UUID.fromString("99b82f89-ba3b-3b3f-a0ee-a3cdcc598168")).getNid(), 
+                        builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Radionuclide imaging - action (qualifier value)", 
+                        UUID.fromString("1cb086ed-7128-3cec-8f1f-a81bfa521b18")).getNid(), 
+                        builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Thermography imaging - action (qualifier value)", 
+                        UUID.fromString("6719f141-7b72-3461-9d5d-56f92dfa1600")).getNid(), 
+                        builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Video imaging - action (qualifier value)", 
+                        UUID.fromString("bbb375cb-94cb-38e6-9d78-ef0cbb02f015")).getNid(), 
+                        builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Electrocardiographic procedure (procedure)", 
+                        UUID.fromString("2dc7d2f4-1fc1-30d9-9d84-ac2202d98fb4")).getNid(), 
+                        builderService, stamp);
             }
             
             
             for (int systemNid : systems.asArray()) {
-                addInheresInConcept(systemNid, builderService, stamp);
+                Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(systemNid);
+                if (c.isPresent() && c.get().isLatestVersionActive()) {
+                    addInheresInConcept(systemNid, builderService, stamp);
+                }
+                
             }
             for (int componentNid : components.asArray()) {
-                addObservesComponent(componentNid, builderService, stamp);
+                Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(componentNid);
+                if (c.isPresent() && c.get().isLatestVersionActive()) {
+                    addObservesComponent(componentNid, builderService, stamp);
+                }
             }
             return null;
         } finally {
             Get.activeTasks().remove(this);
         }
+    }
+
+    private void addObservedByMethod(int methodNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
+        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                        eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
+                
+        StringBuilder conceptNameBuilder = new StringBuilder();
+        conceptNameBuilder.append("Phenomenon observed by ");
+        conceptNameBuilder.append(manifold.getPreferredDescriptionText(methodNid));
+        buildConcept(builderService, conceptNameBuilder, eb, stamp);
     }
 
     private void addObservesComponent(int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
@@ -166,7 +221,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
         
         eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                        eb.and(eb.someRole(processOutput.getNid(), eb.conceptAssertion(componentNid))))));
+                        eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
         
         
         StringBuilder conceptNameBuilder = new StringBuilder();
@@ -240,7 +295,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
             int nid2 = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(token2));
 
             if (nid == componentProxy.getNid() || 
-                    nid == processOutput.getNid()) {
+                    nid == processOutputProxy.getNid()) {
                 components.add(nid2);
             } else if (nid == inheresInProxy.getNid()) {
                 systems.add(nid2);

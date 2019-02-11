@@ -42,6 +42,8 @@ package sh.isaac.api.logic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -126,6 +128,31 @@ public interface LogicNode
    default Stream<LogicNode> getChildStream() {
       return Arrays.stream(getChildren());
    }
+   
+   default LinkedList<LogicNode> getParents() {
+       LinkedList<LogicNode> parents = new LinkedList<>();
+       Optional<LogicNode> optionalParent = getParent();
+       while (optionalParent.isPresent()) {
+           LogicNode parent = optionalParent.get();
+           parents.add(parent);
+           optionalParent = parent.getParent();
+       }
+       return parents;
+   }
+   
+   Optional<LogicNode> getParent();
+
+   default boolean hasParentSemantic(NodeSemantic nodeSemantic) {
+       Optional<LogicNode> optionalParent = getParent();
+       while (optionalParent.isPresent()) {
+           LogicNode parent = optionalParent.get();
+           if (parent.getNodeSemantic() == nodeSemantic) {
+               return true;
+           };
+           optionalParent = parent.getParent();
+       }
+       return false;
+   }
 
    /**
     * Gets the children.
@@ -195,6 +222,12 @@ public interface LogicNode
     * @return the concept nid. 
     */
    int getNidForConceptBeingDefined();
+   
+   /**
+    * 
+    * @return the logical expression containing this node. 
+    */
+   LogicalExpression getLogicalExpression();
 
    String toSimpleString();
 }
