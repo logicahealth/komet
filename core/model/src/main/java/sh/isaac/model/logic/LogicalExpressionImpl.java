@@ -1704,4 +1704,14 @@ public class LogicalExpressionImpl
 
         return (RootNode) this.logicNodes.get(this.rootNodeIndex);
     }
+
+    public void setParentIds() {
+        setParentIds(getRoot());
+    }
+    public void setParentIds(AbstractLogicNode parent) {
+        for (AbstractLogicNode child: parent.getChildren()) {
+            child.setParentIndex(parent.getNodeIndex());
+            setParentIds(child);
+        }
+    }
 }
