@@ -83,15 +83,11 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
                 switch (this.genomicConceptType) {
 
                     case VARIANT:
-                        conceptSpecificAssemblage = MetaData.CLINVAR_VARIANT_NAME____SOLOR;
+                        conceptSpecificAssemblage = MetaData.CLINVAR_VARIANT_ID____SOLOR;
                         break;
 
                     case GENE:
                         conceptSpecificAssemblage = MetaData.NCBI_GENE_ID____SOLOR;
-                        break;
-
-                    case ALLELE:
-                        conceptSpecificAssemblage = MetaData.CLINVAR_ALLELE_ID____SOLOR;
                         break;
 
                     default:
