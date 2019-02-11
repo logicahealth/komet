@@ -535,6 +535,13 @@ public class StampProvider
                });
             }
          }
+         for (int stamp = 1; stamp < nextStampSequence.get(); stamp++) {
+             try {
+                 String descripton = describeStampSequence(stamp);
+             } catch (NoSuchElementException e) {
+                 LOG.warn(e.getLocalizedMessage());
+             }
+         }
       } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Stamp Provider", e);
@@ -928,6 +935,30 @@ public class StampProvider
       throw new NoSuchElementException(
           "No stampSequence found: " + stampSequence + " map size: " + this.stampMap.size() + " inverse map size: " +
           this.inverseStampMap.size());
+   }
+
+   @Override
+   public Stamp getStamp(int stampSequence)
+   {
+      if (stampSequence < 0) {
+          return new Stamp(Status.CANCELED, Long.MIN_VALUE, TermAux.USER.getNid(), TermAux.UNSPECIFIED_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
+      }
+
+      if (this.inverseStampMap.containsKey(stampSequence)) {
+         return this.inverseStampMap.get(stampSequence);
+      }
+
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get()
+           .entrySet()) {
+        if (entry.getValue() == stampSequence) {
+            UncommittedStamp us = entry.getKey();
+            return new Stamp(us.status, Long.MAX_VALUE, us.authorNid, us.moduleNid, us.pathNid);
+         }
+      }
+
+      throw new NoSuchElementException(
+         "No stampSequence found: " + stampSequence + " map size: " + this.stampMap.size() + " inverse map size: " +
+         this.inverseStampMap.size());
    }
 
    /**

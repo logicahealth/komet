@@ -37,10 +37,12 @@
 
 package sh.isaac.convert.mojo.vhat.data;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -56,6 +59,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -148,17 +152,24 @@ public class TerminologyDataReader extends DefaultHandler
 
 	private Stack<HierarchyData> elementDataStack = new Stack<>();
 	
-	private File inputFile;
+	private Path inputFile;
 	private String schemaName;
 	
 	private TerminologyDTO terminology = new TerminologyDTO();
 
-	public TerminologyDataReader(File inputFile)
+	/**
+	 * @param inputFile
+	 */
+	public TerminologyDataReader(Path inputFile)
 	{
 		this.inputFile = inputFile;
 		this.schemaName = "/TerminologyData.xsd";
 	}
 
+	/**
+	 * @return
+	 * @throws Exception
+	 */
 	public TerminologyDTO process() throws Exception 
 	{
 		SAXParserFactory parserFactory = SAXParserFactory.newInstance();
@@ -180,34 +191,28 @@ public class TerminologyDataReader extends DefaultHandler
 
 				SAXParser parser = parserFactory.newSAXParser();
 				
-				if (inputFile.isDirectory())
+				final AtomicReference<Path> xmlFile = new AtomicReference<>();
+				
+				Files.walk(inputFile, new FileVisitOption[] {}).forEach(path ->
 				{
-					ArrayList<File> files = new ArrayList<File>();
-					for (File f : inputFile.listFiles())
+					if (path.toString().toLowerCase().endsWith(".xml"))
 					{
-						if (f.isFile() && f.getName().toLowerCase().endsWith(".xml"))
+						if (xmlFile.get() != null)
 						{
-							files.add(f);
+							throw new RuntimeException("Only expected to find one xml file in the path " + inputFile.normalize());
 						}
+						xmlFile.set(path);
 					}
-					
-					if (files.size() != 1)
-					{
-						throw new Exception(files.size() + " xml files were found inside of " + inputFile.getAbsolutePath() 
-								+ " but this implementation requires 1 and only 1 xml files to be present.");
-					}
-					
-					System.out.println("Processing: " + files.get(0).getAbsolutePath());
-					validator.validate(new StreamSource(new FileInputStream(files.get(0))));
-					parser.parse(files.get(0), this);
-					
-				}
-				else
+				});
+
+				if (xmlFile.get() == null)
 				{
-					System.out.println("Processing: " + inputFile.getAbsolutePath());
-					validator.validate(new StreamSource(new FileInputStream(inputFile)));
-					parser.parse(inputFile, this);
+					throw new RuntimeException("Did not find a xml file in " + inputFile.normalize());
 				}
+				
+				LogManager.getLogger().info("Processing: " + xmlFile.get().normalize());
+				validator.validate(new StreamSource(Files.newInputStream(xmlFile.get(), StandardOpenOption.READ)));
+				parser.parse(Files.newInputStream(xmlFile.get(), StandardOpenOption.READ), this);
 			}
 		}
 		catch (SAXParseException e)

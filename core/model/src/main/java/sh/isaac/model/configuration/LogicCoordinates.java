@@ -43,7 +43,7 @@ package sh.isaac.model.configuration;
 
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.model.coordinate.LogicCoordinateLazyBinding;
+import sh.isaac.model.coordinate.LogicCoordinateImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -59,12 +59,12 @@ public class LogicCoordinates {
     * @return the standard el profile
     */
    public static LogicCoordinate getStandardElProfile() {
-      return new LogicCoordinateLazyBinding(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE,
+      return new LogicCoordinateImpl(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE,
             TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE,
             TermAux.EL_PLUS_PLUS_LOGIC_PROFILE,
             TermAux.SNOROCKET_CLASSIFIER,
             TermAux.SOLOR_CONCEPT_ASSEMBLAGE
-      );
+      ) {};
    }
 }
 

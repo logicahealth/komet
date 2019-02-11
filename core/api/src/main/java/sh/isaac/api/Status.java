@@ -38,6 +38,11 @@ package sh.isaac.api;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.EnumSet;
+import java.util.NoSuchElementException;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlType;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 
 //~--- enums ------------------------------------------------------------------
@@ -46,27 +51,29 @@ import java.util.EnumSet;
  *
  * @author kec
  */
+@XmlType(name = "Status")
+@XmlEnum
 public enum Status {
    /**
     * Currently inactive.
     */
-   INACTIVE(false, "Inactive", "I"),
+   INACTIVE(false, "Inactive", "I", TermAux.INACTIVE_STATUS),
    /**
     * Currently active.
     */
-   ACTIVE(true, "Active", "A"),
+   ACTIVE(true, "Active", "A", TermAux.ACTIVE_STATUS),
    /**
     * Not yet created.
     */
-   PRIMORDIAL(false, "Primordial", "P"),
+   PRIMORDIAL(false, "Primordial", "P", TermAux.PRIMORDIAL_STATUS),
    /**
     * Canceled prior to commit.
     */
-   CANCELED(false, "Canceled", "C"),
+   CANCELED(false, "Canceled", "C", TermAux.CANCELED_STATUS),
    /**
     * Withdrawn after being committed, but should no longer be used in snapshot computations.
     */
-   WITHDRAWN(false, "Withdrawn", "W");
+   WITHDRAWN(false, "Withdrawn", "W", TermAux.WITHDRAWN_STATUS);
 
    /**
     * The is active.
@@ -82,7 +89,11 @@ public enum Status {
     * The abbreviation.
     */
    String abbreviation;
-
+   
+   /**
+    * Concept specification for this status.
+    */
+   ConceptSpecification specifyingConcept;
    //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new state.
@@ -91,13 +102,22 @@ public enum Status {
     * @param name the name
     * @param abbreviation the abbreviation
     */
-   Status(boolean isActive, String name, String abbreviation) {
+   Status(boolean isActive, String name, String abbreviation, ConceptSpecification specifyingConcept) {
       this.isActive = isActive;
       this.name = name;
       this.abbreviation = abbreviation;
+      this.specifyingConcept = specifyingConcept;
    }
 
    //~--- methods -------------------------------------------------------------
+   public static Status from(ConceptSpecification conceptSpecification) {
+        for (Status status: values()) {
+            if (status.specifyingConcept.equals(conceptSpecification)) {
+                return status;
+            }
+        }
+        throw new NoSuchElementException("No status matches: " + conceptSpecification);
+   }
    /**
     * Inverse.
     *
@@ -198,6 +218,10 @@ public enum Status {
             throw new UnsupportedOperationException("Can't handle token: " + token);
       }
    }
+
+    public ConceptSpecification getSpecifyingConcept() {
+        return specifyingConcept;
+    }
    
    public static EnumSet<Status> ACTIVE_ONLY_SET = EnumSet.of(Status.ACTIVE);
    public static EnumSet<Status> ANY_STATUS_SET = EnumSet.allOf(Status.class);

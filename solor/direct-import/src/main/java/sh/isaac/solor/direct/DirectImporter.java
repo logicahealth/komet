@@ -50,11 +50,10 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.ContentStreamProvider;
-
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,6 +66,8 @@ import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+import org.apache.commons.io.IOUtils;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -105,7 +106,7 @@ public class DirectImporter
     public DirectImporter(ImportType importType) {
         this.importType = importType;
         this.entriesToImport = null;
-        File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
+        this.importDirectory = Get.configurationService().getIBDFImportPath().toFile();
 //        watchTokens.add("89587004"); // Removal of foreign body from abdominal cavity (procedure)
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
 //        watchTokens.add("123101000000107"); // PBCL flag true: report, request, level, test (qualifier value)
@@ -117,17 +118,17 @@ public class DirectImporter
 
     public DirectImporter(ImportType importType, List<ContentProvider> entriesToImport) {
         this.importType = importType;
-        this.entriesToImport = entriesToImport;
-        File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
+        this.entriesToImport = preProcessEntries(entriesToImport);
+//        File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
 //        watchTokens.add("89587004"); // Removal of foreign body from abdominal cavity (procedure)
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
 //        watchTokens.add("123101000000107"); // PBCL flag true: report, request, level, test (qualifier value)
 
-        updateTitle("Importing from from" + importDirectory.getAbsolutePath());
+        updateTitle("Importing from from provided entries");
         Get.activeTasks()
                 .add(this);
     }
-    
+
     public DirectImporter(ImportType importType, File importDirectory) {
         this.importType = importType;
         this.entriesToImport = null;
@@ -189,6 +190,93 @@ public class DirectImporter
     protected void running() {
         super.running();
     }
+    
+    
+    /**
+     * If the item they passed us is a zip file, we need to look inside the zip file. 
+     * @param entriesToImport
+     * @return
+     * TODO maybe merge "loadDatabase" into this?  I need code that handles paths, not files, 
+     * since I may be passing in a nested zip already.
+     */
+    private List<ContentProvider> preProcessEntries(List<ContentProvider> entriesToImport)
+    {
+        try {
+            ArrayList<ContentProvider> results = new ArrayList<>();
+            for (ContentProvider cp : entriesToImport) {
+                if (cp.getStreamSourceName().toLowerCase().endsWith(".zip")) {
+                    StringBuilder importPrefixRegex = new StringBuilder();
+                    importPrefixRegex.append("([a-z/0-9_]*)?(rf2release/)?"); //ignore parent directories
+                    switch (importType) {
+                        case FULL:
+                            importPrefixRegex.append("(full/)"); //prefixes to match
+                            break;
+                        case SNAPSHOT:
+                        case ACTIVE_ONLY:
+                            importPrefixRegex.append("(snapshot/)"); //prefixes to match
+                            break;
+                        default :
+                            throw new RuntimeException("Unsupported import type");
+                    }
+                    importPrefixRegex.append("[a-z/0-9_\\.\\-]*"); //allow all match child directories
+
+                    try (ZipInputStream zis = new ZipInputStream(cp.get().get(), Charset.forName("UTF-8"))) {
+                        ZipEntry nestedEntry = zis.getNextEntry();
+                        while (nestedEntry != null) {
+                            if (!nestedEntry.getName().toUpperCase().contains("__MACOSX") && !nestedEntry.getName().contains("._")
+                                    && nestedEntry.getName().toLowerCase().matches(importPrefixRegex.toString())) {
+
+                                byte[] temp = IOUtils.toByteArray(zis);
+                                
+                                if (temp.length < (500 * 1024 * 1024)) {  //if more than 500 MB, pass on a ref to unzip the stream again.  Otherwise, cache 
+                                    //We have to cache these unzipped bytes, as otherwise, 
+                                    //the import is terribly slow, because the java zip API only provides stream access
+                                    //to nested files, and when you try to unzip from a stream, it can't jump ahead whe you 
+                                    //call next entry, so you end up re-extracting the entire file for each file, which more 
+                                    //that triples the load times.
+                                    results.add(new ContentProvider(cp.getStreamSourceName() + ":" + nestedEntry.getName(), () -> temp));
+                                    LOG.debug("Caching unzipped content - " + results.get(results.size() - 1).getStreamSourceName());
+                                }
+                                else
+                                {
+                                    //Code to reopen the zip and find the same zip entry from the previous provider (which is quite expensive)
+                                    final String thisName = nestedEntry.getName();
+                                    results.add(new ContentProvider(cp.getStreamSourceName() + ":" + nestedEntry.getName(), () -> {
+                                        try
+                                        {
+                                            try (ZipInputStream zisInternal = new ZipInputStream(cp.get().get(), Charset.forName("UTF-8"))) {
+                                                ZipEntry nestedEntryInternal = zisInternal.getNextEntry();
+                                                while (nestedEntryInternal != null) {
+                                                    if (nestedEntryInternal.getName().equals(thisName)) {
+                                                        return IOUtils.toByteArray(zisInternal);
+                                                    }
+                                                    nestedEntryInternal = zisInternal.getNextEntry();
+                                                }
+                                                throw new RuntimeException("Couldn't refind expected entry??");
+                                            }
+                                        }
+                                        catch (IOException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    }));
+                                    LOG.debug(results.get(results.size() - 1).getStreamSourceName() + " too large for cache, will to unzip again");
+                                }
+                            }
+                            nestedEntry = zis.getNextEntry();
+                        }
+                    }
+                }
+                else {
+                    results.add(cp);
+                }
+            }
+            return results;
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Load database.
@@ -215,6 +303,8 @@ public class DirectImporter
             case ACTIVE_ONLY:
                 importPrefixRegex.append("(snapshot/)"); //prefixes to match
                 break;
+            default :
+                throw new RuntimeException("Unsupported import type");
         }
         importPrefixRegex.append("[a-z/0-9_\\.\\-]*"); //allow all match child directories
         for (Path zipFilePath : zipFiles) {
@@ -260,7 +350,7 @@ public class DirectImporter
             }
 
             try (ContentStreamProvider csp = importSpecification.contentProvider.get()) {
-                try (BufferedReader br = csp.get()) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(csp.get(), Charset.forName("UTF-8")))) {
                     fileCount++;
 
                     switch (importSpecification.streamType) {

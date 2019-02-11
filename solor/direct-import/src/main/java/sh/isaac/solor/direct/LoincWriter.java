@@ -29,18 +29,26 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
+import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 
 /**
@@ -50,9 +58,55 @@ import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
     /*
-"LOINC_NUM","COMPONENT","PROPERTY","TIME_ASPCT","SYSTEM","SCALE_TYP","METHOD_TYP","CLASS","VersionLastChanged","CHNG_TYPE","DefinitionDescription","STATUS","CONSUMER_NAME","CLASSTYPE","FORMULA","SPECIES","EXMPL_ANSWERS","SURVEY_QUEST_TEXT","SURVEY_QUEST_SRC","UNITSREQUIRED","SUBMITTED_UNITS","RELATEDNAMES2","SHORTNAME","ORDER_OBS","CDISC_COMMON_TESTS","HL7_FIELD_SUBFIELD_ID","EXTERNAL_COPYRIGHT_NOTICE","EXAMPLE_UNITS","LONG_COMMON_NAME","UnitsAndRange","DOCUMENT_SECTION","EXAMPLE_UCUM_UNITS","EXAMPLE_SI_UCUM_UNITS","STATUS_REASON","STATUS_TEXT","CHANGE_REASON_PUBLIC","COMMON_TEST_RANK","COMMON_ORDER_RANK","COMMON_SI_TEST_RANK","HL7_ATTACHMENT_STRUCTURE","EXTERNAL_COPYRIGHT_LINK","PanelType","AskAtOrderEntry","AssociatedObservations","VersionFirstReleased","ValidHL7AttachmentRequest"
-"10013-1","R' wave amplitude.lead I","Elpot","Pt","Heart","Qn","EKG","EKG.MEAS","2.48","MIN",,"ACTIVE",,2,,,,,,"Y",,"Cardiac; ECG; EKG.MEASUREMENTS; Electrical potential; Electrocardiogram; Electrocardiograph; Hrt; Painter's colic; PB; Plumbism; Point in time; QNT; Quan; Quant; Quantitative; R prime; R' wave Amp L-I; R wave Amp L-I; Random; Right; Voltage","R' wave Amp L-I","Observation",,,,"mV","R' wave amplitude in lead I",,,"mV",,,,,0,0,0,,,,,,"1.0i",
-"10014-9","R' wave amplitude.lead II","Elpot","Pt","Heart","Qn","EKG","EKG.MEAS","2.48","MIN",,"ACTIVE",,2,,,,,,"Y",,"2; Cardiac; ECG; EKG.MEASUREMENTS; Electrical potential; Electrocardiogram; Electrocardiograph; Hrt; Painter's colic; PB; Plumbism; Point in time; QNT; Quan; Quant; Quantitative; R prime; R' wave Amp L-II; R wave Amp L-II; Random; Right; Voltage","R' wave Amp L-II","Observation",,,,"mV","R' wave amplitude in lead II",,,"mV",,,,,0,0,0,,,,,,"1.0i",
+    0: "10014-9",
+    1: "R' wave amplitude.lead II",
+    2: "Elpot",
+    3: "Pt",
+    4: "Heart",
+    5: "Qn",
+    6: "EKG",
+    7: "EKG.MEAS",
+    8: "2.48",
+    9: "MIN",
+    10: ,
+    11: "ACTIVE",
+    12: ,
+    13: 2,
+    14: ,
+    15: ,
+    16: ,
+    17: ,
+    18: ,
+    19: "Y",
+    20: ,
+    21: "2; Cardiac; ECG; EKG.MEASUREMENTS; Electrical potential; 
+         Electrocardiogram; Electrocardiograph; Hrt; Painter's colic; PB; 
+         Plumbism; Point in time; QNT; Quan; Quant; Quantitative; R prime; 
+         R' wave Amp L-II; R wave Amp L-II; Random; Right; Voltage",
+    22: "R' wave Amp L-II","Observation",
+    23: ,
+    24: ,
+    25: ,
+    26: "mV",
+    27: "R' wave amplitude in lead II"
+    28: ,
+    29: ,
+    30: ,
+    31: "mV",
+    32: ,
+    33: ,
+    34: ,
+    35: ,
+    36: 0,
+    37: 0,
+    38: 0,
+    39: ,
+    40: ,
+    41: ,
+    42:,
+    43:,
+    44: "1.0i",
+    45:
      */
     private static final int LOINC_NUM = 0;
     private static final int COMPONENT = 1;
@@ -123,7 +177,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
     private void index(Chronology chronicle) {
         for (IndexBuilderService indexer : indexers) {
-           indexer.indexNow(chronicle);
+            indexer.indexNow(chronicle);
         }
     }
 
@@ -137,66 +191,74 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             int moduleNid = MetaData.LOINC_MODULES____SOLOR.getNid();
             int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
 
-         List<String[]> noSuchElementList = new ArrayList<>();
+            List<String[]> noSuchElementList = new ArrayList<>();
 
-         for (String[] loincRecord : loincRecords) {
+            for (String[] loincRecord : loincRecords) {
                 try {
-                    
+
                     if (loincRecord[STATUS].equals("ACTIVE")) {
-                        
+
                         int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
                         // See if the concept is created (from the SNOMED/LOINC expressions. 
                         UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincRecord[LOINC_NUM]);
-                        int conceptNid = identifierService.getNidForUuids(conceptUuid);
+                        int conceptNid = Get.nidWithAssignment(conceptUuid);
                         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
-                        if (optionalConcept.isPresent()) {
-                            // only import the ones with expressions already imported...
-                            // make 2 LOINC descriptions
-                            String longCommonName = loincRecord[LONG_COMMON_NAME];
-                            if (longCommonName == null || longCommonName.isEmpty()) {
-                                longCommonName = loincRecord[LOINC_NUM] + " with no lcn";
-                            }
-                            
-                            addDescription(loincRecord, longCommonName,
-                                    TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
-                            
-                            String shortName = loincRecord[SHORTNAME];
-                            if (shortName == null || shortName.isEmpty()) {
-                                shortName = longCommonName + " with no sn";
-                            }
-                            
-                            addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
+                        if (!optionalConcept.isPresent()) {
 
-                            // make a LOINC semantic
-                            UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
-                                    loincRecord[LOINC_NUM]);
-                            
-                            SemanticChronologyImpl recordToWrite
-                                    = new SemanticChronologyImpl(VersionType.LOINC_RECORD, loincRecordUuid,
-                                            TermAux.LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
-                            LoincVersionImpl recordVersion = recordToWrite.createMutableVersion(recordStamp);
-                            recordVersion.setComponent(loincRecord[COMPONENT]);
-                            recordVersion.setLoincNum(loincRecord[LOINC_NUM]);
-                            recordVersion.setLoincStatus(loincRecord[STATUS]);
-                            recordVersion.setLongCommonName(loincRecord[LONG_COMMON_NAME]);
-                            recordVersion.setMethodType(loincRecord[METHOD_TYP]);
-                            recordVersion.setProperty(loincRecord[PROPERTY]);
-                            recordVersion.setScaleType(loincRecord[SCALE_TYP]);
-                            recordVersion.setShortName(loincRecord[SHORTNAME]);
-                            recordVersion.setSystem(loincRecord[SYSTEM]);
-                            recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
-                            assemblageService.writeSemanticChronology(recordToWrite);
+                            // Need to create new concept, and a stated definition...
+                            LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                            builder.necessarySet(builder.and(builder.conceptAssertion(MetaData.UNCATEGORIZED_PHENOMENON____SOLOR)));
+                            LogicalExpression logicalExpression = builder.build();
+                            logicalExpression.getNodeCount();
+                            addLogicGraph(loincRecord[LOINC_NUM],
+                                    logicalExpression);
+
                         }
-                        
+                        // make 2 LOINC descriptions
+                        String longCommonName = loincRecord[LONG_COMMON_NAME];
+                        if (longCommonName == null || longCommonName.isEmpty()) {
+                            longCommonName = loincRecord[LOINC_NUM] + " with no lcn";
+                        }
+
+                        addDescription(loincRecord, longCommonName,
+                                TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
+
+                        String shortName = loincRecord[SHORTNAME];
+                        if (shortName == null || shortName.isEmpty()) {
+                            shortName = longCommonName + " with no sn";
+                        }
+
+                        addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
+
+                        // make a LOINC semantic
+                        UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
+                                loincRecord[LOINC_NUM]);
+
+                        SemanticChronologyImpl recordToWrite
+                                = new SemanticChronologyImpl(VersionType.LOINC_RECORD, loincRecordUuid,
+                                        TermAux.LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
+                        LoincVersionImpl recordVersion = recordToWrite.createMutableVersion(recordStamp);
+                        recordVersion.setComponent(loincRecord[COMPONENT]);
+                        recordVersion.setLoincNum(loincRecord[LOINC_NUM]);
+                        recordVersion.setLoincStatus(loincRecord[STATUS]);
+                        recordVersion.setLongCommonName(loincRecord[LONG_COMMON_NAME]);
+                        recordVersion.setMethodType(loincRecord[METHOD_TYP]);
+                        recordVersion.setProperty(loincRecord[PROPERTY]);
+                        recordVersion.setScaleType(loincRecord[SCALE_TYP]);
+                        recordVersion.setShortName(loincRecord[SHORTNAME]);
+                        recordVersion.setSystem(loincRecord[SYSTEM]);
+                        recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
+                        assemblageService.writeSemanticChronology(recordToWrite);
+
                     }
-             } catch (NoSuchElementException ex) {
-                 noSuchElementList.add(loincRecord);
-             }
-            completedUnitOfWork();
-         }
-         if (!noSuchElementList.isEmpty()) {
-            LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size());
-         }
+                } catch (NoSuchElementException ex) {
+                    noSuchElementList.add(loincRecord);
+                }
+                completedUnitOfWork();
+            }
+            if (!noSuchElementList.isEmpty()) {
+                LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size());
+            }
             return null;
         } finally {
             this.writeSemaphore.release();
@@ -215,7 +277,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         int conceptNid = identifierService.getNidForUuids(conceptUuid);
 
         SemanticChronologyImpl descriptionToWrite
-                = new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid, 
+                = new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid,
                         MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), conceptNid);
         DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(recordStamp);
         descriptionVersion.setCaseSignificanceConceptNid(
@@ -239,4 +301,73 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         index(dialectToWrite);
         assemblageService.writeSemanticChronology(dialectToWrite);
     }
+    
+
+    /**
+     * Adds the logic graph.
+     *
+     * @param loincCode the LOINC code
+     * @param logicalExpression the logical expression
+     * @return the semantic chronology
+     */
+    public SemanticChronology addLogicGraph(String loincCode,
+            LogicalExpression logicalExpression) {
+
+        int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
+                commitTime, TermAux.USER.getNid(),
+                TermAux.SOLOR_OVERLAY_MODULE.getNid(),
+                TermAux.DEVELOPMENT_PATH.getNid());
+        UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
+        Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
+        if (!optionalConcept.isPresent()) {
+            ConceptChronologyImpl conceptToWrite
+                    = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+            conceptToWrite.createMutableVersion(stamp);
+            Get.conceptService().writeConcept(conceptToWrite);
+            index(conceptToWrite);
+
+            // add to loinc identifier assemblage
+            UUID loincIdentifierUuid = UuidT5Generator.get(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getPrimordialUuid(),
+                    loincCode);
+            SemanticChronologyImpl loincIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
+                    loincIdentifierUuid,
+                    MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
+                    conceptToWrite.getNid());
+
+            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);
+            loincIdVersion.setString(loincCode);
+            index(loincIdentifierToWrite);
+            Get.assemblageService().writeSemanticChronology(loincIdentifierToWrite);
+        }
+
+        int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
+
+        final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
+              Get.identifierService().getNidForUuids(conceptUuid),
+                graphAssemblageNid);
+
+        UUID nameSpace = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid();
+
+        // Create UUID from seed and assign SemanticBuilder the value
+        final UUID generatedGraphPrimordialUuid
+                = UuidT5Generator.get(nameSpace, conceptUuid.toString());
+
+        sb.setPrimordialUuid(generatedGraphPrimordialUuid);
+
+        final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+
+        final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
+                builtObjects);
+        // There should be no other build objects, so ignore the builtObjects list...
+
+        if (builtObjects.size() != 1) {
+            throw new IllegalStateException("More than one build object: " + builtObjects);
+        }
+        index(sci);
+        Get.assemblageService().writeSemanticChronology(sci);
+
+        return sci;
+
+    }
+    
 }

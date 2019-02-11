@@ -37,31 +37,43 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+import javafx.beans.property.ReadOnlyProperty;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
+import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.observable.ObservableSnapshotService;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.query.clauses.ChangedBetweenVersions;
-import sh.isaac.api.query.clauses.ConceptForComponent;
 import sh.isaac.api.query.clauses.ConceptIs;
 import sh.isaac.api.query.clauses.ConceptIsChildOf;
 import sh.isaac.api.query.clauses.ConceptIsDescendentOf;
 import sh.isaac.api.query.clauses.ConceptIsKindOf;
-import sh.isaac.api.query.clauses.DescriptionActiveLuceneMatch;
-import sh.isaac.api.query.clauses.DescriptionActiveRegexMatch;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionRegexMatch;
-import sh.isaac.api.query.clauses.FullyQualifiedNameForConcept;
-import sh.isaac.api.query.clauses.PreferredNameForConcept;
-import sh.isaac.api.query.clauses.AssemblageContainsConcept;
-import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
-import sh.isaac.api.query.clauses.AssemblageContainsString;
-import sh.isaac.api.query.clauses.AssemblageLuceneMatch;
 import sh.isaac.api.query.clauses.RelRestriction;
+import sh.isaac.api.xml.ConceptSpecificationAdaptor;
+import sh.isaac.api.xml.JaxbMap;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -70,18 +82,23 @@ import sh.isaac.api.query.clauses.RelRestriction;
  *
  * @author kec
  */
-public abstract class Query {
+@XmlRootElement(name = "Query")
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlType(propOrder={"forSet", "letMap", "whereForJaxb", "sortAttributeList", "returnAttributeList"})
+public class Query {
 
     /**
-     * The Constant CURRENT_TAXONOMY_RESULT.
+     * The Constant DEFAULT_MANIFOLD_COORDINATE_KEY.
      */
-    public static final String CURRENT_TAXONOMY_RESULT = "Current taxonomy coordinate";
+    public static final LetItemKey DEFAULT_MANIFOLD_COORDINATE_KEY 
+            = new LetItemKey("Default manifold coordinate key", 
+                    UUID.fromString("cd405b9d-3d41-4310-9228-68bd97c5b9b7"));
 
     //~--- fields --------------------------------------------------------------
     /**
      * The root clause.
      */
-    protected Clause[] rootClause = new Clause[1];
+    protected Clause rootClause;
 
     /**
      * Number of Components output in the returnResultSet method.
@@ -101,33 +118,57 @@ public abstract class Query {
     /**
      * The let declarations.
      */
-    private final HashMap<String, Object> letDeclarations = new HashMap<>();
+    private Map<LetItemKey, Object> letDeclarations = new HashMap<>();
 
     /**
      * The concepts, stored as nids in a <code>NidSet</code>, that are
      * considered in the query.
      */
-    private ForSetsSpecification forSetSpecification;
+    private ForSet forSetSpecification;
+    
+    List<AttributeSpecification> attributeReturnSpecifications = new ArrayList();
+
+    List<SortSpecification> sortReturnSpecifications = new ArrayList<>();
 
     //~--- constructors --------------------------------------------------------
+
+    /**
+     * For jaxb. 
+     */
+    public Query() {
+        this.forSetSpecification = new ForSet();
+    }
+
     /**
      * Constructor for <code>Query</code>.
      *
      * @param assemblageToIterate
      */
     public Query(ConceptSpecification assemblageToIterate) {
-        this(new ForSetsSpecification(Arrays.asList(new ConceptSpecification[]{assemblageToIterate})));
+        this(new ForSet(Arrays.asList(new ConceptSpecification[]{assemblageToIterate})));
     }
 
-    public Query(ForSetsSpecification forSetSpecification) {
+    public Query(ForSet forSetSpecification) {
         this.forSetSpecification = forSetSpecification;
     }
 
     //~--- methods -------------------------------------------------------------
+    
     /**
-     * Let.
+     * Erase all intermediate results, caches, and results from the clauses in 
+     * preparation for re-execution or other re-use of the query. 
      */
-    public abstract void Let();
+    public void reset() {
+        if (this.rootClause != null) {
+            this.rootClause.reset();
+        }
+    }
+    /**
+     * Override to set let clauses. 
+     */
+    public void Let() {
+        
+    }
 
     /**
      * Not.
@@ -136,7 +177,7 @@ public abstract class Query {
      * @param stampCoordinateKey
      * @return the not
      */
-    public Not Not(Clause clause, String stampCoordinateKey) {
+    public Not Not(Clause clause, LetItemKey stampCoordinateKey) {
         return new Not(this, clause, stampCoordinateKey);
     }
 
@@ -145,7 +186,27 @@ public abstract class Query {
      *
      * @return root <code>Clause</code> in the query
      */
-    public abstract Clause Where();
+    public Clause Where() {
+        return this.rootClause;
+    }
+
+    @XmlElement(name = "Where")
+    protected Clause getWhereForJaxb() {
+        return this.rootClause;
+    }
+
+    protected void setWhereForJaxb(Clause clause) {
+        this.rootClause = clause;
+    }
+
+    public Clause getRoot() {
+        return this.rootClause;
+    }
+
+    public void setRoot(Clause root) {
+        this.rootClause = root;
+        root.setEnclosingQuery(this);
+    }
 
     /**
      * Constructs the query and computes the set of components that match the
@@ -157,37 +218,115 @@ public abstract class Query {
     public Map<ConceptSpecification, NidSet> compute() {
         setup();
         getLetDeclarations();
-        this.rootClause[0] = Where();
+        validateLet();
+        this.rootClause = Where();
 
-        final Map<ConceptSpecification, NidSet> possibleComponentMap = this.rootClause[0].computePossibleComponents(For());
+        final Map<ConceptSpecification, NidSet> possibleComponentMap = this.rootClause.computePossibleComponents(this.forSetSpecification.getPossibleComponents());
 
-        return this.rootClause[0].computeComponents(possibleComponentMap);
+        return this.rootClause.computeComponents(possibleComponentMap);
     }
 
-    public ForSetsSpecification getForSetSpecification() {
+    private void validateLet() {
+        boolean error = false;
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<LetItemKey, Object> entry: this.letDeclarations.entrySet()) {
+            if (entry.getValue() == null) {
+                error = true;
+                sb.append(entry.getKey()).append(" has null value\n");
+            } else if (entry.getValue() instanceof ConceptSpecification) {
+                ConceptSpecification spec = (ConceptSpecification) entry.getValue();
+                if (TermAux.UNINITIALIZED_COMPONENT_ID.equals(spec)) {
+                    error = true;
+                    sb.append(entry.getKey()).append(" has uninitialized value\n");
+                }
+            }
+        }
+        if (error) {
+            throw new IllegalStateException(sb.toString());
+        }
+    }
+    
+    public ForSet getForSetSpecification() {
         return forSetSpecification;
     }
-
+    
+    public void setForSetSpecification(ForSet forSetSpecification) {
+        this.forSetSpecification = forSetSpecification;
+    }
+    
+    @XmlElement(name = "Concept")
+    @XmlElementWrapper(name = "For")
+    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
+    protected List<ConceptSpecification> getForSet() {
+        return forSetSpecification.getForSet();
+    }
+        
+    @XmlElement(name = "AttributeSpecification")
+    @XmlElementWrapper(name = "Return")
+    public List<AttributeSpecification> getReturnAttributeList() {
+        return attributeReturnSpecifications;
+    }
+    
+    public void setReturnAttributeList(List<AttributeSpecification> attributeReturnSpecifications) {
+        this.attributeReturnSpecifications = attributeReturnSpecifications;
+    }
+    
+     
+    @XmlElement(name = "SortSpecification")
+    @XmlElementWrapper(name = "Order")
+    public List<SortSpecification> getSortAttributeList() {
+        return sortReturnSpecifications;
+    }
+    
+    public void setSortAttributeList(List<SortSpecification> sortReturnSpecifications) {
+        this.sortReturnSpecifications = sortReturnSpecifications;
+    }
+    
+    
+    public static Query fromXml(Reader reader) throws Exception {
+        return Get.service(QueryFromXml.class).fromXml(reader);
+    }
+    
     /**
-     * 
+     *
      * @return an array of component nids in an array...
      */
     public int[][] reify() {
-        Map<ConceptSpecification, NidSet> assemlageMapResults = compute();
-        assemlageMapResults.remove(TermAux.UNINITIALIZED_COMPONENT_ID); // TODO remove cause, not the symptom...
-        if (assemlageMapResults.size() == 1) {
-            for (Map.Entry<ConceptSpecification, NidSet> entry : assemlageMapResults.entrySet()) {
-                int[][] resultArray = new int[entry.getValue().size()][];
-                int row = 0;
-                for (int nid : entry.getValue().asArray()) {
-                    resultArray[row++] = new int[] { nid };
+            Map<ConceptSpecification, NidSet> assemlageMapResults = compute();
+            assemlageMapResults.remove(TermAux.UNINITIALIZED_COMPONENT_ID); // TODO remove cause, not the symptom...
+            if (assemlageMapResults.size() == 1) {
+                for (Map.Entry<ConceptSpecification, NidSet> entry : assemlageMapResults.entrySet()) {
+                    int[][] resultArray = new int[entry.getValue().size()][];
+                    int row = 0;
+                    for (int nid : entry.getValue().asArray()) {
+                        resultArray[row++] = new int[]{nid};
+                    }
+                    return sort(resultArray);
                 }
-                return resultArray;
+                throw new IllegalStateException("No entry found, though list is not empty. ");
+            } else if (assemlageMapResults.size() == 2 && getRoot() instanceof Join) {                
+                Join join = (Join) getRoot();
+                return sort(join.getJoinResults());
+            } else {
+                throw new UnsupportedOperationException("Can't handle complex joins yet" + assemlageMapResults);
             }
-            throw new IllegalStateException("No entry found, though list is not empty. ");
-        } else {
-            throw new UnsupportedOperationException("Can't handle joins yet" + assemlageMapResults);
+    }
+
+    private int[][] sort(int[][] resultArray) {
+        if (sortReturnSpecifications.isEmpty()) {
+            return resultArray;
         }
+        Arrays.sort(resultArray, (int[] o1, int[] o2) -> {
+            int comparison = 0;
+            for (SortSpecification sortSpecification: sortReturnSpecifications) {
+                comparison = sortSpecification.compare(o1, o2, this);
+                if (comparison != 0) {
+                    return comparison;
+                }
+            }
+            return comparison;            
+        });
+        return resultArray;
     }
 
     /**
@@ -196,7 +335,7 @@ public abstract class Query {
      * @param key the key
      * @param object the object
      */
-    public void let(String key, Object object) {
+    public void let(LetItemKey key, Object object) {
         this.letDeclarations.put(key, object);
     }
 
@@ -205,7 +344,7 @@ public abstract class Query {
      */
     public void setup() {
         getLetDeclarations();
-        this.rootClause[0] = Where();
+        this.rootClause = Where();
     }
 
     /**
@@ -235,18 +374,8 @@ public abstract class Query {
      * @param stampVersionTwoKey
      * @return the changed from previous version
      */
-    protected ChangedBetweenVersions ChangedFromPreviousVersion(String stampVersionOneKey, String stampVersionTwoKey) {
+    protected ChangedBetweenVersions ChangedFromPreviousVersion(LetItemKey stampVersionOneKey, LetItemKey stampVersionTwoKey) {
         return new ChangedBetweenVersions(this, stampVersionOneKey, stampVersionTwoKey);
-    }
-
-    /**
-     * Creates <code>ConceptForComponent</code> clause with input child clause.
-     *
-     * @param child the child
-     * @return the concept for component
-     */
-    protected ConceptForComponent ConceptForComponent(Clause child) {
-        return new ConceptForComponent(this, child);
     }
 
     /**
@@ -255,20 +384,8 @@ public abstract class Query {
      * @param conceptSpecKey the concept spec key
      * @return the concept is
      */
-    protected ConceptIs ConceptIs(String conceptSpecKey) {
-        return new ConceptIs(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
-    }
-
-    /**
-     * Creates <code>ConceptIs</code> clause with input
-     * <code>ViewCoordinate</code>.
-     *
-     * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
-     * @return the concept is
-     */
-    protected ConceptIs ConceptIs(String conceptSpecKey, String viewCoordinateKey) {
-        return new ConceptIs(this, conceptSpecKey, viewCoordinateKey);
+    protected ConceptIs ConceptIs(LetItemKey conceptSpecKey) {
+        return new ConceptIs(this, conceptSpecKey);
     }
 
     /**
@@ -277,8 +394,8 @@ public abstract class Query {
      * @param conceptSpecKey the concept spec key
      * @return the concept is child of
      */
-    protected ConceptIsChildOf ConceptIsChildOf(String conceptSpecKey) {
-        return new ConceptIsChildOf(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+    protected ConceptIsChildOf ConceptIsChildOf(LetItemKey conceptSpecKey) {
+        return new ConceptIsChildOf(this, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -286,11 +403,11 @@ public abstract class Query {
      * <code>ViewCoordinate</code>.
      *
      * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the concept is child of
      */
-    protected ConceptIsChildOf ConceptIsChildOf(String conceptSpecKey, String viewCoordinateKey) {
-        return new ConceptIsChildOf(this, conceptSpecKey, viewCoordinateKey);
+    protected ConceptIsChildOf ConceptIsChildOf(LetItemKey conceptSpecKey, LetItemKey manifoldCoordinateKey) {
+        return new ConceptIsChildOf(this, conceptSpecKey, manifoldCoordinateKey);
     }
 
     /**
@@ -299,8 +416,8 @@ public abstract class Query {
      * @param conceptSpecKey the concept spec key
      * @return the concept is descendent of
      */
-    protected ConceptIsDescendentOf ConceptIsDescendentOf(String conceptSpecKey) {
-        return new ConceptIsDescendentOf(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+    protected ConceptIsDescendentOf ConceptIsDescendentOf(LetItemKey conceptSpecKey) {
+        return new ConceptIsDescendentOf(this, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -308,11 +425,11 @@ public abstract class Query {
      * <code>ViewCoordinate</code>.
      *
      * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the concept is descendent of
      */
-    protected ConceptIsDescendentOf ConceptIsDescendentOf(String conceptSpecKey, String viewCoordinateKey) {
-        return new ConceptIsDescendentOf(this, conceptSpecKey, viewCoordinateKey);
+    protected ConceptIsDescendentOf ConceptIsDescendentOf(LetItemKey conceptSpecKey, LetItemKey manifoldCoordinateKey) {
+        return new ConceptIsDescendentOf(this, conceptSpecKey, manifoldCoordinateKey);
     }
 
     /**
@@ -322,8 +439,8 @@ public abstract class Query {
      * @param conceptSpecKey the concept spec key
      * @return the concept is kind of
      */
-    protected ConceptIsKindOf ConceptIsKindOf(String conceptSpecKey) {
-        return new ConceptIsKindOf(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+    protected ConceptIsKindOf ConceptIsKindOf(LetItemKey conceptSpecKey) {
+        return new ConceptIsKindOf(this, conceptSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY);
     }
 
     /**
@@ -331,53 +448,11 @@ public abstract class Query {
      * <code>ViewCoordinate</code>.
      *
      * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @return the concept is kind of
      */
-    protected ConceptIsKindOf ConceptIsKindOf(String conceptSpecKey, String viewCoordinateKey) {
-        return new ConceptIsKindOf(this, conceptSpecKey, viewCoordinateKey);
-    }
-
-    /**
-     * Description active lucene match.
-     *
-     * @param queryTextKey the query text key
-     * @return the description active lucene match
-     */
-    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(String queryTextKey) {
-        return new DescriptionActiveLuceneMatch(this, queryTextKey, CURRENT_TAXONOMY_RESULT);
-    }
-
-    /**
-     * Description active lucene match.
-     *
-     * @param queryTextKey the query text key
-     * @param viewCoordinateKey the view coordinate key
-     * @return the description active lucene match
-     */
-    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(String queryTextKey, String viewCoordinateKey) {
-        return new DescriptionActiveLuceneMatch(this, queryTextKey, viewCoordinateKey);
-    }
-
-    /**
-     * Description active regex match.
-     *
-     * @param regexKey the regex key
-     * @return the description active regex match
-     */
-    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(String regexKey) {
-        return new DescriptionActiveRegexMatch(this, regexKey, CURRENT_TAXONOMY_RESULT);
-    }
-
-    /**
-     * Description active regex match.
-     *
-     * @param regexKey the regex key
-     * @param viewCoordinateKey the view coordinate key
-     * @return the description active regex match
-     */
-    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(String regexKey, String viewCoordinateKey) {
-        return new DescriptionActiveRegexMatch(this, regexKey, viewCoordinateKey);
+    protected ConceptIsKindOf ConceptIsKindOf(LetItemKey conceptSpecKey, LetItemKey manifoldCoordinateKey) {
+        return new ConceptIsKindOf(this, conceptSpecKey, manifoldCoordinateKey);
     }
 
     /**
@@ -386,8 +461,8 @@ public abstract class Query {
      * @param queryTextKey the query text key
      * @return the description lucene match
      */
-    protected DescriptionLuceneMatch DescriptionLuceneMatch(String queryTextKey) {
-        return new DescriptionLuceneMatch(this, queryTextKey, CURRENT_TAXONOMY_RESULT);
+    protected DescriptionLuceneMatch DescriptionLuceneMatch(LetItemKey queryTextKey) {
+        return new DescriptionLuceneMatch(this, queryTextKey);
     }
 
     /**
@@ -396,19 +471,8 @@ public abstract class Query {
      * @param regexKey the regex key
      * @return the description regex match
      */
-    protected DescriptionRegexMatch DescriptionRegexMatch(String regexKey) {
-        return new DescriptionRegexMatch(this, regexKey, CURRENT_TAXONOMY_RESULT);
-    }
-
-    /**
-     * Description regex match.
-     *
-     * @param regexKey the regex key
-     * @param viewCoordinateKey the view coordinate key
-     * @return the description regex match
-     */
-    protected DescriptionRegexMatch DescriptionRegexMatch(String regexKey, String viewCoordinateKey) {
-        return new DescriptionRegexMatch(this, regexKey, viewCoordinateKey);
+    protected DescriptionRegexMatch DescriptionRegexMatch(LetItemKey regexKey) {
+        return new DescriptionRegexMatch(this, regexKey);
     }
 
     /**
@@ -418,18 +482,6 @@ public abstract class Query {
      */
     protected final Map<ConceptSpecification, NidSet> For() {
         return this.forSetSpecification.getCollectionMap();
-    }
-
-    /**
-     * Fully specified name for concept.
-     *
-     * @param clause the clause
-     * @param stampCoordinateKey
-     * @param languageCoordinateKey
-     * @return the fully specified name for concept
-     */
-    protected FullyQualifiedNameForConcept FullySpecifiedNameForConcept(Clause clause, String stampCoordinateKey, String languageCoordinateKey) {
-        return new FullyQualifiedNameForConcept(this, clause, stampCoordinateKey, languageCoordinateKey);
     }
 
     /**
@@ -452,102 +504,6 @@ public abstract class Query {
         return new Or(this, clauses);
     }
 
-    /**
-     * Preferred name for concept.
-     *
-     * @param clause the clause
-     * @param stampCoordinateKey
-     * @param languageCoordinateKey
-     * @return the preferred name for concept
-     */
-    protected PreferredNameForConcept PreferredNameForConcept(Clause clause, String stampCoordinateKey, String languageCoordinateKey) {
-        return new PreferredNameForConcept(this, clause, stampCoordinateKey, languageCoordinateKey);
-    }
-
-    /**
-     * Refset contains concept.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param conceptSpecKey the concept spec key
-     * @return the refset contains concept
-     */
-    protected AssemblageContainsConcept RefsetContainsConcept(String refsetSpecKey, String conceptSpecKey) {
-        return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
-    }
-
-    /**
-     * Refset contains concept.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
-     * @return the refset contains concept
-     */
-    protected AssemblageContainsConcept RefsetContainsConcept(String refsetSpecKey,
-            String conceptSpecKey,
-            String viewCoordinateKey) {
-        return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
-    }
-
-    /**
-     * Refset contains kind of concept.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param conceptSpecKey the concept spec key
-     * @return the refset contains kind of concept
-     */
-    protected AssemblageContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey, String conceptSpecKey) {
-        return new AssemblageContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
-    }
-
-    /**
-     * Refset contains kind of concept.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param conceptSpecKey the concept spec key
-     * @param viewCoordinateKey the view coordinate key
-     * @return the refset contains kind of concept
-     */
-    protected AssemblageContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey,
-            String conceptSpecKey,
-            String viewCoordinateKey) {
-        return new AssemblageContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
-    }
-
-    /**
-     * Refset contains string.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param stringMatchKey the string match key
-     * @return the refset contains string
-     */
-    protected AssemblageContainsString RefsetContainsString(String refsetSpecKey, String stringMatchKey) {
-        return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, CURRENT_TAXONOMY_RESULT);
-    }
-
-    /**
-     * Refset contains string.
-     *
-     * @param refsetSpecKey the refset spec key
-     * @param stringMatchKey the string match key
-     * @param viewCoordinateKey the view coordinate key
-     * @return the refset contains string
-     */
-    protected AssemblageContainsString RefsetContainsString(String refsetSpecKey,
-            String stringMatchKey,
-            String viewCoordinateKey) {
-        return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, viewCoordinateKey);
-    }
-
-    /**
-     * Refset lucene match.
-     *
-     * @param queryString the query string
-     * @return the refset lucene match
-     */
-    protected AssemblageLuceneMatch RefsetLuceneMatch(String queryString) {
-        return new AssemblageLuceneMatch(this, queryString, CURRENT_TAXONOMY_RESULT);
-    }
 
     /**
      * Rel restriction.
@@ -556,8 +512,8 @@ public abstract class Query {
      * @param destinationSpecKey the destination spec key
      * @return the rel restriction
      */
-    protected RelRestriction RelRestriction(String relTypeKey, String destinationSpecKey) {
-        return new RelRestriction(this, relTypeKey, destinationSpecKey, CURRENT_TAXONOMY_RESULT, null, null);
+    protected RelRestriction RelRestriction(LetItemKey relTypeKey, LetItemKey destinationSpecKey) {
+        return new RelRestriction(this, relTypeKey, destinationSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY, null, null);
     }
 
     /**
@@ -568,9 +524,9 @@ public abstract class Query {
      * @param key the key
      * @return the rel restriction
      */
-    protected RelRestriction RelRestriction(String relTypeKey, String destinationSpecKey, String key) {
+    protected RelRestriction RelRestriction(LetItemKey relTypeKey, LetItemKey destinationSpecKey, LetItemKey key) {
         if (this.letDeclarations.get(key) instanceof Boolean) {
-            return new RelRestriction(this, relTypeKey, destinationSpecKey, CURRENT_TAXONOMY_RESULT, key, null);
+            return new RelRestriction(this, relTypeKey, destinationSpecKey, DEFAULT_MANIFOLD_COORDINATE_KEY, key, null);
         } else {
             return new RelRestriction(this, relTypeKey, destinationSpecKey, key, null, null);
         }
@@ -585,14 +541,14 @@ public abstract class Query {
      * @param targetSubsumptionKey the target subsumption key
      * @return the rel restriction
      */
-    protected RelRestriction RelRestriction(String relTypeKey,
-            String destinatonSpecKey,
-            String relTypeSubsumptionKey,
-            String targetSubsumptionKey) {
+    protected RelRestriction RelRestriction(LetItemKey relTypeKey,
+            LetItemKey destinatonSpecKey,
+            LetItemKey relTypeSubsumptionKey,
+            LetItemKey targetSubsumptionKey) {
         return new RelRestriction(this,
                 relTypeKey,
                 destinatonSpecKey,
-                CURRENT_TAXONOMY_RESULT,
+                DEFAULT_MANIFOLD_COORDINATE_KEY,
                 relTypeSubsumptionKey,
                 targetSubsumptionKey);
     }
@@ -602,20 +558,20 @@ public abstract class Query {
      *
      * @param relTypeKey the rel type key
      * @param destinationSpecKey the destination spec key
-     * @param viewCoordinateKey the view coordinate key
+     * @param manifoldCoordinateKey the manifold coordinate key
      * @param relTypeSubsumptionKey the rel type subsumption key
      * @param targetSubsumptionKey the target subsumption key
      * @return the rel restriction
      */
-    protected RelRestriction RelRestriction(String relTypeKey,
-            String destinationSpecKey,
-            String viewCoordinateKey,
-            String relTypeSubsumptionKey,
-            String targetSubsumptionKey) {
+    protected RelRestriction RelRestriction(LetItemKey relTypeKey,
+            LetItemKey destinationSpecKey,
+            LetItemKey manifoldCoordinateKey,
+            LetItemKey relTypeSubsumptionKey,
+            LetItemKey targetSubsumptionKey) {
         return new RelRestriction(this,
                 relTypeKey,
                 destinationSpecKey,
-                viewCoordinateKey,
+                manifoldCoordinateKey,
                 relTypeSubsumptionKey,
                 targetSubsumptionKey);
     }
@@ -655,8 +611,22 @@ public abstract class Query {
      *
      * @return the let declarations
      */
-    public HashMap<String, Object> getLetDeclarations() {
+    public Map<LetItemKey, Object> getLetDeclarations() {
         return this.letDeclarations;
+    }
+    
+    public void setLetDeclarations(Map<LetItemKey, Object> letDeclarations) {
+        this.letDeclarations = letDeclarations;
+    }
+    
+    @XmlElement(name = "Let")
+    protected JaxbMap getLetMap() {
+        return JaxbMap.of(this.letDeclarations);
+    }
+
+    protected void setLetMap(JaxbMap letMap) {
+        this.letDeclarations.clear();
+        this.letDeclarations.putAll(letMap.getMap());
     }
 
     /**
@@ -688,5 +658,54 @@ public abstract class Query {
         this.resultSetLimit = limit;
     }
 
-    //~--- get methods ---------------------------------------------------------
+    public List<List<String>> executeQuery() throws NoSuchElementException {
+        int[][] resultArray = reify();
+
+        List<List<String>> results = new ArrayList<>();
+        List<AttributeSpecification> resultColumns = getReturnAttributeList();
+        int columnCount = resultColumns.size();
+        
+        OpenIntIntHashMap fastAssemblageNidToIndexMap = new OpenIntIntHashMap();
+        for (Map.Entry<ConceptSpecification, Integer> entry : getForSetSpecification().getAssembalgeToIndexMap().entrySet()) {
+            fastAssemblageNidToIndexMap.put(entry.getKey().getNid(), entry.getValue());
+        }
+        ObservableSnapshotService[] snapshotArray = new ObservableSnapshotService[columnCount];
+        for (int column = 0; column < resultColumns.size(); column++) {
+            AttributeSpecification columnSpecification = resultColumns.get(column);
+            if (columnSpecification.getStampCoordinateKey() != null) {
+                StampCoordinate stamp = (StampCoordinate) getLetDeclarations().get(columnSpecification.getStampCoordinateKey());
+                snapshotArray[column] = Get.observableSnapshotService(stamp);
+            }
+        }
+        
+        for (int row = 0; row < resultArray.length; row++) {
+            String[] resultRow = new String[columnCount];
+            LatestVersion[] latestVersionArray = new LatestVersion[resultArray[row].length];
+            List[] propertyListArray = new List[resultArray[row].length];
+            for (int column = 0; column < latestVersionArray.length; column++) {
+                latestVersionArray[column] = snapshotArray[column].getObservableVersion(resultArray[row][column]);
+                if (latestVersionArray[column].isPresent()) {
+                    propertyListArray[column] = ((ObservableVersion) latestVersionArray[column].get()).getProperties();
+                } else {
+                    propertyListArray[column] = null;
+                }
+            }
+            for (int column = 0; column < columnCount; column++) {
+                AttributeSpecification columnSpecification = resultColumns.get(column);
+                int resultArrayNidIndex = fastAssemblageNidToIndexMap.get(columnSpecification.getAssemblageNid());
+                if (latestVersionArray[resultArrayNidIndex].isPresent()) {
+                    List<ReadOnlyProperty<?>> propertyList = propertyListArray[resultArrayNidIndex];
+                    ReadOnlyProperty<?> property = propertyList.get(columnSpecification.getPropertyIndex());
+                    if (columnSpecification.getAttributeFunction() != null) {
+                        StampCoordinate sc = (StampCoordinate) getLetDeclarations().get(columnSpecification.getStampCoordinateKey());
+                        resultRow[column] = columnSpecification.getAttributeFunction().apply(property.getValue().toString(), sc, this);
+                    } else {
+                        resultRow[column] = property.getValue().toString();
+                    }
+                }
+            }
+            results.add(Arrays.asList(resultRow));
+        }
+        return results;
+    }
 }

@@ -922,7 +922,7 @@ public class ContentManagerController
 			sourceConversionOptionDescription.appendText("\n");
 			sourceConversionOptionDescription.appendText("Is selection required: " + !cop.isAllowNoSelection());
 			sourceConversionOptionDescription.appendText("\n");
-			sourceConversionOptionDescription.appendText("Is more than one selection allowed: " + cop.isAllowMultiSelect());
+			sourceConversionOptionDescription.appendText("Is more than one selection allowed: " + cop.isAllowMultiSelectInPomMode());
 			sourceConversionOptionDescription.appendText("\n");
 			sourceConversionOptionDescription.appendText("\n");
 			sourceConversionOptionDescription.appendText("Suggested values:");
@@ -983,7 +983,7 @@ public class ContentManagerController
 						setInvalidReason("The option " + cop.getDisplayName() + " must be specified");
 						return false;
 					}
-					if (!cop.isAllowMultiSelect() && values.size() > 1)
+					if (!cop.isAllowMultiSelectInPomMode() && values.size() > 1)
 					{
 						setInvalidReason("The option " + cop.getDisplayName() + " only allows one entry");
 						return false;

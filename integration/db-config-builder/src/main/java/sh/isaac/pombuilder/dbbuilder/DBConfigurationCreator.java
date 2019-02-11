@@ -265,7 +265,7 @@ public class DBConfigurationCreator
 			configuration = new Configuration();
 			configuration.setDataStoreLocation("${project.build.directory}/${project.build.finalName}${resultArtifactClassifierWithLeadingHyphen}.data/");
 			configuration.setDbBuildMode(BuildMode.DB.name());
-			configuration.setDbImplementation(dbImplementation == null ? DatabaseImplementation.DEFAULT.name() : dbImplementation.name());
+			configuration.setDbImplementation(dbImplementation == null ? DatabaseImplementation.DEFAULT.getServiceName() : dbImplementation.getServiceName());
 			pe.setConfiguration(configuration);
 			executions.getExecution().add(pe);
 

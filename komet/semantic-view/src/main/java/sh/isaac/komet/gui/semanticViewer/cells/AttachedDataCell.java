@@ -91,7 +91,7 @@ public class AttachedDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 			setText("");
 			setGraphic(null);
 		}
-		else if (item != null)
+		else
 		{
 			try
 			{
@@ -175,7 +175,8 @@ public class AttachedDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 		ContextMenu cm = new ContextMenu();
 		Get.workExecutors().getExecutor().execute(() ->
 		{
-			AbstractMap.SimpleImmutableEntry<String, String> value = item.getDisplayStrings(SemanticGUIColumnType.ATTACHED_DATA, refexColumnOrder);
+			final SemanticGUI itemBeingWorked = item;
+			AbstractMap.SimpleImmutableEntry<String, String> value = itemBeingWorked.getDisplayStrings(SemanticGUIColumnType.ATTACHED_DATA, refexColumnOrder);
 				
 			//TODO common menus
 //			CommonMenus.addCommonMenus(cm, new CommonMenusNIdProvider()
@@ -197,9 +198,10 @@ public class AttachedDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 
 			Platform.runLater(() ->
 			{
-				if (isEmpty() || getItem() == null)
+				if (itemBeingWorked != getItem())
 				{
-					//We are updating a cell that has sense been changed to empty - abort!
+					//We were calculating a value for a cell that has been replaced while we were in a background thread.
+					//noop - another call will paint the cell
 					return;
 				}
 				if (value.getValue() != null && value.getValue().length() > 0)

@@ -1,280 +1,165 @@
 package sh.isaac.solor.rf2;
 
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.solor.ExportComponentType;
-import sh.isaac.solor.ExportConfiguration;
-import sh.isaac.solor.ZipExportFilesTask;
+import sh.isaac.api.util.UuidT3Generator;
+import sh.isaac.solor.rf2.config.RF2ConfigType;
+import sh.isaac.solor.rf2.config.RF2Configuration;
+import sh.isaac.solor.rf2.exporters.core.*;
+import sh.isaac.solor.rf2.exporters.refsets.RF2LanguageRefsetExporter;
+import sh.isaac.solor.rf2.exporters.refsets.RF2RefsetExporter;
+import sh.isaac.solor.rf2.utility.PreExportUtility;
+import sh.isaac.solor.rf2.utility.RF2ExportHelper;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Semaphore;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
 
     private final File exportDirectory;
     private final Manifold manifold;
     private final String exportMessage;
+    private final LocalDateTime localDateTimeNow;
+    private List<RF2Configuration> exportConfigurations;
     private static final int READ_PERMITS = Runtime.getRuntime()
             .availableProcessors() * 2;
     private final Semaphore readSemaphore = new Semaphore(READ_PERMITS);
-    private final int READ_BATCH_SIZE = 102400;
-    private final Map<ExportConfiguration, List<String>> mapOfArtifactsToExport = new HashMap<>();
-    private final String zipFileName;
-    private final LocalDateTime localDateTimeNow;
+    private final RF2ExportHelper rf2ExportHelper;
+    private final PreExportUtility preExportUtility;
+    private boolean isDescriptorAssemblagePresent = false;
 
     public RF2DirectExporter(Manifold manifold, File exportDirectory, String exportMessage){
         this.manifold = manifold;
         this.exportDirectory = exportDirectory;
         this.exportMessage = exportMessage;
         this.localDateTimeNow = LocalDateTime.now();
-        this.zipFileName = "/" + "SnomedCT_SolorRF2_PRODUCTION_"
-                + DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(this.localDateTimeNow) + ".zip";
+        this.rf2ExportHelper = new RF2ExportHelper(this.manifold);
+        this.exportConfigurations = new ArrayList<>();
+        this.preExportUtility = new PreExportUtility(this.manifold);
 
-        this.readSemaphore.acquireUninterruptibly();
-        updateTitle("Export " + this.exportMessage);
-        addToTotalWork(5);
+        isDescriptorAssemblagePresent = Get.identifierService().hasUuid(UuidT3Generator.fromSNOMED("900000000000456007"));
+
         Get.activeTasks().add(this);
     }
 
     @Override
-    protected Void call() throws Exception {
+    protected Void call() {
+
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.CONCEPT, this.localDateTimeNow, this.exportDirectory, this.manifold));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.DESCRIPTION, this.localDateTimeNow, this.exportDirectory, this.manifold));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.RELATIONSHIP, this.localDateTimeNow, this.exportDirectory, this.manifold));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.STATED_RELATIONSHIP, this.localDateTimeNow, this.exportDirectory, this.manifold));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.IDENTIFIER, this.localDateTimeNow, this.exportDirectory, this.manifold));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.TRANSITIVE_CLOSURE, this.localDateTimeNow, this.exportDirectory, this.manifold));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.VERSIONED_TRANSITIVE_CLOSURE, this.localDateTimeNow, this.exportDirectory, this.manifold));
+
+        List<Integer> currentAssemblageNids = Arrays.stream(Get.assemblageService().getAssemblageConceptNids()).boxed().collect(Collectors.toList());
+
+        int descriptorAssemblageNid = isDescriptorAssemblagePresent? Get.concept(UuidT3Generator.fromSNOMED("900000000000456007")).getNid() : 0;
+
+        //Add all languages TODO- Create a Factory and account for user specific selections
+        Arrays.stream(
+                Get.taxonomyService().getSnapshot(manifold)
+                        .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
+                .filter(langAssemblageNid -> currentAssemblageNids.contains(langAssemblageNid))
+                .forEach(languageNid ->
+                        exportConfigurations.add(
+                                new RF2Configuration(RF2ConfigType.LANGUAGE_REFSET,
+                                        this.localDateTimeNow, languageNid, this.exportDirectory, this.manifold,
+                                        this.preExportUtility, this.isDescriptorAssemblagePresent)));
+
+        final ArrayList<VersionType> versionTypeIgnoreList = new ArrayList<>();
+        versionTypeIgnoreList.add(VersionType.CONCEPT);
+        versionTypeIgnoreList.add(VersionType.DESCRIPTION);
+        versionTypeIgnoreList.add(VersionType.DYNAMIC);
+        versionTypeIgnoreList.add(VersionType.LOGIC_GRAPH);
+        versionTypeIgnoreList.add(VersionType.RF2_RELATIONSHIP);
+//        versionTypeIgnoreList.add(VersionType.LOINC_RECORD);
+        //Add all refsets TODO- Create a Factory and account for user specific selections
+        Arrays.stream(Get.assemblageService().getAssemblageConceptNids())
+                .filter(nid -> !versionTypeIgnoreList.contains(Get.assemblageService().getVersionTypeForAssemblage(nid)))
+                .filter(nid -> descriptorAssemblageNid != nid)
+                .forEach(assemblageNid -> exportConfigurations.add(
+                        new RF2Configuration(RF2ConfigType.REFSET, this.localDateTimeNow, assemblageNid,
+                                Get.concept(assemblageNid).getFullyQualifiedName(),
+                                Get.assemblageService().getVersionTypeForAssemblage(assemblageNid),
+                                this.exportDirectory, this.manifold, this.preExportUtility, this.isDescriptorAssemblagePresent)));
+
+        updateTitle("Export " + this.exportMessage);
 
         try {
 
-            ExportConfiguration conceptConfig = new ExportConfiguration(
-                    "id\teffectiveTime\tactive\tmoduleId\tdefinitionStatusId\r",
-                    "SnomedCT_SolorRF2_PRODUCTION_"
-                            + DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(this.localDateTimeNow)
-                            + "/Snapshot/Terminology/sct2_Concept_Snapshot_"
-                            + DateTimeFormatter.ofPattern("uuuuMMdd").format(this.localDateTimeNow) + ".txt",
-                    ExportComponentType.RF2CONCEPT,
-                    "Concept");
+            RF2Configuration descriptorAssemblageConfiguration = null;
 
-            ExportConfiguration descriptionConfig = new ExportConfiguration(
-                    "id\teffectiveTime\tactive\tmoduleId\tconceptId\tlanguageCode" +
-                            "\ttypeId\tterm\tcaseSignificanceId\r",
-                    "SnomedCT_SolorRF2_PRODUCTION_"
-                            + DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(this.localDateTimeNow)
-                            + "/Snapshot/Terminology/sct2_Description_Snapshot_"
-                            + DateTimeFormatter.ofPattern("uuuuMMdd").format(this.localDateTimeNow) + ".txt",
-                    ExportComponentType.RF2DESCRIPTION,
-                    "Description");
-
-            ExportConfiguration relationshipConfig = new ExportConfiguration(
-                    "id\teffectiveTime\tactive\tmoduleId\tsourceId\tdestinationId" +
-                            "\trelationshipGroup\ttypeId\tcharacteristicTypeId\tmodifierId\r",
-                    "SnomedCT_SolorRF2_PRODUCTION_"
-                            + DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(this.localDateTimeNow)
-                            + "/Snapshot/Terminology/sct2_Relationship_Snapshot_"
-                            + DateTimeFormatter.ofPattern("uuuuMMdd").format(this.localDateTimeNow) + ".txt",
-                    ExportComponentType.RF2RELATIONSHIP,
-                    "Relationship");
-
-            completedUnitOfWork();
-
-            batchStreamAndRunReaders(Get.conceptService().getConceptChronologyStream(), conceptConfig);
-
-            completedUnitOfWork();
-
-            batchStreamAndRunReaders(Get.conceptService().getConceptChronologyStream()
-                            .flatMap(conceptChronology -> conceptChronology.getConceptDescriptionList().stream()),
-                    descriptionConfig);
-
-            completedUnitOfWork();
-
-            batchStreamAndRunReaders(Get.conceptService().getConceptChronologyStream()
-                            .flatMap(conceptChronology -> conceptChronology.getSemanticChronologyList().stream())
-                            .filter(semanticChronology -> semanticChronology.getVersionType() == VersionType.LOGIC_GRAPH),
-                    relationshipConfig);
-
-            completedUnitOfWork();
-
-            for(int assemblageNID : Get.assemblageService().getAssemblageConceptNids()){
-
-                IsaacObjectType isaacObjectTypeForAssemblage = Get.assemblageService().getObjectTypeForAssemblage(assemblageNID);
-
-                if(isaacObjectTypeForAssemblage == IsaacObjectType.SEMANTIC) {
-
-                    ExportConfiguration semanticAssemblageConfig = generateAssemblageExportConfiguration(
-                            Get.assemblageService().getSemanticChronologyStream(assemblageNID)
-                                    .findFirst().get().getVersionType(),
-                            Get.concept(assemblageNID).getFullyQualifiedName());
-
-                    batchStreamAndRunReaders(Get.assemblageService().getSemanticChronologyStream(assemblageNID),
-                            semanticAssemblageConfig);
-                } else if(isaacObjectTypeForAssemblage == IsaacObjectType.CONCEPT){
-//                    ExportConfiguration conceptAssemblageConfig = generateAssemblageExportConfiguration(
-//                            Get.assemblageService().getChronologyStream(assemblageNID)
-//                            .findFirst().get().getVersionType(),
-//                            Get.concept(assemblageNID).getFullyQualifiedName());
-//                    batchStreamAndRunReaders(Get.assemblageService().getChronologyStream(assemblageNID),
-//                            conceptAssemblageConfig);
-                }
+            if (isDescriptorAssemblagePresent) {
+                descriptorAssemblageConfiguration = new RF2Configuration(RF2ConfigType.REFSET, this.localDateTimeNow,
+                        descriptorAssemblageNid, Get.concept(descriptorAssemblageNid).getFullyQualifiedName(),
+                        Get.assemblageService().getVersionTypeForAssemblage(descriptorAssemblageNid),
+                        this.exportDirectory, this.manifold, this.preExportUtility, this.isDescriptorAssemblagePresent);
             }
 
-            runZipTask();
+            for (RF2Configuration rf2Configuration : this.exportConfigurations) {
 
-            completedUnitOfWork();
+                switch (rf2Configuration.getRf2ConfigType()){
+                    case CONCEPT:
+                        Get.executor().submit(
+                                new RF2ConceptExporter(rf2Configuration, rf2ExportHelper, rf2Configuration.getIntStream(), readSemaphore));
+                        break;
+                    case DESCRIPTION:
+                        Get.executor().submit(
+                                new RF2DescriptionExporter(rf2Configuration, rf2ExportHelper, rf2Configuration.getIntStream(), readSemaphore));
+                        break;
+                    case RELATIONSHIP:
+                    case STATED_RELATIONSHIP:
+                        Get.executor().submit(
+                                new RF2RelationshipExporter(rf2Configuration, rf2ExportHelper, rf2Configuration.getIntStream(), readSemaphore));
+                        break;
+                    case IDENTIFIER:
+                        Get.executor().submit(
+                                new RF2IdentifierExporter(rf2Configuration, rf2ExportHelper, rf2Configuration.getIntStream(), readSemaphore));
+                        break;
+                    case TRANSITIVE_CLOSURE:
+                        Get.executor().submit(
+                                new RF2TransitiveClosureExporter(rf2Configuration, rf2ExportHelper, rf2Configuration.getIntStream(), readSemaphore));
+                        break;
+                    case VERSIONED_TRANSITIVE_CLOSURE:
+                        Get.executor().submit(
+                                new RF2VersionedTransitiveClosureExporter(rf2Configuration, rf2ExportHelper, rf2Configuration.getIntStream(), readSemaphore));
+                        break;
+                    case LANGUAGE_REFSET:
+                        Get.executor().submit(
+                                new RF2LanguageRefsetExporter(rf2Configuration, rf2ExportHelper, rf2Configuration.getIntStream(), readSemaphore));
+                        break;
+                    case REFSET:
+                        Get.executor().submit(
+                                new RF2RefsetExporter(rf2Configuration, rf2ExportHelper, rf2Configuration.getIntStream(), readSemaphore));
+                        break;
+                }
+                if(isDescriptorAssemblagePresent && rf2Configuration.getRefsetDescriptorDefinitions().size() > 0)
+                    descriptorAssemblageConfiguration.getRefsetDescriptorDefinitions().addAll(rf2Configuration.getRefsetDescriptorDefinitions());
+            }
+
+            if(isDescriptorAssemblagePresent)
+                Get.executor().submit(
+                        new RF2RefsetExporter(descriptorAssemblageConfiguration, rf2ExportHelper,
+                                descriptorAssemblageConfiguration.getIntStream(), readSemaphore));
+
+            readSemaphore.acquireUninterruptibly(READ_PERMITS);
+
         }finally {
-            this.readSemaphore.release();
+            readSemaphore.release(READ_PERMITS);
             Get.activeTasks().remove(this);
         }
 
-
         return null;
-    }
-
-    private void batchStreamAndRunReaders(Stream<? extends Chronology> streamToBatch, ExportConfiguration exportConfiguration){
-        final ArrayList<Future<List<String>>> futures = new ArrayList<>();
-        final ArrayList<Chronology> batch = new ArrayList<>(this.READ_BATCH_SIZE);
-
-        streamToBatch
-                .forEach(chronology -> {
-                    batch.add(chronology);
-                    if(batch.size() % this.READ_BATCH_SIZE == 0){
-                        futures.add(runBatchReader(new ArrayList<>(batch), exportConfiguration));
-                        batch.clear();
-                    }
-                });
-
-        if(!batch.isEmpty()){
-            futures.add(runBatchReader(batch, exportConfiguration));
-        }
-
-        this.readSemaphore.acquireUninterruptibly(READ_PERMITS - 1);
-
-        final ArrayList<String> readerResults = new ArrayList<>();
-        for(Future<List<String>> future : futures){
-            try {
-                readerResults.addAll(future.get());
-            }catch (InterruptedException | ExecutionException ieE){
-                ieE.printStackTrace();
-            }
-        }
-
-        exportConfiguration.addHeaderToExport(readerResults);
-        this.mapOfArtifactsToExport.put(exportConfiguration, readerResults);
-
-        this.readSemaphore.release(READ_PERMITS - 1); //this task takes up a thread
-    }
-
-    private Future<List<String>> runBatchReader(List<Chronology> batch, ExportConfiguration exportConfiguration){
-        switch (exportConfiguration.getExportComponentType()){
-            case RF2CONCEPT:
-                return Get.executor().submit(new RF2ExportConceptReader(batch, this.readSemaphore, this.manifold, exportConfiguration), new ArrayList<>());
-            case RF2DESCRIPTION:
-                return Get.executor().submit(new RF2ExportDescriptionReader(batch, this.readSemaphore, this.manifold, exportConfiguration), new ArrayList<>());
-            case RF2RELATIONSHIP:
-                return Get.executor().submit(new RF2ExportRelationshipReader(batch, this.readSemaphore, this.manifold, exportConfiguration), new ArrayList<>());
-            case RF2Refset:
-                return Get.executor().submit(new RF2ExportRefsetReader(batch, this.readSemaphore, this.manifold, exportConfiguration), new ArrayList<>());
-            default:
-                return null;
-        }
-    }
-
-    private void runZipTask() throws InterruptedException, ExecutionException{
-        updateMessage("Zipping SOLOR" + this.exportMessage + " Export...");
-        ZipExportFilesTask zipExportFilesTask =
-                new ZipExportFilesTask(this.exportDirectory, this.mapOfArtifactsToExport, this.readSemaphore, this.zipFileName);
-        Get.executor().submit(zipExportFilesTask).get();
-    }
-
-    private ExportConfiguration generateAssemblageExportConfiguration(VersionType versionType, String assemblageFQN){
-
-        String fileHeader = "id\teffectiveTime\tactive\tmoduleId\trefsetId\treferencedComponentId\t\r";
-        String baseRefsetFilePath = "SnomedCT_SolorRF2_PRODUCTION_"
-                + DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(this.localDateTimeNow)
-                + "/Snapshot/Refset/der2_%1$sRefset_%2$sSnapshot_"
-                + DateTimeFormatter.ofPattern("uuuuMMdd").format(this.localDateTimeNow) + ".txt";
-        String completeRefsetFilePath = "";
-
-        switch (versionType){
-            case COMPONENT_NID:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "c", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case RF2_RELATIONSHIP:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "ciccc", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case LOINC_RECORD:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "ssssssssss", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case LOGIC_GRAPH:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "s", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case DESCRIPTION:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "s", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case STRING:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "s", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case LONG:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "s", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "sssssss", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "iissscc", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Nid1_Int2_Str3_Str4_Nid5_Nid6:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "sssssss", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Str1_Str2_Nid3_Nid4_Nid5:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "ssccc", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Str1_Str2_Nid3_Nid4:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "sscc", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Str1_Nid2_Nid3_Nid4:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "scccc", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Nid1_Nid2_Int3:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "cci", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Nid1_Nid2_Str3:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "ccs", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Str1_Str2:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "ss", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Nid1_Str2:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "cs", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Nid1_Nid2:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "cc", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case Nid1_Int2:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "ci", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case CONCEPT:
-            case MEMBER:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case UNKNOWN:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "unk", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case DYNAMIC:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "dyn", assemblageFQN.replaceAll(" ", ""));
-                break;
-            case MEASURE_CONSTRAINTS:
-                completeRefsetFilePath = String.format(baseRefsetFilePath, "mes", assemblageFQN.replaceAll(" ", ""));
-                break;
-            default:
-        }
-
-        return new ExportConfiguration(fileHeader,completeRefsetFilePath,ExportComponentType.RF2Refset, assemblageFQN);
-
     }
 }

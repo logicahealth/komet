@@ -41,7 +41,8 @@ package sh.isaac.api.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 import sh.isaac.api.coordinate.LogicCoordinate;
 
@@ -54,42 +55,51 @@ import sh.isaac.api.coordinate.LogicCoordinate;
  */
 public interface ObservableLogicCoordinate
         extends LogicCoordinate, ObservableCoordinate {
-   /**
-    * Classifier nid property.
-    *
-    * @return the integer property
-    */
-   IntegerProperty classifierNidProperty();
+    
+    /**
+     * 
+     * @return the logic coordinate that this observable wraps. 
+     */
+   LogicCoordinate getLogicCoordinate();
 
    /**
-    * Concept assemblage nid property.
+    * Classifier property.
     *
-    * @return the integer property
+    * @return the classifier concept property. 
     */
-   IntegerProperty conceptAssemblageNidProperty();
+   ObjectProperty<ConceptSpecification> classifierProperty();
 
    /**
-    * Description logic profile nid property.
+    * Concept assemblage property.
     *
-    * @return the integer property
+    * @return the assemblage concept property. 
     */
-   IntegerProperty descriptionLogicProfileNidProperty();
+   ObjectProperty<ConceptSpecification> conceptAssemblageProperty();
 
    /**
-    * Inferred assemblage nid property.
+    * Description logic profile property.
     *
-    * @return the integer property
+    * @return the description logic profile concept property. 
     */
-   IntegerProperty inferredAssemblageNidProperty();
+   ObjectProperty<ConceptSpecification> descriptionLogicProfileProperty();
 
    /**
-    * Stated assemblage nid property.
+    * Inferred assemblage property.
     *
-    * @return the integer property
+    * @return the inferred assemblage concept property. 
     */
-   IntegerProperty statedAssemblageNidProperty();
+   ObjectProperty<ConceptSpecification> inferredAssemblageProperty();
+
+   /**
+    * Stated assemblage property.
+    *
+    * @return the stated assemblage concept property. 
+    */
+   ObjectProperty<ConceptSpecification> statedAssemblageProperty();
    
    @Override
    public ObservableLogicCoordinate deepClone();
+   
+
 }
 

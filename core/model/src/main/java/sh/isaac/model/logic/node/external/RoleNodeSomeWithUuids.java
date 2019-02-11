@@ -46,9 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataOutput;
-import java.io.IOException;
-
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -73,11 +70,14 @@ public class RoleNodeSomeWithUuids
         extends TypedNodeWithUuids {
    /**
     * Instantiates a new role node some with uuids.
+    * 
+    * Note that this constructor is not safe for all uses, and is only intended to aid in serialization / deserialization.
     *
     * @param internalForm the internal form
     */
    public RoleNodeSomeWithUuids(RoleNodeSomeWithNids internalForm) {
       super(internalForm);
+      //can't run validation here due to problems with this constructor pattern.
    }
 
    /**
@@ -89,6 +89,7 @@ public class RoleNodeSomeWithUuids
    public RoleNodeSomeWithUuids(LogicalExpressionImpl logicGraphVersion,
                                 ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
+      //will skip validate here, since it is highly unlikely it was created without being validated in the first place.
    }
 
    /**
@@ -102,6 +103,15 @@ public class RoleNodeSomeWithUuids
                                 UUID typeConceptUuid,
                                 AbstractLogicNode child) {
       super(logicGraphVersion, typeConceptUuid, child);
+      validate();
+   }
+   
+   private void validate()
+   {
+      NodeSemantic childSemantic = getOnlyChild().getNodeSemantic();
+      if (childSemantic == NodeSemantic.OR) {
+         throw new RuntimeException("The child of a Role_Some must not be " + getOnlyChild().getNodeSemantic());
+      }
    }
 
    //~--- methods -------------------------------------------------------------

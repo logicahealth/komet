@@ -71,7 +71,9 @@ public class RxNormConfigOptions implements ConfigOptionsDescriptor {
                         + " match the SAB selection list.  If provided, we only create concepts where the RxCUI has an entry with a TTY that matches one"
                         + " or more of the TTY's provided here.  Providing a small set of TTYs here will drastically reduce the amount of content imported"
                         + " from RxNorm.  The default here is to not make any selection.",
-                  true, true, new ConverterOptionParamSuggestedValue("IN", "Name for an ingredient"), new ConverterOptionParamSuggestedValue("SCD", "Semantic Clinical Drug"),
+                  true, true, true, 
+                  new String[] {}, 
+                  new ConverterOptionParamSuggestedValue("IN", "Name for an ingredient"), new ConverterOptionParamSuggestedValue("SCD", "Semantic Clinical Drug"),
                   new ConverterOptionParamSuggestedValue("SCDF", "Semantic clinical drug and form"), new ConverterOptionParamSuggestedValue("SCDG", "Semantic clinical drug group"),
                   new ConverterOptionParamSuggestedValue("DF", "Dose Form"), new ConverterOptionParamSuggestedValue("SBD", "Semantic branded drug"),
                   new ConverterOptionParamSuggestedValue("BN", "Fully-specified drug brand name that can not be prescribed")), // this isn't the complete list of TTYs
@@ -80,6 +82,8 @@ public class RxNormConfigOptions implements ConfigOptionsDescriptor {
                   + " The SABs required by the FileMan effort are VANDF, NDDF, MMSL and ATC.  NDFRT should be included for Pharamacy VUID searches.",
                   true,
                   true,
+                  true,
+                  new String[] {"RXNORM", "VANDF", "NDDF", "MMSL", "ATC", "NDFRT"},
                   new ConverterOptionParamSuggestedValue("ATC", "Anatomical Therapeutic Chemical Classification System"),
                   new ConverterOptionParamSuggestedValue("DRUGBANK", "Drug Bank"),
                   new ConverterOptionParamSuggestedValue("GS", "Gold Standard Drug Database"), new ConverterOptionParamSuggestedValue("MDDB", "Master Drug Data Base"),

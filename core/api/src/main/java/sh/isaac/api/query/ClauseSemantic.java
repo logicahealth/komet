@@ -39,6 +39,9 @@
 
 package sh.isaac.api.query;
 
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.component.concept.ConceptSpecification;
+
 /**
  * Enumeration for semantics of query clauses.
  *
@@ -48,139 +51,132 @@ public enum ClauseSemantic {
    /**
     * Logical And connective clause.
     */
-   AND,
+   AND(TermAux.AND_QUERY_CLAUSE),
 
    /** The and not. */
-   AND_NOT,
+   AND_NOT(TermAux.AND_NOT_QUERY_CLAUSE),
 
    /**
     * Logical OR connective clause.
     */
-   OR,
+   OR(TermAux.OR_QUERY_CLAUSE),
 
    /**
     * Logical NOT unary operator.
     */
-   NOT,
+   NOT(TermAux.NOT_QUERY_CLAUSE),
 
    /**
     * Logical XOR, used to determine what changed in membership between two
     * versions.
     */
-   XOR,
+   XOR(TermAux.XOR_QUERY_CLAUSE),
 
    /**
     * Test to see if component has changed from the previous version.
     */
-   CHANGED_FROM_PREVIOUS_VERSION,
-
-   /**
-    * Substitute the concept for any components matching criterion.
-    */
-   CONCEPT_FOR_COMPONENT,
+   CHANGED_FROM_PREVIOUS_VERSION(TermAux.CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE),
 
    /**
     * Test to see if the concept is a logical child of another.
     */
-   CONCEPT_IS_CHILD_OF,
+   CONCEPT_IS_CHILD_OF(TermAux.CONCEPT_IS_CHILD_OF_QUERY_CLAUSE),
 
    /**
     * Test to see if there is a concept matching the input concept spec.
     */
-   CONCEPT_IS,
+   CONCEPT_IS(TermAux.CONCEPT_IS_QUERY_CLAUSE),
 
    /**
     * Test to see if the concept is a logical descendent of another.
     */
-   CONCEPT_IS_DESCENDENT_OF,
+   CONCEPT_IS_DESCENDENT_OF(TermAux.CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE),
 
    /**
     * Test to see if the concept is a logical kind of another.
     */
-   CONCEPT_IS_KIND_OF,
+   CONCEPT_IS_KIND_OF(TermAux.CONCEPT_IS_KIND_OF_QUERY_CLAUSE),
 
    /**
     * Test to see if a component is a member of an ASSEMBLAGE.
     */
-   ASSEMBLAGE_CONTAINS_COMPONENT,
+   ASSEMBLAGE_CONTAINS_COMPONENT(TermAux.ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE),
 
    /**
     * Test to see if an active description on a concept matches a Lucene query
     * criterion.
     */
-   DESCRIPTION_ACTIVE_LUCENE_MATCH,
+   DESCRIPTION_ACTIVE_LUCENE_MATCH(TermAux.DESCRIPTION_LUCENE_ACTIVE_ONLY_MATCH_QUERY_CLAUSE),
 
    /**
     * Test to see if an active description on a concept matches matches a regex
     * expression.
     */
-   DESCRIPTION_ACTIVE_REGEX_MATCH,
+   DESCRIPTION_ACTIVE_REGEX_MATCH(TermAux.DESCRIPTION_REGEX_ACTIVE_ONLY_MATCH_QUERY_CLAUSE),
 
    /**
     * Test to see if any description (active or inactive) on a concept matches
     * a Lucene query criterion.
     */
-   DESCRIPTION_LUCENE_MATCH,
+   DESCRIPTION_LUCENE_MATCH(TermAux.DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE),
 
    /**
     * Test to see if any description (active or inactive) on a concept matches
     * matches a regex expression.
     */
-   DESCRIPTION_REGEX_MATCH,
-
-   /**
-    * Substitute the fully specified description for a concept.
-    */
-   FULLY_QUALIFIED_NAME_FOR_CONCEPT,
-
-   /**
-    * Substitute the preferred name for a concept.
-    */
-   PREFERRED_NAME_FOR_CONCEPT,
-
-   /**
-    * Test to see if an assemblage string member matches a Lucene query criterion.
-    */
-   ASSEMBLAGE_LUCENE_MATCH,
-
-   /**
-    * Test to see if a relationship has a restriction that is a kind of the concept from which
-    * the relationship originates. A circular or tautological relationship.
-    */
-   RELATIONSHIP_IS_CIRCULAR,
+   DESCRIPTION_REGEX_MATCH(TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE),
 
    /**
     * Test to see if a relationship matches a specified relationship type.
     */
-   REL_TYPE,
+   REL_TYPE(TermAux.REL_TYPE_QUERY_CLAUSE),
 
    /**
     * Test to see if a relationship matches a specified relationship type and
     * relationship destination restriction.
     */
-   REL_RESTRICTION,
-
-   /**
-    * Test to see if an assemblage contains a specified concept.
-    */
-   ASSEMBLAGE_CONTAINS_CONCEPT,
-
-   /**
-    * Test to see if an assemblage contains a kind of specified concept.
-    */
-   ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT,
-
-   /**
-    * Test to see if an assemblage contains a member that matches the specified
-    * string.
-    */
-   ASSEMBLAGE_CONTAINS_STRING,
+   REL_RESTRICTION(TermAux.REL_RESTRICTION_QUERY_CLAUSE),
    
    /**
     * Join two assemblages in the result set when criterion are met 
     */
-   JOIN,
+   JOIN(TermAux.JOIN_QUERY_CLAUSE),
    
-   COMPONENT_IS_ACTIVE
+   COMPONENT_IS_ACTIVE(TermAux.ACTIVE_QUERY_CLAUSE),
+   
+   COMPONENT_IS_INACTIVE(TermAux.INACTIVE_QUERY_CLAUSE),
+   
+   REFERENCED_COMPONENT_IS_ACTIVE(TermAux.REFERENCED_COMPONENT_IS_ACTIVE),
+
+   REFERENCED_COMPONENT_IS_INACTIVE(TermAux.REFERENCED_COMPONENT_IS_INACTIVE),
+   
+   REFERENCED_COMPONENT_IS(TermAux.REFERENCED_COMPONENT_IS),
+   
+   REFERENCED_COMPONENT_IS_MEMBER_OF(TermAux.REFERENCED_COMPONENT_IS_MEMBER_OF),
+   
+   REFERENCED_COMPONENT_IS_NOT_MEMBER_OF(TermAux.REFERENCED_COMPONENT_IS_NOT_MEMBER_OF),
+   //
+   COMPONENT_IS_MEMBER_OF(TermAux.COMPONENT_IS_MEMBER_OF),
+   
+   COMPONENT_IS_NOT_MEMBER_OF(TermAux.COMPONENT_IS_NOT_MEMBER_OF),
+   
+   REFERENCED_COMPONENT_IS_KIND_OF(TermAux.REFERENCED_COMPONENT_IS_KIND_OF),
+   
+   REFERENCED_COMPONENT_IS_NOT_KIND_OF(TermAux.REFERENCED_COMPONENT_IS_NOT_KIND_OF),
+   
+   SEMANTIC_CONTAINS_TEXT(TermAux.ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE);
+   
+   final ConceptSpecification clauseConcept;
+
+    private ClauseSemantic(ConceptSpecification clauseConcept) {
+        this.clauseConcept = clauseConcept;
+    }
+
+    public ConceptSpecification getClauseConcept() {
+        return clauseConcept;
+    }
+   
+   
+   
 }
 

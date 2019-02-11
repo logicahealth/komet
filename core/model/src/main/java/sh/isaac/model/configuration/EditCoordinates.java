@@ -57,9 +57,9 @@ public class EditCoordinates {
     * @return the classifier solor overlay
     */
    public static EditCoordinate getClassifierSolorOverlay() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.IHTSDO_CLASSIFIER.getNid(),
-                                                                   TermAux.SOLOR_OVERLAY_MODULE.getNid(),
-                                                                   TermAux.DEVELOPMENT_PATH.getNid());
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.IHTSDO_CLASSIFIER,
+                                                                   TermAux.SOLOR_OVERLAY_MODULE,
+                                                                   TermAux.DEVELOPMENT_PATH);
 
       return editCoordinate;
    }
@@ -70,9 +70,9 @@ public class EditCoordinates {
     * @return the default user metadata
     */
    public static EditCoordinate getDefaultUserMetadata() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER.getNid(),
-                                                                   TermAux.SOLOR_MODULE.getNid(),
-                                                                   TermAux.DEVELOPMENT_PATH.getNid());
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER,
+                                                                   TermAux.SOLOR_MODULE,
+                                                                   TermAux.DEVELOPMENT_PATH);
 
       return editCoordinate;
    }
@@ -83,24 +83,10 @@ public class EditCoordinates {
     * @return the default user solor overlay
     */
    public static EditCoordinate getDefaultUserSolorOverlay() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER.getNid(),
-                                                                   TermAux.SOLOR_OVERLAY_MODULE.getNid(),
-                                                                   TermAux.DEVELOPMENT_PATH.getNid());
-
-      return editCoordinate;
-   }
-
-   /**
-    * Gets the default user vhat coordinate.
-    *
-    * @return the default user vhat coordinate
-    */
-   public static EditCoordinate getDefaultUserVHAT() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER.getNid(),
-                                                                   TermAux.VHAT_MODULES.getNid(),
-                                                                   TermAux.DEVELOPMENT_PATH.getNid());
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER,
+                                                                   TermAux.SOLOR_OVERLAY_MODULE,
+                                                                   TermAux.DEVELOPMENT_PATH);
 
       return editCoordinate;
    }
 }
-

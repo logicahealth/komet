@@ -37,11 +37,19 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.isaac.api.query.properties.AssemblageForIterationClause;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -49,19 +57,22 @@ import sh.isaac.api.bootstrap.TermAux;
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.clauses.*;
+import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 
 //~--- classes ----------------------------------------------------------------
 /**
  * Statements that are used to retrieve desired components in a
  * <code>Query</code>. Clauses in a Query are organized into a tree and computed
- * using a depth-first search. The root node in a Query must be an instance of a
- * <code>ParentClause</code>.
+ using a depth-first search. The root node in a Query must be an instance of a
+ <code>ParentClause</code>.
  *
  * @author kec
  */
-public abstract class Clause implements ConceptSpecification {
+@XmlRootElement(name = "Clause")
+@XmlAccessorType(XmlAccessType.NONE)
+public abstract class Clause implements ConceptSpecification, AssemblageForIterationClause {
+    public static final Logger LOG = LogManager.getLogger();
 
     /**
      * The Constant PRE_AND_POST_ITERATION.
@@ -119,17 +130,35 @@ public abstract class Clause implements ConceptSpecification {
      * @param enclosingQuery the enclosing query
      */
     public Clause(Query enclosingQuery) {
+        if (enclosingQuery == null) {
+            throw new NullPointerException("Enclosing query cannot be null. ");
+        }
         this.enclosingQuery = enclosingQuery;
         enclosingQuery.getComputePhases().addAll(getComputePhases());
     }
+    
+    public void reset() {
+        resetResults();
+        for (Clause child: getChildren()) {
+            child.reset();
+        }
+    }
+    
+    public abstract void resetResults();
 
+    @XmlElement
+    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)    
+    @Override
     public ConceptSpecification getAssemblageForIteration() {
         return assemblageForIteration;
     }
 
+    @Override
     public void setAssemblageForIteration(ConceptSpecification assemblageForIteration) {
         if (assemblageForIteration == null) {
-            throw new NullPointerException("assemblageForIteration cannot be null.");
+            LOG.error("assemblage for iteration attempt to set to null for class: " + 
+                    this.getClass().getSimpleName());
+            assemblageForIteration = TermAux.UNINITIALIZED_COMPONENT_ID;
         }
         this.assemblageForIteration = assemblageForIteration;
     }
@@ -144,7 +173,9 @@ public abstract class Clause implements ConceptSpecification {
         }
     }
 
-    public abstract ConceptSpecification getClauseConcept();
+    public final ConceptSpecification getClauseConcept() {
+        return getClauseSemantic().getClauseConcept();
+    };
 
     @Override
     public String getFullyQualifiedName() {
@@ -165,7 +196,14 @@ public abstract class Clause implements ConceptSpecification {
     public int getNid() {
         return Get.identifierService().getNidForUuids(getPrimordialUuid());
     }
+    
+    public <T extends Object> T getLetItem(LetItemKey key) {
+        return (T) enclosingQuery.getLetDeclarations().get(key);
+    }
 
+    public void let(LetItemKey key, Object value) {
+        enclosingQuery.getLetDeclarations().put(key, value);
+    }
     //~--- methods -------------------------------------------------------------
     /**
      * Compute final results based on possible components, and any cached query
@@ -220,19 +258,18 @@ public abstract class Clause implements ConceptSpecification {
      */
     public void setParent(Clause parent) {
         this.parent = parent;
+        this.enclosingQuery = parent.getEnclosingQuery();
+        ParentClause parentClause = (ParentClause) parent;
+        parentClause.addChild(this);
+    }
+   public void removeParent(Clause parent) {
+        this.parent = null;
+        this.enclosingQuery = null;
+        ParentClause parentClause = (ParentClause) parent;
+        parentClause.removeChild(this);
     }
 
     //~--- get methods ---------------------------------------------------------
-    /**
-     * Collect intermediate results for clauses that require iteration over the
-     * database. This method will only be called if one of the clauses has a
-     * compute type of <code>ClauseComputeType.ITERATION</code>. The clause will
-     * cache results, and return the final results during the computeComponents
-     * method.
-     *
-     * @param conceptVersion the concept version
-     */
-    public abstract void getQueryMatches(ConceptVersion conceptVersion);
 
     /**
      * Getter for the <code>Where</code> clause, which is the syntax of the
@@ -252,15 +289,30 @@ public abstract class Clause implements ConceptSpecification {
      */
     public static Clause[] getAllClauses() {
         return new Clause[]{new And(), new AndNot(), new Not(), new Or(), new Xor(),
-            new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
-            new AssemblageContainsString(), new AssemblageLuceneMatch(),
-            new ChangedBetweenVersions(), new ConceptForComponent(),
-            new ConceptIs(), new ConceptIsChildOf(), new ConceptIsDescendentOf(),
-            new ConceptIsKindOf(), new DescriptionActiveLuceneMatch(),
-            new DescriptionActiveRegexMatch(), new DescriptionLuceneMatch(),
-            new DescriptionRegexMatch(), new FullyQualifiedNameForConcept(),
-            new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular(), new Join(),
-            new ComponentIsActive()
+            new Join(),
+            new ConceptIs(),
+            new ConceptIsKindOf(),
+            new ConceptIsDescendentOf(),
+            new ConceptIsChildOf(),
+            new ComponentIsActive(),
+            new ComponentIsInactive(),
+            new ReferencedComponentIsActive(),
+            new ReferencedComponentIsNotActive(),
+            new ReferencedComponentIs(),
+            new ReferencedComponentIsKindOf(),
+            new ReferencedComponentIsNotKindOf(),
+            new ReferencedComponentIsMemberOf(),
+            new ReferencedComponentIsNotMemberOf(),
+            new SemanticContainsString(),
+            new DescriptionLuceneMatch(),
+            new DescriptionRegexMatch()
+            
+//            new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
+//            new AssemblageContainsString(), new AssemblageLuceneMatch(),
+//            new ChangedBetweenVersions(), new ConceptForComponent(),
+//            new DescriptionActiveRegexMatch(),
+//            new FullyQualifiedNameForConcept(),
+//            new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular(), 
         };
     }
 

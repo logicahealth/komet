@@ -16,37 +16,61 @@
  */
 package sh.isaac.komet.iconography;
 
-//import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-//import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
-//import java.io.IOException;
+import sh.isaac.komet.iconography.wrappers.EmojiOneWrapper;
+import de.jensd.fx.glyphs.emojione.EmojiOneView;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import de.jensd.fx.glyphs.icons525.Icons525View;
+import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
+import de.jensd.fx.glyphs.materialicons.MaterialIconView;
+import de.jensd.fx.glyphs.octicons.OctIconView;
+import java.io.IOException;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
-//import org.controlsfx.glyphfont.GlyphFont;
+import org.controlsfx.glyphfont.GlyphFont;
+import org.controlsfx.glyphfont.GlyphFontRegistry;
+import sh.isaac.komet.iconography.wrappers.Icons525Wrapper;
+import sh.isaac.komet.iconography.wrappers.MaterialDesignWebfontWrapper;
+import sh.isaac.komet.iconography.wrappers.MaterialDesignIconWrapper;
+import sh.isaac.komet.iconography.wrappers.OctIconWrapper;
 
 /**
  *
  * @author kec
  */
 public class GlyphFonts {
-//   private static final GlyphFonts fonts = new GlyphFonts();
-   
-//   public static GlyphFont fontAwesome() {
-//      return fonts.fontAwesome;
-//   }
-//   
-//   public static GlyphFont materialDesignIcon() {
-//      return fonts.materialDesignIcon;
-//   }
-//   
-//   private final GlyphFont fontAwesome;
-//   private final GlyphFont materialDesignIcon;
-//   
-//   private GlyphFonts() {
-//      try {
-//         fontAwesome = new GlyphFont("FontAwesome", 12, FontAwesomeIconView.class.getResource(FontAwesomeIconView.TTF_PATH).openStream());
-//         materialDesignIcon = new GlyphFont("Material Design Icons", 12, MaterialDesignIconView.class.getResource(MaterialDesignIconView.TTF_PATH).openStream());
-//      } catch (IOException ex) {
-//         throw new RuntimeException(ex);
-//      }
-//   }
+
+    private static final GlyphFonts FONTS = new GlyphFonts();
+
+    public static GlyphFont fontAwesome() {
+        return GlyphFontRegistry.font("FontAwesome");
+    }
+
+    public static GlyphFont materialIcon() {
+        return GlyphFontRegistry.font(MaterialDesignIconWrapper.FONT_NAME);
+    }
+
+    public static GlyphFont materialDesignWebfont() {
+        return GlyphFontRegistry.font(MaterialDesignWebfontWrapper.FONT_NAME);
+    }
+
+    public static GlyphFont emojiOne() {
+        return GlyphFontRegistry.font(EmojiOneWrapper.FONT_NAME);
+    }
+
+    public static GlyphFont icons525() {
+        return GlyphFontRegistry.font(Icons525Wrapper.FONT_NAME);
+    }
+
+    public static GlyphFont octIcon() {
+        return GlyphFontRegistry.font(OctIconWrapper.FONT_NAME);
+    }
+
+
+    private GlyphFonts() {
+        GlyphFontRegistry.register(new EmojiOneWrapper());
+        GlyphFontRegistry.register(new MaterialDesignIconWrapper());
+        GlyphFontRegistry.register(new MaterialDesignWebfontWrapper());
+        GlyphFontRegistry.register(new Icons525Wrapper());
+        GlyphFontRegistry.register(new OctIconWrapper());
+    }
 }

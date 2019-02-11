@@ -51,6 +51,7 @@ import sh.isaac.model.statement.MeasureImpl;
 import sh.isaac.model.statement.ResultImpl;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
+import sh.komet.gui.control.PropertySheetItemIntegerWrapper;
 import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.PropertySheetItemStringListWrapper;
 import sh.komet.gui.control.PropertySheetPasswordWrapper;
@@ -113,6 +114,9 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
         } else if (propertySheetItem instanceof PropertySheetItemStringListWrapper) {
             PropertySheetItemStringListWrapper wrappedItem = (PropertySheetItemStringListWrapper) propertySheetItem;
             return Editors.createChoiceEditor(propertySheetItem, wrappedItem.getAllowedValues());
+        }else if (propertySheetItem instanceof PropertySheetItemIntegerWrapper) {
+            PropertySheetItemIntegerWrapper wrappedItem = (PropertySheetItemIntegerWrapper) propertySheetItem;
+            return Editors.createNumericEditor(wrappedItem);
         } else if (propertySheetItem instanceof PropertySheetMeasureWrapper) {
             PropertySheetMeasureWrapper measureWrapper = (PropertySheetMeasureWrapper) propertySheetItem;
             MeasureEditor measureEditor = new MeasureEditor(manifoldForDisplay);

@@ -3,7 +3,10 @@
 <?import java.net.URL?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
@@ -43,7 +46,7 @@
                            <content>
                               <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-padding: 0em;">
                                  <children>
-                                    <TreeTableView fx:id="whereTreeTable" editable="true" prefHeight="442.0" prefWidth="578.0" showRoot="false">
+                                    <TreeTableView fx:id="whereTreeTable" editable="true" prefHeight="442.0" prefWidth="578.0">
                                       <columns>
                                         <TreeTableColumn fx:id="clauseNameColumn" maxWidth="3000.0" minWidth="20.0" prefWidth="260.0" sortType="DESCENDING" sortable="false" text="clause" />
                                         <TreeTableColumn fx:id="clausePropertiesColumn" prefWidth="522.0" sortable="false" text="clause properties" />
@@ -58,23 +61,68 @@
                         </TitledPane>
                       <TitledPane fx:id="orderPane" animated="false" text="Order">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <BorderPane prefHeight="271.0" prefWidth="719.0" AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0" AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
+                                       <center>
+                                          <TableView fx:id="orderTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="250.0" prefWidth="650.0">
+                                            <columns>
+                                              <TableColumn fx:id="orderColumnNameColumn" prefWidth="313.5000365972519" text="field" />
+                                              <TableColumn fx:id="orderStampCoordinateColumn" minWidth="5.0" prefWidth="72.0" text="stamp" />
+                                                <TableColumn fx:id="orderFunctionColumn" prefWidth="94.0" text="function" />
+                                                <TableColumn fx:id="orderSortColumn" prefWidth="98.99996948242188" text="sort" />
+                                            </columns>
+                                          </TableView>
+                                       </center>
+                                       <right>
+                                          <ToolBar orientation="VERTICAL" prefHeight="226.0" prefWidth="33.0" BorderPane.alignment="CENTER">
+                                            <items>
+                                                <MenuButton fx:id="orderAddRowButton" mnemonicParsing="false">
+                                                  <items>
+                                                    <MenuItem mnemonicParsing="false" text="Action 1" />
+                                                    <MenuItem mnemonicParsing="false" text="Action 2" />
+                                                  </items>
+                                                </MenuButton>
+                                                <Button fx:id="orderUpButton" mnemonicParsing="false" />
+                                                <Button fx:id="orderDownButton" mnemonicParsing="false" />
+                                                <Button fx:id="orderTrashButton" mnemonicParsing="false" />
+                                            </items>
+                                          </ToolBar>
+                                       </right>
+                                    </BorderPane>
+                                 </children></AnchorPane>
                         </content>
                       </TitledPane>
                         <TitledPane fx:id="returnPane" prefHeight="200.0" prefWidth="200.0" text="Return">
                            <content>
                               <AnchorPane prefHeight="200.0" prefWidth="200.0">
                                  <children>
-                                    <TableView fx:id="returnTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="249.0" prefWidth="646.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                      <columns>
-                                        <TableColumn fx:id="includeColumn" prefWidth="31.5" />
-                                          <TableColumn fx:id="columnNameColumn" prefWidth="229.1016845703125" text="column name" />
-                                          <TableColumn fx:id="stampCoordinateColumn" prefWidth="134.0" text="STAMP" />
-                                        <TableColumn fx:id="propertyNameColumn" prefWidth="107.5" text="property" />
-                                          <TableColumn fx:id="functionColumn" prefWidth="182.39614868164062" text="function" />
-                                          <TableColumn fx:id="assemblageColumn" prefWidth="151.5" text="assemblage" />
-                                      </columns>
-                                    </TableView>
+                                    <BorderPane layoutX="10.399999618530273" layoutY="10.399999618530273" AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0" AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
+                                       <center>
+                                          <TableView fx:id="returnTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="250.0" prefWidth="650.0">
+                                            <columns>
+                                                <TableColumn fx:id="returnColumnNameColumn" prefWidth="229.1016845703125" text="column name" />
+                                                <TableColumn fx:id="returnStampCoordinateColumn" prefWidth="134.0" text="STAMP" />
+                                                <TableColumn fx:id="returnFunctionColumn" prefWidth="182.39614868164062" text="function" />
+                                            </columns>
+                                          </TableView>
+                                       </center>
+                                       <right>
+                                          <ToolBar orientation="VERTICAL" prefHeight="226.0" prefWidth="33.0" BorderPane.alignment="CENTER">
+                                            <items>
+                                                <MenuButton fx:id="returnAddRowButton" mnemonicParsing="false">
+                                                  <items>
+                                                    <MenuItem mnemonicParsing="false" text="Action 1" />
+                                                    <MenuItem mnemonicParsing="false" text="Action 2" />
+                                                  </items>
+                                                </MenuButton>
+                                              <Button fx:id="returnUpButton" mnemonicParsing="false" />
+                                                <Button fx:id="returnDownButton" mnemonicParsing="false" />
+                                                <Button fx:id="returnTrashButton" mnemonicParsing="false" />
+                                            </items>
+                                          </ToolBar>
+                                       </right>
+                                    </BorderPane>
                                  </children></AnchorPane>
                            </content>
                         </TitledPane>
@@ -86,9 +134,16 @@
                           <items>
                             <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeQuery" text="execute" />
                               <ProgressBar fx:id="progressBar" prefWidth="200.0" progress="0.0" />
-                              <Button fx:id="cancelButton" mnemonicParsing="false" text="cancel" />
-                              <Label fx:id="spacerLabel" maxWidth="1.7976931348623157E308" prefHeight="17.0" prefWidth="184.0" />
-                              <Button fx:id="exportButton" mnemonicParsing="false" onAction="#exportData" text="export" />
+                              <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#cancelQuery" text="cancel" />
+                              <Label fx:id="spacerLabel" maxWidth="1.7976931348623157E308" prefHeight="17.0" prefWidth="54.0" />
+                              <MenuButton mnemonicParsing="false" text="File">
+                                <items>
+                                    <MenuItem fx:id="importFlwor" mnemonicParsing="false" onAction="#importFlwor" text="Import FLWOR..." />
+                                    <MenuItem fx:id="exportFlwor" mnemonicParsing="false" onAction="#exportFlwor" text="Export FLWOR..." />
+                                    <MenuItem fx:id="exportResults" mnemonicParsing="false" onAction="#exportData" text="Export results..." />
+                                </items>
+                              </MenuButton>
+                              <Button mnemonicParsing="false" onAction="#newFlwor" text="new FLWOR" />
                           </items>
                         </ToolBar>
                         <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
@@ -99,6 +154,14 @@
                                   <TableColumn fx:id="typeColumn" editable="false" minWidth="0.0" prefWidth="124.0" text="type" />
                                     <TableColumn fx:id="languageColumn" editable="false" prefWidth="155.0" text="language" />
                                 </columns>
+                                 <contextMenu>
+                                    <ContextMenu fx:id="resultTableContextMenu">
+                                      <items>
+                                        <MenuItem mnemonicParsing="false" onAction="#copyCellToClipboard" text="Copy cell" />
+                                          <MenuItem mnemonicParsing="false" onAction="#copyRowToClipboard" text="Copy row" />
+                                      </items>
+                                    </ContextMenu>
+                                 </contextMenu>
                               </TableView>
                            </content>
                         </ScrollPane>

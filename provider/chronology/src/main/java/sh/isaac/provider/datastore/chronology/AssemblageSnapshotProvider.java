@@ -250,9 +250,6 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
       return semanticNidStream.mapToObj((int semanticNid) -> {
          try {
             final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
-                        if (TermAux.PHENOMENON.getNid() == sc.getReferencedComponentNid()) {
-                            LOG.info("FOUND WATCH: " + TermAux.PHENOMENON);
-                        }
             final int[] stampSequences = sc.getVersionStampSequences();
             final int[] latestStampSequences = this.calculator.getLatestStampSequencesAsSet(
                     stampSequences);

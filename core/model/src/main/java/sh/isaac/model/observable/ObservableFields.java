@@ -43,8 +43,11 @@ package sh.isaac.model.observable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import sh.isaac.api.Get;
+import sh.isaac.api.StaticIsaacCache;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -116,6 +119,8 @@ public enum ObservableFields
 
    /** The classifier nid for logic coordinate. */
    CLASSIFIER_NID_FOR_LOGIC_COORDINATE("Classifier nid for logic coordinate", "Classifier"),
+
+   CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE("Concept assemblage for logic coordinate", "Concepts to classify"),
 
    /** The stamp precedence for stamp coordinate. */
    STAMP_PRECEDENCE_FOR_STAMP_COORDINATE("Stamp precedence for stamp coordinate", "Precedence"),
@@ -335,6 +340,8 @@ public enum ObservableFields
    CONCEPT_CONSTRAINTS("Concept constraints"),
    
    ASSEMBLAGE_LIST_FOR_QUERY("Assemblage list for query", "For list"),
+   
+   MANIFOLD_COORDINATE_REFERENCE("Manifold coordinate reference", "manifold"),
 ;
    // this, ObservableFields..toExternalString()
    /** The Constant namespace. */
@@ -345,6 +352,7 @@ public enum ObservableFields
    /** The description. */
    String fullyQualifiedDescription;
    String regularDescription;
+   private int cachedNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -408,6 +416,21 @@ public enum ObservableFields
    public UUID getUuid() {
       return UuidT5Generator.get(namespace, name());
    }
+   
+   @Override
+   public int getNid() throws NoSuchElementException {
+      if (cachedNid == 0) {
+         try {
+            cachedNid = Get.identifierService().getNidForUuids(getPrimordialUuid());
+         }
+         catch (NoSuchElementException e) {
+            //This it to help me bootstrap the system... normally, all metadata will be pre-assigned by the IdentifierProvider upon startup.
+            //But some code will need nids prior to it being put into the store, or coming out of a builder, where they would typically be assigned.
+            cachedNid = Get.identifierService().assignNid(getUuids());
+         }
+      }
+      return cachedNid;
+   }
 
    /**
     * Gets the uuid list.
@@ -423,6 +446,18 @@ public enum ObservableFields
    public Optional<String> getRegularName() {
       return Optional.ofNullable(regularDescription);
    }
-
+   
+   @Override
+   public void clearCache() {
+      cachedNid = 0;
+   }
+   
+   public class ObservableFieldsCleanup implements StaticIsaacCache {
+      @Override
+      public void reset() {
+         for (ObservableFields of : ObservableFields.values()) {
+            of.clearCache();
+         }
+      }
+   }
 }
-

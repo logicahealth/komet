@@ -1,5 +1,5 @@
 		<file>
 			<source>${basedir}/src/assembly/#ASSEMBLY#</source>
-			<outputDirectory>META-INF/maven/${groupId}/${artifactId}/src/assembly/</outputDirectory>
+			<outputDirectory>META-INF/maven/${project.groupId}/${project.artifactId}/src/assembly/</outputDirectory>
 			<filtered>false</filtered>
 		</file>

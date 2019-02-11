@@ -39,12 +39,32 @@
 
 package sh.isaac.api.coordinate;
 
+import java.util.ArrayList;
+import java.util.UUID;
+import javax.xml.bind.annotation.XmlElement;
+import sh.isaac.api.util.UUIDUtil;
+
 /**
  * Coordinate to manage the retrieval and display of logic information.
  *
  * Created by kec on 2/16/15.
  */
 public interface LogicCoordinate extends Coordinate {
+    /**
+     * 
+     * @return a content based uuid, such that identical logic coordinates
+     * will have identical uuids, and that different logic coordinates will 
+     * always have different uuids.
+     */
+    default UUID getLogicCoordinateUuid() {
+       ArrayList<UUID> uuidList = new ArrayList();
+       UUIDUtil.addSortedUuids(uuidList, getClassifierNid());
+       UUIDUtil.addSortedUuids(uuidList, getDescriptionLogicProfileNid());
+       UUIDUtil.addSortedUuids(uuidList, getInferredAssemblageNid());
+       UUIDUtil.addSortedUuids(uuidList, getStatedAssemblageNid());
+       UUIDUtil.addSortedUuids(uuidList, getConceptAssemblageNid());
+       return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
+   }
    /**
     * Gets the classifier nid.
     *

@@ -42,10 +42,12 @@ package sh.isaac.api.query;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -62,14 +64,10 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author kec
  */
+@XmlRootElement(name = "leaf")
+@XmlAccessorType(value = XmlAccessType.NONE)
 public abstract class LeafClause
         extends Clause {
-   /**
-    * The
-    * <code>NidSet</code> of components that match the criterion
-    * specified in the LeafClause.
-    */
-   NidSet resultsCache = new NidSet();
 
    //~--- constructors --------------------------------------------------------
 
@@ -91,28 +89,6 @@ public abstract class LeafClause
 
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Sets the specified nid as a member of the results cache set.
-    *
-    * @param nid the nid
-    */
-   public void addToResultsCache(int nid) {
-      this.resultsCache.add(nid);
-   }
-
-   /**
-    * Compute components.
-    *
-    * @param incomingComponents the incoming components
-    * @return the nid set
-    */
-   @Override
-   public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-      this.resultsCache.and(incomingComponents.get(this.getAssemblageForIteration()));
-      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-      resultsMap.put(this.getAssemblageForIteration(), resultsCache);
-      return resultsMap;
-   }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -126,18 +102,7 @@ public abstract class LeafClause
       return Collections.emptyList();
    }
 
-   /**
-    * Gets the <code>NidSet</code> of components that match the criterion specified in the LeafClause.
-    *
-    * @return <code>NidSet</code> of components in the resultsCache,
-    * which is the components that match the criterion
-    * specified in the LeafClause.
-    */
-   public NidSet getResultsCache() {
-      return this.resultsCache;
-   }
-   
-      @Override
+   @Override
    public Clause[] getAllowedChildClauses() {
       return new Clause[0];
    }
@@ -151,7 +116,16 @@ public abstract class LeafClause
    public Clause[] getAllowedSiblingClauses() {
       return new Clause[0];
    }
-   
-   
+
+    @Override
+    public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
+        return incomingComponents;
+    }
+
+    @Override
+    public void resetResults() {
+        // nothing to do...
+    }
+     
 }
 

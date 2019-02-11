@@ -19,62 +19,138 @@ package sh.komet.gui.search.flwor;
 import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.query.JoinProperty;
 import sh.isaac.api.query.JoinSpecification;
+import sh.isaac.api.query.LetItemKey;
 
 /**
  *
  * @author kec
  */
 public class JoinSpecificationObservable implements JoinSpecification {
-    SimpleObjectProperty<ConceptSpecification> assemblageToJoin 
-            = new SimpleObjectProperty<>(this, MetaData.ASSEMBLAGE_TO_JOIN____SOLOR.toExternalString());
+    SimpleObjectProperty<ConceptSpecification> firstAssemblageProperty 
+            = new SimpleObjectProperty<>(this, MetaData.ASSEMBLAGE_1_TO_JOIN____SOLOR.toExternalString());
     
-    SimpleObjectProperty<ConceptSpecification> joinField 
-            = new SimpleObjectProperty<>(this, MetaData.FIELD_TO_JOIN____SOLOR.toExternalString());
+    SimpleObjectProperty<ConceptSpecification> secondAssemblageProperty 
+            = new SimpleObjectProperty<>(this, MetaData.ASSEMBLAGE_2_TO_JOIN____SOLOR.toExternalString());
     
-    SimpleObjectProperty<ConceptSpecification> sourceField 
-            = new SimpleObjectProperty<>(this, MetaData.FOR_ASSEMBLAGE_FIELD_TO_JOIN____SOLOR.toExternalString());
+    SimpleObjectProperty<JoinProperty> firstFieldProperty 
+            = new SimpleObjectProperty<>(this, MetaData.FIELD_1_TO_JOIN____SOLOR.toExternalString());
     
-    @Override
-    public ConceptSpecification getAssemblageToJoin() {
-        return assemblageToJoin.get();
+    SimpleObjectProperty<JoinProperty> secondFieldProperty 
+            = new SimpleObjectProperty<>(this, MetaData.FIELD_2_TO_JOIN____SOLOR.toExternalString());
+
+    SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty 
+            = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
+
+    public JoinSpecificationObservable() {
+    }
+
+    public JoinSpecificationObservable(ConceptSpecification firstAssemblage, 
+            JoinProperty firstField, 
+            ConceptSpecification secondAssemblage, 
+            JoinProperty secondField, 
+            LetItemKey stampCoordinateKey) {
+        firstAssemblageProperty.set(firstAssemblage);
+        secondAssemblageProperty.set(secondAssemblage);
+        firstFieldProperty.set(firstField);
+        secondFieldProperty.set(secondField);
+        stampCoordinateKeyProperty.set(stampCoordinateKey);
+    }
+
+    public JoinSpecificationObservable(JoinSpecification joinSpec) {
+        firstAssemblageProperty.set(joinSpec.getFirstAssemblage());
+        firstAssemblageProperty.addListener((observable, oldValue, newValue) -> {
+            joinSpec.setFirstAssemblage(newValue);
+        });
+        secondAssemblageProperty.set(joinSpec.getSecondAssemblage());
+        secondAssemblageProperty.addListener((observable, oldValue, newValue) -> {
+            joinSpec.setSecondAssemblage(newValue);
+        });
+        firstFieldProperty.set(joinSpec.getFirstField());
+        firstFieldProperty.addListener((observable, oldValue, newValue) -> {
+            joinSpec.setFirstField(newValue);
+        });
+        secondFieldProperty.set(joinSpec.getSecondField());
+        secondFieldProperty.addListener((observable, oldValue, newValue) -> {
+            joinSpec.setSecondField(newValue);
+        });
+        
+        stampCoordinateKeyProperty.set(joinSpec.getStampCoordinateKey());
+        stampCoordinateKeyProperty.addListener((observable, oldValue, newValue) -> {
+            joinSpec.setStampCoordinateKey(newValue);
+        });
     }
 
     @Override
-    public ConceptSpecification getJoinField() {
-        return joinField.get();
+    public ConceptSpecification getFirstAssemblage() {
+        return firstAssemblageProperty.get();
     }
 
     @Override
-    public ConceptSpecification getSourceField() {
-        return sourceField.get();
+    public void setFirstAssemblage(ConceptSpecification firstAssemblage) {
+        firstAssemblageProperty.set(firstAssemblage);
+    }
+
+
+    @Override
+    public ConceptSpecification getSecondAssemblage() {
+        return secondAssemblageProperty.get();
     }
 
     @Override
-    public void setAssemblageToJoin(ConceptSpecification assemblageToJoin) {
-        this.assemblageToJoin.set(assemblageToJoin);
+    public JoinProperty getSecondField() {
+        return secondFieldProperty.get();
     }
 
     @Override
-    public void setJoinField(ConceptSpecification joinField) {
-        this.joinField.set(joinField);
+    public JoinProperty getFirstField() {
+        return firstFieldProperty.get();
     }
 
     @Override
-    public void setSourceField(ConceptSpecification sourceField) {
-        this.sourceField.set(sourceField);
+    public void setSecondAssemblage(ConceptSpecification assemblageToJoin) {
+        this.secondAssemblageProperty.set(assemblageToJoin);
+    }
+
+    @Override
+    public void setSecondField(JoinProperty joinField) {
+        this.secondFieldProperty.set(joinField);
+    }
+
+    @Override
+    public void setFirstField(JoinProperty sourceField) {
+        this.firstFieldProperty.set(sourceField);
+    }
+
+    public SimpleObjectProperty<ConceptSpecification> firstAssemblageProperty() {
+        return firstAssemblageProperty;
+    }
+
+    public SimpleObjectProperty<ConceptSpecification> secondAssemblageProperty() {
+        return secondAssemblageProperty;
+    }
+
+    public SimpleObjectProperty<JoinProperty> firstFieldProperty() {
+        return firstFieldProperty;
+    }
+
+    public SimpleObjectProperty<JoinProperty> secondFieldProperty() {
+        return secondFieldProperty;
+    }
+
+    public SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty() {
+        return stampCoordinateKeyProperty;
+    }
+   
+    @Override
+    public LetItemKey getStampCoordinateKey() {
+        return stampCoordinateKeyProperty.get();
+    }
+
+    @Override
+    public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
+        this.stampCoordinateKeyProperty.set(stampCoordinateKey);
     }
     
-    public SimpleObjectProperty<ConceptSpecification> getAssemblageToJoinProperty() {
-        return assemblageToJoin;
-    }
-
-    public SimpleObjectProperty<ConceptSpecification> getJoinFieldProperty() {
-        return joinField;
-    }
-
-    public SimpleObjectProperty<ConceptSpecification> getSourceFieldProperty() {
-        return sourceField;
-    }
-
 }

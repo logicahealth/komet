@@ -36,13 +36,13 @@
  */
 package sh.isaac.model.observable.coordinate;
 
+import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -108,8 +108,8 @@ public final class ObservableLanguageCoordinateImpl
         });
         
         ObservableList<ConceptSpecification> dialectAssemblagePreferenceList = FXCollections.observableArrayList();
-        for (int nid: languageCoordinate.getDialectAssemblagePreferenceList()) {
-            dialectAssemblagePreferenceList.add(Get.conceptSpecification(nid));
+        for (ConceptSpecification spec: languageCoordinate.getDialectAssemblageSpecPreferenceList()) {
+            dialectAssemblagePreferenceList.add(spec);
         }
         
         this.dialectAssemblagePreferenceListProperty = new SimpleListProperty(this, 
@@ -125,8 +125,8 @@ public final class ObservableLanguageCoordinateImpl
         });
         
         ObservableList<ConceptSpecification> descriptionTypePreferenceList = FXCollections.observableArrayList();
-        for (int nid: languageCoordinate.getDescriptionTypePreferenceList()) {
-            descriptionTypePreferenceList.add(Get.conceptSpecification(nid));
+        for (ConceptSpecification spec: languageCoordinate.getDescriptionTypeSpecPreferenceList()) {
+            descriptionTypePreferenceList.add(spec);
         }
         
         
@@ -143,6 +143,11 @@ public final class ObservableLanguageCoordinateImpl
             ObservableLanguageCoordinateImpl.this.languageCoordinate.setDescriptionTypePreferenceList(newList);           
         });
         
+    }
+
+    @Override
+    public LanguageCoordinateImpl getLanguageCoordinate() {
+        return languageCoordinate;
     }
     
     @Override
@@ -332,4 +337,21 @@ public final class ObservableLanguageCoordinateImpl
             StampCoordinate stampCoordinate) {
         return this.languageCoordinate.getDescription(descriptionList, descriptionTypePreference, stampCoordinate);
     }
+
+    @Override
+    public ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
+        return languageCoordinate.getDialectAssemblageSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
+        return languageCoordinate.getDescriptionTypeSpecPreferenceList();
+    }
+
+    @Override
+    public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
+        return languageCoordinate.getModuleSpecPreferenceListForLanguage();
+    }
+    
+    
 }

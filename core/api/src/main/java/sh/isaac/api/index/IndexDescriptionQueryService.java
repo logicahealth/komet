@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.util.ArrayUtil;
 
 /**
  * An extended query interface that supports very specific querying of semantics - especially with dynamic and/or multi-column semantic data
@@ -64,6 +66,10 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
     *           semantic tags - which will disallow the use of the lucene query parser "grouping" feature, if the group appears
     *           to be a semantic tag (if it appears at the end of the string)
     *           {@link https://lucene.apache.org/core/7_0_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description}
+    *           
+    *           The Lucene query indexer also supports handling regular expressions - submit your query surrounding by forward slashes to indicate
+    *           a regular expression:  /dat[^a].*./
+    *           
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching that would be done
     *           to implement a type-ahead style search. Does not use the Lucene Query parser. Every term (or token) that is part of the query
     *           string will be required to be found in the result.
@@ -82,8 +88,8 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
     *           will be passed the nids of chronologies which met all other search criteria. To include the chronology in the result, return
     *           true, or false, to have the item excluded.
     * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
-    * @param metadataOnly - Only search descriptions on concepts which are part of the {@link MetaData#ISAAC_METADATA} tree when true,
-           otherwise, search all descriptions.  Note that when metadataOnly is set to true, it will return results that are metadata on SOME
+    * @param metadataOnly - Only search descriptions on concepts which have a commit on the module {@link MetaData#CORE_METADATA_MODULE____SOLOR}
+    *      when true, otherwise, search all descriptions.  Note that when metadataOnly is set to true, it will return results that are metadata on SOME
            stamp, not necessarily the passed in AuthorModulePathRestriction.  If you only want results that are metadata on your current coordinate, 
            you will have to post-filter the result. 
     * @param descriptionTypes - optional - if specified, will only match descriptions of the specified type(s).
@@ -109,4 +115,32 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
          Integer pageNum,
          Integer sizeLimit,
          Long targetGeneration);
+   
+   /**
+    * See {@link #query(String, boolean, int[], Predicate, AuthorModulePathRestriction, boolean, int[], int[], Integer, Integer, Long)}
+    */
+   default List<SearchResult> query(String query,
+         boolean prefixSearch,
+         int[] assemblageConcepts,
+         Predicate<Integer> filter,
+         AuthorModulePathRestriction amp,
+         boolean metadataOnly,
+         ConceptSpecification[] descriptionTypes,
+         ConceptSpecification[] extendedDescriptionTypes,
+         Integer pageNum,
+         Integer sizeLimit,
+         Long targetGeneration) {
+       
+       return query(query,
+         prefixSearch,
+         assemblageConcepts,
+         filter,
+         amp,
+         metadataOnly,
+         ArrayUtil.toNidArray(descriptionTypes),
+         ArrayUtil.toNidArray(extendedDescriptionTypes),
+         pageNum,
+         sizeLimit,
+         targetGeneration);
+   }
 }

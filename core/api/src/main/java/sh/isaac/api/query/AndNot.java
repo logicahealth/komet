@@ -37,13 +37,16 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.HashMap;
+
+import java.util.HashSet;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
-import sh.isaac.api.bootstrap.TermAux;
+import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import static sh.isaac.api.query.ForSet.deepClone;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -51,6 +54,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author dylangrald
  */
+@XmlRootElement()
 public class AndNot
         extends ParentClause {
 
@@ -75,20 +79,27 @@ public class AndNot
     /**
      * Compute components.
      *
-     * @param incomingComponents the incoming components
+     * @param incomingComponents the components
      * @return the nid set
      */
     @Override
     public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        final NidSet results = NidSet.of(incomingComponents.get(this.getAssemblageForIteration()).stream());
-
-        getChildren().stream().forEach((clause) -> {
-            results.andNot(clause.computeComponents(incomingComponents).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+        Set<ConceptSpecification> iteratedAssemblages = new HashSet<>();
+        Map<ConceptSpecification, NidSet> outgoingComponents = deepClone(incomingComponents);
+        
+        for (Clause child: getChildren()) {
+            Map<ConceptSpecification, NidSet> computedComponents = child.computeComponents(deepClone(incomingComponents));
+            if (iteratedAssemblages.contains(child.getAssemblageForIteration())) {
+                // Do an or with existing nid set...
+                NidSet childNids = computedComponents.get(child.getAssemblageForIteration());
+                outgoingComponents.put(child.getAssemblageForIteration(), childNids.andNot(outgoingComponents.get(child.getAssemblageForIteration())));
+            } else {
+                // Initilize with computed nid set. 
+                iteratedAssemblages.add(child.getAssemblageForIteration());
+                outgoingComponents.put(child.getAssemblageForIteration(), computedComponents.get(child.getAssemblageForIteration()));
+            }
+        }
+        return outgoingComponents;
     }
 
     /**
@@ -99,17 +110,24 @@ public class AndNot
      */
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        final NidSet results = NidSet.of(incomingPossibleComponents.get(this.getAssemblageForIteration()).stream());
-
-        getChildren().stream().forEach((clause) -> {
-            results.andNot(clause.computePossibleComponents(incomingPossibleComponents).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+        Set<ConceptSpecification> iteratedAssemblages = new HashSet<>();
+        Map<ConceptSpecification, NidSet> outgoingPossibleComponents = deepClone(incomingPossibleComponents);
+        
+        for (Clause child: getChildren()) {
+            Map<ConceptSpecification, NidSet> computedComponents = child.computePossibleComponents(deepClone(incomingPossibleComponents));
+            if (iteratedAssemblages.contains(child.getAssemblageForIteration())) {
+                // Do an or with existing nid set...
+                NidSet childNids = computedComponents.get(child.getAssemblageForIteration());
+                outgoingPossibleComponents.put(child.getAssemblageForIteration(), childNids.andNot(outgoingPossibleComponents.get(child.getAssemblageForIteration())));
+            } else {
+                // Initilize with computed nid set. 
+                iteratedAssemblages.add(child.getAssemblageForIteration());
+                outgoingPossibleComponents.put(child.getAssemblageForIteration(), computedComponents.get(child.getAssemblageForIteration()));
+            }
+        }
+        return outgoingPossibleComponents;
     }
-
+  
     //~--- get methods ---------------------------------------------------------
     @Override
     public ClauseSemantic getClauseSemantic() {
@@ -134,11 +152,6 @@ public class AndNot
     }
 
     @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.AND_NOT_QUERY_CLAUSE;
-    }
-
-    @Override
     public Clause[] getAllowedSubstutitionClauses() {
         return getParentClauses();
     }
@@ -151,6 +164,10 @@ public class AndNot
     @Override
     public Clause[] getAllowedSiblingClauses() {
         return getAllClauses();
+    }
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
     }
 
 }

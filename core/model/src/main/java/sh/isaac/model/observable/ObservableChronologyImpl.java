@@ -589,6 +589,13 @@ public abstract class ObservableChronologyImpl
    }
 
    @Override
+   public <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampCoordinate coordinate) {
+      final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
+
+      return calculator.getLatestVersion(this);
+   }
+
+   @Override
    public LatestVersion<ObservableVersion> getLatestCommittedVersion(StampCoordinate coordinate) {
       final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
       return calculator.getLatestCommittedVersion(this);

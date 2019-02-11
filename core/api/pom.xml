@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-        <version>4.59-SNAPSHOT</version>
+        <version>4.65-SNAPSHOT</version>
     </parent>
 
     <groupId>sh.isaac.core</groupId>

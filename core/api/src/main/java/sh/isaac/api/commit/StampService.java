@@ -254,5 +254,13 @@ public interface StampService
     * @return true, if uncommitted
     */
    boolean isUncommitted(int stampSequence);
+   
+   /**
+    * Get the stamp object from an int stamp
+    * If the provided stamp is invalid / less than 0, this returns a default stamp, with most fields set to unspecified.
+    * @param stamp
+    * @return
+    */
+   public Stamp getStamp(int stamp);
 }
 

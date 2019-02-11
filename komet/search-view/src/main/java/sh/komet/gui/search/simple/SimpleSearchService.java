@@ -21,14 +21,14 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
-import sh.isaac.provider.query.search.CompositeSearchResult;
-import sh.isaac.provider.query.search.SearchHandle;
-import sh.isaac.provider.query.search.SearchHandler;
 
 import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.query.CompositeQueryResult;
+import sh.isaac.api.query.Query;
+import sh.isaac.api.query.QueryHandle;
 
 /**
  * @author aks8m
@@ -39,11 +39,18 @@ public class SimpleSearchService extends Service<NidSet> {
 
     private final SimpleStringProperty luceneQuery = new SimpleStringProperty();
     private final SimpleListProperty<Integer> parentNids = new SimpleListProperty<>();
-    private final DescriptionLuceneMatch descriptionLuceneMatch = new DescriptionLuceneMatch();
+    private final Query query;
+    private final DescriptionLuceneMatch descriptionLuceneMatch;
     private Manifold manifold;
     private final double PROGRESS_MAX_VALUE = 100;
     private final double PROGRESS_INCREMENT_VALUE = 33.333; //Hard Coded based on Current Filter Algorithm (3 parts)
     private double PROGRESS_CURRENT = 0;
+
+    public SimpleSearchService() {
+        this.query = new Query(TermAux.ENGLISH_LANGUAGE);
+        this.descriptionLuceneMatch = new DescriptionLuceneMatch(this.query);
+        query.setRoot(descriptionLuceneMatch);
+    }
 
     @Override
     protected Task<NidSet> createTask() {
@@ -72,14 +79,13 @@ public class SimpleSearchService extends Service<NidSet> {
 
             private void runLuceneDescriptionQuery(NidSet results) {
                 updateProgress(computeProgress(PROGRESS_INCREMENT_VALUE), PROGRESS_MAX_VALUE);
-                descriptionLuceneMatch.setManifoldCoordinate(getManifold());
                 String queryString = getLuceneQuery();
                 // Special handling to remove check digit from LOINC code query. 
                 if (queryString.charAt(queryString.length() -2) == '-') {
                     queryString = queryString.substring(0, queryString.length() -2);
                 }
                 
-                descriptionLuceneMatch.setParameterString(queryString);
+                descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), queryString);
                 
                 Map<ConceptSpecification, NidSet> incomingPossibleComponents = new HashMap<>();
                 incomingPossibleComponents.put(TermAux.ENGLISH_LANGUAGE, NidSet.of(Get.identifierService().getNidsForAssemblage(TermAux.ENGLISH_LANGUAGE)));
@@ -91,11 +97,11 @@ public class SimpleSearchService extends Service<NidSet> {
                     
                     try {
                         CountDownLatch searchComplete = new CountDownLatch(1);
-                        SearchHandle ssh = SearchHandler.searchIdentifiers(queryString,
+                        QueryHandle ssh = Get.queryHandler().searchIdentifiers(queryString,
                                 null,
                                 ((searchHandle) -> {
                                     try {
-                                        for (CompositeSearchResult result : searchHandle.getResults()) {
+                                        for (CompositeQueryResult result : searchHandle.getResults()) {
                                             ConceptChronology containingConcept = result.getContainingConcept();
                                             for (SemanticChronology description : containingConcept.getConceptDescriptionList()) {
                                                 results.add(description.getNid());

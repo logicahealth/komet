@@ -23,7 +23,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.query.ForSetsSpecification;
+import sh.isaac.api.query.ForSet;
 import static sh.isaac.model.observable.ObservableFields.ASSEMBLAGE_LIST_FOR_QUERY;
 import sh.komet.gui.control.concept.PropertySheetItemAssemblageListWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
@@ -44,27 +44,31 @@ public class ForPanel {
     
     public ForPanel(Manifold manifold) {
         this.manifold = manifold;
-        sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
-        sheet.getItems().add(new PropertySheetItemAssemblageListWrapper(manifold, forAssemblagesProperty));
-        sheet.setMode(PropertySheet.Mode.NAME);
-        sheet.setModeSwitcherVisible(false);
-        sheet.setSearchBoxVisible(false);
+        this.sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        this.sheet.getItems().add(new PropertySheetItemAssemblageListWrapper(manifold, forAssemblagesProperty));
+        this.sheet.setMode(PropertySheet.Mode.NAME);
+        this.sheet.setModeSwitcherVisible(false);
+        this.sheet.setSearchBoxVisible(false);
         AnchorPane.setTopAnchor(forPane, 0.0);
         AnchorPane.setRightAnchor(forPane, 0.0);
         AnchorPane.setBottomAnchor(forPane, 0.0);
         AnchorPane.setLeftAnchor(forPane, 0.0);
-        forPane.setCenter(sheet);
+        this.forPane.setCenter(sheet);
     }
 
     public Node getNode() {
-        return forPane;
+        return this.forPane;
     }
 
     public SimpleListProperty<ConceptSpecification> getForAssemblagesProperty() {
-        return forAssemblagesProperty;
+        return this.forAssemblagesProperty;
     }
 
-    ForSetsSpecification getForSetSpecification() {
-        return new ForSetsSpecification(forAssemblagesProperty);
+    ForSet getForSetSpecification() {
+        return new ForSet(this.forAssemblagesProperty);
+    }
+
+    void reset() {
+        this.forAssemblagesProperty.clear();
     }
 }

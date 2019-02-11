@@ -73,6 +73,7 @@ import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
@@ -645,24 +646,16 @@ public abstract class ChronologyImpl
     @Override
     public byte[] getChronologyVersionDataToWrite() {
 
-        if (this.uncommittedVersions == null) {
-
-            // creating a brand new object
-            final ByteArrayDataBuffer db = new ByteArrayDataBuffer(40);
-
-            writeChronicleData(db);
-            db.putInt(0);  // zero length version record.
-            db.trimToSize();
-            return db.getData();
-        }
-
         final ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
         writeChronicleData(db);
 
         this.versionStartPosition = db.getPosition();
+        OpenIntHashSet writtenStamps = new OpenIntHashSet();
         for (Version version : getVersionList()) {
+            int stampSequence = version.getStampSequence();
             if (Get.stampService()
-                    .isNotCanceled(version.getStampSequence())) {
+                    .isNotCanceled(stampSequence) &! writtenStamps.contains(stampSequence)) {
+                writtenStamps.add(stampSequence);
                 writeVersion(db, version);
             }
         }
@@ -697,9 +690,13 @@ public abstract class ChronologyImpl
     {
         List<Version> versionList = getVersionList();
         ArrayList<byte[]> result = new ArrayList<>(versionList.size());
+        OpenIntHashSet writtenStamps = new OpenIntHashSet();
         for (Version version : versionList)
         {
-            if (Get.stampService().isNotCanceled(version.getStampSequence())) {
+            int stampSequence = version.getStampSequence();
+            if (Get.stampService().isNotCanceled(stampSequence)
+                    &! writtenStamps.contains(stampSequence)) {
+                writtenStamps.add(stampSequence);
                 final ByteArrayDataBuffer db = new ByteArrayDataBuffer(64);
                 writeVersion(db, version);
                 db.flip();
@@ -761,7 +758,7 @@ public abstract class ChronologyImpl
             Set<UUID> mergedExtraUUIDs = new HashSet<>();  //merge the other UUIDs
             mergedExtraUUIDs.addAll(uuidsFromOne);
             mergedExtraUUIDs.addAll(uuidsFromTwo);
-            mergedExtraUUIDs.remove(uuidsFromOne.get(0));  //remove the primoridial we wrote from the extra list
+            mergedExtraUUIDs.remove(uuidsFromOne.get(0));  //remove the primordial we wrote from the extra list
             
             db.putInt(mergedExtraUUIDs.size() * 2);  //Write the number of UUIDs
             for (UUID uuid : mergedExtraUUIDs)
@@ -1169,4 +1166,63 @@ public abstract class ChronologyImpl
         });
 
     }
+    
+
+    /**
+     * Get the data as a list of immutable byte arrays. With an append only data
+     * model, these records are safe for concurrent writes without destroying
+     * data per the duplicate data model in Berkley DB and Xodus.
+     *
+     * The chronology record starts with an integer of 0 to differentiate from
+     * version records, and then is followed by a byte for the object type, and
+     * a byte for the data format version... The object type byte is always > 0,
+     * and the version byte is always > 0...
+     *
+     * Each byte[] for a version starts with an integer length of the version
+     * data. The minimum size of a version is 4 bytes (an integer stamp
+     * sequence).
+     *
+     * @param chronology the chronology to turn into a byte[] list...
+     * @return a byte[] list
+     */
+    public static List<byte[]> getDataList(ChronologySerializeable chronology) {
+
+        List<byte[]> dataArray = new ArrayList<>();
+
+        byte[] dataToSplit = chronology.getChronologyVersionDataToWrite();
+        int versionStartPosition = ((ChronologyImpl)chronology).getVersionStartPosition();
+        if (versionStartPosition < 0) {
+            throw new IllegalStateException("versionStartPosition is not set");
+        }
+        byte[] chronicleBytes = new byte[versionStartPosition + 4]; // +4 for the zero integer to start.
+        for (int i = 0; i < chronicleBytes.length; i++) {
+            if (i < 4) {
+                chronicleBytes[i] = 0;
+            } else {
+                chronicleBytes[i] = dataToSplit[i - 4];
+            }
+        }
+        dataArray.add(chronicleBytes);
+
+        int versionStart = versionStartPosition;
+        getInt(dataToSplit, versionStart);
+        int versionSize = getInt(dataToSplit, versionStart);
+
+        while (versionSize != 0) {
+            int versionTo = versionStart + versionSize;
+            int newLength = versionTo - versionStart;
+            if (versionTo < 0) {
+                LOG.error("Error versionTo: " + versionTo);
+            }
+            if (newLength < 0) {
+                LOG.error("Error newLength: " + newLength);
+            }
+            dataArray.add(Arrays.copyOfRange(dataToSplit, versionStart, versionTo));
+            versionStart = versionStart + versionSize;
+            versionSize = getInt(dataToSplit, versionStart);
+        }
+
+        return dataArray;
+    }
+    
 }

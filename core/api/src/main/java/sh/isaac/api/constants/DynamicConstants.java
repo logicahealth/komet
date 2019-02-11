@@ -89,7 +89,6 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 @Service
 @Singleton
 public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
-   /** The cache. */
    private static DynamicConstants cache;
 
 //J-
@@ -97,7 +96,6 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    /** The unknown concept. */
    public final UUID UNKNOWN_CONCEPT = UUID.fromString("00000000-0000-0000-C000-000000000046");
 
-   /** The dynamic dt nid. */
 
    // Set up all of the data type columns
    public final MetadataConceptConstant DYNAMIC_DT_NID = new MetadataConceptConstant("nid", UUID.fromString("d1a17272-9785-51aa-8bde-cc556ab32ebb")) {
@@ -325,8 +323,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    // This is the assemblage type that is usually present on a concept when it is used as an assemblage itself to describe the attached data -
    // the attached
    // refex using this for an assemblage will describe a data column that is to be attached with the refex. This assemblage type wouldn't be
-   // used if there was
-   // no data to attach.
+   // used if there was no data to attach.
    public final MetadataDynamicConstant DYNAMIC_EXTENSION_DEFINITION = new MetadataDynamicConstant("Dynamic extension definition",
          UUID.fromString("406e872b-2e19-5f5e-a71d-e4e4b2c68fe5"),
          "This concept is used as an assemblage for defining new extensions.  " + "The attached data columns describe what columns are required to define a new Semantic.",
@@ -340,7 +337,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
                            .createDynamicStringData(DynamicValidatorType.COMPONENT_TYPE.name() + "|" + DynamicValidatorType.EXTERNAL.name() + "|"
                                  + DynamicValidatorType.GREATER_THAN.name() + "|" + DynamicValidatorType.GREATER_THAN_OR_EQUAL.name() + "|" + DynamicValidatorType.INTERVAL.name()
                                  + "|" + DynamicValidatorType.IS_CHILD_OF.name() + "|" + DynamicValidatorType.IS_KIND_OF.name() + "|" + DynamicValidatorType.LESS_THAN.name() + "|"
-                                 + DynamicValidatorType.LESS_THAN_OR_EQUAL.name() + "|" + DynamicValidatorType.REGEXP.name()),
+                                 + DynamicValidatorType.LESS_THAN_OR_EQUAL.name() + "|" + DynamicValidatorType.REGEXP.name() + "|" + DynamicValidatorType.ONE_OF.name()),
                      true),
                new DynamicColumnInfo(6, this.DYNAMIC_COLUMN_VALIDATOR_DATA.getPrimordialUuid(), DynamicDataType.ARRAY, null, false, true) },
          null) {
@@ -460,10 +457,22 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    @Override
    public void reset() {
       cache = null;
+      for (MetadataConceptConstant mcc : getConstantsToCreate()) {
+         recursiveClear(mcc);
+      }
+      for (MetadataConceptConstant mcc : getConstantsForInfoOnly()) {
+          recursiveClear(mcc);
+       }
    }
-
-
-   // ~--- get methods ---------------------------------------------------------
+   
+   private void recursiveClear(MetadataConceptConstant mcc) {
+      mcc.clearCache();
+      if (mcc instanceof MetadataConceptConstantGroup) {
+         for (MetadataConceptConstant nested : ((MetadataConceptConstantGroup)mcc).getChildren()) {
+            recursiveClear(nested);
+         }
+      }
+   }
 
    /**
     * Gets the constants to create.
@@ -472,7 +481,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
     */
    @Override
    public MetadataConceptConstant[] getConstantsToCreate() {
-      return new MetadataConceptConstant[] { this.DYNAMIC_ASSEMBLAGES, this.DYNAMIC_METADATA };
+      return new MetadataConceptConstant[] {this.DYNAMIC_METADATA , this.DYNAMIC_ASSEMBLAGES};
    }
 
    /**
@@ -486,6 +495,10 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
       }
 
       return cache;
+   }
+   
+   @Override public int getModuleRank() {
+      return Integer.MAX_VALUE;
    }
 //J+
 }

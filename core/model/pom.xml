@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-        <version>4.59-SNAPSHOT</version>
+        <version>4.65-SNAPSHOT</version>
     </parent>
 
     <groupId>sh.isaac.core</groupId>
@@ -55,7 +55,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-            <version>4.11</version>
-        </dependency>
+         </dependency>
     </dependencies>
 </project>

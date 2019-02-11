@@ -37,13 +37,19 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import static sh.isaac.api.query.ForSet.deepClone;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -52,6 +58,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author dylangrald
  */
+@XmlRootElement()
 public class Or
         extends ParentClause {
 
@@ -73,43 +80,62 @@ public class Or
     }
 
     //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
+    }
     /**
      * Compute components.
      *
-     * @param incomingComponents the incoming components
+     * @param incomingComponents the components
      * @return the nid set
      */
     @Override
     public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        final NidSet results = new NidSet();
-
-        getChildren().stream().forEach((clause) -> {
-            results.or(clause.computeComponents(incomingComponents).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+        Set<ConceptSpecification> iteratedAssemblages = new HashSet<>();
+        Map<ConceptSpecification, NidSet> outgoingComponents = deepClone(incomingComponents);
+        
+        for (Clause child: getChildren()) {
+            Map<ConceptSpecification, NidSet> computedComponents = child.computeComponents(deepClone(incomingComponents));
+            if (iteratedAssemblages.contains(child.getAssemblageForIteration())) {
+                // Do an or with existing nid set...
+                NidSet childNids = computedComponents.get(child.getAssemblageForIteration());
+                outgoingComponents.put(child.getAssemblageForIteration(), childNids.or(outgoingComponents.get(child.getAssemblageForIteration())));
+            } else {
+                // Initilize with computed nid set. 
+                iteratedAssemblages.add(child.getAssemblageForIteration());
+                outgoingComponents.put(child.getAssemblageForIteration(), computedComponents.get(child.getAssemblageForIteration()));
+            }
+        }
+        return outgoingComponents;
     }
 
     /**
      * Compute possible components.
      *
-     * @param searchSpace the search space
+     * @param incomingPossibleComponents the incoming possible components
      * @return the nid set
      */
     @Override
-    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> searchSpace) {
-        final NidSet results = new NidSet();
-
-        getChildren().stream().forEach((clause) -> {
-            results.or(clause.computePossibleComponents(searchSpace).get(clause.getAssemblageForIteration()));
-            setAssemblageForIteration(clause.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(searchSpace);
-        resultsMap.put(this.getAssemblageForIteration(), results);
-        return resultsMap;
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+        Set<ConceptSpecification> iteratedAssemblages = new HashSet<>();
+        Map<ConceptSpecification, NidSet> outgoingPossibleComponents = deepClone(incomingPossibleComponents);
+        
+        for (Clause child: getChildren()) {
+            Map<ConceptSpecification, NidSet> computedComponents = child.computePossibleComponents(deepClone(incomingPossibleComponents));
+            if (iteratedAssemblages.contains(child.getAssemblageForIteration())) {
+                // Do an or with existing nid set...
+                NidSet childNids = computedComponents.get(child.getAssemblageForIteration());
+                outgoingPossibleComponents.put(child.getAssemblageForIteration(), childNids.or(outgoingPossibleComponents.get(child.getAssemblageForIteration())));
+            } else {
+                // Initilize with computed nid set. 
+                iteratedAssemblages.add(child.getAssemblageForIteration());
+                outgoingPossibleComponents.put(child.getAssemblageForIteration(), computedComponents.get(child.getAssemblageForIteration()));
+            }
+        }
+        return outgoingPossibleComponents;
     }
+    
 
     //~--- get methods ---------------------------------------------------------
     @Override
@@ -132,11 +158,6 @@ public class Or
                     .add(clause.getWhereClause());
         });
         return whereClause;
-    }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.OR_QUERY_CLAUSE;
     }
 
     @Override

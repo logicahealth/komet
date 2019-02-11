@@ -431,7 +431,7 @@ public class DynamicUtilityImpl
               TermAux.ENGLISH_LANGUAGE,
               TermAux.US_DIALECT_ASSEMBLAGE,
               Get.configurationService().getGlobalDatastoreConfiguration().getDefaultLogicCoordinate(),
-              TermAux.CONCEPT_ASSEMBLAGE.getNid());
+              TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
          
          StringBuilder temp = new StringBuilder();
          temp.append(columnName);

@@ -113,8 +113,7 @@ import sh.isaac.model.taxonomy.TaxonomyRecord;
 @Service (name="BDB")
 @Singleton
 @Rank(value=-10)
-//However, rather than disabling services, we should likely have a HK2 "name" on each DataStore implementation, and 
-//a user preference to select which one we run with.
+@Deprecated //This class hasn't been maintained in quite some time, and is likely broken
 //TODO [DAN 3] [KEC] All of the fields set up in the class construction need to be properly cleared / purged on a shutdown/startup cycle.
 public class BdbProvider
          implements DataStoreSubService, SequenceStore {
@@ -928,7 +927,7 @@ public class BdbProvider
          try {
             updateMessage("Writing assemblage nids...");
 
-            NidSet assemblageNidSet = NidSet.of(assemblageNids);
+            NidSet assemblageNidSet = NidSet.of(assemblageNids.toArray(new Integer[assemblageNids.size()]));
 
             putNidSet(ASSEMBLAGE_NIDS, assemblageNidSet);
             completedUnitOfWork();

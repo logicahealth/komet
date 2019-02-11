@@ -60,6 +60,8 @@ public class ICD10ConfigOptions implements ConfigOptionsDescriptor
 					"The type of ICD10 file that is being processed.  Must be specified and align to the source type being processed.", 
 					false, 
 					false,
+					false,
+					null,
 					new ConverterOptionParamSuggestedValue("PCS", "Procedure Coding System"),
 					new ConverterOptionParamSuggestedValue("CM", "Clinical Modification"))};
 	}

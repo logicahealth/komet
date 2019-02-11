@@ -4,17 +4,14 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
 		<artifactId>misc</artifactId>
-		<version>4.59-SNAPSHOT</version>
+		<version>4.65-SNAPSHOT</version>
 	</parent>
 	<groupId>sh.isaac.misc</groupId>
 	<artifactId>importers</artifactId>
 	<packaging>maven-plugin</packaging>
 	
 	<name>ISAAC misc: Importers</name>
-	
-	<properties>
-	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>sh.isaac.misc</groupId>
@@ -52,9 +49,19 @@
 			<artifactId>direct-import</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-		<dependency>
+ 		<dependency>
 			<groupId>sh.isaac.provider</groupId>
 			<artifactId>datastore-locator</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>stamp</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>query</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

@@ -70,12 +70,11 @@ import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.IndexDescriptionQueryService;
+import sh.isaac.api.query.CompositeQueryResult;
+import sh.isaac.api.query.QueryHandle;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
-import sh.isaac.provider.query.search.CompositeSearchResult;
-import sh.isaac.provider.query.search.SearchHandle;
-import sh.isaac.provider.query.search.SearchHandler;
 import sh.isaac.utility.SimpleDisplayConcept;
 
 /**
@@ -110,7 +109,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	};
 	private int searchCounter = 0;
 	private volatile int lastProcessedId = -1;
-	private HashMap<Integer, SearchHandle> runningSearches = new HashMap<>();
+	private HashMap<Integer, QueryHandle> runningSearches = new HashMap<>();
 	private boolean above = false;
 	private Supplier<ManifoldCoordinate> manifoldCoord;
 
@@ -331,7 +330,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	private synchronized void showOrHidePopupForTextChange()
 	{
 		styleCheck();
-		for (SearchHandle ssh : runningSearches.values())
+		for (QueryHandle ssh : runningSearches.values())
 		{
 			ssh.cancel();
 		}
@@ -347,10 +346,10 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 				{
 					//TODO add the ability to pass in the entire search function, so that the end user can have full control over the advanced query options
 					int id = searchCounter++;
-					SearchHandle ssh = SearchHandler.search(() -> 
+					QueryHandle ssh = Get.queryHandler().search(() -> 
 					{
 						return Get.service(IndexDescriptionQueryService.class).query(text, true, null, null, 
-								AuthorModulePathRestriction.restrict(manifoldCoord.get()), metadataOnly, null, null, 1, 5, null);
+								AuthorModulePathRestriction.restrict(manifoldCoord.get()), metadataOnly, (int[]) null, null, 1, 5, null);
 					},
 					(searchHandle) -> {this.taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());},
 					id,
@@ -417,7 +416,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 		return css.conceptDescriptionText(nid);
 	}
 
-	private VBox processResult(CompositeSearchResult result, final int idx)
+	private VBox processResult(CompositeQueryResult result, final int idx)
 	{
 		VBox box = new VBox();
 		box.setPadding(new Insets(3, 3, 3, 3));
@@ -589,7 +588,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	{
 		try
 		{
-			SearchHandle ssh = null;
+			QueryHandle ssh = null;
 			synchronized (runningSearches)
 			{
 				ssh = runningSearches.remove(taskId);
@@ -607,7 +606,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 			}
 			else
 			{
-				final Collection<CompositeSearchResult> sortedResults = ssh.getResults();
+				final Collection<CompositeQueryResult> sortedResults = ssh.getResults();
 				Platform.runLater(new Runnable()
 				{
 					@Override
@@ -616,7 +615,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 						displayedSearchResults.getChildren().clear();
 						popUpResults.clear();
 						currentSelection = -1;
-						for (CompositeSearchResult result : sortedResults)
+						for (CompositeQueryResult result : sortedResults)
 						{
 							int idx = displayedSearchResults.getChildren().size();
 							displayedSearchResults.getChildren().add(processResult(result, idx));

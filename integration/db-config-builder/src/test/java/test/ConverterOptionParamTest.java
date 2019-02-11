@@ -65,13 +65,13 @@ public class ConverterOptionParamTest {
     */
    @Test
    public void testJson() throws Exception {
-      ConverterOptionParam foo = new ConverterOptionParam("cc", "a", "b", true, true, new ConverterOptionParamSuggestedValue("e", "e1"),
+      ConverterOptionParam foo = new ConverterOptionParam("cc", "a", "b", true, true, true, null, new ConverterOptionParamSuggestedValue("e", "e1"),
             new ConverterOptionParamSuggestedValue("f"));
       Assert.assertEquals("e", foo.getSuggestedPickListValues()[0].getValue());
       Assert.assertEquals("e1", foo.getSuggestedPickListValues()[0].getDescription());
       Assert.assertEquals("f", foo.getSuggestedPickListValues()[1].getValue());
       Assert.assertEquals("f", foo.getSuggestedPickListValues()[1].getDescription());
-      ConverterOptionParam foo2 = new ConverterOptionParam("33", "1", "2", true, false, new ConverterOptionParamSuggestedValue("3", "31"),
+      ConverterOptionParam foo2 = new ConverterOptionParam("33", "1", "2", true, false, false, null, new ConverterOptionParamSuggestedValue("3", "31"),
             new ConverterOptionParamSuggestedValue("4", "41"));
       ConverterOptionParam.serialize(new ConverterOptionParam[] { foo, foo2 }, new File("foo.json"));
 

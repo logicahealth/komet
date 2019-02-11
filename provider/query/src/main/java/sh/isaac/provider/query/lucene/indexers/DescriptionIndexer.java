@@ -38,7 +38,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import java.util.ArrayList;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
@@ -52,7 +51,6 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.AuthorModulePathRestriction;
@@ -60,12 +58,8 @@ import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.SemanticTags;
-import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
-import sh.isaac.api.TaxonomySnapshot;
 
 /**
  * Lucene Manager which specializes in indexing descriptions.
@@ -148,17 +142,29 @@ public class DescriptionIndexer extends LuceneIndexer
          //Because we are only indexing descriptions, we will assume the referencedComponentNid is a concept.
          String key = pathNid + ":" + semanticChronology.getReferencedComponentNid();
          try
-         { 
+         {
             isMetadata = isMetadataCache.get(key, pathAndRefComp -> {
-            //cache doesn't have the answer, needs to calculate.  We construct a snapshot of latest time, the path, and any module, active only.
-            TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(
-                  new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, pathNid), new HashSet(), new ArrayList(), Status.ACTIVE_ONLY_SET), null));
-            return tss.isKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
-            });
+            try 
+            {
+               for (int stamp : Get.concept(semanticChronology.getReferencedComponentNid()).getVersionStampSequences()) {
+                  if (Get.stampService().getModuleNidForStamp(stamp) == TermAux.CORE_METADATA_MODULE.getNid()) {
+                     return true;
+                  }
+               }
+               return false;
+            }
+            catch (Exception e) 
+            {
+               //This should no longer happen, but leave the catch here, so it doesn't break indexing if I'm wrong.
+               LOG.warn("Failed to calculate parent path for {} because {}, will assume not metadata for indexing.", 
+                     semanticChronology.getReferencedComponentNid(), e);
+               return false;
+            }
+            }).booleanValue();
          }
          catch (Exception e)
          {
-            LOG.error("Unexpected error calculating isKindOf for " + semanticChronology, e);
+            LOG.error("Unexpected error calculating isMetadata for " + semanticChronology, e);
          }
          
          // Add a metadata marker for concepts that are metadata, to vastly improve performance of various prefix / filtering searches we want to
@@ -375,7 +381,7 @@ public class DescriptionIndexer extends LuceneIndexer
          Integer sizeLimit,
          Long targetGeneration) {
       
-      return query(query, prefixSearch, assemblageConcepts, filter, amp, false, null, null, pageNum, sizeLimit, targetGeneration);
+      return query(query, prefixSearch, assemblageConcepts, filter, amp, false, (int[]) null, null, pageNum, sizeLimit, targetGeneration);
    }
    
    public int getDescriptionExtendedTypeNid()

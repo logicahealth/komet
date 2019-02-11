@@ -216,6 +216,9 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             } catch (NoSuchElementException ex) {
                 handleMissingIdentifier(token);
             }
+            if (nid == MetaData.OBSERVATION____SOLOR.getNid()) {
+                nid = MetaData.PHENOMENON____SOLOR.getNid();
+            }
             assertions.add(builder.conceptAssertion(nid));
             if (tokenizer.hasMoreTokens()) {
                 String delimiter = tokenizer.nextToken();
@@ -302,9 +305,6 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         if (!optionalConcept.isPresent()) {
             ConceptChronologyImpl conceptToWrite
                     = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-            if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptToWrite.getNid()) {
-               LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
-           }
             conceptToWrite.createMutableVersion(stamp);
             Get.conceptService().writeConcept(conceptToWrite);
             index(conceptToWrite);

@@ -39,29 +39,40 @@
 
 package sh.isaac.api.coordinate;
 
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlType;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.component.concept.ConceptSpecification;
+
 /**
  * The Enum StampPrecedence.
  *
  * @author kec
  */
+@XmlType(name = "StampPrecedence")
+@XmlEnum
 public enum StampPrecedence {
    /** The time. */
    TIME("time precedence",
         "<html>If two versions are both on a route to the destination, " +
-        "the version with the later time has higher precedence."),
+        "the version with the later time has higher precedence.",
+        TermAux.TIME_PRECEDENCE),
 
    /** The path. */
    PATH("path precedence",
         "<html>If two versions are both on route to the destination, " +
         "but one version is on a path that is closer to the destination, " +
         "the version on the closer path has higher precedence.<br><br>If two versions " +
-        "are on the same path, the version with the later time has higher precedence.");
+        "are on the same path, the version with the later time has higher precedence.",
+           TermAux.PATH_PRECEDENCE);
 
    /** The label. */
    private final String label;
 
    /** The description. */
    private final String description;
+   
+   private final ConceptSpecification specifyingConcept;
 
    //~--- constructors --------------------------------------------------------
 
@@ -71,9 +82,10 @@ public enum StampPrecedence {
     * @param label the label
     * @param description the description
     */
-   private StampPrecedence(String label, String description) {
+   private StampPrecedence(String label, String description, ConceptSpecification specifyingConcept) {
       this.label       = label;
       this.description = description;
+      this.specifyingConcept = specifyingConcept;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -90,13 +102,27 @@ public enum StampPrecedence {
 
    //~--- get methods ---------------------------------------------------------
 
-   /**
-    * Gets the description.
-    *
-    * @return the description
-    */
-   public String getDescription() {
-      return this.description;
+   public ConceptSpecification getSpecifyingConcept() {
+      return specifyingConcept;
    }
+
+    /**
+     * Gets the description.
+     *
+     * @return the description
+     */
+    public String getDescription() {
+        return this.description;
+    }
+    
+    public static StampPrecedence from(ConceptSpecification spec) {
+        if (spec.equals(TIME.specifyingConcept)) {
+            return TIME;
+        }
+        if (spec.equals(PATH.specifyingConcept)) {
+            return PATH;
+        }
+        throw new IllegalStateException("No prededence for: " + spec);
+    }
 }
 

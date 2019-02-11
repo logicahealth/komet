@@ -39,14 +39,9 @@
 
 package sh.isaac.api.classifier;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
-
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
-
-//~--- interfaces -------------------------------------------------------------
+import sh.isaac.api.task.TimedTask;
 
 /**
  * The Interface ClassifierService.
@@ -55,13 +50,19 @@ import sh.isaac.api.logic.LogicalExpression;
  */
 public interface ClassifierService {
    /**
-    * Will perform a full or incremental classification as necessary.
+    * Will perform a full or incremental classification as necessary.  No cycle check is performed.
     * @return A task that can be used to block, if the caller wishes to wait
-    * for the results.
+    * for the results.  The task is already executed, when returned.
     */
-   Task<ClassifierResults> classify();
-
-   //~--- get methods ---------------------------------------------------------
+   TimedTask<ClassifierResults> classify();
+   
+   /**
+    * Will perform a full or incremental classification as necessary.
+    * @param cycleCheck perform a cycle check first, when true.
+    * @return A task that can be used to block, if the caller wishes to wait
+    * for the results.  The task is already executed, when returned.
+    */
+   TimedTask<ClassifierResults> classify(boolean cycleCheck);
 
    /**
     * NOTE: this method call may cause a full or incremental classification if
@@ -74,6 +75,5 @@ public interface ClassifierService {
     * @return  A task that can be used to block, if the caller wishes to wait
     * for the results.
     */
-   Task<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate);
+   TimedTask<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate);
 }
-

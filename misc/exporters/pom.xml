@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
 		<artifactId>misc</artifactId>
-		<version>4.59-SNAPSHOT</version>
+		<version>4.65-SNAPSHOT</version>
 	</parent>
 	<groupId>sh.isaac.misc</groupId>
 	<artifactId>exporters</artifactId>
@@ -25,11 +25,6 @@
 		</dependency>
 		<dependency>
 			<groupId>sh.isaac.provider</groupId>
-			<artifactId>stamp</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.provider</groupId>
 			<artifactId>chronology</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -46,11 +41,6 @@
 		<dependency>
 			<groupId>sh.isaac.provider</groupId>
 			<artifactId>commit</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>query</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

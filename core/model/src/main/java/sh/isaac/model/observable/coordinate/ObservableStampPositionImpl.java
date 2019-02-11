@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.time.Instant;
 import javafx.beans.InvalidationListener;
 
@@ -94,23 +95,27 @@ public class ObservableStampPositionImpl
 
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Stamp path nid property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public ObjectProperty<ConceptSpecification> stampPathConceptSpecificationProperty() {
-      if (this.stampPathConceptSpecificationProperty == null) {
-         this.stampPathConceptSpecificationProperty = new SimpleObjectProperty<>(this,
-               ObservableFields.PATH_NID_FOR_STAMP_POSITION.toExternalString(),
-               getStampPathSpecification());
-         addListenerReference(this.stampPosition.setStampPathConceptSpecificationProperty(this.stampPathConceptSpecificationProperty));
-         this.stampPathConceptSpecificationProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
-      }
-
-      return this.stampPathConceptSpecificationProperty;
+   public StampPositionImpl getStampPosition() {
+      return stampPosition;
    }
+
+    /**
+     * Stamp path nid property.
+     *
+     * @return the integer property
+     */
+    @Override
+    public ObjectProperty<ConceptSpecification> stampPathConceptSpecificationProperty() {
+        if (this.stampPathConceptSpecificationProperty == null) {
+            this.stampPathConceptSpecificationProperty = new SimpleObjectProperty<>(this,
+                    ObservableFields.PATH_NID_FOR_STAMP_POSITION.toExternalString(),
+                    getStampPathSpecification());
+            addListenerReference(this.stampPosition.setStampPathConceptSpecificationProperty(this.stampPathConceptSpecificationProperty));
+            this.stampPathConceptSpecificationProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
+        }
+        
+        return this.stampPathConceptSpecificationProperty;
+    }
 
    /**
     * Time property.

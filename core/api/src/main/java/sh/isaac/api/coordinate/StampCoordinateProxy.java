@@ -16,9 +16,11 @@
  */
 package sh.isaac.api.coordinate;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 /**
  *
@@ -63,6 +65,9 @@ public interface StampCoordinateProxy extends StampCoordinate {
    public default StampCoordinate makeCoordinateAnalog(Status... state) {
       return getStampCoordinate().makeCoordinateAnalog(state);
    }
-   
-   
+
+   @Override
+   default StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+      return getStampCoordinate().makeModuleAnalog(modules, add);
+   }
 }

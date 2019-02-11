@@ -39,11 +39,10 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
-//~--- non-JDK imports --------------------------------------------------------
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javafx.concurrent.Task;
 import sh.isaac.api.ApplicationStates;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.classifier.ClassifierResults;
@@ -54,8 +53,6 @@ import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.SequentialAggregateTask;
 import sh.isaac.provider.logic.LogicProvider;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  * The Class AggregateClassifyTask.
  *
@@ -63,48 +60,67 @@ import sh.isaac.provider.logic.LogicProvider;
  */
 public class AggregateClassifyTask
         extends SequentialAggregateTask<ClassifierResults> implements PersistTaskResult {
+
+   private CycleCheck cc = null;
+   private Logger log = LogManager.getLogger();
+   
    /**
     * Instantiates a new aggregate classify task.
     *
     * @param stampCoordinate the stamp coordinate
     * @param logicCoordinate the logic coordinate
     */
-   private AggregateClassifyTask(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
+   private AggregateClassifyTask(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, boolean cycleCheckFirst) {
       super("Classify",
-            new Task[] { new ExtractAxioms(stampCoordinate,
-                  logicCoordinate), new LoadAxioms(stampCoordinate,
-                        logicCoordinate), new ClassifyAxioms(stampCoordinate,
-                              logicCoordinate), new ProcessClassificationResults(stampCoordinate, logicCoordinate), });
+            new Task[] { new ExtractAxioms(stampCoordinate,logicCoordinate), new LoadAxioms(), new ClassifyAxioms(), new ProcessClassificationResults()});
+      if (cycleCheckFirst) {
+         cc = new CycleCheck(stampCoordinate, logicCoordinate);
+      }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-    @Override
+   @Override
    protected ClassifierResults call() throws Exception {
-      LookupService.getService(MemoryManagementService.class)
-                   .addState(ApplicationStates.CLASSIFYING);
-       try {
-        return super.call(); 
-       } finally {
-           LookupService.getService(MemoryManagementService.class)
-                   .removeState(ApplicationStates.CLASSIFYING);
-           Get.service(LogicProvider.class).getPendingLogicTasks().remove(this);
-
-       }
+      Get.activeTasks().add(this);
+      //Logic service doesn't depend on the memory management service, so this isn't safe without checking....
+      if (LookupService.hasService(MemoryManagementService.class)) {
+         LookupService.getService(MemoryManagementService.class)
+                  .addState(ApplicationStates.CLASSIFYING);
+      }
+      try {
+         if (cc != null) {
+            ClassifierResults cr = cc.call();
+            if (cr != null) {
+               // had a cycle.  Abort.
+               log.info("At least one cycle detected, classification aborted - summary: {}", cr);
+               return cr;
+            }
+         }
+         log.debug("Starting classification aggregate tasks");
+         ClassifierResults cr = super.call();
+         if (cc != null) {
+            cr.addOrphans(cc.getOrphans());
+         }
+         log.info("Classification task finished - summary: {}", cr.toString());
+         return cr;
+      } finally {
+         if (LookupService.hasService(MemoryManagementService.class)) {
+            LookupService.getService(MemoryManagementService.class)
+                    .removeState(ApplicationStates.CLASSIFYING);
+         }
+         Get.service(LogicProvider.class).getPendingLogicTasks().remove(this);
+      }
    }
 
     /**
-     * Gets the.
+     * When this method returns, the task is already executing.
      *
      * @param stampCoordinate the stamp coordinate
      * @param logicCoordinate the logic coordinate
+     * @param cycleCheckFirst true, to do a cycle check on the stated taxonomy prior to classify.  Will abort classify if a cycle is detected.
      * @return an {@code AggregateClassifyTask} already submitted to an executor.
      */
-    public static AggregateClassifyTask get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate);
-        
-        Get.activeTasks()
-                .add(classifyTask);
+    public static AggregateClassifyTask get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, boolean cycleCheckFirst) {
+        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate, cycleCheckFirst);
         Get.workExecutors()
                 .getExecutor()
                 .execute(classifyTask);
@@ -112,4 +128,3 @@ public class AggregateClassifyTask
         return classifyTask;
     }
 }
-

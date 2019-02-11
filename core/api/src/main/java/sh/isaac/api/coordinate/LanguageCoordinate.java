@@ -37,9 +37,12 @@
 package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.UUID;
+import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,12 +51,14 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.util.UUIDUtil;
 
 //~--- interfaces -------------------------------------------------------------
 /**
@@ -64,6 +69,24 @@ import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 public interface LanguageCoordinate extends Coordinate {
 
    final static Logger LOG = LogManager.getLogger();
+    /**
+     * 
+     * @return a content based uuid, such that identical language coordinates
+     * will have identical uuids, and that different language coordinates will 
+     * always have different uuids.
+     */
+   default UUID getLanguageCoordinateUuid() {
+       ArrayList<UUID> uuidList = new ArrayList();
+       if (getNextProrityLanguageCoordinate().isPresent()) {
+           uuidList.add(getNextProrityLanguageCoordinate().get().getLanguageCoordinateUuid());
+       }
+       UUIDUtil.addSortedUuids(uuidList, getDescriptionTypePreferenceList());
+       UUIDUtil.addSortedUuids(uuidList, getDialectAssemblagePreferenceList());
+       UUIDUtil.addSortedUuids(uuidList, getLanguageConceptNid());
+       UUIDUtil.addSortedUuids(uuidList, getModulePreferenceListForLanguage());
+       return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
+   }
+    
    /**
     * If the current language coordinate fails to return a requested description, 
     * then the next priority language coordinate will be tried until a description is found, 
@@ -72,7 +95,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return 
     */
    Optional<LanguageCoordinate> getNextProrityLanguageCoordinate();
-    
+
    /**
     * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
     *
@@ -141,6 +164,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the latestDescription type preference list
     */
    int[] getDescriptionTypePreferenceList();
+   ConceptSpecification[] getDescriptionTypeSpecPreferenceList();
 
    /**
     * Gets the dialect assemblage preference list.
@@ -148,6 +172,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the dialect assemblage preference list
     */
    int[] getDialectAssemblagePreferenceList();
+   ConceptSpecification[] getDialectAssemblageSpecPreferenceList();
    
    /**
     * Gets the module preference list. Used to adjudicate which component to 
@@ -158,6 +183,7 @@ public interface LanguageCoordinate extends Coordinate {
     */
 
    int[] getModulePreferenceListForLanguage();
+   ConceptSpecification[] getModuleSpecPreferenceListForLanguage();
    /**
     * Convenience method - returns true if FQN is at the top of the latestDescription list.
     *
@@ -267,12 +293,22 @@ public interface LanguageCoordinate extends Coordinate {
     */
    default Optional<String> getRegularName(int componentNid, StampCoordinate stampCoordinate) {
       switch (Get.identifierService().getObjectTypeForComponent(componentNid)) {
-         case CONCEPT:
+         case CONCEPT: {
             LatestVersion<DescriptionVersion> latestDescription
                = getPreferredDescription(Get.conceptService().getConceptDescriptions(componentNid), stampCoordinate);
             return latestDescription.isPresent() ? Optional.of(latestDescription.get().getText()) : Optional.empty();
-         case SEMANTIC:
+         }
+         case SEMANTIC: {
+             SemanticChronology sc = Get.assemblageService().getSemanticChronology(componentNid);
+             if (sc.getVersionType() == VersionType.DESCRIPTION) {
+                LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(stampCoordinate);
+                if (latestDescription.isPresent()) {
+                    return Optional.of("desc: " + latestDescription.get().getText());
+                }
+                return Optional.of("inactive desc: " + ((DescriptionVersion) sc.getVersionList().get(0)).getText());
+             }
             return Optional.of(Get.assemblageService().getSemanticChronology(componentNid).getVersionType().toString());
+         }
          case UNKNOWN:
          default:
            return Optional.empty();

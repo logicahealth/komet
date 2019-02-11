@@ -64,7 +64,7 @@ import sh.isaac.model.logic.node.external.RoleNodeAllWithUuids;
 public final class RoleNodeAllWithNids
         extends TypedNodeWithNids {
    /**
-    * Instantiates a new role node all with sequences.
+    * Instantiates a new role node all with nids.
     *
     * @param externalForm the external form
     */
@@ -73,7 +73,7 @@ public final class RoleNodeAllWithNids
    }
 
    /**
-    * Instantiates a new role node all with sequences.
+    * Instantiates a new role node all with nids.
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
@@ -84,7 +84,7 @@ public final class RoleNodeAllWithNids
    }
 
    /**
-    * Instantiates a new role node all with sequences.
+    * Instantiates a new role node all with nids.
     *
     * @param logicGraphVersion the logic graph version
     * @param typeConceptId the type concept id
@@ -127,7 +127,7 @@ public final class RoleNodeAllWithNids
     @Override
     public void addToBuilder(StringBuilder builder) {
         builder.append("\n       AllRole(");
-        builder.append("Get.conceptSpecification(new UUID(\"").append(Get.identifierService().getUuidPrimoridalStringForNid(typeConceptNid)).append("\"))");
+        builder.append("Get.conceptSpecification(new UUID(\"").append(Get.identifierService().getUuidPrimordialStringForNid(typeConceptNid)).append("\"))");
         builder.append(", ");
         for (AbstractLogicNode child: getChildren()) {
             child.addToBuilder(builder);

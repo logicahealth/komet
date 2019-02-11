@@ -125,7 +125,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -190,7 +191,8 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+				Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -252,7 +254,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -341,7 +344,8 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -386,7 +390,8 @@ public class VhatXmlTests
 		LOG.info("Testing {}", file.getFileName().toString());
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 	}
 
@@ -398,7 +403,8 @@ public class VhatXmlTests
 		LOG.info("Testing {}", file.getFileName().toString());
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 	}
 
@@ -412,7 +418,8 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), () -> ThreadLocalRandom.current().nextInt(), new File("target"));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -465,7 +472,8 @@ public class VhatXmlTests
 		LOG.info("Testing {}", file.getFileName().toString());
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 	}
 
@@ -476,7 +484,8 @@ public class VhatXmlTests
 		LOG.info("Testing {}", file.getFileName().toString());
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 	}
@@ -490,7 +499,8 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 		}
 		catch (IOException e)
@@ -508,7 +518,8 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 		}
 		catch (IOException e)
@@ -526,7 +537,8 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 		}
 		catch (IOException e)
@@ -544,7 +556,8 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 		}
 		catch (IOException e)
@@ -563,10 +576,12 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file1)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file1)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
-			new VHATDeltaImport(new String(Files.readAllBytes(file2)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file2)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		}
@@ -586,7 +601,8 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -627,7 +643,7 @@ public class VhatXmlTests
 //         
 //         if (nid.isPresent())
 //         {
-//            int cs = Get.conceptSpecification(nid.get()).getNid();
+//            int cs = Get.specifyingConcept(nid.get()).getNid();
 //            Assert.assertTrue(Get.conceptActiveService().isConceptActive(cs, activeStampCoord));
 //            NidSet css = new NidSet();
 //            css.add(cs);
@@ -656,7 +672,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -697,7 +714,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               Assert.assertTrue(descriptionExistsForConcept((ConceptChronology) cc, activeStampCoord, defUsLangCoord, "AA SQA IMMUN PROCEDURE"));
@@ -730,7 +747,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -786,7 +804,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -832,7 +851,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               @SuppressWarnings("rawtypes")
@@ -877,7 +896,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -933,7 +953,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1009,7 +1030,8 @@ public class VhatXmlTests
 		try
 		{
 			// Preliminary import to setup concept
-			new VHATDeltaImport(new String(Files.readAllBytes(preFile)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(preFile)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
@@ -1022,7 +1044,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1036,7 +1058,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1082,7 +1105,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1110,7 +1133,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1169,7 +1193,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1228,7 +1253,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1274,7 +1300,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1300,7 +1326,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1346,7 +1373,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1370,7 +1397,8 @@ public class VhatXmlTests
 		try
 		{
 			// Preliminary import to setup concept
-			new VHATDeltaImport(new String(Files.readAllBytes(preFile)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(preFile)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
@@ -1384,7 +1412,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1398,7 +1426,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1451,7 +1480,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               ConceptChronology concept = (ConceptChronology) cc;
@@ -1478,7 +1507,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1546,7 +1576,8 @@ public class VhatXmlTests
 
 		// Updating Subsets is not supported
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 	}
 
@@ -1558,7 +1589,8 @@ public class VhatXmlTests
 
 		// Updating Subsets is not supported
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 	}
 
@@ -1574,7 +1606,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1652,7 +1685,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1772,7 +1806,8 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1846,7 +1881,8 @@ public class VhatXmlTests
 		Assert.assertFalse(relationshipTypeExists(activeStampCoord, "A1_Bad_Relationships"));
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1899,7 +1935,8 @@ public class VhatXmlTests
 		Assert.assertFalse(subsetExists(activeStampCoord, "A0 Cool Subset Membership", 600000L));
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		// Test concepts imported
@@ -1946,7 +1983,8 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -2041,7 +2079,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -2118,7 +2157,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -2167,7 +2207,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               Assert.assertTrue(descriptionExistsForConcept((ConceptChronology) cc, stampCoord, null, "A1 AAA COOL TEST"));
@@ -2196,7 +2236,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -2246,7 +2287,7 @@ public class VhatXmlTests
 //         if (nid.isPresent())
 //         {
 //            NidSet css = new NidSet();
-//            css.add(Get.conceptSpecification(nid.get()).getNid());
+//            css.add(Get.specifyingConcept(nid.get()).getNid());
 //            for (Object cc : Get.conceptService().getConceptChronologyStream(css).toArray())
 //            {
 //               Assert.assertTrue(descriptionExistsForConcept((ConceptChronology) cc, stampCoord, null, "A1 AAA COOL TEST"));
@@ -2275,7 +2316,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Re-index to enable searching for new data
@@ -2357,7 +2399,7 @@ public class VhatXmlTests
 //         
 //         if (nid.isPresent())
 //         {
-//            int cs = Get.conceptSpecification(nid.get()).getNid();
+//            int cs = Get.specifyingConcept(nid.get()).getNid();
 //            Assert.assertTrue(Get.conceptActiveService().isConceptActive(cs, stampCoord));
 //            NidSet css = new NidSet();
 //            css.add(cs);
@@ -2376,7 +2418,7 @@ public class VhatXmlTests
 //         
 //         if (nid.isPresent())
 //         {
-//            int cs = Get.conceptSpecification(nid.get()).getNid();
+//            int cs = Get.specifyingConcept(nid.get()).getNid();
 //            Assert.assertTrue(Get.conceptActiveService().isConceptActive(cs, stampCoord));
 //            NidSet css = new NidSet();
 //            css.add(cs);
@@ -2407,7 +2449,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -2482,7 +2525,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -2541,7 +2585,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -2601,7 +2646,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -2653,7 +2699,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -2707,7 +2754,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -2760,7 +2808,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -2816,7 +2865,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -2875,7 +2925,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -2928,7 +2979,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -2981,7 +3033,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3177,7 +3230,8 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -3229,7 +3283,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3281,7 +3336,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3334,7 +3390,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3393,7 +3450,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3492,7 +3550,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3591,7 +3650,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3659,7 +3719,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3724,7 +3785,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3785,7 +3847,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3843,7 +3906,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3890,7 +3954,8 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 		}
 		catch (IOException e)
@@ -3911,7 +3976,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -3978,7 +4044,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4037,7 +4104,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4096,7 +4164,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4148,7 +4217,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4197,7 +4267,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4247,7 +4318,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4306,7 +4378,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4363,7 +4436,8 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 		}
 		catch (IOException e)
@@ -4380,7 +4454,8 @@ public class VhatXmlTests
 		LOG.info("Testing {}", file.getFileName().toString());
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 	}
 
@@ -4396,7 +4471,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4454,7 +4530,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4507,7 +4584,8 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -4566,7 +4644,8 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+		new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 				TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -4625,7 +4704,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4678,7 +4758,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4740,7 +4821,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4793,7 +4875,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4846,7 +4929,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4910,7 +4994,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -4963,7 +5048,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -5027,7 +5113,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported
@@ -5077,7 +5164,8 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), TermAux.VHAT_EDIT.getPrimordialUuid(),
+			new VHATDeltaImport(new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(), 
+					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
 
 			// Test concepts imported

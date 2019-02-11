@@ -77,7 +77,7 @@ public class ComponentDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 			setText("");
 			setGraphic(null);
 		}
-		else if (item != null)
+		else
 		{
 			conceptLookup(item);
 		}

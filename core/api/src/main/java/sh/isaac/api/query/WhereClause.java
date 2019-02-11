@@ -60,7 +60,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlAccessorType(value = XmlAccessType.PROPERTY)
 public class WhereClause {
    /** The let keys. */
-   List<String> letKeys = new ArrayList<>();
+   List<LetItemKey> letKeys = new ArrayList<>();
 
    /** The children. */
    List<WhereClause> children = new ArrayList<>();
@@ -97,7 +97,7 @@ public class WhereClause {
     *
     * @return the let keys
     */
-   public List<String> getLetKeys() {
+   public List<LetItemKey> getLetKeys() {
       return this.letKeys;
    }
 
@@ -108,7 +108,7 @@ public class WhereClause {
     *
     * @param letKeys the new let keys
     */
-   public void setLetKeys(List<String> letKeys) {
+   public void setLetKeys(List<LetItemKey> letKeys) {
       this.letKeys = letKeys;
    }
 

@@ -210,7 +210,7 @@ public final class FeatureNodeWithNids
     @Override
     public void addToBuilder(StringBuilder builder) {
         builder.append("\n       Feature(");
-        builder.append("Get.conceptSpecification(").append(Get.identifierService().getUuidPrimoridalStringForNid(measureSemanticNid)).append("), ");
+        builder.append("Get.conceptSpecification(").append(Get.identifierService().getUuidPrimordialStringForNid(measureSemanticNid)).append("), ");
         builder.append(operator);
         builder.append(")\n");
     }

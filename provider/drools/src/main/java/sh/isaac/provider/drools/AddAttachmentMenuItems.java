@@ -17,6 +17,7 @@
 package sh.isaac.provider.drools;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalInt;
@@ -57,6 +58,7 @@ public class AddAttachmentMenuItems {
     final Manifold manifold;
     final ObservableCategorizedVersion categorizedVersion;
     final BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer;
+    final HashMap<String, PropertySheetMenuItem> propertySheetMenuItems = new HashMap<>();
 
     public AddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
             BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
@@ -82,7 +84,11 @@ public class AddAttachmentMenuItems {
     }
 
     public PropertySheetMenuItem makePropertySheetMenuItem(String menuText, ConceptSpecification assemblageSpecification) {
-        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion, false);
+        if (propertySheetMenuItems.containsKey(menuText)) {
+            return propertySheetMenuItems.get(menuText);
+        }
+        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion);
+        propertySheetMenuItems.put(menuText, propertySheetMenuItem);
         MenuItem menuItem = new MenuItem(menuText);
         menuItem.setOnAction((event) -> {
             try {
@@ -108,7 +114,7 @@ public class AddAttachmentMenuItems {
                     || semanticTypeNid == MetaData.COMPONENT_SEMANTIC____SOLOR.getNid()) {
 
                 ObservableComponentNidVersionImpl version
-                        = new ObservableComponentNidVersionImpl(UUID.randomUUID(),
+                        = new ObservableComponentNidVersionImpl(Get.newUuidWithAssignment(),
                                 this.categorizedVersion.getPrimordialUuid(),
                                 assemblageSpecification.getNid());
                 version.setComponentNid(TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
@@ -117,19 +123,19 @@ public class AddAttachmentMenuItems {
                 return version;
             } else if (semanticTypeNid == MetaData.INTEGER_SEMANTIC____SOLOR.getNid()) {
 
-                ObservableLongVersionImpl version = new ObservableLongVersionImpl(UUID.randomUUID(),
+                ObservableLongVersionImpl version = new ObservableLongVersionImpl(Get.newUuidWithAssignment(),
                         this.categorizedVersion.getPrimordialUuid(),
                         assemblageSpecification.getNid());
                 version.setLongValue(-1);
                 setupWithChronicle(version);
             } else if (semanticTypeNid == MetaData.MEMBERSHIP_SEMANTIC____SOLOR.getNid()) {
-                ObservableSemanticVersionImpl version = new ObservableSemanticVersionImpl(UUID.randomUUID(),
+                ObservableSemanticVersionImpl version = new ObservableSemanticVersionImpl(Get.newUuidWithAssignment(),
                         this.categorizedVersion.getPrimordialUuid(),
                         assemblageSpecification.getNid());
                 setupWithChronicle(version);
                 return version;
             } else if (semanticTypeNid == MetaData.STRING_SEMANTIC____SOLOR.getNid()) {
-                ObservableStringVersionImpl version = new ObservableStringVersionImpl(UUID.randomUUID(),
+                ObservableStringVersionImpl version = new ObservableStringVersionImpl(Get.newUuidWithAssignment(),
                         this.categorizedVersion.getPrimordialUuid(),
                         assemblageSpecification.getNid());
                 version.setString("");
@@ -141,7 +147,7 @@ public class AddAttachmentMenuItems {
         }
 
         LOG.warn("No semantic type defined for assemblge: " + Get.conceptDescriptionText(assemblageSpecification.getNid()));
-        ObservableStringVersionImpl version = new ObservableStringVersionImpl(UUID.randomUUID(),
+        ObservableStringVersionImpl version = new ObservableStringVersionImpl(Get.newUuidWithAssignment(),
                 this.categorizedVersion.getPrimordialUuid(),
                 assemblageSpecification.getNid());
         version.setString("");

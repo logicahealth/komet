@@ -37,6 +37,8 @@ import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LoincDirectImporter;
 import sh.isaac.solor.direct.DirectImporter;
+import sh.isaac.solor.direct.LoincExpressionToConcept;
+import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 
 /**
@@ -56,17 +58,18 @@ public class SolorMojo extends AbstractMojo {
     private String importFolderLocation;
 
     /**
-     * This value, if present, is passed in to {@link ConfigurationService#setDataStoreFolderPath(Path)}
+     * This value, if present, is passed in to
+     * {@link ConfigurationService#setDataStoreFolderPath(Path)}
      *
      * @parameter
      * @optional
      */
     @Parameter(required = false)
     private File dataStoreLocation;
-    
+
     @Parameter(required = true)
     private String importType;
-    
+
     @Parameter(required = false, defaultValue = "false")
     private boolean transform;
 
@@ -78,10 +81,9 @@ public class SolorMojo extends AbstractMojo {
         Get.configurationService().setDBBuildMode(BuildMode.DB);
         try {
             Get.configurationService().setIBDFImportPathFolderPath(new File(importFolderLocation).toPath());
-            
-            if (this.dataStoreLocation != null)
-            {
-               Get.configurationService().setDataStoreFolderPath(dataStoreLocation.toPath());
+
+            if (this.dataStoreLocation != null) {
+                Get.configurationService().setDataStoreFolderPath(dataStoreLocation.toPath());
             }
 
             getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
@@ -94,23 +96,32 @@ public class SolorMojo extends AbstractMojo {
             getLog().info("  Importing RF2 files.");
             rf2Importer.run();
             LookupService.syncAll();
-            
+
             LoincDirectImporter loincImporter = new LoincDirectImporter();
             getLog().info("  Importing LOINC files.");
             loincImporter.run();
             LookupService.syncAll();
             if (transform) {
+               //TODO change how we get the edit coordinates. 
+                ManifoldCoordinate coordinate = Get.coordinateFactory().createDefaultStatedManifoldCoordinate();
+                EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
+
                 getLog().info("  Transforming RF2 relationships to SOLOR.");
                 Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.valueOf(importType));
                 Future<?> transformTask = Get.executor().submit(transformer);
                 transformTask.get();
 
-                getLog().info("  Classifying stated forms.");
+                getLog().info("Convert LOINC expressions...");
+                LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
+                Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
+                convertLoincTask.get();
 
-                //TODO change how we get the edit coordinates. 
-                ManifoldCoordinate coordinate = Get.coordinateFactory().createDefaultStatedManifoldCoordinate();
-                EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
+                getLog().info("Adding navigation concepts...");
+                LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(coordinate);
+                Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
+                addNavigationConceptsTask.get();
 
+                getLog().info("Classifying new content...");
                 Task<ClassifierResults> classifierResultsTask
                         = Get.logicService().getClassifierService(coordinate, editCoordinate).classify();
                 ClassifierResults classifierResults = classifierResultsTask.get();

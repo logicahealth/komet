@@ -16,6 +16,7 @@
  */
 package sh.isaac.model.coordinate;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -62,6 +63,11 @@ public class StampCoordinateImmutableWrapper implements StampCoordinate {
     @Override
     public StampCoordinate makeCoordinateAnalog(EnumSet<Status> states) {
         return stampCoordinate.makeCoordinateAnalog(states);
+    }
+
+    @Override
+    public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+        return stampCoordinate.makeModuleAnalog(modules, add);
     }
 
     @Override

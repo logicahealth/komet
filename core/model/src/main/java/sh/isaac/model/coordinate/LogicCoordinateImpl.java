@@ -41,7 +41,8 @@ package sh.isaac.model.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.IntegerProperty;
+import java.util.UUID;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
@@ -50,11 +51,15 @@ import javafx.beans.value.WeakChangeListener;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.ConceptProxy;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -65,23 +70,23 @@ import sh.isaac.api.coordinate.LogicCoordinate;
  * @author kec
  */
 @XmlRootElement(name = "logicCoordinate")
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.NONE)
 public class LogicCoordinateImpl
          implements LogicCoordinate {
    /** The stated assemblage nid. */
-   protected int statedAssemblageNid;
+   protected ConceptSpecification statedAssemblage;
 
    /** The inferred assemblage nid. */
-   protected int inferredAssemblageNid;
+   protected ConceptSpecification inferredAssemblage;
 
    /** The description logic profile nid. */
-   protected int descriptionLogicProfileNid;
+   protected ConceptSpecification descriptionLogicProfile;
 
    /** The classifier nid. */
-   protected int classifierNid;
+   protected ConceptSpecification classifier;
 
    /** The concept assemblage nid. */
-   protected int conceptAssemblageNid;
+   protected ConceptSpecification conceptAssemblage;
 
    //~--- constructors --------------------------------------------------------
 
@@ -107,14 +112,36 @@ public class LogicCoordinateImpl
                               int classifierNid,
                               int conceptAssemblageNid) {
       
-      this.statedAssemblageNid        = statedAssemblageNid;
-      this.inferredAssemblageNid      = inferredAssemblageNid;
-      this.descriptionLogicProfileNid = descriptionLogicProfileNid;
-      this.classifierNid              = classifierNid;
-      this.conceptAssemblageNid = conceptAssemblageNid;
+      this.statedAssemblage        = new ConceptProxy(statedAssemblageNid);
+      this.inferredAssemblage      = new ConceptProxy(inferredAssemblageNid);
+      this.descriptionLogicProfile = new ConceptProxy(descriptionLogicProfileNid);
+      this.classifier              = new ConceptProxy(classifierNid);
+      this.conceptAssemblage = new ConceptProxy(conceptAssemblageNid);
+   }
+
+   public LogicCoordinateImpl(ConceptSpecification statedAssemblage,
+                              ConceptSpecification inferredAssemblage,
+                              ConceptSpecification descriptionLogicProfile,
+                              ConceptSpecification classifier,
+                              ConceptSpecification conceptAssemblage) {
+      
+      this.statedAssemblage        = statedAssemblage;
+      this.inferredAssemblage      = inferredAssemblage;
+      this.descriptionLogicProfile = descriptionLogicProfile;
+      this.classifier              = classifier;
+      this.conceptAssemblage = conceptAssemblage;
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    @XmlElement
+    public UUID getLogicCoordinateUuid() {
+        return LogicCoordinate.super.getLogicCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void setLogicCoordinateUuid(UUID uuid) {
+        // noop for jaxb
+    }
 
    /**
     * Equals.
@@ -138,23 +165,23 @@ public class LogicCoordinateImpl
 
       final LogicCoordinate other = (LogicCoordinate) obj;
 
-      if (this.statedAssemblageNid != other.getStatedAssemblageNid()) {
+      if (this.statedAssemblage.getNid() != other.getStatedAssemblageNid()) {
          return false;
       }
 
-      if (this.inferredAssemblageNid != other.getInferredAssemblageNid()) {
+      if (this.inferredAssemblage.getNid() != other.getInferredAssemblageNid()) {
          return false;
       }
 
-      if (this.descriptionLogicProfileNid != other.getDescriptionLogicProfileNid()) {
+      if (this.descriptionLogicProfile.getNid() != other.getDescriptionLogicProfileNid()) {
          return false;
       }
       
-      if (this.conceptAssemblageNid != other.getConceptAssemblageNid()) {
+      if (this.conceptAssemblage.getNid() != other.getConceptAssemblageNid()) {
          return false;
       }
 
-      return this.classifierNid == other.getClassifierNid();
+      return this.classifier.getNid() == other.getClassifierNid();
    }
 
    /**
@@ -166,10 +193,10 @@ public class LogicCoordinateImpl
    public int hashCode() {
       int hash = 3;
 
-      hash = 29 * hash + this.statedAssemblageNid;
-      hash = 29 * hash + this.inferredAssemblageNid;
-      hash = 29 * hash + this.descriptionLogicProfileNid;
-      hash = 29 * hash + this.classifierNid;
+      hash = 29 * hash + this.statedAssemblage.getNid();
+      hash = 29 * hash + this.inferredAssemblage.getNid();
+      hash = 29 * hash + this.descriptionLogicProfile.getNid();
+      hash = 29 * hash + this.classifier.getNid();
       return hash;
    }
 
@@ -180,12 +207,12 @@ public class LogicCoordinateImpl
     */
    @Override
    public String toString() {
-      return "LogicCoordinateImpl{" + Get.conceptDescriptionText(this.statedAssemblageNid) + "<" +
-             this.statedAssemblageNid + ">,\n" + Get.conceptDescriptionText(this.inferredAssemblageNid) +
-             "<" + this.inferredAssemblageNid + ">, \n" +
-             Get.conceptDescriptionText(this.descriptionLogicProfileNid) + "<" +
-             this.descriptionLogicProfileNid + ">, \n" + Get.conceptDescriptionText(this.classifierNid) +
-             "<" + this.classifierNid + ">}";
+      return "LogicCoordinateImpl{" + Get.conceptDescriptionText(this.statedAssemblage) + "<" +
+             this.statedAssemblage + ">,\n" + Get.conceptDescriptionText(this.inferredAssemblage) +
+             "<" + this.inferredAssemblage + ">, \n" +
+             Get.conceptDescriptionText(this.descriptionLogicProfile) + "<" +
+             this.descriptionLogicProfile + ">, \n" + Get.conceptDescriptionText(this.classifier) +
+             "<" + this.classifier + ">}";
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -197,7 +224,7 @@ public class LogicCoordinateImpl
     */
    @Override
    public int getClassifierNid() {
-      return this.classifierNid;
+      return this.classifier.getNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -205,17 +232,17 @@ public class LogicCoordinateImpl
    /**
     * Set classifier nid property.
     *
-    * @param classifierNidProperty the classifier nid property
+    * @param classifierProperty the classifier nid property
     * @return the change listener
     */
-   public ChangeListener<Number> setClassifierNidProperty(IntegerProperty classifierNidProperty) {
-      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                               Number oldValue,
-                                               Number newValue) -> {
-               this.classifierNid = newValue.intValue();
+   public ChangeListener<ConceptSpecification> setClassifierProperty(ObjectProperty<ConceptSpecification>  classifierProperty) {
+      final ChangeListener<ConceptSpecification> listener = (ObservableValue<? extends ConceptSpecification> observable,
+                                               ConceptSpecification oldValue,
+                                               ConceptSpecification newValue) -> {
+               this.classifier = newValue;
             };
 
-      classifierNidProperty.addListener(new WeakChangeListener<>(listener));
+      classifierProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
 
@@ -228,26 +255,26 @@ public class LogicCoordinateImpl
     */
    @Override
    public int getDescriptionLogicProfileNid() {
-      return this.descriptionLogicProfileNid;
+      return this.descriptionLogicProfile.getNid();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set description logic profile nid property.
+    * Set description logic profile property.
     *
-    * @param descriptionLogicProfileNidProperty the description logic profile nid property
+    * @param descriptionLogicProfileProperty the description logic profile property
     * @return the change listener
     */
-   public ChangeListener<Number> setDescriptionLogicProfileNidProperty(
-           IntegerProperty descriptionLogicProfileNidProperty) {
-      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                               Number oldValue,
-                                               Number newValue) -> {
-               this.descriptionLogicProfileNid = newValue.intValue();
+   public ChangeListener<ConceptSpecification> setDescriptionLogicProfileProperty(
+           ObjectProperty<ConceptSpecification>  descriptionLogicProfileProperty) {
+      final ChangeListener<ConceptSpecification> listener = (ObservableValue<? extends ConceptSpecification> observable,
+                                               ConceptSpecification oldValue,
+                                               ConceptSpecification newValue) -> {
+               this.descriptionLogicProfile = newValue;
             };
 
-      descriptionLogicProfileNidProperty.addListener(new WeakChangeListener<>(listener));
+      descriptionLogicProfileProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
 
@@ -260,7 +287,7 @@ public class LogicCoordinateImpl
     */
    @Override
    public int getInferredAssemblageNid() {
-      return this.inferredAssemblageNid;
+      return this.inferredAssemblage.getNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -268,18 +295,18 @@ public class LogicCoordinateImpl
    /**
     * Set inferred assemblage nid property.
     *
-    * @param inferredAssemblageNidProperty the inferred assemblage nid property
+    * @param inferredAssemblageProperty the inferred assemblage nid property
     * @return the change listener
     */
-   public ChangeListener<Number> setInferredAssemblageNidProperty(
-           IntegerProperty inferredAssemblageNidProperty) {
-      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                               Number oldValue,
-                                               Number newValue) -> {
-               this.inferredAssemblageNid = newValue.intValue();
+   public ChangeListener<ConceptSpecification> setInferredAssemblageProperty(
+           ObjectProperty<ConceptSpecification>  inferredAssemblageProperty) {
+      final ChangeListener<ConceptSpecification> listener = (ObservableValue<? extends ConceptSpecification> observable,
+                                               ConceptSpecification oldValue,
+                                               ConceptSpecification newValue) -> {
+               this.inferredAssemblage = newValue;
             };
 
-      inferredAssemblageNidProperty.addListener(new WeakChangeListener<>(listener));
+      inferredAssemblageProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
 
@@ -292,7 +319,7 @@ public class LogicCoordinateImpl
     */
    @Override
    public int getStatedAssemblageNid() {
-      return this.statedAssemblageNid;
+      return this.statedAssemblage.getNid();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -300,17 +327,17 @@ public class LogicCoordinateImpl
    /**
     * Set stated assemblage nid property.
     *
-    * @param statedAssemblageNidProperty the stated assemblage nid property
+    * @param statedAssemblageProperty the stated assemblage nid property
     * @return the change listener
     */
-   public ChangeListener<Number> setStatedAssemblageNidProperty(IntegerProperty statedAssemblageNidProperty) {
-      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                               Number oldValue,
-                                               Number newValue) -> {
-               this.statedAssemblageNid = newValue.intValue();
+   public ChangeListener<ConceptSpecification> setStatedAssemblageProperty(ObjectProperty<ConceptSpecification>  statedAssemblageProperty) {
+      final ChangeListener<ConceptSpecification> listener = (ObservableValue<? extends ConceptSpecification> observable,
+                                               ConceptSpecification oldValue,
+                                               ConceptSpecification newValue) -> {
+               this.statedAssemblage = newValue;
             };
 
-      statedAssemblageNidProperty.addListener(new WeakChangeListener<>(listener));
+      statedAssemblageProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
    
@@ -326,25 +353,70 @@ public class LogicCoordinateImpl
 
    @Override
    public int getConceptAssemblageNid() {
-      return this.conceptAssemblageNid;
+      return this.conceptAssemblage.getNid();
    }
 
    /**
     * Set concept assemblage nid property.
     *
-    * @param conceptAssemblageNidProperty the stated assemblage nid property
+    * @param conceptAssemblageProperty the stated assemblage nid property
     * @return the change listener
     */
-   public ChangeListener<Number> setConceptAssemblageNidProperty(IntegerProperty conceptAssemblageNidProperty) {
-      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                               Number oldValue,
-                                               Number newValue) -> {
-               this.conceptAssemblageNid = newValue.intValue();
+   public ChangeListener<ConceptSpecification> setConceptAssemblageProperty(ObjectProperty<ConceptSpecification>  conceptAssemblageProperty) {
+      final ChangeListener<ConceptSpecification> listener = (ObservableValue<? extends ConceptSpecification> observable,
+                                               ConceptSpecification oldValue,
+                                               ConceptSpecification newValue) -> {
+               this.conceptAssemblage = newValue;
             };
 
-      conceptAssemblageNidProperty.addListener(new WeakChangeListener<>(listener));
+      conceptAssemblageProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
+
+    @XmlElement(type=ConceptProxy.class)
+    public ConceptSpecification getStatedAssemblage() {
+        return statedAssemblage;
+    }
+
+    public void setStatedAssemblage(ConceptSpecification statedAssemblage) {
+        this.statedAssemblage = statedAssemblage;
+    }
+
+    @XmlElement(type=ConceptProxy.class)
+    public ConceptSpecification getInferredAssemblage() {
+        return inferredAssemblage;
+    }
+
+    public void setInferredAssemblage(ConceptSpecification inferredAssemblage) {
+        this.inferredAssemblage = inferredAssemblage;
+    }
+
+    @XmlElement(type=ConceptProxy.class)
+    public ConceptSpecification getDescriptionLogicProfile() {
+        return descriptionLogicProfile;
+    }
+
+    public void setDescriptionLogicProfile(ConceptSpecification descriptionLogicProfile) {
+        this.descriptionLogicProfile = descriptionLogicProfile;
+    }
+
+    @XmlElement(type=ConceptProxy.class)
+    public ConceptSpecification getClassifier() {
+        return classifier;
+    }
+
+    public void setClassifier(ConceptSpecification classifier) {
+        this.classifier = classifier;
+    }
+
+    @XmlElement(type=ConceptProxy.class)
+    public ConceptSpecification getConceptAssemblage() {
+        return conceptAssemblage;
+    }
+
+    public void setConceptAssemblage(ConceptSpecification conceptAssemblage) {
+        this.conceptAssemblage = conceptAssemblage;
+    }
    
 }
 

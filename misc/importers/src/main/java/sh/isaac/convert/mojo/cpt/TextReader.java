@@ -67,91 +67,88 @@ public class TextReader
 		LONGULT, MEDU, SHORTU
 	}
 
+	/**
+	 * Does not close the inputStream when done
+	 */
 	public static int read(InputStream input, HashMap<String, CPTData> dataHolder, CPTFileType type) throws IOException
 	{
 		AtomicBoolean dataStarted = new AtomicBoolean(false);
 		AtomicInteger lineCount = new AtomicInteger(0);
 		AtomicInteger dataLineCount = new AtomicInteger(0);
-		try
-		{
-			Consumer<String[]> processor = lineData -> {
-				lineCount.getAndIncrement();
-				if (!dataStarted.get())
-				{
-					if (lineCount.get() > 50)
-					{
-						throw new RuntimeException("Not finding data in file");
-					}
-					else if (lineData.length == 2)
-					{
-						// found the first line of data
-						dataStarted.set(true);
-					}
-				}
-
-				if (dataStarted.get())
-				{
-					dataLineCount.getAndIncrement();
-					if (lineData.length != 2 && lineData.length != 0)
-					{
-						throw new RuntimeException("Unexpected line length: " + Arrays.toString(lineData) + " on line " + lineCount.get());
-					}
-					CPTData cpt = dataHolder.get(lineData[0].trim());
-					if (cpt == null)
-					{
-						cpt = new CPTData(lineData[0].trim());
-						dataHolder.put(cpt.code, cpt);
-					}
-
-					switch (type)
-					{
-						case LONGULT:
-							cpt.longult = lineData[1].trim();
-							break;
-						case MEDU:
-							cpt.medu = lineData[1].trim();
-							break;
-						case SHORTU:
-							cpt.shortu = lineData[1].trim();
-							break;
-						default :
-							throw new RuntimeException("missed case");
-					}
-				}
-			};
-
-			switch (type)
+		Consumer<String[]> processor = lineData -> {
+			lineCount.getAndIncrement();
+			if (!dataStarted.get())
 			{
-				case LONGULT:
-					try (CSVReader reader = new CSVReaderBuilder(new BufferedReader(new InputStreamReader(new BOMInputStream(input))))
-						.withCSVParser(new CSVParserBuilder().withSeparator('\t').build()).build())
-					{
-						reader.forEach(processor);
-					}
-					break;
-				case MEDU:
-				case SHORTU:
-					try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BOMInputStream(input), StandardCharsets.UTF_8)))
-					{
-						reader.lines().forEach(line -> {
-							if (line.matches("\\d{3}\\w{2} .*"))
-							{
-								processor.accept(new String[] { line.substring(0, 5), line.substring(6, line.length()) });
-							}
-							else
-							{
-								processor.accept(new String[] { line });  // header info, pass anyway, so counts are right
-							}
-						});
-					}
-					break;
-				default :
-					throw new RuntimeException("Missing case!");
+				if (lineCount.get() > 50)
+				{
+					throw new RuntimeException("Not finding data in file");
+				}
+				else if (lineData.length == 2)
+				{
+					// found the first line of data
+					dataStarted.set(true);
+				}
 			}
-		}
-		finally
+
+			if (dataStarted.get())
+			{
+				dataLineCount.getAndIncrement();
+				if (lineData.length != 2 && lineData.length != 0)
+				{
+					throw new RuntimeException("Unexpected line length: " + Arrays.toString(lineData) + " on line " + lineCount.get());
+				}
+				CPTData cpt = dataHolder.get(lineData[0].trim());
+				if (cpt == null)
+				{
+					cpt = new CPTData(lineData[0].trim());
+					dataHolder.put(cpt.code, cpt);
+				}
+
+				switch (type)
+				{
+					case LONGULT:
+						cpt.longult = lineData[1].trim();
+						break;
+					case MEDU:
+						cpt.medu = lineData[1].trim();
+						break;
+					case SHORTU:
+						cpt.shortu = lineData[1].trim();
+						break;
+					default :
+						throw new RuntimeException("missed case");
+				}
+			}
+		};
+
+		switch (type)
 		{
-			input.close();
+			case LONGULT:
+			{
+				CSVReader reader = new CSVReaderBuilder(new BufferedReader(new InputStreamReader(new BOMInputStream(input))))
+					.withCSVParser(new CSVParserBuilder().withSeparator('\t').build()).build();
+				reader.forEach(processor);
+				break;
+			}
+			case MEDU:
+			case SHORTU:
+			{
+				@SuppressWarnings("resource")
+				BufferedReader reader = new BufferedReader(new InputStreamReader(new BOMInputStream(input), StandardCharsets.UTF_8));
+				reader.lines().forEach(line -> {
+					if (line.matches("\\d{3}\\w{2} .*"))
+					{
+						processor.accept(new String[] { line.substring(0, 5), line.substring(6, line.length()) });
+					}
+					else
+					{
+						processor.accept(new String[] { line });  // header info, pass anyway, so counts are right
+					}
+				});
+				break;
+			}
+			default :
+				throw new RuntimeException("Missing case!");
 		}
 		log.info("Read " + lineCount.get() + " lines with " + dataLineCount.get() + " cpt codes");
 		return dataLineCount.get();

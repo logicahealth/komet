@@ -37,13 +37,17 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.HashMap;
+import java.util.HashSet;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
-import sh.isaac.api.bootstrap.TermAux;
+import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import static sh.isaac.api.query.ForSet.deepClone;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -52,6 +56,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author dylangrald
  */
+@XmlRootElement(name = "XOR")
+@XmlAccessorType(value = XmlAccessType.PROPERTY)
 public class Xor
         extends ParentClause {
 
@@ -77,24 +83,30 @@ public class Xor
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.XOR;
     }
-
     /**
      * Compute components.
      *
-     * @param incomingComponents the incoming components
+     * @param incomingComponents the components
      * @return the nid set
      */
     @Override
     public Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        final NidSet xorSet = new NidSet();
-
-        getChildren().stream().forEach((c) -> {
-            xorSet.xor(c.computeComponents(incomingComponents).get(c.getAssemblageForIteration()));
-            setAssemblageForIteration(c.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingComponents);
-        resultsMap.put(this.getAssemblageForIteration(), xorSet);
-        return resultsMap;
+        Set<ConceptSpecification> iteratedAssemblages = new HashSet<>();
+        Map<ConceptSpecification, NidSet> outgoingComponents = deepClone(incomingComponents);
+        
+        for (Clause child: getChildren()) {
+            Map<ConceptSpecification, NidSet> computedComponents = child.computeComponents(deepClone(incomingComponents));
+            if (iteratedAssemblages.contains(child.getAssemblageForIteration())) {
+                // Do an or with existing nid set...
+                NidSet childNids = computedComponents.get(child.getAssemblageForIteration());
+                outgoingComponents.put(child.getAssemblageForIteration(), childNids.xor(outgoingComponents.get(child.getAssemblageForIteration())));
+            } else {
+                // Initilize with computed nid set. 
+                iteratedAssemblages.add(child.getAssemblageForIteration());
+                outgoingComponents.put(child.getAssemblageForIteration(), computedComponents.get(child.getAssemblageForIteration()));
+            }
+        }
+        return outgoingComponents;
     }
 
     /**
@@ -105,17 +117,24 @@ public class Xor
      */
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        final NidSet unionSet = new NidSet();
-
-        getChildren().stream().forEach((c) -> {
-            unionSet.or(c.computePossibleComponents(incomingPossibleComponents).get(c.getAssemblageForIteration()));
-            setAssemblageForIteration(c.getAssemblageForIteration());
-        });
-        HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-        resultsMap.put(this.getAssemblageForIteration(), unionSet);
-        return resultsMap;
+        Set<ConceptSpecification> iteratedAssemblages = new HashSet<>();
+        Map<ConceptSpecification, NidSet> outgoingPossibleComponents = deepClone(incomingPossibleComponents);
+        
+        for (Clause child: getChildren()) {
+            Map<ConceptSpecification, NidSet> computedComponents = child.computePossibleComponents(deepClone(incomingPossibleComponents));
+            if (iteratedAssemblages.contains(child.getAssemblageForIteration())) {
+                // Do an or with existing nid set...
+                NidSet childNids = computedComponents.get(child.getAssemblageForIteration());
+                outgoingPossibleComponents.put(child.getAssemblageForIteration(), childNids.xor(outgoingPossibleComponents.get(child.getAssemblageForIteration())));
+            } else {
+                // Initilize with computed nid set. 
+                iteratedAssemblages.add(child.getAssemblageForIteration());
+                outgoingPossibleComponents.put(child.getAssemblageForIteration(), computedComponents.get(child.getAssemblageForIteration()));
+            }
+        }
+        return outgoingPossibleComponents;
     }
-
+  
     //~--- get methods ---------------------------------------------------------
     /**
      * Gets the where clause.
@@ -137,11 +156,6 @@ public class Xor
     }
 
     @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.XOR_QUERY_CLAUSE;
-    }
-
-    @Override
     public Clause[] getAllowedSubstutitionClauses() {
         return getParentClauses();
     }
@@ -154,6 +168,10 @@ public class Xor
     @Override
     public Clause[] getAllowedSiblingClauses() {
         return getAllClauses();
+    }
+    @Override
+    public void resetResults() {
+        // no cached data in task. 
     }
 
 }

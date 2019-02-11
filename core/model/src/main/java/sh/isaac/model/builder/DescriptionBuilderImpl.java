@@ -55,12 +55,14 @@ import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.util.UuidFactory;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -193,10 +195,15 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
 
       descBuilder.setPrimordialUuid(this.getPrimordialUuid());
 
-      final SemanticChronology newDescription =
-         (SemanticChronology) descBuilder.build(stampSequence,
-                                                                         builtObjects);
-      getSemanticBuilders().forEach((builder) -> builder.build(stampSequence, builtObjects));
+      if (getModule().isPresent()) {
+          Stamp requested = Get.stampService().getStamp(stampSequence);
+          stampSequence = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
+      }
+       
+      final int finalStamp = stampSequence;
+
+      final SemanticChronology newDescription = (SemanticChronology) descBuilder.build(finalStamp, builtObjects);
+      getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
       return (T) newDescription;
    }
 
@@ -264,7 +271,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       return this;
    }
    
-    @Override
+   @Override
    public DescriptionBuilder setT5Uuid(UUID namespace, BiConsumer<String, UUID> consumer) {
       if (isPrimordialUuidSet() && getPrimordialUuid().version() == 4) {
          throw new RuntimeException("Attempting to set Type 5 UUID where the UUID was previously set to random");
@@ -273,7 +280,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       if (!isPrimordialUuidSet()) {
          int caseSigNid = Get.languageCoordinateService().caseSignificanceToConceptNid(false);
 
-         setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace,
+         setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace == null ? UuidT5Generator.PATH_ID_FROM_FS_DESC : namespace,
                  conceptBuilder == null ? Get.identifierService().getUuidPrimordialForNid(conceptNid) : conceptBuilder.getPrimordialUuid(), 
                  Get.identifierService().getUuidPrimordialForNid(caseSigNid),
                  descriptionType.getPrimordialUuid(), 

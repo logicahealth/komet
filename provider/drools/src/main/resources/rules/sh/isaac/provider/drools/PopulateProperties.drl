@@ -105,6 +105,7 @@ then
    $propertySheetItem.getAllowedValues().add(MetaData.US_NURSING_DIALECT____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.GB_ENGLISH_DIALECT____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.LATIN_AMERICAN_SPANISH_DIALECT_ASSEMBLAGE____SOLOR);
+   $propertySheetItem.getAllowedValues().add(ConceptProxy.make("Human Dx US English dialect","64c3a9a0-85cf-4855-9b90-2061adac2112"));
 end
 
 rule "Setup dialect acceptability"

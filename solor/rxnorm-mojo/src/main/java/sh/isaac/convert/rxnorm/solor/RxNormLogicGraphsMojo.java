@@ -80,7 +80,6 @@ import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
-import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
 import sh.isaac.model.logic.LogicalExpressionImpl;
@@ -94,7 +93,7 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.DoubleLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import sh.isaac.api.index.IndexQueryService;
@@ -109,10 +108,11 @@ import sh.isaac.api.component.semantic.version.DynamicVersion;
  * The Class RxNormLogicGraphsMojo.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * @deprecated this code was never properly ported, only left as (possibly) and example for future solar import work
  */
 @Service(name = "convert-rxnorm-to-solor-ibdf")
-public class RxNormLogicGraphsMojo
-        extends ConverterBaseMojo {
+public class RxNormLogicGraphsMojo {
+//        extends ConverterBaseMojo {
 // int availStrengthCount = 0;
 // int newLogicGraphs = 0;
 // int modifiedLogicGraphs = 0;

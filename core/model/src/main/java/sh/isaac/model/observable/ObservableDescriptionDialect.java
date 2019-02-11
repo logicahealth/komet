@@ -27,6 +27,7 @@ import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
@@ -62,8 +63,8 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     }
     
     public ObservableDescriptionDialect(UUID conceptUuid, int assemblageNid) {
-        ObservableDescriptionVersionImpl description = new ObservableDescriptionVersionImpl(UUID.randomUUID(), conceptUuid, assemblageNid);
-        ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(UUID.randomUUID(), description.getPrimordialUuid(), TermAux.US_DIALECT_ASSEMBLAGE.getNid());
+        ObservableDescriptionVersionImpl description = new ObservableDescriptionVersionImpl(Get.newUuidWithAssignment(), conceptUuid, assemblageNid);
+        ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(Get.newUuidWithAssignment(), description.getPrimordialUuid(), TermAux.US_DIALECT_ASSEMBLAGE.getNid());
         this.descriptionProperty.set(description);
         this.dialectProperty.set(dialect);
     }
@@ -241,6 +242,11 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     @Override
     public CommitStates getCommitState() {
         return descriptionProperty.get().getCommitState();
+    }
+
+    @Override
+    public boolean deepEquals(Object other) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

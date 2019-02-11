@@ -42,23 +42,27 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.LetItemKey;
+import sh.isaac.api.query.properties.ConceptClause;
+import sh.isaac.api.query.properties.ManifoldClause;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -71,13 +75,17 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author dylangrald
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsDescendentOf
-        extends LeafClause {
+        extends LeafClause implements ConceptClause, ManifoldClause {
    /** The descendent of spec key. */
-    String descendentOfSpecKey;
+   @XmlElement
+   LetItemKey descendentOfSpecKey;
 
-   /** The view coordinate key. */
-   String viewCoordinateKey;
+   /** the manifold coordinate key. */
+   @XmlElement
+   LetItemKey manifoldCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
@@ -91,12 +99,12 @@ public class ConceptIsDescendentOf
     *
     * @param enclosingQuery the enclosing query
     * @param kindOfSpecKey the kind of spec key
-    * @param viewCoordinateKey the view coordinate key
+    * @param manifoldCoordinateKey the manifold coordinate key
     */
-   public ConceptIsDescendentOf(Query enclosingQuery, String kindOfSpecKey, String viewCoordinateKey) {
+   public ConceptIsDescendentOf(Query enclosingQuery, LetItemKey kindOfSpecKey, LetItemKey manifoldCoordinateKey) {
       super(enclosingQuery);
       this.descendentOfSpecKey = kindOfSpecKey;
-      this.viewCoordinateKey   = viewCoordinateKey;
+      this.manifoldCoordinateKey   = manifoldCoordinateKey;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -109,16 +117,17 @@ public class ConceptIsDescendentOf
     */
    @Override
    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-              .get(this.viewCoordinateKey);
-      final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-              .get(this.descendentOfSpecKey);
-      final int parentNid = descendentOfSpec.getNid();
-      final int[] descendentOfNidSet = Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyChildConceptNids(parentNid);
-      getResultsCache().or(NidSet.of(descendentOfNidSet));
-      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-      resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
-      return resultsMap;
+      final int parentNid         = ((ConceptSpecification) getLetItem(this.descendentOfSpecKey)).getNid();
+      final TaxonomySnapshot kindOfSnapshot = Get.taxonomyService().getSnapshot(getLetItem(manifoldCoordinateKey));
+      
+      NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+        
+      for (int nid: possibleComponents.asArray()) {
+          if (nid == parentNid || !kindOfSnapshot.isKindOf(nid, parentNid)) {
+              possibleComponents.remove(nid);
+          }
+      }
+      return incomingPossibleComponents;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -131,16 +140,6 @@ public class ConceptIsDescendentOf
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION;
-   }
-
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
-   @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {
-      // Nothing to do...
    }
 
     @Override
@@ -161,14 +160,37 @@ public class ConceptIsDescendentOf
       whereClause.getLetKeys()
                  .add(this.descendentOfSpecKey);
       whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
+                 .add(this.manifoldCoordinateKey);
       return whereClause;
    }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE;
-   }
+
+    public LetItemKey getDescendentOfSpecKey() {
+        return descendentOfSpecKey;
+    }
+
+    public void setDescendentOfSpecKey(LetItemKey descendentOfSpecKey) {
+        this.descendentOfSpecKey = descendentOfSpecKey;
+    }
+
+    @Override
+    public LetItemKey getConceptSpecKey() {
+        return getDescendentOfSpecKey();
+    }
+
+    @Override
+    public void setConceptSpecKey(LetItemKey conceptSpecKey) {
+        setDescendentOfSpecKey(conceptSpecKey);
+    }
+
+   @Override
+    public LetItemKey getManifoldCoordinateKey() {
+        return manifoldCoordinateKey;
+    }
+
+   @Override
+    public void setManifoldCoordinateKey(LetItemKey manifoldCoordinateKey) {
+        this.manifoldCoordinateKey = manifoldCoordinateKey;
+    }
 
 }
 

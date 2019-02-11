@@ -137,7 +137,7 @@ public class AssemblageListEditor implements PropertyEditor<ObservableList<Conce
         forMenuButton.getItems().clear();
         Menu favorites = new Menu("favorites");
         forMenuButton.getItems().add(favorites);
-        favorites.getItems().add(makeMenuFromAssemblageNid(MetaData.SOLOR_CONCEPT____SOLOR.getNid()));
+        favorites.getItems().add(makeMenuFromAssemblageNid(MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()));
         favorites.getItems().add(makeMenuFromAssemblageNid(MetaData.ENGLISH_LANGUAGE____SOLOR.getNid()));
         
         

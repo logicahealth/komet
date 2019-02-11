@@ -428,24 +428,24 @@ public class IsaacTaxonomy {
       HashSet<String> genConstants = new HashSet<>();
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
-          if (concept.getModule().isPresent() && concept.getModule().get().equals(TermAux.KOMET_MODULE)) {
-              continue;
-          }
+         if (concept.getModule().isPresent() && concept.getModule().get().equals(TermAux.KOMET_MODULE)) {
+             continue;
+         }
          String conceptName = concept.getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()));
            
          if (conceptName.contains("↳"))  //This oddball causes problems all over
          {
              conceptName = SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName());
          }
-         String constantName = conceptName.toUpperCase();
-         
-         if (conceptName.indexOf("(") > 0 || conceptName.indexOf(")") > 0) {
-             throw new RuntimeException("The metadata concept '" + conceptName + "' contains parens, which is illegal.");
+         String constantName = SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()).toUpperCase();
+
+         if (constantName.indexOf("(") > 0 || constantName.indexOf(")") > 0) {
+             throw new RuntimeException("The metadata concept '" + constantName + "' contains parens, which is illegal.");
          }
 
          constantName = DescriptionToToken.get(constantName);
          if (!genConstants.add(constantName)) {
-            throw new RuntimeException("Duplicate definition of regular name for constant " + constantName + " " + concept.getFullyQualifiedName());
+            throw new RuntimeException("Duplicate definition of fqn name for constant " + constantName + " " + concept.getFullyQualifiedName());
          }
          out.append("\n" + constantName + ":\n");
          out.append("    fqn: " + concept.getFullyQualifiedName() + "\n");

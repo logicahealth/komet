@@ -75,7 +75,7 @@ import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
-import sh.isaac.convert.mojo.turtle.TurtleImportMojo;
+import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
@@ -89,6 +89,7 @@ import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.NodeFactory.PanelPlacement;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.isaac.komet.gui.exporter.ExportView;
+import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -257,6 +258,12 @@ public class KometStageController
             });
 
             items.add(importTransformFull);
+            
+            MenuItem artifactImport = new MenuItem("Artifact Import");
+            artifactImport.setOnAction((ActionEvent event) -> {
+                ArtifactImporter.startArtifactImport(topGridPane.getScene().getWindow());
+            });
+            items.add(artifactImport);
         }
 
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
@@ -354,7 +361,9 @@ public class KometStageController
                 convertBeer.setOnAction((ActionEvent event) -> {
                     Get.executor().execute(() -> {
                         try {
-                            new TurtleImportMojo(null, new FileInputStream(beer), "0.8").processTurtle();
+                            TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
+                            timd.configure(null, beer.toPath(),"0.8", null);
+                            timd.convertContent(update -> {}, (work, totalWork) -> {});
                             Get.indexDescriptionService().refreshQueryEngine();
                             Platform.runLater(() -> {
                                 Alert alert = new Alert(AlertType.INFORMATION);

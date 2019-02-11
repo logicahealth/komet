@@ -24,8 +24,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.query.CompositeQueryResult;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.provider.query.search.CompositeSearchResult;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
@@ -78,7 +78,7 @@ public class ExtendedSearchConceptExplorationNode implements ConceptExplorationN
         return manifold;
     }
     
-    private void selectedSearchResultChanged(ObservableValue<? extends CompositeSearchResult> observable, CompositeSearchResult oldValue, CompositeSearchResult newValue) {
+    private void selectedSearchResultChanged(ObservableValue<? extends CompositeQueryResult> observable, CompositeQueryResult oldValue, CompositeQueryResult newValue) {
         if (newValue != null) {
             conceptSpecification.setValue(newValue.getContainingConcept());
         } else {

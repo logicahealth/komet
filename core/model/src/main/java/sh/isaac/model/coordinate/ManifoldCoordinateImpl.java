@@ -39,31 +39,20 @@
 
 package sh.isaac.model.coordinate;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-
+import javax.xml.bind.annotation.XmlElement;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Status;
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class ManifoldCoordinateImpl.
@@ -84,11 +73,6 @@ public class ManifoldCoordinateImpl
 
    /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
-
-   /** The uuid. */
-   UUID uuid = null;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new taxonomy coordinate impl.
@@ -130,45 +114,54 @@ public class ManifoldCoordinateImpl
           Get.configurationService().getUserConfiguration(Optional.empty()).getLogicCoordinate());
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Equals.
-    *
-    * @param obj the obj
-    * @return true, if successful
+    * {@inheritDoc}
     */
    @Override
-   public boolean equals(Object obj) {
-      if (obj == null) {
-         return false;
-      }
-
-      if (getClass() != obj.getClass()) {
-         return false;
-      }
-
-      final ManifoldCoordinateImpl other = (ManifoldCoordinateImpl) obj;
-
-      if (this.taxonomyPremiseType != other.taxonomyPremiseType) {
-         return false;
-      }
-
-      if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
-         return false;
-      }
-
-      if (!Objects.equals(this.logicCoordinate, other.logicCoordinate)) {
-         return false;
-      }
-
-      return Objects.equals(this.languageCoordinate, other.languageCoordinate);
+   @XmlElement
+   public UUID getManifoldCoordinateUuid() {
+      return ManifoldCoordinate.super.getManifoldCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+   }
+   
+   private void setManifoldCoordinateUuid(UUID uuid) {
+        // noop for jaxb
    }
 
+    /**
+     * Equals.
+     *
+     * @param obj the obj
+     * @return true, if successful
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        
+        final ManifoldCoordinateImpl other = (ManifoldCoordinateImpl) obj;
+        
+        if (this.taxonomyPremiseType != other.taxonomyPremiseType) {
+            return false;
+        }
+        
+        if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
+            return false;
+        }
+        
+        if (!Objects.equals(this.logicCoordinate, other.logicCoordinate)) {
+            return false;
+        }
+        
+        return Objects.equals(this.languageCoordinate, other.languageCoordinate);
+    }
+
    /**
-    * Hash code.
-    *
-    * @return the int
+    * {@inheritDoc}
     */
    @Override
    public int hashCode() {
@@ -181,10 +174,7 @@ public class ManifoldCoordinateImpl
    }
 
    /**
-    * Make analog.
-    *
-    * @param stampPositionTime the stamp position time
-    * @return the taxonomy coordinate impl
+    * {@inheritDoc}
     */
    @Override
    public ManifoldCoordinateImpl makeCoordinateAnalog(long stampPositionTime) {
@@ -195,10 +185,7 @@ public class ManifoldCoordinateImpl
    }
 
    /**
-    * Make analog.
-    *
-    * @param taxonomyType the taxonomy type
-    * @return the taxonomy coordinate impl
+    * {@inheritDoc}
     */
    @Override
    public ManifoldCoordinateImpl makeCoordinateAnalog(PremiseType taxonomyType) {
@@ -209,10 +196,7 @@ public class ManifoldCoordinateImpl
    }
 
    /**
-    * Make analog.
-    *
-    * @param state the state
-    * @return the taxonomy coordinate impl
+    * {@inheritDoc}
     */
    @Override
    public ManifoldCoordinateImpl makeCoordinateAnalog(Status... state) {
@@ -223,9 +207,19 @@ public class ManifoldCoordinateImpl
    }
 
    /**
-    * To string.
-    *
-    * @return the string
+    * {@inheritDoc}
+    * @see sh.isaac.api.coordinate.StampCoordinate#makeModuleAnalog(int[], boolean)
+    */
+   @Override
+   public ManifoldCoordinateImpl makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+      return new ManifoldCoordinateImpl(this.taxonomyPremiseType, 
+            this.stampCoordinate.makeModuleAnalog(modules, add), 
+            this.languageCoordinate, 
+            this.logicCoordinate);
+   }
+
+   /**
+    * {@inheritDoc}
     */
    @Override
    public String toString() {
@@ -233,12 +227,8 @@ public class ManifoldCoordinateImpl
              this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + getCoordinateUuid() + '}';
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the language coordinate.
-    *
-    * @return the language coordinate
+    * {@inheritDoc}
     */
    @Override
    public LanguageCoordinate getLanguageCoordinate() {
@@ -246,9 +236,7 @@ public class ManifoldCoordinateImpl
    }
 
    /**
-    * Gets the logic coordinate.
-    *
-    * @return the logic coordinate
+    * {@inheritDoc}
     */
    @Override
    public LogicCoordinate getLogicCoordinate() {
@@ -256,9 +244,7 @@ public class ManifoldCoordinateImpl
    }
 
    /**
-    * Gets the stamp coordinate.
-    *
-    * @return the stamp coordinate
+    * {@inheritDoc}
     */
    @Override
    public StampCoordinate getStampCoordinate() {
@@ -266,9 +252,7 @@ public class ManifoldCoordinateImpl
    }
 
    /**
-    * Gets the taxonomy type.
-    *
-    * @return the taxonomy type
+    * {@inheritDoc}
     */
    @Override
    public PremiseType getTaxonomyPremiseType() {
@@ -277,26 +261,10 @@ public class ManifoldCoordinateImpl
    public void setTaxonomyPremiseType(PremiseType taxonomyPremiseType) {
        this.taxonomyPremiseType = taxonomyPremiseType;
    }
+
    /**
-    * Gets the uuid.
-    *
-    * @return the uuid
+    * {@inheritDoc}
     */
-   @Override
-   public UUID getCoordinateUuid() {
-      if (this.uuid == null) {
-         uuid = UUID.randomUUID();
-      }
-      return this.uuid;
-   }
-
-    @Override
-    public ConceptSpecification getLanguageConcept() {
-        return this.languageCoordinate.getLanguageConcept();
-    }
-
-   //~--- inner classes -------------------------------------------------------
-
    @Override
    public ManifoldCoordinateImpl deepClone() {
       ManifoldCoordinateImpl newCoordinate = new ManifoldCoordinateImpl(taxonomyPremiseType,
@@ -305,32 +273,4 @@ public class ManifoldCoordinateImpl
                                  logicCoordinate.deepClone());
       return newCoordinate;
    }
-
-    @Override
-    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        return languageCoordinate.getNextProrityLanguageCoordinate();
-    }
-
-    @Override
-    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
-        return languageCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
-    }
-
-    @Override
-    public int[] getModulePreferenceListForLanguage() {
-        return languageCoordinate.getModulePreferenceListForLanguage();
-    }
-
-    @Override
-    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
-        return stampCoordinate.getModulePreferenceOrderForVersions();
-    }
-
-    @Override
-    public Set<ConceptSpecification> getModuleSpecifications() {
-        return stampCoordinate.getModuleSpecifications();
-    }
-    
-    
 }
-

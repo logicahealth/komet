@@ -18,53 +18,79 @@ package sh.isaac.provider.drools;
 
 import sh.komet.gui.control.PropertySheetMenuItem;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.scene.control.MenuItem;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.observable.ObservableVersion;
+import sh.komet.gui.control.property.PropertySheetPurpose;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
  * @author kec
  */
 public class AddEditVersionMenuItems {
-   final List<MenuItem> menuItems = new ArrayList<>();
-   final Manifold manifold;
-   final ObservableCategorizedVersion categorizedVersion;
-   final Consumer<PropertySheetMenuItem> propertySheetConsumer;
 
-   public AddEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheetMenuItem> propertySheetConsumer) {
-      this.manifold = manifold;
-      this.categorizedVersion = categorizedVersion;
-      this.propertySheetConsumer = propertySheetConsumer;
-   }
+    final List<MenuItem> menuItems = new ArrayList<>();
+    final Manifold manifold;
+    final ObservableCategorizedVersion categorizedVersion;
+    final Consumer<PropertySheetMenuItem> propertySheetConsumer;
+    final HashMap<String, PropertySheetMenuItem> propertySheetMenuItems = new HashMap<>();
 
-   public Manifold getManifold() {
-      return manifold;
-   }
+    public AddEditVersionMenuItems(Manifold manifold,
+            ObservableCategorizedVersion categorizedVersion,
+            Consumer<PropertySheetMenuItem> propertySheetConsumer) {
+        this.manifold = manifold;
+        this.categorizedVersion = categorizedVersion;
+        this.propertySheetConsumer = propertySheetConsumer;
+    }
 
-   public List<MenuItem> getMenuItems() {
-      return menuItems;
-   }
-   
-   public List<ReadOnlyProperty<?>> getProperties() {
-      return categorizedVersion.getProperties();
-   }
+    public Manifold getManifold() {
+        return manifold;
+    }
 
-   public VersionType getVersionType() {
-      return categorizedVersion.getSemanticType();
-   }
-   public PropertySheetMenuItem makePropertySheetMenuItem(String menuText) {
-      PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion, true);
-      MenuItem menuItem = new MenuItem(menuText);
-      menuItem.setOnAction((event) -> {
-         propertySheetMenuItem.prepareToExecute();
-         propertySheetConsumer.accept(propertySheetMenuItem);
-      });
-      menuItems.add(menuItem);
-      return propertySheetMenuItem;
-   }
+    public List<MenuItem> getMenuItems() {
+        return menuItems;
+    }
+
+    public List<ReadOnlyProperty<?>> getProperties() {
+        return categorizedVersion.getProperties();
+    }
+
+    public ObservableCategorizedVersion getCategorizedVersion() {
+        return categorizedVersion;
+    }
+
+    public ConceptSpecification getAssemblageForVersion() {
+        return new ConceptProxy(categorizedVersion.getAssemblageNid());
+    }
+
+    public VersionType getVersionType() {
+        return categorizedVersion.getSemanticType();
+    }
+
+    public PropertySheetMenuItem makePropertySheetMenuItem(String menuText) {
+        if (propertySheetMenuItems.containsKey(menuText)) {
+            return propertySheetMenuItems.get(menuText);
+        }
+        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion);
+        propertySheetMenuItems.put(menuText, propertySheetMenuItem);
+        MenuItem menuItem = new MenuItem(menuText);
+        menuItem.setOnAction((event) -> {
+            // create version to edit here
+            ObservableVersion uncommittedVersion = categorizedVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+            propertySheetMenuItem.setVersionInFlight(uncommittedVersion);
+            propertySheetMenuItem.prepareToExecute();
+            propertySheetConsumer.accept(propertySheetMenuItem);
+        });
+        menuItems.add(menuItem);
+        return propertySheetMenuItem;
+    }
 }

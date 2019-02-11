@@ -51,18 +51,24 @@ public enum PremiseType {
    /**
     * Compute the taxonomy from stated axioms.
     */
-   STATED("Stated"),
+   STATED("Stated", TermAux.STATED_PREMISE_TYPE),
 
    /**
     * Compute the taxonomy from inferred axioms.
     */
-   INFERRED("Inferred");
+   INFERRED("Inferred", TermAux.INFERRED_PREMISE_TYPE);
    
    String displayName;
+   ConceptSpecification premiseTypeConcept;
 
-   private PremiseType(String displayName) {
+   private PremiseType(String displayName, ConceptSpecification premiseTypeConcept) {
       this.displayName = displayName;
+      this.premiseTypeConcept = premiseTypeConcept;
    }
+
+    public ConceptSpecification getPremiseTypeConcept() {
+        return premiseTypeConcept;
+    }
    
    public PremiseType next() {
       switch(this) {

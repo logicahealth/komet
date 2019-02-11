@@ -35,39 +35,16 @@
  *
  */
 
-
-
 package sh.isaac.api.component.semantic.version.dynamic;
-
-//~--- JDK imports ------------------------------------------------------------
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import org.apache.logging.log4j.LogManager;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-/**
- * Copyright Notice
- *
- * This is a work of the U.S. Government and is not subject to copyright
- * protection in the United States. Foreign copyrights may apply.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+import java.util.function.BiFunction;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
@@ -79,8 +56,6 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * {@link DynamicUtility}
@@ -196,50 +171,84 @@ public interface DynamicUtility {
     * validate that the proposed dynamicData aligns with the definition.  This also fills in default values,
     * as necessary, if the data[] contains 'nulls' and the column is specified with a default value.
     *
-    * @param dsud the dsud
-    * @param data the data
+    * @param dynamicUsageDescriptionSupplier a function to supply the appropriate DynamicUsageDescription
+    * @param userData the data
     * @param referencedComponentNid the referenced component nid
     * @param referencedComponentVersionType - optional - there are some build sequences where we can't look up the version type here, it must be
     * passed in
     * @param stampSequence the stamp sequence of this data
+    * @param delayValidation return functions of certain validations that may not be able to execute now, due to out-of-order data loading.
+    * @return If any validations could not be executed at this time, due to a a DB Build mode, for example, return those validations wrapped
+    *     in functions.  The caller should execute those functions when their load process is complete. 
     * @throws IllegalArgumentException the illegal argument exception
     * @throws InvalidParameterException - if anything fails validation
     */
-   public default void validate(DynamicUsageDescription dsud,
-                                DynamicData[] data,
+   public default List<BooleanSupplier> validate(Supplier<DynamicUsageDescription> dynamicUsageDescriptionSupplier,
+                                DynamicData[] userData,
                                 int referencedComponentNid,
                                 VersionType referencedComponentVersionType,
-                                int stampSequence)
+                                int stampSequence,
+                                boolean delayValidation)
             throws IllegalArgumentException {
-      // Make sure the referenced component meets the ref component restrictions, if any are present.
-      if ((dsud.getReferencedComponentTypeRestriction() != null) &&
-            (dsud.getReferencedComponentTypeRestriction() != IsaacObjectType.UNKNOWN)) {
-         final IsaacObjectType requiredType = dsud.getReferencedComponentTypeRestriction();
-         final IsaacObjectType foundType = Get.identifierService().getObjectTypeForComponent(referencedComponentNid);
+       /*
+        * Make sure the referenced component meets the ref component restrictions, if any are present.
+        * If we are loading things out of order, this validation could fail due to the referenced component not yet being loaded.
+        */
+       ArrayList<BooleanSupplier> delayedValidators = new ArrayList<>();
+         final DynamicUsageDescription dsud = dynamicUsageDescriptionSupplier.get();
+         if ((dsud.getReferencedComponentTypeRestriction() != null) &&
+               (dsud.getReferencedComponentTypeRestriction() != IsaacObjectType.UNKNOWN)) {
 
-         if (requiredType != foundType) {
-            throw new IllegalArgumentException("The referenced component must be of type " + requiredType +
-                                               ", but a " + foundType + " was passed");
-         }
-
-         if ((requiredType == IsaacObjectType.SEMANTIC) &&
-               (dsud.getReferencedComponentTypeSubRestriction() != null) &&
-               (dsud.getReferencedComponentTypeSubRestriction() != VersionType.UNKNOWN)) {
-            final VersionType requiredSemanticType = dsud.getReferencedComponentTypeSubRestriction();
-            final VersionType foundSemanticType    = referencedComponentVersionType == null ? Get.assemblageService()
-                                                     .getSemanticChronology(referencedComponentNid)
-                                                     .getVersionType() : referencedComponentVersionType;
-
-            if (requiredSemanticType != foundSemanticType) {
-               throw new IllegalArgumentException("The referenced component must be of type " +
-                                                  requiredSemanticType + ", but a " + foundSemanticType + " was passed");
+         BooleanSupplier refComponentValidator = () -> {
+            final IsaacObjectType requiredType = dsud.getReferencedComponentTypeRestriction();
+            final IsaacObjectType foundType = Get.identifierService().getObjectTypeForComponent(referencedComponentNid);
+   
+            if (requiredType != foundType)
+            {
+               throw new IllegalArgumentException("The referenced component must be of type " + requiredType + ", but a " + foundType + " was passed");
             }
+   
+            if ((requiredType == IsaacObjectType.SEMANTIC) && (dsud.getReferencedComponentTypeSubRestriction() != null)
+                  && (dsud.getReferencedComponentTypeSubRestriction() != VersionType.UNKNOWN))
+            {
+               final VersionType requiredSemanticType = dsud.getReferencedComponentTypeSubRestriction();
+               final VersionType foundSemanticType = referencedComponentVersionType == null
+                     ? Get.assemblageService().getSemanticChronology(referencedComponentNid).getVersionType()
+                     : referencedComponentVersionType;
+   
+               if (requiredSemanticType != foundSemanticType)
+               {
+                  throw new IllegalArgumentException(
+                        "The referenced component must be of type " + requiredSemanticType + ", but a " + foundSemanticType + " was passed");
+               }
+            }
+            return true;
+         };
+         if (delayValidation) {
+            delayedValidators.add(refComponentValidator);
+         }
+         else
+         {
+            refComponentValidator.getAsBoolean();
+         }
+      }
+         
+      int lastColumnWithDefaultValue = 0;
+
+      for (int i = 0; i < dsud.getColumnInfo().length; i++) {
+         if (dsud.getColumnInfo()[i].getDefaultColumnValue() != null) {
+            lastColumnWithDefaultValue = i;
          }
       }
 
-      if (data == null) {
-         data = new DynamicData[] {};
-      }
+      DynamicData[] tempData = userData == null ? new DynamicData[0] : userData;
+      
+      // We may need to lengthen the data array, to make room to add the default value
+      
+      final DynamicData[] data = (lastColumnWithDefaultValue + 1 > tempData.length) ? 
+            Arrays.copyOf(tempData, lastColumnWithDefaultValue) : tempData;
+      
+      tempData = null;
 
       // specifically allow < - we don't need the trailing columns, if they were defined as optional.
       if (data.length > dsud.getColumnInfo().length) {
@@ -250,18 +259,8 @@ public interface DynamicUtility {
              " (the data column count may be less, if the missing columns are defined as optional)");
       }
 
-      int lastColumnWithDefaultValue = 0;
-
-      for (int i = 0; i < dsud.getColumnInfo().length; i++) {
-         if (dsud.getColumnInfo()[i]
-                 .getDefaultColumnValue() != null) {
-            lastColumnWithDefaultValue = i;
-         }
-      }
-
       if (lastColumnWithDefaultValue + 1 > data.length) {
-         // We need to lengthen the data array, to make room to add the default value
-         data = Arrays.copyOf(data, lastColumnWithDefaultValue);
+         
       }
 
       for (int i = 0; i < dsud.getColumnInfo().length; i++) {
@@ -285,6 +284,7 @@ public interface DynamicUtility {
 
       for (int dataColumn = 0; dataColumn < data.length; dataColumn++) {
          final DynamicColumnInfo dsci = dsud.getColumnInfo()[dataColumn];
+         final int dataColumnFinal = dataColumn;
 
          if (data[dataColumn] == null) {
             if (dsci.isColumnRequired()) {
@@ -303,31 +303,27 @@ public interface DynamicUtility {
             }
 
             if ((dsci.getValidator() != null) && (dsci.getValidator().length > 0)) {
+               BiFunction<DynamicValidatorType, DynamicData, Boolean> colInfoValidator = (dynamicValidatorType, dynamicData) -> {
+                  if (!dynamicValidatorType.passesValidator(data[dataColumnFinal], dynamicData, stampSequence)) {
+                      throw new IllegalArgumentException(
+                          "The supplied data for column " + dataColumnFinal +
+                          " does not pass the assigned validator(s) for this dynamic field.  Data: " +
+                          data[dataColumnFinal].dataToString() + " Validator: " + dynamicValidatorType.name() +
+                          " Validator Data: " + dynamicData.dataToString() + " Semantic: " + dsud.getDynamicName()
+                          + " Referenced Component " 
+                          + Get.identifiedObjectService().getChronology(referencedComponentNid).get().toUserString());
+                  }
+                  return true;
+               };
+               
                try {
                   for (int i = 0; i < dsci.getValidator().length; i++) {
-                     boolean rethrow = false;
-
-                     try {
-                        if (!dsci.getValidator()[i]
-                                 .passesValidator(data[dataColumn],
-                                                  dsci.getValidatorData()[i],
-                                                  stampSequence)) {
-                           rethrow = true;
-                           throw new IllegalArgumentException(
-                               "The supplied data for column " + dataColumn +
-                               " does not pass the assigned validator(s) for this dynamic field.  Data: " +
-                               data[dataColumn].dataToString() + " Validator: " + dsci.getValidator()[i].name() +
-                               " Validator Data: " + dsci.getValidatorData()[i].dataToString() + " Semantic: " + dsud.getDynamicName()
-                               + " Referenced Component " 
-                               + Get.identifiedObjectService().getChronology(referencedComponentNid).get().toUserString());
-                        }
-                     } catch (final IllegalArgumentException e) {
-                        if (rethrow) {
-                           throw e;
-                        } else {
-                           LogManager.getLogger()
-                                        .debug("Couldn't execute validator due to missing coordiantes");
-                        }
+                     final int valFinal = i;
+                     if (delayValidation) {
+                        delayedValidators.add(() -> colInfoValidator.apply(dsci.getValidator()[valFinal], dsci.getValidatorData()[valFinal]));
+                     }
+                     else {
+                        colInfoValidator.apply(dsci.getValidator()[valFinal], dsci.getValidatorData()[valFinal]);
                      }
                   }
                } catch (final IllegalArgumentException e) {
@@ -338,6 +334,6 @@ public interface DynamicUtility {
             }
          }
       }
+      return delayedValidators;
    }
 }
-

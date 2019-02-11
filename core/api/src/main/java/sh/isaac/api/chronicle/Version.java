@@ -55,4 +55,15 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
     */
    public void addAdditionalUuids(UUID ...uuids);
 
+    /**
+     * DeepEquals considers all fields, not just the stamp and the assumptions that the commit manager will not allow
+     * more one version for a given stamp. This extra consideration is necessary to support uncommitted versions, that
+     * may change in a multi-user environment, including that an individual author may make changes on more than one path
+     * at a time.
+     *
+     * @param other the object to compare.
+     * @return true if all fields are equal, otherwise false.
+     */
+    boolean deepEquals(Object other);
+
 }

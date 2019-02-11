@@ -31,6 +31,7 @@ import javafx.scene.layout.Priority;
 import org.controlsfx.control.PropertySheet.Item;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
@@ -80,9 +81,9 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
 
     private void setupWithConceptUuid(UUID conceptUuid) {
         this.conceptUuid = conceptUuid;
-        this.descriptionUuid = UUID.randomUUID();
+        this.descriptionUuid = Get.newUuidWithAssignment();
         ObservableDescriptionVersionImpl description = new ObservableDescriptionVersionImpl(descriptionUuid, conceptUuid, MetaData.SOLOR_CONCEPT____SOLOR.getNid());
-        ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(UUID.randomUUID(), descriptionUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
+        ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(Get.newUuidWithAssignment(), descriptionUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
         this.descriptionDialectProperty.set(new ObservableDescriptionDialect(description, dialect));
         setupProperties();
     }

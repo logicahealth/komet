@@ -160,31 +160,31 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addObservesComponent(int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.OBSERVATION____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
         
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.OBSERVATION____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(processOutput.getNid(), eb.conceptAssertion(componentNid))))));
         
         
         StringBuilder conceptNameBuilder = new StringBuilder();
         conceptNameBuilder.append(manifold.getPreferredDescriptionText(componentNid));
-        conceptNameBuilder.append(" observation");
+        conceptNameBuilder.append(" phenomenon");
         buildConcept(builderService, conceptNameBuilder, eb, stamp);
     }
 
     private void addInheresInConcept(int inheresInNid, ConceptBuilderService builderService, int stamp) throws IllegalStateException, NoSuchElementException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.OBSERVATION____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
         
         StringBuilder conceptNameBuilder = new StringBuilder();
         conceptNameBuilder.append("Inheres in ");
         conceptNameBuilder.append(manifold.getPreferredDescriptionText(inheresInNid));
-        conceptNameBuilder.append(" observation");
+        conceptNameBuilder.append(" phenomenon");
         buildConcept(builderService, conceptNameBuilder, eb, stamp);
     }
 

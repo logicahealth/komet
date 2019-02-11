@@ -64,16 +64,17 @@ import sh.isaac.model.logic.node.external.RoleNodeSomeWithUuids;
 public final class RoleNodeSomeWithNids
         extends TypedNodeWithNids {
    /**
-    * Instantiates a new role node some with sequences.
+    * Instantiates a new role node some with uuids.
     *
     * @param externalForm the external form
     */
    public RoleNodeSomeWithNids(RoleNodeSomeWithUuids externalForm) {
       super(externalForm);
+      //can't run validation here due to problems with this constructor pattern.  
    }
 
    /**
-    * Instantiates a new role node some with sequences.
+    * Instantiates a new role node some with serialized data.
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
@@ -81,6 +82,7 @@ public final class RoleNodeSomeWithNids
    public RoleNodeSomeWithNids(LogicalExpressionImpl logicGraphVersion,
                                     ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
+      //will skip validate here, since it is highly unlikely it was created without being validated in the first place.
    }
 
    /**
@@ -94,6 +96,15 @@ public final class RoleNodeSomeWithNids
                                     int typeConceptId,
                                     AbstractLogicNode child) {
       super(logicGraphVersion, typeConceptId, child);
+      validate();
+   }
+   
+   private void validate()
+   {
+      NodeSemantic childSemantic = getOnlyChild().getNodeSemantic();
+      if (childSemantic == NodeSemantic.OR) {
+         throw new RuntimeException("The child of a Role_Some must not be " + getOnlyChild().getNodeSemantic());
+      }
    }
 
    //~--- methods -------------------------------------------------------------
@@ -127,7 +138,7 @@ public final class RoleNodeSomeWithNids
     @Override
     public void addToBuilder(StringBuilder builder) {
         builder.append("\n       SomeRole(");
-        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimoridalStringForNid(typeConceptNid)).append("\")");
+        builder.append("Get.concept(\"").append(Get.identifierService().getUuidPrimordialStringForNid(typeConceptNid)).append("\")");
         builder.append(", ");
         for (AbstractLogicNode child: getChildren()) {
             child.addToBuilder(builder);

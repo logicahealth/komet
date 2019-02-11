@@ -37,6 +37,10 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
+
+
+import javax.xml.bind.annotation.XmlRootElement;
+
 //~--- non-JDK imports --------------------------------------------------------
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +61,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
  *
  * @author kec
  */
+@XmlRootElement()
 public class Not
         extends ParentClause {
 
@@ -69,7 +74,7 @@ public class Not
      * The not set.
      */
     NidSet notSet;
-    private String stampCoordinateKey;
+    private LetItemKey stampCoordinateKey;
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -86,12 +91,17 @@ public class Not
      * @param child the child
      * @param stampCoordinateKey
      */
-    public Not(Query enclosingQuery, Clause child, String stampCoordinateKey) {
+    public Not(Query enclosingQuery, Clause child, LetItemKey stampCoordinateKey) {
         super(enclosingQuery, child);
         this.stampCoordinateKey = stampCoordinateKey;
     }
 
     //~--- methods -------------------------------------------------------------
+    @Override
+    public void resetResults() {
+        this.forSet = null;
+        this.notSet = null;
+    }
     /**
      * Compute components.
      *
@@ -181,11 +191,6 @@ public class Not
         }
 
         return whereClause;
-    }
-
-    @Override
-    public ConceptSpecification getClauseConcept() {
-        return TermAux.NOT_QUERY_CLAUSE;
     }
 
     @Override

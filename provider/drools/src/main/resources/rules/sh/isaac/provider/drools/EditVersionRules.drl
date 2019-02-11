@@ -64,6 +64,32 @@ then
    propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
+rule "Given a AddEditVersionMenuItems, with VersionType.COMPONENT_NID, add known dialect editing options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.COMPONENT_NID 
+       && (getAssemblageForVersion().equals(MetaData.US_ENGLISH_DIALECT____SOLOR) || 
+           getAssemblageForVersion().equals(MetaData.GB_ENGLISH_DIALECT____SOLOR) ||
+           getAssemblageForVersion().equals(ConceptProxy.make("Human Dx US English dialect","64c3a9a0-85cf-4855-9b90-2061adac2112"))));
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
+   propertySheetMenuItem.addPropertyToEdit("acceptability", MetaData.COMPONENT_NID_FOR_SEMANTIC____SOLOR, PropertyEditorType.CONCEPT);
+end
+
+
+rule "Given a AddEditVersionMenuItems, with VersionType.Nid1_Int2, add editing options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.Nid1_Int2);
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("component", MetaData.COMPONENT_ID_1____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("int value", MetaData.INTEGER_2____SOLOR, PropertyEditorType.INTEGER);
+end
+
 rule "Given a AddEditVersionMenuItems, with VersionType.LONG, add editing options"
    lock-on-active true
 when

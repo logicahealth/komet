@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.collections.ObservableList;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
@@ -133,8 +134,8 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultClassifier(int conceptId) {
       setupDefaults();
-      this.observableLogicCoordinate.classifierNidProperty()
-                                    .set(conceptId);
+      this.observableLogicCoordinate.classifierProperty()
+                                    .set(new ConceptProxy(conceptId));
    }
 
    /**
@@ -144,8 +145,8 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultDescriptionLogicProfile(int conceptId) {
       setupDefaults();
-      this.observableLogicCoordinate.descriptionLogicProfileNidProperty()
-                                    .set(conceptId);
+      this.observableLogicCoordinate.descriptionLogicProfileProperty()
+                                    .set(new ConceptProxy(conceptId));
    }
 
    /**
@@ -201,8 +202,8 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultInferredAssemblage(int conceptId) {
       setupDefaults();
-      this.observableLogicCoordinate.inferredAssemblageNidProperty()
-                                    .set(conceptId);
+      this.observableLogicCoordinate.inferredAssemblageProperty()
+                                    .set(new ConceptProxy(conceptId));
    }
 
    /**
@@ -277,8 +278,8 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultStatedAssemblage(int conceptId) {
       setupDefaults();
-      this.observableLogicCoordinate.statedAssemblageNidProperty()
-                                    .set(conceptId);
+      this.observableLogicCoordinate.statedAssemblageProperty()
+                                    .set(new ConceptProxy(conceptId));
    }
 
    /**

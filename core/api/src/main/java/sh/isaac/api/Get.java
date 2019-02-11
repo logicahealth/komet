@@ -64,6 +64,7 @@ import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitService;
@@ -86,6 +87,7 @@ import sh.isaac.api.externalizable.BinaryDataServiceFactory;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacExternalizableSpliterator;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.GenerateIndexes;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.index.IndexDescriptionQueryService;
@@ -98,6 +100,7 @@ import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.progress.CompletedTasks;
+import sh.isaac.api.query.QueryHandler;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.WorkExecutors;
 
@@ -251,6 +254,10 @@ public class Get
       return assemblageService;
    }
    
+   public static QueryHandler queryHandler() {
+       return getService(QueryHandler.class);
+   }
+   
    public static PreferencesService preferencesService() {
       if (preferencesService == null) {
          preferencesService = getService(PreferencesService.class);
@@ -389,6 +396,15 @@ public class Get
      if (conceptNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
+     if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
+         SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
+         if (sc.getVersionType() == VersionType.DESCRIPTION) {
+             LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate());
+             if (latestDescription.isPresent()) {
+                 return "Desc: " + latestDescription.get().getText();
+             }
+         }
+     }
       final LatestVersion<DescriptionVersion> descriptionOptional =
          defaultConceptSnapshotService().getDescriptionOptional(conceptNid);
 
@@ -397,10 +413,13 @@ public class Get
                                    .getText();
       }
 
-      return "No desc for: " + conceptNid;
+      return "No desc for: " + conceptNid + " " + Get.identifierService.getUuidPrimordialStringForNid(conceptNid);
    }
    
    public static String conceptDescriptionText(ConceptSpecification conceptSpec) {
+       if (conceptSpec == null) {
+           throw new NullPointerException("conceptSpec cannot be null.");
+       }
        return conceptDescriptionText(conceptSpec.getNid());
    }
 
@@ -429,6 +448,24 @@ public class Get
                .forEach(
                    (conceptId) -> {
                       builder.append(conceptDescriptionText(conceptId));
+                      builder.append(", ");
+                   });
+         builder.delete(builder.length() - 2, builder.length());
+         builder.append("]");
+         return builder.toString();
+      }
+
+      return "[]";
+   }
+   public static String conceptDescriptionTextList(ConceptSpecification[] conceptSpecs) {
+      if ((conceptSpecs != null) && (conceptSpecs.length > 0)) {
+         final StringBuilder builder = new StringBuilder();
+
+         builder.append("[");
+         Arrays.stream(conceptSpecs)
+               .forEach(
+                   (conceptSpec) -> {
+                      builder.append(conceptDescriptionText(conceptSpec));
                       builder.append(", ");
                    });
          builder.delete(builder.length() - 2, builder.length());
@@ -491,7 +528,7 @@ public class Get
            if (TERM_AUX_CACHE.containsKey(nid)) {
                return TERM_AUX_CACHE.get(nid);
            }
-           return new ConceptProxy(conceptDescriptionText(nid), identifierService().getUuidArrayForNid(nid));
+           return new ConceptProxy(nid);
        } catch (InterruptedException ex) {
            throw new RuntimeException();
        }
@@ -566,6 +603,9 @@ public class Get
       return configurationService().getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate();
    }
 
+   /**
+    * @return The ISAAC common {@link ThreadPoolExecutor} 
+    */
    public static ThreadPoolExecutor executor() {
       return workExecutors().getExecutor();
    }
@@ -602,7 +642,26 @@ public class Get
     * @return a nid
     */
    public static int nidForUuids(UUID... uuids) {
+       return identifierService().getNidForUuids(uuids);
+   }
+   
+   /**
+    * Assigns a nid for the UUIDs if a nid does not already exist.
+    * @param uuids
+    * @return 
+    */
+   public static int nidWithAssignment(UUID... uuids) {
        return identifierService().assignNid(uuids);
+   }
+   
+   /**
+    * 
+    * @return a new random UUID that has been assigned a nid. 
+    */
+   public static UUID newUuidWithAssignment() {
+       UUID uuid = UUID.randomUUID();
+       identifierService().assignNid(uuid);
+       return uuid;
    }
 
    /**

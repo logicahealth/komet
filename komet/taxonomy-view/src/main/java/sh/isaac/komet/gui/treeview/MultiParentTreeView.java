@@ -625,16 +625,17 @@ public class MultiParentTreeView
     public final void handleDescriptionTypeChange(ActionEvent event) {
         ConceptSpecification selectedDescriptionType = this.descriptionTypeChoiceBox.getSelectionModel().getSelectedItem();
         List<ConceptSpecification> items = this.descriptionTypeChoiceBox.getItems();
-        int[] descriptionTypes = new int[items.size()];
+        
+        ConceptSpecification[] descriptionTypes = new ConceptSpecification[items.size()];
         int descriptionIndex = 0;
-        descriptionTypes[descriptionIndex++] = selectedDescriptionType.getNid();
+        descriptionTypes[descriptionIndex++] = selectedDescriptionType;
         for (ConceptSpecification spec : items) {
             if (spec != selectedDescriptionType) {
-                descriptionTypes[descriptionIndex++] = spec.getNid();
+                descriptionTypes[descriptionIndex++] = spec;
             }
         }
         descriptionTypes = LanguageCoordinates.expandDescriptionTypePreferenceList(descriptionTypes, getManifold());
-        this.manifold.getLanguageCoordinate().setDescriptionTypePreferenceList(descriptionTypes);
+        this.manifold.getLanguageCoordinate().descriptionTypePreferenceListProperty().setAll(descriptionTypes);
         this.rootTreeItem.invalidate();
         this.treeView.refresh();
     }

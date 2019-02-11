@@ -34,131 +34,125 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 
-import sh.isaac.api.bootstrap.TermAux;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
+import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.query.properties.ConceptClause;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * An identity function that obtains the concept from the input
  * <code>ConceptSpec</code>.
  *
  * @author dylangrald
  */
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIs
-        extends LeafClause {
-   /** The concept spec string. */
-   String conceptSpecString;
+        extends LeafClause implements ConceptClause {
 
-   /** The view coordinate key. */
-   String viewCoordinateKey;
+    /**
+     * The concept spec string.
+     */
+    @XmlElement
+    LetItemKey conceptSpecString;
 
-   //~--- constructors --------------------------------------------------------
+    //~--- constructors --------------------------------------------------------
+    /**
+     * Instantiates a new concept is.
+     */
+    public ConceptIs() {
+    }
 
-   /**
-    * Instantiates a new concept is.
-    */
-   public ConceptIs() {}
+    /**
+     * Instantiates a new concept is.
+     *
+     * @param enclosingQuery the enclosing query
+     * @param conceptSpec the concept spec
+     */
+    public ConceptIs(Query enclosingQuery, LetItemKey conceptSpec) {
+        super(enclosingQuery);
+        this.conceptSpecString = conceptSpec;
+    }
 
-   /**
-    * Instantiates a new concept is.
-    *
-    * @param enclosingQuery the enclosing query
-    * @param conceptSpec the concept spec
-    * @param viewCoordinateKey the view coordinate key
-    */
-   public ConceptIs(Query enclosingQuery, String conceptSpec, String viewCoordinateKey) {
-      super(enclosingQuery);
-      this.conceptSpecString = conceptSpec;
-      this.viewCoordinateKey = viewCoordinateKey;
-   }
+    //~--- methods -------------------------------------------------------------
+    /**
+     * Compute possible components.
+     *
+     * @param incomingPossibleComponents the incoming possible components
+     * @return the nid set
+     */
+    @Override
+    public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
+        final int conceptNid = ((ConceptSpecification) getLetItem(this.conceptSpecString)).getNid();
 
-   //~--- methods -------------------------------------------------------------
+        NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
 
-   /**
-    * Compute possible components.
-    *
-    * @param incomingPossibleComponents the incoming possible components
-    * @return the nid set
-    */
-   @Override
-   public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-      getResultsCache().add(((ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-            .get(this.conceptSpecString)).getNid());
-      HashMap<ConceptSpecification, NidSet> resultsMap = new HashMap<>(incomingPossibleComponents);
-      resultsMap.put(this.getAssemblageForIteration(), getResultsCache());
-      return resultsMap;
-   }
+        if (possibleComponents.contains(conceptNid)) {
+            possibleComponents.clear();
+            possibleComponents.add(conceptNid);
+        } else {
+            possibleComponents.clear();
+        }
+        return incomingPossibleComponents;
+    }
 
-   //~--- get methods ---------------------------------------------------------
+    //~--- get methods ---------------------------------------------------------
+    /**
+     * Gets the compute phases.
+     *
+     * @return the compute phases
+     */
+    @Override
+    public EnumSet<ClauseComputeType> getComputePhases() {
+        return PRE_ITERATION;
+    }
 
-   /**
-    * Gets the compute phases.
-    *
-    * @return the compute phases
-    */
-   @Override
-   public EnumSet<ClauseComputeType> getComputePhases() {
-      return PRE_ITERATION;
-   }
-
-   /**
-    * Gets the query matches.
-    *
-    * @param conceptVersion the concept version
-    */
-   @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {
-      // Nothing to do here...
-   }
     @Override
     public ClauseSemantic getClauseSemantic() {
         return ClauseSemantic.CONCEPT_IS;
     }
-   
 
-   /**
-    * Gets the where clause.
-    *
-    * @return the where clause
-    */
-   @Override
-   public WhereClause getWhereClause() {
-      final WhereClause whereClause = new WhereClause();
+    /**
+     * Gets the where clause.
+     *
+     * @return the where clause
+     */
+    @Override
+    public WhereClause getWhereClause() {
+        final WhereClause whereClause = new WhereClause();
 
-      whereClause.setSemantic(ClauseSemantic.CONCEPT_IS);
-      whereClause.getLetKeys()
-                 .add(this.conceptSpecString);
-      whereClause.getLetKeys()
-                 .add(this.viewCoordinateKey);
-      return whereClause;
-   }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.CONCEPT_IS_QUERY_CLAUSE;
-   }
+        whereClause.setSemantic(ClauseSemantic.CONCEPT_IS);
+        whereClause.getLetKeys()
+                .add(this.conceptSpecString);
+        return whereClause;
+    }
+
+    @Override
+    public LetItemKey getConceptSpecKey() {
+        return conceptSpecString;
+    }
+
+    @Override
+    public void setConceptSpecKey(LetItemKey conceptSpecString) {
+        this.conceptSpecString = conceptSpecString;
+    }
 
 }
-

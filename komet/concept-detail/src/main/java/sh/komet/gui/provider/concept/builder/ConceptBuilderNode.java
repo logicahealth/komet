@@ -137,7 +137,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     private void newConcept(Event event) {
         builderToolbar.getItems().clear();
         descriptions.clear();
-        conceptUuid = UUID.randomUUID();
+        conceptUuid = Get.newUuidWithAssignment();
         //Region spacer = new Region();
         HBox.setHgrow(textField, Priority.ALWAYS);
         textField.setMinWidth(Region.USE_PREF_SIZE);

@@ -444,7 +444,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
         builder.append(manifold.getPreferredDescriptionText(measureSemanticNid));
         Action addFeatureAction = new Action(builder.toString(), (ActionEvent event) -> {
             FeatureNodeWithNids newRole = expressionContiningNode.Feature(typeNid,
-                    measureSemanticNid, operator, expressionContiningNode.FloatLiteral(0.0));
+                    measureSemanticNid, operator, expressionContiningNode.DoubleLiteral(0.0));
             for (LogicNode node : nodeToEdit.getChildren()) {
                 if (node.getNodeSemantic() == NodeSemantic.AND) {
                     node.addChildren(newRole);
