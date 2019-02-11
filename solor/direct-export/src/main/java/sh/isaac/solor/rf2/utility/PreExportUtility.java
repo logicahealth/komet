@@ -19,6 +19,10 @@ public class PreExportUtility {
 
     public PreExportUtility(Manifold manifold) {
         this.manifold = manifold;
+
+    }
+
+    public HashMap<Integer, Integer[]> generateRefsetDescriptorHeaders(){
         Get.assemblageService().getSemanticNidStream(Get.concept(UuidT3Generator.fromSNOMED("900000000000456007")).getNid())
                 .forEach(semanticNid -> {
 
@@ -36,9 +40,6 @@ public class PreExportUtility {
                         refsetDescriptorHeaders.get(refDesc.getReferencedComponentNid())[refDesc.getInt3()] = refDesc.getNid1();
                     }
                 });
-    }
-
-    public  HashMap<Integer, Integer[]> getRefsetDescriptorHeaders() {
         return refsetDescriptorHeaders;
     }
 }

@@ -99,9 +99,6 @@ public class WriteSemanticChronologyWithProgress
             Get.assemblageService()
                     .writeSemanticChronology(this.sc);
             this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());
-            if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == this.sc.getReferencedComponentNid()) {
-                LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
-            }
             this.uncommittedTracking.accept(this.sc, false);
             completedUnitOfWork();
             updateMessage("notifying: " + this.sc.getAssemblageNid());

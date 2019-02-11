@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 
 /**
  * 2019-01-23
@@ -21,7 +22,7 @@ public abstract class RF2DefaultExporter extends TimedTaskWithProgressTracker<Vo
 
         //Initial RF2 export file setup
         initDirectoryAndFile();
-        writeToFile(rf2Configuration.getFileHeader());
+        writeStringToFile(rf2Configuration.getFileHeader());
 
         updateTitle("Exporting " + rf2Configuration.getMessage());
         updateMessage(rf2Configuration.getFilePath().getFileName().toString());
@@ -37,11 +38,15 @@ public abstract class RF2DefaultExporter extends TimedTaskWithProgressTracker<Vo
         }
     }
 
-    protected void writeToFile(String stringToWrite){
+    protected void writeStringToFile(String stringToWrite){
         try {
             Files.write(rf2Configuration.getFilePath(), stringToWrite.getBytes(Charset.forName("UTF-8")), StandardOpenOption.APPEND);
-        }catch (IOException ioE){
+        }catch (Exception ioE ){
             ioE.printStackTrace();
         }
+    }
+
+    protected void writeStringsToFile(List<String> strings){
+        strings.stream().forEach(this::writeStringToFile);
     }
 }

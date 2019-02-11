@@ -67,7 +67,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
                                 if (parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET || parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET) {
                                     final StringBuilder sb1 = new StringBuilder();
 
-                                    super.writeToFile(
+                                    super.writeStringToFile(
                                             sb1.append(rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
                                                     .append(rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
                                                     .append(rf2ExportHelper.getTimeString(stampNid) + "\t")
@@ -80,7 +80,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
 
                                     final StringBuilder sb2 = new StringBuilder();
 
-                                    super.writeToFile(
+                                    super.writeStringToFile(
                                             sb2.append(rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
                                                     .append(rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
                                                     .append(rf2ExportHelper.getTimeString(stampNid) + "\t")
@@ -94,7 +94,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
 
                                     final StringBuilder sb3 = new StringBuilder();
 
-                                    super.writeToFile(
+                                    super.writeStringToFile(
                                             sb3.append(rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
                                                     .append(rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
                                                     .append(rf2ExportHelper.getTimeString(stampNid) + "\t")
