@@ -191,7 +191,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
             }
             for (int componentNid : components.asArray()) {
                 Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(componentNid);
-                if (c.isPresent() && c.get().isLatestVersionActive()) {
+                if (c.isPresent() && c.get().isLatestVersionActive()) { 
                     addObservesComponent(componentNid, builderService, stamp);
                 }
             }

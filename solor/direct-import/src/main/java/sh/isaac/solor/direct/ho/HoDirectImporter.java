@@ -30,18 +30,31 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.StampService;
+import sh.isaac.api.component.concept.ConceptBuilder;
+import sh.isaac.api.component.concept.ConceptBuilderService;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.solor.direct.DirectImporter;
 
 /**
  *
@@ -50,6 +63,8 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
         implements PersistTaskResult {
 
+    public final static ConceptProxy LEGACY_HUMAN_DX_ROOT_CONCEPT = new ConceptProxy("Legacy deprecated Human Dx concept", UUID.fromString("29d825d3-6536-4bb8-8ea6-844dfcb3e8f8"));
+    public final static ConceptProxy HUMAN_DX_MODULE = new ConceptProxy("Human Dx module", UUID.fromString("f4904690-b9f7-489b-ab63-f649a001a074"));
 
     private static final int WRITE_PERMITS = Runtime.getRuntime()
             .availableProcessors() * 2;
@@ -57,6 +72,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     public static HashSet<String> watchTokens = new HashSet<>();
 
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
+    private List<IndexBuilderService> indexers;
     
     public HoDirectImporter() {
         File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
@@ -68,6 +84,20 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     @Override
     protected Void call() throws Exception {
         try {
+            this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
+             StampService stampService = Get.stampService();
+            int authorNid = TermAux.USER.getNid();
+            int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
+            int moduleNid = HUMAN_DX_MODULE.getNid();
+            int stamp = stampService.getStampSequence(Status.ACTIVE, System.currentTimeMillis(), authorNid, moduleNid, pathNid);
+            
+            buildConcept(LEGACY_HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), 
+                    LEGACY_HUMAN_DX_ROOT_CONCEPT.getFullyQualifiedName(), stamp, MetaData.SOLOR_CONCEPT____SOLOR.getNid());           
+            
+            buildConcept(HUMAN_DX_MODULE.getPrimordialUuid(), 
+                    HUMAN_DX_MODULE.getFullyQualifiedName(), stamp, MetaData.MODULE____SOLOR.getNid());           
+            
+            
             File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
             System.out.println("Importing from: " + importDirectory.getAbsolutePath());
 
@@ -131,16 +161,16 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             columnsToWrite.add(columns);
 
             if (columnsToWrite.size() == writeSize) {
-//                LoincWriter loincWriter = new LoincWriter(
-//                        columnsToWrite,
-//                        this.writeSemaphore,
-//                        "Processing HO records from: " + DirectImporter.trimZipName(
-//                                entry.getName()),
-//                        commitTime);
-//
-//                columnsToWrite = new ArrayList<>(writeSize);
-//                Get.executor()
-//                        .submit(loincWriter);
+                HoWriter hoWriter = new HoWriter(
+                        columnsToWrite,
+                        this.writeSemaphore,
+                        "Processing HO records from: " + DirectImporter.trimZipName(
+                                entry.getName()),
+                        commitTime);
+
+                columnsToWrite = new ArrayList<>(writeSize);
+                Get.executor()
+                        .submit(hoWriter);
             }
         }
         if (empty) {
@@ -151,14 +181,14 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             LOG.warn("No data in file: " + entry.getName());
         }
         if (!columnsToWrite.isEmpty()) {
-//            LoincWriter loincWriter = new LoincWriter(
-//                    columnsToWrite,
-//                    this.writeSemaphore,
-//                    "Reading LOINC records from: " + DirectImporter.trimZipName(
-//                            entry.getName()), commitTime);
-//
-//            Get.executor()
-//                    .submit(loincWriter);
+                HoWriter hoWriter = new HoWriter(
+                        columnsToWrite,
+                        this.writeSemaphore,
+                        "Processing HO records from: " + DirectImporter.trimZipName(
+                                entry.getName()),
+                        commitTime);
+                Get.executor()
+                        .submit(hoWriter);
         }
 
         updateMessage("Waiting for HO file completion...");
@@ -175,4 +205,37 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
+    
+    private void buildConcept(String refId, String conceptName, int stamp, int parentConceptNid) throws IllegalStateException, NoSuchElementException {
+        buildConcept(UuidT5Generator.get(UUID.fromString("d96cb408-b9ae-473d-a08d-ece06dbcedf9"), refId), conceptName, stamp, parentConceptNid);
+    }
+    
+    protected void buildConcept(UUID conceptUuid, String conceptName, int stamp, int parentConceptNid) throws IllegalStateException, NoSuchElementException {
+        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+        eb.necessarySet(eb.and(eb.conceptAssertion(parentConceptNid)));
+        ConceptBuilderService builderService = Get.conceptBuilderService();
+        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
+                "HO",
+                eb.build(),
+                TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+        builder.setPrimordialUuid(conceptUuid);
+        List<Chronology> builtObjects = new ArrayList<>();
+        builder.build(stamp, builtObjects);
+        for (Chronology chronology : builtObjects) {
+            Get.identifiedObjectService().putChronologyData(chronology);
+            index(chronology);
+        }
+    }
+
+    private void index(Chronology chronicle) {
+        if (chronicle instanceof SemanticChronology) {
+            if (chronicle.getVersionType() == VersionType.LOGIC_GRAPH) {
+                Get.taxonomyService().updateTaxonomy((SemanticChronology) chronicle);
+            }
+        }
+        for (IndexBuilderService indexer : indexers) {
+            indexer.indexNow(chronicle);
+        }
+    }
+    
 }

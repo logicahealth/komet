@@ -187,7 +187,12 @@ public class AxiomView {
                 || conceptNid == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             return Iconography.ALERT_CONFIRM2.getIconographic();
         }
-        int[] parents = Get.taxonomyService().getSnapshot(manifold).getTaxonomyParentConceptNids(conceptNid);
+        int[] parents = new int[] {};
+        try {
+            parents = Get.taxonomyService().getSnapshot(manifold).getTaxonomyParentConceptNids(conceptNid);
+        } catch (RuntimeException ex) {
+            ex.printStackTrace();
+        }
         Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
         if (!conceptExpression.isPresent()) {
             return Iconography.ALERT_CONFIRM2.getIconographic();

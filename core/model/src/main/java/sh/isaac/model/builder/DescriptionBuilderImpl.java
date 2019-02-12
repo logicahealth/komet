@@ -69,6 +69,7 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -203,6 +204,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       final int finalStamp = stampSequence;
 
       final SemanticChronology newDescription = (SemanticChronology) descBuilder.build(finalStamp, builtObjects);
+      ModelGet.identifierService().setupNid(newDescription.getNid(), newDescription.getAssemblageNid(), newDescription.getIsaacObjectType(), newDescription.getVersionType());
       getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
       return (T) newDescription;
    }

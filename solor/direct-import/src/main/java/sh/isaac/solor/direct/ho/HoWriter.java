@@ -17,6 +17,7 @@
 package sh.isaac.solor.direct.ho;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -24,7 +25,6 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
@@ -33,22 +33,28 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
+import sh.isaac.api.component.concept.ConceptBuilder;
+import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
+import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
-import sh.isaac.model.semantic.version.StringVersionImpl;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HUMAN_DX_MODULE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.LEGACY_HUMAN_DX_ROOT_CONCEPT;
 
 /**
  *
@@ -86,8 +92,6 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     public static final int INEXACT_SNOMED = 24;
     public static final int SNOMED_SIB_CHILD = 25;
 
-    private final static ConceptProxy LEGACY_HUMAN_DX_ROOT_CONCEPT = new ConceptProxy("Legacy deprecated Human Dx concept", UUID.fromString("29d825d3-6536-4bb8-8ea6-844dfcb3e8f8"));
-    private final static ConceptProxy HUMAN_DX_MODULE = new ConceptProxy("Human Dx module", UUID.fromString("f4904690-b9f7-489b-ab63-f649a001a074"));
 
     private final List<String[]> hoRecords;
     private final Semaphore writeSemaphore;
@@ -130,6 +134,11 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
 
             List<String[]> noSuchElementList = new ArrayList<>();
+            HashMap<String, String> nameRefidMap = new HashMap<>();
+            for (String[] hoRec : hoRecords) {
+                nameRefidMap.put(hoRec[NAME], hoRec[REFID]);
+                
+            }
 
             // All deprecated records are filtered out already
             for (String[] hoRec : hoRecords) {
@@ -141,25 +150,37 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     int conceptNid = Get.nidWithAssignment(conceptUuid);
                     Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
                     if (!optionalConcept.isPresent()) {
-
+                        
+                        
+                        int[] parentNids = new int[] { LEGACY_HUMAN_DX_ROOT_CONCEPT.getNid() };
+                        if (hoRec[PARENTS] != null &! hoRec[PARENTS].isEmpty()) {
+                            String[] parentRefIds = hoRec[PARENTS].split("; ");
+                            parentNids = new int[parentRefIds.length];
+                            for (int i = 0; i < parentRefIds.length; i++) {
+                                String refId = nameRefidMap.get(parentRefIds[i]);
+                                UUID parentUuid = refidToUuid(refId);
+                                parentNids[i] = Get.nidWithAssignment(parentUuid);
+                                ModelGet.identifierService().setupNid(parentNids[i], TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid(), IsaacObjectType.CONCEPT, VersionType.CONCEPT);
+                            }
+                        }
                         // Need to create new concept, and a stated definition...
-                        LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                        builder.necessarySet(builder.and(builder.conceptAssertion(LEGACY_HUMAN_DX_ROOT_CONCEPT)));
-                        LogicalExpression logicalExpression = builder.build();
-                        logicalExpression.getNodeCount();
-                        addLogicGraph(conceptUuid,
-                                logicalExpression);
+                        buildConcept(conceptUuid, hoRec[NAME], recordStamp, parentNids);
+                        
+//                        LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+//                        
+//                        ConceptAssertion[] conceptAssertions = new ConceptAssertion[parentNids.length];
+//                        for (int i = 0; i < conceptAssertions.length; i++) {
+//                            conceptAssertions[i] = builder.conceptAssertion(parentNids[i]);
+//                        }
+//                        builder.necessarySet(builder.and(conceptAssertions));
+//                        LogicalExpression logicalExpression = builder.build();
+//                        logicalExpression.getNodeCount();
+//                        addLogicGraph(conceptUuid, hoRec[NAME],
+//                                logicalExpression);
 
                     }
-                    // make 2 descriptions
-                    String fullyQualifiedName = hoRec[NAME];
-                    if (fullyQualifiedName == null || fullyQualifiedName.isEmpty()) {
-                        fullyQualifiedName = hoRec[REFID] + " with no name";
-                    }
-
-                    addDescription(hoRec, fullyQualifiedName,
-                            TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
-
+                    // make regular descriptions
+ 
 //                    String shortName = hoRec[SHORTNAME];
 //                    if (shortName == null || shortName.isEmpty()) {
 //                        shortName = fullyQualifiedName + " with no sn";
@@ -184,6 +205,37 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         }
     }
 
+    protected void buildConcept(UUID conceptUuid, String conceptName, int stamp, int[] parentConceptNids) throws IllegalStateException, NoSuchElementException {
+        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+        
+        ConceptAssertion[] parents = new ConceptAssertion[parentConceptNids.length];
+        for (int i = 0; i < parentConceptNids.length; i++) {
+            parents[i] = eb.conceptAssertion(parentConceptNids[i]);
+        }
+        eb.necessarySet(eb.and(parents));
+        ConceptBuilderService builderService = Get.conceptBuilderService();
+        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
+                "HO",
+                eb.build(),
+                TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+        builder.setPrimordialUuid(conceptUuid);
+        List<Chronology> builtObjects = new ArrayList<>();
+        builder.build(stamp, builtObjects);
+        for (Chronology chronology : builtObjects) {
+            Get.identifiedObjectService().putChronologyData(chronology);
+            if (chronology.getVersionType() == VersionType.LOGIC_GRAPH) {
+                try {
+                    Get.taxonomyService().updateTaxonomy((SemanticChronology) chronology);
+                } catch (RuntimeException e) {
+                    e.printStackTrace();
+                }
+           }
+            index(chronology);
+        }
+    }
+    
+    
+    
     private void addDescription(String[] hoRec, String description, ConceptSpecification descriptionType,
             UUID conceptUuid, int recordStamp) {
 
@@ -224,12 +276,19 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
      * Adds the logic graph.
      *
      * @param conceptUuid the uuid of the concept this logic graph defines.
+     * @param conceptName
      * @param logicalExpression the logical expression
-     * @return the semantic chronology
      */
-    public SemanticChronology addLogicGraph(UUID conceptUuid,
+    private void addLogicGraph(UUID conceptUuid, String conceptName,
             LogicalExpression logicalExpression) {
 
+        ConceptBuilderService builderService = Get.conceptBuilderService();
+        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
+                "HO",
+                logicalExpression,
+                TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+        builder.setPrimordialUuid(conceptUuid);
+        
         int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
                 commitTime, TermAux.USER.getNid(),
                 HUMAN_DX_MODULE.getNid(),
@@ -257,19 +316,13 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
         sb.setPrimordialUuid(generatedGraphPrimordialUuid);
 
-        final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+        final ArrayList<Chronology> builtObjects = new ArrayList<>();
 
-        final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
-                builtObjects);
-        // There should be no other build objects, so ignore the builtObjects list...
-
-        if (builtObjects.size() != 1) {
-            throw new IllegalStateException("More than one build object: " + builtObjects);
+        builder.build(stamp, builtObjects);
+        for (Chronology chronology : builtObjects) {
+            Get.identifiedObjectService().putChronologyData(chronology);
+            index(chronology);
         }
-        index(sci);
-        Get.assemblageService().writeSemanticChronology(sci);
-
-        return sci;
 
     }
 
