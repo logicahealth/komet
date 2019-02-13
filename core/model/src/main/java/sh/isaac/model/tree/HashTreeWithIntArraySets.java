@@ -793,7 +793,7 @@ public class HashTreeWithIntArraySets
             title = "No taxonomy roots";
          }
          AlertObject alert = new AlertObject(title, builder.toString(), AlertType.ERROR, AlertCategory.TAXONOMY);
-         Alert.publishAddition(alert);
+//         Alert.publishAddition(alert);
       }
    }
 

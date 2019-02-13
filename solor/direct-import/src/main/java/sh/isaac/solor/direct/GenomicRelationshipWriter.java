@@ -11,7 +11,6 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.assertions.Assertion;
-import sh.isaac.api.logic.assertions.SufficientSet;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 
@@ -27,7 +26,7 @@ public class GenomicRelationshipWriter extends TimedTaskWithProgressTracker<Void
 
 
     private final Semaphore writeSemaphore;
-    private final Map<String, Set<String>> genomicRelationshipMap;
+    private Map<String, Set<String>> genomicRelationships;
 
     private static final String ENCODING_FOR_UUID_GENERATION = "8859_1";
     private final long commitTime = System.currentTimeMillis();
@@ -38,18 +37,18 @@ public class GenomicRelationshipWriter extends TimedTaskWithProgressTracker<Void
     private final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
     private final SemanticBuilderService<?> semanticBuilderService = Get.semanticBuilderService();
     private final TaxonomyService taxonomyService = Get.taxonomyService();
-    private final GenomicConceptType genomicConceptType;
+    private final GenomicComponentType genomicComponentType;
 
 
-    public GenomicRelationshipWriter(Map<String, Set<String>> genomicRelationshipMap, Semaphore writeSemaphore,
-                                     String message, GenomicConceptType genomicConceptType) {
-        this.genomicRelationshipMap = genomicRelationshipMap;
-        this.genomicConceptType = genomicConceptType;
+    public GenomicRelationshipWriter(Map<String, Set<String>> genomicRelationships, Semaphore writeSemaphore,
+                                     String message, GenomicComponentType genomicComponentType) {
+        this.genomicRelationships = genomicRelationships;
+        this.genomicComponentType = genomicComponentType;
         this.writeSemaphore = writeSemaphore;
         this.writeSemaphore.acquireUninterruptibly();
-        updateTitle("Importing " + genomicConceptType.toString() + " description batch of size: " + genomicRelationshipMap.size());
+        updateTitle("Importing " + genomicComponentType.toString() + " description batch of size: " + genomicRelationships.size());
         updateMessage(message);
-        addToTotalWork(genomicRelationshipMap.size());
+        addToTotalWork(genomicRelationships.size());
         Get.activeTasks().add(this);
     }
 
@@ -62,64 +61,90 @@ public class GenomicRelationshipWriter extends TimedTaskWithProgressTracker<Void
             IdentifierService identifierService = Get.identifierService();
             HashSet<Integer> defferedTaxonomyNids = new HashSet<>();
 
-            for(Map.Entry<String, Set<String>> entry : this.genomicRelationshipMap.entrySet()){
+            genomicRelationships.entrySet().stream()
+                    .forEach(entry -> {
 
-                String sourceConceptString = entry.getKey();
+                        String sourceConceptString = entry.getKey();
+                        UUID sourceConceptUUID =  null;
 
-
-                    UUID sourceConceptUUID;
-
-                    try {
-                        final String sourceID = "gov.nih.nlm.ncbi." + sourceConceptString;
-                        sourceConceptUUID = UUID.nameUUIDFromBytes(sourceID.getBytes(ENCODING_FOR_UUID_GENERATION));
-                    } catch (final UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    try {
-                        int sourceNid = identifierService.getNidForUuids(sourceConceptUUID);
-
-                        final LogicalExpressionBuilder leb = logicalExpressionBuilderService.getLogicalExpressionBuilder();
-
-
-                        final Assertion[] assertions = new Assertion[entry.getValue().size()];
-                        int i = 0;
-                        for(String destinationConceptString : entry.getValue()){
-                            UUID destinationConceptUUID;
-                            try {
-
-                                if(this.genomicConceptType == GenomicConceptType.GENE_SNOMED) {
-                                    destinationConceptUUID = UuidT3Generator.fromSNOMED(destinationConceptString);
-                                }else {
-                                    final String destinationConceptID = "gov.nih.nlm.ncbi." + destinationConceptString;
-                                    destinationConceptUUID = UUID.nameUUIDFromBytes(destinationConceptID.getBytes(ENCODING_FOR_UUID_GENERATION));
-                                }
-
-                            } catch (final UnsupportedEncodingException e) {
-                                throw new RuntimeException(e);
+                        try {
+                            if(genomicComponentType == GenomicComponentType.VARIANT_GENE_REL){
+                                sourceConceptUUID = UUID.nameUUIDFromBytes(
+                                        (GenomicComponentType.VARIANT_CONCEPT.getNamespaceString() + sourceConceptString)
+                                                .getBytes(ENCODING_FOR_UUID_GENERATION));
+                            }else if(genomicComponentType == GenomicComponentType.GENE_SNOMED_REL){
+                                sourceConceptUUID = UUID.nameUUIDFromBytes(
+                                        (GenomicComponentType.GENE_CONCEPT.getNamespaceString() + sourceConceptString)
+                                                .getBytes(ENCODING_FOR_UUID_GENERATION));
                             }
 
-                            assertions[i++] = ConceptAssertion(identifierService.getNidForUuids(destinationConceptUUID), leb);
+                        } catch (final UnsupportedEncodingException e) {
+                            throw new RuntimeException(e);
                         }
 
-                        NecessarySet(And(assertions));
+                        if(identifierService.hasUuid(sourceConceptUUID)) {
+                            List<UUID> validDestinationConceptUUIDs = new ArrayList<>();
 
-                        LogicalExpression le = leb.build();
+                            try {
+                                for(String destinationConceptID : entry.getValue()){
+                                    UUID destinationConceptUUID = null;
 
-                        SemanticBuilder<?> sb = semanticBuilderService.getLogicalExpressionBuilder(le, sourceNid ,
-                                MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid());
-                        sb.setStatus(this.state);
-                        int graphStamp = stampService.getStampSequence(this.state, this.commitTime, authorNid, moduleNid, pathNid);
-                        SemanticChronology sc = sb.build(graphStamp, new ArrayList<>());
-                        defferedTaxonomyNids.add(sc.getNid());
-                        assemblageService.writeSemanticChronology(sc);
+                                    try{
 
-                    }catch (NoSuchElementException nseE){
-                        nseE.printStackTrace();
-                    }
+                                        if(destinationConceptID.contains("UUID:")){
+                                            destinationConceptUUID = UUID.fromString(
+                                                    destinationConceptID.replace("UUID:",""));
+                                        } else {
 
-                completedUnitOfWork();
-            }
+                                            switch (genomicComponentType) {
+                                                case VARIANT_GENE_REL:
+                                                    destinationConceptUUID = UUID.nameUUIDFromBytes(
+                                                            (GenomicComponentType.GENE_CONCEPT
+                                                                    .getNamespaceString() + destinationConceptID)
+                                                                    .getBytes(ENCODING_FOR_UUID_GENERATION));
+                                                    break;
+                                                case GENE_SNOMED_REL:
+                                                    destinationConceptUUID = UuidT3Generator.fromSNOMED(destinationConceptID);
+                                                    break;
+                                            }
+                                        }
+
+                                        if(identifierService.hasUuid(destinationConceptUUID))
+                                            validDestinationConceptUUIDs.add(destinationConceptUUID);
+
+                                    }catch (UnsupportedEncodingException ueE){
+                                        throw new RuntimeException(ueE);
+                                    }
+                                }
+
+                                if(validDestinationConceptUUIDs.size() > 0) {
+
+                                    int sourceNid = identifierService.getNidForUuids(sourceConceptUUID);
+                                    final LogicalExpressionBuilder leb = logicalExpressionBuilderService.getLogicalExpressionBuilder();
+                                    final Assertion[] assertions = new Assertion[validDestinationConceptUUIDs.size()];
+
+                                    for (int i = 0; i < validDestinationConceptUUIDs.size(); i++) {
+                                        assertions[i] = ConceptAssertion(identifierService.getNidForUuids(validDestinationConceptUUIDs.get(i)), leb);
+                                    }
+
+                                    NecessarySet(And(assertions));
+
+                                    LogicalExpression le = leb.build();
+                                    SemanticBuilder<?> sb = semanticBuilderService.getLogicalExpressionBuilder(le, sourceNid,
+                                            MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid());
+                                    sb.setStatus(this.state);
+                                    int graphStamp = stampService.getStampSequence(this.state, this.commitTime, authorNid, moduleNid, pathNid);
+                                    SemanticChronology sc = sb.build(graphStamp, new ArrayList<>());
+                                    defferedTaxonomyNids.add(sc.getNid());
+                                    assemblageService.writeSemanticChronology(sc);
+                                }
+                            } catch (NoSuchElementException nseE) {
+                                nseE.printStackTrace();
+                            }
+                        }
+
+                        completedUnitOfWork();
+                    });
 
             for(int nid : defferedTaxonomyNids){
                 taxonomyService.updateTaxonomy(Get.assemblageService().getSemanticChronology(nid));

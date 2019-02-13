@@ -86,6 +86,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.observable.ObservableFields;
 
 import static sh.isaac.model.observable.ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE;
@@ -211,6 +212,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(TermAux.SPECIMEN);
             createConcept(TermAux.SUBSTANCE);
          popParent();
+         createConcept("ClinVar concept").setPrimordialUuid(UuidT5Generator.get("gov.nih.nlm.ncbi.clinvar concept"));
+            pushParent(current());
+            createConcept("Gene").setPrimordialUuid(UuidT5Generator.get("gov.nih.nlm.ncbi.clinvar concept.gene"));
+            popParent();
          createConcept(TermAux.SOLOR_METADATA).addDescription("version:" + AUXILIARY_METADATA_VERSION, TermAux.DEFINITION_DESCRIPTION_TYPE);
          pushParent(current());
             // order (int), field type (concept) 
