@@ -73,6 +73,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -296,6 +297,7 @@ public class ConceptBuilderImpl
       final int finalStamp = stampCoordinate;
       
       conceptChronology.createMutableVersion(stampCoordinate);
+      ModelGet.identifierService().setupNid(conceptChronology.getNid(), conceptChronology.getAssemblageNid(), conceptChronology.getIsaacObjectType(), conceptChronology.getVersionType());
       builtObjects.add(conceptChronology);
       getDescriptionBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
       getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));

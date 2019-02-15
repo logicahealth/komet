@@ -185,6 +185,26 @@ public interface Chronology
     * @return true, if latest version active
     */
    boolean isLatestVersionActive(StampCoordinate coordinate);
+   
+   /**
+    * Determine if the version with the latest timestamp is active. Note that
+    * this method does not take into account paths and modules, and may return
+    * inaccurate results in circumstances where modules or inactive, 
+    * or when versions occur on more than one path or module. 
+    * @return true if the latest version is active
+    */
+   default boolean isLatestVersionActive() {
+       Version latestVersion = null;
+       for (Version version: getVersionList()) {
+           if (latestVersion == null || latestVersion.getTime() < version.getTime()) {
+               latestVersion = version;
+           }
+       }
+       if (latestVersion == null) {
+           return false;
+       }
+       return latestVersion.getStatus() == Status.ACTIVE;
+   }
 
    /**
     * Gets the semantic list.

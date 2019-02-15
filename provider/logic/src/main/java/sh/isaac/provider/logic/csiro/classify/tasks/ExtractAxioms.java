@@ -122,12 +122,6 @@ public class ExtractAxioms
                     .forEach((LatestVersion<LogicGraphVersionImpl> latest) -> {
                                 final LogicGraphVersionImpl lgs = latest.get();
                                 final int conceptNid = lgs.getReferencedComponentNid();
-                        if (TestConcept.HOMOCYSTINE_MV_URINE.getNid() == conceptNid) {
-                            LOG.info("FOUND WATCH: " + TestConcept.HOMOCYSTINE_MV_URINE);
-                        }
-                        if (TermAux.SOLOR_ROOT.getNid() == conceptNid) {
-                            LOG.info("FOUND WATCH: " + TermAux.SOLOR_ROOT);
-                        }
 
                                 if (Get.conceptService()
                                        .isConceptActive(conceptNid, stampCoordinate)) {

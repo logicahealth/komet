@@ -76,6 +76,7 @@ import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -283,6 +284,8 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
         
         getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
         builtObjects.add(semanticChronicle);
+        ModelGet.identifierService().setupNid(semanticChronicle.getNid(), semanticChronicle.getAssemblageNid(), semanticChronicle.getIsaacObjectType(), semanticChronicle.getVersionType());
+
         for (SemanticBuildListenerI listener : semanticBuildListeners) {
             if (listener != null) {
                 if (listener.isEnabled()) {

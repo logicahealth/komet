@@ -1,5 +1,6 @@
 package sh.isaac.solor.rf2.exporters.core;
 
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
@@ -9,6 +10,8 @@ import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.exporters.RF2DefaultExporter;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 
@@ -31,6 +34,24 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
     @Override
     protected Void call() {
 
+        List<Integer> retroNIds = new ArrayList<>();
+        retroNIds.add(MetaData.SOLOR_CONCEPT____SOLOR.getNid());
+        retroNIds.add(MetaData.METADATA____SOLOR.getNid());
+        retroNIds.add(MetaData.BODY_STRUCTURE____SOLOR.getNid());
+        retroNIds.add(MetaData.EVENT____SOLOR.getNid());
+        retroNIds.add(MetaData.FORCE____SOLOR.getNid());
+        retroNIds.add(MetaData.MEDICATION____SOLOR.getNid());
+        retroNIds.add(MetaData.PHENOMENON____SOLOR.getNid());
+        retroNIds.add(MetaData.ORGANISM____SOLOR.getNid());
+        retroNIds.add(MetaData.OBJECT____SOLOR.getNid());
+        retroNIds.add(MetaData.PROCEDURE____SOLOR.getNid());
+        retroNIds.add(MetaData.SPECIMEN____SOLOR.getNid());
+        retroNIds.add(MetaData.SUBSTANCE____SOLOR.getNid());
+        retroNIds.add(MetaData.HEALTH_CONCEPT____SOLOR.getNid());
+        retroNIds.add(MetaData.UNCATEGORIZED_PHENOMENON____SOLOR.getNid());
+        retroNIds.add(MetaData.FINDING____SOLOR.getNid());
+        retroNIds.add(MetaData.OBSERVATION____SOLOR.getNid());
+
         try{
 
             this.intStream
@@ -43,7 +64,7 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
                                 int conceptSTAMPNid = rf2ExportHelper.getSnapshotService()
                                         .getObservableConceptVersion(nid).getStamps().findFirst().getAsInt();
 
-                                super.writeToFile(
+                                super.writeStringToFile(
                                         conceptUUIDStringBuilder.append("900000000000002006" + "\t")
                                                 .append(Get.concept(nid).getPrimordialUuid().toString() + "\t")
                                                 .append(rf2ExportHelper.getTimeString(conceptSTAMPNid) + "\t")
@@ -54,6 +75,17 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
                                                 .toString()
                                 );
 
+                                if(rf2ExportHelper.isMetaDataConcept(nid) || retroNIds.contains(nid))
+                                    super.writeStringToFile(
+                                            conceptUUIDStringBuilder.append(rf2ExportHelper.getIdString(MetaData.RETRO_ID____SOLOR.getNid()) + "\t")
+                                                    .append(Get.concept(nid).getPrimordialUuid().toString() + "\t")
+                                                    .append(rf2ExportHelper.getTimeString(conceptSTAMPNid) + "\t")
+                                                    .append(rf2ExportHelper.getActiveString(conceptSTAMPNid) + "\t")
+                                                    .append(rf2ExportHelper.getModuleString(conceptSTAMPNid) + "\t")
+                                                    .append(rf2ExportHelper.getIdString(nid))
+                                                    .append("\r")
+                                                    .toString());
+
                                 break;
                             case SEMANTIC:
 
@@ -61,7 +93,7 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
                                 int semanticSTAMPNid = rf2ExportHelper.getSnapshotService().
                                         getObservableSemanticVersion(nid).getStamps().findFirst().getAsInt();
 
-                                super.writeToFile(
+                                super.writeStringToFile(
                                         semanticUUIDStringBuilder.append("900000000000002006" + "\t")
                                                 .append(Get.assemblageService().getSemanticChronology(nid).getPrimordialUuid().toString() + "\t")
                                                 .append(rf2ExportHelper.getTimeString(semanticSTAMPNid) + "\t")
@@ -79,13 +111,13 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
                                                 ((LatestVersion<ObservableLoincVersion>)
                                                         rf2ExportHelper.getSnapshotService().getObservableSemanticVersion(nid))
                                                         .get();
-                                        super.writeToFile(
-                                                loincRecordStringBuilder.append("900000000000002006" + "\t") //TODO to work out a New Scheme Identifier per spec
+                                        super.writeStringToFile(
+                                                loincRecordStringBuilder.append(rf2ExportHelper.getIdString(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid()) + "\t")
                                                         .append(observableLoincVersion.getLoincNum() + "\t")
                                                         .append(rf2ExportHelper.getTimeString(semanticSTAMPNid) + "\t")
                                                         .append(rf2ExportHelper.getActiveString(semanticSTAMPNid) + "\t")
                                                         .append(rf2ExportHelper.getModuleString(semanticSTAMPNid) + "\t")
-                                                        .append(rf2ExportHelper.getIdString(nid))
+                                                        .append(rf2ExportHelper.getIdString(Get.assemblageService().getSemanticChronology(nid).getReferencedComponentNid()))
                                                         .append("\r")
                                                         .toString()
                                         );
@@ -97,13 +129,13 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
                                                 ((LatestVersion<ObservableLongVersion>)
                                                         rf2ExportHelper.getSnapshotService().getObservableSemanticVersion(nid))
                                                         .get();
-                                        super.writeToFile(
-                                                longStringBuilder.append("900000000000002006" + "\t") //TODO to work out a New Scheme Identifier per spec
+                                        super.writeStringToFile(
+                                                longStringBuilder.append(rf2ExportHelper.getIdString(rf2ExportHelper.getIndentifierAssemblageConceptNID(nid))+ "\t")
                                                         .append(observableLongVersion.getLongValue() + "\t")
                                                         .append(rf2ExportHelper.getTimeString(semanticSTAMPNid) + "\t")
                                                         .append(rf2ExportHelper.getActiveString(semanticSTAMPNid) + "\t")
                                                         .append(rf2ExportHelper.getModuleString(semanticSTAMPNid) + "\t")
-                                                        .append(rf2ExportHelper.getIdString(nid))
+                                                        .append(rf2ExportHelper.getIdString(Get.assemblageService().getSemanticChronology(nid).getReferencedComponentNid()))
                                                         .append("\r")
                                                         .toString()
                                         );
@@ -115,13 +147,13 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
                                                 ((LatestVersion<ObservableStringVersion>)
                                                         rf2ExportHelper.getSnapshotService().getObservableSemanticVersion(nid))
                                                         .get();
-                                        super.writeToFile(
-                                                stringStringBuilder.append("900000000000002006" + "\t") //TODO to work out a New Scheme Identifier per spec
+                                        super.writeStringToFile(
+                                                stringStringBuilder.append(rf2ExportHelper.getIndentifierAssemblageConceptNID(nid)+ "\t")
                                                         .append(observableStringVersion.getString() + "\t")
                                                         .append(rf2ExportHelper.getTimeString(semanticSTAMPNid) + "\t")
                                                         .append(rf2ExportHelper.getActiveString(semanticSTAMPNid) + "\t")
                                                         .append(rf2ExportHelper.getModuleString(semanticSTAMPNid) + "\t")
-                                                        .append(rf2ExportHelper.getIdString(nid))
+                                                        .append(rf2ExportHelper.getIdString(Get.assemblageService().getSemanticChronology(nid).getReferencedComponentNid()))
                                                         .append("\r")
                                                         .toString()
                                         );

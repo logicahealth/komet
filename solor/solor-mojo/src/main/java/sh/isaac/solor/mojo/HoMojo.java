@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+ * Copyright 2019 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,6 @@ package sh.isaac.solor.mojo;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.concurrent.Future;
-import javafx.concurrent.Task;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -29,27 +27,18 @@ import org.apache.maven.plugins.annotations.Parameter;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.ConfigurationService.BuildMode;
-import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.solor.direct.ImportType;
-import sh.isaac.solor.direct.LoincDirectImporter;
-import sh.isaac.solor.direct.DirectImporter;
-import sh.isaac.solor.direct.LoincExpressionToConcept;
-import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
-import sh.isaac.solor.direct.Rf2RelationshipTransformer;
+import sh.isaac.solor.direct.ho.HoDirectImporter;
 
 /**
  *
  * @author kec
  */
 @Mojo(
-        name = "solor-import",
+        name = "ho-import",
         defaultPhase = LifecyclePhase.PROCESS_RESOURCES
 )
-public class SolorMojo extends AbstractMojo {
+public class HoMojo extends AbstractMojo {
 
     /**
      * Location of the folder that contains the files to import.
@@ -73,12 +62,12 @@ public class SolorMojo extends AbstractMojo {
     @Parameter(required = false, defaultValue = "false")
     private boolean transform;
 
-    public SolorMojo() {
+    public HoMojo() {
     }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Get.configurationService().setDBBuildMode(BuildMode.DB);
+        Get.configurationService().setDBBuildMode(ConfigurationService.BuildMode.DB);
         try {
             Get.configurationService().setIBDFImportPathFolderPath(new File(importFolderLocation).toPath());
 
@@ -92,41 +81,10 @@ public class SolorMojo extends AbstractMojo {
             //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
             //be configured at the assemblage level.
             LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(true);
-            DirectImporter rf2Importer = new DirectImporter(ImportType.valueOf(importType));
-            getLog().info("  Importing RF2 files.");
-            rf2Importer.run();
+            HoDirectImporter importer = new HoDirectImporter();
+            getLog().info("  Importing Ho files.");
+            importer.run();
             LookupService.syncAll();
-
-            LoincDirectImporter loincImporter = new LoincDirectImporter();
-            getLog().info("  Importing LOINC files.");
-            loincImporter.run();
-            LookupService.syncAll();
-            if (transform) {
-               //TODO change how we get the edit coordinates. 
-                ManifoldCoordinate coordinate = Get.coordinateFactory().createDefaultStatedManifoldCoordinate();
-                EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-
-                getLog().info("  Transforming RF2 relationships to SOLOR.");
-                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.valueOf(importType));
-                Future<?> transformTask = Get.executor().submit(transformer);
-                transformTask.get();
-
-                getLog().info("Convert LOINC expressions...");
-                LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
-                Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
-                convertLoincTask.get();
-
-                getLog().info("Adding navigation concepts...");
-                LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(coordinate);
-                Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
-                addNavigationConceptsTask.get();
-
-                getLog().info("Classifying new content...");
-                Task<ClassifierResults> classifierResultsTask
-                        = Get.logicService().getClassifierService(coordinate, editCoordinate).classify();
-                ClassifierResults classifierResults = classifierResultsTask.get();
-                getLog().info(classifierResults.toString());
-            }
 
             Get.startIndexTask().get();
             LookupService.syncAll();  //This should be unnecessary....

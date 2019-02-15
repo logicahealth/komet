@@ -275,9 +275,6 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
      */
     private void transformRelationships(int conceptNid, int[] relNids, PremiseType premiseType) {
         updateMessage("Converting " + premiseType + " relationships into logic graphs");
-        if (conceptNid == anatomicalStructureProxy.getNid()) {
-            System.out.println("Found watch: " + anatomicalStructureProxy);
-        }
 
         List<SemanticChronology> relationshipChronologiesForConcept = new ArrayList<>();
         TreeSet<StampPosition> stampPositionsToProcess = new TreeSet<>();

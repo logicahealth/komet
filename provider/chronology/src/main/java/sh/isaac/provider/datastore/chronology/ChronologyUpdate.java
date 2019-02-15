@@ -40,6 +40,7 @@ package sh.isaac.provider.datastore.chronology;
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,7 +57,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -80,9 +80,10 @@ import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 /**
  *
  * @author kec
- * 
- * TODO why is all of the important stuff in this class static?  Why aren't we just handling this as a Singleton with HK2?
- * Seems to be just creating unnecessary logic and potential problems.
+ *
+ * TODO why is all of the important stuff in this class static? Why aren't we
+ * just handling this as a Singleton with HK2? Seems to be just creating
+ * unnecessary logic and potential problems.
  */
 @Service
 @Singleton
@@ -95,7 +96,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
     private static int ROLE_GROUP_NID;
     private static IdentifierService IDENTIFIER_SERVICE;
     private static TaxonomyProvider TAXONOMY_SERVICE;
-    
+
     private static boolean verboseDebugEnabled = false;
 
     private ChronologyUpdate() {
@@ -139,9 +140,6 @@ public class ChronologyUpdate implements StaticIsaacCache {
     public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
         initCheck();
         int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
-        if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == referencedComponentNid) {
-            LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
-        }
         OptionalInt optionalConceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(referencedComponentNid);
         int conceptAssemblageNid;
         if (optionalConceptAssemblageNid.isPresent()) {
@@ -333,16 +331,16 @@ public class ChronologyUpdate implements StaticIsaacCache {
             LogicNode[] children = expression.getRoot().getChildren();
             boolean necessaryOnly = false;
             if (children.length > 1) {
-                for (LogicNode child: children) {
+                for (LogicNode child : children) {
                     if (child.getNodeSemantic() == NodeSemantic.NECESSARY_SET) {
                         necessaryOnly = true;
                     }
                 }
             }
-            
+
             for (LogicNode necessaryOrSufficientSet : children) {
                 // if there is more than one set, only process necessary set...
-                if (!necessaryOnly|| necessaryOrSufficientSet.getNodeSemantic() == NodeSemantic.NECESSARY_SET) {
+                if (!necessaryOnly || necessaryOrSufficientSet.getNodeSemantic() == NodeSemantic.NECESSARY_SET) {
                     for (LogicNode andOrOrLogicNode : necessaryOrSufficientSet.getChildren()) {
                         for (LogicNode aLogicNode : andOrOrLogicNode.getChildren()) {
                             processRelationshipRoot(firstVersion.getReferencedComponentNid(),
@@ -374,6 +372,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
             LogicalExpression comparisonExpression) {
         switch (logicNode.getNodeSemantic()) {
             case CONCEPT:
+                
                 updateIsaRel(conceptNid,
                         ((ConceptNodeWithNids) logicNode).getConceptNid(),
                         taxonomyRecordForConcept,
@@ -394,7 +393,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
                 throw new UnsupportedOperationException("at Can't handle: " + logicNode.getNodeSemantic());
         }
     }
-    
+
     static AtomicLong isomporphicTime = new AtomicLong(50);
 
     private static void processVersionNode(int conceptNid, Node<? extends LogicGraphVersion> node,
@@ -410,7 +409,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
                         .getLogicalExpression();
                 final LogicalExpression referenceExpression = node.getData()
                         .getLogicalExpression();
-                
+
                 long startTime = System.currentTimeMillis();
                 final IsomorphicResultsFromPathHash isomorphicResults = new IsomorphicResultsFromPathHash(
                         referenceExpression,
@@ -420,9 +419,9 @@ public class ChronologyUpdate implements StaticIsaacCache {
                 if (verboseDebugEnabled && isomporphicTime.get() < elapsedTime) {
                     isomporphicTime.set(elapsedTime);
                     LOG.info("\n\n\nNew isomorphic record: " + elapsedTime + "\n" + isomorphicResults + "\n\n");
-                    
+
                     LOG.info("Reference expression for:  " + elapsedTime + "\n" + referenceExpression.toBuilder() + "\n\n");
-                    LOG.info("Comparison expression for:  " + elapsedTime + "\n" + comparisonExpression.toBuilder()  + "\n\n");
+                    LOG.info("Comparison expression for:  " + elapsedTime + "\n" + comparisonExpression.toBuilder() + "\n\n");
                 }
                 processLogicalExpression(conceptNid, node,
                         taxonomyRecordForConcept,
@@ -436,6 +435,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
             processVersionNode(conceptNid, childNode, taxonomyRecordForConcept, taxonomyFlags);
         }
     }
+
     /**
      * Process version node.
      *
@@ -446,18 +446,30 @@ public class ChronologyUpdate implements StaticIsaacCache {
     private static void processLogicalExpression(int conceptNid, Node<? extends LogicGraphVersion> node,
             TaxonomyRecord taxonomyRecordForConcept,
             TaxonomyFlag taxonomyFlags,
-            LogicalExpression comparisonExpression, IsomorphicResults isomorphicResults) {
+            LogicalExpression logicalExpression, IsomorphicResults isomorphicResults) {
+        LogicNode[] children = node.getData().getLogicalExpression().getRoot().getChildren();
+        boolean necessaryOnly = false;
+        if (children.length > 1) {
+            for (LogicNode child : children) {
+                if (child.getNodeSemantic() == NodeSemantic.NECESSARY_SET) {
+                    necessaryOnly = true;
+                }
+            }
+        }
 
         for (LogicNode relationshipRoot : isomorphicResults.getAddedRelationshipRoots()) {
+            if (necessaryOnly && relationshipRoot.hasParentSemantic(NodeSemantic.SUFFICIENT_SET)) {
+                continue;
+            }
             final int stampSequence = node.getData()
                     .getStampSequence();
 
-                processRelationshipRoot(conceptNid,
-                        relationshipRoot,
-                        taxonomyRecordForConcept,
-                        taxonomyFlags,
-                        stampSequence,
-                        comparisonExpression);
+            processRelationshipRoot(conceptNid,
+                    relationshipRoot,
+                    taxonomyRecordForConcept,
+                    taxonomyFlags,
+                    stampSequence,
+                    logicalExpression);
         }
 
         for (LogicNode relationshipRoot : isomorphicResults.getDeletedRelationshipRoots()) {
@@ -466,12 +478,12 @@ public class ChronologyUpdate implements StaticIsaacCache {
             final int stampSequence = Get.stampService()
                     .getRetiredStampSequence(activeStampSequence);
 
-                processRelationshipRoot(conceptNid,
-                        relationshipRoot,
-                        taxonomyRecordForConcept,
-                        taxonomyFlags,
-                        stampSequence,
-                        comparisonExpression);            
+            processRelationshipRoot(conceptNid,
+                    relationshipRoot,
+                    taxonomyRecordForConcept,
+                    taxonomyFlags,
+                    stampSequence,
+                    logicalExpression);
         }
 
     }
