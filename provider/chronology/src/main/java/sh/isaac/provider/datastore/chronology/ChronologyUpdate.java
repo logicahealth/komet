@@ -52,6 +52,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -140,6 +141,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
     public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
         initCheck();
         int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
+        
         OptionalInt optionalConceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(referencedComponentNid);
         int conceptAssemblageNid;
         if (optionalConceptAssemblageNid.isPresent()) {
