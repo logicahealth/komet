@@ -37,6 +37,7 @@
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.komet.gui.control.image.PropertySheetImageWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,13 +171,8 @@ public class PropertySheetMenuItem
             String nameForProperty) {
         ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
         if (property == null) {
-            int assemblageNid = observableVersion.getAssemblageNid();
-            OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
-                    propertyConceptSpecification.getNid(),
-                    assemblageNid, manifold);
-            if (propertyIndex.isPresent()) {
-                property = observableVersion.getProperties().get(propertyIndex.getAsInt());
-            }
+              property = setupProperty(propertyConceptSpecification);
+
         }
         ObjectProperty<ConceptSpecification> conceptProperty = null;
         if (property instanceof ObjectProperty) {
@@ -202,19 +198,24 @@ public class PropertySheetMenuItem
                 (ObjectProperty<Status>) getPropertyMap().get(propertyConceptSpecification));
     }
 
+
+    private PropertySheetImageWrapper getImageDataProperty(ConceptSpecification propertyConceptSpecification,
+                                                           String nameForProperty) {
+
+        ReadOnlyProperty<?> property = setupProperty(propertyConceptSpecification);
+        ObjectProperty<byte[]> imageDataProperty = (ObjectProperty<byte[]>) property;
+
+        PropertySheetImageWrapper wrapper = new PropertySheetImageWrapper(nameForProperty,
+                imageDataProperty);
+        wrapper.setSpecification(propertyConceptSpecification);
+        return wrapper;
+    }
+
+
     private PropertySheetTextWrapper getTextProperty(ConceptSpecification propertyConceptSpecification,
             String nameForProperty) {
-        ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
-        if (property == null) {
-            int assemblageNid = observableVersion.getAssemblageNid();
-            OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
-                    propertyConceptSpecification.getNid(),
-                    assemblageNid, manifold);
-            if (propertyIndex.isPresent()) {
-                property = observableVersion.getProperties().get(propertyIndex.getAsInt());
-            }
-            getPropertyMap().put(propertyConceptSpecification, property);
-        }
+
+        ReadOnlyProperty<?> property = setupProperty(propertyConceptSpecification);
         StringProperty stringProperty = (StringProperty) property;
 
         PropertySheetTextWrapper wrapper = new PropertySheetTextWrapper(nameForProperty,
@@ -223,8 +224,7 @@ public class PropertySheetMenuItem
         return wrapper;
     }
 
-    private PropertySheetItemIntegerWrapper getIntegerProperty(ConceptSpecification propertyConceptSpecification,
-            String nameForProperty) {
+    private ReadOnlyProperty<?>  setupProperty(ConceptSpecification propertyConceptSpecification) {
         ReadOnlyProperty<?> property = getPropertyMap().get(propertyConceptSpecification);
         if (property == null) {
             int assemblageNid = observableVersion.getAssemblageNid();
@@ -236,7 +236,13 @@ public class PropertySheetMenuItem
             }
             getPropertyMap().put(propertyConceptSpecification, property);
         }
-        IntegerProperty integerProperty = (IntegerProperty) property;
+        return property;
+    }
+
+    private PropertySheetItemIntegerWrapper getIntegerProperty(ConceptSpecification propertyConceptSpecification,
+            String nameForProperty) {
+
+        IntegerProperty integerProperty = (IntegerProperty) setupProperty(propertyConceptSpecification);
 
         PropertySheetItemIntegerWrapper wrapper = new PropertySheetItemIntegerWrapper(nameForProperty,
                 integerProperty);
@@ -288,6 +294,13 @@ public class PropertySheetMenuItem
                                             propertySpec.propertyConceptSpecification,
                                             propertySpec.nameOnPropertySheet)));
                             break;
+                        case IMAGE:
+                            items.add(
+                                    addItem(getImageDataProperty(
+                                            propertySpec.propertyConceptSpecification,
+                                            propertySpec.nameOnPropertySheet)));
+                            break;
+
                         default:
                             throw new RuntimeException("an Can't handle: " + propertySpec);
                     }

@@ -1208,8 +1208,7 @@ return console.askYesNo(message, true);
     </macos>
   </mediaSets>
   <buildIds buildAll="false">
-    <mediaSet refId="63" />
     <mediaSet refId="524" />
   </buildIds>
-  <buildOptions verbose="false" faster="true" disableSigning="false" disableJreBundling="false" debug="false" />
+  <buildOptions verbose="false" faster="true" disableSigning="true" disableJreBundling="false" debug="false" />
 </install4j>

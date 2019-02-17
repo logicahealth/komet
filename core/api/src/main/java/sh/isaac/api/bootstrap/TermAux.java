@@ -465,6 +465,7 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy INTEGER_SEMANTIC = new ConceptProxy("Integer semantic", UUID.fromString("a248fe51-70db-5a3f-9d23-9cf20afa2b4d"));
     public static ConceptProxy STRING_SEMANTIC = new ConceptProxy("String semantic", UUID.fromString("e196e48a-760b-5cd3-b5f0-8e5b3bb49627"));
     public static ConceptProxy DESCRIPTION_SEMANTIC = new ConceptProxy("Description semantic", UUID.fromString("81487d5f-6115-51e2-a3b3-93d783888eb8"));
+    public static ConceptProxy IMAGE_SEMANTIC = new ConceptProxy("Image semantic", UUID.fromString("5c31cb70-a042-59b8-a21c-6aca1c03f907"));
     public static ConceptProxy SEMANTIC_FIELD_TYPE = new ConceptProxy("Semantic field type", UUID.fromString("9c3dfc88-51e4-5e51-a59a-88dd580162b7"));
     public static ConceptProxy ARRAY_FIELD = new ConceptProxy("Array field", UUID.fromString("b168ad04-f814-5036-b886-fd4913de88c8"));
     public static ConceptProxy BOOLEAN_FIELD = new ConceptProxy("Boolean field", UUID.fromString("d6b9e2cc-31c6-5e80-91b7-7537690aae32"));
@@ -477,6 +478,7 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy COMPONENT_FIELD = new ConceptProxy("Component field", UUID.fromString("fb00d132-fcc3-5cbf-881d-4bcc4b4c91b3"));
     public static ConceptProxy CONCEPT_FIELD = new ConceptProxy("Concept field", UUID.fromString("ac8f1f54-c7c6-5fc7-b1a8-ebb04b918557"));
     public static ConceptProxy STRING_FIELD = new ConceptProxy("String field", UUID.fromString("8d0fdf86-9c18-50b4-b59f-fb83db9cbcaf"));
+    public static ConceptProxy IMAGE_FIELD = new ConceptProxy("Image field", UUID.fromString("cd9ea037-0af9-586b-9369-7bc044cdb8f7"));
     public static ConceptProxy POLYMORPHIC_FIELD = new ConceptProxy("Polymorphic field", UUID.fromString("9c3e4a52-bfa8-5f42-8fb1-3681f5a58ecb"));
     public static ConceptProxy UUID_FIELD = new ConceptProxy("UUID field", UUID.fromString("dea8cb0f-9bb5-56bb-af27-a14943cb24ba"));
     public static ConceptProxy ASSEMBLAGE_SEMANTIC_FIELDS = new ConceptProxy("Semantic fields assemblage", "Semantic fields", UUID.fromString("ac6d947d-384e-5293-a3b8-5f0c318ee0f7"));
@@ -515,8 +517,6 @@ public class TermAux implements StaticIsaacCache {
 
    
     /*
-    public static ConceptProxy SPEC89 = new ConceptProxy("", "", UUID.fromString("5c31cb70-a042-59b8-a21c-6aca1c03f907"));
-    public static ConceptProxy SPEC90 = new ConceptProxy("", "", UUID.fromString("cd9ea037-0af9-586b-9369-7bc044cdb8f7"));
     public static ConceptProxy SPEC91 = new ConceptProxy("", "", UUID.fromString("6b8b1f01-9da2-585e-828c-eb1c7b93d250"));
     public static ConceptProxy SPEC92 = new ConceptProxy("", "", UUID.fromString("43f5bdcb-c902-5ea2-9ed7-2572fa468bae"));
     public static ConceptProxy SPEC93 = new ConceptProxy("", "", UUID.fromString("9533dce4-efde-51a3-94f8-a4fb06b9d08c"));

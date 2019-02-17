@@ -5,6 +5,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
@@ -27,6 +28,9 @@ public class StackLabelText extends StackPane {
     }
 
     private void mouseClickedInLabel(MouseEvent mouseEvent) {
+        if (label.getGraphic() != null) {
+            return;
+        }
         textArea = new TextArea();
         textArea.setEditable(false);
         TextAreaNoScrollerSkin skin = new TextAreaNoScrollerSkin(textArea);
@@ -70,5 +74,9 @@ public class StackLabelText extends StackPane {
 
     public void setWrapText(boolean b) {
         label.setWrapText(b);
+    }
+
+    public void setImage(Node graphic) {
+        label.setGraphic(graphic);
     }
 }

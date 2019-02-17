@@ -61,88 +61,19 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.IsaacTaxonomy;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
-import static sh.isaac.api.bootstrap.TermAux.ASSEMBLAGE_NID_FOR_COMPONENT;
-import static sh.isaac.api.bootstrap.TermAux.AUTHOR_NID_FOR_VERSION;
-import static sh.isaac.api.bootstrap.TermAux.COMMITTED_STATE_FOR_VERSION;
-import static sh.isaac.api.bootstrap.TermAux.CONCEPT_SEMANTIC;
-import static sh.isaac.api.bootstrap.TermAux.DESCRIPTION_SEMANTIC;
-import static sh.isaac.api.bootstrap.TermAux.LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD;
-import static sh.isaac.api.bootstrap.TermAux.LOGIC_COORDINATE_KEY_FOR_MANIFOLD;
-import static sh.isaac.api.bootstrap.TermAux.MODULE_NID_FOR_VERSION;
-import static sh.isaac.api.bootstrap.TermAux.PATH_NID_FOR_VERSION;
-import static sh.isaac.api.bootstrap.TermAux.PREMISE_TYPE_FOR_MANIFOLD;
-import static sh.isaac.api.bootstrap.TermAux.REFERENCED_COMPONENT_NID_FOR_SEMANTIC;
-import static sh.isaac.api.bootstrap.TermAux.SEMANTIC_TYPE;
-import static sh.isaac.api.bootstrap.TermAux.STAMP_COORDINATE_KEY_FOR_MANIFOLD;
-import static sh.isaac.api.bootstrap.TermAux.STAMP_SEQUENCE_FOR_VERSION;
-import static sh.isaac.api.bootstrap.TermAux.STATUS_FOR_VERSION;
-import static sh.isaac.api.bootstrap.TermAux.STRING_SEMANTIC;
-import static sh.isaac.api.bootstrap.TermAux.TIME_FOR_VERSION;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
+
+import static sh.isaac.api.bootstrap.TermAux.*;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import static sh.isaac.model.observable.ObservableFields.*;
+
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.model.observable.ObservableFields;
-
-import static sh.isaac.model.observable.ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.ASSEMBLAGE_LIST_FOR_QUERY;
-import static sh.isaac.model.observable.ObservableFields.COMMITTED_STATE_FOR_CHRONICLE;
-import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_LIST_FOR_CONCEPT;
-import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_TYPE_FOR_DESCRIPTION;
-import static sh.isaac.model.observable.ObservableFields.LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH;
-import static sh.isaac.model.observable.ObservableFields.PREMISE_TYPE_FOR_TAXONOMY_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.STAMP_POSITION_FOR_STAMP_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.STAMP_PRECEDENCE_FOR_STAMP_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.TEXT_FOR_DESCRIPTION;
-import static sh.isaac.model.observable.ObservableFields.TIME_FOR_STAMP_POSITION;
-import static sh.isaac.model.observable.ObservableFields.UUID_FOR_TAXONOMY_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.VERSION_LIST_FOR_CHRONICLE;
-import static sh.isaac.model.observable.ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_EDIT_CORDINATE;
-import static sh.isaac.model.observable.ObservableFields.LANGUAGE_NID_FOR_LANGUAGE_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.MODULE_NID_ARRAY_FOR_STAMP_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_STAMP_PATH;
-import static sh.isaac.model.observable.ObservableFields.PATH_NID_FOR_STAMP_POSITION;
-import static sh.isaac.model.observable.ObservableFields.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION;
-import static sh.isaac.model.observable.ObservableFields.CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION;
-import static sh.isaac.model.observable.ObservableFields.SEMANTIC_LIST_FOR_CHRONICLE;
-import static sh.isaac.model.observable.ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT;
-import static sh.isaac.model.observable.ObservableFields.ENTRY_SEQUENCE_FOR_COMPONENT;
-import static sh.isaac.model.observable.ObservableFields.CONCEPT_VERSION;
-import static sh.isaac.model.observable.ObservableFields.CORELATION_COMPARISON_EXPRESSION;
-import static sh.isaac.model.observable.ObservableFields.CORELATION_EXPRESSION;
-import static sh.isaac.model.observable.ObservableFields.CORELATION_REFERENCE_EXPRESSION;
-import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT;
-import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DESCRIPTION;
-import static sh.isaac.model.observable.ObservableFields.DESCRIPTION_DIALECT_DIALECT;
-import static sh.isaac.model.observable.ObservableFields.DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.GIT_PASSWORD;
-import static sh.isaac.model.observable.ObservableFields.GIT_URL;
-import static sh.isaac.model.observable.ObservableFields.GIT_USER_NAME;
-import static sh.isaac.model.observable.ObservableFields.LANGUAGE_FOR_LANGUAGE_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.MANIFOLD_COORDINATE_REFERENCE;
-import static sh.isaac.model.observable.ObservableFields.MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.MODULE_OPTIONS_FOR_EDIT_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.NATIVE_ID_FOR_COMPONENT;
-import static sh.isaac.model.observable.ObservableFields.PATH_OPTIONS_FOR_EDIT_COORDINATE;
-import static sh.isaac.model.observable.ObservableFields.UUID_LIST_FOR_COMPONENT;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -229,6 +160,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                         .addComponentIntSemantic(TermAux.CONCEPT_FIELD, 1, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
                         .addComponentIntSemantic(TermAux.CONCEPT_FIELD, 2, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
                         .addComponentIntSemantic(TermAux.STRING_FIELD, 3, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
+                createConcept(TermAux.IMAGE_SEMANTIC)
+                        .addComponentIntSemantic(TermAux.IMAGE_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
+                ;
                 popParent();
             createConcept(TermAux.SEMANTIC_FIELD_TYPE);
             pushParent(current());
@@ -245,6 +179,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept(TermAux.CONCEPT_FIELD);
                     popParent();
                 createConcept(TermAux.STRING_FIELD);
+                createConcept(TermAux.IMAGE_FIELD);
                 createConcept(TermAux.POLYMORPHIC_FIELD);
                 createConcept(TermAux.UUID_FIELD);
                 popParent();
@@ -460,6 +395,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("Module assemblage");
                   createConcept("Quality assurance rule assemblage");
                   createConcept("Automation rule assemblage");
+                  popParent();
+               createConcept("Image assemblage");
+               pushParent(current());
+                  createConcept("Concept image")
+                          .addComponentSemantic(IMAGE_SEMANTIC, SEMANTIC_TYPE)
+                          .addComponentIntSemantic(IMAGE_DATA_FOR_SEMANTIC, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
                   popParent();
                createConcept("Assemblage related to path management");
                pushParent(current());
@@ -911,7 +852,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.STRING_VALUE_FOR_SEMANTIC);
                   createConcept(ObservableFields.COMPONENT_NID_FOR_SEMANTIC);
                   createConcept(ObservableFields.LOGIC_GRAPH_FOR_SEMANTIC);
-                  createConcept(ObservableFields.LONG_VALUE_FOR_SEMANTIC);   
+                  createConcept(ObservableFields.LONG_VALUE_FOR_SEMANTIC);
+                  createConcept(ObservableFields.IMAGE_DATA_FOR_SEMANTIC);
                    createConcept(ObservableFields.TYPE_NID_FOR_RF2_REL);
                    createConcept(ObservableFields.DESTINATION_NID_FOR_RF2_REL);
                    createConcept(ObservableFields.REL_GROUP_FOR_RF2_REL);

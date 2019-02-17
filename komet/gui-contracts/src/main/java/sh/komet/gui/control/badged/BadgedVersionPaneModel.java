@@ -11,6 +11,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
@@ -46,6 +47,7 @@ import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
+import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -437,6 +439,13 @@ public abstract class BadgedVersionPaneModel {
 
 
                     componentText.setText(sb.toString());
+                    break;
+
+                case IMAGE:
+                    ImageVersion iv = (ImageVersion) semanticVersion;
+                    ByteArrayInputStream imageStream = new ByteArrayInputStream(iv.getImageData());
+                    ImageView view = new ImageView(new Image(imageStream));
+                    componentText.setImage(view);
                     break;
 
                 case RF2_RELATIONSHIP:

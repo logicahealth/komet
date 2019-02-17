@@ -40,7 +40,7 @@ public interface DialogService {
     * @param title
     * @param message
     */
-   public void showInformationDialog(String title, String message);
+   void showInformationDialog(String title, String message);
 
    /**
     * Present an information dialog to the user with custom content, above the application main window.
@@ -48,7 +48,7 @@ public interface DialogService {
     * @param title
     * @param content
     */
-   public void showInformationDialog(String title, Node content);
+   void showInformationDialog(String title, Node content);
 
    /**
     * Present an information dialog to the user, above the application main window.
@@ -57,7 +57,7 @@ public interface DialogService {
     * @param message
     * @param parentWindow
     */
-   public void showInformationDialog(String title, String message, Window parentWindow);
+   void showInformationDialog(String title, String message, Window parentWindow);
 
    /**
     * Present an error dialog to the user, above the application main window. Equivalent to Helper calling
@@ -67,7 +67,11 @@ public interface DialogService {
     * @param message
     * @param throwable
     */
-   public void showErrorDialog(String message, Throwable throwable);
+   void showErrorDialog(String message, Throwable throwable);
+
+   default void showErrorDialog(Throwable throwable) {
+      showErrorDialog(throwable.getLocalizedMessage(), throwable);
+   }
 
    /**
     * Present an error dialog to the user, above the application main window.
@@ -76,7 +80,7 @@ public interface DialogService {
     * @param message
     * @param details
     */
-   public void showErrorDialog(final String title, final String message, final String details);
+   void showErrorDialog(final String title, final String message, final String details);
 
    /**
     * Present an error dialog to the user, above the specified window.
@@ -86,7 +90,7 @@ public interface DialogService {
     * @param details
     * @param parentWindow
     */
-   public void showErrorDialog(final String title, final String message, final String details, final Window parentWindow);
+   void showErrorDialog(final String title, final String message, final String details, final Window parentWindow);
 
    /**
     * Present a non-modal pop-up window which displays the details of a concept. Uses the default implementation of a
@@ -94,7 +98,7 @@ public interface DialogService {
     *
     * @param conceptUUID
     */
-   public void showConceptDialog(UUID conceptUUID);
+   void showConceptDialog(UUID conceptUUID);
 
    /**
     * Present a non-modal pop-up window which displays the details of a concept. Uses the default implementation of a
@@ -102,7 +106,7 @@ public interface DialogService {
     *
     * @param conceptNID
     */
-   public void showConceptDialog(int conceptNID);
+   void showConceptDialog(int conceptNID);
 
    /**
     * Present a modal yes/no dialog to the user. Returns the users answer (YES or NO) to the question.
@@ -111,7 +115,7 @@ public interface DialogService {
     * @param question
     * @return
     */
-   public Optional<ButtonType> showYesNoDialog(String title, String question);
+   Optional<ButtonType> showYesNoDialog(String title, String question);
 
    /**
     * Present a modal yes/no dialog to the user. Returns the users answer (YES or NO) to the question.
@@ -121,5 +125,5 @@ public interface DialogService {
     * @param parentWindow
     * @return
     */
-   public Optional<ButtonType> showYesNoDialog(String title, String question, Window parentWindow);
+   Optional<ButtonType> showYesNoDialog(String title, String question, Window parentWindow);
 }

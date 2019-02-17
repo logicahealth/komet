@@ -49,16 +49,8 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.LongVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
-import sh.isaac.api.component.semantic.version.DynamicVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.api.component.semantic.version.*;
+import sh.isaac.api.observable.semantic.version.*;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -100,6 +92,8 @@ public enum VersionType {
    
    /** An LOINC record. */
    LOINC_RECORD((byte) 11, "LOINC Record", "LOINC"),
+
+   IMAGE((byte) 12, "Image", "IMG"),
    
    // Ideally, all of the below would be represented as dynamic semantics, 
    // but quick, removable implementation for now. 
@@ -242,8 +236,12 @@ public enum VersionType {
 
       case 10:
          return RF2_RELATIONSHIP;
+
       case 11:
           return LOINC_RECORD;
+
+      case 12:
+          return IMAGE;
          
    // Ideally, all of the below would be represented as dynamic semantics, 
    // but quick, removable implementation for now. 
@@ -304,16 +302,21 @@ public enum VersionType {
       case MEMBER:
          return ObservableSemanticVersion.class;
 
+         case LONG:
+
+            return ObservableLongVersion.class;
+
+         case STRING:
+
+            return ObservableStringVersion.class;
+
+         case IMAGE:
+            return ObservableStringVersion.class;
+            
       case DYNAMIC:
 
       // TODO implement Observable pattern
       case LOGIC_GRAPH:
-
-      // TODO implement Observable pattern
-      case LONG:
-
-      // TODO implement Observable pattern
-      case STRING:
 
       // TODO implement Observable pattern
       default:
@@ -357,6 +360,9 @@ public enum VersionType {
 
       case STRING:
          return StringVersion.class;
+
+      case IMAGE:
+          return ImageVersion.class;
 
       default:
          throw new RuntimeException("g Can't handle: " + this);

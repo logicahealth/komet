@@ -342,9 +342,12 @@ public enum ObservableFields
    ASSEMBLAGE_LIST_FOR_QUERY("Assemblage list for query", "For list"),
    
    MANIFOLD_COORDINATE_REFERENCE("Manifold coordinate reference", "manifold"),
+
+   IMAGE_DATA_FOR_SEMANTIC("Image data for semantic", "Image data"),
 ;
    // this, ObservableFields..toExternalString()
-   /** The Constant namespace. */
+
+    /** The Constant namespace. */
    private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");
 
    //~--- fields --------------------------------------------------------------
@@ -359,7 +362,7 @@ public enum ObservableFields
    /**
     * Instantiates a new observable fields.
     *
-    * @param description the description
+    * @param fullyQualifiedDescription the description
     */
    ObservableFields(String fullyQualifiedDescription) {
       this.fullyQualifiedDescription = fullyQualifiedDescription;

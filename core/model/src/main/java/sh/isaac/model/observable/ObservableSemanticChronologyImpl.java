@@ -49,28 +49,17 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
+import sh.isaac.model.observable.version.*;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.LongVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
-import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
-import sh.isaac.model.observable.version.ObservableLongVersionImpl;
-import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableLoincVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableRf2RelationshipImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
@@ -199,6 +188,8 @@ public class ObservableSemanticChronologyImpl
             return (OV) new ObservableLogicGraphVersionImpl((LogicGraphVersion) semanticVersion, this);
          case RF2_RELATIONSHIP:
             return (OV) new ObservableRf2RelationshipImpl((Rf2Relationship) semanticVersion, this);
+         case IMAGE:
+            return (OV) new ObservableImageVersionImpl((ImageVersion) semanticVersion, this);
          
          case DYNAMIC:
             LOG.warn("Incomplete implementation of dynamic semantic: " + 

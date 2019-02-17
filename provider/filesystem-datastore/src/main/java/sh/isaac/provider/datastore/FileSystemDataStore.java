@@ -510,9 +510,10 @@ public class FileSystemDataStore
    public void putAssemblageVersionType(int assemblageNid, VersionType type) throws IllegalStateException
    {
       VersionType oldValue = assemblageToVersionType_Map.computeIfAbsent(assemblageNid, (i -> type));
-      if (oldValue != type) {
+      if (oldValue != type && oldValue != VersionType.UNKNOWN) {
          throw new IllegalStateException("Tried to change the version type of " + assemblageNid + " from " + oldValue + " to " + type);
       }
+       assemblageToVersionType_Map.put(assemblageNid, type);
    }
 
    @Override
