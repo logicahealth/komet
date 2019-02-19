@@ -54,6 +54,8 @@ import sh.isaac.api.logic.LogicNode;
 public class RelationshipKey
          implements Comparable<RelationshipKey> {
    /** The concepts referenced at node or below. */
+   final int nodeId;
+   final boolean necessarySet;
    OpenIntHashSet conceptsReferencedAtNodeOrBelow = new OpenIntHashSet();
 
    //~--- constructors --------------------------------------------------------
@@ -65,6 +67,8 @@ public class RelationshipKey
     * @param expression the expression
     */
    public RelationshipKey(int nodeId, LogicalExpressionImpl expression) {
+      this.nodeId = nodeId;
+      this.necessarySet = expression.inNecessarySet(nodeId);
       addNodes(nodeId, expression);
    }
 
@@ -78,6 +82,9 @@ public class RelationshipKey
     */
    @Override
    public int compareTo(RelationshipKey o) {
+      if (this.necessarySet != o.necessarySet) {
+          return Boolean.compare(this.necessarySet, o.necessarySet);
+      }
       int comparison = Integer.compare(this.conceptsReferencedAtNodeOrBelow.size(), o.conceptsReferencedAtNodeOrBelow.size());
 
       if (comparison != 0) {
@@ -112,5 +119,12 @@ public class RelationshipKey
           addNodes(childNode.getNodeIndex(), expression);
       }
    }
+
+    @Override
+    public String toString() {
+        return "RelationshipKey{" + "nodeId=" + nodeId + ", in necessary set=" + necessarySet + ", conceptsReferencedAtNodeOrBelow=" + conceptsReferencedAtNodeOrBelow + '}';
+    }
+
+   
 }
 

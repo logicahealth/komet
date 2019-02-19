@@ -249,6 +249,8 @@ public class TaxonomyProvider
     public void updateStatus(ConceptChronology conceptChronology) {
         ChronologyUpdate.handleStatusUpdate(conceptChronology);
     }
+    
+       
 
     @Override
     public void updateTaxonomy(SemanticChronology logicGraphChronology) {
