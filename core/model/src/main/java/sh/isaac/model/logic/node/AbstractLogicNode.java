@@ -235,7 +235,7 @@ public abstract class AbstractLogicNode
     */
    @Override
    public int hashCode() {
-      return this.nodeIndex;
+      return this.getNodeSemantic().hashCode();
    }
 
    /**

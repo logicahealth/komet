@@ -250,15 +250,11 @@ public class TaxonomyProvider
         ChronologyUpdate.handleStatusUpdate(conceptChronology);
     }
     
-    ConceptProxy awHerniaProc = new ConceptProxy("Abdominal wall hernia procedure", UUID.fromString("cdbb6b72-fcfe-349a-818e-c388449f7e95"));
        
 
     @Override
     public void updateTaxonomy(SemanticChronology logicGraphChronology) {
         LOG.debug("Updating taxonomy for commit to {}", () -> logicGraphChronology.toString());
-        if (logicGraphChronology.getReferencedComponentNid() == awHerniaProc.getNid()) {
-            LOG.info("Found watch: " + awHerniaProc);
-        }
         try {
             ChronologyUpdate.handleTaxonomyUpdate(logicGraphChronology);
         } catch (Throwable e) {

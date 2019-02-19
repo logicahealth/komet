@@ -38,8 +38,10 @@ package sh.isaac.provider.datastore.chronology;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -167,6 +169,8 @@ public class ChronologyUpdate implements StaticIsaacCache {
 
         for (Graph<LogicGraphVersion> versionGraph : versionGraphList) {
             // this is the CPU hog...
+            // TODO: this unnecessaryily processes old versions. Should check for old version with 
+            // inferred/stated and stamp, and skip if it already exists. 
             processVersionNode(referencedComponentNid, versionGraph.getRoot(), taxonomyRecordForConcept, taxonomyFlags);
         }
         int[] start = taxonomyRecordForConcept.pack();
@@ -371,7 +375,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
             TaxonomyRecord taxonomyRecordForConcept,
             TaxonomyFlag taxonomyFlags,
             int stampSequence,
-            LogicalExpression comparisonExpression) {
+            LogicalExpression logicalExpression) {
         switch (logicNode.getNodeSemantic()) {
             case CONCEPT:
                 
@@ -418,7 +422,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
                         comparisonExpression);
                 isomorphicResults.call();
                 long elapsedTime = System.currentTimeMillis() - startTime;
-                if (verboseDebugEnabled && isomporphicTime.get() < elapsedTime) {
+                 if (verboseDebugEnabled && isomporphicTime.get() < elapsedTime) {
                     isomporphicTime.set(elapsedTime);
                     LOG.info("\n\n\nNew isomorphic record: " + elapsedTime + "\n" + isomorphicResults + "\n\n");
 
@@ -427,7 +431,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
                 }
                 processLogicalExpression(conceptNid, node,
                         taxonomyRecordForConcept,
-                        taxonomyFlags, comparisonExpression, isomorphicResults);
+                        taxonomyFlags, referenceExpression, isomorphicResults);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -449,6 +453,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
             TaxonomyRecord taxonomyRecordForConcept,
             TaxonomyFlag taxonomyFlags,
             LogicalExpression logicalExpression, IsomorphicResults isomorphicResults) {
+                
         LogicNode[] children = node.getData().getLogicalExpression().getRoot().getChildren();
         boolean necessaryOnly = false;
         if (children.length > 1) {
@@ -459,10 +464,12 @@ public class ChronologyUpdate implements StaticIsaacCache {
             }
         }
 
+        TreeSet<LogicNode> addedRoots = new TreeSet<>();
         for (LogicNode relationshipRoot : isomorphicResults.getAddedRelationshipRoots()) {
             if (necessaryOnly && relationshipRoot.hasParentSemantic(NodeSemantic.SUFFICIENT_SET)) {
                 continue;
             }
+            addedRoots.add(relationshipRoot);
             final int stampSequence = node.getData()
                     .getStampSequence();
 
@@ -475,6 +482,9 @@ public class ChronologyUpdate implements StaticIsaacCache {
         }
 
         for (LogicNode relationshipRoot : isomorphicResults.getDeletedRelationshipRoots()) {
+            if (addedRoots.contains(relationshipRoot)) {
+                continue;
+            }
             final int activeStampSequence = node.getData()
                     .getStampSequence();
             final int stampSequence = Get.stampService()

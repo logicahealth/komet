@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
@@ -1713,5 +1714,18 @@ public class LogicalExpressionImpl
             child.setParentIndex(parent.getNodeIndex());
             setParentIds(child);
         }
+    }
+
+    boolean inNecessarySet(int nodeId) {
+        setParentIds();
+        Optional<LogicNode> optionalParent = this.getNode(nodeId).getParent();
+        while (optionalParent.isPresent()) {
+            LogicNode parentNode = optionalParent.get();
+            if (parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET) {
+                return true;
+            }
+            optionalParent = parentNode.getParent();
+        }
+        return false;
     }
 }
