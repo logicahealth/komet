@@ -549,6 +549,12 @@ public class ConceptBuilderImpl
     }
 
     @Override
+    public ConceptBuilder addStringSemantic(String strValue, ConceptSpecification assemblage) {
+        addSemantic(Get.semanticBuilderService().getStringSemanticBuilder(strValue, this, assemblage.getNid()));
+        return this;
+    }
+
+    @Override
     public ConceptBuilder addFieldSemanticConcept(String fieldName, int fieldIndex) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

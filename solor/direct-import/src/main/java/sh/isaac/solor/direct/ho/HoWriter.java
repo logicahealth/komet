@@ -40,7 +40,6 @@ import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
@@ -53,8 +52,15 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.ALLERGEN_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HUMAN_DX_MODULE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.INEXACT_SNOMED_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.IS_CATEGORY_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.IS_DIAGNOSIS_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.LEGACY_HUMAN_DX_ROOT_CONCEPT;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.REFID_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.SNOMED_MAP_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.SNOMED_SIB_CHILD_ASSEMBLAGE;
 
 /**
  *
@@ -65,34 +71,121 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     //icf	icpc	loinc	mdc	mesh	radlex	rx_cui	snomed_ct	ccs-single_category_icd_10	ccs-multi_level_1_icd_10	ccs-multi_level_2_icd_10
     //Inexact RxNormS	Sibling/Child	Inexact SNOMED	Sibling/Child
 
+    //Name	
     public static final int NAME = 0;
+    //ref id	
     public static final int REFID = 1;
+    //Parent Names	
     public static final int PARENTS = 2;
-    public static final int ABBREVIATIONS = 3;
-    public static final int DESCRIPTION = 4;
-    public static final int IS_DIAGNOSIS = 5;
-    public static final int IS_CATEGORY = 6;
-    public static final int DEPRECATED = 7;
-    public static final int ICD10CM = 8;
-    public static final int ICD10PCS = 9;
-    public static final int ICD9CM = 10;
-    public static final int ICF = 11;
-    public static final int ICPC = 12;
-    public static final int LOINC = 13;
-    public static final int MDC = 14;
-    public static final int MESH = 15;
-    public static final int RADLEX = 16;
-    public static final int RXCUI = 17;
-    public static final int SNOMEDCT = 18;
-    public static final int CCS_SINGLE_CAT_ICD = 19;
-    public static final int CCS_MULTI_LEVEL_1_ICD = 20;
-    public static final int CCS_MULTI_LEVEL_2_ICD = 21;
-    public static final int INEXACT_RXNORM = 22;
-    public static final int RXNORM_SIB_CHILD = 23;
-    public static final int INEXACT_SNOMED = 24;
-    public static final int SNOMED_SIB_CHILD = 25;
+    //Parent Ref IDs	
+    public static final int REF_IDS = 3;
+    //Mapped to Allergen?	
+    public static final int ALLERGENS = 4;
+    //Abbreviations	
+    public static final int ABBREVIATIONS = 5;
+    //Description	
+    public static final int DESCRIPTION = 6;
+    //Is Diagnosis?	
+    public static final int IS_DIAGNOSIS = 7;
+    //Is category?	
+    public static final int IS_CATEGORY = 8;
+    //Deprecated	
+    public static final int DEPRECATED = 9;
+    //icd_10_cm	
+    public static final int ICD10CM = 10;
+    //icd_10_pcs	
+    public static final int ICD10PCS = 11;
+    //icd_9_cm	
+    public static final int ICD9CM = 12;
+    //icf	
+    public static final int ICF = 13;
+    //icpc	
+    public static final int ICPC = 14;
+    //loinc	
+    public static final int LOINC = 15;
+    //mdc	
+    public static final int MDC = 16;
+    //mesh	
+    public static final int MESH = 17;
+    //radlex	
+    public static final int RADLEX = 18;
+    //rx_cui	
+    public static final int RXCUI = 19;
+    //snomed_ct	
+     public static final int SNOMEDCT = 20;
+   //ccs-single_category_icd_10	
+    public static final int CCS_SINGLE_CAT_ICD = 21;
+    //ccs-multi_level_1_icd_10	
+    public static final int CCS_MULTI_LEVEL_1_ICD = 22;
+    //ccs-multi_level_2_icd_10	
+    public static final int CCS_MULTI_LEVEL_2_ICD = 23;
+    //Inexact RxNorm	
+    public static final int INEXACT_RXNORM = 24;
+    //RxNorm Sibling/Child	
+    public static final int RXNORM_SIB_CHILD = 25;
+    //Inexact SNOMED	
+    public static final int INEXACT_SNOMED = 26;
+    //SNOMED Sibling/Child	
+    public static final int SNOMED_SIB_CHILD = 27;
+    //icd_10_cm	
+    //icd_10_pcs	
+    //icd_9_cm	
+    //icf	
+    //icpc	
+    //loinc	
+    //mdc	
+    //mesh	
+    //radlex	
+    //rx_cui	
+    //snomed_ct	
+    //ccs-single_category_icd_10	
+    //ccs-multi_level_1_icd_10	
+    //ccs-multi_level_2_icd_10	
+    //Inexact RxNorm	
+    //RxNorm Sibling/Child	
+    //Inexact SNOMED	
+    //SNOMED Sibling/Child	
+    //icd_10_cm	
+    //icd_10_pcs
+    //icd_9_cm	
+    //icf	
+    //icpc	
+    //loinc	
+    //mdc	
+    //mesh	
+    //radlex	
+    //rx_cui	
+    //snomed_ct	
+    //ccs-single_category_icd_10	
+    //ccs-multi_level_1_icd_10	
+    //ccs-multi_level_2_icd_10	
+    //Inexact RxNorm	
+    //RxNorm Sibling/Child	
+    //Inexact SNOMED	
+    //SNOMED Sibling/Child	
+    //icd_10_cm	
+    //icd_10_pcs	
+    //icd_9_cm	
+    //icf	
+    //icpc	
+    //loinc	
+    //mdc	
+    //mesh	
+    //radlex	
+    //rx_cui	
+    //snomed_ct	
+    //ccs-single_category_icd_10	
+    //ccs-multi_level_1_icd_10	
+    //ccs-multi_level_2_icd_10	
+    //Inexact RxNorm	
+    //RxNorm Sibling/Child	
+    //Inexact SNOMED	
+    //SNOMED Sibling/Child
+    
 
 
+    
+    
     private final List<String[]> hoRecords;
     private final Semaphore writeSemaphore;
     private final List<IndexBuilderService> indexers;
@@ -164,7 +257,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                             }
                         }
                         // Need to create new concept, and a stated definition...
-                        buildConcept(conceptUuid, hoRec[NAME], recordStamp, parentNids);
+                        buildConcept(conceptUuid, hoRec[NAME], recordStamp, parentNids, hoRec);
+                        
                         
 //                        LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
 //                        
@@ -205,7 +299,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         }
     }
 
-    protected void buildConcept(UUID conceptUuid, String conceptName, int stamp, int[] parentConceptNids) throws IllegalStateException, NoSuchElementException {
+    protected void buildConcept(UUID conceptUuid, String conceptName, int stamp, int[] parentConceptNids, String[] hoRec) throws IllegalStateException, NoSuchElementException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
         
         ConceptAssertion[] parents = new ConceptAssertion[parentConceptNids.length];
@@ -219,6 +313,27 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 eb.build(),
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
         builder.setPrimordialUuid(conceptUuid);
+        if (!hoRec[REFID].isEmpty()) {
+            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+        }
+        if (!hoRec[ALLERGENS].isEmpty()) {
+            builder.addStringSemantic(hoRec[ALLERGENS], ALLERGEN_ASSEMBLAGE);
+        }
+        if (!hoRec[IS_DIAGNOSIS].isEmpty()) {
+            builder.addStringSemantic(hoRec[IS_DIAGNOSIS], IS_DIAGNOSIS_ASSEMBLAGE);
+        }
+        if (!hoRec[IS_CATEGORY].isEmpty()) {
+            builder.addStringSemantic(hoRec[IS_CATEGORY], IS_CATEGORY_ASSEMBLAGE);
+        }
+        if (!hoRec[SNOMEDCT].isEmpty()) {
+            builder.addStringSemantic(hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE);
+        }
+        if (!hoRec[INEXACT_SNOMED].isEmpty()) {
+            builder.addStringSemantic(hoRec[INEXACT_SNOMED], INEXACT_SNOMED_ASSEMBLAGE);
+        }
+        if (!hoRec[SNOMED_SIB_CHILD].isEmpty()) {
+            builder.addStringSemantic(hoRec[SNOMED_SIB_CHILD], SNOMED_SIB_CHILD_ASSEMBLAGE);
+        }
         List<Chronology> builtObjects = new ArrayList<>();
         builder.build(stamp, builtObjects);
         for (Chronology chronology : builtObjects) {

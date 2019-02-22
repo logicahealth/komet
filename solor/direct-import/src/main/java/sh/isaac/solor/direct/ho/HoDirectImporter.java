@@ -66,6 +66,15 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     public final static ConceptProxy LEGACY_HUMAN_DX_ROOT_CONCEPT = new ConceptProxy("Legacy deprecated Human Dx concept", UUID.fromString("29d825d3-6536-4bb8-8ea6-844dfcb3e8f8"));
     public final static ConceptProxy HUMAN_DX_MODULE = new ConceptProxy("Human Dx module", UUID.fromString("f4904690-b9f7-489b-ab63-f649a001a074"));
 
+    
+    public final static ConceptProxy REFID_ASSEMBLAGE = new ConceptProxy("refid", UUID.fromString("c7290eda-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy ALLERGEN_ASSEMBLAGE = new ConceptProxy("Allergen", UUID.fromString("c7291164-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy IS_DIAGNOSIS_ASSEMBLAGE = new ConceptProxy("Diagnosis", UUID.fromString("c729136c-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy IS_CATEGORY_ASSEMBLAGE = new ConceptProxy("Category", UUID.fromString("c72915f6-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy SNOMED_MAP_ASSEMBLAGE = new ConceptProxy("SNOMED ID", UUID.fromString("c7291754-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy INEXACT_SNOMED_ASSEMBLAGE = new ConceptProxy("Inexact SNOMED match", UUID.fromString("c729188a-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy SNOMED_SIB_CHILD_ASSEMBLAGE = new ConceptProxy("SNOMED sibling/child", UUID.fromString("c7291a10-3655-11e9-b210-d663bd873d93"));
+    
     private static final int WRITE_PERMITS = Runtime.getRuntime()
             .availableProcessors() * 2;
 
@@ -96,6 +105,27 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             
             buildConcept(HUMAN_DX_MODULE.getPrimordialUuid(), 
                     HUMAN_DX_MODULE.getFullyQualifiedName(), stamp, MetaData.MODULE____SOLOR.getNid());           
+            
+            buildConcept(REFID_ASSEMBLAGE.getPrimordialUuid(), 
+                    REFID_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(ALLERGEN_ASSEMBLAGE.getPrimordialUuid(), 
+                    ALLERGEN_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(IS_DIAGNOSIS_ASSEMBLAGE.getPrimordialUuid(), 
+                    IS_DIAGNOSIS_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(IS_CATEGORY_ASSEMBLAGE.getPrimordialUuid(), 
+                    IS_CATEGORY_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(SNOMED_MAP_ASSEMBLAGE.getPrimordialUuid(), 
+                    SNOMED_MAP_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(INEXACT_SNOMED_ASSEMBLAGE.getPrimordialUuid(), 
+                    INEXACT_SNOMED_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(SNOMED_SIB_CHILD_ASSEMBLAGE.getPrimordialUuid(), 
+                    SNOMED_SIB_CHILD_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
             
             
             File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
