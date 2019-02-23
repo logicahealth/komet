@@ -159,6 +159,8 @@ public interface ConceptBuilder
 
     ConceptBuilder addComponentSemantic(ConceptSpecification semanticSpecification, ConceptSpecification assemblage);
     
+    ConceptBuilder addStringSemantic(String component, ConceptSpecification assemblage);
+        
     ConceptBuilder addFieldSemanticConcept(String fieldName, int fieldIndex);
 
     default ConceptBuilder addFieldSemanticConcept(ConceptSpecification fieldSpecification, int fieldIndex) {
