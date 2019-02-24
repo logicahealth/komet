@@ -60,7 +60,6 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.komet.gui.treeview.MultiParentTreeCell;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
@@ -234,7 +233,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
                 this.searchTagFlowPane.getChildren().removeAll(labelFromDrop);
 
                 this.draggedTaxonomyConceptsForFilteringListProperty.get()
-                        .remove((Object)((ConceptChronology)labelFromDrop.getUserData()).getNid());
+                        .remove((Integer)((ConceptChronology)labelFromDrop.getUserData()).getNid());
             });
 
             labelFromDrop.setTooltip(dragAndDropToolTip);
