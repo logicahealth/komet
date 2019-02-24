@@ -29,6 +29,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.CompositeQueryResult;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.QueryHandle;
+import sh.isaac.api.util.UUIDUtil;
 
 /**
  * @author aks8m
@@ -80,21 +81,23 @@ public class SimpleSearchService extends Service<NidSet> {
             private void runLuceneDescriptionQuery(NidSet results) {
                 updateProgress(computeProgress(PROGRESS_INCREMENT_VALUE), PROGRESS_MAX_VALUE);
                 String queryString = getLuceneQuery();
-                // Special handling to remove check digit from LOINC code query. 
-                if (queryString.charAt(queryString.length() -2) == '-') {
-                    queryString = queryString.substring(0, queryString.length() -2);
+                if (!UUIDUtil.isUUID(queryString)) {
+                    // Special handling to remove check digit from LOINC code query. 
+                    if (queryString.charAt(queryString.length() - 2) == '-') {
+                        queryString = queryString.substring(0, queryString.length() - 2);
+                    }
+
+                    descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), queryString);
+
+                    Map<ConceptSpecification, NidSet> incomingPossibleComponents = new HashMap<>();
+                    incomingPossibleComponents.put(TermAux.ENGLISH_LANGUAGE, NidSet.of(Get.identifierService().getNidsForAssemblage(TermAux.ENGLISH_LANGUAGE)));
+                    descriptionLuceneMatch.setAssemblageForIteration(TermAux.ENGLISH_LANGUAGE);
+
+                    Map<ConceptSpecification, NidSet> resultsMap = descriptionLuceneMatch.computePossibleComponents(incomingPossibleComponents);
+                    results.addAll(resultsMap.get(TermAux.ENGLISH_LANGUAGE));
                 }
-                
-                descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), queryString);
-                
-                Map<ConceptSpecification, NidSet> incomingPossibleComponents = new HashMap<>();
-                incomingPossibleComponents.put(TermAux.ENGLISH_LANGUAGE, NidSet.of(Get.identifierService().getNidsForAssemblage(TermAux.ENGLISH_LANGUAGE)));
-                descriptionLuceneMatch.setAssemblageForIteration(TermAux.ENGLISH_LANGUAGE);
-                
-                Map<ConceptSpecification, NidSet> resultsMap = descriptionLuceneMatch.computePossibleComponents(incomingPossibleComponents);
-                results.addAll(resultsMap.get(TermAux.ENGLISH_LANGUAGE));
                 if (results.isEmpty()) {
-                    
+
                     try {
                         CountDownLatch searchComplete = new CountDownLatch(1);
                         QueryHandle ssh = Get.queryHandler().searchIdentifiers(queryString,
@@ -115,7 +118,7 @@ public class SimpleSearchService extends Service<NidSet> {
                                 }),
                                 null, null, true, manifold, false, null,
                                 null, 10);
-                        
+
                         searchComplete.await();
                     } catch (InterruptedException ex) {
                         LOG.error(ex.getLocalizedMessage(), ex);
