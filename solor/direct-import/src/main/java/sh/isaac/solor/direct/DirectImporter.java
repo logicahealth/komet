@@ -167,14 +167,6 @@ public class DirectImporter
 
                 if (fileCount == 0) {
                     System.out.println("Import from: " + importDirectory.getAbsolutePath() + " failed.");
-
-                    File fallbackDirectory = new File("/Users/kec/isaac/import");
-
-                    if (fallbackDirectory.exists()) {
-                        System.out.println("Fallback import from: " + fallbackDirectory.getAbsolutePath());
-                        updateTitle("Importing from " + fallbackDirectory.getAbsolutePath());
-                        loadDatabase(fallbackDirectory, time);
-                    }
                 }
             }
 

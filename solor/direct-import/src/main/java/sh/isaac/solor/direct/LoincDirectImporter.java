@@ -51,6 +51,8 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
             .availableProcessors() * 2;
 
     public static HashSet<String> watchTokens = new HashSet<>();
+    
+    public boolean foundLoinc = false;
 
     //~--- fields --------------------------------------------------------------
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
@@ -72,14 +74,6 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
 
             if (fileCount == 0) {
                 System.out.println("Import from: " + importDirectory.getAbsolutePath() + " failed.");
-
-                File fallbackDirectory = new File("/Users/kec/isaac/import");
-
-                if (fallbackDirectory.exists()) {
-                    System.out.println("Fallback import from: " + fallbackDirectory.getAbsolutePath());
-                    updateTitle("Importing from " + fallbackDirectory.getAbsolutePath());
-                    loadDatabase(fallbackDirectory);
-                }
             }
 
             return null;
@@ -114,6 +108,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
                     String entryName = entry.getName()
                             .toLowerCase();
                     if (entryName.endsWith("loinc.csv")) {
+                        foundLoinc = true;
                         try (CSVReader reader
                                 = new CSVReader(new BufferedReader(
                                         new InputStreamReader(zipFile.getInputStream(entry),
@@ -216,6 +211,10 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
             }
         }
         return columns;
+    }
+
+    public boolean foundLoinc() {
+        return foundLoinc;
     }
 
 }

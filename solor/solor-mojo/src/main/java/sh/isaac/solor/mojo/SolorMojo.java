@@ -102,7 +102,7 @@ public class SolorMojo extends AbstractMojo {
             loincImporter.run();
             LookupService.syncAll();
             if (transform) {
-               //TODO change how we get the edit coordinates. 
+                //TODO change how we get the edit coordinates. 
                 ManifoldCoordinate coordinate = Get.coordinateFactory().createDefaultStatedManifoldCoordinate();
                 EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
 
@@ -111,16 +111,17 @@ public class SolorMojo extends AbstractMojo {
                 Future<?> transformTask = Get.executor().submit(transformer);
                 transformTask.get();
 
-                getLog().info("Convert LOINC expressions...");
-                LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
-                Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
-                convertLoincTask.get();
+                if (loincImporter.foundLoinc()) {
+                    getLog().info("Convert LOINC expressions...");
+                    LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
+                    Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
+                    convertLoincTask.get();
 
-                getLog().info("Adding navigation concepts...");
-                LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(coordinate);
-                Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
-                addNavigationConceptsTask.get();
-
+                    getLog().info("Adding navigation concepts...");
+                    LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(coordinate);
+                    Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
+                    addNavigationConceptsTask.get();
+                }
                 getLog().info("Classifying new content...");
                 Task<ClassifierResults> classifierResultsTask
                         = Get.logicService().getClassifierService(coordinate, editCoordinate).classify();
