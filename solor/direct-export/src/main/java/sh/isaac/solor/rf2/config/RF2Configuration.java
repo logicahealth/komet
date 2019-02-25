@@ -270,6 +270,7 @@ public class RF2Configuration {
 
         switch (this.rf2ConfigType){
             case CONCEPT:
+            case IDENTIFIER:
                 this.intStreamSupplier = () -> Get.conceptService().getConceptNidStream();
                 break;
             case DESCRIPTION:
@@ -283,10 +284,6 @@ public class RF2Configuration {
                 break;
             case STATED_RELATIONSHIP:
                 this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid());
-                break;
-            case IDENTIFIER:
-                this.intStreamSupplier = () -> IntStream.concat(
-                        Get.conceptService().getConceptNidStream(), Get.assemblageService().getSemanticNidStream());
                 break;
             case TRANSITIVE_CLOSURE:
                 this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid());

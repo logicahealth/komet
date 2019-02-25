@@ -37,6 +37,9 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
         this.rf2ExportHelper = rf2ExportHelper;
         this.intStream = intStream;
         this.readSemaphore = readSemaphore;
+
+        readSemaphore.acquireUninterruptibly();
+        Get.activeTasks().add(this);
     }
 
     @Override

@@ -41,6 +41,8 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
             this.intStream
                     .forEach(nid -> {
 
+                        linesToWrite.setLength(0);
+
                         Get.assemblageService().getSemanticChronology(nid).getVersionList().stream()
                                 .forEach(version -> {
 
