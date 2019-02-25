@@ -1,6 +1,8 @@
 package sh.isaac.solor.rf2.exporters.core;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.exporters.RF2DefaultExporter;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
@@ -29,13 +31,25 @@ public class RF2ConceptExporter extends RF2DefaultExporter {
     protected Void call() {
         try {
 
+            final StringBuilder linesToWrite = new StringBuilder();
+
             this.intStream
-                    .forEach(nid -> super.writeStringToFile(
-                            this.rf2ExportHelper.getRF2CommonElements(nid)
-                                    .append(this.rf2ExportHelper.getConceptPrimitiveOrSufficientDefinedSCTID(nid))
-                                    .append("\r")
-                                    .toString()
-                    ));
+                    .forEach(nid ->{
+
+                        linesToWrite.setLength(0);
+
+                        for(Version version : Get.concept(nid).getVersionList()){
+                            linesToWrite
+                                    .append(this.rf2ExportHelper.getIdString(version) + "\t")
+                                    .append(this.rf2ExportHelper.getTimeString(version) + "\t")
+                                    .append(this.rf2ExportHelper.getActiveString(version) + "\t")
+                                    .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
+                                    .append(this.rf2ExportHelper.getConceptPrimitiveOrSufficientDefinedSCTID((ConceptVersion)version))
+                                    .append("\r");
+                        }
+
+                        super.writeStringToFile(linesToWrite.toString());
+                    });
 
         }finally {
             this.readSemaphore.release();
