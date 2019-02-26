@@ -113,7 +113,10 @@ public class RF2Configuration {
                         .append("\t");
             }
 
-            this.fileHeader = stringBuilder.append("\r").toString();
+            String dynamicHeader = stringBuilder.toString().substring(0, stringBuilder.length() -2);
+
+
+            this.fileHeader = dynamicHeader + "\r";
         }else{
 
             if(this.rf2ConfigType.equals(RF2ConfigType.LANGUAGE_REFSET)) {
@@ -254,6 +257,19 @@ public class RF2Configuration {
                                     this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t6\r");
                                     this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t7\r");
                                     break;
+                                case LOINC_RECORD:
+                                    this.fileHeader = rf2ConfigType.getFileHeader() + "loincNum\tcomponent\tproperty\ttimeAspect\tsystem\tscaleType\tmethodType\tstatus\tshortName\tlongCommonName\r";
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + "449608002\t900000000000461009\t0\r");
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t1\r");
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t2\r");
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t3\r");
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t4\r");
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t5\r");
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t6\r");
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t7\r");
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t8\r");
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t9\r");
+                                    this.refsetDescriptorDefinitions.add(descritorStringBuilder.toString() + stringFieldDescription + "\t" + "707000009\t10\r");
                             }
                         });
             }
@@ -362,6 +378,9 @@ public class RF2Configuration {
                 break;
             case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
                 pattern = "sssssss";
+                break;
+            case LOINC_RECORD:
+                pattern = "ssssssssss";
                 break;
         }
 

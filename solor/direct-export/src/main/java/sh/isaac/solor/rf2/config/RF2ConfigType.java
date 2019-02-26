@@ -1,14 +1,5 @@
 package sh.isaac.solor.rf2.config;
 
-import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.VersionType;
-
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 public enum RF2ConfigType {
 
     CONCEPT("id\teffectiveTime\tactive\tmoduleId\tdefinitionStatusId\r",
@@ -28,14 +19,14 @@ public enum RF2ConfigType {
             "Relationship"
     ),
 
-    STATED_RELATIONSHIP("id\teffectiveTime\tactive\tmoduleId\tsourceId\tdestinationId\r" +
+    STATED_RELATIONSHIP("id\teffectiveTime\tactive\tmoduleId\tsourceId\tdestinationId\t" +
             "\trelationshipGroup\ttypeId\tcharacteristicTypeId\tmodifierId\r",
             "Full/Terminology/sct2_StatedRelationship_Full_TIME2.txt",
             "Stated Relationship"
     ),
 
     IDENTIFIER("identifierSchemeId\talternateIdentifier\teffectiveTime\tactive\tmoduleId\treferencedComponentId\r",
-            "Full/Terminology/sct2_Identifier_Full_TIME2.txt",
+            "Full/Terminology/sct2_Identifier_Full__TIME2.txt",
             "Identifier"
     ),
 
