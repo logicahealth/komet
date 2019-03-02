@@ -1,5 +1,7 @@
 package sh.isaac.solor.rf2.exporters;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.solor.rf2.config.RF2Configuration;
 
@@ -15,6 +17,7 @@ import java.util.List;
  */
 public abstract class RF2DefaultExporter extends TimedTaskWithProgressTracker<Void> {
 
+    protected static final Logger LOG = LogManager.getLogger();
     private final RF2Configuration rf2Configuration;
 
     public RF2DefaultExporter(RF2Configuration rf2Configuration) {
@@ -39,14 +42,23 @@ public abstract class RF2DefaultExporter extends TimedTaskWithProgressTracker<Vo
     }
 
     protected void writeStringToFile(String stringToWrite){
-        try {
-            Files.write(rf2Configuration.getFilePath(), stringToWrite.getBytes(Charset.forName("UTF-8")), StandardOpenOption.APPEND);
-        }catch (Exception ioE ){
-            ioE.printStackTrace();
+
+        if(stringToWrite != null) {
+            try {
+                Files.write(rf2Configuration.getFilePath(), stringToWrite.getBytes(Charset.forName("UTF-8")), StandardOpenOption.APPEND);
+            } catch (Exception ioE) {
+                ioE.printStackTrace();
+            }
+        }else{
+            LOG.warn("Can't write NULL string to file: " + this.rf2Configuration.getFilePath());
         }
     }
 
     protected void writeStringsToFile(List<String> strings){
-        strings.stream().forEach(this::writeStringToFile);
+        if(strings.size() > 0) {
+            strings.stream().forEach(this::writeStringToFile);
+        }else {
+            LOG.warn("Can't write NULL List<String> to file: " + this.rf2Configuration.getFilePath());
+        }
     }
 }

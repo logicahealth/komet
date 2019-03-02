@@ -95,7 +95,7 @@ public class RF2TransitiveClosureExporter extends RF2DefaultExporter {
 
                             linesToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
-                                    .append(this.rf2ExportHelper.getIdString(identifierSchemeProxy.getNid()) + "\t")
+                                    .append(this.rf2ExportHelper.getIdString(identifierSchemeProxy.getNid()))
                                     .append("\r");
                         }
                     });
@@ -112,7 +112,7 @@ public class RF2TransitiveClosureExporter extends RF2DefaultExporter {
 
                             linesToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
-                                    .append(this.rf2ExportHelper.getIdString(moduleProxy.getNid()) + "\t")
+                                    .append(this.rf2ExportHelper.getIdString(moduleProxy.getNid()))
                                     .append("\r");
                         }
                     });
@@ -131,7 +131,7 @@ public class RF2TransitiveClosureExporter extends RF2DefaultExporter {
 
                             linesToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
-                                    .append(this.rf2ExportHelper.getIdString(attributeTypeProxy.getNid()) + "\t")
+                                    .append(this.rf2ExportHelper.getIdString(attributeTypeProxy.getNid()))
                                     .append("\r");
                         }
                     });

@@ -37,6 +37,9 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
         this.rf2ExportHelper = rf2ExportHelper;
         this.intStream = intStream;
         this.readSemaphore = readSemaphore;
+
+        readSemaphore.acquireUninterruptibly();
+        Get.activeTasks().add(this);
     }
 
     @Override
@@ -79,7 +82,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
                                             .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
                                             .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
                                             .append(this.rf2ExportHelper.getTimeString(version) + "\t")
-                                            .append(this.rf2ExportHelper.getActiveString(version) + "\t")
+                                            .append(this.rf2ExportHelper.getActiveString(version))
                                             .append("\r");
 
                                 }
@@ -115,7 +118,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
                             linesToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
                                     .append(this.rf2ExportHelper.getIdString(identifierSchemeProxy.getNid()) + "\t")
-                                    .append(new SimpleDateFormat("YYYYMMdd").format(new Date(time)) + "\t")
+                                    .append(new SimpleDateFormat("YYYYMMdd").format(new Date(time)))
                                     .append("1" + "\t")
                                     .append("\r");
                         }
@@ -134,7 +137,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
                             linesToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
                                     .append(this.rf2ExportHelper.getIdString(moduleProxy.getNid()) + "\t")
-                                    .append(new SimpleDateFormat("YYYYMMdd").format(new Date(time)) + "\t")
+                                    .append(new SimpleDateFormat("YYYYMMdd").format(new Date(time)))
                                     .append("1" + "\t")
                                     .append("\r");
                         }
@@ -155,7 +158,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
                             linesToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
                                     .append(this.rf2ExportHelper.getIdString(attributeTypeProxy.getNid()) + "\t")
-                                    .append(new SimpleDateFormat("YYYYMMdd").format(new Date(time)) + "\t")
+                                    .append(new SimpleDateFormat("YYYYMMdd").format(new Date(time)))
                                     .append("1" + "\t")
                                     .append("\r");
                         }

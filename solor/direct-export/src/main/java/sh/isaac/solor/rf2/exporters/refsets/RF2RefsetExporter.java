@@ -41,6 +41,8 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
             this.intStream
                     .forEach(nid -> {
 
+                        linesToWrite.setLength(0);
+
                         Get.assemblageService().getSemanticChronology(nid).getVersionList().stream()
                                 .forEach(version -> {
 
@@ -62,39 +64,39 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
 
                                             linesToWrite
                                                     .append(this.rf2ExportHelper.getIdString(((Nid1_Int2_Version)version).getNid1()) + "\t")
-                                                    .append(((Nid1_Int2_Version)version).getInt2() + "\t");
+                                                    .append(((Nid1_Int2_Version)version).getInt2());
                                             break;
                                         case Nid1_Nid2:
 
                                             linesToWrite
                                                     .append(this.rf2ExportHelper.getIdString(((Nid1_Nid2_Version)version).getNid1()) + "\t")
-                                                    .append(this.rf2ExportHelper.getIdString(((Nid1_Nid2_Version)version).getNid2()) + "\t");
+                                                    .append(this.rf2ExportHelper.getIdString(((Nid1_Nid2_Version)version).getNid2()));
                                             break;
                                         case Nid1_Str2:
 
                                             linesToWrite
                                                     .append(this.rf2ExportHelper.getIdString(((Nid1_Str2_Version)version).getNid1()) + "\t")
-                                                    .append(((Nid1_Str2_Version)version).getStr2() + "\t");
+                                                    .append(((Nid1_Str2_Version)version).getStr2());
                                             break;
                                         case Str1_Str2:
 
                                             linesToWrite
                                                     .append(((Str1_Str2_Version)version).getStr1() + "\t")
-                                                    .append(((Str1_Str2_Version)version).getStr2() + "\t");
+                                                    .append(((Str1_Str2_Version)version).getStr2());
                                             break;
                                         case Nid1_Nid2_Str3:
 
                                             linesToWrite
                                                     .append(this.rf2ExportHelper.getIdString(((Nid1_Nid2_Str3_Version)version).getNid1()) + "\t")
                                                     .append(this.rf2ExportHelper.getIdString(((Nid1_Nid2_Str3_Version)version).getNid2()) + "\t")
-                                                    .append(((Nid1_Nid2_Str3_Version)version).getStr3() + "\t");
+                                                    .append(((Nid1_Nid2_Str3_Version)version).getStr3());
                                             break;
                                         case Nid1_Nid2_Int3:
 
                                             linesToWrite
                                                     .append(this.rf2ExportHelper.getIdString(((Nid1_Nid2_Int3_Version)version).getNid1()) + "\t")
                                                     .append(this.rf2ExportHelper.getIdString(((Nid1_Nid2_Int3_Version)version).getNid2()) + "\t")
-                                                    .append(((Nid1_Nid2_Int3_Version)version).getInt3() + "\t");
+                                                    .append(((Nid1_Nid2_Int3_Version)version).getInt3());
                                             break;
                                         case Str1_Nid2_Nid3_Nid4:
 
@@ -102,7 +104,7 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
                                                     .append(((Str1_Nid2_Nid3_Nid4_Version)version).getStr1() + "\t")
                                                     .append(this.rf2ExportHelper.getIdString(((Str1_Nid2_Nid3_Nid4_Version)version).getNid2()) + "\t")
                                                     .append(this.rf2ExportHelper.getIdString(((Str1_Nid2_Nid3_Nid4_Version)version).getNid3()) + "\t")
-                                                    .append(this.rf2ExportHelper.getIdString(((Str1_Nid2_Nid3_Nid4_Version)version).getNid4()) + "\t");
+                                                    .append(this.rf2ExportHelper.getIdString(((Str1_Nid2_Nid3_Nid4_Version)version).getNid4()));
                                             break;
                                         case Str1_Str2_Nid3_Nid4:
 
@@ -110,7 +112,7 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
                                                     .append(((Str1_Str2_Nid3_Nid4_Version)version).getStr1() + "\t")
                                                     .append(((Str1_Str2_Nid3_Nid4_Version)version).getStr2() + "\t")
                                                     .append(this.rf2ExportHelper.getIdString(((Str1_Str2_Nid3_Nid4_Version)version).getNid3()) + "\t")
-                                                    .append(this.rf2ExportHelper.getIdString(((Str1_Str2_Nid3_Nid4_Version)version).getNid4()) + "\t");
+                                                    .append(this.rf2ExportHelper.getIdString(((Str1_Str2_Nid3_Nid4_Version)version).getNid4()));
                                             break;
                                         case Str1_Str2_Nid3_Nid4_Nid5:
 
@@ -119,7 +121,7 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
                                                     .append(((Str1_Str2_Nid3_Nid4_Nid5_Version)version).getStr2() + "\t")
                                                     .append(this.rf2ExportHelper.getIdString(((Str1_Str2_Nid3_Nid4_Nid5_Version)version).getNid3()) + "\t")
                                                     .append(this.rf2ExportHelper.getIdString(((Str1_Str2_Nid3_Nid4_Nid5_Version)version).getNid4()) + "\t")
-                                                    .append(this.rf2ExportHelper.getIdString(((Str1_Str2_Nid3_Nid4_Nid5_Version)version).getNid5()) + "\t");
+                                                    .append(this.rf2ExportHelper.getIdString(((Str1_Str2_Nid3_Nid4_Nid5_Version)version).getNid5()));
                                             break;
                                         case Nid1_Int2_Str3_Str4_Nid5_Nid6:
 
@@ -129,7 +131,7 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
                                                     .append(((Nid1_Int2_Str3_Str4_Nid5_Nid6_Version)version).getStr3() + "\t")
                                                     .append(((Nid1_Int2_Str3_Str4_Nid5_Nid6_Version)version).getStr4() + "\t")
                                                     .append(this.rf2ExportHelper.getIdString(((Nid1_Int2_Str3_Str4_Nid5_Nid6_Version)version).getNid5()) + "\t")
-                                                    .append(this.rf2ExportHelper.getIdString(((Nid1_Int2_Str3_Str4_Nid5_Nid6_Version)version).getNid6()) + "\t");
+                                                    .append(this.rf2ExportHelper.getIdString(((Nid1_Int2_Str3_Str4_Nid5_Nid6_Version)version).getNid6()));
                                             break;
                                         case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
 
@@ -140,7 +142,7 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
                                                     .append(((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version)version).getStr4() + "\t")
                                                     .append(((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version)version).getStr5() + "\t")
                                                     .append(this.rf2ExportHelper.getIdString(((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version)version).getNid6()) + "\t")
-                                                    .append(this.rf2ExportHelper.getIdString(((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version)version).getNid7()) + "\t");
+                                                    .append(this.rf2ExportHelper.getIdString(((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version)version).getNid7()));
                                             break;
                                         case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
 
@@ -151,38 +153,39 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
                                                     .append(((Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version)version).getStr4() + "\t")
                                                     .append(((Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version)version).getStr5() + "\t")
                                                     .append(((Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version)version).getStr6() + "\t")
-                                                    .append(((Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version)version).getStr7() + "\t");
+                                                    .append(((Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version)version).getStr7());
                                             break;
                                         case LONG:
 
                                             linesToWrite
-                                                    .append(((LongVersion)version).getLongValue() + "\t");
+                                                    .append(((LongVersion)version).getLongValue());
                                             break;
                                         case STRING:
 
                                             linesToWrite
-                                                    .append(((StringVersion)version).getString() + "\t");
+                                                    .append(((StringVersion)version).getString());
                                             break;
                                         case DYNAMIC:
                                             break;
                                         case LOINC_RECORD:
 
                                             linesToWrite
-                                                    .append(((LoincVersion)version).getComponent() + "\t")
                                                     .append(((LoincVersion)version).getLoincNum() + "\t")
-                                                    .append(((LoincVersion)version).getLongCommonName() + "\t")
-                                                    .append(((LoincVersion)version).getMethodType() + "\t")
+                                                    .append(((LoincVersion)version).getComponent() + "\t")
                                                     .append(((LoincVersion)version).getProperty() + "\t")
-                                                    .append(((LoincVersion)version).getScaleType() + "\t")
-                                                    .append(((LoincVersion)version).getShortName() + "\t")
-                                                    .append(((LoincVersion)version).getLoincStatus() + "\t")
+                                                    .append(((LoincVersion)version).getTimeAspect() + "\t")
                                                     .append(((LoincVersion)version).getSystem() + "\t")
-                                                    .append(((LoincVersion)version).getTimeAspect() + "\t");
+                                                    .append(((LoincVersion)version).getScaleType() + "\t")
+                                                    .append(((LoincVersion)version).getMethodType() + "\t")
+                                                    .append(((LoincVersion)version).getLoincStatus() + "\t")
+                                                    .append(((LoincVersion)version).getShortName() + "\t")
+                                                    .append(((LoincVersion)version).getLongCommonName());
+
                                             break;
                                         case COMPONENT_NID:
 
                                             linesToWrite
-                                                    .append(this.rf2ExportHelper.getIdString(((ComponentNidVersion)version).getComponentNid()) + "\t");
+                                                    .append(this.rf2ExportHelper.getIdString(((ComponentNidVersion)version).getComponentNid()));
                                             break;
                                     }
                                     linesToWrite.append("\r");

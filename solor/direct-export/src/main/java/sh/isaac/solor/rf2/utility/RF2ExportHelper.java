@@ -86,7 +86,7 @@ public class RF2ExportHelper {
     }
 
     public String getTimeString(Version version){
-        return new SimpleDateFormat("YYYYMMdd").format(new Date(version.getTime()));
+        return new SimpleDateFormat("yyyymmdd").format(new Date(version.getTime()));
     }
 
     public String getActiveString(Version version){
