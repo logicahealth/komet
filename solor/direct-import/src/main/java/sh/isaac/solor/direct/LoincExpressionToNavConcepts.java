@@ -211,7 +211,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(new ConceptProxy("Automatic", UUID.fromString("3bd927e3-db01-3af7-a9fb-ef82e8ed366d")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Automated count technique (qualifier value)", UUID.fromString("abd11755-7337-3802-86ea-bcfa94df8523")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Azure-eosin stain method (procedure)", UUID.fromString("12c85de6-ce8c-3937-adb2-239cf849d373")).getNid(), builderService, stamp);
-                addObservedByMethod(new ConceptProxy("Brigance Screens-II (assessment scale)", UUID.fromString("428c9add-15eb-3732-a2e9-cfa1dc225cf2")).getNid(), builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Brigance Screens-II (assessment scale)", UUID.fromString("03ba4778-b8b7-3e42-88ca-b0f0cc60777c")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Bacterial subtyping (procedure)", UUID.fromString("9a0de789-9cda-34f9-b11b-c713bb3841dc")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Banding (procedure)", UUID.fromString("d859b722-6cd9-3e0f-b241-b0046bbae10d")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Fuchsin basic stain method (procedure)", UUID.fromString("6fc05803-283f-3bad-8284-e106d09b40f7")).getNid(), builderService, stamp);
@@ -226,7 +226,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(new ConceptProxy("Brown-Brenn stain method (procedure)", UUID.fromString("4e333536-5077-3a5f-889c-1230bbc48b12")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Butyrate esterase stain method (procedure)", UUID.fromString("80394986-57c2-3df6-970c-5e54e6721c03")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Complement component 3b binding assay", UUID.fromString("992aedf2-201c-3f58-9e77-5f2f44f6b6b1")).getNid(), builderService, stamp);
-                addObservedByMethod(new ConceptProxy("Child Development Inventory (assessment scale)", UUID.fromString("641f97c2-5d00-3e27-a431-b236c8d8c268")).getNid(), builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Child Development Inventory (assessment scale)", UUID.fromString("f12d0775-85a5-38aa-8233-6697c28ed3ed")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Dementia rating scale", UUID.fromString("c7ab9895-e80d-3a7c-b974-4a09b712ffcb")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Countercurrent electrophoresis measurement (procedure)", UUID.fromString("f1342b58-9c71-336e-8708-392ce418d7b7")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Connecticut (geographic location)", UUID.fromString("4a5e423c-e462-3eab-a3ac-22fdc5abd195")).getNid(), builderService, stamp);
@@ -365,7 +365,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(new ConceptProxy("Low ionic strength saline technique (qualifier value)", UUID.fromString("66e88940-0069-3e72-b7b4-f603cdd8dea7")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Peritoneoscopy", UUID.fromString("2a9c218b-2883-3af0-8a08-f6580fab9bb1")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Lawson-Van Gieson stain method (procedure)", UUID.fromString("d48712e2-305c-3da5-8937-981188ddd75c")).getNid(), builderService, stamp);
-                addObservedByMethod(new ConceptProxy("Licensed practical nurse (occupation)", UUID.fromString("a10839d5-6433-3d1c-a57b-fc4a439fa1b8")).getNid(), builderService, stamp);
+//                addObservedByMethod(new ConceptProxy("Licensed practical nurse (occupation)", UUID.fromString("a10839d5-6433-3d1c-a57b-fc4a439fa1b8")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Luxol fast blue with cresyl violet stain method (procedure)", UUID.fromString("dd4280c5-a1f4-36f8-8bec-4f6ea4a3e413")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Luxol fast blue with Periodic acid-Schiff stain method (procedure)", UUID.fromString("0e45ddea-794f-31e8-b884-ed92d59b348e")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("M'fadyean stain", UUID.fromString("680753b0-b7ef-3cdc-a6d5-4211539f5810")).getNid(), builderService, stamp);

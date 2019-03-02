@@ -565,12 +565,4 @@ public class ConceptBuilderImpl
         addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(conceptUuid), fieldIndex, this, TermAux.SEMANTIC_TYPE.getNid()));
         return this;
     }
-
-   @Override
-   public ConceptBuilder addStringSemantic(String text, ConceptSpecification assemblage) {
-      addSemantic(Get.semanticBuilderService().getStringSemanticBuilder(text,
-              this,
-              assemblage.getNid()));
-      return this;
-   }
 }

@@ -150,7 +150,7 @@ public interface ConceptBuilder
      * or an assemblage concept with the field concepts. 
      * @param componentUuid
      * @param fieldIndex
-     * @param assemblageUuid
+     * @param assemblage
      * @return the ConceptBuilder for a fluent interface. 
      */
     ConceptBuilder addComponentIntSemantic(ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage);
@@ -158,9 +158,7 @@ public interface ConceptBuilder
     ConceptBuilder addStringSemantic(String text, ConceptSpecification assemblage);
 
     ConceptBuilder addComponentSemantic(ConceptSpecification semanticSpecification, ConceptSpecification assemblage);
-    
-    ConceptBuilder addStringSemantic(String component, ConceptSpecification assemblage);
-        
+
     ConceptBuilder addFieldSemanticConcept(String fieldName, int fieldIndex);
 
     default ConceptBuilder addFieldSemanticConcept(ConceptSpecification fieldSpecification, int fieldIndex) {

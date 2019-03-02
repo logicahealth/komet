@@ -2,7 +2,6 @@ package sh.komet.gui.control.badged;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,8 +38,8 @@ import sh.isaac.komet.flags.CountryFlagImages;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.*;
 import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.control.axiom.ConceptNode;
 import sh.komet.gui.control.text.StackLabelText;
-import sh.komet.gui.control.text.TextAreaReadOnly;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
@@ -332,7 +331,8 @@ public abstract class BadgedVersionPaneModel {
 
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + getManifold().getPreferredDescriptionText(nid));
+                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
+                            componentText.setImage(new ConceptNode(nid, manifold));
                             break;
 
                         case SEMANTIC:
@@ -364,8 +364,8 @@ public abstract class BadgedVersionPaneModel {
 
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
-                                    + "\n" + intValue + ": " + getManifold().getPreferredDescriptionText(nid));
+                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
+                            componentText.setImage(new ConceptNode(nid, manifold));
                             break;
 
                         case SEMANTIC:
@@ -558,7 +558,6 @@ public abstract class BadgedVersionPaneModel {
         redoLayout();
     }
     private void redoLayout() {
-
         setupBadges();
         setupEditControls();
         addExtras();
@@ -567,6 +566,7 @@ public abstract class BadgedVersionPaneModel {
 
     private void setupEditControls() {
         this.editControlTiles.getChildren().clear();
+
         if (!(editMenu.getItems().isEmpty() && attachMenu.getItems().isEmpty())) {
             this.editControlTiles.getChildren().add(this.editControl);
         }

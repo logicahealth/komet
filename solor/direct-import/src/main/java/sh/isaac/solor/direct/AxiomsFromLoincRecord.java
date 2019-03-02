@@ -71,7 +71,7 @@ public class AxiomsFromLoincRecord {
     private final ConceptProxy automatedProxy = new ConceptProxy("Automatic",UUID.fromString("3bd927e3-db01-3af7-a9fb-ef82e8ed366d"));
     private final ConceptProxy automatedCountProxy = new ConceptProxy("Automated count technique (qualifier value)",UUID.fromString("abd11755-7337-3802-86ea-bcfa94df8523"));
     private final ConceptProxy azureEosinProxy = new ConceptProxy("Azure-eosin stain method (procedure)",UUID.fromString("12c85de6-ce8c-3937-adb2-239cf849d373"));
-    private final ConceptProxy bsProxy = new ConceptProxy("Brigance Screens-II (assessment scale)",UUID.fromString("428c9add-15eb-3732-a2e9-cfa1dc225cf2"));
+    private final ConceptProxy bsProxy = new ConceptProxy("Brigance Screens-II (assessment scale)",UUID.fromString("03ba4778-b8b7-3e42-88ca-b0f0cc60777c"));
     private final ConceptProxy bacterialProxy = new ConceptProxy("Bacterial subtyping (procedure)",UUID.fromString("9a0de789-9cda-34f9-b11b-c713bb3841dc"));
     private final ConceptProxy bandingProxy = new ConceptProxy("Banding (procedure)",UUID.fromString("d859b722-6cd9-3e0f-b241-b0046bbae10d"));
     private final ConceptProxy basicProxy = new ConceptProxy("Fuchsin basic stain method (procedure)",UUID.fromString("6fc05803-283f-3bad-8284-e106d09b40f7"));
@@ -86,7 +86,7 @@ public class AxiomsFromLoincRecord {
     private final ConceptProxy brownProxy = new ConceptProxy("Brown-Brenn stain method (procedure)",UUID.fromString("4e333536-5077-3a5f-889c-1230bbc48b12"));
     private final ConceptProxy butyrateProxy = new ConceptProxy("Butyrate esterase stain method (procedure)",UUID.fromString("80394986-57c2-3df6-970c-5e54e6721c03"));
     private final ConceptProxy c3bProxy = new ConceptProxy("Complement component 3b binding assay",UUID.fromString("992aedf2-201c-3f58-9e77-5f2f44f6b6b1"));
-    private final ConceptProxy cdiProxy = new ConceptProxy("Child Development Inventory (assessment scale)",UUID.fromString("641f97c2-5d00-3e27-a431-b236c8d8c268"));
+    private final ConceptProxy cdiProxy = new ConceptProxy("Child Development Inventory (assessment scale)",UUID.fromString("f12d0775-85a5-38aa-8233-6697c28ed3ed"));
     private final ConceptProxy cdrProxy = new ConceptProxy("Dementia rating scale",UUID.fromString("c7ab9895-e80d-3a7c-b974-4a09b712ffcb"));
     private final ConceptProxy cieProxy = new ConceptProxy("Countercurrent electrophoresis measurement (procedure)",UUID.fromString("f1342b58-9c71-336e-8708-392ce418d7b7"));
     private final ConceptProxy ctProxy = new ConceptProxy("Connecticut (geographic location)",UUID.fromString("4a5e423c-e462-3eab-a3ac-22fdc5abd195"));
@@ -223,7 +223,7 @@ public class AxiomsFromLoincRecord {
     private final ConceptProxy lissProxy = new ConceptProxy("Low ionic strength saline technique (qualifier value)",UUID.fromString("66e88940-0069-3e72-b7b4-f603cdd8dea7"));
     private final ConceptProxy peritoneoscopyProxy = new ConceptProxy("Peritoneoscopy",UUID.fromString("2a9c218b-2883-3af0-8a08-f6580fab9bb1"));
     private final ConceptProxy lawsonvanProxy = new ConceptProxy("Lawson-Van Gieson stain method (procedure)",UUID.fromString("d48712e2-305c-3da5-8937-981188ddd75c"));
-    private final ConceptProxy licensedProxy = new ConceptProxy("Licensed practical nurse (occupation)",UUID.fromString("a10839d5-6433-3d1c-a57b-fc4a439fa1b8"));
+//    private final ConceptProxy licensedProxy = new ConceptProxy("Licensed practical nurse (occupation)",UUID.fromString("a10839d5-6433-3d1c-a57b-fc4a439fa1b8"));
     private final ConceptProxy luxolProxy = new ConceptProxy("Luxol fast blue with cresyl violet stain method (procedure)",UUID.fromString("dd4280c5-a1f4-36f8-8bec-4f6ea4a3e413"));
     private final ConceptProxy luxolPeriodicProxy = new ConceptProxy("Luxol fast blue with Periodic acid-Schiff stain method (procedure)",UUID.fromString("0e45ddea-794f-31e8-b884-ed92d59b348e"));
     private final ConceptProxy mfadyeanProxy = new ConceptProxy("M'fadyean stain",UUID.fromString("680753b0-b7ef-3cdc-a6d5-4211539f5810"));
@@ -1787,7 +1787,7 @@ public class AxiomsFromLoincRecord {
             case "Pachymetry":
                 break;
             case "Licensed practical nurse":
-                assertions.add(builder.someRole(MetaData.ROLE_GROUP____SOLOR, builder.and(builder.someRole(methodProxy.getNid(), builder.conceptAssertion(licensedProxy)))));
+                //assertions.add(builder.someRole(MetaData.ROLE_GROUP____SOLOR, builder.and(builder.someRole(methodProxy.getNid(), builder.conceptAssertion(licensedProxy)))));
                 break;
             case "Optometry.technician":
                 break;

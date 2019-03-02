@@ -17,6 +17,7 @@
 package sh.isaac.solor.direct.ho;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -26,6 +27,7 @@ import java.util.concurrent.Semaphore;
 import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
@@ -46,6 +48,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
@@ -53,6 +56,9 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.ALLERGEN_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.CATEGORY_NAV_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.DIAGNOSIS_NAV_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HUMAN_DX_MODULE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.INEXACT_SNOMED_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.IS_CATEGORY_ASSEMBLAGE;
@@ -61,6 +67,7 @@ import static sh.isaac.solor.direct.ho.HoDirectImporter.LEGACY_HUMAN_DX_ROOT_CON
 import static sh.isaac.solor.direct.ho.HoDirectImporter.REFID_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.SNOMED_MAP_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.SNOMED_SIB_CHILD_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.UNCATEGORIZED_NAV_ASSEMBLAGE;
 
 /**
  *
@@ -301,12 +308,36 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
     protected void buildConcept(UUID conceptUuid, String conceptName, int stamp, int[] parentConceptNids, String[] hoRec) throws IllegalStateException, NoSuchElementException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+        int conceptNid = Get.nidForUuids(conceptUuid);
         
         ConceptAssertion[] parents = new ConceptAssertion[parentConceptNids.length];
         for (int i = 0; i < parentConceptNids.length; i++) {
             parents[i] = eb.conceptAssertion(parentConceptNids[i]);
         }
+        
+        
+        
         eb.necessarySet(eb.and(parents));
+        if (!hoRec[SNOMEDCT].isEmpty()) {
+            if (hoRec[INEXACT_SNOMED].isEmpty() && 
+                    hoRec[SNOMED_SIB_CHILD].isEmpty() &&
+                    !hoRec[SNOMEDCT].contains(".")) {
+                UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
+                if (Get.identifierService().hasUuid(snomedUuid)) {
+                    int snomedNid = Get.nidForUuids(snomedUuid);
+                   
+                    SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(snomedNid, conceptNid, HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
+                    List<Chronology> builtObjects = new ArrayList<>();
+                    semanticBuilder.build(stamp, builtObjects);
+                    buildAndIndex(semanticBuilder, stamp, hoRec);
+                    
+                    
+                } else {
+                    LOG.info("No concept for: " + hoRec[SNOMEDCT]);
+                }
+            }
+        }
+        
         ConceptBuilderService builderService = Get.conceptBuilderService();
         ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
                 "HO",
@@ -326,7 +357,23 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             builder.addStringSemantic(hoRec[IS_CATEGORY], IS_CATEGORY_ASSEMBLAGE);
         }
         if (!hoRec[SNOMEDCT].isEmpty()) {
+            UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
+            int snomedNid = Get.nidForUuids(snomedUuid);
             builder.addStringSemantic(hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE);
+            // Add reverse semantic
+            
+            int assemblageConceptNid = UNCATEGORIZED_NAV_ASSEMBLAGE.getNid();
+            if (Boolean.valueOf(hoRec[IS_CATEGORY])) {
+                assemblageConceptNid = CATEGORY_NAV_ASSEMBLAGE.getNid();
+            } else if (Boolean.valueOf(hoRec[IS_DIAGNOSIS])) {
+                assemblageConceptNid = DIAGNOSIS_NAV_ASSEMBLAGE.getNid();
+            } 
+            //int componentNid,            
+                       
+            SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(conceptNid, snomedNid, assemblageConceptNid);
+            List<Chronology> builtObjects = new ArrayList<>();
+            semanticBuilder.build(stamp, builtObjects);
+            buildAndIndex(semanticBuilder, stamp, hoRec);
         }
         if (!hoRec[INEXACT_SNOMED].isEmpty()) {
             builder.addStringSemantic(hoRec[INEXACT_SNOMED], INEXACT_SNOMED_ASSEMBLAGE);
@@ -334,6 +381,10 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         if (!hoRec[SNOMED_SIB_CHILD].isEmpty()) {
             builder.addStringSemantic(hoRec[SNOMED_SIB_CHILD], SNOMED_SIB_CHILD_ASSEMBLAGE);
         }
+        buildAndIndex(builder, stamp, hoRec);
+    }
+
+    protected void buildAndIndex(IdentifiedComponentBuilder builder, int stamp, String[] hoRec) throws IllegalStateException {
         List<Chronology> builtObjects = new ArrayList<>();
         builder.build(stamp, builtObjects);
         for (Chronology chronology : builtObjects) {
@@ -342,9 +393,9 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 try {
                     Get.taxonomyService().updateTaxonomy((SemanticChronology) chronology);
                 } catch (RuntimeException e) {
-                    e.printStackTrace();
+                    LOG.error("Processing " + Arrays.toString(hoRec), e);
                 }
-           }
+            }
             index(chronology);
         }
     }

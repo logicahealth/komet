@@ -75,6 +75,17 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     public final static ConceptProxy INEXACT_SNOMED_ASSEMBLAGE = new ConceptProxy("Inexact SNOMED match", UUID.fromString("c729188a-3655-11e9-b210-d663bd873d93"));
     public final static ConceptProxy SNOMED_SIB_CHILD_ASSEMBLAGE = new ConceptProxy("SNOMED sibling/child", UUID.fromString("c7291a10-3655-11e9-b210-d663bd873d93"));
     
+    public final static ConceptProxy HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE = new ConceptProxy("HDX Solor equivalence", UUID.fromString("11e3eea1-b918-452e-87c1-f903d5ff035f"));
+
+
+    public final static ConceptProxy DIAGNOSIS_NAV_ASSEMBLAGE = new ConceptProxy("Diagnostic entity", 
+            UUID.fromString("1c82bc0e-3160-491f-9454-a45a5ab5556d"));
+    public final static ConceptProxy CATEGORY_NAV_ASSEMBLAGE = new ConceptProxy("Category entity", 
+            UUID.fromString("c38ec034-4173-49b4-8243-09d314385ec3"));
+    public final static ConceptProxy UNCATEGORIZED_NAV_ASSEMBLAGE = new ConceptProxy("Uncategorized entity", 
+            UUID.fromString("7169c034-c350-4022-a330-f52f363a4e85"));
+
+
     private static final int WRITE_PERMITS = Runtime.getRuntime()
             .availableProcessors() * 2;
 
@@ -126,6 +137,18 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             
             buildConcept(SNOMED_SIB_CHILD_ASSEMBLAGE.getPrimordialUuid(), 
                     SNOMED_SIB_CHILD_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(DIAGNOSIS_NAV_ASSEMBLAGE.getPrimordialUuid(), 
+                    DIAGNOSIS_NAV_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(CATEGORY_NAV_ASSEMBLAGE.getPrimordialUuid(), 
+                    CATEGORY_NAV_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(UNCATEGORIZED_NAV_ASSEMBLAGE.getPrimordialUuid(), 
+                    UNCATEGORIZED_NAV_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getPrimordialUuid(), 
+                    HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
             
             
             File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
