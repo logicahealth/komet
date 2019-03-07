@@ -155,13 +155,16 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
             }
 
             readSemaphore.acquireUninterruptibly(READ_PERMITS);
-
-            Get.executor().submit(new ZipExportDirectory(Paths.get(this.exportConfigurations.get(0).getZipDirectory())));
-
             readSemaphore.release(READ_PERMITS);
+
+            Get.executor().submit(new ZipExportDirectory(Paths.get(this.exportConfigurations.get(0).getZipDirectory()), this.readSemaphore, READ_PERMITS));
+
+            readSemaphore.acquireUninterruptibly(READ_PERMITS);
 
         }finally {
             Get.activeTasks().remove(this);
+            readSemaphore.release(READ_PERMITS);
+
         }
 
         return null;
