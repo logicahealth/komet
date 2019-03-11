@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.concurrent.Semaphore;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -19,12 +20,17 @@ public class ZipExportDirectory extends TimedTaskWithProgressTracker<Void> {
     private final Path zipDirectoryPath;
     private final Path rootDirectoryPath;
     private final String rootDirectoryName;
+    private final Semaphore taskSemaphore;
+    private final int taskPermits;
 
-    public ZipExportDirectory(Path zipDirectoryPath) {
+    public ZipExportDirectory(Path zipDirectoryPath, Semaphore taskSemaphore, int taskPermits) {
         this.zipDirectoryPath = zipDirectoryPath;
         this.rootDirectoryPath = Paths.get(zipDirectoryPath.toString().replace(".zip",""));
         this.rootDirectoryName = zipDirectoryPath.getFileName().toString().replace(".zip", "");
+        this.taskSemaphore = taskSemaphore;
+        this.taskPermits = taskPermits;
 
+        taskSemaphore.acquireUninterruptibly(taskPermits);
         updateTitle("Zipping Directory");
         updateMessage(this.rootDirectoryPath.toString());
         Get.activeTasks().add(this);
@@ -82,6 +88,7 @@ public class ZipExportDirectory extends TimedTaskWithProgressTracker<Void> {
            e.printStackTrace();
        }finally {
            Get.activeTasks().remove(this);
+           this.taskSemaphore.release(this.taskPermits);
        }
 
         return null;
