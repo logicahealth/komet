@@ -1,5 +1,7 @@
 package sh.isaac.solor.direct.clinvar.generic.model.fields;
 
+import sh.isaac.api.Status;
+
 /**
  * 2019-03-07
  * aks8m - https://github.com/aks8m
@@ -9,13 +11,19 @@ public interface CoreFields {
     String getID();
     void setID(String id);
 
-    String getTime();
-    void setTime(String time);
+    Status getStatus();
+    void setStatus(Status status);
 
-    String getStatus();
-    void setStatus(String status);
+    long getTime();
+    void setTime(long time);
 
-    String getModule();
-    void setModule(String module);
+    int getAuthor();
+    void setAuthor(int author);
+
+    int getModule();
+    void setModule(int module);
+
+    int getPath();
+    void setPath(int path);
 
 }

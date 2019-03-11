@@ -1,7 +1,11 @@
 package sh.isaac.solor.direct.clinvar.generic.model;
 
+import sh.isaac.api.Status;
+import sh.isaac.api.util.Hashcode;
 import sh.isaac.solor.direct.clinvar.generic.model.fields.CoreFields;
 import sh.isaac.solor.direct.clinvar.generic.model.fields.DescriptionFields;
+
+import java.util.UUID;
 
 /**
  * 2019-03-07
@@ -10,20 +14,24 @@ import sh.isaac.solor.direct.clinvar.generic.model.fields.DescriptionFields;
 public final class DescriptionArtifact implements CoreFields, DescriptionFields {
 
     private String id;
-    private String time;
-    private String status;
-    private String module;
-    private String concept;
-    private String languageCode;
-    private String type;
+    private Status status;
+    private long time;
+    private int author;
+    private int module;
+    private int path;
+    private int concept;
+    private int languageCode;
+    private int type;
     private String term;
-    private String caseSignificance;
+    private int caseSignificance;
 
-    public DescriptionArtifact(String id, String time, String status, String module, String concept, String languageCode, String type, String term, String caseSignificance) {
+    public DescriptionArtifact(String id, Status status, long time, int author, int module, int path, int concept, int languageCode, int type, String term, int caseSignificance) {
         this.id = id;
-        this.time = time;
         this.status = status;
+        this.time = time;
+        this.author = author;
         this.module = module;
+        this.path = path;
         this.concept = concept;
         this.languageCode = languageCode;
         this.type = type;
@@ -42,62 +50,82 @@ public final class DescriptionArtifact implements CoreFields, DescriptionFields 
     }
 
     @Override
-    public String getTime() {
-        return this.time;
-    }
-
-    @Override
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    @Override
-    public String getStatus() {
+    public Status getStatus() {
         return this.status;
     }
 
     @Override
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
     @Override
-    public String getModule() {
+    public long getTime() {
+        return this.time;
+    }
+
+    @Override
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    @Override
+    public int getAuthor() {
+        return this.author;
+    }
+
+    @Override
+    public void setAuthor(int author) {
+        this.author = author;
+    }
+
+    @Override
+    public int getModule() {
         return this.module;
     }
 
     @Override
-    public void setModule(String module) {
+    public void setModule(int module) {
         this.module = module;
     }
 
     @Override
-    public String getConcept() {
+    public int getPath() {
+        return this.path;
+    }
+
+    @Override
+    public void setPath(int path) {
+        this.path = path;
+    }
+
+    @Override
+    public int getConcept() {
         return this.concept;
     }
 
     @Override
-    public void setConcept(String concept) {
+    public void setConcept(int concept) {
         this.concept = concept;
     }
 
     @Override
-    public String getLanguageCode() {
+    public int getLanguageCode() {
         return this.languageCode;
     }
 
     @Override
-    public void setLanguageCode(String languageCode) {
+    public void setLanguageCode(int languageCode) {
         this.languageCode = languageCode;
     }
 
     @Override
-    public String getType() {
+    public int getType() {
         return this.type;
     }
 
     @Override
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 
@@ -112,12 +140,22 @@ public final class DescriptionArtifact implements CoreFields, DescriptionFields 
     }
 
     @Override
-    public String getCaseSignificance() {
+    public int getCaseSignificance() {
         return this.caseSignificance;
     }
 
     @Override
-    public void setCaseSignificance(String caseSignificance) {
+    public void setCaseSignificance(int caseSignificance) {
         this.caseSignificance = caseSignificance;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.hashCode() == obj.hashCode();
     }
 }

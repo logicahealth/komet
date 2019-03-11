@@ -1,5 +1,6 @@
 package sh.isaac.solor.direct.clinvar.generic.model;
 
+import sh.isaac.api.Status;
 import sh.isaac.solor.direct.clinvar.generic.model.fields.CoreFields;
 import sh.isaac.solor.direct.clinvar.generic.model.fields.RelationshipFields;
 
@@ -10,15 +11,17 @@ import sh.isaac.solor.direct.clinvar.generic.model.fields.RelationshipFields;
 public final class RelationshipArtifact implements CoreFields, RelationshipFields {
 
     private String id;
-    private String time;
-    private String status;
-    private String module;
-    private String source;
-    private String destination;
-    private String relationshipGroup;
-    private String type;
-    private String characteristicType;
-    private String modifier;
+    private Status status;
+    private long time;
+    private int author;
+    private int module;
+    private int path;
+    private int source;
+    private int destination;
+    private int relationshipGroup;
+    private int type;
+    private int characteristicType;
+    private int modifier;
 
     @Override
     public String getID() {
@@ -31,92 +34,112 @@ public final class RelationshipArtifact implements CoreFields, RelationshipField
     }
 
     @Override
-    public String getTime() {
-        return this.time;
-    }
-
-    @Override
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    @Override
-    public String getStatus() {
+    public Status getStatus() {
         return this.status;
     }
 
     @Override
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
     @Override
-    public String getModule() {
+    public long getTime() {
+        return this.time;
+    }
+
+    @Override
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    @Override
+    public int getAuthor() {
+        return this.author;
+    }
+
+    @Override
+    public void setAuthor(int author) {
+        this.author = author;
+    }
+
+    @Override
+    public int getModule() {
         return this.module;
     }
 
     @Override
-    public void setModule(String module) {
+    public void setModule(int module) {
         this.module = module;
     }
 
     @Override
-    public String getSource() {
+    public int getPath() {
+        return this.path;
+    }
+
+    @Override
+    public void setPath(int path) {
+        this.path = path;
+    }
+
+    @Override
+    public int getSource() {
         return this.source;
     }
 
     @Override
-    public void setSource(String source) {
+    public void setSource(int source) {
         this.source = source;
     }
 
     @Override
-    public String getDestination() {
+    public int getDestination() {
         return this.destination;
     }
 
     @Override
-    public void setDestination(String destination) {
+    public void setDestination(int destination) {
         this.destination = destination;
     }
 
     @Override
-    public String getRelationshipGroup() {
-        return this.relationshipGroup ;
+    public int getRelationshipGroup() {
+        return this.relationshipGroup;
     }
 
     @Override
-    public void setRelationshipGroup(String relationshipGroup) {
+    public void setRelationshipGroup(int relationshipGroup) {
         this.relationshipGroup = relationshipGroup;
     }
 
     @Override
-    public String getType() {
+    public int getType() {
         return this.type;
     }
 
     @Override
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 
     @Override
-    public String getCharacteristicType() {
+    public int getCharacteristicType() {
         return this.characteristicType;
     }
 
     @Override
-    public void setCharacteristicType(String characteristicType) {
+    public void setCharacteristicType(int characteristicType) {
         this.characteristicType = characteristicType;
     }
 
     @Override
-    public String getModifier() {
+    public int getModifier() {
         return this.modifier;
     }
 
     @Override
-    public void setModifier(String modifier) {
+    public void setModifier(int modifier) {
         this.modifier = modifier;
     }
 }

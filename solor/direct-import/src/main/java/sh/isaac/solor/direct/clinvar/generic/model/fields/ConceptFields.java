@@ -6,6 +6,6 @@ package sh.isaac.solor.direct.clinvar.generic.model.fields;
  */
 public interface ConceptFields {
 
-    String getDefinitionStatus();
-    void setDefinitionStatus(String definitionStatus);
+    int getDefinitionStatus();
+    void setDefinitionStatus(int definitionStatus);
 }

@@ -6,21 +6,21 @@ package sh.isaac.solor.direct.clinvar.generic.model.fields;
  */
 public interface RelationshipFields {
 
-    String getSource();
-    void setSource(String source);
+    int getSource();
+    void setSource(int source);
 
-    String getDestination();
-    void setDestination(String destination);
+    int getDestination();
+    void setDestination(int destination);
 
-    String getRelationshipGroup();
-    void setRelationshipGroup(String relationshipGroup);
+    int getRelationshipGroup();
+    void setRelationshipGroup(int relationshipGroup);
 
-    String getType();
-    void setType(String type);
+    int getType();
+    void setType(int type);
 
-    String getCharacteristicType();
-    void setCharacteristicType(String characteristicType);
+    int getCharacteristicType();
+    void setCharacteristicType(int characteristicType);
 
-    String getModifier();
-    void setModifier(String modifier);
+    int getModifier();
+    void setModifier(int modifier);
 }

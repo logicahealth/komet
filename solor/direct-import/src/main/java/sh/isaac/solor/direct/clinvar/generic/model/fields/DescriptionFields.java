@@ -1,5 +1,7 @@
 package sh.isaac.solor.direct.clinvar.generic.model.fields;
 
+import java.util.UUID;
+
 /**
  * 2019-03-07
  * aks8m - https://github.com/aks8m
@@ -8,20 +10,20 @@ public interface DescriptionFields {
 
     //conceptId	languageCode	typeId	term	caseSignificanceId
 
-    String getConcept();
-    void setConcept(String concept);
+    int getConcept();
+    void setConcept(int concept);
 
-    String getLanguageCode();
-    void setLanguageCode(String languageCode);
+    int getLanguageCode();
+    void setLanguageCode(int languageCode);
 
-    String getType();
-    void setType(String type);
+    int getType();
+    void setType(int type);
 
     String getTerm();
     void setTerm(String term);
 
-    String getCaseSignificance();
-    void setCaseSignificance(String caseSignificance);
+    int getCaseSignificance();
+    void setCaseSignificance(int caseSignificance);
 
 
 }
