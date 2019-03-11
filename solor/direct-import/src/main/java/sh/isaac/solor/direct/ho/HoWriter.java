@@ -134,62 +134,6 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     public static final int INEXACT_SNOMED = 26;
     //SNOMED Sibling/Child	
     public static final int SNOMED_SIB_CHILD = 27;
-    //icd_10_cm	
-    //icd_10_pcs	
-    //icd_9_cm	
-    //icf	
-    //icpc	
-    //loinc	
-    //mdc	
-    //mesh	
-    //radlex	
-    //rx_cui	
-    //snomed_ct	
-    //ccs-single_category_icd_10	
-    //ccs-multi_level_1_icd_10	
-    //ccs-multi_level_2_icd_10	
-    //Inexact RxNorm	
-    //RxNorm Sibling/Child	
-    //Inexact SNOMED	
-    //SNOMED Sibling/Child	
-    //icd_10_cm	
-    //icd_10_pcs
-    //icd_9_cm	
-    //icf	
-    //icpc	
-    //loinc	
-    //mdc	
-    //mesh	
-    //radlex	
-    //rx_cui	
-    //snomed_ct	
-    //ccs-single_category_icd_10	
-    //ccs-multi_level_1_icd_10	
-    //ccs-multi_level_2_icd_10	
-    //Inexact RxNorm	
-    //RxNorm Sibling/Child	
-    //Inexact SNOMED	
-    //SNOMED Sibling/Child	
-    //icd_10_cm	
-    //icd_10_pcs	
-    //icd_9_cm	
-    //icf	
-    //icpc	
-    //loinc	
-    //mdc	
-    //mesh	
-    //radlex	
-    //rx_cui	
-    //snomed_ct	
-    //ccs-single_category_icd_10	
-    //ccs-multi_level_1_icd_10	
-    //ccs-multi_level_2_icd_10	
-    //Inexact RxNorm	
-    //RxNorm Sibling/Child	
-    //Inexact SNOMED	
-    //SNOMED Sibling/Child
-    
-
 
     
     
