@@ -270,7 +270,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/jfx/libs</outputDirectory>
-                            <excludeArtifactIds>fontawesomefx-commons,solor-db,solor-snap-db</excludeArtifactIds>
+                            <excludeArtifactIds>fontawesomefx-commons,solor-db,solor-snap-db,solor-us-db</excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -387,7 +387,7 @@
             <dependencies>
                 <dependency>
                     <groupId>one.solor</groupId>
-                    <artifactId>solor-db</artifactId>
+                    <artifactId>solor-us-db</artifactId>
                     <version>${solor.db.version}</version>
                     <type>zip</type>
                 </dependency>
@@ -408,7 +408,7 @@
                                     <artifactItems>
                                         <artifact>
                                             <groupId>one.solor</groupId>
-                                            <artifactId>solor-db</artifactId>
+                                            <artifactId>solor-us-db</artifactId>
                                             <version>${solor.db.version}</version>
                                             <type>zip</type>
                                         </artifact>

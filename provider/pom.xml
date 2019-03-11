@@ -46,5 +46,6 @@
         <module>identifier</module>
         <module>datastore-postgres</module>
         <module>postgress</module>
+        <module>datastore-cache</module>
     </modules>
 </project>

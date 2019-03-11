@@ -333,6 +333,7 @@ public abstract class BadgedVersionPaneModel {
                         case CONCEPT:
                             componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
                             componentText.setImage(new ConceptNode(nid, manifold));
+                            componentText.setImageLocation(ContentDisplay.BOTTOM);
                             break;
 
                         case SEMANTIC:
@@ -366,6 +367,7 @@ public abstract class BadgedVersionPaneModel {
                         case CONCEPT:
                             componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
                             componentText.setImage(new ConceptNode(nid, manifold));
+                            componentText.setImageLocation(ContentDisplay.BOTTOM);
                             break;
 
                         case SEMANTIC:

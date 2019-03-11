@@ -6,6 +6,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
@@ -20,6 +21,7 @@ public class StackLabelText extends StackPane {
 
     public StackLabelText() {
         StackPane.setAlignment(label, Pos.TOP_LEFT);
+        label.setAlignment(Pos.TOP_LEFT);
         getChildren().add(label);
         getStyleClass().addListener((ListChangeListener<? super String>) change -> {
             label.getStyleClass().setAll(change.getList());
@@ -32,6 +34,7 @@ public class StackLabelText extends StackPane {
             return;
         }
         textArea = new TextArea();
+
         textArea.setEditable(false);
         TextAreaNoScrollerSkin skin = new TextAreaNoScrollerSkin(textArea);
         textArea.setSkin(skin);
@@ -78,5 +81,9 @@ public class StackLabelText extends StackPane {
 
     public void setImage(Node graphic) {
         label.setGraphic(graphic);
+    }
+
+    public void setImageLocation(ContentDisplay position) {
+        label.setContentDisplay(position);
     }
 }

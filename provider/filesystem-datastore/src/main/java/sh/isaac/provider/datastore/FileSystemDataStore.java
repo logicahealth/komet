@@ -91,11 +91,9 @@ import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.collections.SpinedByteArrayArrayMap;
-import sh.isaac.model.collections.SpinedIntIntArrayMap;
-import sh.isaac.model.collections.SpinedIntIntMap;
-import sh.isaac.model.collections.SpinedNidIntMap;
-import sh.isaac.model.collections.SpinedNidNidSetMap;
+import sh.isaac.model.collections.*;
+import sh.isaac.model.collections.store.ByteArrayArrayStoreProvider;
+import sh.isaac.model.collections.store.IntIntArrayStoreProvider;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -450,7 +448,7 @@ public class FileSystemDataStore
                 assemblageNid,
                 (key) -> {
                     SpinedIntIntMap map = new SpinedIntIntMap();
-                    File directory = getSpineDirectory(
+                    File directory = SpineFileUtil.getSpineDirectory(
                             assemblageNid_ElementSequenceToNid_MapDirectory,
                             assemblageNid);
 
@@ -531,36 +529,8 @@ public class FileSystemDataStore
             return Optional.empty();
         }
 
-        int size = 0;
 
-        for (byte[] dataEntry : data) {
-            size = size + dataEntry.length;
-        }
-
-        ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(
-                size + 4);  // room for 0 int value at end to indicate last version
-
-        for (int i = 0; i < data.length; i++) {
-            if (i == 0) {
-                // discard the 0 integer at the beginning of the record. 
-                // 0 put in to enable the chronicle to sort before the versions. 
-                if (data[0][0] != 0 && data[0][1] != 0 && data[0][2] != 0 && data[0][3] != 0) {
-                    throw new IllegalStateException("Record does not start with zero...");
-                }
-                byteBuffer.put(data[0], 4, data[0].length - 4);
-            } else {
-                byteBuffer.put(data[i]);
-            }
-
-        }
-
-        byteBuffer.putInt(0);
-        byteBuffer.rewind();
-
-        if (byteBuffer.getUsed() != size) {
-            throw new IllegalStateException("Size = " + size + " used = " + byteBuffer.getUsed());
-        }
-        return Optional.of(byteBuffer);
+        return Optional.of(ByteArrayDataBuffer.dataArrayToBuffer(data));
     }
 
     @Override
@@ -577,18 +547,7 @@ public class FileSystemDataStore
         SpinedByteArrayArrayMap spinedMap = spinedChronologyMapMap.computeIfAbsent(
                 assemblageNid,
                 (dbKey) -> {
-                    SpinedByteArrayArrayMap spinedByteArrayArrayMap = new SpinedByteArrayArrayMap();
-                    File spineDirectory = getSpineDirectory(chronologySpinesDirectory, assemblageNid);
-
-                    if (spineDirectory.exists()) {
-                        int filesToRead = spinedByteArrayArrayMap.lazyRead(spineDirectory);
-                        if (filesToRead > 0) {
-                            LOG.debug("Lazy open of " + filesToRead
-                                    + " chronology files for assemblage: "
-                                    + " " + properties.getProperty(Integer.toString(assemblageNid))
-                                    + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
-                        }
-                    }
+                    SpinedByteArrayArrayMap spinedByteArrayArrayMap = new SpinedByteArrayArrayMap(Get.service(ByteArrayArrayStoreProvider.class).get(assemblageNid));
                     return spinedByteArrayArrayMap;
                 });
 
@@ -623,29 +582,18 @@ public class FileSystemDataStore
         return assemblageNid_SequenceGenerator_Map;
     }
 
-    private File getSpineDirectory(File parentDirectory, int assemblageNid) {
-        File spinedMapDirectory = new File(parentDirectory, Integer.toUnsignedString(assemblageNid));
-
-        spinedMapDirectory.mkdirs();
-        return spinedMapDirectory;
-    }
 
     private SpinedIntIntArrayMap getTaxonomyMap(int assemblageNid) {
         SpinedIntIntArrayMap spinedMap = spinedTaxonomyMapMap.computeIfAbsent(
                 assemblageNid,
                 (dbKey) -> {
-                    SpinedIntIntArrayMap spinedIntIntArrayMap = new SpinedIntIntArrayMap();
-                    File spineDirectory = getSpineDirectory(taxonomyMapDirectory, assemblageNid);
-
-                    if (spineDirectory.exists()) {
-                        int filesRead = spinedIntIntArrayMap.read(spineDirectory);
-                        if (filesRead > 0) {
-                            LOG.info("Read  " + filesRead + " taxonomy files for assemblage: "
-                                    + " " + properties.getProperty(Integer.toString(assemblageNid))
-                                    + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
-                        }
+                    SpinedIntIntArrayMap spinedIntIntArrayMap = new SpinedIntIntArrayMap(Get.service(IntIntArrayStoreProvider.class).get(assemblageNid));
+                    int filesRead = spinedIntIntArrayMap.read();
+                    if (filesRead > 0) {
+                        LOG.info("Read  " + filesRead + " taxonomy files for assemblage: "
+                                + " " + properties.getProperty(Integer.toString(assemblageNid))
+                                + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
                     }
-
                     return spinedIntIntArrayMap;
                 });
 
@@ -728,11 +676,11 @@ public class FileSystemDataStore
                     updateMessage("Writing chronology spines...");
                     spinedChronologyMapMap.forEach(
                             (assemblageNid, spinedMap) -> {
-                                File directory = getSpineDirectory(chronologySpinesDirectory, assemblageNid);
+                                File directory = SpineFileUtil.getSpineDirectory(chronologySpinesDirectory, assemblageNid);
 
                                 addInfoFile(directory, assemblageNid);
 
-                                if (spinedMap.write(directory)) {
+                                if (spinedMap.write()) {
                                     String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
                                     FileSystemDataStore.LOG.debug("Syncronized chronologies: " + assemblageNid
                                             + " " + assemblageDescription + " to " + directory.getAbsolutePath());
@@ -742,11 +690,11 @@ public class FileSystemDataStore
                     updateMessage("Writing taxonomy spines...");
                     spinedTaxonomyMapMap.forEach(
                             (assemblageNid, spinedMap) -> {
-                                File directory = getSpineDirectory(taxonomyMapDirectory, assemblageNid);
+                                File directory = SpineFileUtil.getSpineDirectory(taxonomyMapDirectory, assemblageNid);
 
                                 addInfoFile(directory, assemblageNid);
 
-                                if (spinedMap.write(directory)) {
+                                if (spinedMap.write()) {
                                     String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
                                     FileSystemDataStore.LOG.info("Syncronizing taxonomies: " + assemblageNid
                                             + " " + assemblageDescription);
@@ -764,7 +712,7 @@ public class FileSystemDataStore
                     updateMessage("Writing assemblage element to component map...");
 
                     for (Map.Entry<Integer, SpinedIntIntMap> entry : assemblage_ElementToNid_Map.entrySet()) {
-                        File directory = getSpineDirectory(assemblageNid_ElementSequenceToNid_MapDirectory, entry.getKey());
+                        File directory = SpineFileUtil.getSpineDirectory(assemblageNid_ElementSequenceToNid_MapDirectory, entry.getKey());
 
                         addInfoFile(directory, entry.getKey());
                         entry.getValue()

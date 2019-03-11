@@ -31,6 +31,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.store.ByteArrayArrayStore;
 
 /**
  *
@@ -53,6 +54,9 @@ public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
         this.elementStringConverter = elementStringConverter;
     }
 
+    public int getSpineCount() {
+        return spineCount.get();
+    }
     /**
      * {@inheritDoc}
      */
@@ -96,7 +100,7 @@ public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
         return makeNewSpine(spineKey);
     }
 
-    protected AtomicReferenceArray<E> makeNewSpine(Integer spineKey) {
+    public AtomicReferenceArray<E> makeNewSpine(Integer spineKey) {
         AtomicReferenceArray<E> spine = new AtomicReferenceArray<>(spineSize);
         this.spineCount.set(Math.max(this.spineCount.get(), spineKey + 1));
         return spine;
@@ -368,5 +372,9 @@ public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
                     | Spliterator.SIZED;
         }
 
+    }
+
+    public boolean containsSpine(int index) {
+        return this.spines.containsKey(index);
     }
 }
