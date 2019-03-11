@@ -65,6 +65,7 @@ import sh.isaac.model.collections.IntObjectMap;
 import sh.isaac.model.collections.MergeIntArray;
 import sh.isaac.model.collections.IntObjectMapImpl;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
+import sh.isaac.model.collections.store.IntIntArrayNoStore;
 
 /**
  * A {@code Tree} implemented using a {@code OpenIntObjectHashMap<int[]>}.
@@ -122,8 +123,8 @@ public class HashTreeWithIntArraySets
       this.conceptNidsWithParents    = new OpenIntHashSet();
       this.conceptNidsWithChildren   = new OpenIntHashSet();
       this.conceptNids               = new OpenIntHashSet();
-      this.childNid_ParentNidSetArray_Map = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntIntArrayMap(): new IntObjectMapImpl<>();
-      this.parentNid_ChildNidSetArray_Map = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntIntArrayMap() : new IntObjectMapImpl<>();
+      this.childNid_ParentNidSetArray_Map = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntIntArrayMap(new IntIntArrayNoStore()): new IntObjectMapImpl<>();
+      this.parentNid_ChildNidSetArray_Map = ModelGet.dataStore().implementsSequenceStore() ? new SpinedIntIntArrayMap(new IntIntArrayNoStore()) : new IntObjectMapImpl<>();
    }
 
    /**
