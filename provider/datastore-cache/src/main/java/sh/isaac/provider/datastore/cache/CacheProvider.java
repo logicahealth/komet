@@ -381,10 +381,12 @@ public class CacheProvider
         byte[][] data = spinedByteArrayArrayMap.get(nid);
         if (data == null) {
             Optional<ByteArrayDataBuffer> optionalByteBuffer = this.datastoreService.getChronologyVersionData(nid);
-            if (optionalByteBuffer.isEmpty()) {
+            if (optionalByteBuffer.isPresent()) {
+                spinedByteArrayArrayMap.put(nid, optionalByteBuffer.get().toDataArray());
+            } else {
                 return Optional.empty();
             }
-            spinedByteArrayArrayMap.put(nid, optionalByteBuffer.get().toDataArray());
+            
         }
         return Optional.of(ByteArrayDataBuffer.dataArrayToBuffer(data));
     }
