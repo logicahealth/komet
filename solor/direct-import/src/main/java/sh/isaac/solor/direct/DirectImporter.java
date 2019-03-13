@@ -69,11 +69,8 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.IOUtils;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.solor.direct.clinvar.ClinvarImporter;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-
 //~--- classes ----------------------------------------------------------------
 /**
  * Loader code to convert RF2 format fileCount into the ISAAC format.
@@ -108,6 +105,7 @@ public class DirectImporter
         this.importType = importType;
         this.entriesToImport = null;
         this.importDirectory = Get.configurationService().getIBDFImportPath().toFile();
+//        watchTokens.add("782587007");
 //        watchTokens.add("89587004"); // Removal of foreign body from abdominal cavity (procedure)
 //        watchTokens.add("84971000000100"); // PBCL flag true (attribute)
 //        watchTokens.add("123101000000107"); // PBCL flag true: report, request, level, test (qualifier value)
@@ -183,17 +181,16 @@ public class DirectImporter
     protected void running() {
         super.running();
     }
-    
-    
+
     /**
-     * If the item they passed us is a zip file, we need to look inside the zip file. 
+     * If the item they passed us is a zip file, we need to look inside the zip
+     * file.
+     *
      * @param entriesToImport
-     * @return
-     * TODO maybe merge "loadDatabase" into this?  I need code that handles paths, not files, 
-     * since I may be passing in a nested zip already.
+     * @return TODO maybe merge "loadDatabase" into this? I need code that
+     * handles paths, not files, since I may be passing in a nested zip already.
      */
-    private List<ContentProvider> preProcessEntries(List<ContentProvider> entriesToImport)
-    {
+    private List<ContentProvider> preProcessEntries(List<ContentProvider> entriesToImport) {
         try {
             ArrayList<ContentProvider> results = new ArrayList<>();
             for (ContentProvider cp : entriesToImport) {
@@ -208,7 +205,7 @@ public class DirectImporter
                         case ACTIVE_ONLY:
                             importPrefixRegex.append("(snapshot/)"); //prefixes to match
                             break;
-                        default :
+                        default:
                             throw new RuntimeException("Unsupported import type");
                     }
                     importPrefixRegex.append("[a-z/0-9_\\.\\-]*"); //allow all match child directories
@@ -220,7 +217,7 @@ public class DirectImporter
                                     && nestedEntry.getName().toLowerCase().matches(importPrefixRegex.toString())) {
 
                                 byte[] temp = IOUtils.toByteArray(zis);
-                                
+
                                 if (temp.length < (500 * 1024 * 1024)) {  //if more than 500 MB, pass on a ref to unzip the stream again.  Otherwise, cache 
                                     //We have to cache these unzipped bytes, as otherwise, 
                                     //the import is terribly slow, because the java zip API only provides stream access
@@ -229,14 +226,11 @@ public class DirectImporter
                                     //that triples the load times.
                                     results.add(new ContentProvider(cp.getStreamSourceName() + ":" + nestedEntry.getName(), () -> temp));
                                     LOG.debug("Caching unzipped content - " + results.get(results.size() - 1).getStreamSourceName());
-                                }
-                                else
-                                {
+                                } else {
                                     //Code to reopen the zip and find the same zip entry from the previous provider (which is quite expensive)
                                     final String thisName = nestedEntry.getName();
                                     results.add(new ContentProvider(cp.getStreamSourceName() + ":" + nestedEntry.getName(), () -> {
-                                        try
-                                        {
+                                        try {
                                             try (ZipInputStream zisInternal = new ZipInputStream(cp.get().get(), Charset.forName("UTF-8"))) {
                                                 ZipEntry nestedEntryInternal = zisInternal.getNextEntry();
                                                 while (nestedEntryInternal != null) {
@@ -247,8 +241,7 @@ public class DirectImporter
                                                 }
                                                 throw new RuntimeException("Couldn't refind expected entry??");
                                             }
-                                        }
-                                        catch (IOException e) {
+                                        } catch (IOException e) {
                                             throw new RuntimeException(e);
                                         }
                                     }));
@@ -258,15 +251,12 @@ public class DirectImporter
                             nestedEntry = zis.getNextEntry();
                         }
                     }
-                }
-                else {
+                } else {
                     results.add(cp);
                 }
             }
             return results;
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -296,7 +286,7 @@ public class DirectImporter
             case ACTIVE_ONLY:
                 importPrefixRegex.append("(snapshot/)"); //prefixes to match
                 break;
-            default :
+            default:
                 throw new RuntimeException("Unsupported import type");
         }
         importPrefixRegex.append("[a-z/0-9_\\.\\-]*"); //allow all match child directories
@@ -430,11 +420,17 @@ public class DirectImporter
                         case LOINC:
                             readLOINC(br, importSpecification);
                             break;
-                        case CLINVAR:
 
-                            ClinvarImporter clinvarImporter = new ClinvarImporter(this.writeSemaphore, WRITE_PERMITS);
-                            clinvarImporter.go(br);
+                        case VARIANT_SUMMARY:
+                            readVariantSummary(br, importSpecification, genomicGeneDescriptionsMap);
+                            break;
 
+                        case GENE_SPECIFIC_SUMMARY:
+                            genomicGeneDescriptionsMap = readGeneSpecificSummary(br, importSpecification);
+                            break;
+
+                        case GENE_CONDITION_SOURCE:
+                            readGeneConditionSource(br, importSpecification);
                             break;
 
                         default:
@@ -566,12 +562,23 @@ public class DirectImporter
                     contentProvider,
                     ImportStreamType.LOINC,
                     isSOLORReleaseFormat));
-        } else if(entryName.endsWith("variant_summary.txt")){
+        } else if (entryName.endsWith("variant_summary.txt")) {
             entriesToImport1.add(new ImportSpecification(
                     contentProvider,
-                    ImportStreamType.CLINVAR,
+                    ImportStreamType.VARIANT_SUMMARY,
+                    isSOLORReleaseFormat));
+        } else if (entryName.endsWith("gene_specific_summary.txt")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.GENE_SPECIFIC_SUMMARY,
+                    isSOLORReleaseFormat));
+        } else if (entryName.endsWith("gene_condition_source_id.txt")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.GENE_CONDITION_SOURCE,
                     isSOLORReleaseFormat));
         }
+
     }
 
     private void readLOINC(BufferedReader br, ImportSpecification importSpecification) throws IOException, InterruptedException, ExecutionException {
@@ -614,21 +621,20 @@ public class DirectImporter
                 }
             }
             if (empty) {
-                LOG.warn("No data in file: " + 
-                                    importSpecification.contentProvider.getStreamSourceName());
+                LOG.warn("No data in file: "
+                        + importSpecification.contentProvider.getStreamSourceName());
             }
 
             if (empty) {
-                LOG.warn("No data in file: " + 
-                                    importSpecification.contentProvider.getStreamSourceName());
+                LOG.warn("No data in file: "
+                        + importSpecification.contentProvider.getStreamSourceName());
             }
             if (!columnsToWrite.isEmpty()) {
                 LoincWriter loincWriter = new LoincWriter(
                         columnsToWrite,
                         this.writeSemaphore,
                         "Reading LOINC records from: " + DirectImporter.trimZipName(
-                                
-                                    importSpecification.contentProvider.getStreamSourceName()), commitTime);
+                                importSpecification.contentProvider.getStreamSourceName()), commitTime);
 
                 Get.executor()
                         .submit(loincWriter);
@@ -647,7 +653,6 @@ public class DirectImporter
             assemblageService.sync();
             this.writeSemaphore.release(WRITE_PERMITS);
         }
-
 
         updateMessage("Synchronizing indexes...");
         for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
@@ -791,13 +796,13 @@ public class DirectImporter
                 for (String column : columns) {
                     if (watchTokens.contains(column)) {
                         watchCount++;
+                        if (watchCount > 0 && watchCount <= 3) {
+                            LOG.info("Found watch tokens in: "
+                                    + importSpecification.contentProvider.getStreamSourceName()
+                                    + " \n" + rowString);
+                        }
                     }
 
-                }
-                if (watchCount >= 3) {
-                    LOG.info("Found watch tokens in: "
-                            + importSpecification.contentProvider.getStreamSourceName()
-                            + " \n" + rowString);
                 }
             }
         }
@@ -1304,7 +1309,7 @@ public class DirectImporter
                 newColumns[5] = columns[5]; // referenced component id
                 newColumns[6] = columns[6]; // mapTarget
                 newColumns[7] = columns[7];
-                for (Entry<String, String> entry: ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.entrySet()) {
+                for (Entry<String, String> entry : ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.entrySet()) {
                     newColumns[7] = newColumns[7].replaceAll(entry.getKey(), entry.getValue());
                 }
                 newColumns[8] = columns[8]; // correlationId
@@ -1519,7 +1524,7 @@ public class DirectImporter
                 newColumns[5] = columns[5]; // referenced component id
                 newColumns[6] = columns[6]; // mapTarget
                 newColumns[7] = columns[7];
-                for (Entry<String, String> entry: ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.entrySet()) {
+                for (Entry<String, String> entry : ConceptWriter.CONCEPT_REPLACEMENT_MAP_20180731.entrySet()) {
                     newColumns[7] = newColumns[7].replaceAll(entry.getKey(), entry.getValue());
                 }
                 newColumns[8] = columns[8]; // correlationId
@@ -1578,10 +1583,10 @@ public class DirectImporter
              * (we can't process it on the fly below, because we need to read it first, to know how to process itself, as it is
              * self describing...)
              */
-            
+
             LOG.info("Reading refset descriptors");
             br.mark(100000);  //this should be big enough, if not, we should fail on reset
-            
+
             /*
              * columns we care about are 6, 7 and 8: attributeDescription attributeType attributeOrder
              * attributeDescription is an SCTID column, which provides the concept to use as the column header concept
@@ -1597,16 +1602,16 @@ public class DirectImporter
              * So, we only care about 06 on, which is the {@link DynamicRefsetWriter#VARIABLE_FIELD_START} constant, which will match up
              * with the '1' in the attribute order column....
              */
-            if(importSpecification.isSolorReleaseFormat()){
+            if (importSpecification.isSolorReleaseFormat()) {
                 if (!importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci snapshot descriptor")) {
                     throw new RuntimeException("assemblage_cci snapshot descriptor is missing or not sorted to the top of the assemblages!");
                 }
-            }else {
+            } else {
                 if (!importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
                     throw new RuntimeException("der2_ccirefset_refsetdescriptor is missing or not sorted to the top of the refsets!");
                 }
             }
-            
+
             /*
              * Per the RF2 spec:
              * Creation of Reference set descriptor data is mandatory when creating a new reference set in the International
@@ -1618,7 +1623,6 @@ public class DirectImporter
              * is not created, the descriptor of the closest ancestor of the reference set is used when validating reference set
              * member records.
              */
-            
             //Configure a hashmap of refsetId -> ArrayList<DynamicColumnInfo>
             refsetColumnInfo = new HashMap<>();
             String rowString;
@@ -1627,34 +1631,34 @@ public class DirectImporter
                 String refsetId = columns[5].trim();  //we actually want the referencedComponentId, not the refsetId, because this is the refset that is being described.
                 int adjustedColumnNumber = Integer.parseInt(columns[8]) - 1;
                 UUID columnHeaderConcept = UuidT3Generator.fromSNOMED(columns[6]);
-                
+
                 ArrayList<DynamicColumnInfo> refsetColumns = refsetColumnInfo.get(refsetId);
                 if (refsetColumns == null) {
-                   refsetColumns = new ArrayList<>();
-                   refsetColumnInfo.put(refsetId, refsetColumns);
+                    refsetColumns = new ArrayList<>();
+                    refsetColumnInfo.put(refsetId, refsetColumns);
                 }
-                
+
                 if (adjustedColumnNumber < 0) {
                     continue;  //We don't need this one, as it should always be referencedComponentId when processing the refset descriptor file
                 }
-                
+
                 //TODO I can't figure out if/where the RF2 spec specifies whether columns can be optional or required.... default to optional for now.
-                refsetColumns.add(new DynamicColumnInfo(adjustedColumnNumber, columnHeaderConcept, 
-                    DynamicDataType.translateSCTIDMetadata(columns[7]), null, false, true)); 
+                refsetColumns.add(new DynamicColumnInfo(adjustedColumnNumber, columnHeaderConcept,
+                        DynamicDataType.translateSCTIDMetadata(columns[7]), null, false, true));
             }
             //At this point, we should have a hash, of how every single refset should be configured.  
-           //sort the column info and sanity check....
-           for (Entry<String, ArrayList<DynamicColumnInfo>> dci : refsetColumnInfo.entrySet()) {
-              Collections.sort(dci.getValue());
-              for (int i = 0; i < dci.getValue().size(); i++) {
-                 if (dci.getValue().get(i).getColumnOrder() != i) {
-                    throw new RuntimeException("Misconfiguration for refset " + dci.getKey() + " no info for column " + i);
-                 }
-              }
-           }
-           br.reset();  //back the stream up, and actually process the refset now.
+            //sort the column info and sanity check....
+            for (Entry<String, ArrayList<DynamicColumnInfo>> dci : refsetColumnInfo.entrySet()) {
+                Collections.sort(dci.getValue());
+                for (int i = 0; i < dci.getValue().size(); i++) {
+                    if (dci.getValue().get(i).getColumnOrder() != i) {
+                        throw new RuntimeException("Misconfiguration for refset " + dci.getKey() + " no info for column " + i);
+                    }
+                }
+            }
+            br.reset();  //back the stream up, and actually process the refset now.
         }
-        
+
         //Process the refset file
         int dataCount = 0;
         String rowString;
@@ -1663,14 +1667,14 @@ public class DirectImporter
             dataCount++;
             String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
             if (dataCount == 1) {
-               //Another sanity check - the header-row length beyond column 5 should match the column definitions...
-               ArrayList<DynamicColumnInfo> dci = refsetColumnInfo.get(columns[DynamicRefsetWriter.ASSEMBLAGE_SCT_ID_INDEX]);
-               if (dci != null && dci.size() != columns.length - DynamicRefsetWriter.VARIABLE_FIELD_START) {
-                  throw new RuntimeException("Header information in " + importSpecification.contentProvider.getStreamSourceName() 
-                       + " does not match specification from the der2_ccirefset_refsetdescriptor file ");
-              }
-              //dci being null isn't always fatal, if the refset is an extension that adds to an existing refset, for example.
-           }
+                //Another sanity check - the header-row length beyond column 5 should match the column definitions...
+                ArrayList<DynamicColumnInfo> dci = refsetColumnInfo.get(columns[DynamicRefsetWriter.ASSEMBLAGE_SCT_ID_INDEX]);
+                if (dci != null && dci.size() != columns.length - DynamicRefsetWriter.VARIABLE_FIELD_START) {
+                    throw new RuntimeException("Header information in " + importSpecification.contentProvider.getStreamSourceName()
+                            + " does not match specification from the der2_ccirefset_refsetdescriptor file ");
+                }
+                //dci being null isn't always fatal, if the refset is an extension that adds to an existing refset, for example.
+            }
             columnsToWrite.add(columns);
 
             if (columnsToWrite.size() == writeSize) {
@@ -1731,10 +1735,12 @@ public class DirectImporter
         final int writeSize = 102400;
         String rowString;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
-
+        
         br.readLine();  // discard header row
+        int lineCount = 1;
         boolean empty = true;
         while ((rowString = br.readLine()) != null) {
+            lineCount++;
             empty = false;
             String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
 
@@ -1753,7 +1759,7 @@ public class DirectImporter
                         .submit(conceptWriter);
             }
         }
-
+        LOG.warn("Concept linecount: " + lineCount + " in: " + importSpecification.contentProvider.getStreamSourceName());
         if (empty) {
             LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
@@ -2020,6 +2026,343 @@ public class DirectImporter
         updateMessage("Synchronizing relationship database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
+    }
+
+    private void readVariantSummary(BufferedReader br, ImportSpecification importSpecification,
+            HashMap<String, Set<String>> geneDescriptionMap)
+            throws IOException {
+        ConceptService conceptService = Get.conceptService();
+        AssemblageService assemblageService = Get.assemblageService();
+
+        String rowString;
+        br.readLine();  // discard header row
+        HashSet<String> variantConceptSet = new HashSet<>();
+        HashMap<String, Set<String>> variantDescriptionMap = new HashMap<>();
+        HashMap<String, Set<String>> variantGeneRelationshipMap = new HashMap<>();
+        HashSet<String> geneConceptSet = new HashSet<>();
+
+        //Normalizing very repetitive CLINVAR data, seems to be designed for ease of research
+        while ((rowString = br.readLine()) != null) {
+            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+            //Apparently you can have a variant summary on an unknown, not yet created variant (e.g. ""/null)
+            if (!columns[1].equals("undetermined variant")) {
+                if (!columns[1].isEmpty() && !columns[2].isEmpty() && !columns[3].isEmpty()) {
+
+                    variantConceptSet.add(columns[2]);
+                    geneConceptSet.add(columns[3]);
+
+                    if (!variantDescriptionMap.keySet().contains(columns[2])) {
+                        Set<String> valueSet = new HashSet<>();
+                        valueSet.add("Clinvar Variant " + columns[2]);
+                        variantDescriptionMap.put(columns[2], valueSet);
+                    } else {
+                        Set<String> value = variantDescriptionMap.get(columns[2]);
+                        value.add("Clinvar Variant " + columns[2]);
+                    }
+
+                    if (!variantGeneRelationshipMap.keySet().contains(columns[2])) {
+                        Set<String> valueSet = new HashSet<>();
+                        valueSet.add(columns[3]);
+                        variantGeneRelationshipMap.put(columns[2], valueSet);
+                    } else {
+                        Set<String> value = variantGeneRelationshipMap.get(columns[2]);
+                        value.add(columns[3]);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Writing variant and gene concepts
+         */
+        writeGenomicComponent(variantConceptSet, importSpecification, GenomicConceptType.VARIANT, 10240);
+
+        updateMessage("Waiting for Variant concepts file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing concept database...");
+        conceptService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+        writeGenomicComponent(geneConceptSet, importSpecification, GenomicConceptType.GENE, 10240);
+
+        updateMessage("Waiting for Genomic concepts file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing concept database...");
+        conceptService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+        /**
+         * Writing variant descriptions
+         */
+        writeGenomicDescriptions(variantDescriptionMap, importSpecification, GenomicConceptType.VARIANT, 10240);
+
+        updateMessage("Waiting for Variant description file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing description database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+        /**
+         * Writing gene descriptions
+         */
+        writeGenomicDescriptions(geneDescriptionMap, importSpecification, GenomicConceptType.GENE, 10240);
+
+        updateMessage("Waiting for Gene description file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing description database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+        /**
+         * Writing variant -> gene relationships
+         */
+        writeGenomicRelationships(variantGeneRelationshipMap, importSpecification, GenomicConceptType.VARIANT, 10240);
+
+        updateMessage("Waiting for Genomic relationship file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing relationship database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+    }
+
+    private void writeGenomicComponent(Set<String> genomicConcepts,
+            ImportSpecification importSpecification,
+            GenomicConceptType genomicConceptType,
+            int writeSize) {
+
+        List<String> conceptsToWriteBatch = new ArrayList<>(writeSize);
+
+        for (String genomicConceptString : genomicConcepts) {
+            conceptsToWriteBatch.add(genomicConceptString);
+
+            if (conceptsToWriteBatch.size() % writeSize == 0) {
+
+                GenomicConceptWriter genomicConceptWriter = new GenomicConceptWriter(
+                        conceptsToWriteBatch,
+                        this.writeSemaphore,
+                        "Processing " + genomicConceptType.toString() + " concepts from: " + trimZipName(
+                        importSpecification.contentProvider.getStreamSourceName()),
+                        genomicConceptType);
+
+                Get.executor().submit(genomicConceptWriter);
+                conceptsToWriteBatch = new ArrayList<>(writeSize);
+            }
+        }
+
+        if (!conceptsToWriteBatch.isEmpty()) {
+            GenomicConceptWriter genomicConceptWriter = new GenomicConceptWriter(
+                    conceptsToWriteBatch,
+                    this.writeSemaphore,
+                    "Processing " + genomicConceptType.toString() + " concepts from: " + trimZipName(
+                    importSpecification.contentProvider.getStreamSourceName()),
+                    genomicConceptType);
+
+            Get.executor().submit(genomicConceptWriter);
+        }
+    }
+
+    private void writeGenomicDescriptions(Map<String, Set<String>> genomicDescriptions,
+            ImportSpecification importSpecification,
+            GenomicConceptType genomicConceptType,
+            int writeSize) {
+
+        Map<String, Set<String>> drescriptionMapsToWrite = new HashMap<>(writeSize);
+
+        for (Entry<String, Set<String>> entry : genomicDescriptions.entrySet()) {
+            drescriptionMapsToWrite.put(entry.getKey(), entry.getValue());
+
+            if (drescriptionMapsToWrite.size() % writeSize == 0) {
+                GenomicDescriptionWriter genomicDescriptionWriter = new GenomicDescriptionWriter(
+                        drescriptionMapsToWrite,
+                        this.writeSemaphore,
+                        "Processing " + genomicConceptType.toString() + " descriptions from: " + trimZipName(
+                        importSpecification.contentProvider.getStreamSourceName()),
+                        genomicConceptType);
+
+                Get.executor().submit(genomicDescriptionWriter);
+                drescriptionMapsToWrite = new HashMap<>(writeSize);
+            }
+        }
+
+        if (!drescriptionMapsToWrite.isEmpty()) {
+            GenomicDescriptionWriter genomicDescriptionWriter = new GenomicDescriptionWriter(
+                    drescriptionMapsToWrite,
+                    this.writeSemaphore,
+                    "Processing " + genomicConceptType.toString() + " descriptions from: " + trimZipName(
+                    importSpecification.contentProvider.getStreamSourceName()),
+                    genomicConceptType);
+            Get.executor().submit(genomicDescriptionWriter);
+        }
+    }
+
+    private void writeGenomicRelationships(Map<String, Set<String>> genomicRelationships,
+            ImportSpecification importSpecification,
+            GenomicConceptType genomicConceptType,
+            int writeSize) {
+
+        Map<String, Set<String>> relationshipMapsToWrite = new HashMap<>(writeSize);
+
+        for (Entry<String, Set<String>> entry : genomicRelationships.entrySet()) {
+            relationshipMapsToWrite.put(entry.getKey(), entry.getValue());
+
+            if (relationshipMapsToWrite.size() % writeSize == 0) {
+                GenomicRelationshipWriter genomicDescriptionWriter = new GenomicRelationshipWriter(
+                        relationshipMapsToWrite,
+                        this.writeSemaphore,
+                        "Processing " + genomicConceptType.toString() + " relationships from: " + trimZipName(
+                        importSpecification.contentProvider.getStreamSourceName()),
+                        genomicConceptType);
+
+                Get.executor().submit(genomicDescriptionWriter);
+                relationshipMapsToWrite = new HashMap<>(writeSize);
+            }
+        }
+
+        if (!relationshipMapsToWrite.isEmpty()) {
+            GenomicRelationshipWriter genomicDescriptionWriter = new GenomicRelationshipWriter(
+                    relationshipMapsToWrite,
+                    this.writeSemaphore,
+                    "Processing " + genomicConceptType.toString() + " relationships from: " + trimZipName(
+                    importSpecification.contentProvider.getStreamSourceName()),
+                    genomicConceptType);
+            Get.executor().submit(genomicDescriptionWriter);
+        }
+    }
+
+    private HashMap<String, Set<String>> readGeneSpecificSummary(BufferedReader br, ImportSpecification importSpecification)
+            throws IOException {
+
+        AssemblageService assemblageService = Get.assemblageService();
+        ConceptService conceptService = Get.conceptService();
+
+        String rowString;
+        br.readLine();  // discard header row
+        HashMap<String, Set<String>> geneDescriptionMap = new HashMap<>();
+        HashSet<String> geneConceptSet = new HashSet<>();
+
+        while ((rowString = br.readLine()) != null) {
+            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+
+            if (!columns[0].isEmpty() && !columns[1].isEmpty()) {
+
+                geneConceptSet.add(columns[1]);
+
+                if (!geneDescriptionMap.keySet().contains(columns[1])) {
+                    Set<String> valueSet = new HashSet<>();
+                    valueSet.add(columns[0]);
+                    geneDescriptionMap.put(columns[1], valueSet);
+                } else {
+                    Set<String> value = geneDescriptionMap.get(columns[1]);
+                    value.add(columns[0]);
+                }
+            }
+        }
+
+        /**
+         * Writing remainder of gene concepts not found in variant_summary.txt
+         */
+        writeGenomicComponent(geneConceptSet, importSpecification, GenomicConceptType.GENE, 1024);
+
+        updateMessage("Waiting for Genomic concepts file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing concept database...");
+        conceptService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
+        return geneDescriptionMap;
+    }
+
+    private void readGeneConditionSource(BufferedReader br, ImportSpecification importSpecification)
+            throws IOException {
+
+        String rowString;
+        br.readLine();  // discard header row
+        AssemblageService assemblageService = Get.assemblageService();
+        HashMap<String, Set<String>> geneSNOMEDRelationshipMap = new HashMap<>();
+
+        //Normalizing very repetitive CLINVAR data, seems to be designed for ease of research
+        while ((rowString = br.readLine()) != null) {
+            String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+            //Apparently you can have a variant summary on an unknown, not yet created variant (e.g. ""/null)
+            if (!columns[0].isEmpty() && !columns[5].isEmpty() && !columns[6].isEmpty()) {
+
+                if (columns[5].equals("SNOMED CT")) {
+                    if (!geneSNOMEDRelationshipMap.keySet().contains(columns[0])) {
+                        Set<String> valueSet = new HashSet<>();
+                        valueSet.add(columns[6]);
+                        geneSNOMEDRelationshipMap.put(columns[0], valueSet);
+                    } else {
+                        Set<String> value = geneSNOMEDRelationshipMap.get(columns[0]);
+                        value.add(columns[6]);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Writing gene -> snomed relationships
+         */
+        writeGenomicRelationships(geneSNOMEDRelationshipMap, importSpecification, GenomicConceptType.GENE_SNOMED, 1024);
+
+        updateMessage("Waiting for Genomic relationship file completion...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        updateMessage("Synchronizing indexes...");
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                LOG.error("problem calling sync on index", e);
+            }
+        }
+        updateMessage("Synchronizing relationship database...");
+        assemblageService.sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
+
     }
 
     public static String trimZipName(String zipName) {
