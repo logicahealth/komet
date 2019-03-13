@@ -7,11 +7,11 @@ import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.solor.direct.clinvar.generic.model.ConceptArtifact;
-import sh.isaac.solor.direct.clinvar.generic.model.DescriptionArtifact;
-import sh.isaac.solor.direct.clinvar.generic.writers.ConceptWriter;
-import sh.isaac.solor.direct.clinvar.generic.writers.DescriptionWriter;
-import sh.isaac.solor.direct.clinvar.generic.writers.SemanticWriter;
+import sh.isaac.solor.direct.clinvar.model.ConceptArtifact;
+import sh.isaac.solor.direct.clinvar.model.DescriptionArtifact;
+import sh.isaac.solor.direct.clinvar.writers.GenomicConceptWriter;
+import sh.isaac.solor.direct.clinvar.writers.GenomicDescriptionWriter;
+import sh.isaac.solor.direct.clinvar.writers.GenomicNonDefiningTaxonomyWriter;
 
 import java.io.BufferedReader;
 import java.util.*;
@@ -33,7 +33,6 @@ public class ClinvarImporter {
     private final String clinvarNamespace = "gov.nih.nlm.ncbi.clinvar.";
     private final UUID variantNamspaceUUID = UuidT5Generator.get(clinvarNamespace + "variant.");
     private final UUID geneNamespaceUUID = UuidT5Generator.get(clinvarNamespace + "gene.");
-    private final String relationshipNamespace = clinvarNamespace + "rel.";
     private final ConceptService conceptService;
     private final AssemblageService assemblageService;
     private final IdentifierService identifierService;
@@ -123,10 +122,10 @@ public class ClinvarImporter {
                     )));
 
             //Concepts
-            Get.executor().submit(new ConceptWriter(this.variantConceptArtifacts,
+            Get.executor().submit(new GenomicConceptWriter(this.variantConceptArtifacts,
                     this.writeSemaphore, this.variantNamspaceUUID,
                     MetaData.CLINVAR_VARIANT_ID____SOLOR, MetaData.CLINVAR_DEFINITION_ASSEMBLAGE____SOLOR));
-            Get.executor().submit(new ConceptWriter(this.geneConceptArtifacts,
+            Get.executor().submit(new GenomicConceptWriter(this.geneConceptArtifacts,
                     this.writeSemaphore, this.geneNamespaceUUID,
                     MetaData.NCBI_GENE_ID____SOLOR, MetaData.CLINVAR_DEFINITION_ASSEMBLAGE____SOLOR));
 
@@ -181,9 +180,9 @@ public class ClinvarImporter {
             System.out.println("break");
 
             //Descriptions
-            Get.executor().submit(new DescriptionWriter(this.variantDescriptionArtifacts, this.writeSemaphore,
+            Get.executor().submit(new GenomicDescriptionWriter(this.variantDescriptionArtifacts, this.writeSemaphore,
                     this.variantNamspaceUUID, MetaData.CLINVAR_DESCRIPTION_ID____SOLOR));
-            Get.executor().submit(new DescriptionWriter(this.geneDescriptionArtifacts, this.writeSemaphore,
+            Get.executor().submit(new GenomicDescriptionWriter(this.geneDescriptionArtifacts, this.writeSemaphore,
                    this.geneNamespaceUUID, MetaData.CLINVAR_DESCRIPTION_ID____SOLOR));
 
             this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
@@ -222,7 +221,7 @@ public class ClinvarImporter {
                             })
                     );
 
-            Get.executor().submit(new SemanticWriter(this.nonDefiningTaxonomies, this.writeSemaphore));
+            Get.executor().submit(new GenomicNonDefiningTaxonomyWriter(this.nonDefiningTaxonomies, this.writeSemaphore));
 
             this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
             for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
@@ -238,18 +237,6 @@ public class ClinvarImporter {
         }catch (Exception e){
             e.printStackTrace();
         }
-
-    }
-
-    public void transform(){
-
-        System.out.println("");
-
-
-
-    }
-
-    public void load(){
 
     }
 }

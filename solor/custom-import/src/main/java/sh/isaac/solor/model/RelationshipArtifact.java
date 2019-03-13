@@ -1,8 +1,8 @@
-package sh.isaac.solor.direct.clinvar.generic.model;
+package sh.isaac.solor.model;
 
 import sh.isaac.api.Status;
-import sh.isaac.solor.direct.clinvar.generic.model.fields.CoreFields;
-import sh.isaac.solor.direct.clinvar.generic.model.fields.RelationshipFields;
+import sh.isaac.solor.model.fields.CoreFields;
+import sh.isaac.solor.model.fields.RelationshipFields;
 
 /**
  * 2019-03-07

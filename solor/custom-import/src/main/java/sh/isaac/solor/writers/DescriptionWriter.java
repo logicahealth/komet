@@ -1,4 +1,4 @@
-package sh.isaac.solor.direct.clinvar.generic.writers;
+package sh.isaac.solor.writers;
 
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
@@ -13,7 +13,7 @@ import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.solor.direct.clinvar.generic.model.DescriptionArtifact;
+import sh.isaac.solor.model.DescriptionArtifact;
 
 import java.util.List;
 import java.util.UUID;

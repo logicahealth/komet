@@ -1,4 +1,4 @@
-package sh.isaac.solor.direct.clinvar.generic.model.fields;
+package sh.isaac.solor.model.fields;
 
 import sh.isaac.api.Status;
 

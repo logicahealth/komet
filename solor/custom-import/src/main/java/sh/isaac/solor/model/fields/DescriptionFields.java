@@ -1,6 +1,4 @@
-package sh.isaac.solor.direct.clinvar.generic.model.fields;
-
-import java.util.UUID;
+package sh.isaac.solor.model.fields;
 
 /**
  * 2019-03-07

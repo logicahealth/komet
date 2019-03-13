@@ -1,11 +1,8 @@
-package sh.isaac.solor.direct.clinvar.generic.model;
+package sh.isaac.solor.model;
 
 import sh.isaac.api.Status;
-import sh.isaac.api.util.Hashcode;
-import sh.isaac.solor.direct.clinvar.generic.model.fields.CoreFields;
-import sh.isaac.solor.direct.clinvar.generic.model.fields.DescriptionFields;
-
-import java.util.UUID;
+import sh.isaac.solor.model.fields.CoreFields;
+import sh.isaac.solor.model.fields.DescriptionFields;
 
 /**
  * 2019-03-07

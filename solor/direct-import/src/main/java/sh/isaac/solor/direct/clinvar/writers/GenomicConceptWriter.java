@@ -1,4 +1,4 @@
-package sh.isaac.solor.direct.clinvar.generic.writers;
+package sh.isaac.solor.direct.clinvar.writers;
 
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
@@ -16,17 +16,19 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.solor.direct.clinvar.generic.model.ConceptArtifact;
+import sh.isaac.solor.direct.clinvar.model.ConceptArtifact;
+
 
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 2019-03-07
  * aks8m - https://github.com/aks8m
  */
-public class ConceptWriter extends TimedTaskWithProgressTracker<Void> {
+public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
 
     private final List<ConceptArtifact> conceptArtifacts;
     private final Semaphore writeSemaphore;
@@ -37,10 +39,11 @@ public class ConceptWriter extends TimedTaskWithProgressTracker<Void> {
     private final ConceptSpecification identifierAssemblageConceptSpec;
     private final ConceptSpecification definitionStatusAssemblageConceptSpec;
     private final List<IndexBuilderService> indexers;
+    private final int batchSize = 10000;
 
-    public ConceptWriter(List<ConceptArtifact> conceptArtifacts, Semaphore writeSemaphore,
-                         UUID conceptNamespaceUUID, ConceptSpecification identifierAssemblageConceptSpec,
-                         ConceptSpecification definitionStatusAssemblageConceptSpec) {
+    public GenomicConceptWriter(List<ConceptArtifact> conceptArtifacts, Semaphore writeSemaphore,
+                                UUID conceptNamespaceUUID, ConceptSpecification identifierAssemblageConceptSpec,
+                                ConceptSpecification definitionStatusAssemblageConceptSpec) {
 
         this.conceptArtifacts = conceptArtifacts;
         this.writeSemaphore = writeSemaphore;
@@ -56,18 +59,21 @@ public class ConceptWriter extends TimedTaskWithProgressTracker<Void> {
         this.writeSemaphore.acquireUninterruptibly();
         updateTitle("Importing concept batch of size: " + this.conceptArtifacts.size());
         updateMessage("Solorizing concepts");
-        addToTotalWork(this.conceptArtifacts.size());
+        addToTotalWork(this.conceptArtifacts.size() / this.batchSize);
         Get.activeTasks().add(this);
     }
 
     @Override
     protected Void call() throws Exception {
 
+        final AtomicInteger batchCount = new AtomicInteger(0);
+
         try{
 
             this.conceptArtifacts.stream()
                     .forEach(conceptArtifact -> {
 
+                        batchCount.incrementAndGet();
 
                         //Create concept
                         ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(
@@ -112,6 +118,9 @@ public class ConceptWriter extends TimedTaskWithProgressTracker<Void> {
                         idVersion.setString(conceptArtifact.getID());
                         index(identifierToWrite);
                         this.assemblageService.writeSemanticChronology(identifierToWrite);
+
+                        if(batchCount.get() % this.batchSize == 0)
+                            completedUnitOfWork();
                     });
 
         }finally {

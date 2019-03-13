@@ -16,5 +16,6 @@
         <module>solor-mojo</module>
         <module>direct-import</module>
         <module>direct-export</module>
+        <module>custom-import</module>
     </modules>
 </project>
