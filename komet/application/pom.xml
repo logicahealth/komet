@@ -507,7 +507,7 @@
             <dependencies>
                 <dependency>
                     <groupId>one.solor</groupId>
-                    <artifactId>solor-db</artifactId>
+                    <artifactId>solor-us-db</artifactId>
                     <version>${solor.db.version}</version>
                     <type>zip</type>
                 </dependency>
@@ -528,7 +528,7 @@
                                     <artifactItems>
                                         <artifact>
                                             <groupId>one.solor</groupId>
-                                            <artifactId>solor-db</artifactId>
+                                            <artifactId>solor-us-db</artifactId>
                                             <version>${solor.db.version}</version>
                                             <type>zip</type>
                                         </artifact>

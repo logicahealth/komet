@@ -134,62 +134,6 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     public static final int INEXACT_SNOMED = 26;
     //SNOMED Sibling/Child	
     public static final int SNOMED_SIB_CHILD = 27;
-    //icd_10_cm	
-    //icd_10_pcs	
-    //icd_9_cm	
-    //icf	
-    //icpc	
-    //loinc	
-    //mdc	
-    //mesh	
-    //radlex	
-    //rx_cui	
-    //snomed_ct	
-    //ccs-single_category_icd_10	
-    //ccs-multi_level_1_icd_10	
-    //ccs-multi_level_2_icd_10	
-    //Inexact RxNorm	
-    //RxNorm Sibling/Child	
-    //Inexact SNOMED	
-    //SNOMED Sibling/Child	
-    //icd_10_cm	
-    //icd_10_pcs
-    //icd_9_cm	
-    //icf	
-    //icpc	
-    //loinc	
-    //mdc	
-    //mesh	
-    //radlex	
-    //rx_cui	
-    //snomed_ct	
-    //ccs-single_category_icd_10	
-    //ccs-multi_level_1_icd_10	
-    //ccs-multi_level_2_icd_10	
-    //Inexact RxNorm	
-    //RxNorm Sibling/Child	
-    //Inexact SNOMED	
-    //SNOMED Sibling/Child	
-    //icd_10_cm	
-    //icd_10_pcs	
-    //icd_9_cm	
-    //icf	
-    //icpc	
-    //loinc	
-    //mdc	
-    //mesh	
-    //radlex	
-    //rx_cui	
-    //snomed_ct	
-    //ccs-single_category_icd_10	
-    //ccs-multi_level_1_icd_10	
-    //ccs-multi_level_2_icd_10	
-    //Inexact RxNorm	
-    //RxNorm Sibling/Child	
-    //Inexact SNOMED	
-    //SNOMED Sibling/Child
-    
-
 
     
     
@@ -242,6 +186,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
             // All deprecated records are filtered out already
             for (String[] hoRec : hoRecords) {
+                hoRec = clean(hoRec);
                 try {
 
                     int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
@@ -322,6 +267,9 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             if (hoRec[INEXACT_SNOMED].isEmpty() && 
                     hoRec[SNOMED_SIB_CHILD].isEmpty() &&
                     !hoRec[SNOMEDCT].contains(".")) {
+                if (hoRec[SNOMEDCT].equals("782587007")) {
+                    LOG.info("Found watch: " + hoRec[SNOMEDCT]);
+                }
                 UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
                 if (Get.identifierService().hasUuid(snomedUuid)) {
                     int snomedNid = Get.nidForUuids(snomedUuid);
@@ -333,7 +281,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     
                     
                 } else {
-                    LOG.info("No concept for: " + hoRec[SNOMEDCT]);
+                    LOG.info("No concept for: |" + hoRec[SNOMEDCT] + "|" + snomedUuid.toString());
                 }
             }
         }
@@ -490,6 +438,25 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             index(chronology);
         }
 
+    }
+
+    private String[] clean(String[] hoRec) {
+        for (int i = 0; i < hoRec.length; i++) {
+            hoRec[i] = hoRec[i].trim();
+            if (hoRec[i].startsWith("'")) {
+                hoRec[i] = hoRec[i].substring(1);
+            }
+            if (hoRec[i].endsWith("'")) {
+                hoRec[i] = hoRec[i].substring(0, hoRec[i].length() - 1);
+            }
+            if (hoRec[i].startsWith("\"")) {
+                hoRec[i] = hoRec[i].substring(1);
+            }
+            if (hoRec[i].endsWith("\"")) {
+                hoRec[i] = hoRec[i].substring(0, hoRec[i].length() - 1);
+            }
+        }
+        return hoRec;
     }
 
 }

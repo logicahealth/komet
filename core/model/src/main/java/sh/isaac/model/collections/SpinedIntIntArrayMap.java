@@ -16,36 +16,26 @@
  */
 package sh.isaac.model.collections;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.store.IntIntArrayStore;
 
 /**
- *
  * @author kec
  */
 public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
@@ -53,157 +43,68 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
     private static final Logger LOG = LogManager.getLogger();
 
     private static final int DEFAULT_ELEMENTS_PER_SPINE = 1024;
+
+    protected final IntIntArrayStore intIntArrayStore;
     protected final int elementsPerSpine;
     private final ConcurrentMap<Integer, AtomicReferenceArray<int[]>> spines = new ConcurrentHashMap<>();
-    private Function<int[], String> elementStringConverter;
-    private final Semaphore diskSemaphore = new Semaphore(1);
     protected final AtomicInteger spineCount = new AtomicInteger();
     protected final ConcurrentSkipListSet<Integer> changedSpineIndexes = new ConcurrentSkipListSet<>();
 
-    public void setElementStringConverter(Function<int[], String> elementStringConverter) {
-        this.elementStringConverter = elementStringConverter;
-    }
-
-    public void printToConsole() {
-        if (elementStringConverter != null) {
-            forEach((key, value) -> {
-                System.out.println(key + ": " + elementStringConverter.apply(value));
-            });
-        } else {
-            forEach((key, value) -> {
-                System.out.println(key + ": " + Arrays.toString(value));
-            });
-        }
-    }
-
-    public SpinedIntIntArrayMap() {
+    public SpinedIntIntArrayMap(IntIntArrayStore intIntArrayStore) {
         this.elementsPerSpine = DEFAULT_ELEMENTS_PER_SPINE;
+        this.intIntArrayStore = intIntArrayStore;
     }
 
-    public int sizeInBytes() {
-        int sizeInBytes = 0;
-        sizeInBytes = sizeInBytes + ((elementsPerSpine * 8) * spineCount.get());  // 8 bytes = pointer to an object
 
-        for (int spineIndex = 0; spineIndex < spineCount.get(); spineIndex++) {
-            AtomicReferenceArray<int[]> spine = spines.get(spineIndex);
-            if (spine != null) {
-                for (int spineElement = 0; spineElement < spine.length(); spineElement++) {
-                    int[] value = spine.get(spineElement);
-
-                    if (value != null) {
-                        sizeInBytes = sizeInBytes + (value.length * 4);
-                    }
-                }
-            }
-
-        }
-
-        return sizeInBytes;
-    }
-    
     /**
      * {@inheritDoc}
      */
     @Override
     public int size() {
-       int size = 0;
-       int currentSpineCount = this.spineCount.get();
-       for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
-          AtomicReferenceArray<int[]> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
-          for (int indexInSpine = 0; indexInSpine < elementsPerSpine; indexInSpine++) {
-             int[] element = spine.get(indexInSpine);
-             if (element != null) {
-                size++;
-             }
-          }
-       }
-       return size;
+        int size = 0;
+        int currentSpineCount = this.spineCount.get();
+        for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
+            AtomicReferenceArray<int[]> spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
+            for (int indexInSpine = 0; indexInSpine < elementsPerSpine; indexInSpine++) {
+                int[] element = spine.get(indexInSpine);
+                if (element != null) {
+                    size++;
+                }
+            }
+        }
+        return size;
     }
 
     /**
-     *
-     * @param directory
-     * @return the number of spine files read.
+     * @return the number of spines read.
      */
-    public int read(File directory) {
-        diskSemaphore.acquireUninterruptibly();
-        try {
-            spineCount.set(SpineFileUtil.readSpineCount(directory));
-            
-            File[] files = directory.listFiles((pathname) -> {
-                return pathname.getName().startsWith(SpineFileUtil.SPINE_PREFIX);
-            });
-            int spineFilesRead = 0;
-            for (File spineFile : files) {
-                spineFilesRead++;
-                int spine = Integer.parseInt(spineFile.getName().substring(SpineFileUtil.SPINE_PREFIX.length()));
-                try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(spineFile)))) {
-                    int arraySize = dis.readInt();
-                    int offset = arraySize * spine;
-                    for (int i = 0; i < arraySize; i++) {
-                        int valueSize = dis.readInt();
-                        if (valueSize != 0) {
-                            int[] value = new int[valueSize];
-                            internalPut(offset + i, value);
-                            for (int j = 0; j < valueSize; j++) {
-                                value[j] = dis.readInt();
-                            }
-                        }
-                    }
-                } catch (IOException ex) {
-                    LOG.error(ex);
-                   throw new RuntimeException(ex);
-                 }
+    public int read() {
+        int spinesInStore = this.intIntArrayStore.getSpineCount();
+        this.spineCount.set(spinesInStore);
+        for (int i = 0; i < spinesInStore; i++) {
+            Optional<AtomicReferenceArray<int[]>> optionalData = this.intIntArrayStore.get(i);
+            if (optionalData.isPresent()) {
+                this.spines.put(i, optionalData.get());
             }
-            return spineFilesRead;
-        } finally {
-            diskSemaphore.release();
         }
+        return spinesInStore;
     }
 
-    public boolean write(File directory) {
+    public boolean write() {
         AtomicBoolean wroteAny = new AtomicBoolean(false);
-        try {
-            directory.mkdirs();
-            SpineFileUtil.writeSpineCount(directory, spineCount.get());
-            spines.forEach((Integer key, AtomicReferenceArray<int[]> spine) -> {
-                String spineKey = SpineFileUtil.SPINE_PREFIX + key;
-                boolean spineChanged = changedSpineIndexes.contains(key);
-                
-                if (spineChanged) {
-                    wroteAny.set(true);
-                    changedSpineIndexes.remove(key);
-                    File spineFile = new File(directory, spineKey);
-                    diskSemaphore.acquireUninterruptibly();
-                    try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
-                        dos.writeInt(spine.length());
-                        for (int i = 0; i < spine.length(); i++) {
-                            int[] value = spine.get(i);
-                            if (value == null) {
-                                dos.writeInt(0);
-                            } else {
-                                dos.writeInt(value.length);
-                                for (int valueElement : value) {
-                                    dos.writeInt(valueElement);
-                                }
-                            }
-                        }
-                    } catch (IOException ex) {
-                        LOG.error(ex);
-                        throw new RuntimeException(ex);
-                    } finally {
-                        diskSemaphore.release();
-                    }
-                }
-            });
-        } catch (IOException ex) {
-            LOG.error(ex);
-            throw new RuntimeException(ex);
-        }
+        this.intIntArrayStore.writeSpineCount(spines.size());
+        spines.forEach((Integer key, AtomicReferenceArray<int[]> spine) -> {
+            boolean spineChanged = changedSpineIndexes.contains(key);
+            if (spineChanged) {
+                wroteAny.set(true);
+                changedSpineIndexes.remove(key);
+                this.intIntArrayStore.put(key, spine);
+            }
+        });
         return wroteAny.get();
     }
 
-    private int getSpineCount() {
+    public int getSpineCount() {
         return spineCount.get();
     }
 
@@ -212,7 +113,7 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
         this.spineCount.set(Math.max(this.spineCount.get(), spineKey + 1));
         return spine;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -221,8 +122,7 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {
                 index = ModelGet.sequenceStore().getElementSequenceForNid(index);
-            }
-            else {
+            } else {
                 index = Integer.MAX_VALUE + index;
             }
         }
@@ -230,16 +130,6 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
         int indexInSpine = index % elementsPerSpine;
         this.changedSpineIndexes.add(spineIndex);
         return this.spines.computeIfAbsent(spineIndex, this::newSpine).getAndSet(indexInSpine, element) == null;
-    }
-
-    private void internalPut(int index, int[] element) {
-        if (index < 0) {
-            throw new IllegalStateException("sequence must be positive: " + index);
-        }
-        int spineIndex = index / elementsPerSpine;
-        int indexInSpine = index % elementsPerSpine;
-        this.changedSpineIndexes.add(spineIndex);
-        this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
     }
 
     /**
@@ -250,8 +140,7 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {
                 index = ModelGet.sequenceStore().getElementSequenceForNid(index);
-            }
-            else {
+            } else {
                 index = Integer.MAX_VALUE + index;
             }
         }
@@ -259,13 +148,12 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
         int indexInSpine = index % elementsPerSpine;
         return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<int[]> getOptional(int key)
-    {
+    public Optional<int[]> getOptional(int key) {
         return Optional.ofNullable(get(key));
     }
 
@@ -277,8 +165,7 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {
                 index = ModelGet.sequenceStore().getElementSequenceForNid(index);
-            }
-            else {
+            } else {
                 index = Integer.MAX_VALUE + index;
             }
         }
@@ -304,8 +191,7 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {
                 index = ModelGet.sequenceStore().getElementSequenceForNid(index);
-            }
-            else {
+            } else {
                 index = Integer.MAX_VALUE + index;
             }
         }
@@ -335,8 +221,7 @@ public class SpinedIntIntArrayMap implements IntObjectMap<int[]> {
         if (index < 0) {
             if (ModelGet.sequenceStore() != null) {
                 index = ModelGet.sequenceStore().getElementSequenceForNid(index);
-            }
-            else {
+            } else {
                 index = Integer.MAX_VALUE + index;
             }
         }

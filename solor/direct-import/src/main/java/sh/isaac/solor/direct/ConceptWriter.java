@@ -221,6 +221,9 @@ id	effectiveTime	active	moduleId	definitionStatusId
                        DirectImporter.getIsoInstant(conceptRecord[SRF_TIME_INDEX]));
             }else{
                conceptUuid = UuidT3Generator.fromSNOMED(conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
+                if (conceptRecord[RF2_CONCEPT_SCT_ID_INDEX].contains("782587007")) {
+                    LOG.info("Found watch: |" + conceptRecord[RF2_CONCEPT_SCT_ID_INDEX] + "|" + conceptUuid.toString());
+                }
                moduleUuid = UuidT3Generator.fromSNOMED(conceptRecord[RF2_MODULE_SCTID_INDEX]);
                legacyDefStatus = UuidT3Generator.fromSNOMED(conceptRecord[RF2_DEF_STATUS_INDEX]);
                accessor = DateTimeFormatter.ISO_INSTANT.parse(
@@ -284,6 +287,9 @@ id	effectiveTime	active	moduleId	definitionStatusId
          }
 
          return null;
+      } catch (Throwable ex) {
+          LOG.error(ex.getLocalizedMessage(), ex);
+          throw ex;
       } finally {
          this.writeSemaphore.release();
          Get.activeTasks().remove(this);

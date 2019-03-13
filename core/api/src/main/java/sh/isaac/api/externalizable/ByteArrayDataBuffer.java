@@ -45,7 +45,9 @@ import java.io.UTFDataFormatException;
 
 import java.nio.ReadOnlyBufferException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.locks.StampedLock;
 
@@ -1270,6 +1272,80 @@ public class ByteArrayDataBuffer {
     */
    public UUID getUuid() {
       return new UUID(getLong(), getLong());
+   }
+
+   public byte[][] toDataArray() {
+      // TODO eliminate the differences between the byte[][] data formatting, and the ByteArrayDataBuffer
+      // Thus simplify the serialization representation.
+      List<byte[]> dataArray = new ArrayList<>();
+      byte[] dataToSplit = this.data;
+
+      IsaacObjectType objectType = IsaacObjectType.fromToken(dataToSplit[0]);
+      int versionStartPosition = objectType.getVersionStart();
+
+      byte[] chronicleBytes = new byte[versionStartPosition + 4]; // +4 for the zero integer to start.
+      for (int i = 0; i < chronicleBytes.length; i++) {
+         if (i < 4) {
+            chronicleBytes[i] = 0;
+         } else {
+            chronicleBytes[i] = dataToSplit[i - 4];
+         }
+      }
+      dataArray.add(chronicleBytes);
+
+      int versionStart = versionStartPosition;
+      getInt(dataToSplit, versionStart);
+      int versionSize = getInt(dataToSplit, versionStart);
+
+      while (versionSize != 0) {
+         int versionTo = versionStart + versionSize;
+         int newLength = versionTo - versionStart;
+         if (versionTo < 0) {
+            throw new IllegalStateException("Error versionTo: " + versionTo);
+         }
+         if (newLength < 0) {
+           throw new IllegalStateException("Error newLength: " + newLength);
+         }
+         dataArray.add(Arrays.copyOfRange(dataToSplit, versionStart, versionTo));
+         versionStart = versionStart + versionSize;
+         versionSize = getInt(dataToSplit, versionStart);
+      }
+      return dataArray.toArray(new byte[dataArray.size()][]);
+   }
+
+   public static ByteArrayDataBuffer dataArrayToBuffer(byte[][] data) {
+      // TODO eliminate the differences between the byte[][] data formatting, and the ByteArrayDataBuffer
+      // Thus simplify the serialization representation.
+      int size = 0;
+
+      for (byte[] dataEntry : data) {
+         size = size + dataEntry.length;
+      }
+
+      ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(
+              size + 4);  // room for 0 int value at end to indicate last version
+
+      for (int i = 0; i < data.length; i++) {
+         if (i == 0) {
+            // discard the 0 integer at the beginning of the record.
+            // 0 put in to enable the chronicle to sort before the versions.
+            if (data[0][0] != 0 && data[0][1] != 0 && data[0][2] != 0 && data[0][3] != 0) {
+               throw new IllegalStateException("Record does not start with zero...");
+            }
+            byteBuffer.put(data[0], 4, data[0].length - 4);
+         } else {
+            byteBuffer.put(data[i]);
+         }
+
+      }
+
+      byteBuffer.putInt(0);
+      byteBuffer.rewind();
+
+      if (byteBuffer.getUsed() != size) {
+         throw new IllegalStateException("Size = " + size + " used = " + byteBuffer.getUsed());
+      }
+      return byteBuffer;
    }
 }
 
