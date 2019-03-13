@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 @Service(name = "CACHE")
 @Singleton
 public class CacheProvider
-        implements IdentifierService, DataStoreSubService {
+        implements DatastoreAndIdentiferService {
     private static final Logger LOG = LogManager.getLogger();
 
 
@@ -388,7 +388,7 @@ public class CacheProvider
             }
             
         }
-        return Optional.of(ByteArrayDataBuffer.dataArrayToBuffer(data));
+        return Optional.of(ByteArrayDataBuffer.dataArrayToBuffer(data)); 
     }
 
     @Override
