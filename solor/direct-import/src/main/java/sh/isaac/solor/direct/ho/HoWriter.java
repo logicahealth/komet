@@ -131,9 +131,17 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     //RxNorm Sibling/Child	
     public static final int RXNORM_SIB_CHILD = 25;
     //Inexact SNOMED	
-    public static final int INEXACT_SNOMED = 26;
+    public static final int INEXACT_SNOMED_1 = 26;
     //SNOMED Sibling/Child	
-    public static final int SNOMED_SIB_CHILD = 27;
+    public static final int SNOMED_SIB_CHILD_1 = 27;
+    //Inexact SNOMED	
+    public static final int INEXACT_SNOMED_2 = 28;
+    //SNOMED Sibling/Child	
+    public static final int SNOMED_SIB_CHILD_2 = 29;
+    //Inexact SNOMED	
+    public static final int INEXACT_SNOMED_3 = 30;
+    //SNOMED Sibling/Child	
+    public static final int SNOMED_SIB_CHILD_3 = 31;
 
     private final List<String[]> hoRecords;
     private final Semaphore writeSemaphore;
@@ -144,6 +152,13 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
     public static UUID refidToUuid(String refid) {
         return UuidT5Generator.get(LEGACY_HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), refid);
+    }
+    public static int refidToNid(String refid) {
+        return Get.nidWithAssignment(UuidT5Generator.get(LEGACY_HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), refid));
+    }
+
+    public static UUID refidToSolorUuid(String refid) {
+        return UuidT5Generator.get(HUMAN_DX_MODULE.getPrimordialUuid(), refid);
     }
 
     public HoWriter(List<String[]> hoRecords,
@@ -184,8 +199,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
             // All deprecated records are filtered out already
             for (String[] hoRec : hoRecords) {
-                if (hoRec.length < SNOMED_SIB_CHILD + 1) {
-                    String[] newRec = new String[SNOMED_SIB_CHILD + 1];
+                if (hoRec.length < SNOMED_SIB_CHILD_3 + 1) {
+                    String[] newRec = new String[SNOMED_SIB_CHILD_3 + 1];
                     Arrays.fill(newRec, "");
                     for (int i = 0; i < hoRec.length; i++) {
                         newRec[i] = hoRec[i];
@@ -272,12 +287,9 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
         eb.necessarySet(eb.and(parents));
         if (!hoRec[SNOMEDCT].isEmpty()) {
-            if (hoRec[INEXACT_SNOMED].isEmpty()
-                    && hoRec[SNOMED_SIB_CHILD].isEmpty()
+            if (hoRec[INEXACT_SNOMED_1].isEmpty()
+                    && hoRec[SNOMED_SIB_CHILD_1].isEmpty()
                     && !hoRec[SNOMEDCT].contains(".")) {
-                if (hoRec[SNOMEDCT].equals("782587007")) {
-                    LOG.info("Found watch: " + hoRec[SNOMEDCT]);
-                }
                 UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
                 if (Get.identifierService().hasUuid(snomedUuid)) {
                     int snomedNid = Get.nidForUuids(snomedUuid);
@@ -290,7 +302,22 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 } else {
                     LOG.info("No concept for: |" + hoRec[SNOMEDCT] + "|" + snomedUuid.toString());
                 }
+            } else if (!hoRec[INEXACT_SNOMED_1].isEmpty()) {
+                LOG.error("SNOMED and inexact populated: " + Arrays.asList(hoRec));
             }
+        } else if (!hoRec[INEXACT_SNOMED_1].isEmpty()) {
+                // '22325002'	'Child'	8510008'	'Child'
+                // '16737003'	'Sibling'
+                // '216757002'	'Parent' - Remember to process a parent relationship like a sibling one
+                switch (hoRec[SNOMED_SIB_CHILD_1]) {
+                    case "Child":
+                        addChild(conceptName, stamp, hoRec);
+                        break;
+                    case "Sibling":
+                    case "Parent":
+                        addSibling(conceptName, stamp, hoRec);
+                        break;
+                }
         }
 
         ConceptBuilderService builderService = Get.conceptBuilderService();
@@ -334,11 +361,23 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 throw new NoSuchElementException("No identifier for: " + hoRec[SNOMEDCT]);
             }
         }
-        if (!hoRec[INEXACT_SNOMED].isEmpty()) {
-            builder.addStringSemantic(hoRec[INEXACT_SNOMED], INEXACT_SNOMED_ASSEMBLAGE);
+        if (!hoRec[INEXACT_SNOMED_1].isEmpty()) {
+            builder.addStringSemantic(hoRec[INEXACT_SNOMED_1], INEXACT_SNOMED_ASSEMBLAGE);
         }
-        if (!hoRec[SNOMED_SIB_CHILD].isEmpty()) {
-            builder.addStringSemantic(hoRec[SNOMED_SIB_CHILD], SNOMED_SIB_CHILD_ASSEMBLAGE);
+        if (!hoRec[SNOMED_SIB_CHILD_1].isEmpty()) {
+            builder.addStringSemantic(hoRec[SNOMED_SIB_CHILD_1], SNOMED_SIB_CHILD_ASSEMBLAGE);
+        }
+        if (!hoRec[INEXACT_SNOMED_2].isEmpty()) {
+            builder.addStringSemantic(hoRec[INEXACT_SNOMED_2], INEXACT_SNOMED_ASSEMBLAGE);
+        }
+        if (!hoRec[SNOMED_SIB_CHILD_2].isEmpty()) {
+            builder.addStringSemantic(hoRec[SNOMED_SIB_CHILD_2], SNOMED_SIB_CHILD_ASSEMBLAGE);
+        }
+        if (!hoRec[INEXACT_SNOMED_3].isEmpty()) {
+            builder.addStringSemantic(hoRec[INEXACT_SNOMED_3], INEXACT_SNOMED_ASSEMBLAGE);
+        }
+        if (!hoRec[SNOMED_SIB_CHILD_3].isEmpty()) {
+            builder.addStringSemantic(hoRec[SNOMED_SIB_CHILD_3], SNOMED_SIB_CHILD_ASSEMBLAGE);
         }
         buildAndIndex(builder, stamp, hoRec);
     }
@@ -466,6 +505,52 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             }
         }
         return hoRec;
+    }
+
+    private void addChild(String conceptName, int stamp, String[] hoRec) {
+        UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
+       int conceptNid = Get.nidWithAssignment(conceptUuid);
+        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+        List<Integer> parentConceptNidList = new ArrayList<>();
+        if (!hoRec[INEXACT_SNOMED_1].isEmpty()) {
+            parentConceptNidList.add(getNidForSCTID(hoRec[INEXACT_SNOMED_1]));
+        }
+        if (!hoRec[INEXACT_SNOMED_2].isEmpty()) {
+            parentConceptNidList.add(getNidForSCTID(hoRec[INEXACT_SNOMED_2]));
+        }
+        if (!hoRec[INEXACT_SNOMED_3].isEmpty()) {
+            parentConceptNidList.add(getNidForSCTID(hoRec[INEXACT_SNOMED_3]));
+        }
+ 
+        ConceptAssertion[] parents = new ConceptAssertion[parentConceptNidList.size()];
+        for (int i = 0; i < parentConceptNidList.size(); i++) {
+            parents[i] = eb.conceptAssertion(parentConceptNidList.get(i));
+        }
+
+        eb.necessarySet(eb.and(parents));
+        ConceptBuilderService builderService = Get.conceptBuilderService();
+        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
+                "HDX",
+                eb.build(),
+                TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+        builder.setPrimordialUuid(conceptUuid);    
+        buildAndIndex(builder, stamp, hoRec);
+        //
+    
+        SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(conceptNid, refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
+        List<Chronology> builtObjects = new ArrayList<>();
+        semanticBuilder.build(stamp, builtObjects);
+        buildAndIndex(semanticBuilder, stamp, hoRec);
+    }
+
+    private int getNidForSCTID(String sctid) {
+        UUID snomedUuid = UuidT3Generator.fromSNOMED(sctid);
+        return Get.nidForUuids(snomedUuid);
+    }
+
+    private void addSibling(String conceptName, int stamp, String[] hoRec) {
+        UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
+        
     }
 
 }
