@@ -119,8 +119,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     //rx_cui	
     public static final int RXCUI = 19;
     //snomed_ct	
-     public static final int SNOMEDCT = 20;
-   //ccs-single_category_icd_10	
+    public static final int SNOMEDCT = 20;
+    //ccs-single_category_icd_10	
     public static final int CCS_SINGLE_CAT_ICD = 21;
     //ccs-multi_level_1_icd_10	
     public static final int CCS_MULTI_LEVEL_1_ICD = 22;
@@ -135,8 +135,6 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     //SNOMED Sibling/Child	
     public static final int SNOMED_SIB_CHILD = 27;
 
-    
-    
     private final List<String[]> hoRecords;
     private final Semaphore writeSemaphore;
     private final List<IndexBuilderService> indexers;
@@ -181,7 +179,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             HashMap<String, String> nameRefidMap = new HashMap<>();
             for (String[] hoRec : hoRecords) {
                 nameRefidMap.put(hoRec[NAME], hoRec[REFID]);
-                
+
             }
 
             // All deprecated records are filtered out already
@@ -203,10 +201,9 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     int conceptNid = Get.nidWithAssignment(conceptUuid);
                     Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
                     if (!optionalConcept.isPresent()) {
-                        
-                        
-                        int[] parentNids = new int[] { LEGACY_HUMAN_DX_ROOT_CONCEPT.getNid() };
-                        if (hoRec[PARENTS] != null &! hoRec[PARENTS].isEmpty()) {
+
+                        int[] parentNids = new int[]{LEGACY_HUMAN_DX_ROOT_CONCEPT.getNid()};
+                        if (hoRec[PARENTS] != null & !hoRec[PARENTS].isEmpty()) {
                             String[] parentRefIds = hoRec[PARENTS].split("; ");
                             parentNids = new int[parentRefIds.length];
                             for (int i = 0; i < parentRefIds.length; i++) {
@@ -217,10 +214,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                             }
                         }
                         // Need to create new concept, and a stated definition...
-                          buildConcept(conceptUuid, hoRec[NAME], recordStamp, parentNids, hoRec);
-                        
-                        
-                        
+                        buildConcept(conceptUuid, hoRec[NAME], recordStamp, parentNids, hoRec);
+
 //                        LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
 //                        
 //                        ConceptAssertion[] conceptAssertions = new ConceptAssertion[parentNids.length];
@@ -232,35 +227,32 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 //                        logicalExpression.getNodeCount();
 //                        addLogicGraph(conceptUuid, hoRec[NAME],
 //                                logicalExpression);
-
                     }
                     // make regular descriptions
- 
+
 //                    String shortName = hoRec[SHORTNAME];
 //                    if (shortName == null || shortName.isEmpty()) {
 //                        shortName = fullyQualifiedName + " with no sn";
 //                    }
 //
 //                    addDescription(hoRec, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
-
-
-
                 } catch (NoSuchElementException ex) {
+                    noSuchElementList.add(new String[] {ex.getMessage()} );
                     noSuchElementList.add(hoRec);
                 }
                 completedUnitOfWork();
             }
             if (!noSuchElementList.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
-                for (String[] item: noSuchElementList) {
-                    for (String field: item) {
+                for (String[] item : noSuchElementList) {
+                    for (String field : item) {
                         sb.append(field);
                         sb.append("|");
                     }
                     sb.append("\n");
                 }
-                LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size() 
-                + "\n\n" + sb.toString());
+                LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size()
+                        + "\n\n" + sb.toString());
             }
             return null;
         } finally {
@@ -272,38 +264,35 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     protected void buildConcept(UUID conceptUuid, String conceptName, int stamp, int[] parentConceptNids, String[] hoRec) throws IllegalStateException, NoSuchElementException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
         int conceptNid = Get.nidForUuids(conceptUuid);
-        
+
         ConceptAssertion[] parents = new ConceptAssertion[parentConceptNids.length];
         for (int i = 0; i < parentConceptNids.length; i++) {
             parents[i] = eb.conceptAssertion(parentConceptNids[i]);
         }
-        
-        
-        
+
         eb.necessarySet(eb.and(parents));
         if (!hoRec[SNOMEDCT].isEmpty()) {
-            if (hoRec[INEXACT_SNOMED].isEmpty() && 
-                    hoRec[SNOMED_SIB_CHILD].isEmpty() &&
-                    !hoRec[SNOMEDCT].contains(".")) {
+            if (hoRec[INEXACT_SNOMED].isEmpty()
+                    && hoRec[SNOMED_SIB_CHILD].isEmpty()
+                    && !hoRec[SNOMEDCT].contains(".")) {
                 if (hoRec[SNOMEDCT].equals("782587007")) {
                     LOG.info("Found watch: " + hoRec[SNOMEDCT]);
                 }
                 UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
                 if (Get.identifierService().hasUuid(snomedUuid)) {
                     int snomedNid = Get.nidForUuids(snomedUuid);
-                   
+
                     SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(snomedNid, conceptNid, HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
                     List<Chronology> builtObjects = new ArrayList<>();
                     semanticBuilder.build(stamp, builtObjects);
                     buildAndIndex(semanticBuilder, stamp, hoRec);
-                    
-                    
+
                 } else {
                     LOG.info("No concept for: |" + hoRec[SNOMEDCT] + "|" + snomedUuid.toString());
                 }
             }
         }
-        
+
         ConceptBuilderService builderService = Get.conceptBuilderService();
         ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
                 "HO",
@@ -324,22 +313,26 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         }
         if (!hoRec[SNOMEDCT].isEmpty()) {
             UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
-            int snomedNid = Get.nidForUuids(snomedUuid);
-            builder.addStringSemantic(hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE);
-            // Add reverse semantic
-            
-            int assemblageConceptNid = UNCATEGORIZED_NAV_ASSEMBLAGE.getNid();
-            if (Boolean.valueOf(hoRec[IS_CATEGORY])) {
-                assemblageConceptNid = CATEGORY_NAV_ASSEMBLAGE.getNid();
-            } else if (Boolean.valueOf(hoRec[IS_DIAGNOSIS])) {
-                assemblageConceptNid = DIAGNOSIS_NAV_ASSEMBLAGE.getNid();
-            } 
-            //int componentNid,            
-                       
-            SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(conceptNid, snomedNid, assemblageConceptNid);
-            List<Chronology> builtObjects = new ArrayList<>();
-            semanticBuilder.build(stamp, builtObjects);
-            buildAndIndex(semanticBuilder, stamp, hoRec);
+            if (Get.identifierService().hasUuid(snomedUuid)) {
+                int snomedNid = Get.nidForUuids(snomedUuid);
+                builder.addStringSemantic(hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE);
+                // Add reverse semantic
+
+                int assemblageConceptNid = UNCATEGORIZED_NAV_ASSEMBLAGE.getNid();
+                if (Boolean.valueOf(hoRec[IS_CATEGORY])) {
+                    assemblageConceptNid = CATEGORY_NAV_ASSEMBLAGE.getNid();
+                } else if (Boolean.valueOf(hoRec[IS_DIAGNOSIS])) {
+                    assemblageConceptNid = DIAGNOSIS_NAV_ASSEMBLAGE.getNid();
+                }
+                //int componentNid,            
+
+                SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(conceptNid, snomedNid, assemblageConceptNid);
+                List<Chronology> builtObjects = new ArrayList<>();
+                semanticBuilder.build(stamp, builtObjects);
+                buildAndIndex(semanticBuilder, stamp, hoRec);
+            } else {
+                throw new NoSuchElementException("No identifier for: " + hoRec[SNOMEDCT]);
+            }
         }
         if (!hoRec[INEXACT_SNOMED].isEmpty()) {
             builder.addStringSemantic(hoRec[INEXACT_SNOMED], INEXACT_SNOMED_ASSEMBLAGE);
@@ -365,9 +358,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             index(chronology);
         }
     }
-    
-    
-    
+
     private void addDescription(String[] hoRec, String description, ConceptSpecification descriptionType,
             UUID conceptUuid, int recordStamp) {
 
@@ -420,7 +411,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 logicalExpression,
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
         builder.setPrimordialUuid(conceptUuid);
-        
+
         int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
                 commitTime, TermAux.USER.getNid(),
                 HUMAN_DX_MODULE.getNid(),
