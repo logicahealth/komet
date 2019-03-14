@@ -251,7 +251,16 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 completedUnitOfWork();
             }
             if (!noSuchElementList.isEmpty()) {
-                LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size());
+                StringBuilder sb = new StringBuilder();
+                for (String[] item: noSuchElementList) {
+                    for (String field: item) {
+                        sb.append(field);
+                        sb.append("|");
+                    }
+                    sb.append("\n");
+                }
+                LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size() 
+                + "\n\n" + sb.toString());
             }
             return null;
         } finally {
