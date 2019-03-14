@@ -186,6 +186,14 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
             // All deprecated records are filtered out already
             for (String[] hoRec : hoRecords) {
+                if (hoRec.length < SNOMED_SIB_CHILD + 1) {
+                    String[] newRec = new String[SNOMED_SIB_CHILD + 1];
+                    Arrays.fill(newRec, "");
+                    for (int i = 0; i < hoRec.length; i++) {
+                        newRec[i] = hoRec[i];
+                    }
+                    hoRec = newRec;
+                }
                 hoRec = clean(hoRec);
                 try {
 
@@ -209,7 +217,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                             }
                         }
                         // Need to create new concept, and a stated definition...
-                        buildConcept(conceptUuid, hoRec[NAME], recordStamp, parentNids, hoRec);
+                          buildConcept(conceptUuid, hoRec[NAME], recordStamp, parentNids, hoRec);
+                        
                         
                         
 //                        LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
