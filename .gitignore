@@ -12,3 +12,4 @@ komet/application/data/*
 *.iml
 /komet/application/target copy/
 PostgresProviderPath/
+.DS_Store

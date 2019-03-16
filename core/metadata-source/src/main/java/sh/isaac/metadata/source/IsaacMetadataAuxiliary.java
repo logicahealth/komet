@@ -451,7 +451,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.SRF_STATED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
-                  createConcept("Clinvar Non-Defining Taxonomy");
+                  createConcept("Clinvar Variant to Gene Non-Defining Taxonomy");
+                  createConcept("Clinvar Gene to Phenotype Non-Defining Taxonomy");
                   popParent();
                createConcept("Rule assemblage");
                pushParent(current());

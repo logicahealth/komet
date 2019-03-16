@@ -65,18 +65,18 @@ public class SemanticWriter extends TimedTaskWithProgressTracker<Void> {
                         int versionStamp = stampService.getStampSequence(status, time, authorNid, moduleNid, pathNid);
 
 
-
-                        SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(
-                                VersionType.COMPONENT_NID,
-                                UuidT5Generator.get(integers[0][0].toString() + integers[0][1].toString()),
-                                MetaData.CLINVAR_NON_DEFINING_TAXONOMY____SOLOR.getNid(),
-                                integers[0][0]);
-
-                        ComponentNidVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-                        brittleVersion.setComponentNid(integers[0][1]);
-
-                        index(refsetMemberToWrite);
-                        assemblageService.writeSemanticChronology(refsetMemberToWrite);
+//
+//                        SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(
+//                                VersionType.COMPONENT_NID,
+//                                UuidT5Generator.get(integers[0][0].toString() + integers[0][1].toString()),
+//                                MetaData.CLINVAR_NON_DEFINING_TAXONOMY____SOLOR.getNid(),
+//                                integers[0][0]);
+//
+//                        ComponentNidVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
+//                        brittleVersion.setComponentNid(integers[0][1]);
+//
+//                        index(refsetMemberToWrite);
+//                        assemblageService.writeSemanticChronology(refsetMemberToWrite);
                     });
 
         }finally {

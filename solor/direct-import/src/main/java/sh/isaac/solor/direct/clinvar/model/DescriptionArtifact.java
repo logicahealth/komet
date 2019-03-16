@@ -4,6 +4,8 @@ import sh.isaac.api.Status;
 import sh.isaac.solor.direct.clinvar.model.fields.CoreFields;
 import sh.isaac.solor.direct.clinvar.model.fields.DescriptionFields;
 
+import java.util.UUID;
+
 /**
  * 2019-03-07
  * aks8m - https://github.com/aks8m
@@ -11,19 +13,21 @@ import sh.isaac.solor.direct.clinvar.model.fields.DescriptionFields;
 public final class DescriptionArtifact implements CoreFields, DescriptionFields {
 
     private String id;
+    private UUID uuid;
     private Status status;
     private long time;
     private int author;
     private int module;
     private int path;
-    private int concept;
+    private UUID concept;
     private int languageCode;
     private int type;
     private String term;
     private int caseSignificance;
 
-    public DescriptionArtifact(String id, Status status, long time, int author, int module, int path, int concept, int languageCode, int type, String term, int caseSignificance) {
+    public DescriptionArtifact(String id, UUID uuid, Status status, long time, int author, int module, int path, UUID concept, int languageCode, int type, String term, int caseSignificance) {
         this.id = id;
+        this.uuid = uuid;
         this.status = status;
         this.time = time;
         this.author = author;
@@ -44,6 +48,16 @@ public final class DescriptionArtifact implements CoreFields, DescriptionFields 
     @Override
     public void setID(String id) {
         this.id = id;
+    }
+
+    @Override
+    public UUID getUUID() {
+        return this.uuid;
+    }
+
+    @Override
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
     }
 
     @Override
@@ -97,12 +111,12 @@ public final class DescriptionArtifact implements CoreFields, DescriptionFields 
     }
 
     @Override
-    public int getConcept() {
+    public UUID getConcept() {
         return this.concept;
     }
 
     @Override
-    public void setConcept(int concept) {
+    public void setConcept(UUID concept) {
         this.concept = concept;
     }
 

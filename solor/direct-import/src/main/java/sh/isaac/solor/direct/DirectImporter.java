@@ -424,7 +424,7 @@ public class DirectImporter
 
                         case CLINVAR:
                             ClinvarImporter clinvarImporter = new ClinvarImporter(this.writeSemaphore, WRITE_PERMITS);
-                            clinvarImporter.go(br);
+                            clinvarImporter.runImport(br);
                             break;
 
                         default:
@@ -638,6 +638,7 @@ public class DirectImporter
         }
 
         updateMessage("Synchronizing indexes...");
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
         for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
             try {
                 indexer.sync().get();

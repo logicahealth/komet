@@ -2,6 +2,7 @@ package sh.isaac.solor.direct.clinvar.writers;
 
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -29,6 +30,7 @@ public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void>
     private final List<DescriptionArtifact> descriptionArtifacts;
     private final Semaphore writeSemaphore;
     private final StampService stampService;
+    private final IdentifierService identifierService;
     private final AssemblageService assemblageService;
     private final UUID descriptionNamespaceUUID;
     private final ConceptSpecification identifierAssemblageConceptSpec;
@@ -45,6 +47,7 @@ public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void>
 
         this.stampService = Get.stampService();
         this.assemblageService = Get.assemblageService();
+        this.identifierService = Get.identifierService();
         this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
 
 
@@ -73,7 +76,7 @@ public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void>
                                         VersionType.DESCRIPTION,
                                         UuidT5Generator.get(this.descriptionNamespaceUUID, descriptionArtifact.getID()),
                                         descriptionArtifact.getLanguageCode(),
-                                        descriptionArtifact.getConcept()
+                                        this.identifierService.getNidForUuids(descriptionArtifact.getConcept())
                                 );
 
                         int stamp = this.stampService.getStampSequence(

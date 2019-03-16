@@ -2,6 +2,7 @@ package sh.isaac.solor.direct.clinvar.writers;
 
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
@@ -17,7 +18,6 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.solor.direct.clinvar.model.ConceptArtifact;
-
 
 import java.util.List;
 import java.util.UUID;
@@ -35,25 +35,19 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
     private final StampService stampService;
     private final ConceptService conceptService;
     private final AssemblageService assemblageService;
-    private final UUID conceptNamespaceUUID;
-    private final ConceptSpecification identifierAssemblageConceptSpec;
-    private final ConceptSpecification definitionStatusAssemblageConceptSpec;
     private final List<IndexBuilderService> indexers;
     private final int batchSize = 10000;
+    private final IdentifierService identifierService;
 
-    public GenomicConceptWriter(List<ConceptArtifact> conceptArtifacts, Semaphore writeSemaphore,
-                                UUID conceptNamespaceUUID, ConceptSpecification identifierAssemblageConceptSpec,
-                                ConceptSpecification definitionStatusAssemblageConceptSpec) {
+    public GenomicConceptWriter(List<ConceptArtifact> conceptArtifacts, Semaphore writeSemaphore) {
 
         this.conceptArtifacts = conceptArtifacts;
         this.writeSemaphore = writeSemaphore;
-        this.conceptNamespaceUUID = conceptNamespaceUUID;
-        this.identifierAssemblageConceptSpec = identifierAssemblageConceptSpec;
-        this.definitionStatusAssemblageConceptSpec = definitionStatusAssemblageConceptSpec;
 
         this.stampService = Get.stampService();
         this.conceptService = Get.conceptService();
         this.assemblageService = Get.assemblageService();
+        this.identifierService = Get.identifierService();
         this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
 
         this.writeSemaphore.acquireUninterruptibly();
@@ -66,6 +60,8 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
     @Override
     protected Void call() throws Exception {
 
+        System.out.println("----2a");
+
         final AtomicInteger batchCount = new AtomicInteger(0);
 
         try{
@@ -75,52 +71,58 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
 
                         batchCount.incrementAndGet();
 
-                        //Create concept
-                        ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(
-                                UuidT5Generator.get(this.conceptNamespaceUUID, conceptArtifact.getID()),
-                                TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()
-                        );
+                        try {
 
-                        index(conceptToWrite);
+                            //Create concept
+                            ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(
+                                    conceptArtifact.getUUID(),
+                                    TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()
+                            );
 
-                        int stamp = stampService.getStampSequence(
-                               conceptArtifact.getStatus(),
-                                conceptArtifact.getTime(),
-                                conceptArtifact.getAuthor(),
-                                conceptArtifact.getModule(),
-                                conceptArtifact.getPath()
-                        );
+                            index(conceptToWrite);
 
-                        conceptToWrite.createMutableVersion(stamp);
-                        conceptService.writeConcept(conceptToWrite);
+                            int stamp = stampService.getStampSequence(
+                                    conceptArtifact.getStatus(),
+                                    conceptArtifact.getTime(),
+                                    conceptArtifact.getAuthor(),
+                                    conceptArtifact.getModule(),
+                                    conceptArtifact.getPath()
+                            );
 
-                        //Create definition status semantic
-                        SemanticChronologyImpl defStatusToWrite = new SemanticChronologyImpl(VersionType.COMPONENT_NID,
-                                UuidT5Generator.get(this.definitionStatusAssemblageConceptSpec.getPrimordialUuid(), String.valueOf(conceptArtifact.getDefinitionStatus())),
-                                this.definitionStatusAssemblageConceptSpec.getNid(),
-                                conceptToWrite.getNid()
-                        );
+                            conceptToWrite.createMutableVersion(stamp);
+                            conceptService.writeConcept(conceptToWrite);
 
-                        ComponentNidVersionImpl defStatusVersion = defStatusToWrite.createMutableVersion(stamp);
-                        defStatusVersion.setComponentNid(conceptArtifact.getDefinitionStatus());
-                        index(defStatusToWrite);
-                        assemblageService.writeSemanticChronology(defStatusToWrite);
+                            //Create definition status semantic
+                            SemanticChronologyImpl defStatusToWrite = new SemanticChronologyImpl(VersionType.COMPONENT_NID,
+                                    UuidT5Generator.get(conceptArtifact.getDefinitionStatusAssemblageUUID(), String.valueOf(conceptArtifact.getDefinitionStatus())),
+                                    this.identifierService.getNidForUuids(conceptArtifact.getDefinitionStatusAssemblageUUID()),
+                                    conceptToWrite.getNid()
+                            );
 
-                        //Create concept identifier semantic
-                        SemanticChronologyImpl identifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
-                                UuidT5Generator.get(
-                                        this.identifierAssemblageConceptSpec.getPrimordialUuid(), conceptArtifact.getID()),
-                                this.identifierAssemblageConceptSpec.getNid(),
-                                conceptToWrite.getNid()
-                        );
+                            ComponentNidVersionImpl defStatusVersion = defStatusToWrite.createMutableVersion(stamp);
+                            defStatusVersion.setComponentNid(conceptArtifact.getDefinitionStatus());
+                            index(defStatusToWrite);
+                            assemblageService.writeSemanticChronology(defStatusToWrite);
 
-                        StringVersionImpl idVersion = identifierToWrite.createMutableVersion(stamp);
-                        idVersion.setString(conceptArtifact.getID());
-                        index(identifierToWrite);
-                        this.assemblageService.writeSemanticChronology(identifierToWrite);
+                            //Create concept identifier semantic
+                            SemanticChronologyImpl identifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
+                                    UuidT5Generator.get(
+                                            conceptArtifact.getIdentifierAssemblageUUID(), conceptArtifact.getID()),
+                                    this.identifierService.getNidForUuids(conceptArtifact.getIdentifierAssemblageUUID()),
+                                    conceptToWrite.getNid()
+                            );
 
-                        if(batchCount.get() % this.batchSize == 0)
-                            completedUnitOfWork();
+                            StringVersionImpl idVersion = identifierToWrite.createMutableVersion(stamp);
+                            idVersion.setString(conceptArtifact.getID());
+                            index(identifierToWrite);
+                            this.assemblageService.writeSemanticChronology(identifierToWrite);
+
+                            if (batchCount.get() % this.batchSize == 0)
+                                completedUnitOfWork();
+
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                     });
 
         }finally {

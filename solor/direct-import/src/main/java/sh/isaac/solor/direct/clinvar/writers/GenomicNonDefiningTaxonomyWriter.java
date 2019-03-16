@@ -31,11 +31,13 @@ public class GenomicNonDefiningTaxonomyWriter extends TimedTaskWithProgressTrack
     private final StampService stampService;
     private final List<IndexBuilderService> indexers;
     private final int batchSize = 10000;
+    private final int nonDefiningTaxonomyAssemblageNid;
 
 
-    public GenomicNonDefiningTaxonomyWriter(List<Integer[][]> nonDefiningTaxonomy, Semaphore writeSemaphore ) {
+    public GenomicNonDefiningTaxonomyWriter(List<Integer[][]> nonDefiningTaxonomy, Semaphore writeSemaphore, int nonDefiningTaxonomyAssemblageNid ) {
         this.nonDefiningTaxonomy = nonDefiningTaxonomy;
         this.writeSemaphore = writeSemaphore;
+        this.nonDefiningTaxonomyAssemblageNid = nonDefiningTaxonomyAssemblageNid;
 
         this.assemblageService = Get.assemblageService();
         this.stampService = Get.stampService();
@@ -73,7 +75,7 @@ public class GenomicNonDefiningTaxonomyWriter extends TimedTaskWithProgressTrack
                         SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(
                                 VersionType.COMPONENT_NID,
                                 UuidT5Generator.get(integers[0][0].toString() + integers[0][1].toString()),
-                                MetaData.CLINVAR_NON_DEFINING_TAXONOMY____SOLOR.getNid(),
+                                this.nonDefiningTaxonomyAssemblageNid,
                                 integers[0][0]);
 
                         ComponentNidVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
