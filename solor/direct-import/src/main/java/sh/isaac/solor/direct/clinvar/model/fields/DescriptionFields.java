@@ -8,22 +8,16 @@ import java.util.UUID;
  */
 public interface DescriptionFields {
 
-    //conceptId	languageCode	typeId	term	caseSignificanceId
+    UUID getReferencedComponentUUID();
 
-    UUID getConcept();
-    void setConcept(UUID concept);
+    int getLanguageConceptNid();
 
-    int getLanguageCode();
-    void setLanguageCode(int languageCode);
+    int getDescriptionAssemblageNid();
 
-    int getType();
-    void setType(int type);
+    int getTypeNid();
 
     String getTerm();
-    void setTerm(String term);
 
-    int getCaseSignificance();
-    void setCaseSignificance(int caseSignificance);
-
+    int getCaseSignificanceNid();
 
 }

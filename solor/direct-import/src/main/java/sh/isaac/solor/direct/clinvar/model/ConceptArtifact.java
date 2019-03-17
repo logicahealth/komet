@@ -1,8 +1,10 @@
 package sh.isaac.solor.direct.clinvar.model;
 
 import sh.isaac.api.Status;
-import sh.isaac.solor.direct.clinvar.model.fields.ConceptFields;
-import sh.isaac.solor.direct.clinvar.model.fields.CoreFields;
+import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.solor.direct.clinvar.model.fields.ComponentFields;
+import sh.isaac.solor.direct.clinvar.model.fields.DefinitionStatusFields;
+import sh.isaac.solor.direct.clinvar.model.fields.IdentifierFields;
 
 import java.util.UUID;
 
@@ -10,50 +12,51 @@ import java.util.UUID;
  * 2019-03-07
  * aks8m - https://github.com/aks8m
  */
-public final class ConceptArtifact implements CoreFields, ConceptFields {
+public final class ConceptArtifact implements ComponentFields, IdentifierFields, DefinitionStatusFields {
 
-    private String id;
-    private UUID uuid;
-    private Status status;
-    private long time;
-    private int author;
-    private int module;
-    private int path;
-    private int definitionStatus;
-    private UUID identifierAssemblageUUID;
-    private UUID definitionStatusAssemblageUUID;
+    //Concept Fields
+    private final UUID componentUUID;
+    private final Status status;
+    private final long time;
+    private final int authorNid;
+    private final int moduleNid;
+    private final int pathNid;
 
-    public ConceptArtifact(String id, UUID uuid, Status status, long time, int author, int module, int path, int definitionStatus, UUID identifierAssemblageUUID, UUID definitionStatusAssemblageUUID) {
-        this.id = id;
-        this.uuid = uuid;
+    //Identifier Fields
+    private final String identifierValue;
+    private final UUID identifierAssemblageUUID;
+
+    //Definition Status Fields
+    private final int definitionStatusNid;
+    private final UUID definitionStatusAssemblageUUID;
+
+    public ConceptArtifact(
+            UUID componentUUID,
+            Status status,
+            long time,
+            int authorNid,
+            int moduleNid,
+            int pathNid,
+            String identifierValue,
+            UUID identifierAssemblageUUID,
+            int definitionStatusNid,
+            UUID definitionStatusAssemblageUUID) {
+
+        this.componentUUID = componentUUID;
         this.status = status;
         this.time = time;
-        this.author = author;
-        this.module = module;
-        this.path = path;
-        this.definitionStatus = definitionStatus;
+        this.authorNid = authorNid;
+        this.moduleNid = moduleNid;
+        this.pathNid = pathNid;
+        this.identifierValue = identifierValue;
         this.identifierAssemblageUUID = identifierAssemblageUUID;
+        this.definitionStatusNid = definitionStatusNid;
         this.definitionStatusAssemblageUUID = definitionStatusAssemblageUUID;
     }
 
     @Override
-    public String getID() {
-        return this.id;
-    }
-
-    @Override
-    public void setID(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public UUID getUUID() {
-        return this.uuid;
-    }
-
-    @Override
-    public void setUUID(UUID uuid) {
-        this.uuid = uuid;
+    public UUID getComponentUUID() {
+        return this.componentUUID;
     }
 
     @Override
@@ -62,58 +65,33 @@ public final class ConceptArtifact implements CoreFields, ConceptFields {
     }
 
     @Override
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    @Override
     public long getTime() {
         return this.time;
     }
 
     @Override
-    public void setTime(long time) {
-        this.time = time;
+    public int getAuthorNid() {
+        return this.authorNid;
     }
 
     @Override
-    public int getAuthor() {
-        return this.author;
+    public int getModuleNid() {
+        return this.moduleNid;
     }
 
     @Override
-    public void setAuthor(int author) {
-        this.author = author;
+    public int getPathNid() {
+        return this.pathNid;
     }
 
     @Override
-    public int getModule() {
-        return this.module;
+    public UUID getIdentifierComponentUUID() {
+        return UuidT5Generator.get(this.identifierAssemblageUUID, this.identifierValue);
     }
 
     @Override
-    public void setModule(int module) {
-        this.module = module;
-    }
-
-    @Override
-    public int getPath() {
-        return this.path;
-    }
-
-    @Override
-    public void setPath(int path) {
-        this.path = path;
-    }
-
-    @Override
-    public int getDefinitionStatus() {
-        return this.definitionStatus;
-    }
-
-    @Override
-    public void setDefinitionStatus(int definitionStatus) {
-        this.definitionStatus = definitionStatus;
+    public String getIdentifierValue() {
+        return this.identifierValue;
     }
 
     @Override
@@ -122,8 +100,13 @@ public final class ConceptArtifact implements CoreFields, ConceptFields {
     }
 
     @Override
-    public void setIdentifierAssemblageUUID(UUID identifierAssemblageUUID) {
-        this.identifierAssemblageUUID = identifierAssemblageUUID;
+    public UUID getDefinitionStatusComponentUUID() {
+        return UuidT5Generator.get(this.definitionStatusAssemblageUUID, this.componentUUID.toString());
+    }
+
+    @Override
+    public int getDefinitionStatusNid() {
+        return this.definitionStatusNid;
     }
 
     @Override
@@ -132,17 +115,16 @@ public final class ConceptArtifact implements CoreFields, ConceptFields {
     }
 
     @Override
-    public void setDefinitionStatusAssemblageUUID(UUID definitionStatusAssemblageUUID) {
-        this.definitionStatusAssemblageUUID = definitionStatusAssemblageUUID;
-    }
-
-    @Override
     public int hashCode() {
-        return this.getID().hashCode();
+        return this.componentUUID.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return this.hashCode() == obj.hashCode();
+
+        if(obj instanceof ConceptArtifact)
+            return this.hashCode() == obj.hashCode();
+        else
+            return false;
     }
 }

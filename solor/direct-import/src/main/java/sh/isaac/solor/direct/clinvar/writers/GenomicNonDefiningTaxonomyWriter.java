@@ -1,21 +1,20 @@
 package sh.isaac.solor.direct.clinvar.writers;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
+import sh.isaac.solor.direct.clinvar.model.NonDefiningTaxonomyArtifact;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,24 +24,23 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GenomicNonDefiningTaxonomyWriter extends TimedTaskWithProgressTracker<Void> {
 
-    private final List<Integer[][]> nonDefiningTaxonomy;
+    private final Set<NonDefiningTaxonomyArtifact> nonDefiningTaxonomy;
     private final Semaphore writeSemaphore;
     private final AssemblageService assemblageService;
+    private final IdentifierService identifierService;
     private final StampService stampService;
     private final List<IndexBuilderService> indexers;
     private final int batchSize = 10000;
-    private final int nonDefiningTaxonomyAssemblageNid;
 
 
-    public GenomicNonDefiningTaxonomyWriter(List<Integer[][]> nonDefiningTaxonomy, Semaphore writeSemaphore, int nonDefiningTaxonomyAssemblageNid ) {
+    public GenomicNonDefiningTaxonomyWriter(Set<NonDefiningTaxonomyArtifact> nonDefiningTaxonomy, Semaphore writeSemaphore) {
         this.nonDefiningTaxonomy = nonDefiningTaxonomy;
         this.writeSemaphore = writeSemaphore;
-        this.nonDefiningTaxonomyAssemblageNid = nonDefiningTaxonomyAssemblageNid;
 
         this.assemblageService = Get.assemblageService();
+        this.identifierService = Get.identifierService();
         this.stampService = Get.stampService();
         this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
-
 
         this.writeSemaphore.acquireUninterruptibly();
         updateTitle("Importing non-defining relationships batch of size: " + this.nonDefiningTaxonomy.size());
@@ -55,37 +53,43 @@ public class GenomicNonDefiningTaxonomyWriter extends TimedTaskWithProgressTrack
     @Override
     protected Void call() throws Exception {
 
-        final AtomicInteger batchCount = new AtomicInteger(0);
+        final AtomicInteger batchProgressCounter = new AtomicInteger(0);
 
         try{
 
-            final Status status = Status.ACTIVE;
-            final long time = System.currentTimeMillis();
-            int authorNid = MetaData.CLINVAR_USER____SOLOR.getNid();
-            int moduleNid = MetaData.SOLOR_GENOMIC_MODULE____SOLOR.getNid();
-            int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
-
             this.nonDefiningTaxonomy.stream()
-                    .forEach(integers -> {
+                    .forEach(nonDefiningTaxonomyArtifact -> {
 
-                        batchCount.incrementAndGet();
+                        if(this.identifierService.hasUuid(nonDefiningTaxonomyArtifact.getReferencedComponent()) &&
+                                this.identifierService.hasUuid(nonDefiningTaxonomyArtifact.getSemanticComponentUUID())) {
 
-                        int versionStamp = stampService.getStampSequence(status, time, authorNid, moduleNid, pathNid);
+                            batchProgressCounter.incrementAndGet();
 
-                        SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(
-                                VersionType.COMPONENT_NID,
-                                UuidT5Generator.get(integers[0][0].toString() + integers[0][1].toString()),
-                                this.nonDefiningTaxonomyAssemblageNid,
-                                integers[0][0]);
+                            int versionStamp = stampService.getStampSequence(
+                                    nonDefiningTaxonomyArtifact.getStatus(),
+                                    nonDefiningTaxonomyArtifact.getTime(),
+                                    nonDefiningTaxonomyArtifact.getAuthorNid(),
+                                    nonDefiningTaxonomyArtifact.getModuleNid(),
+                                    nonDefiningTaxonomyArtifact.getPathNid()
+                            );
 
-                        ComponentNidVersionImpl brittleVersion = refsetMemberToWrite.createMutableVersion(versionStamp);
-                        brittleVersion.setComponentNid(integers[0][1]);
+                            SemanticChronologyImpl nidComponentSemantic = new SemanticChronologyImpl(
+                                    VersionType.COMPONENT_NID,
+                                    nonDefiningTaxonomyArtifact.getComponentUUID(),
+                                    this.identifierService.getNidForUuids(nonDefiningTaxonomyArtifact.getNidSemanticAssemblageUUID()),
+                                    this.identifierService.getNidForUuids(nonDefiningTaxonomyArtifact.getReferencedComponent()));
 
-                        index(refsetMemberToWrite);
-                        assemblageService.writeSemanticChronology(refsetMemberToWrite);
+                            ComponentNidVersionImpl brittleVersion = nidComponentSemantic.createMutableVersion(versionStamp);
+                            brittleVersion.setComponentNid(
+                                    this.identifierService.getNidForUuids(nonDefiningTaxonomyArtifact.getSemanticComponentUUID())
+                            );
 
-                        if(batchCount.get() % this.batchSize == 0)
-                            completedUnitOfWork();
+                            index(nidComponentSemantic);
+                            assemblageService.writeSemanticChronology(nidComponentSemantic);
+
+                            if (batchProgressCounter.get() % this.batchSize == 0)
+                                completedUnitOfWork();
+                        }
                     });
 
         }finally {

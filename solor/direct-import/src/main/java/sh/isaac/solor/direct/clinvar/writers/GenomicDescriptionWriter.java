@@ -7,17 +7,15 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.solor.direct.clinvar.model.DescriptionArtifact;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,23 +25,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void> {
 
-    private final List<DescriptionArtifact> descriptionArtifacts;
+    private final Set<DescriptionArtifact> descriptionArtifacts;
     private final Semaphore writeSemaphore;
     private final StampService stampService;
     private final IdentifierService identifierService;
     private final AssemblageService assemblageService;
-    private final UUID descriptionNamespaceUUID;
-    private final ConceptSpecification identifierAssemblageConceptSpec;
     private final List<IndexBuilderService> indexers;
     private final int batchSize = 10000;
 
 
-    public GenomicDescriptionWriter(List<DescriptionArtifact> descriptionArtifacts, Semaphore writeSemaphore,
-                                    UUID descriptionNamespaceUUID, ConceptSpecification identifierAssemblageConceptSpec) {
+    public GenomicDescriptionWriter(Set<DescriptionArtifact> descriptionArtifacts, Semaphore writeSemaphore) {
         this.descriptionArtifacts = descriptionArtifacts;
         this.writeSemaphore = writeSemaphore;
-        this.descriptionNamespaceUUID = descriptionNamespaceUUID;
-        this.identifierAssemblageConceptSpec = identifierAssemblageConceptSpec;
 
         this.stampService = Get.stampService();
         this.assemblageService = Get.assemblageService();
@@ -61,36 +54,36 @@ public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void>
     @Override
     protected Void call() throws Exception {
 
-        final AtomicInteger batchCount = new AtomicInteger(0);
+        final AtomicInteger batchProgressCounter = new AtomicInteger(0);
 
         try{
 
             this.descriptionArtifacts.stream()
                     .forEach(descriptionArtifact -> {
 
-                        batchCount.incrementAndGet();
+                        batchProgressCounter.incrementAndGet();
 
                         //Create description semantic
                         SemanticChronologyImpl descriptionToWrite =
                                 new SemanticChronologyImpl(
                                         VersionType.DESCRIPTION,
-                                        UuidT5Generator.get(this.descriptionNamespaceUUID, descriptionArtifact.getID()),
-                                        descriptionArtifact.getLanguageCode(),
-                                        this.identifierService.getNidForUuids(descriptionArtifact.getConcept())
+                                        descriptionArtifact.getComponentUUID(),
+                                        descriptionArtifact.getDescriptionAssemblageNid(),
+                                        this.identifierService.getNidForUuids(descriptionArtifact.getReferencedComponentUUID())
                                 );
 
                         int stamp = this.stampService.getStampSequence(
                                 descriptionArtifact.getStatus(),
                                 descriptionArtifact.getTime(),
-                                descriptionArtifact.getAuthor(),
-                                descriptionArtifact.getModule(),
-                                descriptionArtifact.getPath()
+                                descriptionArtifact.getAuthorNid(),
+                                descriptionArtifact.getModuleNid(),
+                                descriptionArtifact.getPathNid()
                         );
 
                         DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(stamp);
-                        descriptionVersion.setCaseSignificanceConceptNid(descriptionArtifact.getCaseSignificance());
-                        descriptionVersion.setDescriptionTypeConceptNid(descriptionArtifact.getType());
-                        descriptionVersion.setLanguageConceptNid(descriptionArtifact.getLanguageCode());
+                        descriptionVersion.setCaseSignificanceConceptNid(descriptionArtifact.getCaseSignificanceNid());
+                        descriptionVersion.setDescriptionTypeConceptNid(descriptionArtifact.getTypeNid());
+                        descriptionVersion.setLanguageConceptNid(descriptionArtifact.getLanguageConceptNid());
                         descriptionVersion.setText(descriptionArtifact.getTerm());
 
                         index(descriptionToWrite);
@@ -98,16 +91,16 @@ public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void>
 
                         //Create description String identifier semantic
                         SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
-                                UuidT5Generator.get(this.identifierAssemblageConceptSpec.getPrimordialUuid(), descriptionArtifact.getID()),
-                                this.identifierAssemblageConceptSpec.getNid(),
+                                descriptionArtifact.getIdentifierComponentUUID(),
+                                this.identifierService.getNidForUuids(descriptionArtifact.getIdentifierAssemblageUUID()),
                                 descriptionToWrite.getNid());
 
                         StringVersionImpl idVersion = sctIdentifierToWrite.createMutableVersion(stamp);
-                        idVersion.setString(descriptionArtifact.getID());
+                        idVersion.setString(descriptionArtifact.getIdentifierValue());
                         index(sctIdentifierToWrite);
                         assemblageService.writeSemanticChronology(sctIdentifierToWrite);
 
-                        if(batchCount.get() % this.batchSize == 0)
+                        if(batchProgressCounter.get() % this.batchSize == 0)
                             completedUnitOfWork();
                     });
 

@@ -9,10 +9,8 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
@@ -20,7 +18,7 @@ import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.solor.direct.clinvar.model.ConceptArtifact;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
 
-    private final List<ConceptArtifact> conceptArtifacts;
+    private final Set<ConceptArtifact> conceptArtifacts;
     private final Semaphore writeSemaphore;
     private final StampService stampService;
     private final ConceptService conceptService;
@@ -39,7 +37,7 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
     private final int batchSize = 10000;
     private final IdentifierService identifierService;
 
-    public GenomicConceptWriter(List<ConceptArtifact> conceptArtifacts, Semaphore writeSemaphore) {
+    public GenomicConceptWriter(Set<ConceptArtifact> conceptArtifacts, Semaphore writeSemaphore) {
 
         this.conceptArtifacts = conceptArtifacts;
         this.writeSemaphore = writeSemaphore;
@@ -60,8 +58,6 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
     @Override
     protected Void call() throws Exception {
 
-        System.out.println("----2a");
-
         final AtomicInteger batchCount = new AtomicInteger(0);
 
         try{
@@ -75,7 +71,7 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
 
                             //Create concept
                             ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(
-                                    conceptArtifact.getUUID(),
+                                    conceptArtifact.getComponentUUID(),
                                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()
                             );
 
@@ -84,9 +80,9 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
                             int stamp = stampService.getStampSequence(
                                     conceptArtifact.getStatus(),
                                     conceptArtifact.getTime(),
-                                    conceptArtifact.getAuthor(),
-                                    conceptArtifact.getModule(),
-                                    conceptArtifact.getPath()
+                                    conceptArtifact.getAuthorNid(),
+                                    conceptArtifact.getModuleNid(),
+                                    conceptArtifact.getPathNid()
                             );
 
                             conceptToWrite.createMutableVersion(stamp);
@@ -94,26 +90,25 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
 
                             //Create definition status semantic
                             SemanticChronologyImpl defStatusToWrite = new SemanticChronologyImpl(VersionType.COMPONENT_NID,
-                                    UuidT5Generator.get(conceptArtifact.getDefinitionStatusAssemblageUUID(), String.valueOf(conceptArtifact.getDefinitionStatus())),
+                                    conceptArtifact.getDefinitionStatusComponentUUID(),
                                     this.identifierService.getNidForUuids(conceptArtifact.getDefinitionStatusAssemblageUUID()),
                                     conceptToWrite.getNid()
                             );
 
                             ComponentNidVersionImpl defStatusVersion = defStatusToWrite.createMutableVersion(stamp);
-                            defStatusVersion.setComponentNid(conceptArtifact.getDefinitionStatus());
+                            defStatusVersion.setComponentNid(conceptArtifact.getDefinitionStatusNid());
                             index(defStatusToWrite);
                             assemblageService.writeSemanticChronology(defStatusToWrite);
 
                             //Create concept identifier semantic
                             SemanticChronologyImpl identifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
-                                    UuidT5Generator.get(
-                                            conceptArtifact.getIdentifierAssemblageUUID(), conceptArtifact.getID()),
+                                    conceptArtifact.getIdentifierComponentUUID(),
                                     this.identifierService.getNidForUuids(conceptArtifact.getIdentifierAssemblageUUID()),
                                     conceptToWrite.getNid()
                             );
 
                             StringVersionImpl idVersion = identifierToWrite.createMutableVersion(stamp);
-                            idVersion.setString(conceptArtifact.getID());
+                            idVersion.setString(conceptArtifact.getIdentifierValue());
                             index(identifierToWrite);
                             this.assemblageService.writeSemanticChronology(identifierToWrite);
 

@@ -1,8 +1,11 @@
 package sh.isaac.solor.direct.clinvar.model;
 
 import sh.isaac.api.Status;
-import sh.isaac.solor.direct.clinvar.model.fields.CoreFields;
+import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.model.configuration.LanguageCoordinates;
+import sh.isaac.solor.direct.clinvar.model.fields.ComponentFields;
 import sh.isaac.solor.direct.clinvar.model.fields.DescriptionFields;
+import sh.isaac.solor.direct.clinvar.model.fields.IdentifierFields;
 
 import java.util.UUID;
 
@@ -10,54 +13,57 @@ import java.util.UUID;
  * 2019-03-07
  * aks8m - https://github.com/aks8m
  */
-public final class DescriptionArtifact implements CoreFields, DescriptionFields {
+public final class DescriptionArtifact implements ComponentFields, DescriptionFields, IdentifierFields {
 
-    private String id;
-    private UUID uuid;
-    private Status status;
-    private long time;
-    private int author;
-    private int module;
-    private int path;
-    private UUID concept;
-    private int languageCode;
-    private int type;
-    private String term;
-    private int caseSignificance;
+    //Concept Fields
+    private final Status status;
+    private final long time;
+    private final int authorNid;
+    private final int moduleNid;
+    private final int pathNid;
 
-    public DescriptionArtifact(String id, UUID uuid, Status status, long time, int author, int module, int path, UUID concept, int languageCode, int type, String term, int caseSignificance) {
-        this.id = id;
-        this.uuid = uuid;
+    //Description Fields
+    private final UUID referencedComponentUUID;
+    private final String iso639LanguageCode;
+    private final int typeNid;
+    private final String term;
+    private final int caseSignificanceNid;
+
+    //Identifier Fields
+    private final String identifierValue;
+    private final UUID identifierAssemblageUUID;
+
+    public DescriptionArtifact(
+            Status status,
+            long time,
+            int authorNid,
+            int moduleNid,
+            int pathNid,
+            UUID referencedComponentUUID,
+            String iso639LanguageCode,
+            int typeNid,
+            String term,
+            int caseSignificanceNid,
+            String identifierValue,
+            UUID identifierAssemblageUUID) {
+
         this.status = status;
         this.time = time;
-        this.author = author;
-        this.module = module;
-        this.path = path;
-        this.concept = concept;
-        this.languageCode = languageCode;
-        this.type = type;
+        this.authorNid = authorNid;
+        this.moduleNid = moduleNid;
+        this.pathNid = pathNid;
+        this.referencedComponentUUID = referencedComponentUUID;
+        this.iso639LanguageCode = iso639LanguageCode;
+        this.typeNid = typeNid;
         this.term = term;
-        this.caseSignificance = caseSignificance;
+        this.caseSignificanceNid = caseSignificanceNid;
+        this.identifierValue = identifierValue;
+        this.identifierAssemblageUUID = identifierAssemblageUUID;
     }
 
     @Override
-    public String getID() {
-        return this.id;
-    }
-
-    @Override
-    public void setID(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public UUID getUUID() {
-        return this.uuid;
-    }
-
-    @Override
-    public void setUUID(UUID uuid) {
-        this.uuid = uuid;
+    public UUID getComponentUUID() {
+        return UuidT5Generator.get(this.term);
     }
 
     @Override
@@ -66,78 +72,43 @@ public final class DescriptionArtifact implements CoreFields, DescriptionFields 
     }
 
     @Override
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    @Override
     public long getTime() {
         return this.time;
     }
 
     @Override
-    public void setTime(long time) {
-        this.time = time;
+    public int getAuthorNid() {
+        return this.authorNid;
     }
 
     @Override
-    public int getAuthor() {
-        return this.author;
+    public int getModuleNid() {
+        return this.moduleNid;
     }
 
     @Override
-    public void setAuthor(int author) {
-        this.author = author;
+    public int getPathNid() {
+        return this.pathNid;
     }
 
     @Override
-    public int getModule() {
-        return this.module;
+    public UUID getReferencedComponentUUID() {
+        return this.referencedComponentUUID;
     }
 
     @Override
-    public void setModule(int module) {
-        this.module = module;
+    public int getLanguageConceptNid() {
+        return LanguageCoordinates.iso639toConceptNid(this.iso639LanguageCode);
     }
 
     @Override
-    public int getPath() {
-        return this.path;
+    public int getDescriptionAssemblageNid() {
+        return LanguageCoordinates.iso639toDescriptionAssemblageNid(this.iso639LanguageCode);
     }
 
     @Override
-    public void setPath(int path) {
-        this.path = path;
-    }
-
-    @Override
-    public UUID getConcept() {
-        return this.concept;
-    }
-
-    @Override
-    public void setConcept(UUID concept) {
-        this.concept = concept;
-    }
-
-    @Override
-    public int getLanguageCode() {
-        return this.languageCode;
-    }
-
-    @Override
-    public void setLanguageCode(int languageCode) {
-        this.languageCode = languageCode;
-    }
-
-    @Override
-    public int getType() {
-        return this.type;
-    }
-
-    @Override
-    public void setType(int type) {
-        this.type = type;
+    public int getTypeNid() {
+        return this.typeNid;
     }
 
     @Override
@@ -146,27 +117,36 @@ public final class DescriptionArtifact implements CoreFields, DescriptionFields 
     }
 
     @Override
-    public void setTerm(String term) {
-        this.term = term;
+    public int getCaseSignificanceNid() {
+        return this.caseSignificanceNid;
     }
 
     @Override
-    public int getCaseSignificance() {
-        return this.caseSignificance;
+    public UUID getIdentifierComponentUUID() {
+        return UuidT5Generator.get(this.identifierAssemblageUUID, this.identifierValue);
     }
 
     @Override
-    public void setCaseSignificance(int caseSignificance) {
-        this.caseSignificance = caseSignificance;
+    public String getIdentifierValue() {
+        return this.identifierValue;
+    }
+
+    @Override
+    public UUID getIdentifierAssemblageUUID() {
+        return this.identifierAssemblageUUID;
     }
 
     @Override
     public int hashCode() {
-        return this.id.hashCode();
+        return this.getComponentUUID().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return this.hashCode() == obj.hashCode();
+
+        if(obj instanceof DescriptionArtifact)
+            return this.hashCode() == obj.hashCode();
+        else
+            return false;
     }
 }
