@@ -16,5 +16,10 @@
             <artifactId>postgresql-datastore</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>sh.isaac.provider</groupId>
+            <artifactId>datastore-cache</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

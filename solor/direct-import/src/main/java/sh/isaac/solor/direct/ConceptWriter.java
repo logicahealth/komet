@@ -284,6 +284,9 @@ id	effectiveTime	active	moduleId	definitionStatusId
          }
 
          return null;
+      } catch (Throwable ex) {
+          LOG.error(ex.getLocalizedMessage(), ex);
+          throw ex;
       } finally {
          this.writeSemaphore.release();
          Get.activeTasks().remove(this);

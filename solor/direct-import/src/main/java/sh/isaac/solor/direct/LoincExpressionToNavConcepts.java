@@ -180,6 +180,15 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(new ConceptProxy("Electrocardiographic procedure (procedure)", 
                         UUID.fromString("2dc7d2f4-1fc1-30d9-9d84-ac2202d98fb4")).getNid(), 
                         builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Staining technique (qualifier value)", 
+                        UUID.fromString("06be16b3-9c84-370e-b812-7c28a85bb406")).getNid(), 
+                        builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Staining method (procedure)", 
+                        UUID.fromString("a9edae7c-f464-314c-8a82-a3df9f40e095")).getNid(), 
+                        builderService, stamp);
+                addObservedByMethod(new ConceptProxy("Medical specialty (qualifier value)", 
+                        UUID.fromString("840406cf-a69e-3ad6-83cf-5d166a7a1c9e")).getNid(), 
+                        builderService, stamp);
 
                 //ObservedByMethod Set 1
                 addObservedByMethod(new ConceptProxy("Cold incubation, 24 hours", UUID.fromString("1e4e0092-999f-32b6-8dd1-883d270ab536")).getNid(), builderService, stamp);

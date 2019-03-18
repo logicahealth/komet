@@ -106,13 +106,10 @@ public class UuidT3Generator {
     * @param args not used.
     */
    public static void main(String[] args) {
-      String snomedId = "442251000124100";
+      String snomedId = "900000000000074008";
 
       System.out.println("snomedId: " + snomedId + " uuid: " + fromSNOMED(snomedId));
-      System.out.println("snomedId: " + "169864006" + " uuid: " + fromSNOMED("169864006"));
-      System.out.println("snomedId: " + "386718000" + " uuid: " + fromSNOMED("386718000"));
-      System.out.println("Hash for: " + "831bf18e-1a38-332a-baaf-daf2cfd80cec" + ": " + UUID.fromString("831bf18e-1a38-332a-baaf-daf2cfd80cec").hashCode());
-      System.out.println("Hash for: " + "70ab7c51-1962-3d04-bdb6-943fbc227980" + ": " + UUID.fromString("70ab7c51-1962-3d04-bdb6-943fbc227980").hashCode());
+
       
    }
 }

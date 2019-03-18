@@ -16,7 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>sh.komet.fx.stage.MainApp</mainClass>
         <log4j.version>2.8.1</log4j.version>
-        <solor.db.version>1.32-SNAPSHOT</solor.db.version>
+        <solor.db.version>1.34</solor.db.version>
         <solor.snap.db.version>1.31</solor.snap.db.version>
         <custom.db.version>1.0.0</custom.db.version>
     </properties>
@@ -387,7 +387,7 @@
             <dependencies>
                 <dependency>
                     <groupId>one.solor</groupId>
-                    <artifactId>solor-us-db</artifactId>
+                    <artifactId>solor-db</artifactId>
                     <version>${solor.db.version}</version>
                     <type>zip</type>
                 </dependency>
@@ -408,7 +408,7 @@
                                     <artifactItems>
                                         <artifact>
                                             <groupId>one.solor</groupId>
-                                            <artifactId>solor-us-db</artifactId>
+                                            <artifactId>solor-db</artifactId>
                                             <version>${solor.db.version}</version>
                                             <type>zip</type>
                                         </artifact>
