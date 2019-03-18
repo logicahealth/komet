@@ -99,9 +99,10 @@ public final class NonDefiningTaxonomyArtifact implements ComponentFields, Compo
     @Override
     public boolean equals(Object obj) {
 
-        if(obj instanceof NonDefiningTaxonomyArtifact)
-            return this.hashCode() == obj.hashCode();
-        else
+        if(obj instanceof NonDefiningTaxonomyArtifact){
+            return this.getComponentUUID().equals(((NonDefiningTaxonomyArtifact) obj).getComponentUUID());
+        }else {
             return false;
+        }
     }
 }

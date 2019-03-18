@@ -116,15 +116,16 @@ public final class ConceptArtifact implements ComponentFields, IdentifierFields,
 
     @Override
     public int hashCode() {
-        return this.componentUUID.hashCode();
+        return this.getComponentUUID().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
 
-        if(obj instanceof ConceptArtifact)
-            return this.hashCode() == obj.hashCode();
-        else
+        if(obj instanceof ConceptArtifact){
+            return this.getComponentUUID().equals(((ConceptArtifact) obj).getComponentUUID());
+        }else {
             return false;
+        }
     }
 }

@@ -18,7 +18,6 @@ import sh.isaac.solor.direct.clinvar.writers.GenomicNonDefiningTaxonomyWriter;
 
 import java.io.BufferedReader;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.regex.Matcher;
@@ -30,15 +29,14 @@ import java.util.regex.Pattern;
  */
 public class ClinvarImporter {
 
-    private final Set<ConceptArtifact> genomicConcepts = new HashSet<>();
-    private final Set<DescriptionArtifact> genomicDescriptions = new HashSet<>();
-    private final Set<NonDefiningTaxonomyArtifact> genomicNonDefiningTaxonomyArtifacts = new HashSet<>();
+    private final HashSet<ConceptArtifact> genomicConcepts = new HashSet<>();
+    private final HashSet<DescriptionArtifact> genomicDescriptions = new HashSet<>();
+    private final HashSet<NonDefiningTaxonomyArtifact> genomicNonDefiningTaxonomyArtifacts = new HashSet<>();
     private final UUID variantNamespaceUUID = UuidT5Generator.get("gov.nih.nlm.ncbi.clinvar.variant.");
     private final UUID geneNamespaceUUID = UuidT5Generator.get("gov.nih.nlm.ncbi.clinvar.gene.");
     private  Semaphore writeSemaphore;
     private int WRITE_PERMITS;
     private long time = System.currentTimeMillis();
-    private final IdentifierService identifierService;
 
     private final int VARIANT_ID_INDEX = 2;
     private final int GENE_ID_INDEX = 3;
@@ -49,8 +47,6 @@ public class ClinvarImporter {
 
         this.writeSemaphore = writeSemaphore;
         this.WRITE_PERMITS = WRITE_PERMITS;
-
-        this.identifierService = Get.identifierService();
     }
 
     public void runImport(BufferedReader bufferedReader){
@@ -175,23 +171,24 @@ public class ClinvarImporter {
             }
         }
         Get.conceptService().sync();
+        Get.assemblageService().sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void writeGenomicDescriptions(){
 
-            Get.executor().submit(new GenomicDescriptionWriter(this.genomicDescriptions, this.writeSemaphore));
+        Get.executor().submit(new GenomicDescriptionWriter(this.genomicDescriptions, this.writeSemaphore));
 
-            this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-            for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-                try {
-                    indexer.sync().get();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+            try {
+                indexer.sync().get();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            Get.assemblageService().sync();
-            this.writeSemaphore.release(WRITE_PERMITS);
+        }
+        Get.assemblageService().sync();
+        this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void writeNonDefiningRelationships(){
