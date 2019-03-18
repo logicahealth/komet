@@ -13,3 +13,4 @@ komet/application/data/*
 /komet/application/target copy/
 PostgresProviderPath/
 komet/application/src/installer/install4j/*~
+.DS_Store
