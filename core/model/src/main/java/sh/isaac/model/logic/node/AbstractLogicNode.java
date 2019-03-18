@@ -44,6 +44,7 @@ package sh.isaac.model.logic.node;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -76,6 +77,7 @@ public abstract class AbstractLogicNode
 
    /** The node index. */
    private short nodeIndex = Short.MIN_VALUE;
+   private short parentIndex = Short.MIN_VALUE;
 
    /** The node uuid. */
    private UUID nodeUuid = null;
@@ -123,18 +125,43 @@ public abstract class AbstractLogicNode
       logicGraphVersion.addNode(this);
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Should be overridden by subclasses that need to add concepts.
-    * Concepts from connector nodes should not be added.
-    *
-    * @param conceptSequenceSet the concept nid set
-    */
-   @Override
-   public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
-      conceptSequenceSet.add(getNodeSemantic().getConceptNid());
+   public short getParentIndex() {
+        return parentIndex;
    }
+
+    //~--- methods -------------------------------------------------------------
+    public void setParentIndex(short parentIndex) {
+        this.parentIndex = parentIndex;
+    }
+
+   @Override
+    public LogicalExpressionImpl getLogicalExpression() {
+        return logicalExpression;
+    }
+
+    @Override
+    public Optional<LogicNode> getParent() {
+        if (parentIndex != Short.MIN_VALUE) {
+            return Optional.of(this.logicalExpression.getNode(parentIndex));
+        }
+        this.logicalExpression.setParentIds();
+        if (parentIndex != Short.MIN_VALUE) {
+            return Optional.of(this.logicalExpression.getNode(parentIndex));
+        }
+        
+        return Optional.empty();
+    }
+
+    /**
+     * Should be overridden by subclasses that need to add concepts.
+     * Concepts from connector nodes should not be added.
+     *
+     * @param conceptSequenceSet the concept nid set
+     */
+    @Override
+    public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
+        conceptSequenceSet.add(getNodeSemantic().getConceptNid());
+    }
 
    /**
     * Compare to.
@@ -208,7 +235,7 @@ public abstract class AbstractLogicNode
     */
    @Override
    public int hashCode() {
-      return this.nodeIndex;
+      return this.getNodeSemantic().hashCode();
    }
 
    /**

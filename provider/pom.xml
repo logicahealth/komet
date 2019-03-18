@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.64</version>
+        <version>4.65</version>
     </parent>
     <artifactId>provider</artifactId>
     <packaging>pom</packaging>
@@ -46,5 +46,6 @@
         <module>identifier</module>
         <module>datastore-postgres</module>
         <module>postgress</module>
+        <module>datastore-cache</module>
     </modules>
 </project>

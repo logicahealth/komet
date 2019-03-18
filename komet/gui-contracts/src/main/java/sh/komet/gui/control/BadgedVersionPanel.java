@@ -96,6 +96,7 @@ import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.flags.CountryFlagImages;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.control.axiom.ConceptNode;
 import sh.komet.gui.control.textarea.TextAreaReadOnly;
 import sh.komet.gui.control.textarea.TextAreaUtils;
 import sh.komet.gui.manifold.Manifold;
@@ -128,6 +129,7 @@ public abstract class BadgedVersionPanel
     protected final MenuButton editControl = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
     protected final MenuButton addAttachmentControl = new MenuButton("", Iconography.combine(Iconography.PLUS, Iconography.PAPERCLIP));
     protected final ExpandControl expandControl = new ExpandControl();
+    protected final Label embeddedNode = new Label();
     protected final GridPane gridpane = new GridPane();
     protected final SimpleBooleanProperty isConcept = new SimpleBooleanProperty(false);
     protected final SimpleBooleanProperty isContradiction = new SimpleBooleanProperty(false);
@@ -477,7 +479,9 @@ public abstract class BadgedVersionPanel
 
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + getManifold().getPreferredDescriptionText(nid));
+                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
+                            embeddedNode.setGraphic(new ConceptNode(nid, manifold));
+                            
                             break;
 
                         case SEMANTIC:
@@ -614,6 +618,8 @@ public abstract class BadgedVersionPanel
                 .getWidth());
         gridpane.setMaxWidth(layoutBoundsProperty().get()
                 .getWidth());
+        gridpane.getChildren()
+                        .remove(embeddedNode);
         setupColumns();
         wrappingWidth = (int) (layoutBoundsProperty().get()
                 .getWidth() - (5 * badgeWidth));
@@ -772,6 +778,21 @@ public abstract class BadgedVersionPanel
                         .add(componentText);
                 gridpane.getRowConstraints()
                         .add(new RowConstraints(rowHeight));
+                
+                if (embeddedNode.getGraphic() != null) {
+                    GridPane.setConstraints(
+                        embeddedNode,
+                        3,
+                        gridRow++,
+                        columns - 4,
+                        1,
+                        HPos.LEFT,
+                        VPos.TOP,
+                        Priority.ALWAYS,
+                        Priority.NEVER); 
+                    gridpane.getChildren()
+                        .add(embeddedNode);
+                }
             }
 
             boolean firstBadgeAdded = false;

@@ -106,9 +106,11 @@ public class UuidT3Generator {
     * @param args not used.
     */
    public static void main(String[] args) {
-      String snomedId = "900000000000207008";
+      String snomedId = "900000000000074008";
 
       System.out.println("snomedId: " + snomedId + " uuid: " + fromSNOMED(snomedId));
+
+      
    }
 }
 

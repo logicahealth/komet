@@ -1,6 +1,9 @@
 package sh.isaac.solor.rf2.exporters.core;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.exporters.RF2DefaultExporter;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
@@ -26,20 +29,32 @@ public class RF2DescriptionExporter extends RF2DefaultExporter {
     }
 
     @Override
-    protected Void call() throws Exception {
+    protected Void call() {
         try{
 
+            final StringBuilder linesToWrite = new StringBuilder();
+
             this.intStream
-                    .forEach(nid -> super.writeToFile(
-                            rf2ExportHelper.getRF2CommonElements(nid)
-                                    .append(rf2ExportHelper.getIdString(Get.concept((Get.assemblageService().getSemanticChronology(nid)).getReferencedComponentNid()).getNid()) + "\t") //conceptId
-                                    .append(rf2ExportHelper.getLanguageCode(nid) + "\t") //languageCode
-                                    .append(rf2ExportHelper.getTypeId(nid) + "\t") //typeId
-                                    .append(rf2ExportHelper.getTerm(nid) + "\t") //term
-                                    .append(rf2ExportHelper.getCaseSignificanceId(nid)) //caseSignificanceId
-                                    .append("\r")
-                                    .toString()
-                    ));
+                    .forEach(nid -> {
+
+                        linesToWrite.setLength(0);
+
+                        for(Version version : Get.assemblageService().getSemanticChronology(nid).getVersionList()){
+                            linesToWrite
+                                    .append(this.rf2ExportHelper.getIdString(version) + "\t")
+                                    .append(this.rf2ExportHelper.getTimeString(version) + "\t")
+                                    .append(this.rf2ExportHelper.getActiveString(version) + "\t")
+                                    .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
+                                    .append(this.rf2ExportHelper.getIdString(((SemanticChronology)version.getChronology()).getReferencedComponentNid()) + "\t")
+                                    .append(this.rf2ExportHelper.getLanguageCode(version) + "\t")
+                                    .append(this.rf2ExportHelper.getTypeId((DescriptionVersion)version) + "\t")
+                                    .append(this.rf2ExportHelper.getTerm((DescriptionVersion)version) + "\t")
+                                    .append(this.rf2ExportHelper.getCaseSignificanceId((DescriptionVersion) version))
+                                    .append("\r");
+                        }
+
+                        super.writeStringToFile(linesToWrite.toString());
+                    });
 
         }finally {
             this.readSemaphore.release();

@@ -143,9 +143,6 @@ public class ProcessClassificationResults
         final HashSet<IntArrayList> equivalentSets = new HashSet<>();
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             completedUnitOfWork();
-            if (TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
-                LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
-            }
             final Node node = classifiedResult.getNode(Integer.toString(conceptNid));
 
             if (node == null) {

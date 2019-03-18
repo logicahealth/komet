@@ -135,6 +135,7 @@ public abstract class ConnectorNode
    @Override
    public void addChildren(LogicNode... children) {
       for (final LogicNode child: children) {
+          ((AbstractLogicNode) child).setParentIndex(this.getNodeIndex());
          this.childIndices.add(child.getNodeIndex());
       }
 

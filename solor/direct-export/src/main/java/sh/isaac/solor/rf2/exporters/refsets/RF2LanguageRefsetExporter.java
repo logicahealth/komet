@@ -1,10 +1,8 @@
 package sh.isaac.solor.rf2.exporters.refsets;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.exporters.RF2DefaultExporter;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
@@ -33,32 +31,30 @@ public class RF2LanguageRefsetExporter extends RF2DefaultExporter {
 
         try{
 
+            final StringBuilder linesToWrite = new StringBuilder();
+
             this.intStream
                     .forEach(nid -> {
-                        final StringBuilder stringBuilder = new StringBuilder();
 
-                        for(SemanticChronology dialect : Get.assemblageService().getSemanticChronology(nid).getSemanticChronologyList()) {
+                        linesToWrite.setLength(0);
 
-                            if(dialect.getVersionType() == VersionType.COMPONENT_NID) {//Assuming a dialect semantic
-                                ObservableComponentNidVersion descriptionDialect =
-                                        ((LatestVersion<ObservableComponentNidVersion>)
-                                                rf2ExportHelper.getSnapshotService().getObservableSemanticVersion(dialect.getNid()))
-                                                .get();
-                                int stampNid = rf2ExportHelper.getSnapshotService()
-                                        .getObservableSemanticVersion(dialect.getNid()).getStamps().findFirst().getAsInt();
+                        Get.assemblageService().getSemanticChronology(nid).getSemanticChronologyList().stream()
+                                .filter(semanticChronology -> semanticChronology.getVersionType() == VersionType.COMPONENT_NID)
+                                .flatMap(semanticChronology -> semanticChronology.getVersionList().stream())
+                                .forEach(version ->
 
-                                stringBuilder.append(descriptionDialect.getPrimordialUuid().toString() + "\t")
-                                        .append(rf2ExportHelper.getTimeString(stampNid) + "\t")
-                                        .append(rf2ExportHelper.getActiveString(stampNid) + "\t")
-                                        .append(rf2ExportHelper.getModuleString(stampNid) + "\t")
-                                        .append(rf2ExportHelper.getIdString(descriptionDialect.getAssemblageNid()) + "\t")
-                                        .append(rf2ExportHelper.getIdString(nid) + "\t")
-                                        .append(rf2ExportHelper.getIdString(descriptionDialect.getComponentNid()))
-                                        .append("\r");
-                            }
+                                    linesToWrite
+                                            .append(version.getPrimordialUuid().toString() + "\t")
+                                            .append(this.rf2ExportHelper.getTimeString(version) + "\t")
+                                            .append(this.rf2ExportHelper.getActiveString(version) + "\t")
+                                            .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
+                                            .append(this.rf2ExportHelper.getIdString(version.getAssemblageNid()) + "\t")
+                                            .append(this.rf2ExportHelper.getIdString(nid) + "\t")
+                                            .append(this.rf2ExportHelper.getIdString(((ComponentNidVersion)version).getComponentNid()))
+                                            .append("\r")
+                                );
 
-                            super.writeToFile(stringBuilder.toString());
-                        }
+                        super.writeStringToFile(linesToWrite.toString());
                     });
 
         }finally {

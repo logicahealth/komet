@@ -282,8 +282,8 @@ public class ConfigurationTests {
 		Assert.assertEquals(TermAux.ASSEMBLAGE.getNid(), uc.getEditCoordinate().getPathNid());
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE.getNid(), uc.getLanguageCoordinate().getLanguageConceptNid());
-		Assert.assertEquals(new Integer(-28), uc.<Integer>getObject("fred"));
-		Assert.assertEquals(new Boolean(true).booleanValue(), uc.<Boolean>getObject("jane").booleanValue());
+		Assert.assertEquals(Integer.valueOf(-28), uc.<Integer>getObject("fred"));
+		Assert.assertEquals(true, uc.<Boolean>getObject("jane").booleanValue());
 		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getTaxonomyPremiseType());
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(30, uc.getStampCoordinate().getStampPosition().getTime());

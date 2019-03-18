@@ -16,24 +16,16 @@
  */
 package sh.isaac.model.collections;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Semaphore;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import sh.isaac.model.ModelGet;
-import static sh.isaac.model.collections.SpineFileUtil.SPINE_PREFIX;
+import sh.isaac.model.collections.store.ByteArrayArrayStore;
 
 /**
  *
@@ -42,25 +34,15 @@ import static sh.isaac.model.collections.SpineFileUtil.SPINE_PREFIX;
 public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
 
     private static final Logger LOG = LogManager.getLogger();
-    private final Semaphore diskSemaphore = new Semaphore(1);
+    private final ByteArrayArrayStore byteArrayArrayStore;
 
-    File directory;
-
-    public SpinedByteArrayArrayMap() {
+    public SpinedByteArrayArrayMap(ByteArrayArrayStore byteArrayArrayStore) {
+        this.byteArrayArrayStore = byteArrayArrayStore;
+        spineCount.set(byteArrayArrayStore.getSpineCount());
     }
 
     public int sizeOnDisk() {
-        if (directory == null) {
-            return 0;
-        }
-        File[] files = directory.listFiles((pathname) -> {
-            return pathname.getName().startsWith(SPINE_PREFIX);
-        });
-        int size = 0;
-        for (File spineFile : files) {
-            size = (int) (size + spineFile.length());
-        }
-        return size;
+        return byteArrayArrayStore.sizeOnDisk();
     }
 
     public int memoryInUse() {
@@ -79,30 +61,6 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
         return sizeInBytes;
     }
 
-    public int lazyRead(File directory) {
-        this.directory = directory;
-        spineCount.set(SpineFileUtil.readSpineCount(directory));
-        return spineCount.get();
-    }
-
-    /**
-     *
-     * @param directory
-     * @return the number of spine files read.
-     */
-    public int read(File directory) {
-        this.spineCount.set(SpineFileUtil.readSpineCount(directory));
-        this.directory = directory;
-        File[] files = directory.listFiles((pathname) -> {
-            return pathname.getName().startsWith(SPINE_PREFIX);
-        });
-        int spineFilesRead = 0;
-        for (File spineFile : files) {
-            readSpine(spineFile);
-            spineFilesRead++;
-        }
-        return spineFilesRead;
-    }
     @Override
     protected AtomicReferenceArray<byte[][]> newSpine(Integer spineKey) {
         if (spineKey < this.spineCount.get()) {
@@ -111,86 +69,32 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
         return makeNewSpine(spineKey);
     }
 
-    protected AtomicReferenceArray<byte[][]> readSpine(int spineIndex) {
-        String spineKey = SPINE_PREFIX + spineIndex;
-        File spineFile = new File(directory, spineKey);
-        return readSpine(spineFile);
-    }
 
-    private AtomicReferenceArray<byte[][]> readSpine(File spineFile) throws NumberFormatException {
-        int spineIndex = Integer.parseInt(spineFile.getName().substring(SPINE_PREFIX.length()));
-        if (spineFile.exists()) {
-            diskSemaphore.acquireUninterruptibly();
-            try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(spineFile)))) {
-                int arraySize = dis.readInt();
-                byte[][][] spineArray = new byte[arraySize][][];
-                for (int i = 0; i < arraySize; i++) {
-                    int valueSize = dis.readInt();
-                    if (valueSize != 0) {
-                        byte[][] value = new byte[valueSize][];
-                        for (int j = 0; j < valueSize; j++) {
-                            int valuePartSize = dis.readInt();
-                            byte[] valuePart = new byte[valuePartSize];
-                            dis.readFully(valuePart);
-                            value[j] = valuePart;
-                        }
-                        spineArray[i] = value;
-                    }
-                }
-                AtomicReferenceArray<byte[][]> spine = new AtomicReferenceArray<>(spineArray);
-                return this.spines.putIfAbsent(spineIndex, spine);
-                
-            } catch (IOException ex) {
-                LOG.error(ex);
-            } finally {
-                diskSemaphore.release();
-            }
-        } 
+    private AtomicReferenceArray<byte[][]> readSpine(int spineIndex) {
+        Optional<AtomicReferenceArray<byte[][]>> optionalSpine = this.byteArrayArrayStore.get(spineIndex);
+        if (optionalSpine.isPresent()) {
+            return this.spines.putIfAbsent(spineIndex, optionalSpine.get());
+        }
         return this.spines.putIfAbsent(spineIndex, makeNewSpine(spineIndex));
         
     }
 
-    public boolean write(File directory) {
+    public boolean write() {
         lock();
         try {
             AtomicBoolean wroteAny = new AtomicBoolean(false);
-            SpineFileUtil.writeSpineCount(directory, spineCount.get());
-            spines.forEach((Integer key, AtomicReferenceArray<byte[][]> spine) -> {
-                String spineKey = SPINE_PREFIX + key;
-                boolean spineChanged = this.changedSpineIndexes.contains(key);
+            this.byteArrayArrayStore.writeSpineCount(spineCount.get());
+            spines.forEach((Integer spineIndex, AtomicReferenceArray<byte[][]> spine) -> {
+                boolean spineChanged = this.changedSpineIndexes.contains(spineIndex);
                 
                 if (spineChanged) {
                     wroteAny.set(true);
-                    this.changedSpineIndexes.remove(key);
-                    File spineFile = new File(directory, spineKey);
-                    diskSemaphore.acquireUninterruptibly();
-                    try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
-                        dos.writeInt(spine.length());
-                        for (int i = 0; i < spine.length(); i++) {
-                            byte[][] value = spine.get(i);
-                            if (value == null) {
-                                dos.writeInt(0);
-                            } else {
-                                dos.writeInt(value.length);
-                                for (byte[] valuePart : value) {
-                                    dos.writeInt(valuePart.length);
-                                    dos.write(valuePart);
-                                }
-                            }
-                        }
-                    } catch (IOException ex) {
-                        LOG.error(ex);
-                    } finally {
-                        diskSemaphore.release();
-                    }
+                    this.changedSpineIndexes.remove(spineIndex);
+                    this.byteArrayArrayStore.put(spineIndex, spine);
                 }
                 
             });
-            //clear();
             return wroteAny.get();
-        } catch (IOException ex) {
-            LOG.error(ex);
-            throw new RuntimeException(ex);
         } finally {
             release();
         }
@@ -198,14 +102,7 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
 
     @Override
     public byte[][] get(int index) {
-        if (index < 0) {
-            if (ModelGet.sequenceStore() != null) {
-               index = ModelGet.sequenceStore().getElementSequenceForNid(index);
-            }
-            else {
-               index = Integer.MAX_VALUE + index;
-            }
-        }
+        index = indexToSpineIndex(index);
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
         if (spineIndex < this.spineCount.get()) {
@@ -218,14 +115,7 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
 
     @Override
     public boolean put(int index, byte[][] element) {
-        if (index < 0) {
-           if (ModelGet.sequenceStore() != null) {
-                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
-             }
-             else {
-                index = Integer.MAX_VALUE + index;
-             }
-        }
+        index = indexToSpineIndex(index);
         int spineIndex = index / spineSize;
         int indexInSpine = index % spineSize;
         if (spineIndex < this.spineCount.get()) {
@@ -240,6 +130,18 @@ public class SpinedByteArrayArrayMap extends SpinedIntObjectMap<byte[][]> {
         boolean returnValue = spine.get(indexInSpine) != null;
         spine.accumulateAndGet(indexInSpine, element, this::merge);
         return returnValue;
+    }
+
+    private int indexToSpineIndex(int index) {
+        if (index < 0) {
+           if (ModelGet.sequenceStore() != null) {
+                index = ModelGet.sequenceStore().getElementSequenceForNid(index);
+             }
+             else {
+                index = Integer.MAX_VALUE + index;
+             }
+        }
+        return index;
     }
 
     private static int compare(byte[] one, byte[] another) {

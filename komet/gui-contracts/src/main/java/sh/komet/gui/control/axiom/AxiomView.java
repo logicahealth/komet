@@ -181,16 +181,24 @@ public class AxiomView {
         return parents.length > 1;
     }
 
-    public final Node computeGraphic(int conceptNid, boolean expanded) {
+    public static final Node computeGraphic(int conceptNid, boolean expanded, Manifold manifold, PremiseType premiseType) {
 
         if (conceptNid == -1
                 || conceptNid == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             return Iconography.ALERT_CONFIRM2.getIconographic();
         }
-        int[] parents = Get.taxonomyService().getSnapshot(manifold).getTaxonomyParentConceptNids(conceptNid);
+        int[] parents = new int[]{};
+        try {
+            parents = Get.taxonomyService().getSnapshot(manifold).getTaxonomyParentConceptNids(conceptNid);
+        } catch (RuntimeException ex) {
+            ex.printStackTrace();
+        }
         Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
         if (!conceptExpression.isPresent()) {
-            return Iconography.ALERT_CONFIRM2.getIconographic();
+            conceptExpression = manifold.getLogicalExpression(conceptNid, PremiseType.STATED);
+            if (!conceptExpression.isPresent()) {
+                return Iconography.ALERT_CONFIRM2.getIconographic();
+            }
         }
         boolean multiParent = parents.length > 1;
         boolean sufficient = conceptExpression.get().contains(NodeSemantic.SUFFICIENT_SET);
@@ -391,7 +399,7 @@ public class AxiomView {
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_CONCEPT.toString());
                     titleLabel.setText(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
-                    titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false));
+                    titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false, manifold, premiseType));
                     openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
                     openConceptButton.setOnMouseClicked(this::handleShowConceptNodeClick);
 
@@ -497,10 +505,10 @@ public class AxiomView {
                         titleLabel.setText(builder.toString());
                         addToToolbarNoGrow(rootToolBar, expandButton, column++);
                     } else {
-                      if (premiseType == PremiseType.STATED) {
-                        editable = true;
-                      }
-                      rootPane.getStyleClass()
+                        if (premiseType == PremiseType.STATED) {
+                            editable = true;
+                        }
+                        rootPane.getStyleClass()
                                 .add(StyleClasses.DEF_ROLE.toString());
                         StringBuilder builder = new StringBuilder();
                         builder.append("∃ (");
@@ -564,21 +572,21 @@ public class AxiomView {
                             .add(StyleClasses.DEF_ROOT.toString());
                     rootPane.setBorder(ROOT_BORDER);
                     titleLabel.setText(getConceptBeingDefinedText(null));
-                    titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false));
+                    titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false, manifold, premiseType));
                     titleLabel.setContextMenu(getContextMenu());
                     int column = 0;
                     addToToolbarNoGrow(rootToolBar, expandButton, column++);
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                     Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                     formLabel.setTooltip(new Tooltip("Stated form"));
-                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
                         addToToolbarNoGrow(rootToolBar, editButton, column++);
                     } else {
                         Label formLabel = new Label("", Iconography.INFERRED.getIconographic());
                         formLabel.setTooltip(new Tooltip("Inferred form"));
                         addToToolbarNoGrow(rootToolBar, formLabel, column++);
-              }
+                    }
                     break;
                 }
                 case LITERAL_DOUBLE: {
@@ -590,9 +598,9 @@ public class AxiomView {
                     int column = 0;
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                     Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                     formLabel.setTooltip(new Tooltip("Stated form"));
-                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
                     }
                     break;
                 }
@@ -606,9 +614,9 @@ public class AxiomView {
                     int column = 0;
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                     Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                     formLabel.setTooltip(new Tooltip("Stated form"));
-                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
                     }
                     break;
                 }
@@ -621,10 +629,10 @@ public class AxiomView {
                     int column = 0;
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                       Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                     formLabel.setTooltip(new Tooltip("Stated form"));
-                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
-                  }
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
+                    }
                     break;
                 }
                 case LITERAL_INTEGER: {
@@ -636,9 +644,9 @@ public class AxiomView {
                     int column = 0;
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                     Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                     formLabel.setTooltip(new Tooltip("Stated form"));
-                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
                     }
                     break;
                 }
@@ -651,9 +659,9 @@ public class AxiomView {
                     int column = 0;
                     addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                     Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                     formLabel.setTooltip(new Tooltip("Stated form"));
-                     addToToolbarNoGrow(rootToolBar, formLabel, column++);
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
                     }
                     break;
                 }
@@ -1135,13 +1143,13 @@ public class AxiomView {
             glossaryEntryItem.setOnAction(this::makeGlossaryEntry);
             MenuItem javaExpressionItem = new MenuItem("Make java expression");
             javaExpressionItem.setOnAction(this::makeJavaExpression);
-            return new ContextMenu(svgItem, inlineSvgItem, mediaObjectSvgItem, 
+            return new ContextMenu(svgItem, inlineSvgItem, mediaObjectSvgItem,
                     glossaryEntryItem, javaExpressionItem);
         }
-        
+
         private void makeJavaExpression(Event event) {
             putOnClipboard(AxiomView.this.expression.toBuilder());
-            
+
         }
 
         private void makeMediaObjectSvg(Event event) {

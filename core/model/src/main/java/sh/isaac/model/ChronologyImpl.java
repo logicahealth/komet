@@ -363,7 +363,10 @@ public abstract class ChronologyImpl
      * starts.
      *
      * @param data the buffer from which to derive the location data.
+     * TODO change the datastructure to the data array, with lengths, so that
+     *             we no longer need this method.
      */
+    @Deprecated
     protected final void constructorEnd(ByteArrayDataBuffer data) {
         this.versionStartPosition = data.getPosition();
     }
@@ -372,7 +375,7 @@ public abstract class ChronologyImpl
      * Call to subclass to read data from the data buffer, and create the
      * corresponding version object. The subclass is not responsible to add the
      * version to the version list, that task is performed by the calling method
-     * ({@code maveVersions}).
+     * ({@code makeVersion}).
      *
      * @param <V>
      * @param stampSequence the stamp sequence for this version

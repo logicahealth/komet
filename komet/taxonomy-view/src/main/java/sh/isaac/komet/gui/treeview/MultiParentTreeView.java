@@ -514,7 +514,8 @@ public class MultiParentTreeView
             currentItem.setExpanded(true);
             Platform.runLater(new ExpandTask(currentItem, expansionPath, 1));
         } else {
-            FxGet.statusMessageService().reportStatus("Expansion path for concept does not end at root. ");
+            FxGet.statusMessageService().reportStatus("Expansion path for concept ends at: " 
+                    + Get.conceptDescriptionText(Get.nidForUuids(expansionPath.get(0))));
         }
     }
 
