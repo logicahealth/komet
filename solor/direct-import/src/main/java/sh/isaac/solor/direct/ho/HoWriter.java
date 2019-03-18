@@ -19,6 +19,7 @@ package sh.isaac.solor.direct.ho;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -84,11 +85,11 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     //ref id	
     public static final int REFID = 1;
     //Parent Names	
-    public static final int PARENTS = 2;
+    public static final int PARENT_NAMES = 2;
     //Parent Ref IDs	
-    public static final int REF_IDS = 3;
+    public static final int PARENT_REF_IDS = 3;
     //Mapped to Allergen?	
-    public static final int ALLERGENS = 4;
+    public static final int MAPPED_TO_ALLERGEN = 4;
     //Abbreviations	
     public static final int ABBREVIATIONS = 5;
     //Description	
@@ -151,6 +152,11 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     private final IdentifierService identifierService = Get.identifierService();
     private final AssemblageService assemblageService = Get.assemblageService();
     private final HoDirectImporter importer;
+    private final ConceptProxy allergyToSubstance = new ConceptProxy("Allergy to substance (disorder)", UUID.fromString("dddb93ba-3e25-313d-b3be-5081a91cce37"));
+    private final ConceptProxy after = new ConceptProxy("After (attribute)", UUID.fromString("fb6758e0-442c-3393-bb2e-ff536711cde7"));
+    private final ConceptProxy allergicSensitization = new ConceptProxy("Allergic sensitization (disorder)", UUID.fromString("3944bbe7-9080-3d20-9466-3302fcfcd403"));
+    private final ConceptProxy causativeAgent = new ConceptProxy("Causative agent (attribute)", UUID.fromString("f770e2d8-91e6-3c55-91be-f794ee835265"));
+
 
     public static UUID refidToUuid(String refid) {
         return UuidT5Generator.get(LEGACY_HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), refid);
@@ -191,6 +197,11 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     @Override
     protected Void call() throws Exception {
         try {
+            HashSet<String> allergenParents = new HashSet<>();
+            allergenParents.add("1");
+            allergenParents.add("3239");
+            allergenParents.add("13592");
+            
             ConceptService conceptService = Get.conceptService();
             StampService stampService = Get.stampService();
             int authorNid = TermAux.USER.getNid();
@@ -226,11 +237,20 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     if (!optionalConcept.isPresent()) {
 
                         int[] parentNids = new int[]{LEGACY_HUMAN_DX_ROOT_CONCEPT.getNid()};
-                        if (hoRec[PARENTS] != null & !hoRec[PARENTS].isEmpty()) {
-                            String[] parentRefIds = hoRec[PARENTS].split("; ");
+                        if (hoRec[PARENT_NAMES] != null & !hoRec[PARENT_NAMES].isEmpty()) {
+                            String[] parentRefIds = hoRec[PARENT_REF_IDS].split("; ");
                             parentNids = new int[parentRefIds.length];
                             for (int i = 0; i < parentRefIds.length; i++) {
-                                String refId = nameRefidMap.get(parentRefIds[i]);
+                                String refId = parentRefIds[i];
+                                if (allergenParents.contains(refId)) {
+                                    if (Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
+                                        // Add allergy concept...
+                                        LOG.info("Allergen record: " + Arrays.asList(hoRec));
+                                        addAllergy(hoRec[NAME], recordStamp, hoRec);
+                                    }
+                                } else if (Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
+                                    LOG.info("Allergen record, no allergy parent: " + Arrays.asList(hoRec));
+                                }
                                 UUID parentUuid = refidToUuid(refId);
                                 parentNids[i] = Get.nidWithAssignment(parentUuid);
                                 ModelGet.identifierService().setupNid(parentNids[i], TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid(), IsaacObjectType.CONCEPT, VersionType.CONCEPT);
@@ -338,8 +358,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         if (!hoRec[REFID].isEmpty()) {
             builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
         }
-        if (!hoRec[ALLERGENS].isEmpty()) {
-            builder.addStringSemantic(hoRec[ALLERGENS], ALLERGEN_ASSEMBLAGE);
+        if (!hoRec[MAPPED_TO_ALLERGEN].isEmpty()) {
+            builder.addStringSemantic(hoRec[MAPPED_TO_ALLERGEN], ALLERGEN_ASSEMBLAGE);
         }
         if (!hoRec[IS_DIAGNOSIS].isEmpty()) {
             builder.addStringSemantic(hoRec[IS_DIAGNOSIS], IS_DIAGNOSIS_ASSEMBLAGE);
@@ -408,96 +428,6 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             }
             index(chronology);
         }
-    }
-
-    private void addDescription(String[] hoRec, String description, ConceptSpecification descriptionType,
-            UUID conceptUuid, int recordStamp) {
-
-        UUID descriptionUuid
-                = UuidT5Generator.get(MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(),
-                        descriptionType.toString() + conceptUuid.toString() + description);
-
-        int descriptionTypeNid = descriptionType.getNid();
-        int conceptNid = identifierService.getNidForUuids(conceptUuid);
-
-        SemanticChronologyImpl descriptionToWrite
-                = new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid,
-                        MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), conceptNid);
-        DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(recordStamp);
-        descriptionVersion.setCaseSignificanceConceptNid(
-                MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR.getNid());
-        descriptionVersion.setDescriptionTypeConceptNid(descriptionTypeNid);
-        descriptionVersion.setLanguageConceptNid(TermAux.ENGLISH_LANGUAGE.getNid());
-        descriptionVersion.setText(description);
-
-        index(descriptionToWrite);
-        assemblageService.writeSemanticChronology(descriptionToWrite);
-
-        UUID acceptabilityUuid = UuidT5Generator.get(TermAux.US_DIALECT_ASSEMBLAGE.getPrimordialUuid(),
-                hoRec[REFID] + description);
-        SemanticChronologyImpl dialectToWrite = new SemanticChronologyImpl(
-                VersionType.COMPONENT_NID,
-                acceptabilityUuid,
-                TermAux.US_DIALECT_ASSEMBLAGE.getNid(),
-                descriptionToWrite.getNid());
-        ComponentNidVersionImpl dialectVersion = dialectToWrite.createMutableVersion(recordStamp);
-        dialectVersion.setComponentNid(TermAux.ACCEPTABLE.getNid());
-        index(dialectToWrite);
-        assemblageService.writeSemanticChronology(dialectToWrite);
-    }
-
-    /**
-     * Adds the logic graph.
-     *
-     * @param conceptUuid the uuid of the concept this logic graph defines.
-     * @param conceptName
-     * @param logicalExpression the logical expression
-     */
-    private void addLogicGraph(UUID conceptUuid, String conceptName,
-            LogicalExpression logicalExpression) {
-
-        ConceptBuilderService builderService = Get.conceptBuilderService();
-        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
-                "HO",
-                logicalExpression,
-                TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-        builder.setPrimordialUuid(conceptUuid);
-
-        int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
-                commitTime, TermAux.USER.getNid(),
-                HUMAN_DX_MODULE.getNid(),
-                TermAux.DEVELOPMENT_PATH.getNid());
-        Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
-        if (!optionalConcept.isPresent()) {
-            ConceptChronologyImpl conceptToWrite
-                    = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-            conceptToWrite.createMutableVersion(stamp);
-            Get.conceptService().writeConcept(conceptToWrite);
-            index(conceptToWrite);
-        }
-
-        int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
-
-        final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
-                Get.identifierService().getNidForUuids(conceptUuid),
-                graphAssemblageNid);
-
-        UUID nameSpace = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid();
-
-        // Create UUID from seed and assign SemanticBuilder the value
-        final UUID generatedGraphPrimordialUuid
-                = UuidT5Generator.get(nameSpace, conceptUuid.toString());
-
-        sb.setPrimordialUuid(generatedGraphPrimordialUuid);
-
-        final ArrayList<Chronology> builtObjects = new ArrayList<>();
-
-        builder.build(stamp, builtObjects);
-        for (Chronology chronology : builtObjects) {
-            Get.identifiedObjectService().putChronologyData(chronology);
-            index(chronology);
-        }
-
     }
 
     private String[] clean(String[] hoRec) {
@@ -575,6 +505,36 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         return Get.nidForUuids(snomedUuid);
     }
 
+    private void addAllergy(String conceptName, int stamp, String[] hoRec) {
+        UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
+        
+        // Parent is 419199007 |Allergy to substance (finding)|
+        //   Has realization →  Allergic process
+        //   Causative agent →  Substance 
+        
+        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                        eb.sufficientSet(eb.and(eb.conceptAssertion(allergyToSubstance), eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                        eb.and(eb.someRole(after, eb.conceptAssertion(allergicSensitization)),
+                               eb.someRole(causativeAgent, eb.conceptAssertion(getNidForSCTID(hoRec[SNOMEDCT])))))));
+
+            ConceptBuilderService builderService = Get.conceptBuilderService();
+            ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
+                    "HDX",
+                    eb.build(),
+                    TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+            builder.setPrimordialUuid(conceptUuid);
+            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            int conceptNid = builder.getNid();
+            buildAndIndex(builder, stamp, hoRec);
+            //
+            SemanticBuilder semanticBuilder = Get.semanticBuilderService()
+                    .getComponentSemanticBuilder(refidToSolorNid(hoRec[REFID]), 
+                            refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
+            List<Chronology> builtObjects = new ArrayList<>();
+            semanticBuilder.build(stamp, builtObjects);
+            buildAndIndex(semanticBuilder, stamp, hoRec);
+            addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);        
+    }
     private void addSibling(String conceptName, int stamp, String[] hoRec) {
         UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
         int[] parentConceptNids = new int[]{getNidForSCTID(hoRec[INEXACT_SNOMED_1])};
