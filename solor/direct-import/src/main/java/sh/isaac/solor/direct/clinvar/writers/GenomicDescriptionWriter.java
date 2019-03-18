@@ -1,5 +1,7 @@
 package sh.isaac.solor.direct.clinvar.writers;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -16,6 +18,7 @@ import sh.isaac.solor.direct.clinvar.model.DescriptionArtifact;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,6 +35,7 @@ public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void>
     private final AssemblageService assemblageService;
     private final List<IndexBuilderService> indexers;
     private final int batchSize = 10000;
+    private static final Logger LOG = LogManager.getLogger();
 
 
     public GenomicDescriptionWriter(Set<DescriptionArtifact> descriptionArtifacts, Semaphore writeSemaphore) {
@@ -61,47 +65,53 @@ public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void>
             this.descriptionArtifacts.stream()
                     .forEach(descriptionArtifact -> {
 
-                        batchProgressCounter.incrementAndGet();
+                        if(this.identifierService.hasUuid(descriptionArtifact.getReferencedComponentUUID())) {
 
-                        //Create description semantic
-                        SemanticChronologyImpl descriptionToWrite =
-                                new SemanticChronologyImpl(
-                                        VersionType.DESCRIPTION,
-                                        descriptionArtifact.getComponentUUID(),
-                                        descriptionArtifact.getDescriptionAssemblageNid(),
-                                        this.identifierService.getNidForUuids(descriptionArtifact.getReferencedComponentUUID())
-                                );
+                            batchProgressCounter.incrementAndGet();
 
-                        int stamp = this.stampService.getStampSequence(
-                                descriptionArtifact.getStatus(),
-                                descriptionArtifact.getTime(),
-                                descriptionArtifact.getAuthorNid(),
-                                descriptionArtifact.getModuleNid(),
-                                descriptionArtifact.getPathNid()
-                        );
+                            //Create description semantic
+                            SemanticChronologyImpl descriptionToWrite =
+                                    new SemanticChronologyImpl(
+                                            VersionType.DESCRIPTION,
+                                            descriptionArtifact.getComponentUUID(),
+                                            descriptionArtifact.getDescriptionAssemblageNid(),
+                                            this.identifierService.getNidForUuids(descriptionArtifact.getReferencedComponentUUID())
+                                    );
 
-                        DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(stamp);
-                        descriptionVersion.setCaseSignificanceConceptNid(descriptionArtifact.getCaseSignificanceNid());
-                        descriptionVersion.setDescriptionTypeConceptNid(descriptionArtifact.getTypeNid());
-                        descriptionVersion.setLanguageConceptNid(descriptionArtifact.getLanguageConceptNid());
-                        descriptionVersion.setText(descriptionArtifact.getTerm());
+                            int stamp = this.stampService.getStampSequence(
+                                    descriptionArtifact.getStatus(),
+                                    descriptionArtifact.getTime(),
+                                    descriptionArtifact.getAuthorNid(),
+                                    descriptionArtifact.getModuleNid(),
+                                    descriptionArtifact.getPathNid()
+                            );
 
-                        index(descriptionToWrite);
-                        assemblageService.writeSemanticChronology(descriptionToWrite);
+                            DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(stamp);
+                            descriptionVersion.setCaseSignificanceConceptNid(descriptionArtifact.getCaseSignificanceNid());
+                            descriptionVersion.setDescriptionTypeConceptNid(descriptionArtifact.getTypeNid());
+                            descriptionVersion.setLanguageConceptNid(descriptionArtifact.getLanguageConceptNid());
+                            descriptionVersion.setText(descriptionArtifact.getTerm());
 
-                        //Create description String identifier semantic
-                        SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
-                                descriptionArtifact.getIdentifierComponentUUID(),
-                                this.identifierService.getNidForUuids(descriptionArtifact.getIdentifierAssemblageUUID()),
-                                descriptionToWrite.getNid());
+                            index(descriptionToWrite);
+                            assemblageService.writeSemanticChronology(descriptionToWrite);
 
-                        StringVersionImpl idVersion = sctIdentifierToWrite.createMutableVersion(stamp);
-                        idVersion.setString(descriptionArtifact.getIdentifierValue());
-                        index(sctIdentifierToWrite);
-                        assemblageService.writeSemanticChronology(sctIdentifierToWrite);
+                            //Create description String identifier semantic
+                            SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
+                                    descriptionArtifact.getIdentifierComponentUUID(),
+                                    this.identifierService.getNidForUuids(descriptionArtifact.getIdentifierAssemblageUUID()),
+                                    descriptionToWrite.getNid());
 
-                        if(batchProgressCounter.get() % this.batchSize == 0)
-                            completedUnitOfWork();
+                            StringVersionImpl idVersion = sctIdentifierToWrite.createMutableVersion(stamp);
+                            idVersion.setString(descriptionArtifact.getIdentifierValue());
+                            index(sctIdentifierToWrite);
+                            assemblageService.writeSemanticChronology(sctIdentifierToWrite);
+
+                            if (batchProgressCounter.get() % this.batchSize == 0)
+                                completedUnitOfWork();
+                        } else {
+                            LOG.info("Couldn't write non-defining taxonomy for referenced component: "
+                                    + descriptionArtifact.getReferencedComponentUUID());
+                        }
                     });
 
         }finally {

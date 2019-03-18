@@ -1,5 +1,7 @@
 package sh.isaac.solor.direct.clinvar.writers;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -31,6 +33,7 @@ public class GenomicNonDefiningTaxonomyWriter extends TimedTaskWithProgressTrack
     private final StampService stampService;
     private final List<IndexBuilderService> indexers;
     private final int batchSize = 10000;
+    private static final Logger LOG = LogManager.getLogger();
 
 
     public GenomicNonDefiningTaxonomyWriter(Set<NonDefiningTaxonomyArtifact> nonDefiningTaxonomy, Semaphore writeSemaphore) {
@@ -89,6 +92,9 @@ public class GenomicNonDefiningTaxonomyWriter extends TimedTaskWithProgressTrack
 
                             if (batchProgressCounter.get() % this.batchSize == 0)
                                 completedUnitOfWork();
+                        } else {
+                            LOG.info("Couldn't write non-defining taxonomy for referenced: " + nonDefiningTaxonomyArtifact.getReferencedComponent() +
+                                    " semantic component: " + nonDefiningTaxonomyArtifact.getSemanticComponentUUID());
                         }
                     });
 

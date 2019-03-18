@@ -1,5 +1,7 @@
 package sh.isaac.solor.direct.clinvar.writers;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -36,6 +38,7 @@ public class GenomicConceptWriter extends TimedTaskWithProgressTracker<Void> {
     private final List<IndexBuilderService> indexers;
     private final int batchSize = 10000;
     private final IdentifierService identifierService;
+    private static final Logger LOG = LogManager.getLogger();
 
     public GenomicConceptWriter(Set<ConceptArtifact> conceptArtifacts, Semaphore writeSemaphore) {
 

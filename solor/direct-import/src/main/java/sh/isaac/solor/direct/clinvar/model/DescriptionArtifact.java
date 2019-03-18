@@ -144,9 +144,10 @@ public final class DescriptionArtifact implements ComponentFields, DescriptionFi
     @Override
     public boolean equals(Object obj) {
 
-        if(obj instanceof DescriptionArtifact)
-            return this.hashCode() == obj.hashCode();
-        else
+        if(obj instanceof DescriptionArtifact){
+            return this.getComponentUUID().equals(((DescriptionArtifact) obj).getComponentUUID());
+        }else {
             return false;
+        }
     }
 }
