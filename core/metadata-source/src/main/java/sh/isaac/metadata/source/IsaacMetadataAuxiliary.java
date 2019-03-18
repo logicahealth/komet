@@ -192,11 +192,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   popParent();
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                pushParent(current());
+                  createConcept("Solor genomic module");
                   createConcept("SOLOR quality assurance rule module");
                   createConcept("SOLOR temporary concept module")
                           .addDescription("The temporary module is used for concepts such as those that represent feature paths, that are never part of a release.", TermAux.DEFINITION_DESCRIPTION_TYPE);
                   createConcept("SOLOR automation rule module");
-                  createConcept("SOLOR genomic module").addDescription("Collection of Variant and Gene", TermAux.DEFINITION_DESCRIPTION_TYPE);
                   // The second UUID here was the old value from the TermAux - but this was an orphan. to best fix the bug that resulted,
                   // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
                   createConcept(TermAux.SOLOR_OVERLAY_MODULE).addDescription("SOLOR overlay", TermAux.REGULAR_NAME_DESCRIPTION_TYPE)
@@ -227,6 +227,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.KEITH_CAMPBELL);
                createConcept(TermAux.DELOITTE_USER);
                createConcept("Bootstrap administrator", "admin");
+               createConcept("Clinvar User");
                popParent();
             createConcept(TermAux.PATH);
             pushParent(current());
@@ -288,11 +289,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
                loincBuilder.addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
-               createConcept("CLINVAR Variant Name").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("NCIB Gene ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("CLINVAR Allele ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("MIM Number").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-
+               createConcept("Clinvar Variant ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("NCBI Gene ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("Clinvar Description ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                popParent();
 
             createConcept("Assemblage membership type");
@@ -374,6 +373,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   ConceptBuilder builder = createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   builder.getPreferredDescriptionBuilder().setDescriptionText("SNOMED legacy implication");
+                  createConcept("Clinvar Definition Assemblage");
                   popParent();
                createConcept(TermAux.CONCEPT_ASSEMBLAGE);
                pushParent(current());
@@ -388,6 +388,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.SRF_STATED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
+                  createConcept("Clinvar Variant to Gene Non-Defining Taxonomy");
+                  createConcept("Clinvar Gene to Phenotype Non-Defining Taxonomy");
                   popParent();
                createConcept("Rule assemblage");
                pushParent(current());

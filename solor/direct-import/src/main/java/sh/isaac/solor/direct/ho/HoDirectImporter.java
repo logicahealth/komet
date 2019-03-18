@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -42,12 +43,14 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -93,12 +96,23 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
 
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
     private List<IndexBuilderService> indexers;
+    private final ConcurrentHashMap<HdxConceptHash, ConceptSpecification> hdxSolorConcepts = new ConcurrentHashMap<>();
+    private final TaxonomySnapshot taxonomy;
     
     public HoDirectImporter() {
         File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
         updateTitle("Importing HO from " + importDirectory.getAbsolutePath());
         Get.activeTasks()
                 .add(this);
+        this.taxonomy = Get.taxonomyService().getSnapshot(Get.coordinateFactory().createDefaultStatedManifoldCoordinate());
+    }
+
+    public ConcurrentHashMap<HdxConceptHash, ConceptSpecification> getHdxSolorConcepts() {
+        return hdxSolorConcepts;
+    }
+
+    public TaxonomySnapshot getTaxonomy() {
+        return taxonomy;
     }
 
     @Override
@@ -219,7 +233,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
                         this.writeSemaphore,
                         "Processing HO records from: " + DirectImporter.trimZipName(
                                 entry.getName()),
-                        commitTime);
+                        commitTime, this);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -239,7 +253,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
                         this.writeSemaphore,
                         "Processing HO records from: " + DirectImporter.trimZipName(
                                 entry.getName()),
-                        commitTime);
+                        commitTime, this);
                 Get.executor()
                         .submit(hoWriter);
         }
@@ -257,10 +271,6 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
         updateMessage("Synchronizing HO records to database...");
         assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
-    }
-    
-    private void buildConcept(String refId, String conceptName, int stamp, int parentConceptNid) throws IllegalStateException, NoSuchElementException {
-        buildConcept(UuidT5Generator.get(UUID.fromString("d96cb408-b9ae-473d-a08d-ece06dbcedf9"), refId), conceptName, stamp, parentConceptNid);
     }
     
     protected void buildConcept(UUID conceptUuid, String conceptName, int stamp, int parentConceptNid) throws IllegalStateException, NoSuchElementException {
