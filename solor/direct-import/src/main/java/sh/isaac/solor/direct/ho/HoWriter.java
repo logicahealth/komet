@@ -350,8 +350,9 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         }
 
         ConceptBuilderService builderService = Get.conceptBuilderService();
+        String[] parentNames = hoRec[PARENT_NAMES].split("; ");
         ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
-                "HO",
+                "HO " + parentNames[0],
                 eb.build(),
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
         builder.setPrimordialUuid(conceptUuid);
