@@ -351,11 +351,17 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
         ConceptBuilderService builderService = Get.conceptBuilderService();
         String[] parentNames = hoRec[PARENT_NAMES].split("; ");
+        String[] abbreviations = hoRec[ABBREVIATIONS].split("; ");
         ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
                 "HO " + parentNames[0],
                 eb.build(),
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
         builder.setPrimordialUuid(conceptUuid);
+        // white-coated tongue; white coating on tongue; tongue with white coating
+        for (int i = 0; i < abbreviations.length; i++) {
+            builder.addDescription(abbreviations[0], MetaData.NAME____SOLOR);
+        }
+        
         if (!hoRec[REFID].isEmpty()) {
             builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
         }

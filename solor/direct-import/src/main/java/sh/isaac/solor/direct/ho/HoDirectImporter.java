@@ -56,7 +56,6 @@ import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.solor.direct.DirectImporter;
 
 /**
