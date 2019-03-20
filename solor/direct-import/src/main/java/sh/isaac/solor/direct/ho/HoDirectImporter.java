@@ -79,6 +79,59 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     
     public final static ConceptProxy HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE = new ConceptProxy("HDX Solor equivalence", UUID.fromString("11e3eea1-b918-452e-87c1-f903d5ff035f"));
 
+    public final static ConceptProxy HDX_LEGACY_IS_A = new ConceptProxy("HDX legacy is-a", UUID.fromString("80da6f99-74c5-4eb4-8eca-f0fe9893ba01"));
+
+    public final static ConceptProxy HDX_ICD10CM_MAP = 
+            new ConceptProxy("HDX ICD-10-CM map", 
+                    UUID.fromString("5f6cca2d-4667-466a-8113-ec55d54d0f3b"));
+
+    public final static ConceptProxy HDX_ICD10PCS_MAP = 
+            new ConceptProxy("HDX ICD-10-PCS map", 
+                    UUID.fromString("794f9e7d-5a90-487b-9f93-8ebbacfd492f"));
+
+    public final static ConceptProxy HDX_ICD9_MAP = 
+            new ConceptProxy("HDX ICD-9-CM map", 
+                    UUID.fromString("674e91ac-e989-4677-9d28-95bff712490f"));
+
+    public final static ConceptProxy HDX_ICF_MAP = 
+            new ConceptProxy("HDX ICF map", 
+                    UUID.fromString("3903d7a5-3a69-4f1b-8de1-a7c7844f2953"));
+
+    public final static ConceptProxy HDX_ICPC_MAP = 
+            new ConceptProxy("HDX ICPC map", 
+                    UUID.fromString("0653274c-f1e5-491d-b754-9eaa2be3e67f"));
+
+    public final static ConceptProxy HDX_LOINC_MAP = 
+            new ConceptProxy("HDX LOINC map", 
+                    UUID.fromString("5dce327c-951d-4496-a468-ec9e655dab3b"));
+
+    public final static ConceptProxy HDX_MDC_MAP = 
+            new ConceptProxy("HDX MDC map", 
+                    UUID.fromString("3f687795-8ef7-4a98-a4b2-bb7d5d022f4d"));
+
+    public final static ConceptProxy HDX_MESH_MAP = 
+            new ConceptProxy("HDX MESH map", 
+                    UUID.fromString("70ead1cb-2f80-4f8e-a0ae-584fd254c714"));
+
+    public final static ConceptProxy HDX_RADLEX_MAP = 
+            new ConceptProxy("HDX RADLEX map", 
+                    UUID.fromString("7686650f-97e0-4447-affc-e19c9e3e0180"));
+
+    public final static ConceptProxy HDX_RXCUI_MAP = 
+            new ConceptProxy("HDX RXCUI map", 
+                    UUID.fromString("fdd1f394-180e-4582-a1d0-e104c86f2adc"));
+
+    public final static ConceptProxy HDX_CCS_SINGLE_ICD_MAP = 
+            new ConceptProxy("HDX CCS-single category icd 10 map", 
+                    UUID.fromString("b3d86f60-6618-47d4-ab78-abe39d9cfa97"));
+
+    public final static ConceptProxy HDX_CCS_MULTI_1_ICD_MAP = 
+            new ConceptProxy("HDX CCS-multi level 1 ICD 10 map", 
+                    UUID.fromString("e5998d38-ea14-4717-9b29-f6db9d21f607"));
+
+    public final static ConceptProxy HDX_CCS_MULTI_2_ICD_MAP = 
+            new ConceptProxy("HDX CCS-multi level 2 ICD 10 map", 
+                    UUID.fromString("10cd5e46-e4a0-485d-80b0-aabb74e1ff4d"));
 
     public final static ConceptProxy DIAGNOSIS_NAV_ASSEMBLAGE = new ConceptProxy("Diagnostic entity", 
             UUID.fromString("1c82bc0e-3160-491f-9454-a45a5ab5556d"));
@@ -163,6 +216,47 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             buildConcept(HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getPrimordialUuid(), 
                     HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
             
+            buildConcept(HDX_LEGACY_IS_A.getPrimordialUuid(), 
+                    HDX_LEGACY_IS_A.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_ICD10CM_MAP.getPrimordialUuid(), 
+                    HDX_ICD10CM_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_ICD10PCS_MAP.getPrimordialUuid(), 
+                    HDX_ICD10PCS_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_ICD9_MAP.getPrimordialUuid(), 
+                    HDX_ICD9_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_ICF_MAP.getPrimordialUuid(), 
+                    HDX_ICF_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_ICPC_MAP.getPrimordialUuid(), 
+                    HDX_ICPC_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_LOINC_MAP.getPrimordialUuid(), 
+                    HDX_LOINC_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_MDC_MAP.getPrimordialUuid(), 
+                    HDX_MDC_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_MESH_MAP.getPrimordialUuid(), 
+                    HDX_MESH_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_RADLEX_MAP.getPrimordialUuid(), 
+                    HDX_RADLEX_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_RXCUI_MAP.getPrimordialUuid(), 
+                    HDX_RXCUI_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_CCS_SINGLE_ICD_MAP.getPrimordialUuid(), 
+                    HDX_CCS_SINGLE_ICD_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_CCS_MULTI_1_ICD_MAP.getPrimordialUuid(), 
+                    HDX_CCS_MULTI_1_ICD_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
+            
+            buildConcept(HDX_CCS_MULTI_2_ICD_MAP.getPrimordialUuid(), 
+                    HDX_CCS_MULTI_2_ICD_MAP.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid()); 
             
             File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
             System.out.println("Importing from: " + importDirectory.getAbsolutePath());

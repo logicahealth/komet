@@ -139,7 +139,14 @@ public class MultiParentTreeItemImpl
 
     @Override
     public int compareTo(MultiParentTreeItemImpl o) {
-        return NaturalOrder.compareStrings(this.toString(), o.toString());
+        if (this.toString().contains("Achilles tendon rupture")) {
+            System.out.println("Found Achilles tendon rupture");
+        }
+        int compare = NaturalOrder.compareStrings(this.toString(), o.toString());
+        if (compare != 0) {
+           return compare; 
+        }
+        return Integer.compare(nid, o.nid);
     }
 
     public Node computeGraphic() {

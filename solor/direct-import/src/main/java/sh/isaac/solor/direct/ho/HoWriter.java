@@ -54,6 +54,20 @@ import sh.isaac.model.ModelGet;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.ALLERGEN_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.CATEGORY_NAV_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.DIAGNOSIS_NAV_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_CCS_MULTI_1_ICD_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_CCS_MULTI_2_ICD_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_CCS_SINGLE_ICD_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICD10CM_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICD10PCS_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICD9_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICF_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICPC_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_LEGACY_IS_A;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_LOINC_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_MDC_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_MESH_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_RADLEX_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_RXCUI_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HUMAN_DX_MODULE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.INEXACT_SNOMED_ASSEMBLAGE;
@@ -138,6 +152,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     public static final int INEXACT_SNOMED_3 = 30;
     //SNOMED Sibling/Child	
     public static final int SNOMED_SIB_CHILD_3 = 31;
+    
 
     private final List<String[]> hoRecords;
     private final Semaphore writeSemaphore;
@@ -351,9 +366,16 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 eb.build(),
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
         builder.setPrimordialUuid(conceptUuid);
+        for (int parentNid: parentConceptNids) {
+            builder.addComponentSemantic(new ConceptProxy(parentNid), HDX_LEGACY_IS_A);
+        }
+        
+        addMaps(hoRec, builder);
         // white-coated tongue; white coating on tongue; tongue with white coating
         for (int i = 0; i < abbreviations.length; i++) {
-            builder.addDescription(abbreviations[0], MetaData.NAME____SOLOR);
+            if (!abbreviations[i].isEmpty()) {
+                builder.addDescription(abbreviations[i], MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR);
+            }
         }
         
         if (!hoRec[REFID].isEmpty()) {
@@ -399,6 +421,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         }
         buildAndIndex(builder, stamp, hoRec);
     }
+
 
     private void addReverseSemantic(String[] hoRec, int legacyHdxNid, int solorNid, int stamp) throws NoSuchElementException, IllegalStateException {
         int assemblageConceptNid = UNCATEGORIZED_NAV_ASSEMBLAGE.getNid();
@@ -490,6 +513,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
             builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            addMaps(hoRec, builder);
             buildAndIndex(builder, stamp, hoRec);
             //
             SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(conceptNid, refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
@@ -562,6 +586,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             builder.setPrimordialUuid(conceptUuid);
             builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
             int conceptNid = builder.getNid();
+            addMaps(hoRec, builder);
             buildAndIndex(builder, stamp, hoRec);
             //
             SemanticBuilder semanticBuilder = Get.semanticBuilderService()
@@ -573,5 +598,47 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
        }
     }
+    private void addMaps(String[] hoRec, ConceptBuilder builder) {
+        if (!hoRec[ICD10CM].isEmpty()) {
+            builder.addStringSemantic(hoRec[ICD10CM], HDX_ICD10CM_MAP);
+        }
+        if (!hoRec[ICD10PCS].isEmpty()) {
+            builder.addStringSemantic(hoRec[ICD10PCS], HDX_ICD10PCS_MAP);
+        }
+        if (!hoRec[ICD9CM].isEmpty()) {
+            builder.addStringSemantic(hoRec[ICD9CM], HDX_ICD9_MAP);
+        }
+        if (!hoRec[ICF].isEmpty()) {
+            builder.addStringSemantic(hoRec[ICF], HDX_ICF_MAP);
+        }
+        if (!hoRec[ICPC].isEmpty()) {
+            builder.addStringSemantic(hoRec[ICPC], HDX_ICPC_MAP);
+        }
+        if (!hoRec[LOINC].isEmpty()) {
+            builder.addStringSemantic(hoRec[LOINC], HDX_LOINC_MAP);
+        }
+        if (!hoRec[MDC].isEmpty()) {
+            builder.addStringSemantic(hoRec[MDC], HDX_MDC_MAP);
+        }
+        if (!hoRec[MESH].isEmpty()) {
+            builder.addStringSemantic(hoRec[MESH], HDX_MESH_MAP);
+        }
+        if (!hoRec[RADLEX].isEmpty()) {
+            builder.addStringSemantic(hoRec[RADLEX], HDX_RADLEX_MAP);
+        }
+        if (!hoRec[RXCUI].isEmpty()) {
+            builder.addStringSemantic(hoRec[RXCUI], HDX_RXCUI_MAP);
+        }
+        if (!hoRec[CCS_SINGLE_CAT_ICD].isEmpty()) {
+            builder.addStringSemantic(hoRec[CCS_SINGLE_CAT_ICD], HDX_CCS_SINGLE_ICD_MAP);
+        }
+        if (!hoRec[CCS_MULTI_LEVEL_1_ICD].isEmpty()) {
+            builder.addStringSemantic(hoRec[CCS_MULTI_LEVEL_1_ICD], HDX_CCS_MULTI_1_ICD_MAP);
+        }
+        if (!hoRec[CCS_MULTI_LEVEL_2_ICD].isEmpty()) {
+            builder.addStringSemantic(hoRec[CCS_MULTI_LEVEL_2_ICD], HDX_CCS_MULTI_2_ICD_MAP);
+        }
+    }
+    
 
 }
