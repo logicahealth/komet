@@ -35,14 +35,18 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -152,7 +156,6 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     public static final int INEXACT_SNOMED_3 = 30;
     //SNOMED Sibling/Child	
     public static final int SNOMED_SIB_CHILD_3 = 31;
-    
 
     private final List<String[]> hoRecords;
     private final Semaphore writeSemaphore;
@@ -165,7 +168,6 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     private final ConceptProxy after = new ConceptProxy("After (attribute)", UUID.fromString("fb6758e0-442c-3393-bb2e-ff536711cde7"));
     private final ConceptProxy allergicSensitization = new ConceptProxy("Allergic sensitization (disorder)", UUID.fromString("3944bbe7-9080-3d20-9466-3302fcfcd403"));
     private final ConceptProxy causativeAgent = new ConceptProxy("Causative agent (attribute)", UUID.fromString("f770e2d8-91e6-3c55-91be-f794ee835265"));
-
 
     public static UUID refidToUuid(String refid) {
         return UuidT5Generator.get(LEGACY_HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), refid);
@@ -210,7 +212,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             allergenParents.add("1");
             allergenParents.add("3239");
             allergenParents.add("13592");
-            
+
             ConceptService conceptService = Get.conceptService();
             StampService stampService = Get.stampService();
             int authorNid = TermAux.USER.getNid();
@@ -336,6 +338,19 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     List<Chronology> builtObjects = new ArrayList<>();
                     semanticBuilder.build(stamp, builtObjects);
                     buildAndIndex(semanticBuilder, stamp, hoRec);
+                    addItemsIfNew(hoRec, ICD10PCS, snomedNid, HDX_ICD10PCS_MAP, stamp);
+                    addItemsIfNew(hoRec, ICD9CM, snomedNid, HDX_ICD9_MAP, stamp);
+                    addItemsIfNew(hoRec, ICF, snomedNid, HDX_ICF_MAP, stamp);
+                    addItemsIfNew(hoRec, ICPC, snomedNid, HDX_ICPC_MAP, stamp);
+                    addItemsIfNew(hoRec, LOINC, snomedNid, HDX_LOINC_MAP, stamp);
+                    addItemsIfNew(hoRec, MDC, snomedNid, HDX_MDC_MAP, stamp);
+                    addItemsIfNew(hoRec, MESH, snomedNid, HDX_MESH_MAP, stamp);
+                    addItemsIfNew(hoRec, RADLEX, snomedNid, HDX_RADLEX_MAP, stamp);
+                    addItemsIfNew(hoRec, RXCUI, snomedNid, HDX_RXCUI_MAP, stamp);
+                    addItemsIfNew(hoRec, CCS_SINGLE_CAT_ICD, snomedNid, HDX_CCS_SINGLE_ICD_MAP, stamp);
+                    addItemsIfNew(hoRec, CCS_MULTI_LEVEL_1_ICD, snomedNid, HDX_CCS_MULTI_1_ICD_MAP, stamp);
+                    addItemsIfNew(hoRec, CCS_MULTI_LEVEL_2_ICD, snomedNid, HDX_CCS_MULTI_2_ICD_MAP, stamp);
+                    addDescriptionsIfNew(hoRec, snomedNid, stamp);
 
                 } else {
                     LOG.info("No concept for: |" + hoRec[SNOMEDCT] + "|" + snomedUuid.toString());
@@ -366,10 +381,10 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 eb.build(),
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
         builder.setPrimordialUuid(conceptUuid);
-        for (int parentNid: parentConceptNids) {
+        for (int parentNid : parentConceptNids) {
             builder.addComponentSemantic(new ConceptProxy(parentNid), HDX_LEGACY_IS_A);
         }
-        
+
         addMaps(hoRec, builder);
         // white-coated tongue; white coating on tongue; tongue with white coating
         for (int i = 0; i < abbreviations.length; i++) {
@@ -377,7 +392,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 builder.addDescription(abbreviations[i], MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR);
             }
         }
-        
+
         if (!hoRec[REFID].isEmpty()) {
             builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
         }
@@ -422,7 +437,6 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         buildAndIndex(builder, stamp, hoRec);
     }
 
-
     private void addReverseSemantic(String[] hoRec, int legacyHdxNid, int solorNid, int stamp) throws NoSuchElementException, IllegalStateException {
         int assemblageConceptNid = UNCATEGORIZED_NAV_ASSEMBLAGE.getNid();
         if (Boolean.valueOf(hoRec[IS_CATEGORY])) {
@@ -431,7 +445,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             assemblageConceptNid = DIAGNOSIS_NAV_ASSEMBLAGE.getNid();
         }
         //int componentNid,
-        
+
         SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(legacyHdxNid, solorNid, assemblageConceptNid);
         List<Chronology> builtObjects = new ArrayList<>();
         semanticBuilder.build(stamp, builtObjects);
@@ -489,15 +503,27 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             parentConceptNids[i] = parentConceptNidList.get(i);
         }
         HdxConceptHash hdxConceptHash = new HdxConceptHash(conceptName, parentConceptNids, hoRec[REFID]);
+        UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
+        int conceptNid = Get.nidWithAssignment(conceptUuid);
         if (this.importer.getHdxSolorConcepts().containsKey(hdxConceptHash)) {
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), this.importer.getHdxSolorConcepts().get(hdxConceptHash).getNid(), stamp);
             //builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            addItemsIfNew(hoRec, ICD10PCS, conceptNid, HDX_ICD10PCS_MAP, stamp);
+            addItemsIfNew(hoRec, ICD9CM, conceptNid, HDX_ICD9_MAP, stamp);
+            addItemsIfNew(hoRec, ICF, conceptNid, HDX_ICF_MAP, stamp);
+            addItemsIfNew(hoRec, ICPC, conceptNid, HDX_ICPC_MAP, stamp);
+            addItemsIfNew(hoRec, LOINC, conceptNid, HDX_LOINC_MAP, stamp);
+            addItemsIfNew(hoRec, MDC, conceptNid, HDX_MDC_MAP, stamp);
+            addItemsIfNew(hoRec, MESH, conceptNid, HDX_MESH_MAP, stamp);
+            addItemsIfNew(hoRec, RADLEX, conceptNid, HDX_RADLEX_MAP, stamp);
+            addItemsIfNew(hoRec, RXCUI, conceptNid, HDX_RXCUI_MAP, stamp);
+            addItemsIfNew(hoRec, CCS_SINGLE_CAT_ICD, conceptNid, HDX_CCS_SINGLE_ICD_MAP, stamp);
+            addItemsIfNew(hoRec, CCS_MULTI_LEVEL_1_ICD, conceptNid, HDX_CCS_MULTI_1_ICD_MAP, stamp);
+            addItemsIfNew(hoRec, CCS_MULTI_LEVEL_2_ICD, conceptNid, HDX_CCS_MULTI_2_ICD_MAP, stamp);
 
         } else {
-            UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
             this.importer.getHdxSolorConcepts().put(hdxConceptHash, new ConceptProxy(conceptName, conceptUuid));
 
-            int conceptNid = Get.nidWithAssignment(conceptUuid);
             LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
 
             ConceptAssertion[] parents = new ConceptAssertion[parentConceptNidList.size()];
@@ -532,42 +558,55 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
     private void addAllergy(String conceptName, int stamp, String[] hoRec) {
         UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
-        
+
         // Parent is 419199007 |Allergy to substance (finding)|
         //   Has realization →  Allergic process
         //   Causative agent →  Substance 
-        
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                        eb.sufficientSet(eb.and(eb.conceptAssertion(allergyToSubstance), eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                        eb.and(eb.someRole(after, eb.conceptAssertion(allergicSensitization)),
-                               eb.someRole(causativeAgent, eb.conceptAssertion(getNidForSCTID(hoRec[SNOMEDCT])))))));
+        eb.sufficientSet(eb.and(eb.conceptAssertion(allergyToSubstance), eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                eb.and(eb.someRole(after, eb.conceptAssertion(allergicSensitization)),
+                        eb.someRole(causativeAgent, eb.conceptAssertion(getNidForSCTID(hoRec[SNOMEDCT])))))));
 
-            ConceptBuilderService builderService = Get.conceptBuilderService();
-            ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
-                    "HDX",
-                    eb.build(),
-                    TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-            builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
-            int conceptNid = builder.getNid();
-            buildAndIndex(builder, stamp, hoRec);
-            //
-            SemanticBuilder semanticBuilder = Get.semanticBuilderService()
-                    .getComponentSemanticBuilder(refidToSolorNid(hoRec[REFID]), 
-                            refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
-            List<Chronology> builtObjects = new ArrayList<>();
-            semanticBuilder.build(stamp, builtObjects);
-            buildAndIndex(semanticBuilder, stamp, hoRec);
-            addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);        
+        ConceptBuilderService builderService = Get.conceptBuilderService();
+        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
+                "HDX",
+                eb.build(),
+                TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+        builder.setPrimordialUuid(conceptUuid);
+        builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+        int conceptNid = builder.getNid();
+        buildAndIndex(builder, stamp, hoRec);
+        //
+        SemanticBuilder semanticBuilder = Get.semanticBuilderService()
+                .getComponentSemanticBuilder(refidToSolorNid(hoRec[REFID]),
+                        refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
+        List<Chronology> builtObjects = new ArrayList<>();
+        semanticBuilder.build(stamp, builtObjects);
+        buildAndIndex(semanticBuilder, stamp, hoRec);
+        addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
     }
+
     private void addSibling(String conceptName, int stamp, String[] hoRec) {
         UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
         int[] parentConceptNids = new int[]{getNidForSCTID(hoRec[INEXACT_SNOMED_1])};
         HdxConceptHash hdxConceptHash = new HdxConceptHash(conceptName, parentConceptNids, hoRec[REFID]);
-        
+
         if (this.importer.getHdxSolorConcepts().containsKey(hdxConceptHash)) {
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), this.importer.getHdxSolorConcepts().get(hdxConceptHash).getNid(), stamp);
             //builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            int conceptNid = Get.nidForUuids(conceptUuid);
+            addItemsIfNew(hoRec, ICD10PCS, conceptNid, HDX_ICD10PCS_MAP, stamp);
+            addItemsIfNew(hoRec, ICD9CM, conceptNid, HDX_ICD9_MAP, stamp);
+            addItemsIfNew(hoRec, ICF, conceptNid, HDX_ICF_MAP, stamp);
+            addItemsIfNew(hoRec, ICPC, conceptNid, HDX_ICPC_MAP, stamp);
+            addItemsIfNew(hoRec, LOINC, conceptNid, HDX_LOINC_MAP, stamp);
+            addItemsIfNew(hoRec, MDC, conceptNid, HDX_MDC_MAP, stamp);
+            addItemsIfNew(hoRec, MESH, conceptNid, HDX_MESH_MAP, stamp);
+            addItemsIfNew(hoRec, RADLEX, conceptNid, HDX_RADLEX_MAP, stamp);
+            addItemsIfNew(hoRec, RXCUI, conceptNid, HDX_RXCUI_MAP, stamp);
+            addItemsIfNew(hoRec, CCS_SINGLE_CAT_ICD, conceptNid, HDX_CCS_SINGLE_ICD_MAP, stamp);
+            addItemsIfNew(hoRec, CCS_MULTI_LEVEL_1_ICD, conceptNid, HDX_CCS_MULTI_1_ICD_MAP, stamp);
+            addItemsIfNew(hoRec, CCS_MULTI_LEVEL_2_ICD, conceptNid, HDX_CCS_MULTI_2_ICD_MAP, stamp);
         } else {
             this.importer.getHdxSolorConcepts().put(hdxConceptHash, new ConceptProxy(conceptName, conceptUuid));
             int[] parentNids = this.importer.getTaxonomy().getTaxonomyParentConceptNids(parentConceptNids[0]);
@@ -590,55 +629,90 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             buildAndIndex(builder, stamp, hoRec);
             //
             SemanticBuilder semanticBuilder = Get.semanticBuilderService()
-                    .getComponentSemanticBuilder(refidToSolorNid(hoRec[REFID]), 
+                    .getComponentSemanticBuilder(refidToSolorNid(hoRec[REFID]),
                             refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
             List<Chronology> builtObjects = new ArrayList<>();
             semanticBuilder.build(stamp, builtObjects);
             buildAndIndex(semanticBuilder, stamp, hoRec);
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
-       }
+        }
     }
+
     private void addMaps(String[] hoRec, ConceptBuilder builder) {
         if (!hoRec[ICD10CM].isEmpty()) {
-            builder.addStringSemantic(hoRec[ICD10CM], HDX_ICD10CM_MAP);
+            String[] dataArray = hoRec[ICD10CM].split("; ");
+            for (String data : dataArray) {
+                builder.addStringSemantic(data, HDX_ICD10CM_MAP);
+            }
         }
-        if (!hoRec[ICD10PCS].isEmpty()) {
-            builder.addStringSemantic(hoRec[ICD10PCS], HDX_ICD10PCS_MAP);
-        }
-        if (!hoRec[ICD9CM].isEmpty()) {
-            builder.addStringSemantic(hoRec[ICD9CM], HDX_ICD9_MAP);
-        }
-        if (!hoRec[ICF].isEmpty()) {
-            builder.addStringSemantic(hoRec[ICF], HDX_ICF_MAP);
-        }
-        if (!hoRec[ICPC].isEmpty()) {
-            builder.addStringSemantic(hoRec[ICPC], HDX_ICPC_MAP);
-        }
-        if (!hoRec[LOINC].isEmpty()) {
-            builder.addStringSemantic(hoRec[LOINC], HDX_LOINC_MAP);
-        }
-        if (!hoRec[MDC].isEmpty()) {
-            builder.addStringSemantic(hoRec[MDC], HDX_MDC_MAP);
-        }
-        if (!hoRec[MESH].isEmpty()) {
-            builder.addStringSemantic(hoRec[MESH], HDX_MESH_MAP);
-        }
-        if (!hoRec[RADLEX].isEmpty()) {
-            builder.addStringSemantic(hoRec[RADLEX], HDX_RADLEX_MAP);
-        }
-        if (!hoRec[RXCUI].isEmpty()) {
-            builder.addStringSemantic(hoRec[RXCUI], HDX_RXCUI_MAP);
-        }
-        if (!hoRec[CCS_SINGLE_CAT_ICD].isEmpty()) {
-            builder.addStringSemantic(hoRec[CCS_SINGLE_CAT_ICD], HDX_CCS_SINGLE_ICD_MAP);
-        }
-        if (!hoRec[CCS_MULTI_LEVEL_1_ICD].isEmpty()) {
-            builder.addStringSemantic(hoRec[CCS_MULTI_LEVEL_1_ICD], HDX_CCS_MULTI_1_ICD_MAP);
-        }
-        if (!hoRec[CCS_MULTI_LEVEL_2_ICD].isEmpty()) {
-            builder.addStringSemantic(hoRec[CCS_MULTI_LEVEL_2_ICD], HDX_CCS_MULTI_2_ICD_MAP);
+        addItems(hoRec, ICD10PCS, builder, HDX_ICD10PCS_MAP);
+        addItems(hoRec, ICD9CM, builder, HDX_ICD9_MAP);
+        addItems(hoRec, ICF, builder, HDX_ICF_MAP);
+        addItems(hoRec, ICPC, builder, HDX_ICPC_MAP);
+        addItems(hoRec, LOINC, builder, HDX_LOINC_MAP);
+        addItems(hoRec, MDC, builder, HDX_MDC_MAP);
+        addItems(hoRec, MESH, builder, HDX_MESH_MAP);
+        addItems(hoRec, RADLEX, builder, HDX_RADLEX_MAP);
+        addItems(hoRec, RXCUI, builder, HDX_RXCUI_MAP);
+        addItems(hoRec, CCS_SINGLE_CAT_ICD, builder, HDX_CCS_SINGLE_ICD_MAP);
+        addItems(hoRec, CCS_MULTI_LEVEL_1_ICD, builder, HDX_CCS_MULTI_1_ICD_MAP);
+        addItems(hoRec, CCS_MULTI_LEVEL_2_ICD, builder, HDX_CCS_MULTI_2_ICD_MAP);
+    }
+
+    private void addItems(String[] hoRec, int index, ConceptBuilder builder, ConceptSpecification assemblage) {
+        if (!hoRec[index].isEmpty()) {
+            String[] dataArray = hoRec[index].split("; ");
+            for (String data : dataArray) {
+                builder.addStringSemantic(data, assemblage);
+            }
         }
     }
-    
+
+    private void addItemsIfNew(String[] hoRec, int index, int conceptNid, ConceptSpecification assemblage, int stamp) {
+        HashSet<String> existing = new HashSet();
+        Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, assemblage.getNid())
+                .forEach(semanticChronology -> {
+                    for (Version v : semanticChronology.getVersionList()) {
+                        existing.add(((StringVersion) v).getString());
+                    }
+                });
+
+        if (!hoRec[index].isEmpty()) {
+            String[] dataArray = hoRec[index].split("; ");
+            for (String data : dataArray) {
+                if (!existing.contains(data)) {
+                    SemanticBuilder<? extends SemanticChronology> b = Get.semanticBuilderService().getStringSemanticBuilder(data, conceptNid, assemblage.getNid());
+                    buildAndIndex(b, stamp, hoRec);
+                }
+            }
+        }
+    }
+
+    private void addDescriptionsIfNew(String[] hoRec, int snomedNid, int stamp) {
+        HashSet<String> existing = new HashSet();
+        Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(snomedNid, TermAux.ENGLISH_LANGUAGE.getNid())
+                .forEach(semanticChronology -> {
+                    for (Version v : semanticChronology.getVersionList()) {
+                        existing.add(((DescriptionVersion) v).getText());
+                    }
+                });
+        
+        String[] abbreviations = hoRec[ABBREVIATIONS].split("; ");
+        for (int i = 0; i < abbreviations.length; i++) {
+            if (!abbreviations[i].isEmpty() && !existing.contains(abbreviations[i])) {
+                SemanticBuilder<? extends SemanticChronology> b = Get.semanticBuilderService().getDescriptionBuilder(
+                        MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(),
+				abbreviations[i], snomedNid);
+                buildAndIndex(b, stamp, hoRec);
+            }
+        }
+            if (!existing.contains(hoRec[NAME])) {
+                SemanticBuilder<? extends SemanticChronology> b = Get.semanticBuilderService().getDescriptionBuilder(
+                        MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(),
+				hoRec[NAME], snomedNid);
+                buildAndIndex(b, stamp, hoRec);
+            }
+
+    }
 
 }
