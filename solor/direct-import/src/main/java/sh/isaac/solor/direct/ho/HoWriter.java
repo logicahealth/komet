@@ -56,18 +56,14 @@ import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.ModelGet;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.ALLERGEN_ASSEMBLAGE;
-import static sh.isaac.solor.direct.ho.HoDirectImporter.CATEGORY_NAV_ASSEMBLAGE;
-import static sh.isaac.solor.direct.ho.HoDirectImporter.DIAGNOSIS_NAV_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_CCS_MULTI_1_ICD_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_CCS_MULTI_2_ICD_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_CCS_SINGLE_ICD_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICD10CM_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICD10PCS_MAP;
-import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICD9_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICF_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICPC_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_LEGACY_IS_A;
-import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_LOINC_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_MDC_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_MESH_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_RADLEX_MAP;
@@ -81,7 +77,10 @@ import static sh.isaac.solor.direct.ho.HoDirectImporter.LEGACY_HUMAN_DX_ROOT_CON
 import static sh.isaac.solor.direct.ho.HoDirectImporter.REFID_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.SNOMED_MAP_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.SNOMED_SIB_CHILD_ASSEMBLAGE;
-import static sh.isaac.solor.direct.ho.HoDirectImporter.UNCATEGORIZED_NAV_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ENTITY_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.LEGACY_HUMAN_DX_MODULE;
 
 /**
  *
@@ -241,6 +240,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 try {
 
                     int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
+                    int legacyStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, LEGACY_HUMAN_DX_MODULE.getNid(), pathNid);
+                    int inactiveLegacyStamp = stampService.getStampSequence(Status.INACTIVE, commitTime, authorNid, LEGACY_HUMAN_DX_MODULE.getNid(), pathNid);
                     // See if the concept is created (from the SNOMED/LOINC expressions. 
                     UUID conceptUuid = refidToUuid(hoRec[REFID]);
                     int conceptNid = Get.nidWithAssignment(conceptUuid);
@@ -268,7 +269,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                             }
                         }
                         // Need to create new concept, and a stated definition...
-                        buildConcept(conceptUuid, hoRec[NAME], recordStamp, parentNids, hoRec);
+                        buildConcept(conceptUuid, hoRec[NAME], recordStamp, legacyStamp, inactiveLegacyStamp, parentNids, hoRec);
 
 //                        LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
 //                        
@@ -315,7 +316,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         }
     }
 
-    protected void buildConcept(UUID conceptUuid, String conceptName, int stamp, int[] parentConceptNids, String[] hoRec) throws IllegalStateException, NoSuchElementException {
+    protected void buildConcept(UUID conceptUuid, String conceptName, int stamp, int legacyStamp, int inactiveLegacyStamp, int[] parentConceptNids, String[] hoRec) throws IllegalStateException, NoSuchElementException {
 
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
         int conceptNid = Get.nidForUuids(conceptUuid);
@@ -339,10 +340,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     semanticBuilder.build(stamp, builtObjects);
                     buildAndIndex(semanticBuilder, stamp, hoRec);
                     addItemsIfNew(hoRec, ICD10PCS, snomedNid, HDX_ICD10PCS_MAP, stamp);
-                    addItemsIfNew(hoRec, ICD9CM, snomedNid, HDX_ICD9_MAP, stamp);
                     addItemsIfNew(hoRec, ICF, snomedNid, HDX_ICF_MAP, stamp);
                     addItemsIfNew(hoRec, ICPC, snomedNid, HDX_ICPC_MAP, stamp);
-                    addItemsIfNew(hoRec, LOINC, snomedNid, HDX_LOINC_MAP, stamp);
                     addItemsIfNew(hoRec, MDC, snomedNid, HDX_MDC_MAP, stamp);
                     addItemsIfNew(hoRec, MESH, snomedNid, HDX_MESH_MAP, stamp);
                     addItemsIfNew(hoRec, RADLEX, snomedNid, HDX_RADLEX_MAP, stamp);
@@ -434,16 +433,16 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         if (!hoRec[SNOMED_SIB_CHILD_3].isEmpty()) {
             builder.addStringSemantic(hoRec[SNOMED_SIB_CHILD_3], SNOMED_SIB_CHILD_ASSEMBLAGE);
         }
-        buildAndIndex(builder, stamp, hoRec);
+        if (!hoRec[DEPRECATED].isEmpty() && Boolean.parseBoolean(hoRec[DEPRECATED])) {
+            buildAndIndex(builder, inactiveLegacyStamp, hoRec);
+        } else {
+            buildAndIndex(builder, legacyStamp, hoRec);
+        }
+        
     }
 
     private void addReverseSemantic(String[] hoRec, int legacyHdxNid, int solorNid, int stamp) throws NoSuchElementException, IllegalStateException {
-        int assemblageConceptNid = UNCATEGORIZED_NAV_ASSEMBLAGE.getNid();
-        if (Boolean.valueOf(hoRec[IS_CATEGORY])) {
-            assemblageConceptNid = CATEGORY_NAV_ASSEMBLAGE.getNid();
-        } else if (Boolean.valueOf(hoRec[IS_DIAGNOSIS])) {
-            assemblageConceptNid = DIAGNOSIS_NAV_ASSEMBLAGE.getNid();
-        }
+        int assemblageConceptNid = HDX_ENTITY_ASSEMBLAGE.getNid();
         //int componentNid,
 
         SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(legacyHdxNid, solorNid, assemblageConceptNid);
@@ -509,10 +508,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), this.importer.getHdxSolorConcepts().get(hdxConceptHash).getNid(), stamp);
             //builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
             addItemsIfNew(hoRec, ICD10PCS, conceptNid, HDX_ICD10PCS_MAP, stamp);
-            addItemsIfNew(hoRec, ICD9CM, conceptNid, HDX_ICD9_MAP, stamp);
             addItemsIfNew(hoRec, ICF, conceptNid, HDX_ICF_MAP, stamp);
             addItemsIfNew(hoRec, ICPC, conceptNid, HDX_ICPC_MAP, stamp);
-            addItemsIfNew(hoRec, LOINC, conceptNid, HDX_LOINC_MAP, stamp);
             addItemsIfNew(hoRec, MDC, conceptNid, HDX_MDC_MAP, stamp);
             addItemsIfNew(hoRec, MESH, conceptNid, HDX_MESH_MAP, stamp);
             addItemsIfNew(hoRec, RADLEX, conceptNid, HDX_RADLEX_MAP, stamp);
@@ -539,14 +536,21 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
             builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
+            builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
+                descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
+            });
+ 
             addMaps(hoRec, builder);
             buildAndIndex(builder, stamp, hoRec);
             //
-            SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(conceptNid, refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
-            List<Chronology> builtObjects = new ArrayList<>();
-            semanticBuilder.build(stamp, builtObjects);
-            buildAndIndex(semanticBuilder, stamp, hoRec);
-            addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
+            if (!Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
+                SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(conceptNid, refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
+                List<Chronology> builtObjects = new ArrayList<>();
+                semanticBuilder.build(stamp, builtObjects);
+                buildAndIndex(semanticBuilder, stamp, hoRec);
+                addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
+            }
 
         }
     }
@@ -574,6 +578,11 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
         builder.setPrimordialUuid(conceptUuid);
         builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
+            builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
+                descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
+            });
+ 
         int conceptNid = builder.getNid();
         buildAndIndex(builder, stamp, hoRec);
         //
@@ -596,10 +605,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             //builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
             int conceptNid = Get.nidForUuids(conceptUuid);
             addItemsIfNew(hoRec, ICD10PCS, conceptNid, HDX_ICD10PCS_MAP, stamp);
-            addItemsIfNew(hoRec, ICD9CM, conceptNid, HDX_ICD9_MAP, stamp);
             addItemsIfNew(hoRec, ICF, conceptNid, HDX_ICF_MAP, stamp);
             addItemsIfNew(hoRec, ICPC, conceptNid, HDX_ICPC_MAP, stamp);
-            addItemsIfNew(hoRec, LOINC, conceptNid, HDX_LOINC_MAP, stamp);
             addItemsIfNew(hoRec, MDC, conceptNid, HDX_MDC_MAP, stamp);
             addItemsIfNew(hoRec, MESH, conceptNid, HDX_MESH_MAP, stamp);
             addItemsIfNew(hoRec, RADLEX, conceptNid, HDX_RADLEX_MAP, stamp);
@@ -624,6 +631,11 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
             builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
+            builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
+                descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
+            });
+ 
             int conceptNid = builder.getNid();
             addMaps(hoRec, builder);
             buildAndIndex(builder, stamp, hoRec);
@@ -633,6 +645,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                             refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
             List<Chronology> builtObjects = new ArrayList<>();
             semanticBuilder.build(stamp, builtObjects);
+            
             buildAndIndex(semanticBuilder, stamp, hoRec);
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
         }
@@ -646,10 +659,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             }
         }
         addItems(hoRec, ICD10PCS, builder, HDX_ICD10PCS_MAP);
-        addItems(hoRec, ICD9CM, builder, HDX_ICD9_MAP);
         addItems(hoRec, ICF, builder, HDX_ICF_MAP);
         addItems(hoRec, ICPC, builder, HDX_ICPC_MAP);
-        addItems(hoRec, LOINC, builder, HDX_LOINC_MAP);
         addItems(hoRec, MDC, builder, HDX_MDC_MAP);
         addItems(hoRec, MESH, builder, HDX_MESH_MAP);
         addItems(hoRec, RADLEX, builder, HDX_RADLEX_MAP);
@@ -703,6 +714,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 SemanticBuilder<? extends SemanticChronology> b = Get.semanticBuilderService().getDescriptionBuilder(
                         MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(),
 				abbreviations[i], snomedNid);
+                b.addSemantic(Get.semanticBuilderService().getMembershipSemanticBuilder(b.getNid(), HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE.getNid()));
                 buildAndIndex(b, stamp, hoRec);
             }
         }
@@ -710,6 +722,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 SemanticBuilder<? extends SemanticChronology> b = Get.semanticBuilderService().getDescriptionBuilder(
                         MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(),
 				hoRec[NAME], snomedNid);
+                b.addSemantic(Get.semanticBuilderService().getMembershipSemanticBuilder(b.getNid(), HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE.getNid()));
                 buildAndIndex(b, stamp, hoRec);
             }
 
