@@ -405,14 +405,19 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             builder.addStringSemantic(hoRec[IS_CATEGORY], IS_CATEGORY_ASSEMBLAGE);
         }
         if (!hoRec[SNOMEDCT].isEmpty()) {
-            UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
-            if (Get.identifierService().hasUuid(snomedUuid)) {
-                int snomedNid = Get.nidForUuids(snomedUuid);
-                builder.addStringSemantic(hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE);
-                // Add reverse semantic
-                addReverseSemantic(hoRec, conceptNid, snomedNid, stamp);
+            if (!hoRec[MAPPED_TO_ALLERGEN].isEmpty() && Boolean.parseBoolean(hoRec[MAPPED_TO_ALLERGEN])) {
+                // The SNOMED record is not the correct record, since it is mapped to an allergen, and 
+                // will thus have an allegy concept created for it. 
             } else {
-                throw new NoSuchElementException("No identifier for: " + hoRec[SNOMEDCT]);
+                UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
+                if (Get.identifierService().hasUuid(snomedUuid)) {
+                    int snomedNid = Get.nidForUuids(snomedUuid);
+                    builder.addStringSemantic(hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE);
+                    // Add reverse semantic
+                    addReverseSemantic(hoRec, conceptNid, snomedNid, stamp);
+                } else {
+                    throw new NoSuchElementException("No identifier for: " + hoRec[SNOMEDCT]);
+                }
             }
         }
         if (!hoRec[INEXACT_SNOMED_1].isEmpty()) {
@@ -438,7 +443,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         } else {
             buildAndIndex(builder, legacyStamp, hoRec);
         }
-        
+
     }
 
     private void addReverseSemantic(String[] hoRec, int legacyHdxNid, int solorNid, int stamp) throws NoSuchElementException, IllegalStateException {
@@ -540,7 +545,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
             });
- 
+
             addMaps(hoRec, builder);
             buildAndIndex(builder, stamp, hoRec);
             //
@@ -560,39 +565,52 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         return Get.nidForUuids(snomedUuid);
     }
 
+    HashMap<String, Integer> snomedAllergyMap = new HashMap<>();
+
     private void addAllergy(String conceptName, int stamp, String[] hoRec) {
-        UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
+        // see if allergy already added...
+        if (snomedAllergyMap.containsKey(hoRec[SNOMEDCT])) {
+            // already added, add info to existing concept. 
+            int existingAllergyNid = snomedAllergyMap.get(hoRec[SNOMEDCT]);
+            addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), existingAllergyNid, stamp);
+            buildAndIndex(Get.semanticBuilderService().getStringSemanticBuilder(hoRec[REFID], existingAllergyNid, REFID_ASSEMBLAGE.getNid()), stamp, hoRec);
+        } else {
 
-        // Parent is 419199007 |Allergy to substance (finding)|
-        //   Has realization →  Allergic process
-        //   Causative agent →  Substance 
-        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(allergyToSubstance), eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                eb.and(eb.someRole(after, eb.conceptAssertion(allergicSensitization)),
-                        eb.someRole(causativeAgent, eb.conceptAssertion(getNidForSCTID(hoRec[SNOMEDCT])))))));
+            UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
 
-        ConceptBuilderService builderService = Get.conceptBuilderService();
-        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
-                "HDX",
-                eb.build(),
-                TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-        builder.setPrimordialUuid(conceptUuid);
-        builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            // Parent is 419199007 |Allergy to substance (finding)|
+            //   Has realization →  Allergic process
+            //   Causative agent →  Substance 
+            LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+            eb.sufficientSet(eb.and(eb.conceptAssertion(allergyToSubstance), eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                    eb.and(eb.someRole(after, eb.conceptAssertion(allergicSensitization)),
+                            eb.someRole(causativeAgent, eb.conceptAssertion(getNidForSCTID(hoRec[SNOMEDCT])))))));
+
+            ConceptBuilderService builderService = Get.conceptBuilderService();
+            ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
+                    "HDX",
+                    eb.build(),
+                    TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+            builder.setPrimordialUuid(conceptUuid);
+            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
             });
- 
-        int conceptNid = builder.getNid();
-        buildAndIndex(builder, stamp, hoRec);
-        //
-        SemanticBuilder semanticBuilder = Get.semanticBuilderService()
-                .getComponentSemanticBuilder(refidToSolorNid(hoRec[REFID]),
-                        refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
-        List<Chronology> builtObjects = new ArrayList<>();
-        semanticBuilder.build(stamp, builtObjects);
-        buildAndIndex(semanticBuilder, stamp, hoRec);
-        addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
+
+            int conceptNid = builder.getNid();
+            buildAndIndex(builder, stamp, hoRec);
+            snomedAllergyMap.put(hoRec[SNOMEDCT], conceptNid);
+            //
+            SemanticBuilder semanticBuilder = Get.semanticBuilderService()
+                    .getComponentSemanticBuilder(refidToSolorNid(hoRec[REFID]),
+                            refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
+            List<Chronology> builtObjects = new ArrayList<>();
+            semanticBuilder.build(stamp, builtObjects);
+            buildAndIndex(semanticBuilder, stamp, hoRec);
+            addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
+        }
+
     }
 
     private void addSibling(String conceptName, int stamp, String[] hoRec) {
@@ -635,7 +653,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
             });
- 
+
             int conceptNid = builder.getNid();
             addMaps(hoRec, builder);
             buildAndIndex(builder, stamp, hoRec);
@@ -645,7 +663,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                             refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
             List<Chronology> builtObjects = new ArrayList<>();
             semanticBuilder.build(stamp, builtObjects);
-            
+
             buildAndIndex(semanticBuilder, stamp, hoRec);
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
         }
@@ -700,6 +718,9 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     }
 
     private void addDescriptionsIfNew(String[] hoRec, int snomedNid, int stamp) {
+        if (Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
+            return;
+        }
         HashSet<String> existing = new HashSet();
         Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(snomedNid, TermAux.ENGLISH_LANGUAGE.getNid())
                 .forEach(semanticChronology -> {
@@ -707,24 +728,24 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                         existing.add(((DescriptionVersion) v).getText());
                     }
                 });
-        
+
         String[] abbreviations = hoRec[ABBREVIATIONS].split("; ");
         for (int i = 0; i < abbreviations.length; i++) {
             if (!abbreviations[i].isEmpty() && !existing.contains(abbreviations[i])) {
                 SemanticBuilder<? extends SemanticChronology> b = Get.semanticBuilderService().getDescriptionBuilder(
                         MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(),
-				abbreviations[i], snomedNid);
+                        abbreviations[i], snomedNid);
                 b.addSemantic(Get.semanticBuilderService().getMembershipSemanticBuilder(b.getNid(), HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE.getNid()));
                 buildAndIndex(b, stamp, hoRec);
             }
         }
-            if (!existing.contains(hoRec[NAME])) {
-                SemanticBuilder<? extends SemanticChronology> b = Get.semanticBuilderService().getDescriptionBuilder(
-                        MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(),
-				hoRec[NAME], snomedNid);
-                b.addSemantic(Get.semanticBuilderService().getMembershipSemanticBuilder(b.getNid(), HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE.getNid()));
-                buildAndIndex(b, stamp, hoRec);
-            }
+        if (!existing.contains(hoRec[NAME])) {
+            SemanticBuilder<? extends SemanticChronology> b = Get.semanticBuilderService().getDescriptionBuilder(
+                    MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(),
+                    hoRec[NAME], snomedNid);
+            b.addSemantic(Get.semanticBuilderService().getMembershipSemanticBuilder(b.getNid(), HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE.getNid()));
+            buildAndIndex(b, stamp, hoRec);
+        }
 
     }
 
