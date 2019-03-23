@@ -335,10 +335,6 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 if (Get.identifierService().hasUuid(snomedUuid)) {
                     int snomedNid = Get.nidForUuids(snomedUuid);
 
-                    SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(snomedNid, conceptNid, HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
-                    List<Chronology> builtObjects = new ArrayList<>();
-                    semanticBuilder.build(stamp, builtObjects);
-                    buildAndIndex(semanticBuilder, stamp, hoRec);
                     addItemsIfNew(hoRec, ICD10PCS, snomedNid, HDX_ICD10PCS_MAP, stamp);
                     addItemsIfNew(hoRec, ICF, snomedNid, HDX_ICF_MAP, stamp);
                     addItemsIfNew(hoRec, ICPC, snomedNid, HDX_ICPC_MAP, stamp);
@@ -408,6 +404,13 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             if (!hoRec[MAPPED_TO_ALLERGEN].isEmpty() && Boolean.parseBoolean(hoRec[MAPPED_TO_ALLERGEN])) {
                 // The SNOMED record is not the correct record, since it is mapped to an allergen, and 
                 // will thus have an allegy concept created for it. 
+                if (snomedAllergyMap.containsKey(hoRec[SNOMEDCT])) {
+                   SemanticBuilder semanticBuilder = Get.semanticBuilderService()
+                            .getComponentSemanticBuilder(snomedAllergyMap.get(hoRec[SNOMEDCT]), conceptNid, HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
+                    List<Chronology> builtObjects = new ArrayList<>();
+                    semanticBuilder.build(stamp, builtObjects);
+                    buildAndIndex(semanticBuilder, stamp, hoRec);
+                }
             } else {
                 UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
                 if (Get.identifierService().hasUuid(snomedUuid)) {
@@ -415,6 +418,12 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     builder.addStringSemantic(hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE);
                     // Add reverse semantic
                     addReverseSemantic(hoRec, conceptNid, snomedNid, stamp);
+                    
+                   SemanticBuilder semanticBuilder = Get.semanticBuilderService()
+                            .getComponentSemanticBuilder(snomedNid, conceptNid, HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
+                    List<Chronology> builtObjects = new ArrayList<>();
+                    semanticBuilder.build(stamp, builtObjects);
+                    buildAndIndex(semanticBuilder, stamp, hoRec);
                 } else {
                     throw new NoSuchElementException("No identifier for: " + hoRec[SNOMEDCT]);
                 }
