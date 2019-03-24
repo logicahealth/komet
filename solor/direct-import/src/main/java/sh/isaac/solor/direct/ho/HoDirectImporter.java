@@ -87,6 +87,10 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
 
     public final static ConceptProxy HDX_LEGACY_IS_A = new ConceptProxy("HDX legacy is-a", UUID.fromString("80da6f99-74c5-4eb4-8eca-f0fe9893ba01"));
 
+    public final static ConceptProxy HDX_DEPRECATED = 
+            new ConceptProxy("Deprecated", 
+                    UUID.fromString("04ef59c2-e6c0-44d0-b7f4-f884024667ce"));
+
     public final static ConceptProxy HDX_ICD10CM_MAP = 
             new ConceptProxy("HDX ICD-10-CM inexact map", 
                     UUID.fromString("5f6cca2d-4667-466a-8113-ec55d54d0f3b"));
@@ -189,6 +193,9 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             
             buildConcept(REFID_ASSEMBLAGE.getPrimordialUuid(), 
                     REFID_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());  
+            
+            buildConcept(HDX_DEPRECATED.getPrimordialUuid(), 
+                    HDX_DEPRECATED.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());  
             
             buildConcept(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE.getPrimordialUuid(), 
                     HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());  

@@ -43,6 +43,7 @@ import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -59,6 +60,7 @@ import static sh.isaac.solor.direct.ho.HoDirectImporter.ALLERGEN_ASSEMBLAGE;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_CCS_MULTI_1_ICD_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_CCS_MULTI_2_ICD_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_CCS_SINGLE_ICD_MAP;
+import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_DEPRECATED;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICD10CM_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICD10PCS_MAP;
 import static sh.isaac.solor.direct.ho.HoDirectImporter.HDX_ICF_MAP;
@@ -226,8 +228,11 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
             }
 
-            // All deprecated records are filtered out already
             for (String[] hoRec : hoRecords) {
+                if (hoRec[REFID].equals("9921") || hoRec[REFID].equals("12052")
+                        || hoRec[REFID].equals("16459")|| hoRec[REFID].equals("23666")) {
+                    System.out.println("Found 9921");
+                }
                 if (hoRec.length < SNOMED_SIB_CHILD_3 + 1) {
                     String[] newRec = new String[SNOMED_SIB_CHILD_3 + 1];
                     Arrays.fill(newRec, "");
@@ -241,7 +246,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
                     int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
                     int legacyStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, LEGACY_HUMAN_DX_MODULE.getNid(), pathNid);
-                    int inactiveLegacyStamp = stampService.getStampSequence(Status.INACTIVE, commitTime, authorNid, LEGACY_HUMAN_DX_MODULE.getNid(), pathNid);
+                    int inactiveLegacyStamp = stampService.getStampSequence(Status.INACTIVE, commitTime + (1000 * 60), authorNid, LEGACY_HUMAN_DX_MODULE.getNid(), pathNid);
                     // See if the concept is created (from the SNOMED/LOINC expressions. 
                     UUID conceptUuid = refidToUuid(hoRec[REFID]);
                     int conceptNid = Get.nidWithAssignment(conceptUuid);
@@ -257,7 +262,6 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                                 if (allergenParents.contains(refId)) {
                                     if (Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
                                         // Add allergy concept...
-                                        LOG.info("Allergen record: " + Arrays.asList(hoRec));
                                         addAllergy(hoRec[NAME], recordStamp, hoRec);
                                     }
                                 } else if (Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
@@ -388,6 +392,10 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             }
         }
 
+        if (!hoRec[DEPRECATED].isEmpty()) {
+            builder.addStringSemantic(hoRec[DEPRECATED], HDX_DEPRECATED);
+        }
+        
         if (!hoRec[REFID].isEmpty()) {
             builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
         }
@@ -448,7 +456,13 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             builder.addStringSemantic(hoRec[SNOMED_SIB_CHILD_3], SNOMED_SIB_CHILD_ASSEMBLAGE);
         }
         if (!hoRec[DEPRECATED].isEmpty() && Boolean.parseBoolean(hoRec[DEPRECATED])) {
-            buildAndIndex(builder, inactiveLegacyStamp, hoRec);
+            buildAndIndex(builder, legacyStamp, hoRec);
+            // now reture the concept that was just created...
+            ConceptChronology conceptChronology = Get.concept(builder.getNid());
+            ConceptVersion conceptVersion = conceptChronology.createMutableVersion(inactiveLegacyStamp);
+            Get.conceptService().writeConcept(conceptChronology);
+            index(conceptChronology);
+            //buildAndIndex(builder, inactiveLegacyStamp, hoRec);
         } else {
             buildAndIndex(builder, legacyStamp, hoRec);
         }
@@ -516,10 +530,9 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             parentConceptNids[i] = parentConceptNidList.get(i);
         }
         HdxConceptHash hdxConceptHash = new HdxConceptHash(conceptName, parentConceptNids, hoRec[REFID]);
-        UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
-        int conceptNid = Get.nidWithAssignment(conceptUuid);
         if (this.importer.getHdxSolorConcepts().containsKey(hdxConceptHash)) {
-            addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), this.importer.getHdxSolorConcepts().get(hdxConceptHash).getNid(), stamp);
+            int conceptNid = this.importer.getHdxSolorConcepts().get(hdxConceptHash).getNid();
+            addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
             //builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
             addItemsIfNew(hoRec, ICD10PCS, conceptNid, HDX_ICD10PCS_MAP, stamp);
             addItemsIfNew(hoRec, ICF, conceptNid, HDX_ICF_MAP, stamp);
@@ -533,6 +546,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             addItemsIfNew(hoRec, CCS_MULTI_LEVEL_2_ICD, conceptNid, HDX_CCS_MULTI_2_ICD_MAP, stamp);
 
         } else {
+            UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
+            int conceptNid = Get.nidWithAssignment(conceptUuid);
             this.importer.getHdxSolorConcepts().put(hdxConceptHash, new ConceptProxy(conceptName, conceptUuid));
 
             LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
@@ -628,9 +643,9 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         HdxConceptHash hdxConceptHash = new HdxConceptHash(conceptName, parentConceptNids, hoRec[REFID]);
 
         if (this.importer.getHdxSolorConcepts().containsKey(hdxConceptHash)) {
-            addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), this.importer.getHdxSolorConcepts().get(hdxConceptHash).getNid(), stamp);
+            int conceptNid = this.importer.getHdxSolorConcepts().get(hdxConceptHash).getNid();
+            addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
             //builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
-            int conceptNid = Get.nidForUuids(conceptUuid);
             addItemsIfNew(hoRec, ICD10PCS, conceptNid, HDX_ICD10PCS_MAP, stamp);
             addItemsIfNew(hoRec, ICF, conceptNid, HDX_ICF_MAP, stamp);
             addItemsIfNew(hoRec, ICPC, conceptNid, HDX_ICPC_MAP, stamp);
