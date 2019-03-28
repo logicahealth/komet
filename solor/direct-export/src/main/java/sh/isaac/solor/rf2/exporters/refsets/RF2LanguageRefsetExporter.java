@@ -51,7 +51,7 @@ public class RF2LanguageRefsetExporter extends RF2DefaultExporter {
                                             .append(this.rf2ExportHelper.getIdString(version.getAssemblageNid()) + "\t")
                                             .append(this.rf2ExportHelper.getIdString(nid) + "\t")
                                             .append(this.rf2ExportHelper.getIdString(((ComponentNidVersion)version).getComponentNid()))
-                                            .append("\r")
+                                            .append("\r\n")
                                 );
 
                         super.writeStringToFile(linesToWrite.toString());

@@ -75,7 +75,7 @@ public class RF2TransitiveClosureExporter extends RF2DefaultExporter {
                                     linesToWrite
                                             .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
                                             .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()))
-                                            .append("\r");
+                                            .append("\r\n");
 
                                 }
                             });
@@ -96,7 +96,7 @@ public class RF2TransitiveClosureExporter extends RF2DefaultExporter {
                             linesToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
                                     .append(this.rf2ExportHelper.getIdString(identifierSchemeProxy.getNid()))
-                                    .append("\r");
+                                    .append("\r\n");
                         }
                     });
 
@@ -113,7 +113,7 @@ public class RF2TransitiveClosureExporter extends RF2DefaultExporter {
                             linesToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
                                     .append(this.rf2ExportHelper.getIdString(moduleProxy.getNid()))
-                                    .append("\r");
+                                    .append("\r\n");
                         }
                     });
 
@@ -132,7 +132,7 @@ public class RF2TransitiveClosureExporter extends RF2DefaultExporter {
                             linesToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
                                     .append(this.rf2ExportHelper.getIdString(attributeTypeProxy.getNid()))
-                                    .append("\r");
+                                    .append("\r\n");
                         }
                     });
 
