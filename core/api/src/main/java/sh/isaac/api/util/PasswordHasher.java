@@ -404,6 +404,9 @@ public class PasswordHasher {
     * If the value appears to have been encrypted by one of our encrypt methods, decrypt the value using a password read from
     * one of these locations - in this order:
     * 
+    * The system property DECRYPTION_FILE - if this variable exists, it is assumed to contain the full path to a file. That
+    * file is expected to contain a single line, which is the decryption password.
+    * 
     * The environment variable DECRYPTION_FILE - if this variable exists, it is assumed to contain the full path to a file. That
     * file is expected to contain a single line, which is the decryption password.
     * 
@@ -444,8 +447,11 @@ public class PasswordHasher {
    }
    
    /**
-    * Reads the master password from a file specified by the environment variable DECRYPTION_FILE - if this variable exists, it is assumed to contain the full 
+    * Reads the master password from a file specified by the system property DECRYPTION_FILE - if this variable exists, it is assumed to contain the full 
     * path to a file. That file is expected to contain a single line, which is the decryption password.
+    * 
+    * If not yet found, read the master password from a file specified by the environment variable DECRYPTION_FILE - if this variable exists, it is assumed 
+    * to contain the full path to a file. That file is expected to contain a single line, which is the decryption password.
     * 
     * If the variable is not set, then will check for the existence of a file named "decryption.password" in the JVM start location.
     * If that file exists, it will be expected to contain a single line, which is the decryption password.
@@ -455,7 +461,10 @@ public class PasswordHasher {
     */
    public static char[] getMasterPassword() throws IOException
    {
-      String decryptionFileLoc = System.getenv("DECRYPTION_FILE");
+      String decryptionFileLoc = System.getProperty("DECRYPTION_FILE");
+      if (decryptionFileLoc == null) {
+         decryptionFileLoc = System.getenv("DECRYPTION_FILE");
+      }
       File defaultFileLoc = new File("decryption.password");
       if (StringUtils.isNotBlank(decryptionFileLoc)) {
          File temp = new File(decryptionFileLoc);

@@ -114,7 +114,7 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
                                                 .append(isASCTID + "\t")
                                                 .append(characteristicTypeId + "\t")
                                                 .append(modifierId)
-                                                .append("\r");
+                                                .append("\r\n");
 
                                     } else if (parentNode instanceof RoleNodeAllWithNids) {
 
@@ -129,7 +129,7 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
                                                 .append(this.rf2ExportHelper.getIdString(((RoleNodeAllWithNids) parentNode).getTypeConceptNid()) + "\t")
                                                 .append(characteristicTypeId + "\t")
                                                 .append(modifierId)
-                                                .append("\r");
+                                                .append("\r\n");
 
                                     } else if (parentNode instanceof RoleNodeSomeWithNids) {
 
@@ -144,7 +144,7 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
                                                 .append(this.rf2ExportHelper.getIdString(((RoleNodeSomeWithNids) parentNode).getTypeConceptNid()) + "\t")
                                                 .append(characteristicTypeId + "\t")
                                                 .append(modifierId)
-                                                .append("\r");
+                                                .append("\r\n");
 
                                     }
                                 }
@@ -193,7 +193,7 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
                                     .append(isASCTID + "\t")
                                     .append("900000000000010007" + "\t")
                                     .append(modifierId)
-                                    .append("\r");
+                                    .append("\r\n");
                         }
                     });
 
@@ -222,7 +222,7 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
                                     .append(isASCTID + "\t")
                                     .append("900000000000010007" + "\t")
                                     .append(modifierId)
-                                    .append("\r");
+                                    .append("\r\n");
                         }
                     });
 
@@ -253,7 +253,7 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
                                     .append(isASCTID + "\t")
                                     .append("900000000000010007" + "\t")
                                     .append(modifierId)
-                                    .append("\r");
+                                    .append("\r\n");
                         }
                     });
 

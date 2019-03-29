@@ -45,7 +45,7 @@ public class RF2ConceptExporter extends RF2DefaultExporter {
                                     .append(this.rf2ExportHelper.getActiveString(version) + "\t")
                                     .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
                                     .append(this.rf2ExportHelper.getConceptPrimitiveOrSufficientDefinedSCTID((ConceptVersion)version))
-                                    .append("\r");
+                                    .append("\r\n");
                         }
 
                         super.writeStringToFile(linesToWrite.toString());
