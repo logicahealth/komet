@@ -138,6 +138,8 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     public final static ConceptProxy HDX_ENTITY_ASSEMBLAGE = new ConceptProxy("HDX entity", 
             UUID.fromString("1c82bc0e-3160-491f-9454-a45a5ab5556d"));
 
+    public final static ConceptProxy HDX_REVIEW_REQUIRED = new ConceptProxy("HDX review required", 
+            UUID.fromString("cb4191ad-5a6c-40b8-a1f8-6c3efb83a70d"));
 
     private static final int WRITE_PERMITS = Runtime.getRuntime()
             .availableProcessors() * 2;
@@ -262,6 +264,9 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             
             buildConcept(HDX_CCS_MULTI_2_ICD_MAP.getPrimordialUuid(), 
                     HDX_CCS_MULTI_2_ICD_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
+            
+            buildConcept(HDX_REVIEW_REQUIRED.getPrimordialUuid(), 
+                    HDX_REVIEW_REQUIRED.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
             File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
             System.out.println("Importing from: " + importDirectory.getAbsolutePath());
