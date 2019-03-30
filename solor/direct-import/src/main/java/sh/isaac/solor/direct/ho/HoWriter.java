@@ -167,10 +167,11 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     private final AssemblageService assemblageService = Get.assemblageService();
     private final HoDirectImporter importer;
     private final ConceptProxy allergyToSubstance = new ConceptProxy("Allergy to substance (disorder)", UUID.fromString("dddb93ba-3e25-313d-b3be-5081a91cce37"));
-    private final ConceptProxy after = new ConceptProxy("After (attribute)", UUID.fromString("fb6758e0-442c-3393-bb2e-ff536711cde7"));
-    private final ConceptProxy allergicSensitization = new ConceptProxy("Allergic sensitization (disorder)", UUID.fromString("3944bbe7-9080-3d20-9466-3302fcfcd403"));
     private final ConceptProxy causativeAgent = new ConceptProxy("Causative agent (attribute)", UUID.fromString("f770e2d8-91e6-3c55-91be-f794ee835265"));
 
+    private final ConceptProxy hasRealization = new ConceptProxy("Has realization (attribute)", UUID.fromString("d1d9670a-2016-3072-bb41-8e45490a5cf8"));
+    private final ConceptProxy allergicProcess = new ConceptProxy("Allergic process (qualifier value)", UUID.fromString("1116245b-43a8-367c-9cad-f6c025ee8173"));
+    
     public static UUID refidToUuid(String refid) {
         return UuidT5Generator.get(LEGACY_HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), refid);
     }
@@ -230,8 +231,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             }
 
             for (String[] hoRec : hoRecords) {
-                if (hoRec[REFID].equals("43263")) {
-                    System.out.println("Found 43263");
+                if (hoRec[REFID].equals("11650")) {
+                    System.out.println("Found 11650");
                 }
                 if (hoRec.length < SNOMED_SIB_CHILD_3 + 1) {
                     String[] newRec = new String[SNOMED_SIB_CHILD_3 + 1];
@@ -339,6 +340,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 if (Get.identifierService().hasUuid(snomedUuid)) {
                     int snomedNid = Get.nidForUuids(snomedUuid);
 
+                    addItemsIfNew(hoRec, REFID, snomedNid, REFID_ASSEMBLAGE, stamp);
                     addItemsIfNew(hoRec, ICD10CM, snomedNid, HDX_ICD10CM_MAP, stamp);
                     addItemsIfNew(hoRec, ICD10PCS, snomedNid, HDX_ICD10PCS_MAP, stamp);
                     addItemsIfNew(hoRec, ICF, snomedNid, HDX_ICF_MAP, stamp);
@@ -534,7 +536,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         if (this.importer.getHdxSolorConcepts().containsKey(hdxConceptHash)) {
             int conceptNid = this.importer.getHdxSolorConcepts().get(hdxConceptHash).getNid();
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
-            //builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            addItemsIfNew(hoRec, REFID, conceptNid, REFID_ASSEMBLAGE, stamp);
             addItemsIfNew(hoRec, ICD10CM, conceptNid, HDX_ICD10CM_MAP, stamp);
             addItemsIfNew(hoRec, ICD10PCS, conceptNid, HDX_ICD10PCS_MAP, stamp);
             addItemsIfNew(hoRec, ICF, conceptNid, HDX_ICF_MAP, stamp);
@@ -613,21 +615,22 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             buildAndIndex(Get.semanticBuilderService().getStringSemanticBuilder(hoRec[REFID], existingAllergyNid, REFID_ASSEMBLAGE.getNid()), stamp, hoRec);
         } else {
 
-            UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
-            int allergenNid;
-            if (hoRec[SNOMEDCT].isEmpty()) {
-                allergenNid = drugAllergenProxy.getNid();
-            } else {
-                allergenNid = getNidForSCTID(hoRec[SNOMEDCT]);
-            }
-
             // Parent is 419199007 |Allergy to substance (finding)|
             //   Has realization →  Allergic process
             //   Causative agent →  Substance 
+            UUID conceptUuid = refidToSolorUuid(hoRec[REFID]);
             LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-            eb.sufficientSet(eb.and(eb.conceptAssertion(allergyToSubstance), eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                    eb.and(eb.someRole(after, eb.conceptAssertion(allergicSensitization)),
-                            eb.someRole(causativeAgent, eb.conceptAssertion(allergenNid))))));
+            if (hoRec[SNOMEDCT].isEmpty()) {
+                eb.necessarySet(eb.and(eb.conceptAssertion(allergyToSubstance), eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                    eb.and(eb.someRole(hasRealization, eb.conceptAssertion(allergicProcess)),
+                            eb.someRole(causativeAgent, eb.conceptAssertion(drugAllergenProxy.getNid()))))));
+            } else {
+                eb.sufficientSet(eb.and(eb.conceptAssertion(allergyToSubstance), eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                    eb.and(eb.someRole(hasRealization, eb.conceptAssertion(allergicProcess)),
+                            eb.someRole(causativeAgent, eb.conceptAssertion(getNidForSCTID(hoRec[SNOMEDCT])))))));
+            }
+
+            
 
             ConceptBuilderService builderService = Get.conceptBuilderService();
             ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
@@ -669,6 +672,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             int conceptNid = this.importer.getHdxSolorConcepts().get(hdxConceptHash).getNid();
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, stamp);
             //builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            addItemsIfNew(hoRec, REFID, conceptNid, REFID_ASSEMBLAGE, stamp);
             addItemsIfNew(hoRec, ICD10CM, conceptNid, HDX_ICD10CM_MAP, stamp);
             addItemsIfNew(hoRec, ICD10PCS, conceptNid, HDX_ICD10PCS_MAP, stamp);
             addItemsIfNew(hoRec, ICF, conceptNid, HDX_ICF_MAP, stamp);

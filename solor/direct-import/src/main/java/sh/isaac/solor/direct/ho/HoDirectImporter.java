@@ -75,7 +75,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     public final static ConceptProxy HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE = new ConceptProxy("Human Dx Solor concepts", UUID.fromString("17bea17e-f74e-4612-ab4d-7fe28389232a"));
     public final static ConceptProxy HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Human Dx Solor descriptions", UUID.fromString("a4bc9f7c-0db5-4ae4-a003-4ac5e57fe385"));
  
-    public final static ConceptProxy REFID_ASSEMBLAGE = new ConceptProxy("refid", UUID.fromString("c7290eda-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy REFID_ASSEMBLAGE = new ConceptProxy("HDX refid", UUID.fromString("c7290eda-3655-11e9-b210-d663bd873d93"));
     public final static ConceptProxy ALLERGEN_ASSEMBLAGE = new ConceptProxy("HDX Allergen", UUID.fromString("c7291164-3655-11e9-b210-d663bd873d93"));
     public final static ConceptProxy IS_DIAGNOSIS_ASSEMBLAGE = new ConceptProxy("HDX Diagnosis", UUID.fromString("c729136c-3655-11e9-b210-d663bd873d93"));
     public final static ConceptProxy IS_CATEGORY_ASSEMBLAGE = new ConceptProxy("HDX Category", UUID.fromString("c72915f6-3655-11e9-b210-d663bd873d93"));
@@ -88,7 +88,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     public final static ConceptProxy HDX_LEGACY_IS_A = new ConceptProxy("HDX legacy is-a", UUID.fromString("80da6f99-74c5-4eb4-8eca-f0fe9893ba01"));
 
     public final static ConceptProxy HDX_DEPRECATED = 
-            new ConceptProxy("Deprecated", 
+            new ConceptProxy("HDX Deprecated", 
                     UUID.fromString("04ef59c2-e6c0-44d0-b7f4-f884024667ce"));
 
     public final static ConceptProxy HDX_ICD10CM_MAP = 
