@@ -51,6 +51,7 @@ import sh.isaac.solor.direct.LoincDirectImporter;
 import sh.isaac.solor.direct.LoincExpressionToConcept;
 import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
+import sh.isaac.solor.direct.ho.HoModuleExporter;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.isaac.komet.gui.exporter.ExportView;
@@ -247,10 +248,18 @@ public class KometBaseMenus implements MenuProvider {
                     LoincExpressionToConcept conversionTask = new LoincExpressionToConcept();
                     Get.executor().execute(conversionTask);
                 });
+
+                MenuItem exportHoModules = new MenuItem("Export HO Modules");
+                exportHoModules.setOnAction((ActionEvent event) -> {
+                    HoModuleExporter conversionTask = new HoModuleExporter();
+                    Get.executor().execute(conversionTask);
+                });
+
+
                 return new MenuItem[]{
                     completeClassify, completeReindex, recomputeTaxonomy,
                     importLoincRecords, addLabNavigationConcepts, convertLoincExpressions,
-                    transformSourcesFull, transformSourcesActiveOnly
+                    transformSourcesFull, transformSourcesActiveOnly, exportHoModules
                 };
             }
         }
