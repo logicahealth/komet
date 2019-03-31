@@ -50,7 +50,7 @@ public class RF2DescriptionExporter extends RF2DefaultExporter {
                                     .append(this.rf2ExportHelper.getTypeId((DescriptionVersion)version) + "\t")
                                     .append(this.rf2ExportHelper.getTerm((DescriptionVersion)version) + "\t")
                                     .append(this.rf2ExportHelper.getCaseSignificanceId((DescriptionVersion) version))
-                                    .append("\r");
+                                    .append("\r\n");
                         }
 
                         super.writeStringToFile(linesToWrite.toString());

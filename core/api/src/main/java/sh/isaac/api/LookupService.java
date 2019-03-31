@@ -424,7 +424,7 @@ public class LookupService {
                startupFxPlatform();
 
                final ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("sh",
-                                                                                        "one",
+                                                                                        "net.sagebits",
                                                                                         "org.glassfish",
                                                                                         "com.informatics"));
 

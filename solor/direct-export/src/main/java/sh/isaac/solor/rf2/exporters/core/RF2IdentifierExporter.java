@@ -60,7 +60,7 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
                                                         .append(this.rf2ExportHelper.getActiveString(version) + "\t")
                                                         .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
                                                         .append(this.rf2ExportHelper.getIdString(version.getNid()))
-                                                        .append("\r");
+                                                        .append("\r\n");
                                             });
                                 });
 
