@@ -24,6 +24,7 @@ import sh.komet.gui.manifold.Manifold;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
 
 public class RF2ExportHelper {
@@ -86,7 +87,7 @@ public class RF2ExportHelper {
     }
 
     public String getTimeString(Version version){
-        return new SimpleDateFormat("yyyymmdd").format(new Date(version.getTime()));
+        return new SimpleDateFormat("YYYYMMdd").format(new Date(version.getTime()));
     }
 
     public String getActiveString(Version version){

@@ -2,6 +2,7 @@ package sh.isaac.solor.rf2;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -56,25 +57,28 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
     @Override
     protected Void call() {
 
-        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.CONCEPT, this.localDateTimeNow, this.exportDirectory, this.manifold));
-        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.DESCRIPTION, this.localDateTimeNow, this.exportDirectory, this.manifold));
-        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.RELATIONSHIP, this.localDateTimeNow, this.exportDirectory, this.manifold));
-        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.STATED_RELATIONSHIP, this.localDateTimeNow, this.exportDirectory, this.manifold));
-        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.IDENTIFIER, this.localDateTimeNow, this.exportDirectory, this.manifold));
+        TaxonomySnapshot noTreeTaxonomy = Get.taxonomyService().getSnapshotNoTree(this.manifold);
+
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.CONCEPT, this.localDateTimeNow, this.exportDirectory, this.manifold, noTreeTaxonomy));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.DESCRIPTION, this.localDateTimeNow, this.exportDirectory, this.manifold, noTreeTaxonomy));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.RELATIONSHIP, this.localDateTimeNow, this.exportDirectory, this.manifold, noTreeTaxonomy));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.STATED_RELATIONSHIP, this.localDateTimeNow, this.exportDirectory, this.manifold, noTreeTaxonomy));
+        this.exportConfigurations.add(new RF2Configuration(RF2ConfigType.IDENTIFIER, this.localDateTimeNow, this.exportDirectory, this.manifold, noTreeTaxonomy));
 
         List<Integer> currentAssemblageNids = Arrays.stream(Get.assemblageService().getAssemblageConceptNids()).boxed().collect(Collectors.toList());
         int descriptorAssemblageNid = isDescriptorAssemblagePresent? Get.concept(UuidT3Generator.fromSNOMED("900000000000456007")).getNid() : 0;
 
         //Add all languages TODO- Create a Factory and account for user specific selections
         Arrays.stream(
-                Get.taxonomyService().getSnapshot(manifold)
+
+                noTreeTaxonomy
                         .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
                 .filter(langAssemblageNid -> currentAssemblageNids.contains(langAssemblageNid))
                 .forEach(languageNid ->
                         exportConfigurations.add(
                                 new RF2Configuration(RF2ConfigType.LANGUAGE_REFSET,
                                         this.localDateTimeNow, languageNid, this.exportDirectory, this.manifold,
-                                        this.preExportUtility, this.isDescriptorAssemblagePresent)));
+                                        this.preExportUtility, this.isDescriptorAssemblagePresent, noTreeTaxonomy)));
 
         final ArrayList<VersionType> versionTypeIgnoreList = new ArrayList<>();
         versionTypeIgnoreList.add(VersionType.CONCEPT);
@@ -90,7 +94,7 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                         new RF2Configuration(RF2ConfigType.REFSET, this.localDateTimeNow, assemblageNid,
                                 Get.concept(assemblageNid).getFullyQualifiedName(),
                                 Get.assemblageService().getVersionTypeForAssemblage(assemblageNid),
-                                this.exportDirectory, this.manifold, this.preExportUtility, this.isDescriptorAssemblagePresent)));
+                                this.exportDirectory, this.manifold, this.preExportUtility, this.isDescriptorAssemblagePresent, noTreeTaxonomy)));
 
         updateTitle("Export " + this.exportMessage);
 
@@ -102,7 +106,7 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                 descriptorAssemblageConfiguration = new RF2Configuration(RF2ConfigType.REFSET, this.localDateTimeNow,
                         descriptorAssemblageNid, Get.concept(descriptorAssemblageNid).getFullyQualifiedName(),
                         Get.assemblageService().getVersionTypeForAssemblage(descriptorAssemblageNid),
-                        this.exportDirectory, this.manifold, this.preExportUtility, this.isDescriptorAssemblagePresent);
+                        this.exportDirectory, this.manifold, this.preExportUtility, this.isDescriptorAssemblagePresent, noTreeTaxonomy);
             }
 
             for (RF2Configuration rf2Configuration : this.exportConfigurations) {
@@ -155,7 +159,7 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
             readSemaphore.acquireUninterruptibly(READ_PERMITS);
             readSemaphore.release(READ_PERMITS);
 
-            Get.executor().submit(new ZipExportDirectory(Paths.get(this.exportConfigurations.get(0).getZipDirectory()), this.readSemaphore, READ_PERMITS));
+            Get.executor().submit(new ZipExportDirectory(Paths.get(this.exportConfigurations.get(0).getZipDirectory()), this.readSemaphore, READ_PERMITS, this.exportConfigurations.size()));
 
             readSemaphore.acquireUninterruptibly(READ_PERMITS);
 

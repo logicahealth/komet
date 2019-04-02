@@ -32,15 +32,14 @@ public class RF2DescriptionExporter extends RF2DefaultExporter {
     protected Void call() {
         try{
 
-            final StringBuilder linesToWrite = new StringBuilder();
-
             this.intStream
                     .forEach(nid -> {
 
-                        linesToWrite.setLength(0);
+                        super.clearLineOutput();
+                        super.incrementProgressCount();
 
                         for(Version version : Get.assemblageService().getSemanticChronology(nid).getVersionList()){
-                            linesToWrite
+                            super.outputToWrite
                                     .append(this.rf2ExportHelper.getIdString(version) + "\t")
                                     .append(this.rf2ExportHelper.getTimeString(version) + "\t")
                                     .append(this.rf2ExportHelper.getActiveString(version) + "\t")
@@ -53,7 +52,8 @@ public class RF2DescriptionExporter extends RF2DefaultExporter {
                                     .append("\r\n");
                         }
 
-                        super.writeStringToFile(linesToWrite.toString());
+                        super.writeToFile();
+                        super.tryAndUpdateProgressTracker();
                     });
 
         }finally {

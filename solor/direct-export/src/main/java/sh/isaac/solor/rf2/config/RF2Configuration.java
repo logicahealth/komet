@@ -3,15 +3,12 @@ package sh.isaac.solor.rf2.config;
 import org.apache.commons.text.WordUtils;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.observable.semantic.version.brittle.Observable_Nid1_Nid2_Int3_Version;
-import sh.isaac.api.observable.semantic.version.brittle.Observable_Nid1_Nid2_Str3_Version;
 import sh.isaac.api.util.UuidT3Generator;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.solor.rf2.utility.PreExportUtility;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
@@ -41,9 +38,11 @@ public class RF2Configuration {
     private static HashMap<Integer, Integer[]> refsetDescriptorHeaders = new HashMap<>();
     private final List<String> refsetDescriptorDefinitions = new ArrayList<>();
     private boolean isDescriptorAssemblage = false;
+    private long exportCount = 0;
+    private final TaxonomySnapshot noTreeTaxonomySnapshot;
 
     public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime, File exportDirectory,
-                            Manifold manifold) {
+                            Manifold manifold, TaxonomySnapshot noTreeTaxonomySnapshot) {
         this.rf2ConfigType = rf2ConfigType;
         this.localDateTime = localDateTime;
         this.fileHeader = rf2ConfigType.getFileHeader();
@@ -54,12 +53,15 @@ public class RF2Configuration {
         this.manifold = manifold;
         this.zipDirectory = this.exportDirectory + this.parentDirectory.substring(0, this.parentDirectory.length() -1) + ".zip";
 
+        this.noTreeTaxonomySnapshot = noTreeTaxonomySnapshot;
+
         setIntStreamSupplier(0);
         setFilePath();
     }
 
     public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime, int languageNid,
-                            File exportDirectory, Manifold manifold, PreExportUtility preExportUtility, boolean isDescriptorAssemblagePresent) {
+                            File exportDirectory, Manifold manifold, PreExportUtility preExportUtility, boolean isDescriptorAssemblagePresent,
+                            TaxonomySnapshot noTreeTaxonomySnapshot) {
         this.rf2ConfigType = rf2ConfigType;
         this.localDateTime = localDateTime;
         this.fileHeader = rf2ConfigType.getFileHeader();
@@ -74,6 +76,8 @@ public class RF2Configuration {
             refsetDescriptorHeaders = preExportUtility.generateRefsetDescriptorHeaders();
         }
 
+        this.noTreeTaxonomySnapshot = noTreeTaxonomySnapshot;
+
         setIntStreamSupplier(languageNid);
         setFilePath(languageNid);
         setFileHeader(languageNid);
@@ -81,7 +85,8 @@ public class RF2Configuration {
 
     public RF2Configuration(RF2ConfigType rf2ConfigType, LocalDateTime localDateTime, int assemblageNid,
                             String assemblageFQN, VersionType versionType, File exportDirectory, Manifold manifold,
-                            PreExportUtility preExportUtility, boolean isDescriptorAssemblagePresent) {
+                            PreExportUtility preExportUtility, boolean isDescriptorAssemblagePresent,
+                            TaxonomySnapshot noTreeTaxonomySnapshot) {
         this.rf2ConfigType = rf2ConfigType;
         this.localDateTime = localDateTime;
         this.parentDirectory = "/SnomedCT_SolorRF2_PRODUCTION_TIME1/"
@@ -95,6 +100,8 @@ public class RF2Configuration {
             refsetDescriptorHeaders = preExportUtility.generateRefsetDescriptorHeaders();
             this.isDescriptorAssemblage = assemblageNid == Get.concept(UuidT3Generator.fromSNOMED("900000000000456007")).getNid();
         }
+
+        this.noTreeTaxonomySnapshot = noTreeTaxonomySnapshot;
 
         setFilePath(versionType, assemblageFQN);
         setIntStreamSupplier(assemblageNid);
@@ -115,10 +122,7 @@ public class RF2Configuration {
                         .append("\t");
             }
 
-            String dynamicHeader = stringBuilder.toString().substring(0, stringBuilder.length() -2);
-
-
-            this.fileHeader = dynamicHeader + "\r\n";
+            this.fileHeader = stringBuilder.toString().trim() + "\r\n";
         }else{
 
             if(this.rf2ConfigType.equals(RF2ConfigType.LANGUAGE_REFSET)) {
@@ -289,32 +293,60 @@ public class RF2Configuration {
 
     private void setIntStreamSupplier(int assemblageNid){
 
+        final IdentifierService identifierService = Get.identifierService();
+
         switch (this.rf2ConfigType){
             case CONCEPT:
             case IDENTIFIER:
+
                 this.intStreamSupplier = () -> Get.conceptService().getConceptNidStream();
+                this.exportCount = Get.conceptService().getConceptCount();
+
                 break;
             case DESCRIPTION:
+
+
                 this.intStreamSupplier = () -> Arrays.stream(
-                        Get.taxonomyService().getSnapshot(manifold)
+                        this.noTreeTaxonomySnapshot
                                 .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
                         .flatMap(nid -> Get.assemblageService().getSemanticNidStream(nid));
+
+                Arrays.stream(
+                        this.noTreeTaxonomySnapshot
+                        .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
+                        .forEach(nid -> this.exportCount += identifierService.getNidsForAssemblage(nid).count());
+
                 break;
             case RELATIONSHIP:
+
                 this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid());
+                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid()).count();
+
                 break;
             case STATED_RELATIONSHIP:
+
                 this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid());
+                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid()).count();
+
                 break;
             case TRANSITIVE_CLOSURE:
+
                 this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid());
+                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid()).count();
+
                 break;
             case VERSIONED_TRANSITIVE_CLOSURE:
+
                 this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid());
+                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid()).count();
+
                 break;
             case LANGUAGE_REFSET:
             case REFSET:
+
                 this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(assemblageNid);
+                this.exportCount = identifierService.getNidsForAssemblage(assemblageNid).count();
+
                 break;
         }
     }
@@ -440,5 +472,13 @@ public class RF2Configuration {
 
     public LocalDateTime getLocalDateTime() {
         return localDateTime;
+    }
+
+    public long getExportCount(){
+        return this.exportCount;
+    }
+
+    public TaxonomySnapshot getNoTreeTaxonomySnapshot() {
+        return noTreeTaxonomySnapshot;
     }
 }

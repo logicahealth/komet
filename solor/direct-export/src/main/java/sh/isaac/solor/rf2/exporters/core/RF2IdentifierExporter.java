@@ -4,15 +4,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.solor.rf2.config.RF2Configuration;
 import sh.isaac.solor.rf2.exporters.RF2DefaultExporter;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 
@@ -38,12 +35,11 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
 
         try{
 
-            final StringBuilder linesToWrite = new StringBuilder();
-
             this.intStream
                     .forEach(nid -> {
 
-                        linesToWrite.setLength(0);
+                        super.clearLineOutput();
+                        super.incrementProgressCount();
 
                         Get.concept(nid).getVersionList().stream()
                                 .forEach(version -> {
@@ -53,7 +49,7 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
                                             .filter(semanticChronology -> semanticChronology.getAssemblageNid() != TermAux.SNOMED_IDENTIFIER.getNid())
                                             .forEach(semanticChronology -> {
 
-                                                linesToWrite
+                                                super.outputToWrite
                                                         .append(this.rf2ExportHelper.getIdString(semanticChronology.getAssemblageNid()) + "\t")
                                                         .append(((StringVersion)semanticChronology.getVersionList().get(0)).getString() + "\t")
                                                         .append(this.rf2ExportHelper.getTimeString(version) + "\t")
@@ -64,7 +60,8 @@ public class RF2IdentifierExporter extends RF2DefaultExporter {
                                             });
                                 });
 
-                        super.writeStringToFile(linesToWrite.toString());
+                        super.writeToFile();
+                        super.tryAndUpdateProgressTracker();
                     });
 
         }finally {

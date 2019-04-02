@@ -46,13 +46,12 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
     protected Void call() {
 
         try{
-            final StringBuilder linesToWrite = new StringBuilder();
 
             this.intStream
                     .forEach(nid -> {
 
-                        linesToWrite.setLength(0);
-
+                        super.clearLineOutput();
+                        super.incrementProgressCount();
 
                         for(Version version : Get.assemblageService().getSemanticChronology(nid).getVersionList()){
 
@@ -78,7 +77,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
                                             parentNode.getNodeSemantic() == NodeSemantic.ROLE_ALL |
                                                     parentNode.getNodeSemantic() == NodeSemantic.ROLE_SOME));
 
-                                    linesToWrite
+                                    super.outputToWrite
                                             .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
                                             .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
                                             .append(this.rf2ExportHelper.getTimeString(version) + "\t")
@@ -89,11 +88,11 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
                             });
                         }
 
-                        super.writeStringToFile(linesToWrite.toString());
+                        super.writeToFile();
+                        super.tryAndUpdateProgressTracker();
                     });
 
-            linesToWrite.setLength(0);
-
+            super.clearLineOutput();
             String dateTime = DateTimeFormatter.ofPattern("YYYYMMdd").format(rf2Configuration.getLocalDateTime());
             StringBuilder isoInstantBuilder = new StringBuilder();
 
@@ -115,7 +114,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
 
                         if(!Get.taxonomyService().getSnapshot(rf2ExportHelper.getManifold()).isKindOf(nid, identifierSchemeProxy.getNid())) {
 
-                            linesToWrite
+                            super.outputToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
                                     .append(this.rf2ExportHelper.getIdString(identifierSchemeProxy.getNid()) + "\t")
                                     .append(new SimpleDateFormat("YYYYMMdd").format(new Date(time)))
@@ -123,10 +122,9 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
                                     .append("\r\n");
                         }
                     });
+            super.writeToFile();
 
-            super.writeStringToFile(linesToWrite.toString());
-            linesToWrite.setLength(0);
-
+            super.clearLineOutput();
             ConceptProxy moduleProxy = new ConceptProxy("Module (core metadata concept)",
                     UUID.fromString("40d1c869-b509-32f8-b735-836eac577a67"));
             Arrays.stream(Get.taxonomyService().getSnapshot(this.rf2ExportHelper.getManifold()).getTaxonomyChildConceptNids(TermAux.SOLOR_MODULE.getNid()))
@@ -134,7 +132,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
 
                         if(!Get.taxonomyService().getSnapshot(rf2ExportHelper.getManifold()).isKindOf(nid, moduleProxy.getNid())) {
 
-                            linesToWrite
+                            super.outputToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
                                     .append(this.rf2ExportHelper.getIdString(moduleProxy.getNid()) + "\t")
                                     .append(new SimpleDateFormat("YYYYMMdd").format(new Date(time)))
@@ -142,10 +140,9 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
                                     .append("\r\n");
                         }
                     });
+            super.writeToFile();
 
-            super.writeStringToFile(linesToWrite.toString());
-            linesToWrite.setLength(0);
-
+            super.clearLineOutput();
             ConceptProxy attributeTypeProxy = new ConceptProxy("Attribute type (foundation metadata concept)",
                     UUID.fromString("34e794d9-0405-3aa1-adf5-64801950c397"));
             int[] attNidsToWrite = new int[]{MetaData.INTEGER_FIELD____SOLOR.getNid(),
@@ -155,7 +152,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
 
                         if(!Get.taxonomyService().getSnapshot(rf2ExportHelper.getManifold()).isKindOf(nid, attributeTypeProxy.getNid())) {
 
-                            linesToWrite
+                            super.outputToWrite
                                     .append(this.rf2ExportHelper.getIdString(nid) + "\t")
                                     .append(this.rf2ExportHelper.getIdString(attributeTypeProxy.getNid()) + "\t")
                                     .append(new SimpleDateFormat("YYYYMMdd").format(new Date(time)))
@@ -163,8 +160,7 @@ public class RF2VersionedTransitiveClosureExporter extends RF2DefaultExporter {
                                     .append("\r\n");
                         }
                     });
-
-            super.writeStringToFile(linesToWrite.toString());
+            super.writeToFile();
 
         }finally {
             this.readSemaphore.release();

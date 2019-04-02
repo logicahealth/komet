@@ -31,19 +31,18 @@ public class RF2LanguageRefsetExporter extends RF2DefaultExporter {
 
         try{
 
-            final StringBuilder linesToWrite = new StringBuilder();
-
             this.intStream
                     .forEach(nid -> {
 
-                        linesToWrite.setLength(0);
+                        super.clearLineOutput();
+                        super.incrementProgressCount();
 
                         Get.assemblageService().getSemanticChronology(nid).getSemanticChronologyList().stream()
                                 .filter(semanticChronology -> semanticChronology.getVersionType() == VersionType.COMPONENT_NID)
                                 .flatMap(semanticChronology -> semanticChronology.getVersionList().stream())
                                 .forEach(version ->
 
-                                    linesToWrite
+                                    super.outputToWrite
                                             .append(version.getPrimordialUuid().toString() + "\t")
                                             .append(this.rf2ExportHelper.getTimeString(version) + "\t")
                                             .append(this.rf2ExportHelper.getActiveString(version) + "\t")
@@ -54,7 +53,8 @@ public class RF2LanguageRefsetExporter extends RF2DefaultExporter {
                                             .append("\r\n")
                                 );
 
-                        super.writeStringToFile(linesToWrite.toString());
+                        super.writeToFile();
+                        super.tryAndUpdateProgressTracker();
                     });
 
         }finally {
