@@ -97,6 +97,7 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                                 this.exportDirectory, this.manifold, this.preExportUtility, this.isDescriptorAssemblagePresent, noTreeTaxonomy)));
 
         updateTitle("Export " + this.exportMessage);
+        addToTotalWork(exportConfigurations.size() + 2);
 
         try {
 
@@ -148,6 +149,8 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                 }
                 if(isDescriptorAssemblagePresent && rf2Configuration.getRefsetDescriptorDefinitions().size() > 0)
                     descriptorAssemblageConfiguration.getRefsetDescriptorDefinitions().addAll(rf2Configuration.getRefsetDescriptorDefinitions());
+
+                completedUnitOfWork();
             }
 
             if(isDescriptorAssemblagePresent) {
@@ -156,10 +159,13 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                                 descriptorAssemblageConfiguration.getIntStream(), readSemaphore));
             }
 
+            completedUnitOfWork();
+
             readSemaphore.acquireUninterruptibly(READ_PERMITS);
             readSemaphore.release(READ_PERMITS);
 
             Get.executor().submit(new ZipExportDirectory(Paths.get(this.exportConfigurations.get(0).getZipDirectory()), this.readSemaphore, READ_PERMITS, this.exportConfigurations.size()));
+            completedUnitOfWork();
 
             readSemaphore.acquireUninterruptibly(READ_PERMITS);
 
