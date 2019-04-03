@@ -716,6 +716,15 @@ public class LoadTermstore extends AbstractMojo
 	{
 		this.setDBBuildMode = false;
 	}
+	
+	/**
+	 * Returns true, if any items were skipped during processing, false otherwise.
+	 * @return
+	 */
+	public boolean skippedAny()
+	{
+		return skippedAny;
+	}
 
 	/**
 	 * Checks if active.
