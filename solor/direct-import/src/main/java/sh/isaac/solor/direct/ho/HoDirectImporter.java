@@ -83,6 +83,8 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     public final static ConceptProxy INEXACT_SNOMED_ASSEMBLAGE = new ConceptProxy("HDX Inexact SNOMED match", UUID.fromString("c729188a-3655-11e9-b210-d663bd873d93"));
     public final static ConceptProxy SNOMED_SIB_CHILD_ASSEMBLAGE = new ConceptProxy("HDX SNOMED sibling/child", UUID.fromString("c7291a10-3655-11e9-b210-d663bd873d93"));
     
+    public final static ConceptProxy INEXACT_RXNORM_PRODUCT = new ConceptProxy("HDx inexact RxNorm product", UUID.fromString("b98cab5f-31ae-4228-90af-556f207cab22"));
+
     public final static ConceptProxy HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE = new ConceptProxy("HDX Solor equivalence", UUID.fromString("11e3eea1-b918-452e-87c1-f903d5ff035f"));
 
     public final static ConceptProxy HDX_LEGACY_IS_A = new ConceptProxy("HDX legacy is-a", UUID.fromString("80da6f99-74c5-4eb4-8eca-f0fe9893ba01"));
@@ -177,6 +179,12 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             int moduleNid = HUMAN_DX_MODULE.getNid();
             int stamp = stampService.getStampSequence(Status.ACTIVE, System.currentTimeMillis(), authorNid, moduleNid, pathNid);
             int legacyStamp = stampService.getStampSequence(Status.ACTIVE, System.currentTimeMillis(), authorNid, LEGACY_HUMAN_DX_MODULE.getNid(), pathNid);
+            
+            buildConcept(INEXACT_RXNORM_PRODUCT.getPrimordialUuid(), 
+                    INEXACT_RXNORM_PRODUCT.getFullyQualifiedName(), stamp, 
+                    new ConceptProxy("Medicinal product (product)", 
+                            UUID.fromString("ae364969-80c6-32b9-9c1d-eaebed617d9b")).getNid());          
+            
             
             buildConcept(LEGACY_HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), 
                     LEGACY_HUMAN_DX_ROOT_CONCEPT.getFullyQualifiedName(), legacyStamp, MetaData.SOLOR_CONCEPT____SOLOR.getNid());          
