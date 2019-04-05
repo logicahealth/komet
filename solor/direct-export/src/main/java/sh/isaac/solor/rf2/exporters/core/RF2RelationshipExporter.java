@@ -5,6 +5,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
@@ -33,7 +34,7 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
     private final RF2ExportHelper rf2ExportHelper;
     private final IntStream intStream;
     private final Semaphore readSemaphore;
-    private RF2Configuration rf2Configuration;
+    private final RF2Configuration rf2Configuration;
 
     public RF2RelationshipExporter(RF2Configuration rf2Configuration, RF2ExportHelper rf2ExportHelper, IntStream intStream, Semaphore readSemaphore) {
         super(rf2Configuration);
@@ -61,94 +62,190 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
                         super.clearLineOutput();
                         super.incrementProgressCount();
 
-                        for(Version version : Get.assemblageService().getSemanticChronology(nid).getVersionList()){
+                        switch (this.rf2Configuration.getRf2ReleaseType()){
+                            case FULL:
 
-                            String characteristicTypeId;
-                            int semanticRelationshipAssemblage = version.getAssemblageNid();
+                                for(Version version : Get.assemblageService().getSemanticChronology(nid).getVersionList()){
 
-                            if (semanticRelationshipAssemblage == TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid())
-                                characteristicTypeId = "900000000000011006";
-                            else if (semanticRelationshipAssemblage == TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid())
-                                characteristicTypeId = "900000000000010007";
-                            else
-                                characteristicTypeId = "Issue:RF2RelationshipExporter()";
+                                    String characteristicTypeId;
+                                    int semanticRelationshipAssemblage = version.getAssemblageNid();
 
-                            LogicalExpression logicalExpression = ((LogicGraphVersion)version).getLogicalExpression();
-                            logicalExpression.processDepthFirst((logicNode, treeNodeVisitData) -> {
+                                    if (semanticRelationshipAssemblage == TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid())
+                                        characteristicTypeId = "900000000000011006";
+                                    else if (semanticRelationshipAssemblage == TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid())
+                                        characteristicTypeId = "900000000000010007";
+                                    else
+                                        characteristicTypeId = "Issue:RF2RelationshipExporter()";
 
-                                if(logicNode.getNodeSemantic() == NodeSemantic.ROLE_ALL
-                                        || logicNode.getNodeSemantic() == NodeSemantic.ROLE_SOME){
-                                    roleGroup.getAndIncrement();
+                                    LogicalExpression logicalExpression = ((LogicGraphVersion)version).getLogicalExpression();
+                                    logicalExpression.processDepthFirst((logicNode, treeNodeVisitData) -> {
+
+                                        if(logicNode.getNodeSemantic() == NodeSemantic.ROLE_ALL
+                                                || logicNode.getNodeSemantic() == NodeSemantic.ROLE_SOME){
+                                            roleGroup.getAndIncrement();
+                                        }
+
+                                        if (logicNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+
+                                            int conceptChronologyNid = logicNode.getNidForConceptBeingDefined();
+
+                                            LogicNode parentNode = null;
+                                            LogicNode tempNode = logicNode;
+
+                                            do {
+                                                if (parentNode != null)
+                                                    tempNode = parentNode;
+
+                                                int parentIndex = treeNodeVisitData.getPredecessorNid(tempNode.getNodeIndex()).getAsInt();
+                                                parentNode = logicalExpression.getNode(parentIndex);
+
+                                            } while (!(parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET ||
+                                                    parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET ||
+                                                    parentNode.getNodeSemantic() == NodeSemantic.ROLE_ALL |
+                                                            parentNode.getNodeSemantic() == NodeSemantic.ROLE_SOME));
+
+                                            if (parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET || parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET) {
+
+                                                super.outputToWrite
+                                                        .append(this.rf2ExportHelper.getIdString(version) + "\t")
+                                                        .append(this.rf2ExportHelper.getTimeString(version) + "\t")
+                                                        .append(this.rf2ExportHelper.getActiveString(version) + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
+                                                        .append(roleGroup.get() + "\t")
+                                                        .append(isASCTID + "\t")
+                                                        .append(characteristicTypeId + "\t")
+                                                        .append(modifierId)
+                                                        .append("\r\n");
+
+                                            } else if (parentNode instanceof RoleNodeAllWithNids) {
+
+                                                super.outputToWrite
+                                                        .append(this.rf2ExportHelper.getIdString(version) + "\t")
+                                                        .append(this.rf2ExportHelper.getTimeString(version) + "\t")
+                                                        .append(this.rf2ExportHelper.getActiveString(version) + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
+                                                        .append(roleGroup.get() + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(((RoleNodeAllWithNids) parentNode).getTypeConceptNid()) + "\t")
+                                                        .append(characteristicTypeId + "\t")
+                                                        .append(modifierId)
+                                                        .append("\r\n");
+
+                                            } else if (parentNode instanceof RoleNodeSomeWithNids) {
+
+                                                super.outputToWrite
+                                                        .append(this.rf2ExportHelper.getIdString(version) + "\t")
+                                                        .append(this.rf2ExportHelper.getTimeString(version) + "\t")
+                                                        .append(this.rf2ExportHelper.getActiveString(version) + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
+                                                        .append(roleGroup.get() + "\t")
+                                                        .append(this.rf2ExportHelper.getIdString(((RoleNodeSomeWithNids) parentNode).getTypeConceptNid()) + "\t")
+                                                        .append(characteristicTypeId + "\t")
+                                                        .append(modifierId)
+                                                        .append("\r\n");
+
+                                            }
+                                        }
+                                    });
                                 }
 
-                                if (logicNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+                                break;
+                            case SNAPSHOT:
 
-                                    int conceptChronologyNid = logicNode.getNidForConceptBeingDefined();
+                                int moduleNid = this.rf2ExportHelper.getModuleNid(nid);
+                                SemanticChronology graphSemantic = Get.assemblageService().getSemanticChronology(nid);
+                                String characteristicTypeId;
+                                int semanticRelationshipAssemblage = Get.assemblageService().getSemanticChronology(nid).getAssemblageNid();
 
-                                    LogicNode parentNode = null;
-                                    LogicNode tempNode = logicNode;
+                                if (semanticRelationshipAssemblage == TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid())
+                                    characteristicTypeId = "900000000000011006";
+                                else if (semanticRelationshipAssemblage == TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid())
+                                    characteristicTypeId = "900000000000010007";
+                                else
+                                    characteristicTypeId = "Issue:RF2RelationshipExporter()";
 
-                                    do {
-                                        if (parentNode != null)
-                                            tempNode = parentNode;
+                                LogicalExpression logicalExpression = ((LogicGraphVersion)graphSemantic).getLogicalExpression();
+                                logicalExpression.processDepthFirst((logicNode, treeNodeVisitData) -> {
 
-                                        int parentIndex = treeNodeVisitData.getPredecessorNid(tempNode.getNodeIndex()).getAsInt();
-                                        parentNode = logicalExpression.getNode(parentIndex);
-
-                                    } while (!(parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET ||
-                                            parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET ||
-                                            parentNode.getNodeSemantic() == NodeSemantic.ROLE_ALL |
-                                                    parentNode.getNodeSemantic() == NodeSemantic.ROLE_SOME));
-
-                                    if (parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET || parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET) {
-
-                                        super.outputToWrite
-                                                .append(this.rf2ExportHelper.getIdString(version) + "\t")
-                                                .append(this.rf2ExportHelper.getTimeString(version) + "\t")
-                                                .append(this.rf2ExportHelper.getActiveString(version) + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
-                                                .append(roleGroup.get() + "\t")
-                                                .append(isASCTID + "\t")
-                                                .append(characteristicTypeId + "\t")
-                                                .append(modifierId)
-                                                .append("\r\n");
-
-                                    } else if (parentNode instanceof RoleNodeAllWithNids) {
-
-                                        super.outputToWrite
-                                                .append(this.rf2ExportHelper.getIdString(version) + "\t")
-                                                .append(this.rf2ExportHelper.getTimeString(version) + "\t")
-                                                .append(this.rf2ExportHelper.getActiveString(version) + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
-                                                .append(roleGroup.get() + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(((RoleNodeAllWithNids) parentNode).getTypeConceptNid()) + "\t")
-                                                .append(characteristicTypeId + "\t")
-                                                .append(modifierId)
-                                                .append("\r\n");
-
-                                    } else if (parentNode instanceof RoleNodeSomeWithNids) {
-
-                                        super.outputToWrite
-                                                .append(this.rf2ExportHelper.getIdString(version) + "\t")
-                                                .append(this.rf2ExportHelper.getTimeString(version) + "\t")
-                                                .append(this.rf2ExportHelper.getActiveString(version) + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
-                                                .append(roleGroup.get() + "\t")
-                                                .append(this.rf2ExportHelper.getIdString(((RoleNodeSomeWithNids) parentNode).getTypeConceptNid()) + "\t")
-                                                .append(characteristicTypeId + "\t")
-                                                .append(modifierId)
-                                                .append("\r\n");
-
+                                    if(logicNode.getNodeSemantic() == NodeSemantic.ROLE_ALL
+                                            || logicNode.getNodeSemantic() == NodeSemantic.ROLE_SOME){
+                                        roleGroup.getAndIncrement();
                                     }
-                                }
-                            });
 
+                                    if (logicNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+
+                                        int conceptChronologyNid = logicNode.getNidForConceptBeingDefined();
+
+                                        LogicNode parentNode = null;
+                                        LogicNode tempNode = logicNode;
+
+                                        do {
+                                            if (parentNode != null)
+                                                tempNode = parentNode;
+
+                                            int parentIndex = treeNodeVisitData.getPredecessorNid(tempNode.getNodeIndex()).getAsInt();
+                                            parentNode = logicalExpression.getNode(parentIndex);
+
+                                        } while (!(parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET ||
+                                                parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET ||
+                                                parentNode.getNodeSemantic() == NodeSemantic.ROLE_ALL |
+                                                        parentNode.getNodeSemantic() == NodeSemantic.ROLE_SOME));
+
+                                        if (parentNode.getNodeSemantic() == NodeSemantic.NECESSARY_SET || parentNode.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET) {
+
+                                            super.outputToWrite
+                                                    .append(this.rf2ExportHelper.getIdString(nid) + "\t")
+                                                    .append(this.rf2ExportHelper.getTimeString(nid) + "\t")
+                                                    .append(this.rf2ExportHelper.getActiveString(nid) + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(moduleNid) + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
+                                                    .append(roleGroup.get() + "\t")
+                                                    .append(isASCTID + "\t")
+                                                    .append(characteristicTypeId + "\t")
+                                                    .append(modifierId)
+                                                    .append("\r\n");
+
+                                        } else if (parentNode instanceof RoleNodeAllWithNids) {
+
+                                            super.outputToWrite
+                                                    .append(this.rf2ExportHelper.getIdString(nid) + "\t")
+                                                    .append(this.rf2ExportHelper.getTimeString(nid) + "\t")
+                                                    .append(this.rf2ExportHelper.getActiveString(nid) + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(moduleNid) + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
+                                                    .append(roleGroup.get() + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(((RoleNodeAllWithNids) parentNode).getTypeConceptNid()) + "\t")
+                                                    .append(characteristicTypeId + "\t")
+                                                    .append(modifierId)
+                                                    .append("\r\n");
+
+                                        } else if (parentNode instanceof RoleNodeSomeWithNids) {
+
+                                            super.outputToWrite
+                                                    .append(this.rf2ExportHelper.getIdString(nid) + "\t")
+                                                    .append(this.rf2ExportHelper.getTimeString(nid) + "\t")
+                                                    .append(this.rf2ExportHelper.getActiveString(nid) + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(moduleNid) + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(conceptChronologyNid) + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(((ConceptNodeWithNids) logicNode).getConceptNid()) + "\t")
+                                                    .append(roleGroup.get() + "\t")
+                                                    .append(this.rf2ExportHelper.getIdString(((RoleNodeSomeWithNids) parentNode).getTypeConceptNid()) + "\t")
+                                                    .append(characteristicTypeId + "\t")
+                                                    .append(modifierId)
+                                                    .append("\r\n");
+
+                                        }
+                                    }
+                                });
+
+                                break;
                         }
 
                         super.writeToFile();
