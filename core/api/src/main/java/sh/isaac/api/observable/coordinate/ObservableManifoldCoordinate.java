@@ -92,6 +92,17 @@ public interface ObservableManifoldCoordinate
     */
    @Override
    public ObservableStampCoordinate getStampCoordinate();
+   
+   /**
+    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getDestinationStampCoordinate()
+    */
+   @Override
+   public ObservableStampCoordinate getDestinationStampCoordinate();
+   
+   /**
+    * @return An observable version of {@link #getDestinationStampCoordinate()}
+    */
+   public ObjectProperty<ObservableStampCoordinate> destinationStampCoordinateProperty();
 
    /**
     * 

@@ -81,7 +81,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.ConceptActiveService;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
@@ -397,10 +396,10 @@ public class TaxonomyProvider
     }
 
     @Override
-    public TaxonomySnapshot getSnapshot(ManifoldCoordinate tc) {
-        Task<Tree> treeTask = getTaxonomyTree(tc);
+    public TaxonomySnapshot getSnapshot(ManifoldCoordinate mc) {
+        Task<Tree> treeTask = getTaxonomyTree(mc);
 
-        return new TaxonomySnapshotProvider(tc, treeTask);
+        return new TaxonomySnapshotProvider(mc, treeTask);
     }
     
 
@@ -439,10 +438,12 @@ public class TaxonomyProvider
 
         PremiseType taxPremiseType;
         StampCoordinate stampCoordinate;
+        StampCoordinate destinationCoordinate;
 
-        public SnapshotCacheKey(ManifoldCoordinate tc) {
-            this.taxPremiseType = tc.getTaxonomyPremiseType();
-            this.stampCoordinate = tc.getStampCoordinate();
+        public SnapshotCacheKey(ManifoldCoordinate mc) {
+            this.taxPremiseType = mc.getTaxonomyPremiseType();
+            this.stampCoordinate = mc.getStampCoordinate();
+            this.destinationCoordinate = mc.getDestinationStampCoordinate();
         }
 
         @Override
@@ -450,6 +451,7 @@ public class TaxonomyProvider
             int hash = 7;
             hash = 29 * hash + Objects.hashCode(this.taxPremiseType);
             hash = 29 * hash + this.stampCoordinate.hashCode();
+            hash = 29 * hash + this.destinationCoordinate.hashCode();
             return hash;
         }
 
@@ -471,34 +473,37 @@ public class TaxonomyProvider
             if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
                 return false;
             }
+            if (!Objects.equals(this.destinationCoordinate, other.destinationCoordinate)) {
+                return false;
+            }
             return true;
         }
 
     }
 
-    public Task<Tree> getTaxonomyTree(ManifoldCoordinate tc) {
-        SnapshotCacheKey snapshotCacheKey = new SnapshotCacheKey(tc);
+    public Task<Tree> getTaxonomyTree(ManifoldCoordinate mc) {
+        SnapshotCacheKey snapshotCacheKey = new SnapshotCacheKey(mc);
         final Task<Tree> treeTask = this.snapshotCache.get(snapshotCacheKey);
 
         if (treeTask != null) {
             return treeTask;
         }
 
-        LOG.debug("Building tree for {}, cache key {}", tc, snapshotCacheKey.hashCode());
+        LOG.debug("Building tree for {}, cache key {}", mc, snapshotCacheKey.hashCode());
         IntFunction<int[]> taxonomyDataProvider = new IntFunction<int[]>() {
-            final int assemblageNid = tc.getLogicCoordinate().getConceptAssemblageNid();
+            final int assemblageNid = mc.getLogicCoordinate().getConceptAssemblageNid();
             @Override
             public int[] apply(int conceptNid) {
                 try {
                     return store.getTaxonomyData(assemblageNid, conceptNid);
-            } catch (IllegalStateException ex) {
-                LOG.error(ex.getLocalizedMessage() + " retrieving " + Get.conceptDescriptionText(conceptNid), ex);
-                return new int[0];
-            }
+                } catch (IllegalStateException ex) {
+                    LOG.error(ex.getLocalizedMessage() + " retrieving " + Get.conceptDescriptionText(conceptNid), ex);
+                    return new int[0];
+                }
             }
         };
         
-        TreeBuilderTask treeBuilderTask = new TreeBuilderTask(taxonomyDataProvider, tc);
+        TreeBuilderTask treeBuilderTask = new TreeBuilderTask(taxonomyDataProvider, mc);
 
         Task<Tree> previousTask = this.snapshotCache.putIfAbsent(snapshotCacheKey, treeBuilderTask);
 
@@ -589,7 +594,7 @@ public class TaxonomyProvider
         @Override
         public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
             int[] parentNids = getTaxonomyParentConceptNids(parentConceptNid);
-            ArrayList<TaxonomyLink> links = new ArrayList(parentNids.length);
+            ArrayList<TaxonomyLink> links = new ArrayList<>(parentNids.length);
             for (int parentNid: parentNids) {
                 links.add(new TaxonomyLinkage(TermAux.IS_A.getNid(), parentNid));
             }
@@ -599,7 +604,7 @@ public class TaxonomyProvider
         @Override
         public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
             int[] childNids = getTaxonomyChildConceptNids(childConceptNid);
-            ArrayList<TaxonomyLink> links = new ArrayList(childNids.length);
+            ArrayList<TaxonomyLink> links = new ArrayList<>(childNids.length);
             for (int childNid: childNids) {
                 links.add(new TaxonomyLinkage(TermAux.IS_A.getNid(), childNid));
             }
@@ -612,6 +617,9 @@ public class TaxonomyProvider
                     case SUCCEEDED: {
                         this.treeSnapshot = treeTask.get();
                     }
+                    default :
+                        LOG.debug("Unhandled case: {}", newValue);
+                        break;
                 }
             } catch (InterruptedException | ExecutionException ex) {
                 LOG.error("Unexpected error in succeeded call", ex);
@@ -632,7 +640,11 @@ public class TaxonomyProvider
             if (treeSnapshot != null) {
                 return this.treeSnapshot.isChildOf(childId, parentId);
             }
-
+            
+            //filter out destinations that don't match the coordinate
+            if (Get.conceptService().getConceptChronology(childId).getLatestVersion(manifoldCoordinate.getDestinationStampCoordinate()).isAbsent()) {
+                return false;
+            }
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
 
             return taxonomyRecordPrimitive.containsNidViaType(parentId, isaNid, manifoldCoordinate);
@@ -796,7 +808,7 @@ public class TaxonomyProvider
     
     //An alternate implementation that doesn't compute a tree in the background....
     //TODO merge the code above with this somehow, maybe so the above code falls back to this code when the tree isn't available, rather than
-    // copy and paste inheritance.  But for now, this is a test anyway, trying to overcome performance issues with tree calculation.
+    // copy and paste inheritance.
     private class TaxonomySnapshotNoTree implements TaxonomySnapshot {
         int isaNid = TermAux.IS_A.getNid();
         int childOfNid = TermAux.CHILD_OF.getNid();
@@ -807,16 +819,16 @@ public class TaxonomyProvider
         ConcurrentHashMap<String, Boolean> childOfCache = new ConcurrentHashMap<>(250);
         ConcurrentHashMap<Integer, int[]> parentsCache = new ConcurrentHashMap<>(250);
 
-        final ManifoldCoordinate tc;
+        final ManifoldCoordinate mc;
         //init code
         {
             isaTypeNidSet.add(isaNid);
             childOfTypeNidSet.add(childOfNid);
         }
 
-        public TaxonomySnapshotNoTree(ManifoldCoordinate tc) {
-            LOG.debug("Building a new non-tree taxonomy snapshot for {}", tc);
-            this.tc = tc;
+        public TaxonomySnapshotNoTree(ManifoldCoordinate mc) {
+            LOG.debug("Building a new non-tree taxonomy snapshot for {}", mc);
+            this.mc = mc;
         }
 
         @Override
@@ -824,7 +836,7 @@ public class TaxonomyProvider
             return childOfCache.computeIfAbsent(childId + ":" + parentId, (key) -> 
             {
                 TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
-                return taxonomyRecordPrimitive.containsNidViaType(parentId, isaNid, tc);
+                return taxonomyRecordPrimitive.containsNidViaType(parentId, isaNid, mc);
             });
         }
 
@@ -879,7 +891,7 @@ public class TaxonomyProvider
 
         @Override
         public ManifoldCoordinate getManifoldCoordinate() {
-            return this.tc;
+            return this.mc;
         }
 
         @Override
@@ -891,7 +903,7 @@ public class TaxonomyProvider
         public int[] getTaxonomyChildConceptNids(int parentId) {
             try {
                 TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(parentId);
-                return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, tc);
+                return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, mc);
             } catch (IllegalStateException ex) {
                 LOG.error(ex.getLocalizedMessage() + " retrieving " + Get.conceptDescriptionText(parentId), ex);
                 return new int[0];
@@ -901,14 +913,14 @@ public class TaxonomyProvider
         @Override
         public boolean isLeaf(int conceptNid) {
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(conceptNid);
-            return !taxonomyRecordPrimitive.hasDestinationNidsOfType(childOfTypeNidSet, tc);
+            return !taxonomyRecordPrimitive.hasDestinationNidsOfType(childOfTypeNidSet, mc);
         }
 
         @Override
         public int[] getTaxonomyParentConceptNids(int childId) {
             return parentsCache.computeIfAbsent(childId, childIdAgain -> {
                 TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
-                return taxonomyRecordPrimitive.getDestinationNidsOfType(isaTypeNidSet, tc);
+                return taxonomyRecordPrimitive.getDestinationNidsOfType(isaTypeNidSet, mc);
             });
         }
 

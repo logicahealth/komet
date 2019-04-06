@@ -349,6 +349,11 @@ public class ConceptSnapshotImpl
    }
 
    @Override
+   public StampCoordinate getDestinationStampCoordinate() {
+      return this.manifoldCoordinate.getDestinationStampCoordinate();
+   }
+
+   @Override
    public LogicCoordinate getLogicCoordinate() {
       return this.manifoldCoordinate;
    }

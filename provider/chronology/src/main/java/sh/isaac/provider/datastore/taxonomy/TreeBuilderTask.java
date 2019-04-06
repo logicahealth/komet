@@ -42,7 +42,6 @@ package sh.isaac.provider.datastore.taxonomy;
 //~--- JDK imports ------------------------------------------------------------
 
 import sh.isaac.model.taxonomy.GraphCollector;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
@@ -67,7 +66,6 @@ import sh.isaac.model.tree.HashTreeBuilder;
  */
 public class TreeBuilderTask
         extends TimedTaskWithProgressTracker<Tree> implements Stoppable {
-   private final AtomicInteger             conceptsProcessed = new AtomicInteger();
    private String                          message           = "setting up taxonomy collection";
    private final int                       conceptCount;
    private final IntFunction<int[]>        taxonomyDataProvider;

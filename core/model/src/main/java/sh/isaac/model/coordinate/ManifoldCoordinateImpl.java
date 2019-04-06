@@ -67,6 +67,8 @@ public class ManifoldCoordinateImpl
 
    /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
+   
+   StampCoordinate destinationStampCoordinate;
 
    /** The language coordinate. */
    LanguageCoordinate languageCoordinate;
@@ -77,6 +79,7 @@ public class ManifoldCoordinateImpl
    /**
     * Instantiates a new taxonomy coordinate impl.
     */
+   @SuppressWarnings("unused")
    private ManifoldCoordinateImpl() {
       // for jaxb
    }
@@ -95,6 +98,30 @@ public class ManifoldCoordinateImpl
                                  LogicCoordinate logicCoordinate) {
       this.taxonomyPremiseType       = taxonomyType;
       this.stampCoordinate    = stampCoordinate;
+      this.destinationStampCoordinate = stampCoordinate;
+      this.languageCoordinate = languageCoordinate;
+      this.logicCoordinate    = logicCoordinate;
+      //this.uuid               //lazy load
+   }
+   
+   /**
+    * Instantiates a new taxonomy coordinate impl.
+    *
+    * @param taxonomyType the taxonomy type
+    * @param stampCoordinate the stamp coordinate
+    * @param destinationStampCoordinate - if provided, this coordinate will be used to determine which destination concepts 
+    * should be included in a source or target return.  If not provided, the stampCoordinate parameter will be used instead. 
+    * @param languageCoordinate the language coordinate
+    * @param logicCoordinate the logic coordinate
+    */
+   public ManifoldCoordinateImpl(PremiseType taxonomyType,
+                                 StampCoordinate stampCoordinate,
+                                 StampCoordinate destinationStampCoordinate,
+                                 LanguageCoordinate languageCoordinate,
+                                 LogicCoordinate logicCoordinate) {
+      this.taxonomyPremiseType       = taxonomyType;
+      this.stampCoordinate    = stampCoordinate;
+      this.destinationStampCoordinate = destinationStampCoordinate == null ? stampCoordinate : destinationStampCoordinate;
       this.languageCoordinate = languageCoordinate;
       this.logicCoordinate    = logicCoordinate;
       //this.uuid               //lazy load
@@ -123,6 +150,7 @@ public class ManifoldCoordinateImpl
       return ManifoldCoordinate.super.getManifoldCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
    }
    
+   @SuppressWarnings("unused")
    private void setManifoldCoordinateUuid(UUID uuid) {
         // noop for jaxb
    }
@@ -153,6 +181,10 @@ public class ManifoldCoordinateImpl
             return false;
         }
         
+        if (!Objects.equals(this.destinationStampCoordinate, other.destinationStampCoordinate)) {
+            return false;
+        }
+        
         if (!Objects.equals(this.logicCoordinate, other.logicCoordinate)) {
             return false;
         }
@@ -169,17 +201,20 @@ public class ManifoldCoordinateImpl
 
       hash = 53 * hash + Objects.hashCode(this.taxonomyPremiseType);
       hash = 53 * hash + Objects.hashCode(this.stampCoordinate);
+      hash = 53 * hash + Objects.hashCode(this.destinationStampCoordinate);
       hash = 53 * hash + Objects.hashCode(this.languageCoordinate);
       return hash;
    }
 
    /**
-    * {@inheritDoc}
+    * This implementation adjusts the time of both the stamp coordinate and the destination stamp coordinate 
+    * @see sh.isaac.api.coordinate.StampCoordinateProxy#makeCoordinateAnalog(long)
     */
    @Override
    public ManifoldCoordinateImpl makeCoordinateAnalog(long stampPositionTime) {
       return new ManifoldCoordinateImpl(this.taxonomyPremiseType,
                                         this.stampCoordinate.makeCoordinateAnalog(stampPositionTime),
+                                        this.destinationStampCoordinate.makeCoordinateAnalog(stampPositionTime),
                                         this.languageCoordinate,
                                         this.logicCoordinate);
    }
@@ -191,6 +226,7 @@ public class ManifoldCoordinateImpl
    public ManifoldCoordinateImpl makeCoordinateAnalog(PremiseType taxonomyType) {
       return new ManifoldCoordinateImpl(taxonomyType,
                                         this.stampCoordinate,
+                                        this.destinationStampCoordinate,
                                         this.languageCoordinate,
                                         this.logicCoordinate);
    }
@@ -202,6 +238,7 @@ public class ManifoldCoordinateImpl
    public ManifoldCoordinateImpl makeCoordinateAnalog(Status... state) {
       return new ManifoldCoordinateImpl(this.taxonomyPremiseType,
                                         this.stampCoordinate.makeCoordinateAnalog(state),
+                                        this.destinationStampCoordinate,
                                         this.languageCoordinate,
                                         this.logicCoordinate);
    }
@@ -214,6 +251,7 @@ public class ManifoldCoordinateImpl
    public ManifoldCoordinateImpl makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
       return new ManifoldCoordinateImpl(this.taxonomyPremiseType, 
             this.stampCoordinate.makeModuleAnalog(modules, add), 
+            this.destinationStampCoordinate,
             this.languageCoordinate, 
             this.logicCoordinate);
    }
@@ -223,7 +261,7 @@ public class ManifoldCoordinateImpl
     */
    @Override
    public String toString() {
-      return "ManifoldCoordinateImpl{" + this.taxonomyPremiseType + ",\n" + this.stampCoordinate + ", \n" +
+      return "ManifoldCoordinateImpl{" + this.taxonomyPremiseType + ",\n" + this.stampCoordinate + ", \n" + this.destinationStampCoordinate + ", \n" +
              this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + getCoordinateUuid() + '}';
    }
 
@@ -252,12 +290,21 @@ public class ManifoldCoordinateImpl
    }
 
    /**
+    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getDestinationStampCoordinate()
+    */
+   @Override
+   public StampCoordinate getDestinationStampCoordinate() {
+      return destinationStampCoordinate;
+   }
+
+   /**
     * {@inheritDoc}
     */
    @Override
    public PremiseType getTaxonomyPremiseType() {
       return this.taxonomyPremiseType;
    }
+
    public void setTaxonomyPremiseType(PremiseType taxonomyPremiseType) {
        this.taxonomyPremiseType = taxonomyPremiseType;
    }
@@ -269,6 +316,7 @@ public class ManifoldCoordinateImpl
    public ManifoldCoordinateImpl deepClone() {
       ManifoldCoordinateImpl newCoordinate = new ManifoldCoordinateImpl(taxonomyPremiseType,
                                  stampCoordinate.deepClone(),
+                                 destinationStampCoordinate.deepClone(),
                                  languageCoordinate.deepClone(),
                                  logicCoordinate.deepClone());
       return newCoordinate;
