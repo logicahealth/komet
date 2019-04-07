@@ -75,72 +75,75 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     public final static ConceptProxy HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE = new ConceptProxy("Human Dx Solor concepts", UUID.fromString("17bea17e-f74e-4612-ab4d-7fe28389232a"));
     public final static ConceptProxy HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Human Dx Solor descriptions", UUID.fromString("a4bc9f7c-0db5-4ae4-a003-4ac5e57fe385"));
  
-    public final static ConceptProxy REFID_ASSEMBLAGE = new ConceptProxy("HDX refid", UUID.fromString("c7290eda-3655-11e9-b210-d663bd873d93"));
-    public final static ConceptProxy ALLERGEN_ASSEMBLAGE = new ConceptProxy("HDX Allergen", UUID.fromString("c7291164-3655-11e9-b210-d663bd873d93"));
-    public final static ConceptProxy IS_DIAGNOSIS_ASSEMBLAGE = new ConceptProxy("HDX Diagnosis", UUID.fromString("c729136c-3655-11e9-b210-d663bd873d93"));
-    public final static ConceptProxy IS_CATEGORY_ASSEMBLAGE = new ConceptProxy("HDX Category", UUID.fromString("c72915f6-3655-11e9-b210-d663bd873d93"));
-    public final static ConceptProxy SNOMED_MAP_ASSEMBLAGE = new ConceptProxy("HDX SNOMED ID", UUID.fromString("c7291754-3655-11e9-b210-d663bd873d93"));
-    public final static ConceptProxy INEXACT_SNOMED_ASSEMBLAGE = new ConceptProxy("HDX Inexact SNOMED match", UUID.fromString("c729188a-3655-11e9-b210-d663bd873d93"));
-    public final static ConceptProxy SNOMED_SIB_CHILD_ASSEMBLAGE = new ConceptProxy("HDX SNOMED sibling/child", UUID.fromString("c7291a10-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy REFID_ASSEMBLAGE = new ConceptProxy("HDx refid", UUID.fromString("c7290eda-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy ALLERGEN_ASSEMBLAGE = new ConceptProxy("HDx Allergen", UUID.fromString("c7291164-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy IS_DIAGNOSIS_ASSEMBLAGE = new ConceptProxy("HDx Diagnosis", UUID.fromString("c729136c-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy IS_CATEGORY_ASSEMBLAGE = new ConceptProxy("HDx Category", UUID.fromString("c72915f6-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy SNOMED_MAP_ASSEMBLAGE = new ConceptProxy("HDx SNOMED ID", UUID.fromString("c7291754-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy INEXACT_SNOMED_ASSEMBLAGE = new ConceptProxy("HDx Inexact SNOMED match", UUID.fromString("c729188a-3655-11e9-b210-d663bd873d93"));
+    public final static ConceptProxy INEXACT_RXCUI_ASSEMBLAGE = new ConceptProxy("HDx Inexact RXCUI match", UUID.fromString("d16bc844-e6db-45cf-8b7e-a62ae6e1da32"));
+    public final static ConceptProxy SNOMED_SIB_CHILD_ASSEMBLAGE = new ConceptProxy("HDx SNOMED sibling/child", UUID.fromString("c7291a10-3655-11e9-b210-d663bd873d93"));
     
     public final static ConceptProxy INEXACT_RXNORM_PRODUCT = new ConceptProxy("HDx inexact RxNorm product", UUID.fromString("b98cab5f-31ae-4228-90af-556f207cab22"));
+    public final static ConceptProxy INEXACT_RXNORM_ASSOCIATION_TYPE = new ConceptProxy("HDx inexact RxNorm association type", UUID.fromString("d7207ff4-b66e-4562-b4ac-d0116e9d08ff"));
+    public final static ConceptProxy RXNORM_PRODUCT = new ConceptProxy("HDx RxNorm product", UUID.fromString("02e622ab-732c-4aab-af9b-b0dedfc02bfb"));
 
-    public final static ConceptProxy HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE = new ConceptProxy("HDX Solor equivalence", UUID.fromString("11e3eea1-b918-452e-87c1-f903d5ff035f"));
+    public final static ConceptProxy HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE = new ConceptProxy("HDx Solor equivalence", UUID.fromString("11e3eea1-b918-452e-87c1-f903d5ff035f"));
 
-    public final static ConceptProxy HDX_LEGACY_IS_A = new ConceptProxy("HDX legacy is-a", UUID.fromString("80da6f99-74c5-4eb4-8eca-f0fe9893ba01"));
+    public final static ConceptProxy HDX_LEGACY_IS_A = new ConceptProxy("HDx legacy is-a", UUID.fromString("80da6f99-74c5-4eb4-8eca-f0fe9893ba01"));
 
     public final static ConceptProxy HDX_DEPRECATED = 
-            new ConceptProxy("HDX Deprecated", 
+            new ConceptProxy("HDx Deprecated", 
                     UUID.fromString("04ef59c2-e6c0-44d0-b7f4-f884024667ce"));
 
     public final static ConceptProxy HDX_ICD10CM_MAP = 
-            new ConceptProxy("HDX ICD-10-CM inexact map", 
+            new ConceptProxy("HDx ICD-10-CM inexact map", 
                     UUID.fromString("5f6cca2d-4667-466a-8113-ec55d54d0f3b"));
 
     public final static ConceptProxy HDX_ICD10PCS_MAP = 
-            new ConceptProxy("HDX ICD-10-PCS inexact map", 
+            new ConceptProxy("HDx ICD-10-PCS inexact map", 
                     UUID.fromString("794f9e7d-5a90-487b-9f93-8ebbacfd492f"));
 
     public final static ConceptProxy HDX_ICF_MAP = 
-            new ConceptProxy("HDX ICF inexact map", 
+            new ConceptProxy("HDx ICF inexact map", 
                     UUID.fromString("3903d7a5-3a69-4f1b-8de1-a7c7844f2953"));
 
     public final static ConceptProxy HDX_ICPC_MAP = 
-            new ConceptProxy("HDX ICPC inexact map", 
+            new ConceptProxy("HDx ICPC inexact map", 
                     UUID.fromString("0653274c-f1e5-491d-b754-9eaa2be3e67f"));
 
     public final static ConceptProxy HDX_MDC_MAP = 
-            new ConceptProxy("HDX MDC inexact map", 
+            new ConceptProxy("HDx MDC inexact map", 
                     UUID.fromString("3f687795-8ef7-4a98-a4b2-bb7d5d022f4d"));
 
     public final static ConceptProxy HDX_MESH_MAP = 
-            new ConceptProxy("HDX MESH inexact map", 
+            new ConceptProxy("HDx MESH inexact map", 
                     UUID.fromString("70ead1cb-2f80-4f8e-a0ae-584fd254c714"));
 
     public final static ConceptProxy HDX_RADLEX_MAP = 
-            new ConceptProxy("HDX RADLEX inexact map", 
+            new ConceptProxy("HDx RADLEX inexact map", 
                     UUID.fromString("7686650f-97e0-4447-affc-e19c9e3e0180"));
 
     public final static ConceptProxy HDX_RXCUI_MAP = 
-            new ConceptProxy("HDX RXCUI map", 
+            new ConceptProxy("HDx RXCUI map", 
                     UUID.fromString("fdd1f394-180e-4582-a1d0-e104c86f2adc"));
 
     public final static ConceptProxy HDX_CCS_SINGLE_ICD_MAP = 
-            new ConceptProxy("HDX CCS-single category icd 10 map", 
+            new ConceptProxy("HDx CCS-single category icd 10 map", 
                     UUID.fromString("b3d86f60-6618-47d4-ab78-abe39d9cfa97"));
 
     public final static ConceptProxy HDX_CCS_MULTI_1_ICD_MAP = 
-            new ConceptProxy("HDX CCS-multi level 1 ICD 10 map", 
+            new ConceptProxy("HDx CCS-multi level 1 ICD 10 map", 
                     UUID.fromString("e5998d38-ea14-4717-9b29-f6db9d21f607"));
 
     public final static ConceptProxy HDX_CCS_MULTI_2_ICD_MAP = 
-            new ConceptProxy("HDX CCS-multi level 2 ICD 10 map", 
+            new ConceptProxy("HDx CCS-multi level 2 ICD 10 map", 
                     UUID.fromString("10cd5e46-e4a0-485d-80b0-aabb74e1ff4d"));
 
-    public final static ConceptProxy HDX_ENTITY_ASSEMBLAGE = new ConceptProxy("HDX entity", 
+    public final static ConceptProxy HDX_ENTITY_ASSEMBLAGE = new ConceptProxy("HDx entity", 
             UUID.fromString("1c82bc0e-3160-491f-9454-a45a5ab5556d"));
 
-    public final static ConceptProxy HDX_REVIEW_REQUIRED = new ConceptProxy("HDX review required", 
+    public final static ConceptProxy HDX_REVIEW_REQUIRED = new ConceptProxy("HDx review required", 
             UUID.fromString("cb4191ad-5a6c-40b8-a1f8-6c3efb83a70d"));
 
     private static final int WRITE_PERMITS = Runtime.getRuntime()
@@ -180,26 +183,42 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             int stamp = stampService.getStampSequence(Status.ACTIVE, System.currentTimeMillis(), authorNid, moduleNid, pathNid);
             int legacyStamp = stampService.getStampSequence(Status.ACTIVE, System.currentTimeMillis(), authorNid, LEGACY_HUMAN_DX_MODULE.getNid(), pathNid);
             
+            buildConcept(HUMAN_DX_ASSEMBLAGES.getPrimordialUuid(), 
+                    HUMAN_DX_ASSEMBLAGES.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
+            
+            buildConcept(INEXACT_RXNORM_ASSOCIATION_TYPE.getPrimordialUuid(), 
+                    INEXACT_RXNORM_ASSOCIATION_TYPE.getFullyQualifiedName(), stamp, 
+                    HUMAN_DX_ASSEMBLAGES.getNid());          
+
             buildConcept(INEXACT_RXNORM_PRODUCT.getPrimordialUuid(), 
                     INEXACT_RXNORM_PRODUCT.getFullyQualifiedName(), stamp, 
                     new ConceptProxy("Medicinal product (product)", 
                             UUID.fromString("ae364969-80c6-32b9-9c1d-eaebed617d9b")).getNid());          
-            
+
+            buildConcept(RXNORM_PRODUCT.getPrimordialUuid(), 
+                    RXNORM_PRODUCT.getFullyQualifiedName(), stamp, 
+                    new ConceptProxy("Medicinal product (product)", 
+                            UUID.fromString("ae364969-80c6-32b9-9c1d-eaebed617d9b")).getNid());          
+                        
             
             buildConcept(LEGACY_HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), 
                     LEGACY_HUMAN_DX_ROOT_CONCEPT.getFullyQualifiedName(), legacyStamp, MetaData.SOLOR_CONCEPT____SOLOR.getNid());          
             
+           buildConcept(HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getPrimordialUuid(), 
+                    HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getFullyQualifiedName(), legacyStamp, HUMAN_DX_ASSEMBLAGES.getNid());           
+            
+            buildConcept(HDX_LEGACY_IS_A.getPrimordialUuid(), 
+                    HDX_LEGACY_IS_A.getFullyQualifiedName(), legacyStamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
+ 
+            buildConcept(LEGACY_HUMAN_DX_MODULE.getPrimordialUuid(), 
+                    LEGACY_HUMAN_DX_MODULE.getFullyQualifiedName(), legacyStamp, MetaData.MODULE____SOLOR.getNid());           
+
             buildConcept(HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), 
                     HUMAN_DX_ROOT_CONCEPT.getFullyQualifiedName(), stamp, MetaData.SOLOR_CONCEPT____SOLOR.getNid());           
             
             buildConcept(HUMAN_DX_MODULE.getPrimordialUuid(), 
                     HUMAN_DX_MODULE.getFullyQualifiedName(), stamp, MetaData.MODULE____SOLOR.getNid());           
 
-            buildConcept(HUMAN_DX_ASSEMBLAGES.getPrimordialUuid(), 
-                    HUMAN_DX_ASSEMBLAGES.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
-            
-            buildConcept(LEGACY_HUMAN_DX_MODULE.getPrimordialUuid(), 
-                    LEGACY_HUMAN_DX_MODULE.getFullyQualifiedName(), legacyStamp, MetaData.MODULE____SOLOR.getNid());           
             
             buildConcept(REFID_ASSEMBLAGE.getPrimordialUuid(), 
                     REFID_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());  
@@ -223,22 +242,20 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
                     IS_CATEGORY_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
             buildConcept(SNOMED_MAP_ASSEMBLAGE.getPrimordialUuid(), 
-                    SNOMED_MAP_ASSEMBLAGE.getFullyQualifiedName(), legacyStamp, HUMAN_DX_ASSEMBLAGES.getNid());           
+                    SNOMED_MAP_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
             buildConcept(INEXACT_SNOMED_ASSEMBLAGE.getPrimordialUuid(), 
-                    INEXACT_SNOMED_ASSEMBLAGE.getFullyQualifiedName(), legacyStamp, HUMAN_DX_ASSEMBLAGES.getNid());           
+                    INEXACT_SNOMED_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());   
+            
+            buildConcept(INEXACT_RXCUI_ASSEMBLAGE.getPrimordialUuid(), 
+                    INEXACT_RXCUI_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
             buildConcept(SNOMED_SIB_CHILD_ASSEMBLAGE.getPrimordialUuid(), 
-                    SNOMED_SIB_CHILD_ASSEMBLAGE.getFullyQualifiedName(), legacyStamp, HUMAN_DX_ASSEMBLAGES.getNid());           
+                    SNOMED_SIB_CHILD_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
             buildConcept(HDX_ENTITY_ASSEMBLAGE.getPrimordialUuid(), 
-                    HDX_ENTITY_ASSEMBLAGE.getFullyQualifiedName(), legacyStamp, HUMAN_DX_ASSEMBLAGES.getNid());           
+                    HDX_ENTITY_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
-            buildConcept(HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getPrimordialUuid(), 
-                    HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getFullyQualifiedName(), legacyStamp, HUMAN_DX_ASSEMBLAGES.getNid());           
-            
-            buildConcept(HDX_LEGACY_IS_A.getPrimordialUuid(), 
-                    HDX_LEGACY_IS_A.getFullyQualifiedName(), legacyStamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
             buildConcept(HDX_ICD10CM_MAP.getPrimordialUuid(), 
                     HDX_ICD10CM_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
