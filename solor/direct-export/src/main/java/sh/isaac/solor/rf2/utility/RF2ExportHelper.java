@@ -11,14 +11,20 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.observable.concept.ObservableConceptVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.komet.gui.manifold.Manifold;
 
@@ -30,6 +36,8 @@ public class RF2ExportHelper {
 
     protected static final Logger LOG = LogManager.getLogger();
     private Manifold manifold;
+    private static StampCoordinate stampCoordinate;
+
     private final static int[] identifierNidPriority = new int[]{ //order of priority
             TermAux.SNOMED_IDENTIFIER.getNid(),
             MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
@@ -38,18 +46,40 @@ public class RF2ExportHelper {
 
     public RF2ExportHelper(Manifold manifold) {
         this.manifold = manifold;
+        stampCoordinate = this.manifold.getStampCoordinate().getStampCoordinate();
     }
 
-    public String getIdString(int nid){
+    public Version getChronologySnapshotVersion(int nid){
+
+        LatestVersion<Version> latestVersion;
 
         switch (Get.identifierService().getObjectTypeForComponent(nid)){
             case CONCEPT:
-                return getIdString(Get.concept(nid).getVersionList().get(0));
+
+                latestVersion = Get.concept(nid).getLatestVersion(stampCoordinate);
+                if(latestVersion != null && latestVersion.isPresent()){
+                    return latestVersion.get();
+                }else {
+                    LOG.warn("Can't find latest version for concept chronology " + nid + "\t" + Get.concept(nid).getFullyQualifiedName());
+                }
+
+                break;
             case SEMANTIC:
-                return getIdString(Get.assemblageService().getSemanticChronology(nid).getVersionList().get(0));
+
+                latestVersion = Get.assemblageService().getSemanticChronology(nid).getLatestVersion(stampCoordinate);
+                if(latestVersion != null &&  latestVersion.isPresent()){
+                    return latestVersion.get();
+                }else {
+                    LOG.warn("Can't find latest version for semantic chronology " + nid + "\t" + Get.assemblageService().getSemanticChronology(nid).toUserString());
+                }
+                break;
         }
 
-        return "Issue::getIdString(int nid)";
+        return null;
+    }
+
+    public String getIdString(int nid){
+        return getIdString(getChronologySnapshotVersion(nid));
     }
 
     public String getIdString(Version version){
@@ -85,12 +115,24 @@ public class RF2ExportHelper {
         return UuidT5Generator.makeSolorIdFromUuid(version.getPrimordialUuid());
     }
 
+    public String getTimeString(int nid){
+        return getTimeString(getChronologySnapshotVersion(nid));
+    }
+
     public String getTimeString(Version version){
-        return new SimpleDateFormat("yyyymmdd").format(new Date(version.getTime()));
+        return new SimpleDateFormat("YYYYMMdd").format(new Date(version.getTime()));
+    }
+
+    public String getActiveString(int nid){
+        return getActiveString(getChronologySnapshotVersion(nid));
     }
 
     public String getActiveString(Version version){
         return version.getStatus().getBoolean() ? "1" : "0";
+    }
+
+    public String getConceptPrimitiveOrSufficientDefinedSCTID(int nid){
+        return getConceptPrimitiveOrSufficientDefinedSCTID((ObservableConceptVersion) getChronologySnapshotVersion(nid));
     }
 
     public String getConceptPrimitiveOrSufficientDefinedSCTID(ConceptVersion conceptVersion) {
@@ -108,6 +150,10 @@ public class RF2ExportHelper {
         }
     }
 
+    public String getTypeId(int nid){
+        return getTypeId((ObservableDescriptionVersion) getChronologySnapshotVersion(nid));
+    }
+
     public String getTypeId(DescriptionVersion descriptionVersion){
 
 
@@ -123,8 +169,16 @@ public class RF2ExportHelper {
         return "Issue::getTypeId(DescriptionVersion descriptionVersion)";
     }
 
+    public String getTerm(int nid){
+        return getTerm((ObservableDescriptionVersion) getChronologySnapshotVersion(nid));
+    }
+
     public String getTerm(DescriptionVersion descriptionVersion){
         return descriptionVersion.getText();
+    }
+
+    public String getCaseSignificanceId(int nid){
+        return getCaseSignificanceId((ObservableDescriptionVersion) getChronologySnapshotVersion(nid));
     }
 
     public String getCaseSignificanceId(DescriptionVersion descriptionVersion){
@@ -141,6 +195,10 @@ public class RF2ExportHelper {
         return "Issue::getCaseSignificanceId(DescriptionVersion descriptionVersion)";
     }
 
+    public String getLanguageCode(int nid){
+        return getLanguageCode(getChronologySnapshotVersion(nid));
+    }
+
     public String getLanguageCode(Version version){
 
         int languageNID = version.getAssemblageNid();
@@ -151,8 +209,20 @@ public class RF2ExportHelper {
         return "Issue::getLanguageCode(Version version)";
     }
 
-    public boolean isMetaDataConcept(int conceptNid){
-        return Get.taxonomyService().getSnapshot(this.manifold).isKindOf(conceptNid, MetaData.METADATA____SOLOR.getNid());
+    public int getModuleNid(int nid){
+        return Get.concept(nid).getLatestVersion(this.manifold).get().getModuleNid();
+    }
+
+    public String getSemanticStringValue(int nid){
+        return ((StringVersion) getChronologySnapshotVersion(nid)).getString();
+    }
+
+    public int getSemanticNidValue(int nid){
+        return ((ComponentNidVersion) getChronologySnapshotVersion(nid)).getNid();
+    }
+
+    public VersionType getSemanticSnapshotVersionType(int nid){
+        return getChronologySnapshotVersion(nid).getSemanticType();
     }
 
     public Manifold getManifold() {

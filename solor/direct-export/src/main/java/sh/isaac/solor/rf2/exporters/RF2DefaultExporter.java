@@ -19,33 +19,54 @@ public abstract class RF2DefaultExporter extends TimedTaskWithProgressTracker<Vo
 
     protected static final Logger LOG = LogManager.getLogger();
     private final RF2Configuration rf2Configuration;
+    private final int progressStep = 10000;
+    private int progressCount =  0;
+    protected final StringBuilder outputToWrite;
 
     public RF2DefaultExporter(RF2Configuration rf2Configuration) {
         this.rf2Configuration = rf2Configuration;
+        this.outputToWrite = new StringBuilder();
 
-        //Initial RF2 export file setup
         initDirectoryAndFile();
-        writeStringToFile(rf2Configuration.getFileHeader());
+        this.clearLineOutput();
+        this.outputToWrite.append(rf2Configuration.getFileHeader());
+        this.writeToFile();
+        this.clearLineOutput();
 
         updateTitle("Exporting " + rf2Configuration.getMessage());
         updateMessage(rf2Configuration.getFilePath().getFileName().toString());
+        addToTotalWork(this.rf2Configuration.getExportCount() / progressStep);
+    }
+
+    protected void clearLineOutput(){
+        this.outputToWrite.setLength(0);
+    }
+
+    protected void incrementProgressCount(){
+        this.progressCount++;
+    }
+
+    protected void tryAndUpdateProgressTracker(){
+        if(this.progressCount % this.progressStep == 0){
+            this.completedUnitOfWork();
+        }
     }
 
     private void initDirectoryAndFile(){
         try {
-            //Create Directories, File, and initial File Header
             Files.createDirectories(rf2Configuration.getFilePath().getParent());
             Files.createFile(rf2Configuration.getFilePath());
         }catch (IOException ioE){
             ioE.printStackTrace();
+            LOG.warn("Can't init directory and file: " + this.rf2Configuration.getFilePath());
         }
     }
 
-    protected void writeStringToFile(String stringToWrite){
+    protected void writeToFile(){
 
-        if(stringToWrite != null) {
+        if(this.outputToWrite != null) {
             try {
-                Files.write(rf2Configuration.getFilePath(), stringToWrite.getBytes(Charset.forName("UTF-8")), StandardOpenOption.APPEND);
+                Files.write(rf2Configuration.getFilePath(), this.outputToWrite.toString().getBytes(Charset.forName("UTF-8")), StandardOpenOption.APPEND);
             } catch (Exception ioE) {
                 ioE.printStackTrace();
             }
@@ -54,9 +75,14 @@ public abstract class RF2DefaultExporter extends TimedTaskWithProgressTracker<Vo
         }
     }
 
-    protected void writeStringsToFile(List<String> strings){
-        if(strings.size() > 0) {
-            strings.stream().forEach(this::writeStringToFile);
+    protected void writeToFile(List<String> strings){
+        if(strings.size() > 0){
+            strings.stream()
+                    .forEach(string -> {
+                        this.clearLineOutput();
+                        this.outputToWrite.append(string);
+                        this.writeToFile();
+                    });
         }else {
             LOG.warn("Can't write NULL List<String> to file: " + this.rf2Configuration.getFilePath());
         }

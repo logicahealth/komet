@@ -23,7 +23,7 @@ public class ZipExportDirectory extends TimedTaskWithProgressTracker<Void> {
     private final Semaphore taskSemaphore;
     private final int taskPermits;
 
-    public ZipExportDirectory(Path zipDirectoryPath, Semaphore taskSemaphore, int taskPermits) {
+    public ZipExportDirectory(Path zipDirectoryPath, Semaphore taskSemaphore, int taskPermits, long fileCount) {
         this.zipDirectoryPath = zipDirectoryPath;
         this.rootDirectoryPath = Paths.get(zipDirectoryPath.toString().replace(".zip",""));
         this.rootDirectoryName = zipDirectoryPath.getFileName().toString().replace(".zip", "");
@@ -33,6 +33,7 @@ public class ZipExportDirectory extends TimedTaskWithProgressTracker<Void> {
         taskSemaphore.acquireUninterruptibly(taskPermits);
         updateTitle("Zipping Directory");
         updateMessage(this.rootDirectoryPath.toString());
+        addToTotalWork(fileCount + 1);
         Get.activeTasks().add(this);
     }
 
@@ -74,6 +75,8 @@ public class ZipExportDirectory extends TimedTaskWithProgressTracker<Void> {
                    e.printStackTrace();
                }
 
+               completedUnitOfWork();
+
            });
 
            zos.close();
@@ -83,6 +86,8 @@ public class ZipExportDirectory extends TimedTaskWithProgressTracker<Void> {
                    .sorted(Comparator.reverseOrder())
                    .map(Path::toFile)
                    .forEach(File::delete);
+
+           completedUnitOfWork();
 
        } catch (IOException e) {
            e.printStackTrace();
