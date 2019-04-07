@@ -68,6 +68,7 @@ import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.coordinate.StampPathImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.api.component.semantic.version.LongVersion;
@@ -306,8 +307,14 @@ public class VersionManagmentPathProvider
     */
    @PostConstruct
    private void startMe() {
-      LOG.info("VersionManagementPathProvider starts");
-      setupPathMap();
+      LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting Path provider");
+      Get.executor().execute(progressTask);
+      try {
+         LOG.info("VersionManagementPathProvider starts");
+         setupPathMap();
+      } finally {
+         progressTask.finished();
+      }
    }
 
    /**

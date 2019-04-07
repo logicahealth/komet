@@ -99,6 +99,7 @@ import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.task.SequentialAggregateTask;
 import sh.isaac.api.util.DataToBytesUtils;
 import sh.isaac.model.ChronologyImpl;
@@ -930,6 +931,8 @@ public class CommitProvider
      */
     @PostConstruct
     private void startMe() {
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings chronology provider");
+        Get.executor().execute(progressTask);
         try {
             LOG.info("Starting CommitProvider post-construct for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
@@ -1099,6 +1102,8 @@ public class CommitProvider
                     .notifyServiceConfigurationFailure("Commit Provider", e);
             LOG.error("CommitProvider Startup Failure!", e);
             throw new RuntimeException(e);
+        } finally {
+            progressTask.finished();
         }
     }
 

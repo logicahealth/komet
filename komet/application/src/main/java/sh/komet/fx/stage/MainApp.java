@@ -103,7 +103,6 @@ public class MainApp
 // http://dlsc.com/2014/10/13/new-custom-control-taskprogressview/
 // http://fxexperience.com/controlsfx/features/   
 
-    public static final String SPLASH_IMAGE = "prism-splash.png";
     protected static final Logger LOG = LogManager.getLogger();
     private static Stage primaryStage;
     public IsaacPreferences configurationPreferences;
@@ -137,12 +136,25 @@ public class MainApp
                 + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
 
         SvgImageLoaderFactory.install();
-        Scene scene = new Scene(new Label("Starting KOMET"), 400, 300);
-        stage.setScene(scene);
+
+        FXMLLoader sourceLoader = new FXMLLoader(getClass().getResource("/fxml/SelectDataSource.fxml"));
+        BorderPane sourceRoot = sourceLoader.load();
+        SelectDataSourceController selectDataSourceController = sourceLoader.getController();
+        selectDataSourceController.setMainApp(this);
+
+        stage.initStyle(StageStyle.UTILITY);
+        Scene sourceScene = new Scene(sourceRoot, 600, 400);
+        stage.setScene(sourceScene);
         stage.show();
+    }
 
-        Platform.runLater(new SelectDataSource(this, stage));
-
+    public void replacePrimaryStage(Stage primaryStage) {
+        Stage oldStage = MainApp.primaryStage;
+        MainApp.primaryStage = primaryStage;
+        if (oldStage != null) {
+            oldStage.hide();
+            oldStage.close();
+        }
     }
 
 

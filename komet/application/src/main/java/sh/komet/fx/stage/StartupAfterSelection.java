@@ -42,6 +42,7 @@ public class StartupAfterSelection implements Runnable {
 
         try {
             LookupService.startupPreferenceProvider();
+
             mainApp.configurationPreferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
 
             if (mainApp.configurationPreferences.getBoolean(PreferenceGroup.Keys.INITIALIZED, false)) {
@@ -51,46 +52,16 @@ public class StartupAfterSelection implements Runnable {
             Get.configurationService().setSingleUserMode(true);  //TODO eventually, this needs to be replaced with a proper user identifier
             Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
             Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
-
-
-            //TODO this will likely go away, at some point...
-//        DirectImporter.importDynamic = true;
             LookupService.startupIsaac();
 
             if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                 System.out.println("Beta features enabled");
             }
-            this.kometPreferences = FxGet.kometPreferences();
-            this.kometPreferences.loadPreferences(FxGet.getManifold(Manifold.ManifoldGroup.TAXONOMY));
-
-
-            if (Get.metadataService()
-                    .wasMetadataImported()) {
-                final StampCoordinate stampCoordinate = Get.coordinateFactory()
-                        .createDevelopmentLatestStampCoordinate();
-                final LogicCoordinate logicCoordinate = Get.coordinateFactory()
-                        .createStandardElProfileLogicCoordinate();
-                final EditCoordinate editCoordinate = Get.coordinateFactory()
-                        .createClassifierSolorOverlayEditCoordinate();
-                final ClassifierService logicService = Get.logicService()
-                        .getClassifierService(
-                                stampCoordinate,
-                                logicCoordinate,
-                                editCoordinate);
-                final Task<ClassifierResults> classifyTask = logicService.classify();
-                final ClassifierResults classifierResults = classifyTask.get();
-            }
-
-            // To update metadata if new metadata is available after database was built.
-
-            Get.metadataService().reimportMetadata();
-            this.kometPreferences.reloadPreferences();
 
             // open one new stage with defaults
             // Create a node for stage preferences
             Platform.runLater(new OpenWindows());
 
-            mainApp.configurationPreferences.sync();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,38 +70,73 @@ public class StartupAfterSelection implements Runnable {
 
             @Override
             public void run() {
-                for (WindowPreferenceItems windowPreference : kometPreferences.getWindowPreferences()) {
-                    try {
-                        UUID stageUuid = UUID.randomUUID();
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-                        BorderPane root = loader.load();
-                        KometStageController controller = loader.getController();
-                        controller.setWindowPreferenceItems(windowPreference);
-                        root.setId(stageUuid.toString());
-                        Stage stage = new Stage(StageStyle.UNIFIED);
-                        stage.setTitle(FxGet.getConfigurationName());
-                        Scene scene = new Scene(mainApp.setupStageMenus(stage, root));
-                        stage.setScene(scene);
-                        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
-                        stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
+                try {
+                    kometPreferences = FxGet.kometPreferences();
+                    kometPreferences.loadPreferences(FxGet.getManifold(Manifold.ManifoldGroup.TAXONOMY));
 
-                        windowPreference.getWindowName().addListener((observable, oldValue, newValue) -> {
-                            stage.setTitle(newValue);
-                        });
-                        stage.setTitle(windowPreference.getWindowName().getValue());
-                        // GraphController.setSceneForControllers(scene);
-                        scene.getStylesheets()
-                                .add(FxGet.fxConfiguration().getUserCSSURL().toString());
-                        scene.getStylesheets()
-                                .add(Iconography.getStyleSheetStringUrl());
-                        FxGet.statusMessageService()
-                                .addScene(scene, controller::reportStatus);
-                        stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
-                        stage.show();
-//            ScenicView.show(scene);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+
+                    if (Get.metadataService()
+                            .wasMetadataImported()) {
+                        final StampCoordinate stampCoordinate = Get.coordinateFactory()
+                                .createDevelopmentLatestStampCoordinate();
+                        final LogicCoordinate logicCoordinate = Get.coordinateFactory()
+                                .createStandardElProfileLogicCoordinate();
+                        final EditCoordinate editCoordinate = Get.coordinateFactory()
+                                .createClassifierSolorOverlayEditCoordinate();
+                        final ClassifierService logicService = Get.logicService()
+                                .getClassifierService(
+                                        stampCoordinate,
+                                        logicCoordinate,
+                                        editCoordinate);
+                        final Task<ClassifierResults> classifyTask = logicService.classify();
+                        final ClassifierResults classifierResults = classifyTask.get();
                     }
+
+                    // To update metadata if new metadata is available after database was built.
+
+                    Get.metadataService().reimportMetadata();
+                    kometPreferences.reloadPreferences();
+                    boolean replacePrimaryStage = true;
+                    for (WindowPreferenceItems windowPreference : kometPreferences.getWindowPreferences()) {
+                        try {
+                            UUID stageUuid = UUID.randomUUID();
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
+                            BorderPane root = loader.load();
+                            KometStageController controller = loader.getController();
+                            controller.setWindowPreferenceItems(windowPreference);
+                            root.setId(stageUuid.toString());
+                            Stage stage = new Stage(StageStyle.UNIFIED);
+                            stage.setTitle(FxGet.getConfigurationName());
+                            Scene scene = new Scene(mainApp.setupStageMenus(stage, root));
+                            stage.setScene(scene);
+                            stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
+                            stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
+
+                            windowPreference.getWindowName().addListener((observable, oldValue, newValue) -> {
+                                stage.setTitle(newValue);
+                            });
+                            stage.setTitle(windowPreference.getWindowName().getValue());
+                            // GraphController.setSceneForControllers(scene);
+                            scene.getStylesheets()
+                                    .add(FxGet.fxConfiguration().getUserCSSURL().toString());
+                            scene.getStylesheets()
+                                    .add(Iconography.getStyleSheetStringUrl());
+                            FxGet.statusMessageService()
+                                    .addScene(scene, controller::reportStatus);
+                            stage.setOnCloseRequest(MenuProvider::handleCloseRequest);
+                            if (replacePrimaryStage) {
+                                replacePrimaryStage = false;
+                                mainApp.replacePrimaryStage(stage);
+                            }
+                            stage.show();
+                            mainApp.configurationPreferences.sync();
+    //            ScenicView.show(scene);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }

@@ -35,6 +35,7 @@ import org.glassfish.hk2.api.Rank;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
@@ -47,6 +48,7 @@ import sh.isaac.api.datastore.SequenceStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.DataStoreSubService;
 
 /**
@@ -76,6 +78,8 @@ public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
 	@PostConstruct
 	private void startMe()
 	{
+		LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings DataStoreLocator provider");
+		Get.executor().execute(progressTask);
 		LOG.info("Starting DataStoreLocator provider post-construct");
 
 		try
@@ -126,6 +130,8 @@ public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
 		{
 			LOG.error("Error starting delgated store", e);
 			throw new RuntimeException(e);
+		} finally {
+			progressTask.finished();
 		}
 	}
 

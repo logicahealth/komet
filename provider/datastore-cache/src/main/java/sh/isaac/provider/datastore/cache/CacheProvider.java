@@ -2,12 +2,12 @@ package sh.isaac.provider.datastore.cache;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
+import sh.isaac.api.collections.UuidIntMapMapFileBased;
+import sh.isaac.api.collections.UuidIntMapMapMemoryBased;
 import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -21,15 +21,12 @@ import sh.isaac.model.collections.store.ByteArrayArrayStoreProvider;
 import sh.isaac.model.collections.store.IntIntArrayStoreProvider;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
-import javax.inject.Singleton;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.BinaryOperator;
 import java.util.stream.IntStream;
 
-@Service(name = "CACHE")
-@Singleton
 public class CacheProvider
         implements DatastoreAndIdentiferService {
     private static final Logger LOG = LogManager.getLogger();
@@ -52,16 +49,19 @@ public class CacheProvider
     private final ConcurrentHashMap<Integer, SpinedIntIntArrayMap> spinedTaxonomyMapMap
             = new ConcurrentHashMap<>();
 
-    @Override
-    public void startup() {
-        this.datastoreService = Get.service(DataStoreSubService.class);
-        this.identifierService = Get.service(IdentifierService.class);
-        this.uuidIntMapMap = new ConcurrentUuidToIntHashMap();
+    public CacheProvider(DataStoreSubService datastoreService,
+            IdentifierService identifierService) {
+        this.datastoreService = datastoreService;
+        this.identifierService = identifierService;
+        this.uuidIntMapMap = new UuidIntMapMapMemoryBased();
         this.assemblageToObjectType_Map = new ConcurrentHashMap<>();
         this.assemblageToVersionType_Map = new ConcurrentHashMap<>();
         this.nidToAssemblageNidMap = new SpinedNidIntMap();
         this.assemblageNids = this.identifierService.getAssemblageNids();
+    }
 
+    @Override
+    public void startup() {
     }
 
     @Override
@@ -170,6 +170,7 @@ public class CacheProvider
             return optionalNid.getAsInt();
         }
         int nid = this.identifierService.getNidForUuids(uuids);
+
         for (UUID uuid : uuids) {
             this.uuidIntMapMap.put(uuid, nid);
         }

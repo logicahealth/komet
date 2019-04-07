@@ -65,13 +65,14 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.UuidIntMapMap;
+import sh.isaac.api.collections.UuidIntMapMapFileBased;
 import sh.isaac.api.collections.uuidnidmap.DataStoreUuidToIntMap;
 import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -116,19 +117,25 @@ public class IdentifierProvider
      */
     @PostConstruct
     private void startMe() {
-        LOG.info("Starting identifier provider for change to runlevel: {}", LookupService.getProceedingToRunLevel());
-        this.store = Get.service(DataStore.class);
-        uuidNidMapDirectory = new File(store.getDataStorePath().toAbsolutePath().toFile(), "uuid-nid-map");
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings Identifier provider");
+        Get.executor().execute(progressTask);
+        try {
+            LOG.info("Starting identifier provider for change to runlevel: {}", LookupService.getProceedingToRunLevel());
+            this.store = Get.service(DataStore.class);
+            uuidNidMapDirectory = new File(store.getDataStorePath().toAbsolutePath().toFile(), "uuid-nid-map");
 
-        if (this.store.implementsExtendedStoreAPI()) {
-            uuidIntMapMap = new DataStoreUuidToIntMap((ExtendedStore) this.store);
-        } else {
-            this.uuidIntMapMap = UuidIntMapMap.create(uuidNidMapDirectory);
-        }
+            if (this.store.implementsExtendedStoreAPI()) {
+                uuidIntMapMap = new DataStoreUuidToIntMap((ExtendedStore) this.store);
+            } else {
+                this.uuidIntMapMap = UuidIntMapMapFileBased.create(uuidNidMapDirectory);
+            }
 
-        //bootstrap our nids for core metadata concepts.  
-        for (ConceptSpecification cs : TermAux.getAllSpecs()) {
-            assignNid(cs.getUuids());
+            //bootstrap our nids for core metadata concepts.
+            for (ConceptSpecification cs : TermAux.getAllSpecs()) {
+                assignNid(cs.getUuids());
+            }
+        } finally {
+            progressTask.finished();
         }
     }
 
@@ -344,7 +351,7 @@ public class IdentifierProvider
             try {
                 LOG.info("writing uuid-nid-map.");
                 if (!store.implementsExtendedStoreAPI()) {
-                    ((UuidIntMapMap) this.uuidIntMapMap).write();
+                    ((UuidIntMapMapFileBased) this.uuidIntMapMap).write();
                 }
                 this.store.sync().get();
             } catch (IOException | InterruptedException | ExecutionException ex) {

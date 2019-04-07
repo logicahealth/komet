@@ -37,6 +37,7 @@
 package sh.isaac.provider.datastore.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import java.lang.ref.WeakReference;
 
@@ -273,6 +274,8 @@ public class TaxonomyProvider
      */
     @PostConstruct
     private void startMe() {
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings chronology provider");
+        Get.executor().execute(progressTask);
         try {
             LOG.info("Starting TaxonomyProvider post-construct");
             this.store = Get.service(DataStore.class);
@@ -288,6 +291,8 @@ public class TaxonomyProvider
             LookupService.getService(SystemStatusService.class)
                     .notifyServiceConfigurationFailure("Taxonomy Provider", e);
             throw new RuntimeException(e);
+        } finally {
+            progressTask.finished();
         }
     }
 

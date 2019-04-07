@@ -16,6 +16,8 @@
  */
 package sh.isaac.provider.postgres.provider;
 
+import sh.isaac.api.IdentifierService;
+import sh.isaac.model.DataStoreSubService;
 import sh.isaac.provider.datastore.cache.DatastoreAndIdentiferService;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -52,10 +54,11 @@ import sh.isaac.provider.postgres.PostgresProvider;
 @Service
 @RunLevel(value = LookupService.SL_L1)
 @Rank(value = 500)
-public class PostgresDatastore extends PostgresProvider implements DatastoreAndIdentiferService {
+public class PostgresDatastore implements DatastoreAndIdentiferService {
 
-    DatastoreAndIdentiferService backingStore = this;
-    
+    DatastoreAndIdentiferService backingStore;
+    PostgresProvider postgresProvider;
+
     public PostgresDatastore() {
     }
 
@@ -68,11 +71,9 @@ public class PostgresDatastore extends PostgresProvider implements DatastoreAndI
     @Override
     @PostConstruct
     public void startup() {
-        this.backingStore.startup(); 
-        Optional<CacheProvider> optionalCache = Get.optionalService(CacheProvider.class);
-        if (optionalCache.isPresent()) {
-            this.backingStore = optionalCache.get();
-        }
+        this.postgresProvider = new PostgresProvider();
+        this.postgresProvider.startup();
+        this.backingStore = new CacheProvider(this.postgresProvider, this.postgresProvider);
     }
 
     @Override

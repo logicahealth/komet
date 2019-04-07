@@ -21,7 +21,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import javafx.event.ActionEvent;
@@ -31,7 +30,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javax.inject.Singleton;
 import javax.naming.AuthenticationException;
-import javax.xml.bind.Unmarshaller;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -55,7 +54,6 @@ import sh.isaac.solor.direct.ho.HoModuleExporter;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.isaac.komet.gui.exporter.ExportView;
-import sh.isaac.model.xml.Jaxb;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
@@ -69,6 +67,22 @@ import sh.komet.gui.util.FxGet;
 public class KometBaseMenus implements MenuProvider {
 
     private static final Logger LOG = LogManager.getLogger();
+
+    private static void setupGit(ActionEvent event) {
+        SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+        ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
+        Path dataPath = configurationService.getDataStoreFolderPath();
+        File changeSetFolder = new File(dataPath.toFile(), "changesets");
+        syncService.setRootLocation(changeSetFolder);
+        Optional<RemoteServiceInfo> gitConfigOptional = Get.configurationService().getGlobalDatastoreConfiguration().getGitConfiguration();
+        gitConfigOptional.ifPresent((t) -> {
+            try {
+                syncService.linkAndFetchFromRemote(t.getURL(), t.getUsername(), t.getPassword());
+            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
+                LOG.error(ex.getLocalizedMessage(), ex);
+            }
+        });
+    }
 
     @Override
     public EnumSet<AppMenu> getParentMenus() {
@@ -132,22 +146,7 @@ public class KometBaseMenus implements MenuProvider {
 
                 MenuItem initializeFromRemote = new MenuItem("Initialize from remote...");
                 synchronize.getItems().add(initializeFromRemote);
-                initializeFromRemote.setOnAction((event) -> {
-                    SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                    ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
-                    Path dataPath = configurationService.getDataStoreFolderPath();
-                    File changeSetFolder = new File(dataPath.toFile(), "changesets");
-                    syncService.setRootLocation(changeSetFolder);
-                    Optional<RemoteServiceInfo> gitConfigOptional = Get.configurationService().getGlobalDatastoreConfiguration().getGitConfiguration();
-                    gitConfigOptional.ifPresent((t) -> {
-                        try {
-                            syncService.linkAndFetchFromRemote(t.getURL(), t.getUsername(), t.getPassword());
-                        } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
-                            LOG.error(ex.getLocalizedMessage(), ex);
-                        }
-                    });
-
-                });
+                initializeFromRemote.setOnAction(KometBaseMenus::setupGit);
 
                 MenuItem pullFromRemote = new MenuItem("Pull...");
                 synchronize.getItems().add(pullFromRemote);

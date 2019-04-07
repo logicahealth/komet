@@ -95,27 +95,24 @@ public class TaskProgressNode
                       (SetChangeListener.Change<? extends Task<?>> change) -> {
 
                          if (change.wasAdded()) {
-                            Platform.runLater(() -> taskProgressView.getTasks()
-                            .add(change.getElementAdded()));
+                            taskProgressView.getTasks()
+                            .add(change.getElementAdded());
                          } else if (change.wasRemoved()) {
-                            Platform.runLater(() -> taskProgressView.getTasks()
-                            .remove(change.getElementRemoved()));
+                            taskProgressView.getTasks()
+                            .remove(change.getElementRemoved());
                          }
 
                          if (change.getSet()
                                  .isEmpty()) {
-                            Platform.runLater(
-                                    () -> {
+
                                        activeTasksTooltip.set("No active tasks");
                                        if (titleLabel == null) {
                                           title.set(TaskProgressNodeFactory.TITLE_BASE);
                                        }
                                        titledNodeTitle.set(TaskProgressNodeFactory.TITLE_BASE);
                                        //nextIcon();
-                                    });
                          } else {
-                            Platform.runLater(
-                                    () -> {
+
                                        int taskCount = change.getSet()
                                                .size();
                                        if (taskCount == 1) {
@@ -132,7 +129,6 @@ public class TaskProgressNode
                                           titledNodeTitle.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
                                        }
                                        //nextIcon();
-                                    });
                          }
                       });
       scrollPane = new ScrollPane(taskProgressView);
