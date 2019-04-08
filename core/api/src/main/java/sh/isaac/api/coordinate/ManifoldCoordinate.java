@@ -424,4 +424,31 @@ public interface ManifoldCoordinate
     default Set<ConceptSpecification> getModuleSpecifications() {
         return getStampCoordinate().getModuleSpecifications();
     }
+    
+    /**
+     * @return true, if this ManifoldCoordinate has a custom sort for concepts, false otherwise.
+     */
+    default boolean hasCustomTaxonomySort() {
+        return false;
+    }
+    
+    /**
+     * Some implementations need to compute unique keys for ManifoldCoordinates, and the sort may need to be a part 
+     * of that computation.  This method provides access to the hashcode of the sort implementation.
+     * @return the hashcode of the sort implementation
+     */
+    default int getCustomTaxonomySortHashCode() {
+        return 0;
+    }
+    
+    /**
+     * if {@link #hasCustomTaxonomySort()} returns true, this method can be called to sort an array of concepts
+     * by a custom sort which is part of the {@link ManifoldCoordinate}.  By default, this method throws an 
+     * UnsupportedOperationException, or if {@link #hasCustomTaxonomySort()} returns false.
+     * @param concepts the array of concept nids to be sorted.
+     * @return the sorted set of concept nids.
+     */
+    default int[] sortConcepts(int[] concepts) {
+        throw new UnsupportedOperationException();
+    }
 }

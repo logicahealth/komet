@@ -439,11 +439,13 @@ public class TaxonomyProvider
         PremiseType taxPremiseType;
         StampCoordinate stampCoordinate;
         StampCoordinate destinationCoordinate;
+        int customSortHash = 0;
 
         public SnapshotCacheKey(ManifoldCoordinate mc) {
             this.taxPremiseType = mc.getTaxonomyPremiseType();
             this.stampCoordinate = mc.getStampCoordinate();
             this.destinationCoordinate = mc.getDestinationStampCoordinate();
+            customSortHash = mc.getCustomTaxonomySortHashCode();
         }
 
         @Override
@@ -452,6 +454,7 @@ public class TaxonomyProvider
             hash = 29 * hash + Objects.hashCode(this.taxPremiseType);
             hash = 29 * hash + this.stampCoordinate.hashCode();
             hash = 29 * hash + this.destinationCoordinate.hashCode();
+            hash = 29 * hash + customSortHash;
             return hash;
         }
 
@@ -476,9 +479,11 @@ public class TaxonomyProvider
             if (!Objects.equals(this.destinationCoordinate, other.destinationCoordinate)) {
                 return false;
             }
+            if (this.customSortHash != other.customSortHash) {
+                return false;
+            }
             return true;
         }
-
     }
 
     public Task<Tree> getTaxonomyTree(ManifoldCoordinate mc) {
@@ -818,6 +823,7 @@ public class TaxonomyProvider
         //These caches are for specific performance issues in some rest API usage patterns.  These help make up for not having a fully computed tree.
         ConcurrentHashMap<String, Boolean> childOfCache = new ConcurrentHashMap<>(250);
         ConcurrentHashMap<Integer, int[]> parentsCache = new ConcurrentHashMap<>(250);
+        ConcurrentHashMap<Integer, int[]> childrenCache = new ConcurrentHashMap<>(250);
 
         final ManifoldCoordinate mc;
         //init code
@@ -902,8 +908,10 @@ public class TaxonomyProvider
         @Override
         public int[] getTaxonomyChildConceptNids(int parentId) {
             try {
-                TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(parentId);
-                return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, mc);
+                return childrenCache.computeIfAbsent(parentId, key -> {
+                    TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(key);
+                    return taxonomyRecordPrimitive.getDestinationNidsOfType(childOfTypeNidSet, mc);
+                });
             } catch (IllegalStateException ex) {
                 LOG.error(ex.getLocalizedMessage() + " retrieving " + Get.conceptDescriptionText(parentId), ex);
                 return new int[0];

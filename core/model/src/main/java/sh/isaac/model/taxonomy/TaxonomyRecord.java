@@ -543,8 +543,13 @@ public class TaxonomyRecord {
             return true;
         });
         IntArrayList conceptSequencesForTypeList = conceptSequencesForTypeSet.keys();
-        conceptSequencesForTypeList.sort();
-        return conceptSequencesForTypeList.elements();
+        if (mc.hasCustomTaxonomySort()) {
+            return mc.sortConcepts(conceptSequencesForTypeList.elements());
+        }
+        else {
+            conceptSequencesForTypeList.sort();
+            return conceptSequencesForTypeList.elements();
+        }
     }
 
     /**
@@ -599,8 +604,14 @@ public class TaxonomyRecord {
             return true;
         });
         IntArrayList setAsList = conceptNidIntSet.keys();
-        setAsList.sort();
-        return setAsList.elements();
+        if (mc.hasCustomTaxonomySort()) {
+            return mc.sortConcepts(setAsList.elements());
+        }
+        else {
+            setAsList.sort();
+            return setAsList.elements();
+            
+        }
     }
 
     /**
@@ -661,8 +672,14 @@ public class TaxonomyRecord {
             return true;
         });
         IntArrayList conceptNidList = conceptNidIntSet.keys();
-        conceptNidList.sort();
-        return conceptNidList.elements();
+        if (mc.hasCustomTaxonomySort()) {
+            return mc.sortConcepts(conceptNidList.elements());
+        }
+        else {
+            conceptNidList.sort();
+            return conceptNidList.elements();
+            
+        }
     }
 
     /**
