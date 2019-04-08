@@ -12,7 +12,6 @@ import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.solor.rf2.utility.PreExportUtility;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
-import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
 import java.nio.file.Path;

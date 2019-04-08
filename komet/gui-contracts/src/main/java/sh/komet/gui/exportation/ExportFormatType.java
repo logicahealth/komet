@@ -2,8 +2,9 @@ package sh.komet.gui.exportation;
 
 public enum ExportFormatType {
 
-    RF2("SNOMED CT Release Format 2 (RF2)"),
-    SRF("SOLOR Release Format (SRF)");
+    RF2("SNOMED CT Release Format 2 Compatible (RF2)"),
+    SRF("Solor Relational Format (SRF)"),
+    SOF("Solor Object Format (SOF)");
 
     private final String fullyQualifiedName;
 

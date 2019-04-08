@@ -19,6 +19,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
@@ -26,7 +27,6 @@ import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.komet.gui.manifold.Manifold;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +35,7 @@ import java.util.Optional;
 public class RF2ExportHelper {
 
     protected static final Logger LOG = LogManager.getLogger();
-    private Manifold manifold;
+    private ManifoldCoordinate manifold;
     private static StampCoordinate stampCoordinate;
 
     private final static int[] identifierNidPriority = new int[]{ //order of priority
@@ -44,9 +44,9 @@ public class RF2ExportHelper {
             MetaData.RXNORM_CUI____SOLOR.getNid()
     };
 
-    public RF2ExportHelper(Manifold manifold) {
+    public RF2ExportHelper(ManifoldCoordinate manifold) {
         this.manifold = manifold;
-        stampCoordinate = this.manifold.getStampCoordinate().getStampCoordinate();
+        stampCoordinate = this.manifold.getStampCoordinate();
     }
 
     public Version getChronologySnapshotVersion(int nid){
@@ -225,7 +225,7 @@ public class RF2ExportHelper {
         return getChronologySnapshotVersion(nid).getSemanticType();
     }
 
-    public Manifold getManifold() {
+    public ManifoldCoordinate getManifold() {
         return manifold;
     }
 }

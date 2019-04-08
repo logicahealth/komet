@@ -88,5 +88,11 @@
             <artifactId>open-jdk-fixes</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>sh.isaac.solor</groupId>
+            <artifactId>direct-export</artifactId>
+            <version>5.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

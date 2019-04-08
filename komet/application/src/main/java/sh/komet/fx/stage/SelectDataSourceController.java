@@ -78,17 +78,29 @@ public class SelectDataSourceController {
                         File selectedFolder = new File(workingFolder, "data" + File.separator + "isaac.data");
                         System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, selectedFolder.getAbsolutePath());
                     } else {
-                        File selectedFolder = new File(rootFolder, selection + File.separator + "data");
-                        System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, selectedFolder.getAbsolutePath());
+                        File selectedFolder = new File(rootFolder, selection);
+                        File[] dataMatches = selectedFolder.listFiles((dir, name) -> name.equals("data"));
+                        if (dataMatches.length == 1) {
+                            File dataFolder = new File(rootFolder, selection + File.separator + "data");
+                            System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, dataFolder.getAbsolutePath());
+                        } else {
+                            File[] chronologyMatches = selectedFolder.listFiles((dir, name) -> name.equals("chronologies"));
+                            if (chronologyMatches.length == 1) {
+                                System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, selectedFolder.getAbsolutePath());
+                            }
+                        }
                     }
-                    new Thread(new StartupAfterSelection(this.getMainApp()), "Startup service").start();
+                    if (System.getProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY) != null) {
+                        new Thread(new StartupAfterSelection(this.getMainApp()), "Startup service").start();
+                    } else {
+                        FxGet.dialogs().showInformationDialog("No folder selected", "Please select a folder or select cancel to quit KOMET");
+                    }
 
-                } else {
-                    FxGet.dialogs().showInformationDialog("No folder selected", "Please select a folder or select cancel to quit KOMET");
+
                 }
                 break;
             case Environment:
-                // nothing to do...
+                new Thread(new StartupAfterSelection(this.getMainApp()), "Startup service").start();
                 break;
         }
     }
@@ -144,10 +156,11 @@ public class SelectDataSourceController {
         }
         for (File f: rootFolder.listFiles()) {
             if (f.isDirectory()) {
-                String[] children = f.list((dir, name) -> name.equals("data"));
+                String[] children = f.list((dir, name) -> name.equals("data") || name.equals("chronologies"));
                 if (children.length != 0) {
                     fileListView.getItems().add(f.getName());
                 }
+
             }
         }
         fileListView.getItems().sort(new NaturalOrder());
