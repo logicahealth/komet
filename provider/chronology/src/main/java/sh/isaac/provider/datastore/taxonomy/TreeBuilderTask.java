@@ -114,7 +114,7 @@ public class TreeBuilderTask
          return compute();
       }
       catch (Exception e) {
-         if (!e.getMessage().equals(stopMessage)) {
+         if (!(stopMessage.equals(e.getMessage()))) {
             LOG.error("Error in Tree Builder task", e);
          }
          else {
