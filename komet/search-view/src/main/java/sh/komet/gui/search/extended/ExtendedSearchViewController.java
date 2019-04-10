@@ -925,6 +925,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
             stampDialog.setHeaderText("Please specify the STAMP criteria for extended search");
             stampDialog.getDialogPane().setContent(stampGridPane);
             stampDialog.initOwner(borderPane.getScene().getWindow());
+            stampDialog.setResizable(true);
 
             if (stampDialog.showAndWait().orElse(null) == ButtonType.OK) {
                 amp = ssController.getAmpRestriction();

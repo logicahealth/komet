@@ -88,6 +88,7 @@ import sh.komet.gui.contract.NodeFactory.PanelPlacement;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.komet.gui.contract.preferences.WindowPreferenceItems;
+import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -263,7 +264,7 @@ public class KometStageController
             
             MenuItem artifactImport = new MenuItem("Artifact Import");
             artifactImport.setOnAction((ActionEvent event) -> {
-                //ArtifactImporter.startArtifactImport(topGridPane.getScene().getWindow());
+                ArtifactImporter.startArtifactImport(topGridPane.getScene().getWindow());
             });
             items.add(artifactImport);
         }
@@ -372,6 +373,7 @@ public class KometStageController
                                 alert.setTitle("Beer has arrived!");
                                 alert.setHeaderText("Beer has been imported!");
                                 alert.initOwner(topGridPane.getScene().getWindow());
+                                alert.setResizable(true);
                                 alert.showAndWait();
                             });
                         }
