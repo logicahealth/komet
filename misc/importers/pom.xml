@@ -90,6 +90,12 @@
 			<groupId>org.apache.jena</groupId>
 			<artifactId>jena-core</artifactId>
 			<version>3.7.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<!-- Some of the importer mojos do some futzing with log4j inner classes, need this to compile, but those classes 

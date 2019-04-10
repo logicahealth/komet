@@ -97,28 +97,4 @@
 		</dependency>
 	</dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.jvnet.jaxb2.maven2</groupId>
-				<artifactId>maven-jaxb2-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<schemaIncludes>
-								<!-- This is a tweaked version of the maven pom to make it easier to deal with the xs:any inside 
-								of <xs:element name="configuration" -->
-								<include>maven-4.0.0-tweaked.xsd</include>
-								<include>assembly-1.1.2.xsd</include>
-							</schemaIncludes>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-
 </project>

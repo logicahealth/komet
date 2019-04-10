@@ -38,6 +38,12 @@
             <artifactId>selenium-java</artifactId>
             <scope>test</scope>
             <version>2.44.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.opera</groupId>
