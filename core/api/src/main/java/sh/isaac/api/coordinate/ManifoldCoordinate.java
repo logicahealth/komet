@@ -65,6 +65,7 @@ import sh.isaac.api.util.UUIDUtil;
  */
 public interface ManifoldCoordinate
         extends StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy {
+
     /**
      * 
      * @return a content based uuid, such that identical manifold coordinates
@@ -72,13 +73,16 @@ public interface ManifoldCoordinate
      * always have different uuids.
      */
     default UUID getManifoldCoordinateUuid() {
-       ArrayList<UUID> uuidList = new ArrayList();
+       ArrayList<UUID> uuidList = new ArrayList<>();
        UUIDUtil.addSortedUuids(uuidList, getTaxonomyPremiseType().getPremiseTypeConcept().getNid());
        uuidList.add(getStampCoordinateUuid());
        uuidList.add(getLanguageCoordinateUuid());
        uuidList.add(getLogicCoordinateUuid());
+       uuidList.add(getDestinationStampCoordinate().getStampCoordinateUuid());
        return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
-   }   /**
+   }
+    
+    /**
     * Make analog.
     *
     * @param taxonomyType the {@code PremiseType} for the analog
@@ -95,6 +99,18 @@ public interface ManifoldCoordinate
     * PremiseType.INFERRED if taxonomy operations should be based on inferred definitions.
     */
    PremiseType getTaxonomyPremiseType();
+   
+   /**
+    * @return The destination stamp coordinate, 
+    * 
+    * In most cases, this coordinate will be the same object that is returned by {@link #getStampCoordinate()}, 
+    * But, it may be a different coordinate, depending on the construction - for example, a use case like returning inactive concepts
+    * linked by active relationships.
+    * 
+    * This coordinate is used on the destination concepts in taxonomy operations, while {@link #getStampCoordinate()} is used 
+    * on the relationships themselves.
+    */
+   StampCoordinate getDestinationStampCoordinate();
 
    /**
     * Gets the uuid.
@@ -231,6 +247,7 @@ public interface ManifoldCoordinate
        }
        return getPreferredDescriptionText(conceptSpec.getNid());
    }
+   
    /**
     * Calls {@link #getPreferredDescriptionText(int)} with the nid of the specified concept spec.
     * @param conceptSpec  If not provided, this method simply returns "empty"
@@ -324,6 +341,7 @@ public interface ManifoldCoordinate
    default Optional<LogicalExpression> getStatedLogicalExpression(int conceptNid) {
        return getLogicalExpression(conceptNid, PremiseType.STATED);
    }
+   
    default Optional<LogicalExpression> getInferredLogicalExpression(ConceptSpecification spec) {
        return getInferredLogicalExpression(spec.getNid());
    }
@@ -407,7 +425,30 @@ public interface ManifoldCoordinate
         return getStampCoordinate().getModuleSpecifications();
     }
     
+    /**
+     * @return true, if this ManifoldCoordinate has a custom sort for concepts, false otherwise.
+     */
+    default boolean hasCustomTaxonomySort() {
+        return false;
+    }
     
-       
+    /**
+     * Some implementations need to compute unique keys for ManifoldCoordinates, and the sort may need to be a part 
+     * of that computation.  This method provides access to the hashcode of the sort implementation.
+     * @return the hashcode of the sort implementation
+     */
+    default int getCustomTaxonomySortHashCode() {
+        return 0;
+    }
+    
+    /**
+     * if {@link #hasCustomTaxonomySort()} returns true, this method can be called to sort an array of concepts
+     * by a custom sort which is part of the {@link ManifoldCoordinate}.  By default, this method throws an 
+     * UnsupportedOperationException, or if {@link #hasCustomTaxonomySort()} returns false.
+     * @param concepts the array of concept nids to be sorted.
+     * @return the sorted set of concept nids.
+     */
+    default int[] sortConcepts(int[] concepts) {
+        throw new UnsupportedOperationException();
+    }
 }
-

@@ -36,6 +36,7 @@
  */
 package sh.isaac.model.taxonomy;
 
+import java.util.Arrays;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -141,7 +142,7 @@ public class TaxonomyRecord {
             for (int i = 1; i < subrecordLength; i += 3) {
                 int typeNid = record[subRecordStart + i + 1]; // one for conceptNid at the beginning
                 int stamp = record[subRecordStart + i + 2];
-                int flags = record[subRecordStart + i + 3];
+                //int flags = record[subRecordStart + i + 3];
                 if (typeNid >= 0) {
                     throw new IllegalStateException("typeNid must be < 0. Found: "
                             + typeNid + " at index: " + (subRecordStart + i + 1));
@@ -232,7 +233,7 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Contains concept nid via type.
+     * Contains concept nid via type, ignoring coordinates
      *
      * @param conceptNid the concept nid
      * @param typeSequenceSet the type sequence set
@@ -253,17 +254,17 @@ public class TaxonomyRecord {
      *
      * @param conceptNid the concept nid
      * @param typeSequenceSet the type sequence set
-     * @param tc the tc
+     * @param mc the tc
      * @return true, if successful
      */
     public boolean containsConceptNidViaType(int conceptNid,
             NidSet typeSequenceSet,
-            ManifoldCoordinate tc) {
-        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
+            ManifoldCoordinate mc) {
 
-        if (this.conceptNidRecordMap.containsKey(conceptNid)) {
+        if (this.conceptNidRecordMap.containsKey(conceptNid) && 
+                Get.concept(conceptNid).getLatestVersion(mc.getDestinationStampCoordinate()).isPresent()) {
             return this.conceptNidRecordMap.get(conceptNid)
-                    .containsConceptNidViaType(typeSequenceSet, tc, computer);
+                    .containsConceptNidViaType(typeSequenceSet, mc, RelativePositionCalculator.getCalculator(mc.getStampCoordinate()));
         }
 
         return false;
@@ -274,15 +275,15 @@ public class TaxonomyRecord {
      *
      * @param conceptNid the concept nid
      * @param typeSequence the type sequence
-     * @param tc the tc
+     * @param mc the tc
      * @return true, if successful
      */
-    public boolean containsConceptNidViaType(int conceptNid, int typeSequence, ManifoldCoordinate tc) {
-        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
+    public boolean containsConceptNidViaType(int conceptNid, int typeSequence, ManifoldCoordinate mc) {
 
-        if (this.conceptNidRecordMap.containsKey(conceptNid)) {
+        if (this.conceptNidRecordMap.containsKey(conceptNid) && 
+                Get.concept(conceptNid).getLatestVersion(mc.getDestinationStampCoordinate()).isPresent()) {
             return this.conceptNidRecordMap.get(conceptNid)
-                    .containsConceptNidViaType(typeSequence, tc, computer);
+                    .containsConceptNidViaType(typeSequence, mc, RelativePositionCalculator.getCalculator(mc.getStampCoordinate()));
         }
 
         return false;
@@ -293,19 +294,19 @@ public class TaxonomyRecord {
      *
      * @param conceptNid the concept nid
      * @param typeSequenceSet the type sequence set
-     * @param tc the tc
+     * @param mc the tc
      * @param flags the flags
      * @return true, if successful
      */
     public boolean containsConceptNidViaType(int conceptNid,
             NidSet typeSequenceSet,
-            ManifoldCoordinate tc,
+            ManifoldCoordinate mc,
             int flags) {
-        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
 
-        if (this.conceptNidRecordMap.containsKey(conceptNid)) {
+        if (this.conceptNidRecordMap.containsKey(conceptNid) && 
+                Get.concept(conceptNid).getLatestVersion(mc.getDestinationStampCoordinate()).isPresent()) {
             return this.conceptNidRecordMap.get(conceptNid)
-                    .containsConceptNidViaType(typeSequenceSet, flags, computer);
+                    .containsConceptNidViaType(typeSequenceSet, flags, RelativePositionCalculator.getCalculator(mc.getStampCoordinate()));
         }
 
         return false;
@@ -335,7 +336,7 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Contains sequence via type with flags.
+     * Contains sequence via type with flags, ignoring coordinates
      *
      * @param conceptNid the concept nid
      * @param typeNid the type sequence
@@ -482,7 +483,7 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Gets the concept nids for type.
+     * Gets the concept nids for type, ignoring coordinates
      *
      * @param typeNid typeNid to match, or Integer.MAX_VALUE if a wildcard.
      * @return active concepts identified by their sequence value.
@@ -512,12 +513,12 @@ public class TaxonomyRecord {
      * Gets the concept nids for type.
      *
      * @param typeSequence typeNid to match, or Integer.MAX_VALUE if a wildcard.
-     * @param tc used to determine if a concept is active.
+     * @param mc used to determine if a concept is active.
      * @return active concepts identified by their sequence value.
      */
-    public int[] getConceptNidsForType(int typeSequence, ManifoldCoordinate tc) {
-        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
-        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc);
+    public int[] getConceptNidsForType(int typeSequence, ManifoldCoordinate mc) {
+        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(mc);
+        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc);
         final OpenIntHashSet conceptSequencesForTypeSet = new OpenIntHashSet();
 
         this.conceptNidRecordMap.forEachPair((int possibleParentSequence,
@@ -534,19 +535,25 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (computer.isLatestActive(stampsForConceptIntStream.keys().elements())) {
+            if (computer.isLatestActive(stampsForConceptIntStream.keys().elements()) &&
+                    Get.concept(possibleParentSequence).getLatestVersion(mc.getDestinationStampCoordinate()).isPresent()) {
                 conceptSequencesForTypeSet.add(possibleParentSequence);
             }
 
             return true;
         });
         IntArrayList conceptSequencesForTypeList = conceptSequencesForTypeSet.keys();
-        conceptSequencesForTypeList.sort();
-        return conceptSequencesForTypeList.elements();
+        if (mc.hasCustomTaxonomySort()) {
+            return mc.sortConcepts(conceptSequencesForTypeList.elements());
+        }
+        else {
+            conceptSequencesForTypeList.sort();
+            return conceptSequencesForTypeList.elements();
+        }
     }
 
     /**
-     * Gets the destination concept nids.
+     * Gets the destination concept nids, ignoring all coordinates.
      *
      * @return the destination concept nids
      */
@@ -565,15 +572,15 @@ public class TaxonomyRecord {
      * Gets the destination concept nids not of type.
      *
      * @param typeSet the type set
-     * @param tc the tc
+     * @param mc the tc
      * @return the destination concept nids not of type
      */
-    public int[] getDestinationConceptNidsNotOfType(NidSet typeSet, ManifoldCoordinate tc) {
-        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
-        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
-        final OpenIntHashSet conceptSequenceIntSet = new OpenIntHashSet();
+    public int[] getDestinationConceptNidsNotOfType(NidSet typeSet, ManifoldCoordinate mc) {
+        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(mc);
+        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc.getStampCoordinate());
+        final OpenIntHashSet conceptNidIntSet = new OpenIntHashSet();
 
-        this.conceptNidRecordMap.forEachPair((int destinationSequence,
+        this.conceptNidRecordMap.forEachPair((int destinationConceptNid,
                 TypeStampTaxonomyRecords stampRecords) -> {
             final OpenIntHashSet stampsForConceptIntStream = new OpenIntHashSet();
 
@@ -589,19 +596,26 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (computer.isLatestActive(stampsForConceptIntStream.keys().elements())) {
-                conceptSequenceIntSet.add(destinationSequence);
+            if (computer.isLatestActive(stampsForConceptIntStream.keys().elements()) &&
+                    Get.concept(destinationConceptNid).getLatestVersion(mc.getDestinationStampCoordinate()).isPresent()) {
+                conceptNidIntSet.add(destinationConceptNid);
             }
 
             return true;
         });
-        IntArrayList setAsList = conceptSequenceIntSet.keys();
-        setAsList.sort();
-        return setAsList.elements();
+        IntArrayList setAsList = conceptNidIntSet.keys();
+        if (mc.hasCustomTaxonomySort()) {
+            return mc.sortConcepts(setAsList.elements());
+        }
+        else {
+            setAsList.sort();
+            return setAsList.elements();
+            
+        }
     }
 
     /**
-     * Gets the destination concept nids of type.
+     * Gets the destination concept nids of type, ignoring all coordinates
      *
      * @param typeSet the type set
      * @return the destination concept nids of type
@@ -625,15 +639,15 @@ public class TaxonomyRecord {
      * Gets the destination concept nids of type.
      *
      * @param typeSet the type set
-     * @param tc the tc
+     * @param mc the mc
      * @return the destination concept nids of type
      */
-    public int[] getDestinationConceptNidsOfType(NidSet typeSet, ManifoldCoordinate tc) {
-        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
-        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
-        final OpenIntHashSet conceptSequenceIntSet = new OpenIntHashSet();
+    public int[] getDestinationConceptNidsOfType(NidSet typeSet, ManifoldCoordinate mc) {
+        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(mc);
+        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc.getStampCoordinate());
+        final OpenIntHashSet conceptNidIntSet = new OpenIntHashSet();
 
-        this.conceptNidRecordMap.forEachPair((int destinationSequence,
+        this.conceptNidRecordMap.forEachPair((int destinationConceptNid,
                 TypeStampTaxonomyRecords stampRecords) -> {
             final OpenIntHashSet stampsForConceptIntSet = new OpenIntHashSet();
 
@@ -649,30 +663,38 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (computer.isLatestActive(stampsForConceptIntSet.keys().elements())) {
-                conceptSequenceIntSet.add(destinationSequence);
+            if (computer.isLatestActive(stampsForConceptIntSet.keys().elements()) && 
+                    Get.conceptService().getConceptChronology(destinationConceptNid).getLatestVersion(
+                            mc.getDestinationStampCoordinate()).isPresent()) {
+                conceptNidIntSet.add(destinationConceptNid);
             }
 
             return true;
         });
-        IntArrayList conceptSequenceList = conceptSequenceIntSet.keys();
-        conceptSequenceList.sort();
-        return conceptSequenceList.elements();
+        IntArrayList conceptNidList = conceptNidIntSet.keys();
+        if (mc.hasCustomTaxonomySort()) {
+            return mc.sortConcepts(conceptNidList.elements());
+        }
+        else {
+            conceptNidList.sort();
+            return conceptNidList.elements();
+            
+        }
     }
 
     /**
      * Gets the destination concept nids of type.
      *
      * @param typeSet the type set
-     * @param tc the tc
+     * @param mc the mc
      * @return the destination concept nids of type
      */
-    public boolean hasDestinationConceptNidsOfType(NidSet typeSet, ManifoldCoordinate tc) {
-        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
-        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
+    public boolean hasDestinationConceptNidsOfType(NidSet typeSet, ManifoldCoordinate mc) {
+        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(mc);
+        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc.getStampCoordinate());
         final AtomicBoolean found = new AtomicBoolean(false);
 
-        this.conceptNidRecordMap.forEachPair((int destinationSequence,
+        this.conceptNidRecordMap.forEachPair((int destinationConceptNid,
                 TypeStampTaxonomyRecords stampRecords) -> {
             final OpenIntHashSet stampsForConceptIntSet = new OpenIntHashSet();
 
@@ -688,9 +710,11 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (computer.isLatestActive(stampsForConceptIntSet.keys().elements())) {
+            if (computer.isLatestActive(stampsForConceptIntSet.keys().elements()) &&
+                    Get.conceptService().getConceptChronology(destinationConceptNid).getLatestVersion(
+                            mc.getDestinationStampCoordinate()).isPresent()) {
                 found.set(true);
-                return false;
+                return false;  //this value is ignored, stupid hack to break out of forEach
             }
 
             return true;
@@ -699,7 +723,7 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Gets the parent concept nids.
+     * Gets the parent concept nids, ignoring all coordinates
      *
      * @return the parent concept nids
      */
@@ -723,14 +747,18 @@ public class TaxonomyRecord {
      * Gets the types for relationship.
      *
      * @param destinationId the destination id
-     * @param tc the tc
+     * @param mc the tc
      * @return the types for relationship
      */
-    int[] getTypesForRelationship(int destinationId, ManifoldCoordinate tc) {
-        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
-        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
+    int[] getTypesForRelationship(int destinationId, ManifoldCoordinate mc) {
+        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(mc);
+        final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc.getStampCoordinate());
         final OpenIntHashSet typeSequenceIntSet = new OpenIntHashSet();
 
+        if (Get.concept(destinationId).getLatestVersion(mc.getDestinationStampCoordinate()).isAbsent()) {
+           //destinations that aren't available can't have a rel
+           return new int[0];
+        }
         this.conceptNidRecordMap.forEachPair((int destinationNid,
                 TypeStampTaxonomyRecords stampRecords) -> {
             if (destinationId == destinationNid) {
