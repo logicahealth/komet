@@ -235,8 +235,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             }
 
             for (String[] hoRec : hoRecords) {
-                if (hoRec[REFID].equals("38030")) {
-                    System.out.println("Found 38030");
+                if (hoRec[REFID].equals("3261")) {
+                    System.out.println("Found 3261");
                 }
                 if (hoRec.length < SNOMED_SIB_CHILD_3 + 1) {
                     String[] newRec = new String[SNOMED_SIB_CHILD_3 + 1];
@@ -343,8 +343,9 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
                 if (Get.identifierService().hasUuid(snomedUuid)) {
                     int snomedNid = Get.nidForUuids(snomedUuid);
-
-                    addItemsIfNew(hoRec, REFID, snomedNid, REFID_ASSEMBLAGE, stamp);
+                    if (!Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
+                        addItemsIfNew(hoRec, REFID, snomedNid, REFID_ASSEMBLAGE, stamp);
+                    }
                     addItemsIfNew(hoRec, ICD10CM, snomedNid, HDX_ICD10CM_MAP, stamp);
                     addItemsIfNew(hoRec, ICD10PCS, snomedNid, HDX_ICD10PCS_MAP, stamp);
                     addItemsIfNew(hoRec, ICF, snomedNid, HDX_ICF_MAP, stamp);
@@ -794,7 +795,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);  
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             addMaps(hoRec, builder);
             String[] abbreviations = hoRec[ABBREVIATIONS].split("; ");
