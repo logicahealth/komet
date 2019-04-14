@@ -256,7 +256,8 @@ public class ChronologyProvider
      */
     @PostConstruct
     private void startMe() {
-        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings chronology provider");
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting chronology provider");
+        Get.executor().execute(progressTask);
         try {
             LOG.info("Starting chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
             this.metadataLoaded.set(-1);

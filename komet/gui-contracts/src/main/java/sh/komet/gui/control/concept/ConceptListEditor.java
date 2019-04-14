@@ -119,7 +119,7 @@ public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptS
         this.popOver.setTitle("");
         this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifold);
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifold, null);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);

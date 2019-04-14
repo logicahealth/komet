@@ -17,6 +17,7 @@ import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.PreferenceGroup;
@@ -41,6 +42,28 @@ public class StartupAfterSelection implements Runnable {
     public void run()  {
 
         try {
+
+            Platform.runLater(() -> {
+                try {
+                    FXMLLoader sourceLoader = new FXMLLoader(getClass().getResource("/fxml/StartupScreen.fxml"));
+                    BorderPane sourceRoot = sourceLoader.load();
+                    StartupScreenController startupSceneController = sourceLoader.getController();
+                    Stage stage = new Stage(StageStyle.UTILITY);
+                    stage.setResizable(false);
+                    Scene sourceScene = new Scene(sourceRoot, 965, 495);
+                    stage.setScene(sourceScene);
+                    stage.getScene()
+                            .getStylesheets()
+                            .add(MainApp.class.getResource("/user.css").toString());
+                    stage.show();
+                    mainApp.replacePrimaryStage(stage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+
+
+
             LookupService.startupPreferenceProvider();
 
             mainApp.configurationPreferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
@@ -103,7 +126,7 @@ public class StartupAfterSelection implements Runnable {
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
                             BorderPane root = loader.load();
                             KometStageController controller = loader.getController();
-                            controller.setWindowPreferenceItems(windowPreference);
+                            controller.setPreferencesNode(windowPreference.getPreferenceNode());
                             root.setId(stageUuid.toString());
                             Stage stage = new Stage(StageStyle.UNIFIED);
                             stage.setTitle(FxGet.getConfigurationName());

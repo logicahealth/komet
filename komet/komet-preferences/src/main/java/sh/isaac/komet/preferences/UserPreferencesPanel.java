@@ -132,7 +132,7 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
     }
 
     @Override
-    void saveFields() throws BackingStoreException {
+    protected void saveFields() throws BackingStoreException {
         preferencesNode.put(Keys.SHIRO_INI, shiroIniProperty.get());
 
         preferencesNode.put(Keys.USER_CONCEPT, Get.concept(userConceptProperty.get()).toExternalString());
@@ -169,7 +169,7 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
     }
 
     @Override
-    void revertFields() {
+    protected void revertFields() {
         shiroIniProperty.set(preferencesNode.get(Keys.SHIRO_INI, makeShiroIni()));
 
         List<String> userConceptOptionExternalStrings = preferencesNode.getList(Keys.USER_CONCEPT_OPTIONS);

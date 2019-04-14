@@ -66,6 +66,7 @@ import javafx.scene.layout.Priority;
 
 import javafx.util.Callback;
 
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.interfaces.IconProvider;
@@ -324,6 +325,10 @@ public class KometProgressSkin<T extends Task<?>>
          if (task != this.task) {
             super.updateItem(task, empty);
             this.task = task;
+            if (this.task != null && this.task instanceof TimedTask &!
+                    ((TimedTask) this.task).canCancel()) {
+               cancelButton.setVisible(false);
+            }
 
             if (empty || (task == null)) {
                getStyleClass().setAll("task-list-cell-empty");

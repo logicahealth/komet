@@ -93,7 +93,7 @@ public class TaskProgressNode
       activeTasks.get()
               .addListener(
                       (SetChangeListener.Change<? extends Task<?>> change) -> {
-
+                         //System.out.println(change);
                          if (change.wasAdded()) {
                             taskProgressView.getTasks()
                             .add(change.getElementAdded());

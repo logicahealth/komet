@@ -87,6 +87,7 @@ import sh.komet.gui.contract.preferences.WindowPreferenceItems;
 import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.util.FxConfiguration;
 import sh.komet.gui.util.FxGet;
 
 import java.io.File;
@@ -145,6 +146,9 @@ public class MainApp
         stage.initStyle(StageStyle.UTILITY);
         Scene sourceScene = new Scene(sourceRoot, 600, 400);
         stage.setScene(sourceScene);
+        stage.getScene()
+                .getStylesheets()
+                .add(MainApp.class.getResource("/user.css").toString());
         stage.show();
     }
 

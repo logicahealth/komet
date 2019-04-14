@@ -40,6 +40,7 @@ package sh.isaac.api.task;
 import java.time.Duration;
 import java.time.Instant;
 
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicInteger;
 //~--- non-JDK imports --------------------------------------------------------
@@ -48,11 +49,14 @@ import javafx.application.Platform;
 
 import javafx.concurrent.Task;
 
+import javafx.concurrent.Worker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.util.FxTimer;
 
 import sh.isaac.api.util.time.DurationUtil;
+
+import static javafx.concurrent.Worker.State.*;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -119,6 +123,13 @@ public abstract class TimedTask<T>
 
     protected final int taskSequenceId = TASK_SEQUENCE.incrementAndGet();
 
+    private boolean canCancel = false;
+
+    String simpleTitle = this.getClass().getSimpleName();
+    {
+        titleProperty().addListener((observable, oldValue, newValue) ->  simpleTitle = newValue);
+    }
+
     public TimedTask() {
     }
 
@@ -137,10 +148,10 @@ public abstract class TimedTask<T>
 
         if (this.completeMessageGenerator == null) {
             setCompleteMessageGenerator((task) -> {
-                updateMessage(getState() + " in " + DurationUtil.format(getDuration()));
+                updateMessage(getSimpleName() + " in " + DurationUtil.format(getDuration()));
             });
         }
-        LOG.info(getClass().getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
+        LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
 
         Platform.runLater(() -> {
             if (exceptionProperty().get() != null) {
@@ -149,6 +160,10 @@ public abstract class TimedTask<T>
             }
             this.completeMessageGenerator.accept(this);
         });
+    }
+
+    protected String getSimpleName() {
+        return getClass().getSimpleName();
     }
 
     /**
@@ -238,5 +253,18 @@ public abstract class TimedTask<T>
      */
     public int getTaskId() {
         return taskSequenceId;
+    }
+
+    public String toString() {
+
+        return simpleTitle + " " + taskSequenceId + " " + getState();
+    }
+
+    public boolean canCancel() {
+        return canCancel;
+    }
+
+    public void setCanCancel(boolean canCancel) {
+        this.canCancel = canCancel;
     }
 }

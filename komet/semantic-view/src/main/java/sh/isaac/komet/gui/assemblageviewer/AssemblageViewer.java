@@ -50,6 +50,7 @@ import javafx.scene.layout.Region;
 import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -143,7 +144,7 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ExplorationNode createNode(Manifold manifold)
+	public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode)
 	{
 		manifold_ = manifold;
 

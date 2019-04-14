@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -16,7 +17,7 @@ import javax.inject.Singleton;
 @Singleton
 public class ExportSpecificationFactory implements ExplorationNodeFactory {
     @Override
-    public ExplorationNode createNode(Manifold manifold) {
+    public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
         return new ExportSpecificationNode(manifold);
     }
 

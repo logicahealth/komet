@@ -274,7 +274,7 @@ public class TaxonomyProvider
      */
     @PostConstruct
     private void startMe() {
-        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings chronology provider");
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting chronology provider");
         Get.executor().execute(progressTask);
         try {
             LOG.info("Starting TaxonomyProvider post-construct");

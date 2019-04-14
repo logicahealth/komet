@@ -74,7 +74,7 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
      */
     @PostConstruct
     protected void startMe() {
-        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings Drools provider");
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting Drools provider");
         Get.executor().execute(progressTask);
         try {
             LOG.info("Starting Drools Rules Provider post-construct");

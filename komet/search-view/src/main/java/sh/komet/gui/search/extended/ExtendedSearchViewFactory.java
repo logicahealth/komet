@@ -48,6 +48,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
@@ -70,7 +71,7 @@ public class ExtendedSearchViewFactory implements ConceptSearchNodeFactory {
     private Manifold manifold_;
     private final Logger LOG = LogManager.getLogger(this.getClass());
 
-    private ExtendedSearchViewFactory() throws IOException {
+    public ExtendedSearchViewFactory() throws IOException {
         // created by HK2
         long startTime = System.currentTimeMillis();
         LOG.debug(this.getClass().getSimpleName() + " construct time (blocking GUI): {}", System.currentTimeMillis() - startTime);
@@ -120,7 +121,7 @@ public class ExtendedSearchViewFactory implements ConceptSearchNodeFactory {
      * {@inheritDoc}
      */
     @Override
-    public ConceptExplorationNode createNode(Manifold manifold) {
+    public ConceptExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
         manifold_ = manifold;
         esvc_ = ExtendedSearchViewController.init(manifold_);
         return new ExtendedSearchConceptExplorationNode(esvc_, manifold_);

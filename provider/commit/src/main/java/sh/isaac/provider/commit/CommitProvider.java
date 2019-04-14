@@ -931,7 +931,7 @@ public class CommitProvider
      */
     @PostConstruct
     private void startMe() {
-        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings chronology provider");
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting chronology provider");
         Get.executor().execute(progressTask);
         try {
             LOG.info("Starting CommitProvider post-construct for change to runlevel: " + LookupService.getProceedingToRunLevel());

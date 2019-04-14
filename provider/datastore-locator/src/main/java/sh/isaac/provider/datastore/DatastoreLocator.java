@@ -78,7 +78,7 @@ public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
 	@PostConstruct
 	private void startMe()
 	{
-		LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings DataStoreLocator provider");
+		LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting DataStoreLocator provider");
 		Get.executor().execute(progressTask);
 		LOG.info("Starting DataStoreLocator provider post-construct");
 

@@ -139,7 +139,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
     }
 
     @Override
-    final void saveFields() throws BackingStoreException {
+    final protected void saveFields() throws BackingStoreException {
         getPreferencesNode().put(Keys.ITEM_NAME, nameProperty.get());
         getPreferencesNode().put(Keys.VERSION_TYPE_FOR_ACTION, versionTypeForActionProperty.get().name());
         getPreferencesNode().putConceptSpecification(Keys.ASSEMBLAGE, assemblageForActionProperty.get());
@@ -184,7 +184,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
     }
 
     @Override
-    final void revertFields() {
+    final protected void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(Keys.ITEM_NAME, getGroupName()));
         this.versionTypeForActionProperty.set(VersionType.valueOf(getPreferencesNode().get(Keys.VERSION_TYPE_FOR_ACTION, VersionType.CONCEPT.name())));
         this.assemblageForActionProperty.set(getPreferencesNode().getConceptSpecification(Keys.ASSEMBLAGE, TermAux.ASSEMBLAGE));

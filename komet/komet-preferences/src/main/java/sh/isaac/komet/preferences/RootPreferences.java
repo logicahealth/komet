@@ -22,6 +22,8 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
 import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
+
+import sh.isaac.komet.preferences.window.WindowPreferences;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -58,12 +60,12 @@ public class RootPreferences extends AbstractPreferences {
     }
 
     @Override
-    void saveFields() throws BackingStoreException {
+    protected void saveFields() throws BackingStoreException {
         // No additional fields. Nothing to do. 
     }
 
     @Override
-    void revertFields() {
+    protected void revertFields() {
         // No additional fields. Nothing to do. 
     }
 

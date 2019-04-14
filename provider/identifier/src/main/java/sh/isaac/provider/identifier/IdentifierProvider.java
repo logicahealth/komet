@@ -117,7 +117,7 @@ public class IdentifierProvider
      */
     @PostConstruct
     private void startMe() {
-        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings Identifier provider");
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting Identifier provider");
         Get.executor().execute(progressTask);
         try {
             LOG.info("Starting identifier provider for change to runlevel: {}", LookupService.getProceedingToRunLevel());

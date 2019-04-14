@@ -1,4 +1,4 @@
-package sh.isaac.komet.preferences;
+package sh.isaac.komet.preferences.window;
 
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -8,6 +8,9 @@ import javafx.collections.ObservableList;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.komet.preferences.KometPreferencesController;
+import sh.isaac.komet.preferences.ParentPanel;
+import sh.isaac.komet.preferences.TaxonomyItemPanel;
 import sh.komet.gui.contract.preferences.WindowPreferenceItems;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
@@ -18,6 +21,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
+/**
+ * The window preferences must be able to reconstruct, and save state for an arbitrary number of
+ * exploration and detail nodes that are discovered by service lookup and added by the user.
+ * Since the exploration and detail nodes are dynamic, and are not necessarily known at compile time,
+ * we have to specify an idiom by which state is provided to, and saved by these nodes.
+ * <br>
+ * Must handle addition of exploration and detail nodes to a window, and deletion of
+ * exploration and detail nodes from a window.
+ * <br>
+ *     1. Modify the factory for exploration and detail nodes to accept the preferences node for use by the
+ *     exploration or detail node. When created from the factory, the node should use a default configuration,
+ *     and write that to the node.
+ *
+ *     2. Always pass in a deep clone of the parent's manifold. If the child overrides the manifold, it will
+ *     persist that info.
+ *
+ *     3. The exploration and detail nodes store location and order info where to locate them in the window...
+ *     The window constructs the node, then asks the node where to put it, and then puts it in that location.
+ *
+ *     4. The exploration and detail nodes store the factory class to construct to be used to reconstruct
+ *     them.
+ */
 public class WindowPreferencePanel extends ParentPanel implements WindowPreferenceItems {
     public enum Keys {
         ITEM_NAME,
@@ -68,7 +93,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     }
 
     @Override
-    void saveFields() throws BackingStoreException {
+    protected void saveFields() throws BackingStoreException {
         Optional<String> oldItemName = getPreferencesNode().get(Keys.ITEM_NAME);
         if (oldItemName.isPresent()) {
             FxGet.removeTaxonomyConfiguration(oldItemName.get());
@@ -81,7 +106,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     }
 
     @Override
-    void revertFields() {
+    protected void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(TaxonomyItemPanel.Keys.ITEM_NAME, "KOMET window"));
 
         leftTabNodesProperty.setAll(getPreferencesNode().getConceptList(Keys.LEFT_TAB_NODES,
@@ -107,22 +132,12 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     }
 
     @Override
-    public ObservableList<ConceptSpecification> getLeftTabPanelSpecs() {
-        return leftTabNodesProperty;
-    }
-
-    @Override
-    public ObservableList<ConceptSpecification> getCenterTabPanelSpecs() {
-        return centerTabNodesProperty;
-    }
-
-    @Override
-    public ObservableList<ConceptSpecification> getRightTabPanelSpecs() {
-        return rightTabNodesProperty;
-    }
-
-    @Override
     protected Class getChildClass() {
         return WindowTabPanePreferencesPanel.class;
+    }
+
+    @Override
+    public IsaacPreferences getPreferenceNode() {
+        return getPreferencesNode();
     }
 }

@@ -96,7 +96,7 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
     }
 
     @Override
-    final void saveFields() throws BackingStoreException {
+    final protected void saveFields() throws BackingStoreException {
         // Delete old amalgam
         Optional<String> oldItemName = getPreferencesNode().get(Keys.ITEM_NAME);
         if (oldItemName.isPresent()) {
@@ -133,7 +133,7 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
     }
 
     @Override 
-    final void revertFields() {
+    final protected void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(Keys.ITEM_NAME, getGroupName()));
 
         taxonomyRootListProperty.setAll(getPreferencesNode().getConceptList(ROOTS));

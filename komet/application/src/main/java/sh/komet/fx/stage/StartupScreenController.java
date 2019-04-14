@@ -6,9 +6,11 @@ package sh.komet.fx.stage;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import sh.komet.progress.view.TaskProgressNode;
 import sh.komet.progress.view.TaskProgressNodeFactory;
 
 public class StartupScreenController {
@@ -28,6 +30,8 @@ public class StartupScreenController {
     @FXML // fx:id="progressAnchor"
     private AnchorPane progressAnchor; // Value injected by FXMLLoader
 
+    TaskProgressNode taskProgressNode;
+    Node taskDisplayNode;
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
@@ -36,6 +40,12 @@ public class StartupScreenController {
         assert progressAnchor != null : "fx:id=\"progressAnchor\" was not injected: check your FXML file 'StartupScreen.fxml'.";
 
         TaskProgressNodeFactory factory = new TaskProgressNodeFactory();
-        progressAnchor.getChildren().add(factory.createNode(null).getNode());
+        taskProgressNode  = factory.createNode(null, null);
+        taskDisplayNode = taskProgressNode.getNode();
+        AnchorPane.setBottomAnchor(taskDisplayNode, 0.0);
+        AnchorPane.setTopAnchor(taskDisplayNode, 0.0);
+        AnchorPane.setLeftAnchor(taskDisplayNode, 0.0);
+        AnchorPane.setRightAnchor(taskDisplayNode, 0.0);
+        progressAnchor.getChildren().add(taskDisplayNode);
     }
 }

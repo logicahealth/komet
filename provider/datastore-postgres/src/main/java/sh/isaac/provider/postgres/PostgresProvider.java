@@ -112,7 +112,7 @@ public class PostgresProvider
     //        uniformly populated during startup.
     @Override // DataStoreSubService
     public void startup() {
-        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings Postgres provider");
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting Postgres provider");
         Get.executor().execute(progressTask);
         LOG.info("Starting PostgresProvider proceeding to (or at) runlevel: {}", LookupService.getProceedingToRunLevel());
         try {

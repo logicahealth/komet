@@ -27,4 +27,8 @@ public class LabelTaskWithIndeterminateProgress extends TimedTaskWithProgressTra
             Get.activeTasks().remove(this);
         }
     }
+
+    protected String getSimpleName() {
+        return simpleTitle;
+    }
 }

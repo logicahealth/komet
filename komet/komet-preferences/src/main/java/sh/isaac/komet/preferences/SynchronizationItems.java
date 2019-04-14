@@ -96,7 +96,7 @@ public class SynchronizationItems extends ParentPanel {
     }
 
     @Override
-    void saveFields() throws BackingStoreException {
+    protected void saveFields() throws BackingStoreException {
         // Copy the synchronization items from the user preferences to the 
         // configuration preferences
         configSyncItemsNode.putList(CHILDREN_NODES, userSyncItemsNode.getList(CHILDREN_NODES));
@@ -126,7 +126,7 @@ public class SynchronizationItems extends ParentPanel {
     }
 
     @Override
-    final void revertFields() throws BackingStoreException {
+    final protected void revertFields() throws BackingStoreException {
         // Revert the synchronization items from the 
         // configuration preferences to the user preferences
         configSyncItemsNode.putList(CHILDREN_NODES, userSyncItemsNode.getList(CHILDREN_NODES));

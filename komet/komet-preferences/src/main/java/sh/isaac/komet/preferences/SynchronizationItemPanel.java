@@ -218,7 +218,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
     }
 
     @Override
-    void saveFields() throws BackingStoreException {
+    protected void saveFields() throws BackingStoreException {
         getPreferencesNode().put(AttachmentActionPanel.Keys.ITEM_NAME, nameProperty.get());
         IsaacPreferences configurationNode = FxGet.configurationNode(ConfigurationPreferencePanel.class).node(getPreferencesNode().absolutePath());
         configurationNode.putBoolean(ITEM_ACTIVE, activeProperty.get());
@@ -230,7 +230,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
     }
 
     @Override
-    final void revertFields() {
+    final protected void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(AttachmentActionPanel.Keys.ITEM_NAME, getGroupName()));
         IsaacPreferences configurationNode = FxGet.configurationNode(ConfigurationPreferencePanel.class).node(getPreferencesNode().absolutePath());
         activeProperty.set(configurationNode.getBoolean(ITEM_ACTIVE, false));

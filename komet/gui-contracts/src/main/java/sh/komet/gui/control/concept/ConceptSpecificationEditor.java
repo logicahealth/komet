@@ -159,7 +159,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
         Manifold manifoldClone = manifold.deepClone();
         manifoldClone.setGroupName(Manifold.ManifoldGroup.UNLINKED.getGroupName());
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifoldClone);
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifoldClone, null);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);

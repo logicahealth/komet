@@ -267,10 +267,10 @@ public class FileSystemDataStore
      */
     @Override
     public void startup() {
-        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Startings FileSystemDataStore");
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting FileSystemDataStore");
         Get.executor().execute(progressTask);
         try {
-            LOG.info("Startings FileSystemDataStore");
+            LOG.info("Starting FileSystemDataStore");
 
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
             Path folderPath = configurationService.getDataStoreFolderPath();

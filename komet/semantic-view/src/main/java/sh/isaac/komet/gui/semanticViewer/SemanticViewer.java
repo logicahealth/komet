@@ -113,6 +113,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.index.IndexedGenerationCallable;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.komet.gui.semanticViewer.HeaderNode.Filter;
 import sh.isaac.komet.gui.semanticViewer.cells.AttachedDataCellFactory;
@@ -1782,7 +1783,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DetailNode createNode(Manifold manifold)
+	public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode)
 	{
 		manifoldConcept_= manifold;
 		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());

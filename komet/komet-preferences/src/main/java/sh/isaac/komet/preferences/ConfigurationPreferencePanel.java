@@ -70,14 +70,14 @@ public class ConfigurationPreferencePanel extends AbstractPreferences implements
     }
 
     @Override
-    void saveFields() throws BackingStoreException {
+    protected void saveFields() throws BackingStoreException {
         getPreferencesNode().put(Keys.DATASTORE_LOCATION, datastoreLocationProperty.get());
         getPreferencesNode().put(Keys.CONFIGURATION_NAME, nameProperty.get());
         getPreferencesNode().putBoolean(ENABLE_EDITING, enableEdit.get());
     }
 
     @Override
-    final void revertFields() {
+    final protected void revertFields() {
         ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
         Path folderPath = configurationService.getDataStoreFolderPath();
         this.datastoreLocationProperty.set(getPreferencesNode().get(Keys.DATASTORE_LOCATION, folderPath.toString()));

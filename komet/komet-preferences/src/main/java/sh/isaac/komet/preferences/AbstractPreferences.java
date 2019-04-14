@@ -218,9 +218,9 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         }
     }
 
-    abstract void saveFields() throws BackingStoreException;
+    protected abstract void saveFields() throws BackingStoreException;
 
-    abstract void revertFields() throws BackingStoreException;
+    protected abstract void revertFields() throws BackingStoreException;
 
     @Override
     public String toString() {
