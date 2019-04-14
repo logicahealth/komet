@@ -87,6 +87,8 @@ public class ObservableManifoldCoordinateImpl
    /** The stamp coordinate property. */
    ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty;
 
+   ObjectProperty<ObservableStampCoordinate> destinationStampCoordinateProperty;
+
    /** The language coordinate property. */
    private volatile ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty;
 
@@ -264,6 +266,32 @@ public class ObservableManifoldCoordinateImpl
       }
       return this.stampCoordinateProperty;
    }
+   
+   /**
+    * @see sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate#destinationStampCoordinateProperty()
+    */
+   @Override
+   public ObjectProperty<ObservableStampCoordinate> destinationStampCoordinateProperty() {
+      if (this.destinationStampCoordinateProperty == null) {
+         synchronized(manifoldCoordinate) {
+            if (this.destinationStampCoordinateProperty != null) {
+               return this.destinationStampCoordinateProperty;
+            }
+            if (manifoldCoordinate.getDestinationStampCoordinate() instanceof ObservableStampCoordinate) {
+               this.destinationStampCoordinateProperty = new SimpleObjectProperty<>(this,
+                  ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE_DESTINATION.toExternalString(),
+                        (ObservableStampCoordinate) this.manifoldCoordinate.getDestinationStampCoordinate());
+               destinationStampCoordinateProperty.bind((ObservableValue<? extends ObservableStampCoordinate>) this.manifoldCoordinate.getDestinationStampCoordinate());
+            } else {
+               this.destinationStampCoordinateProperty = new SimpleObjectProperty<>(this,
+                  ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE_DESTINATION.toExternalString(),
+                  new ObservableStampCoordinateImpl(this.manifoldCoordinate.getDestinationStampCoordinate()));
+            }
+            this.destinationStampCoordinateProperty.addListener((invalidation) -> fireValueChangedEvent());
+         }
+      }
+      return this.destinationStampCoordinateProperty;
+   }
 
    /**
     * To string.
@@ -306,6 +334,12 @@ public class ObservableManifoldCoordinateImpl
    public ObservableStampCoordinate getStampCoordinate() {
       return stampCoordinateProperty().get();
    }
+
+   @Override
+   public ObservableStampCoordinate getDestinationStampCoordinate() {
+      return destinationStampCoordinateProperty().get();
+   }
+
    /**
     * Hash code.
     *
@@ -318,6 +352,8 @@ public class ObservableManifoldCoordinateImpl
       hash = 53 * hash + Objects.hashCode(this.getTaxonomyPremiseType());
       hash = 53 * hash + Objects.hashCode(this.getStampCoordinate());
       hash = 53 * hash + Objects.hashCode(this.getLanguageCoordinate());
+      hash = 53 * hash + Objects.hashCode(this.getLogicCoordinate());
+      hash = 53 * hash + Objects.hashCode(this.getDestinationStampCoordinate());
       return hash;
    }
 

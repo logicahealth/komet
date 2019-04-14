@@ -417,7 +417,12 @@ public class Manifold
       return this.observableManifoldCoordinate.getStampCoordinate();
    }
    
-   public void addEditInFlight(EditInFlight editInFlight) {
+   @Override
+   public StampCoordinate getDestinationStampCoordinate() {
+      return this.observableManifoldCoordinate.getDestinationStampCoordinate();
+   }
+
+    public void addEditInFlight(EditInFlight editInFlight) {
       EDITS_IN_PROCESS.add(editInFlight);
       editInFlight.addCompletionListener((observable, oldValue, newValue) -> {
          EDITS_IN_PROCESS.remove(editInFlight);

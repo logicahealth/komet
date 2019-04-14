@@ -152,11 +152,11 @@ public class TaxonomyRecordPrimitive {
     *
     * @param conceptNid the concept nid
     * @param typeNid the type nid
-    * @param tc the tc
+    * @param mc the tc
     * @return true, if successful
     */
-   public boolean containsNidViaType(int conceptNid, int typeNid, ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNid, tc);
+   public boolean containsNidViaType(int conceptNid, int typeNid, ManifoldCoordinate mc) {
+      return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNid, mc);
    }
 
    /**
@@ -347,23 +347,23 @@ public class TaxonomyRecordPrimitive {
     * Gets the destination nids of type.
     *
     * @param typeNidSet the type nid set
-    * @param tc the tc
+    * @param mc the mc
     * @return the destination nids of type
     */
-   public int[] getDestinationNidsOfType(NidSet typeNidSet, ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(typeNidSet, tc);
+   public int[] getDestinationNidsOfType(NidSet typeNidSet, ManifoldCoordinate mc) {
+      return getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(typeNidSet, mc);
    }
 
    /**
     * Gets the destination nids of type.
     *
     * @param typeNidSet the type nid set
-    * @param tc the tc
+    * @param mc the mc
     * @return the destination nids of type
     * TODO speed up by scanning native list for match, rather than unpacking taxonomy record...
     */
-   public boolean hasDestinationNidsOfType(NidSet typeNidSet, ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().hasDestinationConceptNidsOfType(typeNidSet, tc);
+   public boolean hasDestinationNidsOfType(NidSet typeNidSet, ManifoldCoordinate mc) {
+      return getTaxonomyRecordUnpacked().hasDestinationConceptNidsOfType(typeNidSet, mc);
    }
 
    /**

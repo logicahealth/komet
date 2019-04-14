@@ -153,6 +153,9 @@ public enum ObservableFields
 
    /** The stamp coordinate for taxonomy coordinate. */
    STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("Stamp coordinate for taxonomy coordinate", "Stamp coordinate for taxonomy"),
+   
+   /** The stamp coordinate for taxonomy coordinate. */
+   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE_DESTINATION("Stamp coordinate for taxonomy coordinate destination", "Stamp coordinate for taxonomy destination"),
 
    /** The language coordinate for taxonomy coordinate. */
    LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE("Language coordinate for taxonomy coordinate", "Language coordinate"),

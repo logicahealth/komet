@@ -73,9 +73,10 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
    @Override
    @XmlElement
    public UUID getManifoldCoordinateUuid() {
-      return ManifoldCoordinate.super.getManifoldCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+      return ManifoldCoordinate.super.getManifoldCoordinateUuid();
    }
    
+   @SuppressWarnings("unused")
    private void setManifoldCoordinateUuid(UUID uuid) {
         // noop for jaxb
    }
@@ -154,6 +155,12 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     @Override
     public LogicCoordinate getLogicCoordinate() {
         return (LogicCoordinate) this.query.getLetDeclarations().get(logicCoordinateKeyProperty.get());
+    }
+    
+    @Override
+    public StampCoordinate getDestinationStampCoordinate() {
+        // TODO Don't know if this ever needs to be supported
+        throw new UnsupportedOperationException();
     }
 
     @Override
