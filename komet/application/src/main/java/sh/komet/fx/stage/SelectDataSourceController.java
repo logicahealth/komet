@@ -154,6 +154,11 @@ public class SelectDataSourceController {
         if (workingFolder.exists()) {
             fileListView.getItems().add(TARGET_DATABASE);
         }
+
+        if(!rootFolder.exists()){
+            rootFolder.mkdirs();
+        }
+
         for (File f: rootFolder.listFiles()) {
             if (f.isDirectory()) {
                 String[] children = f.list((dir, name) -> name.equals("data") || name.equals("chronologies"));

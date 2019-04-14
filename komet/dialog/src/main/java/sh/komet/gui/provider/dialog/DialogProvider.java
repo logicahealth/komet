@@ -62,6 +62,7 @@ public class DialogProvider implements DialogService {
       Alert dialog = new Alert(type, "");
       dialog.initModality(modality);
       dialog.initOwner(owner);
+      dialog.setResizable(true);
       return dialog;
    }
 
@@ -78,6 +79,7 @@ public class DialogProvider implements DialogService {
          informationDialog.getDialogPane().setHeaderText(title);
          informationDialog.getDialogPane().setContent(content);
          informationDialog.initStyle(StageStyle.UTILITY);
+         informationDialog.setResizable(true);
          informationDialog.showAndWait();
       };
       show(r);
@@ -91,6 +93,7 @@ public class DialogProvider implements DialogService {
          informationDialog.getDialogPane().setHeaderText(title);
          informationDialog.getDialogPane().setContentText(message);
          informationDialog.initStyle(StageStyle.UTILITY);
+         informationDialog.setResizable(true);
          informationDialog.showAndWait();
       };
       show(r);
@@ -112,6 +115,7 @@ public class DialogProvider implements DialogService {
          dlg.setTitle(throwable.getClass().getName());
          dlg.getDialogPane().setHeaderText(throwable.getMessage());
          dlg.initStyle(StageStyle.UTILITY);
+         dlg.setResizable(true);
          dlg.showAndWait();
       };
       show(showDialog);
@@ -129,6 +133,7 @@ public class DialogProvider implements DialogService {
          dlg.setTitle(title);
          dlg.getDialogPane().setHeaderText(message);
          dlg.getDialogPane().setContentText(details);
+         dlg.setResizable(true);
          dlg.showAndWait();
       };
 
@@ -150,6 +155,7 @@ public class DialogProvider implements DialogService {
          dlg.getButtonTypes().clear();
          dlg.getButtonTypes().add(ButtonType.NO);
          dlg.getButtonTypes().add(ButtonType.YES);
+         dlg.setResizable(true);
          return dlg.showAndWait();
       };
       final FutureTask<Optional<ButtonType>> showTask = new FutureTask<>(showDialog);

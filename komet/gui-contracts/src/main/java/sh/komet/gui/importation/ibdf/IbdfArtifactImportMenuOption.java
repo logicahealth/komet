@@ -144,6 +144,7 @@ public class IbdfArtifactImportMenuOption implements MenuProvider
 			ibdfDialog.setHeaderText("Select 1 or more IBDF Files to import");
 			ibdfDialog.getDialogPane().setContent(ibdfPicker);
 			ibdfPicker.setPrefWidth(1024);
+			ibdfDialog.setResizable(true);
 			ibdfDialog.initOwner(window_);
 
 			ArrayList<File> filesToLoad = new ArrayList<>();
@@ -205,6 +206,7 @@ public class IbdfArtifactImportMenuOption implements MenuProvider
 								ibdfDialog.setTitle("IBDF Import complete");
 								ibdfDialog.setHeaderText("IBDF Import complete");
 								ibdfPicker.setPrefWidth(400);
+								ibdfDialog.setResizable(true);
 								ibdfDialog.initOwner(window_);
 								ibdfDialog.showAndWait();
 							});
