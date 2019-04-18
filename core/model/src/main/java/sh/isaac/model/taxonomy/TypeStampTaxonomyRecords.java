@@ -37,10 +37,7 @@
 package sh.isaac.model.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Consumer;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -101,7 +98,20 @@ public class TypeStampTaxonomyRecords {
             addNewRecord(newRecord);
         }
     }
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TypeStampTaxonomyRecords that = (TypeStampTaxonomyRecords) o;
+        return Objects.equals(typeStamp_flag_map, that.typeStamp_flag_map);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(typeStamp_flag_map);
+    }
+
     public Collection<TypeStampTaxonomyRecord> values() {
         return typeStamp_flag_map.values();
     }

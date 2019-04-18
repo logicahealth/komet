@@ -67,42 +67,41 @@ public enum IsaacObjectType {
     * A concept. An identifier with status. Descriptions and definitions of concepts
     * are provided as SEMANTICs.
     */
-   CONCEPT((byte) 1, (byte) 1, "Concept", 32),
+   CONCEPT((byte) 1, (byte) 1, "Concept"),
 
    /**
     * A semantic unit of meaning, associated with a concept or another SEMANTIC.
     */
-   SEMANTIC((byte) 2, (byte) 1, "Semantic", 36),
+   SEMANTIC((byte) 2, (byte) 1, "Semantic"),
    
    //3 was a commit record, deprecated, should not be reused
 
    /**
     * A stamp comment.
     */
-   STAMP_COMMENT((byte) 4, (byte) 1, "Stamp Comment", -1),
+   STAMP_COMMENT((byte) 4, (byte) 1, "Stamp Comment"),
 
    /**
     * A stamp alias.
     */
-   STAMP_ALIAS((byte) 5, (byte) 1, "Stamp Alias", -1),
+   STAMP_ALIAS((byte) 5, (byte) 1, "Stamp Alias"),
 
    /**
     * A stamp.
     */
-   STAMP((byte) 6, (byte) 1, "Stamp", -1),
+   STAMP((byte) 6, (byte) 1, "Stamp"),
 
    //7 was logical expression, deprecated, should not be reused
 
    /**
     * A logical expression.
     */
-   UNKNOWN((byte) 128, (byte) 0, "Unknown", -1);
+   UNKNOWN((byte) 128, (byte) 0, "Unknown");
 
    /** The token. */
    private final byte token;
    private final byte dataFormatVersion;
    private final String niceName;
-   private final int versionStart;
 
    //~--- constructors --------------------------------------------------------
 
@@ -111,11 +110,10 @@ public enum IsaacObjectType {
     *
     * @param token the token
     */
-   private IsaacObjectType(byte token, byte dataFormatVersion, String niceName, int versionStart) {
+   private IsaacObjectType(byte token, byte dataFormatVersion, String niceName) {
       this.token             = token;
       this.dataFormatVersion = dataFormatVersion;
       this.niceName = niceName;
-      this.versionStart = versionStart;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -285,10 +283,6 @@ public enum IsaacObjectType {
     */
    public byte getToken() {
       return this.token;
-   }
-
-   public int getVersionStart() {
-      return versionStart;
    }
 
    @Override

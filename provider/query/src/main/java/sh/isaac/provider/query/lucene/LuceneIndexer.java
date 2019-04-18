@@ -914,6 +914,9 @@ public abstract class LuceneIndexer
     */
    @PostConstruct
    private void startMe() {
+      if (!Get.useLuceneIndexes()) {
+         return;
+      }
       LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting " +
               getIndexerName() + " provider");
       Get.executor().execute(progressTask);
@@ -1101,6 +1104,9 @@ public abstract class LuceneIndexer
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping " + getIndexerName() + " pre-destroy. ");
+      if (!Get.useLuceneIndexes()) {
+         return;
+      }
       Get.commitService().removeChangeListener(this.changeListenerRef);
       commitWriter();
       try {

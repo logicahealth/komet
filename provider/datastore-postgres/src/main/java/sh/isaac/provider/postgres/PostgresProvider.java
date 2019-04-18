@@ -58,6 +58,8 @@ import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
+import sh.isaac.model.taxonomy.TaxonomyRecord;
+import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 
 /**
  *
@@ -777,7 +779,9 @@ public class PostgresProvider
                 return oldData;
             }
             int[] mergedData = accumulatorFunction.apply(oldData, newData);
-            putTaxonomyData(assemblageNid, conceptNid, mergedData);
+            if (!Arrays.equals(mergedData, oldData)) {
+                putTaxonomyData(assemblageNid, conceptNid, mergedData);
+            }
             return mergedData;
         }
     }

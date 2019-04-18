@@ -33,9 +33,11 @@ import java.util.UUID;
 public class StartupAfterSelection implements Runnable {
     private final MainApp mainApp;
     private KometPreferences kometPreferences;
+    private final boolean reimportMetadata;
 
-    public StartupAfterSelection(MainApp mainApp) {
+    public StartupAfterSelection(MainApp mainApp, boolean reimportMetadata) {
         this.mainApp = mainApp;
+        this.reimportMetadata = reimportMetadata;
     }
 
     @Override
@@ -81,6 +83,10 @@ public class StartupAfterSelection implements Runnable {
                 System.out.println("Beta features enabled");
             }
 
+
+            if (reimportMetadata) {
+                Get.metadataService().reimportMetadata();
+            }
             // open one new stage with defaults
             // Create a node for stage preferences
             Platform.runLater(new OpenWindows());
@@ -117,7 +123,6 @@ public class StartupAfterSelection implements Runnable {
 
                     // To update metadata if new metadata is available after database was built.
 
-                    Get.metadataService().reimportMetadata();
                     kometPreferences.reloadPreferences();
                     boolean replacePrimaryStage = true;
                     for (WindowPreferenceItems windowPreference : kometPreferences.getWindowPreferences()) {

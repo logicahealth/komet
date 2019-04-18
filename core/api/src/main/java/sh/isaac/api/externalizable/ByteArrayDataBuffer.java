@@ -1038,6 +1038,9 @@ public class ByteArrayDataBuffer {
    }
 
    public static int getInt(byte[] data, int position) {
+      if (position < 0) {
+         throw new IllegalStateException("Error position: " + position);
+      }
        return (((data[position]) << 24) | ((data[position + 1] & 0xff) << 16)
                       | ((data[position + 2] & 0xff) << 8) | ((data[position + 3] & 0xff)));
    }
@@ -1266,6 +1269,81 @@ public class ByteArrayDataBuffer {
    }
 
    /**
+    01 - type token; 01 = concept
+    01 - data format version
+    01 - data source token; 01 = internal; 02 = external.
+    8b - primordialUuidMsb
+    fb
+    a9
+    44
+    39
+    65
+    39
+    46
+    9b - primordialUuidLsb
+    cb
+    1e
+    80
+    a5
+    da
+    63
+    a2
+    00 - additional uuid parts
+    00
+    00
+    02
+    d6 - part 1
+    fa
+    d9
+    81
+    7d
+    f6
+    33
+    88
+    94 - part 2
+    d8
+    23
+    8c
+    c0
+    46
+    5a
+    79
+    80 - assemblage nid
+    00
+    00
+    66
+    09 - version token (9 = concept)
+    80 - nid
+    00
+    00
+    14
+    * @param bytes
+    * @return
+    */
+   public static int getVersionStartPosition(byte[] bytes) {
+      int startPosition = 0;
+      if (bytes[startPosition] == 0) {
+         startPosition = startPosition + 4;
+      }
+      IsaacObjectType objectType = IsaacObjectType.fromToken(bytes[startPosition]);
+      startPosition = startPosition + 19;
+      int additionalParts = ByteArrayDataBuffer.getInt(bytes, startPosition);
+      startPosition = startPosition + (additionalParts * 8);
+      startPosition = startPosition + 4; // assemblageNid
+      startPosition = startPosition + 1; // version type
+      startPosition = startPosition + 4; // nid
+      // additional fields:
+      switch (objectType) {
+         case CONCEPT:
+            // nothing additional
+            break;
+         case SEMANTIC:
+            startPosition = startPosition + 4; // this.referencedComponentNid
+      }
+      return startPosition;
+   }
+
+   /**
     * Gets the uuid.
     *
     * @return the uuid
@@ -1279,21 +1357,39 @@ public class ByteArrayDataBuffer {
       // Thus simplify the serialization representation.
       List<byte[]> dataArray = new ArrayList<>();
       byte[] dataToSplit = this.data;
-
-      IsaacObjectType objectType = IsaacObjectType.fromToken(dataToSplit[0]);
-      int versionStartPosition = objectType.getVersionStart();
+      boolean startsWithZero = getInt(dataToSplit, 0) == 0;
+      IsaacObjectType objectType;
+      if (startsWithZero) {
+         objectType = IsaacObjectType.fromToken(dataToSplit[4]);
+      } else {
+         objectType = IsaacObjectType.fromToken(dataToSplit[0]);
+      }
+      int versionStartPosition = getVersionStartPosition(dataToSplit);
+      if (versionStartPosition < 0 || versionStartPosition > dataToSplit.length) {
+         throw new IllegalStateException("versionStartPosition: " + versionStartPosition);
+      }
 
       byte[] chronicleBytes = new byte[versionStartPosition + 4]; // +4 for the zero integer to start.
-      for (int i = 0; i < chronicleBytes.length; i++) {
-         if (i < 4) {
-            chronicleBytes[i] = 0;
-         } else {
-            chronicleBytes[i] = dataToSplit[i - 4];
+      if (startsWithZero) {
+         for (int i = 0; i < chronicleBytes.length; i++) {
+            chronicleBytes[i] = dataToSplit[i];
+         }
+
+      } else {
+         for (int i = 0; i < chronicleBytes.length; i++) {
+            if (i < 4) {
+               chronicleBytes[i] = 0;
+            } else {
+               chronicleBytes[i] = dataToSplit[i - 4];
+            }
          }
       }
       dataArray.add(chronicleBytes);
 
       int versionStart = versionStartPosition;
+      if (startsWithZero) {
+         versionStart = versionStart + 4;
+      }
       getInt(dataToSplit, versionStart);
       int versionSize = getInt(dataToSplit, versionStart);
 
@@ -1316,6 +1412,9 @@ public class ByteArrayDataBuffer {
    public static ByteArrayDataBuffer dataArrayToBuffer(byte[][] data) {
       // TODO eliminate the differences between the byte[][] data formatting, and the ByteArrayDataBuffer
       // Thus simplify the serialization representation.
+      if (data == null) {
+         throw new NullPointerException();
+      }
       int size = 0;
 
       for (byte[] dataEntry : data) {

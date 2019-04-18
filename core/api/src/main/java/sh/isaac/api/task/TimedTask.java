@@ -156,7 +156,12 @@ public abstract class TimedTask<T>
         Platform.runLater(() -> {
             if (exceptionProperty().get() != null) {
                 Throwable ex = exceptionProperty().get();
-                LOG.error(ex.getLocalizedMessage(), ex);
+                if (ex instanceof InterruptedException) {
+                    LOG.trace(ex.getLocalizedMessage(), ex);
+                } else {
+                    LOG.error(ex.getLocalizedMessage(), ex);
+                }
+
             }
             this.completeMessageGenerator.accept(this);
         });

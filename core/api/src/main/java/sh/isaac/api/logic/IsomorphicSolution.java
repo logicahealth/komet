@@ -41,16 +41,15 @@ package sh.isaac.api.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.collections.IntObjectHashMap;
+import sh.isaac.api.tree.TreeNodeVisitData;
+
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.OptionalInt;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.mahout.math.map.OpenIntObjectHashMap;
-import org.apache.mahout.math.set.OpenIntHashSet;
-
-import sh.isaac.api.tree.TreeNodeVisitData;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -200,7 +199,7 @@ public class IsomorphicSolution
    final void score(TreeNodeVisitData referenceTreeVisitData, TreeNodeVisitData comparisonTreeVisitData) {
       final OpenIntHashSet                       parentNodeIds = new OpenIntHashSet(this.solution.length);
       final BitSet                       usedNodeIds = new BitSet(this.solution.length);
-      final OpenIntObjectHashMap<OpenIntHashSet> siblingGroupToNodeSequenceMap = new OpenIntObjectHashMap<>();
+      final IntObjectHashMap<OpenIntHashSet> siblingGroupToNodeSequenceMap = new IntObjectHashMap<>();
       int                                        sum                           = 0;
 
       // give a bonus point ever time a common parent is used in the solution.

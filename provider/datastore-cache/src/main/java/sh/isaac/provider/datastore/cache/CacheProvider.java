@@ -20,6 +20,7 @@ import sh.isaac.model.collections.*;
 import sh.isaac.model.collections.store.ByteArrayArrayStoreProvider;
 import sh.isaac.model.collections.store.IntIntArrayStoreProvider;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.taxonomy.TaxonomyRecord;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -383,7 +384,8 @@ public class CacheProvider
         if (data == null) {
             Optional<ByteArrayDataBuffer> optionalByteBuffer = this.datastoreService.getChronologyVersionData(nid);
             if (optionalByteBuffer.isPresent()) {
-                spinedByteArrayArrayMap.put(nid, optionalByteBuffer.get().toDataArray());
+                data = optionalByteBuffer.get().toDataArray();
+                spinedByteArrayArrayMap.put(nid, data);
             } else {
                 return Optional.empty();
             }
@@ -452,17 +454,27 @@ public class CacheProvider
         }
         return data;
     }
-
     @Override
     public int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction) {
         int[] accumulatedData = getTaxonomyMap(assemblageNid).accumulateAndGet(conceptNid, newData, accumulatorFunction);
         int[] accumulatedDatastoreData = this.datastoreService.accumulateAndGetTaxonomyData(assemblageNid, conceptNid, accumulatedData, accumulatorFunction);
         newData = accumulatedDatastoreData;
         while (!Arrays.equals(accumulatedData, accumulatedDatastoreData)) {
-            accumulatedData = getTaxonomyMap(assemblageNid).accumulateAndGet(conceptNid, newData, accumulatorFunction);
+            accumulatedData = getTaxonomyMap(assemblageNid).accumulateAndGet(conceptNid, accumulatedDatastoreData, accumulatorFunction);
             accumulatedDatastoreData = this.datastoreService.accumulateAndGetTaxonomyData(assemblageNid, conceptNid, accumulatedData, accumulatorFunction);
         }
         return accumulatedDatastoreData;
+    }
+
+    private void printArray(String prefix, int[] array) {
+        StringBuilder b = new StringBuilder(prefix);
+        b.append("\n");
+        for (int i = 0; i < array.length; i++) {
+            b.append(i).append(": ");
+            b.append(array[i]).append("\n");
+        }
+        b.append("\n");
+        System.out.println(b);
     }
 
     @Override

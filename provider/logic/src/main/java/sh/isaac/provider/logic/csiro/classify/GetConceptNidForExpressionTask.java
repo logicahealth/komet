@@ -132,9 +132,7 @@ public class GetConceptNidForExpressionTask
                                                                  classifierProvider,
                                                                  statedEditCoordinate);
 
-      LookupService.getService(ActiveTasks.class)
-                   .get()
-                   .add(task);
+      Get.activeTasks().add(task);
       LookupService.getService(WorkExecutors.class)
                    .getExecutor()
                    .execute(task);
@@ -207,9 +205,7 @@ public class GetConceptNidForExpressionTask
          return concept.getNid();
       } finally {
          updateProgress(-1, Integer.MAX_VALUE);
-         LookupService.getService(ActiveTasks.class)
-                      .get()
-                      .remove(this);
+         Get.activeTasks().remove(this);
       }
    }
 }

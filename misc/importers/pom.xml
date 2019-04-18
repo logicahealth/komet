@@ -39,30 +39,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>logic</artifactId>
-			<version>${project.parent.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>sh.isaac.solor</groupId>
 			<artifactId>direct-import</artifactId>
 			<version>${project.parent.version}</version>
-		</dependency>
- 		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>datastore-locator</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>stamp</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>query</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.opencsv</groupId>
@@ -112,6 +91,20 @@
 			<artifactId>log-config</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4-runtime</artifactId>
+			<version>4.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>se.liu.imt.mi.snomedct</groupId>
+			<artifactId>SnomedCTParser</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.core</groupId>
+			<artifactId>metadata</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 	</dependencies>
 	<build>

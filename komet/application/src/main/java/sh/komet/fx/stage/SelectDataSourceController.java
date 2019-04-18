@@ -14,6 +14,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import sh.isaac.api.Get;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.util.NaturalOrder;
 import sh.komet.gui.util.FxGet;
@@ -69,7 +70,8 @@ public class SelectDataSourceController {
                 System.setProperty("ISAAC_PSQL_URL", databaseLoginController.getDatabaseUrl());
                 System.setProperty("ISAAC_PSQL_UNAME", databaseLoginController.getUsername());
                 System.setProperty("ISAAC_PSQL_UPWD", databaseLoginController.getPassword());
-                new Thread(new StartupAfterSelection(this.getMainApp()), "Startup service").start();
+                Get.setUseLuceneIndexes(false);
+                new Thread(new StartupAfterSelection(this.getMainApp(), true), "Startup service").start();
                 break;
             case Folder:
                 String selection = fileListView.getSelectionModel().getSelectedItem();
@@ -91,7 +93,7 @@ public class SelectDataSourceController {
                         }
                     }
                     if (System.getProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY) != null) {
-                        new Thread(new StartupAfterSelection(this.getMainApp()), "Startup service").start();
+                        new Thread(new StartupAfterSelection(this.getMainApp(), true), "Startup service").start();
                     } else {
                         FxGet.dialogs().showInformationDialog("No folder selected", "Please select a folder or select cancel to quit KOMET");
                     }
@@ -100,7 +102,7 @@ public class SelectDataSourceController {
                 }
                 break;
             case Environment:
-                new Thread(new StartupAfterSelection(this.getMainApp()), "Startup service").start();
+                new Thread(new StartupAfterSelection(this.getMainApp(), true), "Startup service").start();
                 break;
         }
     }

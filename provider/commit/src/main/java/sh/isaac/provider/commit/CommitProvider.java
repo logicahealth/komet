@@ -649,40 +649,41 @@ public class CommitProvider
                         Get.taxonomyService().updateTaxonomy(sc);
                     }
                 } else {
-                    throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
+                    LOG.error("Unexpected nid in deferred set: " + nid + " UUIDs: " + Get.identifierService().getUuidArrayForNid(nid));
                 }
             }
-            
-            ArrayList<Future<Long>> futures = new ArrayList<>();
-            List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
-            for (final int nid : nids) {
-                if (IsaacObjectType.SEMANTIC == Get.identifierService()
-                        .getObjectTypeForComponent(nid)) {
-                    final SemanticChronology sc = Get.assemblageService()
-                            .getSemanticChronology(nid);
+            if (Get.useLuceneIndexes()) {
+                ArrayList<Future<Long>> futures = new ArrayList<>();
+                List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
+                for (final int nid : nids) {
+                    if (IsaacObjectType.SEMANTIC == Get.identifierService()
+                            .getObjectTypeForComponent(nid)) {
+                        final SemanticChronology sc = Get.assemblageService()
+                                .getSemanticChronology(nid);
 
-                    for (IndexBuilderService ibs : indexers) {
-                        futures.add(ibs.index(sc));
+                        for (IndexBuilderService ibs : indexers) {
+                            futures.add(ibs.index(sc));
+                        }
+
+                    } else {
+                        LOG.error("Unexpected nid in deferred set: " + nid + " UUIDs: " + Get.identifierService().getUuidArrayForNid(nid));
                     }
-
-                } else {
-                    throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
                 }
-            }
-            // wait for all indexing operations to complete
-            for (Future<Long> f : futures) {
-                try {
-                    f.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    LOG.error("Unexpected error waiting for index update", e);
+                // wait for all indexing operations to complete
+                for (Future<Long> f : futures) {
+                    try {
+                        f.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOG.error("Unexpected error waiting for index update", e);
+                    }
                 }
-            }
 
-            for (IndexBuilderService ibs : indexers) {
-                try {
-                    ibs.sync().get();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                for (IndexBuilderService ibs : indexers) {
+                    try {
+                        ibs.sync().get();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
             LOG.info("Post processing import complete");

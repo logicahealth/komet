@@ -43,7 +43,7 @@ public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
     private static final int SEMAPHORE_COUNT = Runtime.getRuntime().availableProcessors() * 2;
     private final Semaphore readWriteSemaphore = new Semaphore(SEMAPHORE_COUNT);
 
-    private static final int DEFAULT_SPINE_SIZE = 5096;
+    public static final int DEFAULT_SPINE_SIZE = 5096;
     protected final int spineSize;
     protected final ConcurrentMap<Integer, AtomicReferenceArray<E>> spines = new ConcurrentHashMap<>();
     protected final AtomicInteger spineCount = new AtomicInteger();

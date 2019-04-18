@@ -110,9 +110,7 @@ public class WriteAndCheckSemanticChronology
       updateTitle("Write, check, and notify for semantic change");
       updateMessage("write: " + sc.getVersionType() + " " + sc.getNid());
       updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
-      LookupService.getService(ActiveTasks.class)
-                   .get()
-                   .add(this);
+      Get.activeTasks().add(this);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -179,9 +177,7 @@ public class WriteAndCheckSemanticChronology
          return null;
       } finally {
          this.writeSemaphore.release();
-         LookupService.getService(ActiveTasks.class)
-                      .get()
-                      .remove(this);
+         Get.activeTasks().remove(this);
       }
    }
 }
