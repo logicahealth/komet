@@ -3,14 +3,15 @@ package sh.isaac.solor.rf2.exporters.core;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.solor.rf2.config.RF2Configuration;
-import sh.isaac.solor.rf2.exporters.RF2DefaultExporter;
+import sh.isaac.solor.rf2.exporters.RF2AbstractExporter;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
 
 import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 
-public class RF2DescriptionExporter extends RF2DefaultExporter {
+public class RF2DescriptionExporter extends RF2AbstractExporter {
 
     private final RF2ExportHelper rf2ExportHelper;
     private final IntStream intStream;
