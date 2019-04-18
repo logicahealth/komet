@@ -58,7 +58,7 @@ import sh.isaac.api.DataSource;
 //~--- enums ------------------------------------------------------------------
 
 /**
- * The Enum IsaacObjectType. all enumns must have a token > 0 and a version > 0;
+ * The Enum IsaacObjectType. All enums must have a token > 0 and a version > 0;
  *
  * @author kec
  */

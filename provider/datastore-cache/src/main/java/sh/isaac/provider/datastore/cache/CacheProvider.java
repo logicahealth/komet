@@ -94,8 +94,12 @@ public class CacheProvider
 
     @Override
     public IsaacObjectType getObjectTypeForComponent(int componentNid) {
-        return this.assemblageToObjectType_Map.computeIfAbsent(componentNid,
-                key -> this.identifierService.getObjectTypeForComponent(key));
+        OptionalInt assemblageNid = getAssemblageNid(componentNid);
+        if (assemblageNid.isPresent()) {
+            return this.assemblageToObjectType_Map.computeIfAbsent(assemblageNid.getAsInt(),
+                    key -> this.identifierService.getObjectTypeForComponent(componentNid));
+        }
+        return IsaacObjectType.UNKNOWN;
     }
 
     @Override

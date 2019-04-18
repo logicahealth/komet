@@ -169,7 +169,7 @@ public class SpinedNidIntMap {
         }
         int spineIndex = index / elementsPerSpine;
         int indexInSpine = index % elementsPerSpine;
-        if (spineIndex > this.spines.size() + 10) {
+        if (!this.spines.containsKey(spineIndex) && spineIndex > this.spines.size() + 10) {
             //Dan still doesn't understand if this is a real problem or not... changed to a warning so it stops breaking my rxnorm load.  Seems like some sort of timing issue
         	//with the assumption about this warning / error, as these all happened in the same ms.
 //WARN  2018-02-25 22:30:58,459  [main] collections.SpinedNidIntMap (SpinedNidIntMap.java:173) - Trying to add spineIndex: 909 for index: 930892, element: -2147482463, spines.size: 898

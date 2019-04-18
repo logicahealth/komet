@@ -638,10 +638,11 @@ public class CommitProvider
             LOG.info("Post processing import. Deferred set size: " + nids.size());
 
 
-            // update the taxonomy first, incase the description indexer wants to know the taxonomy of a description. 
+            // update the taxonomy first, in case the description indexer wants to know the taxonomy of a description.
             for (final int nid : nids) {
-                if (IsaacObjectType.SEMANTIC == Get.identifierService()
-                        .getObjectTypeForComponent(nid)) {
+                IsaacObjectType objectType = Get.identifierService()
+                        .getObjectTypeForComponent(nid);
+                if (IsaacObjectType.SEMANTIC == objectType) {
                     final SemanticChronology sc = Get.assemblageService()
                             .getSemanticChronology(nid);
 
@@ -649,15 +650,19 @@ public class CommitProvider
                         Get.taxonomyService().updateTaxonomy(sc);
                     }
                 } else {
-                    LOG.error("Unexpected nid in deferred set: " + nid + " UUIDs: " + Get.identifierService().getUuidArrayForNid(nid));
+                    Get.identifierService()
+                            .getObjectTypeForComponent(nid);
+                    LOG.error("Unexpected nid of type: " + objectType +
+                            " in deferred set: " + nid + " UUIDs: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)));
                 }
             }
             if (Get.useLuceneIndexes()) {
                 ArrayList<Future<Long>> futures = new ArrayList<>();
                 List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
                 for (final int nid : nids) {
-                    if (IsaacObjectType.SEMANTIC == Get.identifierService()
-                            .getObjectTypeForComponent(nid)) {
+                    IsaacObjectType objectType = Get.identifierService()
+                            .getObjectTypeForComponent(nid);
+                    if (IsaacObjectType.SEMANTIC == objectType) {
                         final SemanticChronology sc = Get.assemblageService()
                                 .getSemanticChronology(nid);
 
@@ -666,7 +671,10 @@ public class CommitProvider
                         }
 
                     } else {
-                        LOG.error("Unexpected nid in deferred set: " + nid + " UUIDs: " + Get.identifierService().getUuidArrayForNid(nid));
+                        Get.identifierService()
+                                .getObjectTypeForComponent(nid);
+                        LOG.error("Unexpected nid of type: " + objectType +
+                                " in deferred set: " + nid + " UUIDs: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)));
                     }
                 }
                 // wait for all indexing operations to complete
