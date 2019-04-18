@@ -8,13 +8,13 @@ import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.*;
 import sh.isaac.solor.rf2.config.RF2Configuration;
-import sh.isaac.solor.rf2.exporters.RF2DefaultExporter;
+import sh.isaac.solor.rf2.exporters.RF2AbstractExporter;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
 
 import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 
-public class RF2RefsetExporter extends RF2DefaultExporter {
+public class RF2RefsetExporter extends RF2AbstractExporter {
 
     private final RF2ExportHelper rf2ExportHelper;
     private final IntStream intStream;
@@ -200,7 +200,7 @@ public class RF2RefsetExporter extends RF2DefaultExporter {
                             case SNAPSHOT:
 
                                 SemanticChronology semanticChronology = Get.assemblageService().getSemanticChronology(nid);
-                                Version semanticSnapshotVersion = this.rf2ExportHelper.getChronologySnapshotVersion(nid);
+                                Version semanticSnapshotVersion = this.rf2ExportHelper.getObservableSnapshotVersion(nid);
 
                                 String refsetID = this.rf2ExportHelper.getIdString(semanticChronology.getAssemblageNid());
                                 String referenceComponentID = this.rf2ExportHelper

@@ -1,9 +1,13 @@
 package sh.isaac.solor.rf2;
 
+import javafx.beans.InvalidationListener;
+import javafx.collections.SetChangeListener;
+import javafx.concurrent.Task;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeSetListener;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -34,8 +38,7 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
     private final String exportMessage;
     private final LocalDateTime localDateTimeNow;
     private List<RF2Configuration> exportConfigurations;
-    private static final int READ_PERMITS = Runtime.getRuntime()
-            .availableProcessors() * 2;
+    private static final int READ_PERMITS = Runtime.getRuntime().availableProcessors() * 2;
     private final Semaphore readSemaphore = new Semaphore(READ_PERMITS);
     private final RF2ExportHelper rf2ExportHelper;
     private final PreExportUtility preExportUtility;
@@ -101,7 +104,13 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
         }
 
         updateTitle("Export " + this.exportMessage);
-        addToTotalWork(exportConfigurations.size() + 2);
+        addToTotalWork(exportConfigurations.size() + 4);
+
+        Get.activeTasks().get().addListener((SetChangeListener<? super Task<?>>) change -> {
+            if(change.wasRemoved()) {
+                this.completedUnitOfWork();
+            }
+        });
 
         try {
 
@@ -161,8 +170,6 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
                     snapshotDescriptorAssemblageConfiguration.getRefsetDescriptorDefinitions().addAll(rf2Configuration.getRefsetDescriptorDefinitions());
 
                 }
-
-                completedUnitOfWork();
             }
 
             if(isDescriptorAssemblagePresent) {

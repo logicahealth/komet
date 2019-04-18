@@ -15,7 +15,7 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.solor.rf2.config.RF2Configuration;
-import sh.isaac.solor.rf2.exporters.RF2DefaultExporter;
+import sh.isaac.solor.rf2.exporters.RF2AbstractExporter;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
 
 import java.text.SimpleDateFormat;
@@ -29,7 +29,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-public class RF2RelationshipExporter extends RF2DefaultExporter {
+public class RF2RelationshipExporter extends RF2AbstractExporter {
 
     private final RF2ExportHelper rf2ExportHelper;
     private final IntStream intStream;
@@ -158,7 +158,8 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
                             case SNAPSHOT:
 
                                 int moduleNid = this.rf2ExportHelper.getModuleNid(nid);
-                                SemanticChronology graphSemantic = Get.assemblageService().getSemanticChronology(nid);
+                                LogicalExpression logicalExpression = ((LogicGraphVersion)this.rf2ExportHelper.getObservableSnapshotVersion(nid)).getLogicalExpression();
+
                                 String characteristicTypeId;
                                 int semanticRelationshipAssemblage = Get.assemblageService().getSemanticChronology(nid).getAssemblageNid();
 
@@ -169,7 +170,6 @@ public class RF2RelationshipExporter extends RF2DefaultExporter {
                                 else
                                     characteristicTypeId = "Issue:RF2RelationshipExporter()";
 
-                                LogicalExpression logicalExpression = ((LogicGraphVersion)graphSemantic).getLogicalExpression();
                                 logicalExpression.processDepthFirst((logicNode, treeNodeVisitData) -> {
 
                                     if(logicNode.getNodeSemantic() == NodeSemantic.ROLE_ALL

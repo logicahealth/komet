@@ -15,7 +15,7 @@ import java.util.List;
  * 2019-01-23
  * aks8m - https://github.com/aks8m
  */
-public abstract class RF2DefaultExporter extends TimedTaskWithProgressTracker<Void> {
+public abstract class RF2AbstractExporter extends TimedTaskWithProgressTracker<Void> {
 
     protected static final Logger LOG = LogManager.getLogger();
     private final RF2Configuration rf2Configuration;
@@ -23,7 +23,7 @@ public abstract class RF2DefaultExporter extends TimedTaskWithProgressTracker<Vo
     private int progressCount =  0;
     protected final StringBuilder outputToWrite;
 
-    public RF2DefaultExporter(RF2Configuration rf2Configuration) {
+    public RF2AbstractExporter(RF2Configuration rf2Configuration) {
         this.rf2Configuration = rf2Configuration;
         this.outputToWrite = new StringBuilder();
 
@@ -33,7 +33,7 @@ public abstract class RF2DefaultExporter extends TimedTaskWithProgressTracker<Vo
         this.writeToFile();
         this.clearLineOutput();
 
-        updateTitle("Exporting " + rf2Configuration.getMessage());
+        updateTitle("Exporting " + rf2Configuration.getMessage() + " " + rf2Configuration.getRf2ReleaseType());
         updateMessage(rf2Configuration.getFilePath().getFileName().toString());
         addToTotalWork(this.rf2Configuration.getExportCount() / progressStep);
     }

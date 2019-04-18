@@ -4,13 +4,13 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.solor.rf2.config.RF2Configuration;
-import sh.isaac.solor.rf2.exporters.RF2DefaultExporter;
+import sh.isaac.solor.rf2.exporters.RF2AbstractExporter;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
 
 import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 
-public class RF2LanguageRefsetExporter extends RF2DefaultExporter {
+public class RF2LanguageRefsetExporter extends RF2AbstractExporter {
 
     private final RF2ExportHelper rf2ExportHelper;
     private final IntStream intStream;
@@ -72,7 +72,7 @@ public class RF2LanguageRefsetExporter extends RF2DefaultExporter {
                                                         .append(this.rf2ExportHelper.getIdString(this.rf2ExportHelper.getModuleNid(nid)) + "\t")
                                                         .append(this.rf2ExportHelper.getIdString(Get.assemblageService().getSemanticChronology(nid).getAssemblageNid()) + "\t")
                                                         .append(this.rf2ExportHelper.getIdString(nid) + "\t")
-                                                        .append(this.rf2ExportHelper.getIdString(this.rf2ExportHelper.getSemanticNidValue(semanticChronology.getNid())))
+                                                        .append(this.rf2ExportHelper.getIdString(this.rf2ExportHelper.getSemanticComponentNidValue(semanticChronology.getNid())))
                                                         .append("\r\n")
                                         );
 
