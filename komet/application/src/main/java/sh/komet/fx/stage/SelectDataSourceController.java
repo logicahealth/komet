@@ -71,7 +71,7 @@ public class SelectDataSourceController {
                 System.setProperty("ISAAC_PSQL_UNAME", databaseLoginController.getUsername());
                 System.setProperty("ISAAC_PSQL_UPWD", databaseLoginController.getPassword());
                 Get.setUseLuceneIndexes(false);
-                new Thread(new StartupAfterSelection(this.getMainApp(), true), "Startup service").start();
+                new Thread(new StartupAfterSelection(this.getMainApp(), false), "Startup service").start();
                 break;
             case Folder:
                 String selection = fileListView.getSelectionModel().getSelectedItem();

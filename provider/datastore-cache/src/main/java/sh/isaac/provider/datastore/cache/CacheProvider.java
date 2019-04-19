@@ -451,7 +451,7 @@ public class CacheProvider
 
     @Override
     public int[] getTaxonomyData(int assemblageNid, int conceptNid) {
-        int[] data = this.spinedTaxonomyMapMap.get(assemblageNid).get(conceptNid);
+        int[] data = getTaxonomyMap(assemblageNid).get(conceptNid);
         if (data == null) {
             data = this.datastoreService.getTaxonomyData(assemblageNid, conceptNid);
             this.spinedTaxonomyMapMap.get(assemblageNid).put(conceptNid, data);
