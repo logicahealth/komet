@@ -47,8 +47,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.AuthenticationException;
-
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
@@ -135,15 +133,13 @@ public interface SyncFiles {
     * @param username - The username to use for remote operations
     * @param password - The password to use for remote operations
     * @throws IllegalArgumentException - if the passed parameters are invalid
-    * @throws IOException - Thrown if an error occurs accessing local or remote resources
-    * @throws AuthenticationException the authentication exception
+    * @throws IOException - Thrown if an error occurs accessing local or remote resources, or if there is an auth error
     */
    public void linkAndFetchFromRemote(String remoteAddress,
                                       String username,
                                       char[] password)
             throws IllegalArgumentException,
-                   IOException,
-                   AuthenticationException;
+                   IOException;
 
    /**
     * Fix the URL to the remote service.  This call should only be used when both the local and remote repositories exist, and are a proper pair -
@@ -155,15 +151,13 @@ public interface SyncFiles {
     * @param username - remote credentials
     * @param password - remote credentials
     * @throws IllegalArgumentException - if the passed parameters are invalid
-    * @throws IOException - Thrown if an error occurs accessing local or remote resources
-    * @throws AuthenticationException - if auth fails during remote relink
+    * @throws IOException - Thrown if an error occurs accessing local or remote resources, or if auth fails during remote relink
     */
    public void relinkRemote(String remoteAddress,
                             String username,
                             char[] password)
             throws IllegalArgumentException,
-                   IOException,
-                   AuthenticationException;
+                   IOException;
 
    /**
     * Mark the specified files as files that should be removed from the server.  This is a local operation only - does not push to the server.
@@ -228,10 +222,9 @@ public interface SyncFiles {
     * required resolution.  May be null to request that all tracked files with changes be committed and pushed.
     * @return The set of files that changed during the pull from the server.
     * @throws IllegalArgumentException - Thrown if an error occurs accessing local or remote resources
-    * @throws IOException - if the passed parameters are invalid
+    * @throws IOException - if the passed parameters are invalid, or if auth fails
     * @throws MergeFailure - If the update cannot be applied cleanly.  The exception will contain the list of files that were changed (cleanly, or not) during the
     * update attempt.
-    * @throws AuthenticationException the authentication exception
     */
    public Set<String> updateCommitAndPush(String commitMessage,
          String username,
@@ -240,8 +233,7 @@ public interface SyncFiles {
          String... files)
             throws IllegalArgumentException,
                    IOException,
-                   MergeFailure,
-                   AuthenticationException;
+                   MergeFailure;
 
    /**
     * Get the latest files from the server.
@@ -251,18 +243,16 @@ public interface SyncFiles {
     * @param mergeFailOption - (optional - defaults to {@link MergeFailOption#FAIL}) - the action to take if the required update results in a merge conflit.
     * @return The set of files that changed during the pull from the server.
     * @throws IllegalArgumentException - Thrown if an error occurs accessing local or remote resources
-    * @throws IOException - if the passed parameters are invalid
+    * @throws IOException - if the passed parameters are invalid, or if there is an auth failure
     * @throws MergeFailure - If the update cannot be applied cleanly.  The exception will contain the list of files that were changed (cleanly, or not) during the
     * update attempt.
-    * @throws AuthenticationException the authentication exception
     */
    public Set<String> updateFromRemote(String username,
          char[] password,
          MergeFailOption mergeFailOption)
             throws IllegalArgumentException,
                    IOException,
-                   MergeFailure,
-                   AuthenticationException;
+                   MergeFailure;
 
    //~--- get methods ---------------------------------------------------------
 

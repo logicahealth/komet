@@ -30,8 +30,6 @@ import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javax.inject.Singleton;
-import javax.naming.AuthenticationException;
-import javax.xml.bind.Unmarshaller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -54,7 +52,6 @@ import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.isaac.komet.gui.exporter.ExportView;
-import sh.isaac.model.xml.Jaxb;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
@@ -149,7 +146,7 @@ public class KometBaseMenus implements MenuProvider {
                     gitConfigOptional.ifPresent((t) -> {
                         try {
                             syncService.linkAndFetchFromRemote(t.getURL(), t.getUsername(), t.getPassword());
-                        } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
+                        } catch (IllegalArgumentException | IOException ex) {
                             LOG.error(ex.getLocalizedMessage(), ex);
                         }
                     });
@@ -168,7 +165,7 @@ public class KometBaseMenus implements MenuProvider {
                     gitConfigOptional.ifPresent((t) -> {
                         try {
                             syncService.updateFromRemote(t.getUsername(), t.getPassword(), MergeFailOption.KEEP_LOCAL);
-                        } catch (IllegalArgumentException | IOException | MergeFailure | AuthenticationException ex) {
+                        } catch (IllegalArgumentException | IOException | MergeFailure ex) {
                             LOG.error(ex.getLocalizedMessage(), ex);
                         }
                     });
@@ -187,7 +184,7 @@ public class KometBaseMenus implements MenuProvider {
 
                         try {
                             syncService.updateCommitAndPush("User push", t.getUsername(), t.getPassword(), MergeFailOption.KEEP_LOCAL, (String[]) null);
-                        } catch (IllegalArgumentException | IOException | MergeFailure | AuthenticationException ex) {
+                        } catch (IllegalArgumentException | IOException | MergeFailure ex) {
                             LOG.error(ex.getLocalizedMessage(), ex);
                         }
                     });
