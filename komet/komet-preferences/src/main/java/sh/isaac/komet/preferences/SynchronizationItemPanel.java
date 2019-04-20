@@ -30,7 +30,6 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
-import javax.naming.AuthenticationException;
 import sh.isaac.MetaData;
 import sh.isaac.api.ChangeSetLoadService;
 import sh.isaac.api.Get;
@@ -99,7 +98,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
                     LOG.info("Read {} changeset files", loaded);
                     FxGet.statusMessageService().reportStatus("Read "+ loaded + " changeset files");
                 }
-            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
+            } catch (IllegalArgumentException | IOException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
             }
         });
@@ -113,7 +112,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
                 syncService.updateCommitAndPush("Push commit", gitUserName.get(), 
                         gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
                 setupSyncButtons();
-            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
+            } catch (IllegalArgumentException | IOException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
             } catch (MergeFailure ex) {
                 Logger.getLogger(SynchronizationItemPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -137,7 +136,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
                     LOG.info("Read {} changeset files", loaded);
                     FxGet.statusMessageService().reportStatus("Read "+ loaded + " changeset files");
                 }
-            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
+            } catch (IllegalArgumentException | IOException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
             } catch (MergeFailure ex) {
                 Logger.getLogger(SynchronizationItemPanel.class.getName()).log(Level.SEVERE, null, ex);

@@ -29,7 +29,6 @@ import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javax.inject.Singleton;
-import javax.naming.AuthenticationException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,7 +76,7 @@ public class KometBaseMenus implements MenuProvider {
         gitConfigOptional.ifPresent((t) -> {
             try {
                 syncService.linkAndFetchFromRemote(t.getURL(), t.getUsername(), t.getPassword());
-            } catch (IllegalArgumentException | IOException | AuthenticationException ex) {
+            } catch (IllegalArgumentException | IOException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
             }
         });
@@ -159,7 +158,7 @@ public class KometBaseMenus implements MenuProvider {
                     gitConfigOptional.ifPresent((t) -> {
                         try {
                             syncService.updateFromRemote(t.getUsername(), t.getPassword(), MergeFailOption.KEEP_LOCAL);
-                        } catch (IllegalArgumentException | IOException | MergeFailure | AuthenticationException ex) {
+                        } catch (IllegalArgumentException | IOException | MergeFailure ex) {
                             LOG.error(ex.getLocalizedMessage(), ex);
                         }
                     });
@@ -178,7 +177,7 @@ public class KometBaseMenus implements MenuProvider {
 
                         try {
                             syncService.updateCommitAndPush("User push", t.getUsername(), t.getPassword(), MergeFailOption.KEEP_LOCAL, (String[]) null);
-                        } catch (IllegalArgumentException | IOException | MergeFailure | AuthenticationException ex) {
+                        } catch (IllegalArgumentException | IOException | MergeFailure ex) {
                             LOG.error(ex.getLocalizedMessage(), ex);
                         }
                     });
