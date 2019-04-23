@@ -843,7 +843,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 				if (tables.containsKey(tableName))
 				{
 					UMLSFileReader umlsReader = new UMLSFileReader(new BufferedReader(new InputStreamReader(zis, "UTF-8")));
-					this.db.loadDataIntoTable(tables.remove(tableName), umlsReader, null);
+					this.db.loadDataIntoTable(tables.remove(tableName), umlsReader, (message) -> log.info(message));
 				}
 				ze = zis.getNextEntry();
 			}

@@ -51,7 +51,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.DoubleFunction;
+import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -142,7 +142,7 @@ public class H2DatabaseHandle {
     * @throws IOException Signals that an I/O exception has occurred.
     * @returns rowCount loaded
     */
-   public int loadDataIntoTable(TableDefinition td, TerminologyFileReader dataReader, DoubleFunction<Void> progressCallback)
+   public int loadDataIntoTable(TableDefinition td, TerminologyFileReader dataReader, Consumer<String> progressCallback)
             throws SQLException, IOException {
       return loadDataIntoTable(td, dataReader, null, null, progressCallback);
    }
@@ -163,7 +163,7 @@ public class H2DatabaseHandle {
                                 TerminologyFileReader dataReader,
                                 String includeValuesColumnName,
                                 Collection<String> includeValues, 
-                                DoubleFunction<Void> progressCallback)
+                                Consumer<String> progressCallback)
             throws SQLException,
                    IOException {
       log.info("Loading table " + tableDefinition.getTableName());
@@ -283,8 +283,8 @@ public class H2DatabaseHandle {
             ps.execute();
             rowCount++;
             
-            if (rowCount % 10000 == 0) {
-                progressCallback.apply(1);
+            if (rowCount % 10000 == 0 && progressCallback != null) {
+                progressCallback.accept("Loaded " + rowCount);
             }
          }
       }
