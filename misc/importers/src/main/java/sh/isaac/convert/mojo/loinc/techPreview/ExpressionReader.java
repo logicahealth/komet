@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.logic;
+package sh.isaac.convert.mojo.loinc.techPreview;
 
 //~--- JDK imports ------------------------------------------------------------
 

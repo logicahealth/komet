@@ -77,7 +77,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
+import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
 import sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.preferences.KometPreferencesController;
@@ -383,7 +383,7 @@ public class KometStageController
                 convertBeer.setOnAction((ActionEvent event) -> {
                     Get.executor().execute(() -> {
                         try {
-                            TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
+                            TurtleImportHK2Direct timd = Get.service(TurtleImportHK2Direct.class);
                             timd.configure(null, beer.toPath(),"0.8", null);
                             timd.convertContent(update -> {}, (work, totalWork) -> {});
                             Get.indexDescriptionService().refreshQueryEngine();

@@ -24,11 +24,11 @@ import javafx.application.Platform;
  *         Just a runner class in the test package, so that eclipse launches with a classpath that includes test libraries, which makes
  *         logging work to the console.
  */
-public class Rf2DirectMojoRunner extends Rf2ImportMojoDirect
+public class RF2DirectMojoRunner extends RF2ImportMojoDirect
 {
 	public static void main(String[] args) throws MojoExecutionException
 	{
-		Rf2DirectMojoRunner i = new Rf2DirectMojoRunner();
+		RF2DirectMojoRunner i = new RF2DirectMojoRunner();
 		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
 		i.inputFileLocationPath = new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src").toPath();
 		i.converterOutputArtifactVersion = "20170731T150000Z-loader-4.48-SNAPSHOT";
