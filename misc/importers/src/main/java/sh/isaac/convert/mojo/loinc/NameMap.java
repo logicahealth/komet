@@ -39,18 +39,12 @@
 
 package sh.isaac.convert.mojo.loinc;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.converters.sharedUtils.ConsoleUtil;
-
-//~--- classes ----------------------------------------------------------------
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Reads in a file where key and value simply alternate, one per line.
@@ -64,8 +58,9 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
  *
  */
 public class NameMap {
-   /** The map. */
+
    private final Hashtable<String, String> map_ = new Hashtable<String, String>();
+   protected Logger log = LogManager.getLogger();
 
    //~--- constructors --------------------------------------------------------
 
@@ -77,7 +72,7 @@ public class NameMap {
     */
    public NameMap(String mapFileName)
             throws IOException {
-      ConsoleUtil.println("Using the class map file " + mapFileName);
+      log.info("Using the class map file " + mapFileName);
 
       final BufferedReader in = new BufferedReader(new InputStreamReader(NameMap.class.getResourceAsStream("/loinc/" +
                                    mapFileName)));
@@ -99,7 +94,7 @@ public class NameMap {
             final String old = this.map_.put(key.toLowerCase(), value);
 
             if ((old != null) &&!old.equals(value)) {
-               ConsoleUtil.printErrorln("Map file " + mapFileName + " has duplicate definition for " + key +
+               log.error("Map file " + mapFileName + " has duplicate definition for " + key +
                                         ", but with different values!");
             }
 

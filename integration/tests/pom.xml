@@ -109,7 +109,7 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.misc</groupId>
-         <artifactId>importers</artifactId>
+         <artifactId>importers-mojos</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>

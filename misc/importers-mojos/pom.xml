@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>sh.isaac</groupId>
+		<artifactId>misc</artifactId>
+		<version>4.66-SNAPSHOT</version>
+	</parent>
+	<groupId>sh.isaac.misc</groupId>
+	<artifactId>importers-mojos</artifactId>
+	<packaging>maven-plugin</packaging>
+	
+	<name>ISAAC misc: Importers-mojos</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>sh.isaac.misc</groupId>
+			<artifactId>importers</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>datastore-locator</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>stamp</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>identifier</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>query</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>logic</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugin-tools</groupId>
+			<artifactId>maven-plugin-annotations</artifactId>
+		</dependency>
+
+		<!-- This gets us nice console logging, so long as we are running ad-hoc tests from the src/test/java package -->
+		<dependency>
+			<groupId>sh.isaac.core</groupId>
+			<artifactId>log-config</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<!-- Mark this project as a maven mojo -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>mojo-descriptor</id>
+						<goals>
+							<goal>descriptor</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

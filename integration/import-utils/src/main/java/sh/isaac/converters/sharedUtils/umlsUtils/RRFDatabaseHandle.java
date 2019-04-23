@@ -54,6 +54,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.DoubleFunction;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -87,10 +88,11 @@ public class RRFDatabaseHandle
     */
    public void loadDataIntoTable(TableDefinition tableDefinition,
                                  TerminologyFileReader dataReader,
-                                 Collection<String> SABFilterList)
+                                 Collection<String> SABFilterList,
+                                 DoubleFunction<Void> progressCallback)
             throws SQLException,
                    IOException {
-      loadDataIntoTable(tableDefinition, dataReader, "SAB", SABFilterList);
+      loadDataIntoTable(tableDefinition, dataReader, "SAB", SABFilterList, progressCallback);
    }
 
    /**

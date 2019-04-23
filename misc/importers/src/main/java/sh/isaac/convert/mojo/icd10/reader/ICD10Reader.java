@@ -50,8 +50,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.convert.mojo.icd10.data.ICD10;
-import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
 /**
  * 
@@ -64,6 +65,7 @@ public class ICD10Reader
 {
 	// 2017 CM/PCS order files have 76,000 - 94,000 total rows, so good starting point
 	private List<ICD10> icd10Codes = new ArrayList<ICD10>(100000);
+	protected Logger log = LogManager.getLogger();
 
 	public ICD10Reader(Path inputFileOrDirectory, String converterSourceArtifactVersion) throws IOException
 	{
@@ -102,7 +104,7 @@ public class ICD10Reader
 				if (ze.getName().toLowerCase().endsWith(".txt") && ze.getName().toLowerCase().contains("order_" + converterSourceArtifactVersion.trim()))
 				{
 					// Just processing the first file/zip entry found that matches
-					ConsoleUtil.println("Prepared to process: " + ze.getName());
+					log.info("Prepared to process: " + ze.getName());
 					this.readCodes(zis);
 					foundData = true;
 				}

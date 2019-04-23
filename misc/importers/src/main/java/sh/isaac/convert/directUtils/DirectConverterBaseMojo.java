@@ -53,21 +53,22 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.ContextEnabled;
+import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
-import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.datastore.DataStore;
-import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
@@ -79,11 +80,15 @@ import sh.isaac.mojo.LoadTermstore;
  *
  * Base mojo class with shared parameters for reuse by terminology specific converters.
  * 
- * This base mojo is intended for converters that have been rewritten as "direct" importers.
+ * This base mojo is intended for converters that have been rewritten as "direct" importers, and also serves for 
+ * mojo support.
+ * 
+ * Note, due to class path issues with the convoluted project structure, this entire maven module will not contain 
+ * any @Mojo annotations.  All @Mojo annotations for classes that extend this should reside in the importers-mojos module.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public abstract class DirectConverterBaseMojo extends AbstractMojo
+public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mojo, ContextEnabled 
 {
 	protected Logger log = LogManager.getLogger();
 
