@@ -120,6 +120,7 @@ public class ContentManager extends Application
 					alert.setTitle("Incorrect password");
 					alert.setHeaderText("The provided password is incorrect.  ");
 					alert.setContentText("Please choose how to proceed");
+					alert.setResizable(true);
 
 					Optional<String> result = alert.showAndWait();
 					if (result.isPresent())
@@ -175,7 +176,7 @@ public class ContentManager extends Application
 		tid.getEditor().setAccessibleRole(AccessibleRole.PASSWORD_FIELD);
 		Tooltip.install(tid.getEditor(), new Tooltip("This password is used to encrypt and decrypt the git and artifact repository passwords."));
 		tid.initOwner(primaryStage_.getOwner());
-
+		tid.setResizable(true);
 		return (tid.showAndWait().orElse("")).toCharArray();
 	}
 	

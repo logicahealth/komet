@@ -157,6 +157,8 @@ public class HeadlessToolkit
 
    /** The context map. */
    private final Map<Object, Object> contextMap = Collections.synchronizedMap(new HashMap<>());
+   
+   private Thread standInFxThread;
 
    //~--- methods -------------------------------------------------------------
 
@@ -598,7 +600,7 @@ public class HeadlessToolkit
       if (!this.toolkitRunning.getAndSet(true)) {
          log.info("Starting a stand-in JavaFX Application Thread");
 
-         final Thread t = new Thread(() -> {
+         standInFxThread = new Thread(() -> {
                                         final Thread user = Thread.currentThread();
 
                                         user.setName("JavaFX Application Thread");
@@ -617,8 +619,8 @@ public class HeadlessToolkit
                                         }
                                      });
 
-         t.setDaemon(true);
-         t.start();
+         standInFxThread.setDaemon(true);
+         standInFxThread.start();
       }
 
       this.tasks.add(runnable);
@@ -998,5 +1000,10 @@ public class HeadlessToolkit
        throw new UnsupportedOperationException("Not supported yet.");
    }
 
+   @Override
+   public boolean isFxUserThread()
+   {
+      return Thread.currentThread() == standInFxThread;
+   }
 }
 

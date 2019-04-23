@@ -1988,6 +1988,7 @@ public class ContentManagerController
 		pd.setTitle("Building Configuration");
 		pd.setHeaderText(null);
 		pd.setContentText("Building Configuration");
+		pd.setResizable(true);
 		pd.showAndWait();
 
 		try
