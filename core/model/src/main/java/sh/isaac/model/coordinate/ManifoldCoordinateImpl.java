@@ -306,11 +306,11 @@ public class ManifoldCoordinateImpl
    }
 
    /**
-    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getDestinationStampCoordinate()
+    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getOptionalDestinationStampCoordinate()
     */
    @Override
-   public StampCoordinate getDestinationStampCoordinate() {
-      return destinationStampCoordinate;
+   public Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate() {
+      return Optional.of(destinationStampCoordinate);
    }
 
    /**

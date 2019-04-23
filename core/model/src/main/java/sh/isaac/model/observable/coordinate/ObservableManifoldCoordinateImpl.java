@@ -274,18 +274,18 @@ public class ObservableManifoldCoordinateImpl
    public ObjectProperty<ObservableStampCoordinate> destinationStampCoordinateProperty() {
       if (this.destinationStampCoordinateProperty == null) {
          synchronized(manifoldCoordinate) {
-            if (this.destinationStampCoordinateProperty != null) {
+            if (this.destinationStampCoordinateProperty != null || !manifoldCoordinate.getOptionalDestinationStampCoordinate().isPresent()) {
                return this.destinationStampCoordinateProperty;
             }
-            if (manifoldCoordinate.getDestinationStampCoordinate() instanceof ObservableStampCoordinate) {
+            if (manifoldCoordinate.getOptionalDestinationStampCoordinate().isPresent() && manifoldCoordinate.getOptionalDestinationStampCoordinate().get() instanceof ObservableStampCoordinate) {
                this.destinationStampCoordinateProperty = new SimpleObjectProperty<>(this,
                   ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE_DESTINATION.toExternalString(),
-                        (ObservableStampCoordinate) this.manifoldCoordinate.getDestinationStampCoordinate());
-               destinationStampCoordinateProperty.bind((ObservableValue<? extends ObservableStampCoordinate>) this.manifoldCoordinate.getDestinationStampCoordinate());
+                        (ObservableStampCoordinate) this.manifoldCoordinate.getOptionalDestinationStampCoordinate().get());
+               destinationStampCoordinateProperty.bind((ObservableValue<? extends ObservableStampCoordinate>) this.manifoldCoordinate.getOptionalDestinationStampCoordinate().get());
             } else {
                this.destinationStampCoordinateProperty = new SimpleObjectProperty<>(this,
                   ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE_DESTINATION.toExternalString(),
-                  new ObservableStampCoordinateImpl(this.manifoldCoordinate.getDestinationStampCoordinate()));
+                  new ObservableStampCoordinateImpl(this.manifoldCoordinate.getOptionalDestinationStampCoordinate().get()));
             }
             this.destinationStampCoordinateProperty.addListener((invalidation) -> fireValueChangedEvent());
          }
@@ -336,8 +336,8 @@ public class ObservableManifoldCoordinateImpl
    }
 
    @Override
-   public ObservableStampCoordinate getDestinationStampCoordinate() {
-      return destinationStampCoordinateProperty().get();
+   public Optional<? extends ObservableStampCoordinate> getOptionalDestinationStampCoordinate() {
+      return Optional.of(destinationStampCoordinateProperty().get());
    }
 
    /**
@@ -353,7 +353,7 @@ public class ObservableManifoldCoordinateImpl
       hash = 53 * hash + Objects.hashCode(this.getStampCoordinate());
       hash = 53 * hash + Objects.hashCode(this.getLanguageCoordinate());
       hash = 53 * hash + Objects.hashCode(this.getLogicCoordinate());
-      hash = 53 * hash + Objects.hashCode(this.getDestinationStampCoordinate());
+      hash = 53 * hash + Objects.hashCode(this.getOptionalDestinationStampCoordinate());
       return hash;
    }
 

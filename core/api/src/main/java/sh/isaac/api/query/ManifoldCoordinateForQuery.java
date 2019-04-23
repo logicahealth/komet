@@ -17,6 +17,7 @@
 package sh.isaac.api.query;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import javafx.beans.property.SimpleObjectProperty;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -158,9 +159,8 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     }
     
     @Override
-    public StampCoordinate getDestinationStampCoordinate() {
-        // TODO Don't know if this ever needs to be supported
-        throw new UnsupportedOperationException();
+    public Optional<StampCoordinate> getOptionalDestinationStampCoordinate() {
+        return Optional.empty();
     }
 
     @Override
