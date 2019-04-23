@@ -197,6 +197,7 @@
 						</goals>
 						<configuration>
 							<schemaDirectory>${project.basedir}/src/main/resources/cvx</schemaDirectory>
+							<packageLevelAnnotations>false</packageLevelAnnotations> <!-- Some god-awful bug in the JDK11  https://stackoverflow.com/questions/52157040/jaxb-package-info-ignored-when-using-java-10 -->
 							<schemaIncludes>
 								<include>CVX_version1.xsd</include>
 							</schemaIncludes>
@@ -211,6 +212,7 @@
 						</goals>
 						<configuration>
 							<schemaDirectory>${project.basedir}/src/main/resources/mvx</schemaDirectory>
+							<packageLevelAnnotations>false</packageLevelAnnotations> <!-- Some god-awful bug in the JDK11  https://stackoverflow.com/questions/52157040/jaxb-package-info-ignored-when-using-java-10 -->
 							<schemaIncludes>
 								<include>MVX_version1.xsd</include>
 							</schemaIncludes>
@@ -225,6 +227,7 @@
 						<configuration>
 							<generatePackage>coreschema</generatePackage>
 							<schemaDirectory>src/main/resources/hl7v3/datatypes</schemaDirectory>
+							<packageLevelAnnotations>false</packageLevelAnnotations> <!-- Some god-awful bug in the JDK11  https://stackoverflow.com/questions/52157040/jaxb-package-info-ignored-when-using-java-10 -->
 							<schemaIncludes>
 								<include>hl7-r2_datatypes.xsd</include>
 							</schemaIncludes>
@@ -238,6 +241,7 @@
 						<configuration>
 							<generatePackage>mifschema</generatePackage>
 							<schemaDirectory>src/main/resources/hl7v3/mif</schemaDirectory>
+							<packageLevelAnnotations>false</packageLevelAnnotations> <!-- Some god-awful bug in the JDK11  https://stackoverflow.com/questions/52157040/jaxb-package-info-ignored-when-using-java-10 -->
 							<schemaIncludes>
 								<include>xhtml1-strict.xsd</include>
 								<include>mif-COMPLETE.xsd</include>
