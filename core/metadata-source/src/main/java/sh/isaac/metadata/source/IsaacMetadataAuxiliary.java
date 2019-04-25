@@ -201,6 +201,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
                   createConcept(TermAux.SOLOR_OVERLAY_MODULE).addDescription("SOLOR overlay", TermAux.REGULAR_NAME_DESCRIPTION_TYPE)
                      .addUuids(UUID.fromString("1f2016a6-960e-11e5-8994-feff819cdc9f"));
+                  createConcept("Solor umls module");
                
                   popParent();
 
@@ -228,6 +229,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.DELOITTE_USER);
                createConcept("Bootstrap administrator", "admin");
                createConcept("Clinvar User");
+               createConcept("umls User");
                popParent();
             createConcept(TermAux.PATH);
             pushParent(current());
@@ -390,6 +392,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
                   createConcept("Clinvar Variant to Gene Non-Defining Taxonomy");
                   createConcept("Clinvar Gene to Phenotype Non-Defining Taxonomy");
+                  createConcept("umls equivalency assemblage");
                   popParent();
                createConcept("Rule assemblage");
                pushParent(current());
