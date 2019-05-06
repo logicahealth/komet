@@ -434,7 +434,7 @@ public class SemanticGUI
 			}
 			else if (oc.get() instanceof ConceptChronology)
 			{
-				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampCoordinate(), null);
+				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampCoordinate(), manifold_.getLanguageCoordinate());
 				text = (conDesc.isPresent() ? conDesc.get() : "off path [NID]:" + oc.get().getNid());
 			}
 			else if (oc.get() instanceof SemanticChronology)
