@@ -58,10 +58,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author kec
  */
-public class NidSet
-        extends AbstractIntSet<NidSet> {
-   
-   public final static NidSet EMPTY = new NidSet();
+public class NidSet extends AbstractIntSet<NidSet> {
+
    /**
     * Instantiates a new nid set.
     */
