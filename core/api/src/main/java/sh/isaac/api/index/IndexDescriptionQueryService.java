@@ -55,12 +55,12 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
 
 	/**
     * An extended query option from the Description Indexer, which allows the following additional criteria:
+    * 
+    * - specifying that search results should be from the metadata
+    * - specifying the description type to search (FQN, Definition, Regular)
+    * - specifying the extended description type (description type assemblage concepts from non-snomed terminologies)
  
- - specifying that search results should be from the metadata
- - specifying the description type to search (FQN, Definition, Regular)
- - specifying the extended description type (description type assemblage concepts from non-snomed terminologies)
- 
- Everything else is the same as @see #query(String, boolean, int[], Predicate, AuthorModulePathRestriction, Integer, Integer, Long)
+    * Everything else is the same as @see #query(String, boolean, int[], Predicate, AuthorModulePathRestriction, Integer, Integer, Long)
     *
     * @param query The query to apply.  In the description Indexer implementations, the indexer has special rules for handling 
     *           semantic tags - which will disallow the use of the lucene query parser "grouping" feature, if the group appears
@@ -88,10 +88,10 @@ public interface IndexDescriptionQueryService extends IndexQueryService {
     *           will be passed the nids of chronologies which met all other search criteria. To include the chronology in the result, return
     *           true, or false, to have the item excluded.
     * @param amp - optional - The stamp criteria to restrict the search, or no restriction if not provided.
-    * @param metadataOnly - Only search descriptions on concepts which have a commit on the module {@link MetaData#CORE_METADATA_MODULE____SOLOR}
-    *      when true, otherwise, search all descriptions.  Note that when metadataOnly is set to true, it will return results that are metadata on SOME
-           stamp, not necessarily the passed in AuthorModulePathRestriction.  If you only want results that are metadata on your current coordinate, 
-           you will have to post-filter the result. 
+    * @param metadataOnly - Only search descriptions on concepts which are part of the {@link MetaData#SOLOR_METADATA} tree when true,
+    *           otherwise, search all descriptions.  Note that when metadataOnly is set to true, it will return results that are metadata on SOME
+    *           stamp, not necessarily the passed in AuthorModulePathRestriction.  If you only want results that are metadata on your current coordinate, 
+    *           you will have to post-filter the result. 
     * @param descriptionTypes - optional - if specified, will only match descriptions of the specified type(s).
     * @param extendedDescriptionTypes - optional - if specified, will only match descriptions with an extension semantic of the specified type(s)
     * @param pageNum - optional - The desired page number of results. Page numbers start with 1.

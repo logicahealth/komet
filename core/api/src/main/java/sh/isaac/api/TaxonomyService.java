@@ -193,5 +193,28 @@ public interface TaxonomyService
     * @return The new, merged value.
     */
    int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction);
+   
+   /**
+    * Checks if kindOf, ignoring all coordinates (active, inactive, any path, any module, etc) 
+    * @param childNid
+    * @param parentNid
+    * @return
+    */
+   public boolean wasEverKindOf(int childNid, int parentNid);
+   
+   /**
+    * Checks if childOf, ignoring all coordinates (active, inactive, any path, any module, etc)
+    * @param childNid
+    * @param parentNid
+    * @return
+    */
+   public boolean wasEverChildOf(int childNid, int parentNid);
+   
+   /**
+    * Gets isA children of the specified concept, ignoring all coordinates (active, inactive, any path, any module)
+    * @param parentNid
+    * @return
+    */
+   public int[] getAllTaxonomyChildren(int parentNid);
 }
 
