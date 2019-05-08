@@ -19,6 +19,9 @@ package sh.komet.gui.search.flwor;
 import sh.isaac.api.query.JoinProperty;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import sh.isaac.api.query.LetItemKey;
@@ -36,6 +39,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableConceptProxy;
+import sh.isaac.api.query.clauses.ChangedBetweenVersions;
 import sh.isaac.api.query.properties.AssemblageForIterationClause;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.Join;
@@ -103,7 +107,8 @@ public class QueryClause {
             case ASSEMBLAGE_CONTAINS_COMPONENT:
                 return new Label("ASSEMBLAGE_CONTAINS_COMPONENT");
             case CHANGED_FROM_PREVIOUS_VERSION:
-                return new Label("CHANGED_FROM_PREVIOUS_VERSION");
+                setupAssemblageForIteration("for each");
+                return setupDifferenceQuery();
             case CONCEPT_IS: {
                 setupAssemblageForIteration("for each");
                 return setupConceptClause("is");
@@ -244,23 +249,33 @@ public class QueryClause {
         }
         joinSpec.stampCoordinateKeyProperty().set(joinSpec.getStampCoordinateKey());
     }
+    protected PropertySheet setupDifferenceQuery() {
+        ChangedBetweenVersions changedClause = (ChangedBetweenVersions) clauseProperty.get();
+        setupStampKeyProperty(changedClause::getStampCoordinateOneKey,  changedClause::setStampCoordinateOneKey, "Start STAMP");
+        return setupStampKeyProperty(changedClause::getStampCoordinateTwoKey,  changedClause::setStampCoordinateTwoKey, "End STAMP");
+    }
 
-    protected PropertySheet setupStampCoordinateClause(String keyName) {
-        StampCoordinateClause stampClause = (StampCoordinateClause) clauseProperty.get();
+    private PropertySheet setupStampKeyProperty(Supplier<LetItemKey> supplier, Consumer<LetItemKey> consumer, String label) {
         SimpleObjectProperty<LetItemKey> stampKeyForClauseProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
         this.clauseSpecificProperties.add(stampKeyForClauseProperty);
-        if (stampClause.getStampCoordinateKey() == null & !letPropertySheet.getStampCoordinateKeys().isEmpty()) {
-            stampClause.setStampCoordinateKey(letPropertySheet.getStampCoordinateKeys().get(0));
+        if (supplier.get() == null & !letPropertySheet.getStampCoordinateKeys().isEmpty()) {
+            consumer.accept(letPropertySheet.getStampCoordinateKeys().get(0));
         }
-        stampKeyForClauseProperty.set(stampClause.getStampCoordinateKey());
+        stampKeyForClauseProperty.set(supplier.get());
 
-        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper(keyName,
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper(label,
                 stampKeyForClauseProperty, letPropertySheet.getStampCoordinateKeys()));
         stampKeyForClauseProperty.addListener((observable, oldValue, newValue) -> {
-            stampClause.setStampCoordinateKey((LetItemKey) newValue);
+            consumer.accept(newValue);
         });
         return clausePropertySheet;
     }
+
+    protected PropertySheet setupStampCoordinateClause(String keyName) {
+        StampCoordinateClause stampClause = (StampCoordinateClause) clauseProperty.get();
+        return setupStampKeyProperty(stampClause::getStampCoordinateKey, stampClause::setStampCoordinateKey, keyName);
+    }
+
 
     protected PropertySheet setupQueryStringClause(String keyName) {
         QueryStringClause queryStringClause = (QueryStringClause) clauseProperty.get();

@@ -43,6 +43,7 @@ import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.logic.ConcreteDomainOperators;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
@@ -330,7 +331,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
     private void showFindIsaPopup() {
         this.popOver = new PopOver();
         this.popOver.getRoot().getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        this.popOver.getRoot().getStylesheets().add(Iconography.getStyleSheetStringUrl());
+        this.popOver.getRoot().getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
         this.popOver.setCloseButtonEnabled(true);
         this.popOver.setHeaderAlwaysVisible(false);
         this.popOver.setTitle("");

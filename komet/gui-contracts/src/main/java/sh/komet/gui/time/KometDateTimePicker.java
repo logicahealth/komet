@@ -52,7 +52,7 @@ public class KometDateTimePicker extends DatePicker {
 		setConverter(new InternalConverter());
         alignColumnCountWithFormat();
 
-		// Syncronize changes to the underlying date value back to the dateTimeValue
+		// Synchronize changes to the underlying date value back to the dateTimeValue
 		valueProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue == null) {
 				dateTimeValue.set(null);

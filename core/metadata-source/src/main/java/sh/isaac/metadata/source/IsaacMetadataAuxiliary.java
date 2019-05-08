@@ -787,6 +787,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ALLOWED_STATES_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_ARRAY_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_NID_FOR_STAMP_PATH).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_ORIGIN_LIST_FOR_STAMP_PATH).setModule(TermAux.KOMET_MODULE);
                   createConcept(TIME_FOR_STAMP_POSITION).setModule(TermAux.KOMET_MODULE);

@@ -296,8 +296,8 @@ public class TermAux implements StaticIsaacCache {
    public static ConceptProxy OR_QUERY_CLAUSE = new ConceptProxy("Any child criterion is satisfied for component (query clause)", "or query",
          UUID.fromString("d9c1f24c-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptProxy XOR_QUERY_CLAUSE = new ConceptProxy("XOR (query clause)", "xor", UUID.fromString("d9c1f42c-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptProxy CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE = new ConceptProxy("changed from previous version (query clause)",
-         "changed from previous version", UUID.fromString("d9c1f530-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptProxy CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE = new ConceptProxy("changed between STAMPs (query clause)",
+         "changed between STAMPs", UUID.fromString("d9c1f530-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptProxy CONCEPT_IS_QUERY_CLAUSE = new ConceptProxy("Concept is (query clause)", "concept is",
          UUID.fromString("d9c1f602-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptProxy CONCEPT_IS_KIND_OF_QUERY_CLAUSE = new ConceptProxy("Concept is kind of (query clause)", "kind of",

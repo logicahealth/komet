@@ -110,7 +110,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         pushButton.setOnAction((event) -> {
             try {
                 SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                syncService.setRootLocation(new File(localFolder.get()));
+                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
                 syncService.updateCommitAndPush("Push commit", gitUserName.get(), 
                         gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
                 setupSyncButtons();
@@ -126,7 +126,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         pullButton.setOnAction((event) -> {
             try {
                 SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                syncService.setRootLocation(new File(localFolder.get()));
+                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
                 syncService.updateFromRemote(gitUserName.get(), 
                         gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
                 setupSyncButtons();

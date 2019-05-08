@@ -40,6 +40,7 @@
 package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.Collection;
 import java.util.List;
@@ -406,6 +407,16 @@ public class ObservableManifoldCoordinateImpl
     @Override
     public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
         return manifoldCoordinate.getModuleSpecPreferenceListForLanguage();
+    }
+
+    @Override
+    public Set<ConceptSpecification> getAuthorSpecifications() {
+        return manifoldCoordinate.getAuthorSpecifications();
+    }
+
+    @Override
+    public NidSet getAuthorNids() {
+        return manifoldCoordinate.getAuthorNids();
     }
 }
 

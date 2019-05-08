@@ -41,7 +41,6 @@ import de.codecentric.centerdevice.MenuToolkit;
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
@@ -52,8 +51,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
@@ -63,38 +60,26 @@ import org.glassfish.hk2.api.MultiException;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.classifier.ClassifierService;
-import sh.isaac.api.constants.DatabaseInitialization;
-import sh.isaac.api.constants.MemoryConfiguration;
-import sh.isaac.api.constants.SystemPropertyConstants;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.SystemUtils;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
-import sh.isaac.komet.preferences.PreferenceGroup;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.RootPreferences;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
-import sh.komet.gui.contract.preferences.KometPreferences;
-import sh.komet.gui.contract.preferences.WindowPreferenceItems;
 import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
-import sh.komet.gui.util.FxConfiguration;
 import sh.komet.gui.util.FxGet;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 import java.util.prefs.BackingStoreException;
 
 //~--- classes ----------------------------------------------------------------
@@ -362,7 +347,7 @@ public class MainApp
             scene.getStylesheets()
                     .add(FxGet.fxConfiguration().getUserCSSURL().toString());
             scene.getStylesheets()
-                    .add(Iconography.getStyleSheetStringUrl());
+                    .add(IconographyHelper.getStyleSheetStringUrl());
             FxGet.statusMessageService()
                     .addScene(scene, controller::reportStatus);
             stage.setOnCloseRequest(MenuProvider::handleCloseRequest);

@@ -107,7 +107,7 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.CIRCLE_Z.getIconographic());
       
 
-      iconsPane.getChildren().add(Iconography.getImage("/sh/isaac/komet/iconography/svg_icons/14x14/icon_caseSensitive.png", 16));
+      iconsPane.getChildren().add(IconographyHelper.getImage("/sh/isaac/komet/iconography/svg_icons/14x14/icon_caseSensitive.png", 16));
       iconsPane.getChildren().add(Iconography.CASE_SENSITIVE.getIconographic());
       iconsPane.getChildren().add(Iconography.ICON_CLOSE.getIconographic());
       iconsPane.getChildren().add(Iconography.ICON_EDIT.getIconographic());

@@ -19,6 +19,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.PreferenceGroup;
 import sh.komet.gui.contract.MenuProvider;
@@ -148,7 +149,7 @@ public class StartupAfterSelection implements Runnable {
                             scene.getStylesheets()
                                     .add(FxGet.fxConfiguration().getUserCSSURL().toString());
                             scene.getStylesheets()
-                                    .add(Iconography.getStyleSheetStringUrl());
+                                    .add(IconographyHelper.getStyleSheetStringUrl());
                             FxGet.statusMessageService()
                                     .addScene(scene, controller::reportStatus);
                             stage.setOnCloseRequest(MenuProvider::handleCloseRequest);

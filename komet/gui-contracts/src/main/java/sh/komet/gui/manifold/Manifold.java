@@ -66,6 +66,7 @@ import javafx.scene.control.Label;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -478,7 +479,15 @@ public class Manifold
     public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
         return this.observableManifoldCoordinate.getModuleSpecPreferenceListForLanguage();
     }
-    
-    
+
+    @Override
+    public Set<ConceptSpecification> getAuthorSpecifications() {
+        return this.observableManifoldCoordinate.getAuthorSpecifications();
+    }
+
+    @Override
+    public NidSet getAuthorNids() {
+        return this.observableManifoldCoordinate.getAuthorNids();
+    }
 }
 

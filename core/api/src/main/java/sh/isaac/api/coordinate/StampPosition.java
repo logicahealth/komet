@@ -79,6 +79,10 @@ public interface StampPosition
     */
    StampPath getStampPath();
 
+   default int getPathNid() {
+      return getStampPath().getPathConceptNid();
+   }
+
    /**
     * Gets the stamp path concept nid.
     *
@@ -103,8 +107,7 @@ public interface StampPosition
    }
 
    @Override
-   public StampPosition deepClone();
-   
+   StampPosition deepClone();
    
 }
 

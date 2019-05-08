@@ -9,6 +9,7 @@ import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
+import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import org.controlsfx.control.PropertySheet;
 import sh.komet.gui.manifold.Manifold;
@@ -50,7 +51,11 @@ public class LetPropertySheet {
     private final ObservableList<PropertySheet.Item> items;
     private final Manifold manifoldForDisplay;
     private final MenuButton addLetClauseButton = new MenuButton("Add let clause...");
-    private final ToolBar letToolbar = new ToolBar(addLetClauseButton);
+    private final Button removeLetClause = new Button("Remove let clause");
+    {
+        removeLetClause.setOnAction(this::removeClause);
+    }
+    private final ToolBar letToolbar = new ToolBar(addLetClauseButton, removeLetClause);
 
     {
         propertySheetBorderPane.setTop(letToolbar);
@@ -229,7 +234,16 @@ public class LetPropertySheet {
             FxGet.dialogs().showInformationDialog("Unsupported let item", "Can't create panel for " + newLetItem + ": " + newObject);
         }
     }
+    public void removeClause(ActionEvent action) {
 
+        LetItemKey selectedLetItem = this.letItemsController.getLetListViewletListView().getSelectionModel().getSelectedItem();
+        if (selectedLetItem != null) {
+            this.letItemPanelMap.remove(selectedLetItem);
+            this.letItemsController.getLetListViewletListView().getItems().remove(selectedLetItem);
+            this.letItemsController.getLetItemBorderPane().setCenter(null);
+            this.letItemObjectMap.remove(selectedLetItem);
+        }
+    }
     public void addString(ActionEvent action) {
         LetItemKey newLetItem = new LetItemKey(createUniqueKey("String"));
         addString(newLetItem, "edit-me");
@@ -418,7 +432,9 @@ public class LetPropertySheet {
     private void handleSelectionChange(ListChangeListener.Change<? extends Integer> c) {
         if (c.getList().isEmpty()) {
             this.letItemsController.getLetItemBorderPane().setCenter(null);
+            this.removeLetClause.setDisable(true);
         } else {
+            this.removeLetClause.setDisable(false);
             LetItemKey selectedLetItem = this.letItemsController.getLetListViewletListView().getItems().get(c.getList().get(0));
             Node letNode = this.letItemPanelMap.get(selectedLetItem).getNode();
             if (letNode != this.letItemsController.getLetItemBorderPane().getCenter()) {

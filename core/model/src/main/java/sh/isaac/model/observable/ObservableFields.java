@@ -130,8 +130,10 @@ public enum ObservableFields
 
    /** The module nid array for stamp coordinate. */
    MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("Module nid array for stamp coordinate", "Modules for stamp coordinates"),
-   
+
    MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Module specification set for stamp coordinate", "Module set"),
+
+   AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Author specification set for stamp coordinate", "Author set"),
 
    /** The allowed states for stamp coordinate. */
    ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),
