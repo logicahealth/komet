@@ -132,6 +132,8 @@ public interface IdentifierService
 
    //~--- get methods ---------------------------------------------------------
 
+    int getMaxNid();
+
    /**
     * 
     * @param componentNid the identifier that the object type is requested for. 

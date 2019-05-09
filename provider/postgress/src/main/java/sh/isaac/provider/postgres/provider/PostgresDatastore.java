@@ -18,6 +18,8 @@ package sh.isaac.provider.postgres.provider;
 
 import sh.isaac.api.IdentifierService;
 import sh.isaac.model.DataStoreSubService;
+import sh.isaac.model.collections.SpinedNidIntMap;
+import sh.isaac.provider.datastore.cache.CacheBootstrap;
 import sh.isaac.provider.datastore.cache.DatastoreAndIdentiferService;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -54,7 +56,7 @@ import sh.isaac.provider.postgres.PostgresProvider;
 @Service
 @RunLevel(value = LookupService.SL_L1)
 @Rank(value = 500)
-public class PostgresDatastore implements DatastoreAndIdentiferService {
+public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBootstrap {
 
     DatastoreAndIdentiferService backingStore;
     PostgresProvider postgresProvider;
@@ -72,8 +74,14 @@ public class PostgresDatastore implements DatastoreAndIdentiferService {
     @PostConstruct
     public void startup() {
         this.postgresProvider = new PostgresProvider();
-        this.postgresProvider.startup();
         this.backingStore = new CacheProvider(this.postgresProvider, this.postgresProvider);
+        this.postgresProvider.startup();
+        this.backingStore.startup();
+    }
+
+    @Override
+    public int getMaxNid() {
+        return backingStore.getMaxNid();
     }
 
     @Override
@@ -294,5 +302,10 @@ public class PostgresDatastore implements DatastoreAndIdentiferService {
     @Override
     public boolean implementsExtendedStoreAPI() {
         return this.backingStore.implementsExtendedStoreAPI(); 
+    }
+
+    @Override
+    public void loadAssemblageOfNid(SpinedNidIntMap nidToAssemblageNidMap) {
+        this.postgresProvider.loadAssemblageOfNid(nidToAssemblageNidMap);
     }
 }

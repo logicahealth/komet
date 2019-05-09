@@ -26,11 +26,6 @@
             <artifactId>chronology</artifactId>
             <version>${project.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>sh.isaac.core</groupId>-->
-<!--            <artifactId>mojo</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>au.csiro</groupId>
             <artifactId>snorocket-core</artifactId>

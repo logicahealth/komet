@@ -156,6 +156,11 @@ public class IdentifierProvider
         }
     }
 
+    @Override
+    public int getMaxNid() {
+        return uuidIntMapMap.getMaxNid();
+    }
+
     /**
      * {@inheritDoc}
      */
