@@ -340,7 +340,7 @@ public class PostgresProvider
             + "WHERE o_nid = ?; ";
     }
     String loadAssemblageNidForObjectNid() {
-        return "SELECT o_nid, assemblage_nid FROM identified_objects_table ";
+        return "SELECT o_nid, assemblage_nid FROM identified_objects_table ORDER BY o_nid ASC;";
     }
 
     String sqlReadAssemblageNidsForAssemblageType() {
