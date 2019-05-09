@@ -22,13 +22,14 @@ public class BatchViewNode implements ExplorationNode {
     final SimpleStringProperty title = new SimpleStringProperty(LIST_VIEW);
     final SimpleStringProperty toolTip = new SimpleStringProperty("List view to create batches of content for processing, export, or similar uses.");
     final AnchorPane root;
+    final BatchNodeController controller;
 
     public BatchViewNode(Manifold manifold) {
         try {
             this.manifold = manifold;
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/BatchNode.fxml"));
             this.root = loader.load();
-            BatchNodeController controller = loader.getController();
+            this.controller = loader.getController();
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

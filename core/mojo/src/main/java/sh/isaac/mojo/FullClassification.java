@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.logic.mojo;
+package sh.isaac.mojo;
 
 //~--- JDK imports ------------------------------------------------------------
 
