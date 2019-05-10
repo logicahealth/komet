@@ -195,6 +195,11 @@ public interface IsaacPreferences {
      */
     int getInt(String key, int defaultValue);
 
+    default int getInt(Enum key, int value) {
+        return getInt(enumToGeneralKey(key), value);
+    }
+
+
     default OptionalInt getInt(String key) {
         Optional<String> optionalValue = get(key);
         if (optionalValue.isPresent()) {

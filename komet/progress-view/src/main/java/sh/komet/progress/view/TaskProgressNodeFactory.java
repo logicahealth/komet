@@ -47,6 +47,7 @@ import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -67,7 +68,7 @@ public class TaskProgressNodeFactory
    public static final String TITLE_BASE = "Activities";
    public static final String TITLE_BASE_SINGULAR = "Activity";
    @Override
-   public ExplorationNode createNode(Manifold manifold) {
+   public TaskProgressNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
       TaskProgressNode taskProgressNode = new TaskProgressNode(manifold);
       return taskProgressNode;
    }

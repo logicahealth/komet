@@ -104,9 +104,7 @@ public class WriteConceptChronicle
       updateTitle("Write concept");
       updateMessage(Get.conceptDescriptionText(cc.getNid()));
       updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
-      LookupService.getService(ActiveTasks.class)
-              .get()
-              .add(this);
+      Get.activeTasks().add(this);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -145,8 +143,7 @@ public class WriteConceptChronicle
          return null;
       } finally {
          this.writeSemaphore.release();
-         LookupService.getService(ActiveTasks.class)
-                 .get()
+         Get.activeTasks()
                  .remove(this);
       }
    }

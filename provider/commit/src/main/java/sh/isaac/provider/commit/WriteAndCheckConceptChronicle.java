@@ -113,9 +113,7 @@ public class WriteAndCheckConceptChronicle
       //in the middle of being written on another thread, and some of the data store providers don't cleanly handle the read back of a partially 
       //written item.
       updateProgress(-1, Long.MAX_VALUE);           // Indeterminate progress
-      LookupService.getService(ActiveTasks.class)
-                   .get()
-                   .add(this);
+      Get.activeTasks().add(this);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -182,9 +180,7 @@ public class WriteAndCheckConceptChronicle
          return null;
       } finally {
          this.writeSemaphore.release();
-         LookupService.getService(ActiveTasks.class)
-                      .get()
-                      .remove(this);
+         Get.activeTasks().remove(this);
       }
    }
 }

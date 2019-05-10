@@ -23,6 +23,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -39,7 +40,7 @@ public class FLWORQueryViewFactory implements ExplorationNodeFactory {
 
    public static final String MENU_TEXT  = "FLWOR Query";
    @Override
-   public ExplorationNode createNode(Manifold manifold) {
+   public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
       try {
          FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/FLOWRQuery.fxml"));
          loader.load();

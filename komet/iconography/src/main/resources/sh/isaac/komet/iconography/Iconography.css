@@ -519,11 +519,12 @@ limitations under the License.
    -my-width: 14;
 }
 
+
 .icon-export {
-   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_export.png");
-   -my-height: 14;
-   -my-width: 14;
+   -glyph-name: "EXPORT";
+   -glyph-size: 18;
 }
+
 
 .icon-goto-link {
    -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_goToLink.png");

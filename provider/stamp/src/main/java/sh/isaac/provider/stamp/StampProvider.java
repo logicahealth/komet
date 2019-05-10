@@ -87,6 +87,7 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.datastore.ExtendedStoreData;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.util.DataToBytesUtils;
 
@@ -446,6 +447,8 @@ public class StampProvider
     */
    @PostConstruct
    private void startMe() {
+      LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting Stamp provider");
+      Get.executor().execute(progressTask);
       LOG.info("Starting StampProvider post-construct");
       try {
          if (dataStore == null) {
@@ -546,6 +549,8 @@ public class StampProvider
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Stamp Provider", e);
          throw new RuntimeException(e);
+      } finally {
+         progressTask.finished();
       }
    }
 

@@ -58,8 +58,10 @@ import sh.isaac.api.chronicle.Version;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
@@ -70,9 +72,8 @@ import sh.isaac.api.query.WhereClause;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Computes the components that have been modified since the version specified
- * by the <code>ViewCoordinate</code>. Currently only retrieves descriptions
- * that were modified since the specified <code>ViewCoordinate</code>.
+ * Computes the components that have been modified between the specified
+ * Stamp Coordinates.
  *
  * @author dylangrald
  */
@@ -144,21 +145,26 @@ public class ChangedBetweenVersions
                          .get(this.stampCoordinateOneKey);
         StampCoordinate stampCoordinateTwo = (StampCoordinate) this.enclosingQuery.getLetDeclarations()
                          .get(this.stampCoordinateTwoKey);
-        
+
         NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
+
+        StampSequenceSet allowedStamps = Get.stampService().getStampsBetweenCoordinates(stampCoordinateOne, stampCoordinateTwo);
+
         
         for (int nid: possibleComponents.asArray()) {
             Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(nid);
             if (optionalChronology.isPresent()) {
                 Chronology chronology = optionalChronology.get();
-                LatestVersion<Version> latestOne = chronology.getLatestVersion(stampCoordinateOne);
-                LatestVersion<Version> latestTwo = chronology.getLatestVersion(stampCoordinateTwo);
-                
-                if (latestOne.isPresent() && latestTwo.isPresent()) {
-                    if (latestOne.get().deepEquals(latestTwo.get())) {
-                        possibleComponents.remove(nid);
+                boolean found = false;
+                for (Version v: chronology.getVersionList()) {
+                    if (allowedStamps.contains(v.getStampSequence())) {
+                        found = true;
+                        break;
                     }
-                } 
+                }
+                if (!found) {
+                    possibleComponents.remove(nid);
+                }
             } else {
                 possibleComponents.remove(nid);
             }

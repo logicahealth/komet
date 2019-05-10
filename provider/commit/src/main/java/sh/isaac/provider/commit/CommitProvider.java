@@ -99,6 +99,7 @@ import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.task.SequentialAggregateTask;
 import sh.isaac.api.util.DataToBytesUtils;
 import sh.isaac.model.ChronologyImpl;
@@ -637,10 +638,11 @@ public class CommitProvider
             LOG.info("Post processing import. Deferred set size: " + nids.size());
 
 
-            // update the taxonomy first, incase the description indexer wants to know the taxonomy of a description. 
+            // update the taxonomy first, in case the description indexer wants to know the taxonomy of a description.
             for (final int nid : nids) {
-                if (IsaacObjectType.SEMANTIC == Get.identifierService()
-                        .getObjectTypeForComponent(nid)) {
+                IsaacObjectType objectType = Get.identifierService()
+                        .getObjectTypeForComponent(nid);
+                if (IsaacObjectType.SEMANTIC == objectType) {
                     final SemanticChronology sc = Get.assemblageService()
                             .getSemanticChronology(nid);
 
@@ -648,40 +650,48 @@ public class CommitProvider
                         Get.taxonomyService().updateTaxonomy(sc);
                     }
                 } else {
-                    throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
+                    Get.identifierService()
+                            .getObjectTypeForComponent(nid);
+                    LOG.error("Unexpected nid of type: " + objectType +
+                            " in deferred set: " + nid + " UUIDs: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)));
                 }
             }
-            
-            ArrayList<Future<Long>> futures = new ArrayList<>();
-            List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
-            for (final int nid : nids) {
-                if (IsaacObjectType.SEMANTIC == Get.identifierService()
-                        .getObjectTypeForComponent(nid)) {
-                    final SemanticChronology sc = Get.assemblageService()
-                            .getSemanticChronology(nid);
+            if (Get.useLuceneIndexes()) {
+                ArrayList<Future<Long>> futures = new ArrayList<>();
+                List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
+                for (final int nid : nids) {
+                    IsaacObjectType objectType = Get.identifierService()
+                            .getObjectTypeForComponent(nid);
+                    if (IsaacObjectType.SEMANTIC == objectType) {
+                        final SemanticChronology sc = Get.assemblageService()
+                                .getSemanticChronology(nid);
 
-                    for (IndexBuilderService ibs : indexers) {
-                        futures.add(ibs.index(sc));
+                        for (IndexBuilderService ibs : indexers) {
+                            futures.add(ibs.index(sc));
+                        }
+
+                    } else {
+                        Get.identifierService()
+                                .getObjectTypeForComponent(nid);
+                        LOG.error("Unexpected nid of type: " + objectType +
+                                " in deferred set: " + nid + " UUIDs: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)));
                     }
-
-                } else {
-                    throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
                 }
-            }
-            // wait for all indexing operations to complete
-            for (Future<Long> f : futures) {
-                try {
-                    f.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    LOG.error("Unexpected error waiting for index update", e);
+                // wait for all indexing operations to complete
+                for (Future<Long> f : futures) {
+                    try {
+                        f.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOG.error("Unexpected error waiting for index update", e);
+                    }
                 }
-            }
 
-            for (IndexBuilderService ibs : indexers) {
-                try {
-                    ibs.sync().get();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                for (IndexBuilderService ibs : indexers) {
+                    try {
+                        ibs.sync().get();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
             LOG.info("Post processing import complete");
@@ -930,6 +940,8 @@ public class CommitProvider
      */
     @PostConstruct
     private void startMe() {
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting chronology provider");
+        Get.executor().execute(progressTask);
         try {
             LOG.info("Starting CommitProvider post-construct for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
@@ -1099,6 +1111,8 @@ public class CommitProvider
                     .notifyServiceConfigurationFailure("Commit Provider", e);
             LOG.error("CommitProvider Startup Failure!", e);
             throw new RuntimeException(e);
+        } finally {
+            progressTask.finished();
         }
     }
 

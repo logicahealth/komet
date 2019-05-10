@@ -66,6 +66,7 @@ import javafx.scene.control.Label;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -417,7 +418,12 @@ public class Manifold
       return this.observableManifoldCoordinate.getStampCoordinate();
    }
    
-   public void addEditInFlight(EditInFlight editInFlight) {
+   @Override
+   public Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate() {
+      return this.observableManifoldCoordinate.getOptionalDestinationStampCoordinate();
+   }
+
+    public void addEditInFlight(EditInFlight editInFlight) {
       EDITS_IN_PROCESS.add(editInFlight);
       editInFlight.addCompletionListener((observable, oldValue, newValue) -> {
          EDITS_IN_PROCESS.remove(editInFlight);
@@ -473,7 +479,15 @@ public class Manifold
     public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
         return this.observableManifoldCoordinate.getModuleSpecPreferenceListForLanguage();
     }
-    
-    
+
+    @Override
+    public Set<ConceptSpecification> getAuthorSpecifications() {
+        return this.observableManifoldCoordinate.getAuthorSpecifications();
+    }
+
+    @Override
+    public NidSet getAuthorNids() {
+        return this.observableManifoldCoordinate.getAuthorNids();
+    }
 }
 

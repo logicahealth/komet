@@ -53,7 +53,10 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
         NidSet childrenNids = new NidSet();
         for (LatestVersion<ComponentNidVersion> childSemantic: children) {
             childSemantic.ifPresent((semantic) -> {
-                childrenNids.add(semantic.getComponentNid());
+                if (manifoldCoordinate.getOptionalDestinationStampCoordinate().isPresent() &&
+                        Get.concept(semantic.getComponentNid()).getLatestVersion(manifoldCoordinate.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+                    childrenNids.add(semantic.getComponentNid());
+                }
             });
         }
         return childrenNids.asArray();
@@ -66,7 +69,10 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
         for (SearchResult match: matches) {
             int semanticNid = match.getNid();
             treeAssemblage.getLatestSemanticVersion(semanticNid).ifPresent((t) -> {
-                parentNids.add(t.getReferencedComponentNid());
+                if (manifoldCoordinate.getOptionalDestinationStampCoordinate().isPresent() &&
+                        Get.concept(t.getReferencedComponentNid()).getLatestVersion(manifoldCoordinate.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+                    parentNids.add(t.getReferencedComponentNid());
+                }
             });
         }
         return parentNids.asArray();
@@ -82,7 +88,8 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
         List<LatestVersion<ComponentNidVersion>> children = treeAssemblage.getLatestSemanticVersionsForComponentFromAssemblage(parentNid);
         for (LatestVersion<ComponentNidVersion> childSemantic: children) {
             if (childSemantic.isPresent()) {
-                if (childSemantic.get().getComponentNid() == childNid) {
+                if (manifoldCoordinate.getOptionalDestinationStampCoordinate().isPresent() && childSemantic.get().getComponentNid() == childNid &&
+                        Get.concept(childSemantic.get().getComponentNid()).getLatestVersion(manifoldCoordinate.getOptionalDestinationStampCoordinate().get()).isPresent()) {
                     return true;
                 }
             }
@@ -123,7 +130,7 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
     @Override
     public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
         int[] parentNids = getTaxonomyParentConceptNids(parentConceptNid);
-        ArrayList<TaxonomyLink> links = new ArrayList(parentNids.length);
+        ArrayList<TaxonomyLink> links = new ArrayList<>(parentNids.length);
         for (int parentNid: parentNids) {
             links.add(new TaxonomyLinkage(this.treeAssemblageNidAsArray[0], parentNid));
         }
@@ -133,7 +140,7 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
     @Override
     public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
         int[] childNids = getTaxonomyChildConceptNids(childConceptNid);
-        ArrayList<TaxonomyLink> links = new ArrayList(childNids.length);
+        ArrayList<TaxonomyLink> links = new ArrayList<>(childNids.length);
         for (int childNid: childNids) {
             links.add(new TaxonomyLinkage(this.treeAssemblageNidAsArray[0], childNid));
         }

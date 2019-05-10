@@ -66,6 +66,8 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 
@@ -130,6 +132,8 @@ import sh.isaac.api.query.Query;
 import sh.isaac.api.query.SortSpecification;
 import sh.isaac.api.query.clauses.*;
 import sh.isaac.api.util.NaturalOrder;
+import sh.isaac.api.util.time.DateTimeUtil;
+import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.xml.Jaxb;
 
@@ -497,6 +501,8 @@ public class FLWORQueryController
     void executeQuery(ActionEvent event) {
         FxGet.statusMessageService()
                 .reportSceneStatus(anchorPane.getScene(), "Starting FLWOR query...");
+        LOG.info("Starting FLWOR query...");
+        Instant startTime = Instant.now();
         try {
             long msStart = System.currentTimeMillis();
             this.query.reset();
@@ -509,6 +515,7 @@ public class FLWORQueryController
             rootClause.setEnclosingQuery(query);
 
             int[][] resultArray = query.reify();
+            LOG.info("Finished FLWOR query reify: " + DurationUtil.format(Duration.between(startTime, Instant.now())));
             ForSet forSet = query.getForSetSpecification();
 
             NumberFormat formatter = new DecimalFormat("#0.000");
@@ -517,9 +524,11 @@ public class FLWORQueryController
                             + resultArray.length + " in "
                             + formatter.format((System.currentTimeMillis() - msStart) / 1000.0) + " seconds");
             displayResults(resultArray, forSet.getAssembalgeToIndexMap());
+            LOG.info("Finished FLWOR query display (combined total): " + DurationUtil.format(Duration.between(startTime, Instant.now())));
         } catch (Exception e) {
             FxGet.dialogs().showErrorDialog("Error during query...", e);
         }
+
     }
 
     @FXML  // This method is called by the FXMLLoader when initialization is complete

@@ -65,7 +65,7 @@ public class PropertySheetItemDateTimeWrapper implements PropertySheet.Item {
         if (localDateTime.isEqual(LocalDateTime.MAX)) {
             this.timeProperty.set(Long.MAX_VALUE);
         } else {
-            this.timeProperty.set(localDateTime.toEpochSecond(ZoneOffset.UTC));
+            this.timeProperty.set(localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli());
         }
     }
 

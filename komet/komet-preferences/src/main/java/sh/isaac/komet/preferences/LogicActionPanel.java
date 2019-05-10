@@ -80,7 +80,7 @@ public class LogicActionPanel extends AbstractPreferences implements LogicItem {
     }
 
     @Override
-    final void saveFields() throws BackingStoreException {
+    final protected void saveFields() throws BackingStoreException {
         getPreferencesNode().put(Keys.ACTION_NAME, actionNameProperty.get());
         getPreferencesNode().putConceptSpecification(Keys.ROLE_TYPE_TO_ADD, roleTypeProperty.get());
         getPreferencesNode().putConceptSpecification(Keys.ASSEMBLAGE_FOR_CONSTRAINT, assemblageForConstraintProperty.get());
@@ -90,7 +90,7 @@ public class LogicActionPanel extends AbstractPreferences implements LogicItem {
     }
 
     @Override
-    final void revertFields() {
+    final protected void revertFields() {
         this.actionNameProperty.set(getPreferencesNode().get(Keys.ACTION_NAME, getGroupName()));
         this.roleTypeProperty.set(getPreferencesNode().getConceptSpecification(Keys.ROLE_TYPE_TO_ADD, MetaData.ROLE____SOLOR));
         this.assemblageForConstraintProperty.set(getPreferencesNode().getConceptSpecification(Keys.ASSEMBLAGE_FOR_CONSTRAINT, TermAux.ASSEMBLAGE));

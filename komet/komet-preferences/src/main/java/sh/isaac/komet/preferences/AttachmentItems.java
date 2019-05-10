@@ -54,12 +54,12 @@ public class AttachmentItems extends ParentPanel {
     }
 
     @Override
-    void saveFields() throws BackingStoreException {
+    protected void saveFields() throws BackingStoreException {
         // nothing to save
     }
 
     @Override
-    final void revertFields() {
+    final protected void revertFields() {
         // nothing to revert
     }
 

@@ -21,6 +21,7 @@ import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.manifold.Manifold;
@@ -36,7 +37,7 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
 
    @Override
-   public AssemblageViewProvider createNode(Manifold manifold) {
+   public AssemblageViewProvider createNode(Manifold manifold, IsaacPreferences preferencesNode) {
       AssemblageViewProvider assemblageViewProvider = new AssemblageViewProvider(manifold.deepClone());
       return assemblageViewProvider;
    }

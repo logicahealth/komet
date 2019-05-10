@@ -21,6 +21,7 @@ import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -43,7 +44,7 @@ public class TasksCompletedNodeFactory
    public static final String TITLE_BASE = "Completions";
    public static final String TITLE_BASE_SINGULAR = "Completion";
    @Override
-   public ExplorationNode createNode(Manifold manifold) {
+   public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
       //TODO why does this exist?  Its returning the same thing as the TaskProgressNodeFactory....
       TaskProgressNode taskProgressNode = new TaskProgressNode(manifold);
       return taskProgressNode;

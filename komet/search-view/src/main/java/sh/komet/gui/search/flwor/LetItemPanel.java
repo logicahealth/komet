@@ -151,6 +151,7 @@ public class LetItemPanel {
         this.sheet.getItems().add(new PropertySheetStampPrecedenceWrapper("Precedence", stampCoordinateItem.stampPrecedenceProperty()));
         this.sheet.getItems().add(new PropertySheetConceptSetWrapper(manifold, stampCoordinateItem.moduleSpecificationsProperty()));
         this.sheet.getItems().add(new PropertySheetConceptListWrapper(manifold, stampCoordinateItem.modulePreferenceListForVersionsProperty()));
+        this.sheet.getItems().add(new PropertySheetConceptSetWrapper(manifold, stampCoordinateItem.authorSpecificationsProperty()));
     }
     
     private void setupLogicCoordinate(ObservableLogicCoordinate logicCoordinateItem) {

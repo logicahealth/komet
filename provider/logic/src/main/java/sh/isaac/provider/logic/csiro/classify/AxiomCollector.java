@@ -41,12 +41,15 @@ package sh.isaac.provider.logic.csiro.classify;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import au.csiro.ontology.Factory;
+import au.csiro.ontology.model.Axiom;
+import au.csiro.ontology.model.Concept;
+import au.csiro.ontology.model.Role;
+import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.collections.IntObjectHashMap;
+import sh.isaac.model.logic.LogicalExpressionImpl;
+
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -54,16 +57,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.mahout.math.map.OpenIntObjectHashMap;
-import org.apache.mahout.math.set.OpenIntHashSet;
-
-import au.csiro.ontology.Factory;
-import au.csiro.ontology.model.Axiom;
-import au.csiro.ontology.model.Concept;
-import au.csiro.ontology.model.Role;
-
-import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -81,7 +74,7 @@ public class AxiomCollector
    Concept[] concepts;
 
    /** The roles. */
-   OpenIntObjectHashMap<Role> roles;
+   IntObjectHashMap<Role> roles;
 
    /** The never group role sequences. */
    OpenIntHashSet neverGroupRoleSequences;
@@ -107,7 +100,7 @@ public class AxiomCollector
       this.concepts         = new Concept[conceptSequences.length()];
       Arrays.parallelSetAll(this.concepts,
                             conceptSequence -> Factory.createNamedConcept(Integer.toString(conceptSequence)));
-      this.roles = new OpenIntObjectHashMap<>(roleSequences.size());
+      this.roles = new IntObjectHashMap<>(roleSequences.size());
       roleSequences.forEachKey(roleSequence -> {
                                   this.roles.put(roleSequence, Factory.createNamedRole(Integer.toString(roleSequence)));
                                   return true;

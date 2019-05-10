@@ -201,6 +201,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
                   createConcept(TermAux.SOLOR_OVERLAY_MODULE).addDescription("SOLOR overlay", TermAux.REGULAR_NAME_DESCRIPTION_TYPE)
                      .addUuids(UUID.fromString("1f2016a6-960e-11e5-8994-feff819cdc9f"));
+                  createConcept("Solor umls module");
                
                   popParent();
 
@@ -228,6 +229,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.DELOITTE_USER);
                createConcept("Bootstrap administrator", "admin");
                createConcept("Clinvar User");
+               createConcept("umls User");
                popParent();
             createConcept(TermAux.PATH);
             pushParent(current());
@@ -390,6 +392,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
                   createConcept("Clinvar Variant to Gene Non-Defining Taxonomy");
                   createConcept("Clinvar Gene to Phenotype Non-Defining Taxonomy");
+                  createConcept("umls equivalency assemblage");
                   popParent();
                createConcept("Rule assemblage");
                pushParent(current());
@@ -729,6 +732,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                      createConcept("Groovy scripting panel").addStringSemantic("sh.komet.scripting.groovy.GroovyViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                              .getPreferredDescriptionBuilder().setDescriptionText("Groovy").setModule(TermAux.KOMET_MODULE);
 
+                     createConcept("Export specification panel").addStringSemantic("sh.komet.gui.exportation.ExportSpecificationFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                        .getPreferredDescriptionBuilder().setDescriptionText("Export specification").setModule(TermAux.KOMET_MODULE);
+
                      popParent();
                   createConcept("Detail nodes").getPreferredDescriptionBuilder().setModule(TermAux.KOMET_MODULE);
                   pushParent(current());
@@ -781,6 +787,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ALLOWED_STATES_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_ARRAY_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_NID_FOR_STAMP_PATH).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_ORIGIN_LIST_FOR_STAMP_PATH).setModule(TermAux.KOMET_MODULE);
                   createConcept(TIME_FOR_STAMP_POSITION).setModule(TermAux.KOMET_MODULE);

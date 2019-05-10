@@ -16,9 +16,12 @@
 package sh.isaac.komet.changeset.view;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -27,13 +30,18 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+
 import javax.inject.Singleton;
+
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.Get;
+import sh.isaac.api.commit.CommitService;
+import sh.isaac.api.externalizable.BinaryDataReaderService;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 
 /**
- *
  * @author kec
  */
 @Service
@@ -52,7 +60,12 @@ public class ChangeSetMenus implements MenuProvider {
             openChangeSetMenuItem.setOnAction((action) -> {
                 openChangeSetAction(window);
             });
-            return new MenuItem[]{openChangeSetMenuItem};
+
+            MenuItem importChangeSetMenuItem = new MenuItem("Import change set...");
+            importChangeSetMenuItem.setOnAction((action) -> {
+                importChangeSetAction(window);
+            });
+            return new MenuItem[]{openChangeSetMenuItem, importChangeSetMenuItem};
         }
         return new MenuItem[]{};
     }
@@ -61,8 +74,14 @@ public class ChangeSetMenus implements MenuProvider {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select change set files to open...");
         fileChooser.getExtensionFilters().addAll(
-                new ExtensionFilter("IBDF Files", "*.ibdf"));
-        fileChooser.setInitialDirectory(new File("target/data/isaac.data/changesets"));
+                new ExtensionFilter("IBDF Files", "*.ibdf"),
+                new ExtensionFilter("Solor Object Format", "*.sof")
+        );
+        File initialDirectory = new File("target/data/isaac.data/changesets");
+        if (!initialDirectory.exists()) {
+            initialDirectory = new File(System.getProperty("user.home"));
+        }
+        fileChooser.setInitialDirectory(initialDirectory);
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(window);
         if (selectedFiles != null) {
             for (File selectedFile : selectedFiles) {
@@ -81,6 +100,53 @@ public class ChangeSetMenus implements MenuProvider {
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
+            }
+        }
+    }
+
+    private void importChangeSetAction(Window window) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select change set files to open...");
+        fileChooser.getExtensionFilters().addAll(
+                new ExtensionFilter("IBDF Files", "*.ibdf"),
+                new ExtensionFilter("Solor Object Format", "*.sof")
+        );
+        File initialDirectory = new File("target/data/isaac.data/changesets");
+        if (!initialDirectory.exists()) {
+            initialDirectory = new File(System.getProperty("user.home"));
+        }
+        fileChooser.setInitialDirectory(initialDirectory);
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(window);
+        CommitService commitService = Get.commitService();
+        if (selectedFiles != null) {
+            for (File selectedFile : selectedFiles) {
+                AtomicInteger conceptCount = new AtomicInteger();
+                AtomicInteger semanticCount = new AtomicInteger();
+                try {
+                    BinaryDataReaderService readerService = Get.binaryDataReader(new FileInputStream(selectedFile));
+                    readerService.getStream()
+                            .forEach(
+                                    o -> {
+                                        switch (o.getIsaacObjectType()) {
+                                            case CONCEPT:
+                                                conceptCount.incrementAndGet();
+                                                break;
+                                            case SEMANTIC:
+                                                semanticCount.incrementAndGet();
+                                                break;
+                                        }
+                                        try {
+                                            commitService.importNoChecks(o);
+                                        } catch (Throwable e) {
+                                            e.printStackTrace();
+                                        }
+                                    });
+                } catch (IOException | UnsupportedOperationException ex) {
+                    System.out.println("Error at: Import " + conceptCount + " concepts, " + semanticCount + " semantics");
+                    throw new RuntimeException(ex);
+                }
+                System.out.println("Imported " + conceptCount + " concepts, " + semanticCount + " semantics");
+                commitService.postProcessImportNoChecks();
             }
         }
     }

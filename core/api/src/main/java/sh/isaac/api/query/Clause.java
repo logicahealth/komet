@@ -290,6 +290,7 @@ public abstract class Clause implements ConceptSpecification, AssemblageForItera
     public static Clause[] getAllClauses() {
         return new Clause[]{new And(), new AndNot(), new Not(), new Or(), new Xor(),
             new Join(),
+            new ChangedBetweenVersions(),
             new ConceptIs(),
             new ConceptIsKindOf(),
             new ConceptIsDescendentOf(),
@@ -309,7 +310,7 @@ public abstract class Clause implements ConceptSpecification, AssemblageForItera
             
 //            new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
 //            new AssemblageContainsString(), new AssemblageLuceneMatch(),
-//            new ChangedBetweenVersions(), new ConceptForComponent(),
+//            new ConceptForComponent(),
 //            new DescriptionActiveRegexMatch(),
 //            new FullyQualifiedNameForConcept(),
 //            new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular(), 

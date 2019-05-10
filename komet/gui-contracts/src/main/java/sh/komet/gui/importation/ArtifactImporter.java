@@ -99,6 +99,8 @@ public class ArtifactImporter
 		sdoDialog.setHeaderText("Select the content to import");
 		sdoDialog.getDialogPane().setContent(sdoPicker);
 		sdoPicker.setPrefWidth(1024);
+		sdoDialog.setResizable(true);
+		
 		sdoDialog.initOwner(parentWindow);
 
 		if (sdoDialog.showAndWait().orElse(null) == ButtonType.OK)
@@ -155,6 +157,7 @@ public class ArtifactImporter
 							alert.setTitle("The import of " + sdo.getArtifactId() + " has finished");
 							alert.setHeaderText("Import complete");
 							alert.initOwner(parentWindow);
+							alert.setResizable(true);
 							alert.showAndWait();
 						});
 					}

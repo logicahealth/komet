@@ -427,6 +427,7 @@ public class ImportViewController {
             sdoDialog.setHeaderText("Select 1 or more SDO Files to add");
             sdoDialog.getDialogPane().setContent(sdoPicker);
             sdoPicker.setPrefWidth(1024);
+            sdoDialog.setResizable(true);
             sdoDialog.initOwner(importStage.getOwner());
 
             if (sdoDialog.showAndWait().orElse(null) == ButtonType.OK) {

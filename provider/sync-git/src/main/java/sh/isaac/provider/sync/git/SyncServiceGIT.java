@@ -60,8 +60,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
-import javax.naming.AuthenticationException;
-
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.eclipse.jgit.api.AddCommand;
@@ -321,8 +319,7 @@ public class SyncServiceGIT
     * @param username the username
     * @param password the password
     * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @throws AuthenticationException the authentication exception
+    * @throws IOException Signals that an I/O exception or auth error has occurred.
     * @see sh.isaac.api.sync.SyncFiles#linkAndFetchFromRemote(java.io.File, java.lang.String, java.lang.String, java.lang.String)
     */
    @Override
@@ -330,8 +327,7 @@ public class SyncServiceGIT
                                       String username,
                                       char[] password)
             throws IllegalArgumentException,
-                   IOException,
-                   AuthenticationException {
+                   IOException{
       LOG.info("linkAndFetchFromRemote called - folder: {}, remoteAddress: {}, username: {}",
                this.localFolder,
                remoteAddress,
@@ -450,7 +446,7 @@ public class SyncServiceGIT
       } catch (final TransportException te) {
          if (te.getMessage().contains("Auth fail") || te.getMessage().contains("not authorized")) {
             LOG.info("Auth fail", te);
-            throw new AuthenticationException("Auth fail");
+            throw new IOException("Auth fail");
          } else {
             LOG.error("Unexpected", te);
             throw new IOException("Internal error", te);
@@ -476,15 +472,13 @@ public class SyncServiceGIT
     * @param username the username
     * @param password the password
     * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @throws AuthenticationException the authentication exception
+    * @throws IOException Signals that an I/O exception or auth error has occurred.
     */
    public void pushTag(final String tagName,
                        String username,
                        char[] password)
             throws IllegalArgumentException,
-                   IOException,
-                   AuthenticationException {
+                   IOException{
       try (Git git = getGit()) {
          final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username,
                                                                                 ((password == null) ? new char[] {}
@@ -512,7 +506,7 @@ public class SyncServiceGIT
       } catch (final GitAPIException e) {
          if (e.getMessage().contains("Auth fail") || e.getMessage().contains("not authorized")) {
             LOG.info("Auth fail", e);
-            throw new AuthenticationException("Auth fail");
+            throw new IOException("Auth fail");
          } else {
             LOG.error("Unexpected", e);
             throw new IOException("Internal error", e);
@@ -527,14 +521,12 @@ public class SyncServiceGIT
     * @param password the password
     * @return the array list
     * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @throws AuthenticationException the authentication exception
+    * @throws IOException Signals that an I/O exception or auth error has occurred.
     */
    public ArrayList<String> readTags(String username,
                                      char[] password)
             throws IllegalArgumentException,
-                   IOException,
-                   AuthenticationException {
+                   IOException {
       try (Git git = getGit()) {
          final ArrayList<String> results = new ArrayList<>();
          final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username,
@@ -556,7 +548,7 @@ public class SyncServiceGIT
       } catch (final GitAPIException e) {
          if (e.getMessage().contains("Auth fail") || e.getMessage().contains("not authorized")) {
             LOG.info("Auth fail", e);
-            throw new AuthenticationException("Auth fail");
+            throw new IOException("Auth fail");
          } else {
             LOG.error("Unexpected", e);
             throw new IOException("Internal error", e);
@@ -732,7 +724,7 @@ public class SyncServiceGIT
     * @param files the files
     * @return the set
     * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception has occurred.
+    * @throws IOException Signals that an I/O exception or auth error has occurred.
     * @throws MergeFailure the merge failure
     * @throws AuthenticationException the authentication exception
     * @see sh.isaac.api.sync.SyncFiles#updateCommitAndPush(java.io.File, java.lang.String, java.lang.String, java.lang.String,
@@ -746,8 +738,7 @@ public class SyncServiceGIT
          String... files)
             throws IllegalArgumentException,
                    IOException,
-                   MergeFailure,
-                   AuthenticationException {
+                   MergeFailure {
       LOG.info("Commit Files called {}", ((files == null) ? "-null-"
             : Arrays.toString(files)));
 
@@ -805,7 +796,7 @@ public class SyncServiceGIT
       } catch (final TransportException te) {
          if (te.getMessage().contains("Auth fail") || te.getMessage().contains("not authorized")) {
             LOG.info("Auth fail", te);
-            throw new AuthenticationException("Auth fail");
+            throw new IOException("Auth fail");
          } else {
             LOG.error("Unexpected", te);
             throw new IOException("Internal error", te);
@@ -824,9 +815,8 @@ public class SyncServiceGIT
     * @param mergeFailOption the merge fail option
     * @return the set
     * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception has occurred.
+    * @throws IOException Signals that an I/O exception or auth error has occurred.
     * @throws MergeFailure the merge failure
-    * @throws AuthenticationException the authentication exception
     * @see sh.isaac.api.sync.SyncFiles#updateFromRemote(java.io.File, java.lang.String, java.lang.String,
     * sh.isaac.api.sync.MergeFailOption)
     */
@@ -836,8 +826,7 @@ public class SyncServiceGIT
          MergeFailOption mergeFailOption)
             throws IllegalArgumentException,
                    IOException,
-                   MergeFailure,
-                   AuthenticationException {
+                   MergeFailure {
       LOG.info("update from remote called ");
 
       Set<String> filesChangedDuringPull;
@@ -979,7 +968,7 @@ public class SyncServiceGIT
       } catch (final TransportException te) {
          if (te.getMessage().contains("Auth fail") || te.getMessage().contains("not authorized")) {
             LOG.info("Auth fail", te);
-            throw new AuthenticationException("Auth fail");
+            throw new IOException("Auth fail");
          } else {
             LOG.error("Unexpected", te);
             throw new IOException("Internal error", te);

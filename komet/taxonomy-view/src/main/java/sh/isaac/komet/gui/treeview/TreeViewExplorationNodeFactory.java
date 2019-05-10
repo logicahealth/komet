@@ -21,6 +21,7 @@ import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -39,7 +40,7 @@ public class TreeViewExplorationNodeFactory
    public static final String MENU_TEXT  = "Taxonomy";
 
    @Override
-   public ExplorationNode createNode(Manifold manifold) {
+   public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
       MultiParentTreeView multiParentTreeView = new MultiParentTreeView(manifold, MetaData.SOLOR_CONCEPT____SOLOR);
       return multiParentTreeView;
    }

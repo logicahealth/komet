@@ -121,6 +121,7 @@ import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.IndexedGenerationCallable;
 import sh.isaac.api.index.SearchResult;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.api.util.UuidT5Generator;
@@ -913,166 +914,177 @@ public abstract class LuceneIndexer
     */
    @PostConstruct
    private void startMe() {
-      LOG.info("Starting " + getIndexerName() + " post-construct");
-      this.luceneWriterService = LookupService.getService(WorkExecutors.class)
-            .getIOExecutor();
-      try
-      {
-         final Path searchFolder     = LookupService.getService(ConfigurationService.class).getDataStoreFolderPath().resolve("search");
-         final File luceneRootFolder = new File(searchFolder.toFile(), DEFAULT_LUCENE_FOLDER);
-         
-         this.luceneWriterFutureCheckerService = Executors.newFixedThreadPool(1,
-               new NamedThreadFactory(indexName + " Lucene future checker", false));
+      if (!Get.useLuceneIndexes()) {
+         return;
+      }
+      LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting " +
+              getIndexerName() + " provider");
+      Get.executor().execute(progressTask);
 
-         luceneRootFolder.mkdirs();
-         this.indexFolder = new File(luceneRootFolder, indexName);
-
-         if (!this.indexFolder.exists() || this.indexFolder.list().length == 0) {
-            this.databaseValidity = DataStoreStartState.NO_DATASTORE;
-            LOG.info("Index folder missing or empty: " + this.indexFolder.getAbsolutePath());
-         } else if (this.indexFolder.list().length > 0) {
-            this.databaseValidity = DataStoreStartState.EXISTING_DATASTORE;
-            
-            if (!getDataStorePath().resolve(DATASTORE_ID_FILE).toFile().isFile())
-            {
-               LOG.warn("Existing index loaded from {}, but no datastore id was present!", getDataStorePath());
-               Files.write(getDataStorePath().resolve(DATASTORE_ID_FILE), Get.assemblageService().getDataStoreId().get().toString().getBytes());
-            }
-         }
-         else {
-             LOG.error("Unexpected logic");
-             this.databaseValidity = DataStoreStartState.NO_DATASTORE;
-         }
-
-         this.indexFolder.mkdirs();
-         
-         boolean reindexRequired = this.databaseValidity == DataStoreStartState.NO_DATASTORE;
-         
-         LOG.info("Index: {} " + (reindexRequired ? "" : " data store id {} "), this.indexFolder.getAbsolutePath(), getDataStoreId() );
-
-         final Directory indexDirectory = new MMapDirectory(this.indexFolder.toPath()); // switch over to MMapDirectory - in theory - this gives us back some
-         // room on the JDK stack, letting the OS directly manage the caching of the index files - and more importantly, gives us a huge
-         // performance boost during any operation that tries to do multi-threaded reads of the index (like the SOLOR rules processing) because
-         // the default value of SimpleFSDirectory is a huge bottleneck.
-
-         
-         try {
-            this.indexWriter = new IndexWriter(indexDirectory, getIndexWriterConfig());
-            
-            Optional<UUID> temp = getDataStoreId();
-            
-            if (temp.isPresent() && !temp.get().equals(Get.assemblageService().getDataStoreId().get()))
-            {
-                LOG.error("Index ID {} does not match assemblage service ID {}.  Did someone swap indexes?  Reindexing...", 
-                      temp, Get.assemblageService().getDataStoreId());
-                throw new IndexFormatTooOldException("Index Mismatch", "Index mismatch");
-            }
-         } catch (IndexFormatTooOldException e) {  //TODO [DAN 1] test we should be able to catch other corrupt index issues here, and also solve by just reindexing... need to test
-            LOG.warn("Lucene index format was too old or didn't match the assemblage service in'" + getIndexerName() + "'.  Reindexing!");
-            RecursiveDelete.delete(this.indexFolder);
-            this.databaseValidity = DataStoreStartState.NO_DATASTORE;
-            this.indexFolder.mkdirs();
-            this.indexWriter = new IndexWriter(indexDirectory, getIndexWriterConfig());
-            reindexRequired = true;
-         }
-
-         // In the case of a blank index, we need to kick it to disk, otherwise, the search manager constructor fails.
-         this.indexWriter.commit();
-
-         final boolean applyAllDeletes = false;
-         final boolean writeAllDeletes = false;
-
-         // To get concurrent search, we have to provide an executor service (and use the IsaacFilteredCollectorManager)
-         this.referenceManager = new SearcherManager(this.indexWriter, applyAllDeletes, writeAllDeletes, new SearcherFactory() {
-            @Override
-            public IndexSearcher newSearcher(IndexReader reader,
-                  IndexReader previousReader) throws IOException {
-               return new IndexSearcher(reader, Get.workExecutors().getIOExecutor());
-            }
-
-         });
-
-         // [3]: Create the ControlledRealTimeReopenThread that reopens the index periodically taking into
-         // account the changes made to the index and tracked by the TrackingIndexWriter instance
-         // The index is refreshed every 60sc when nobody is waiting
-         // and every 100 millis whenever is someone waiting (see search method)
-         // (see http://lucene.apache.org/core/4_3_0/core/org/apache/lucene/search/NRTManagerReopenThread.html)
-         this.reopenThread = new ControlledRealTimeReopenThread<>(this.indexWriter, this.referenceManager, 60.00, 0.1);
-         this.startReopenThread();
-
-         // Register for commits:
-         LOG.info("Registering indexer " + indexName + " for commits");
-         this.changeListenerRef = new ChronologyChangeListener() {
-            @Override
-            public void handleCommit(CommitRecord commitRecord) {
-               if (LuceneIndexer.this.dbBuildMode == null) {
-                  LuceneIndexer.this.dbBuildMode = Get.configurationService().isInDBBuildMode();
-               }
-
-               if (LuceneIndexer.this.dbBuildMode) {
-                  LOG.debug("Ignore commit due to db build mode");
-                  return;
-               }
-
-               final int size = commitRecord.getSemanticNidsInCommit().size();
-
-               if (size < 100) {
-                  LOG.info("submitting semantic elements " + commitRecord.getSemanticNidsInCommit().toString() + " to indexer " + getIndexerName() + " due to commit");
-               } else {
-                  LOG.info("submitting " + size + " semantic elements to indexer " + getIndexerName() + " due to commit");
-               }
-
-               ArrayList<Future<Long>> futures = new ArrayList<>();
-               commitRecord.getSemanticNidsInCommit().stream().forEach(semanticId -> {
-                  final SemanticChronology sc = Get.assemblageService().getSemanticChronology(semanticId);
-
-                  futures.add(index(sc));
-               });
-               // wait for all indexing operations to complete
-               for (Future<Long> f : futures) {
-                  try {
-                     f.get();
-                  } catch (InterruptedException | ExecutionException e) {
-                     log.error("Unexpected error waiting for index update", e);
-                  }
-               }
-               commitWriter();
-               LOG.info("Completed index of " + size + " semantics for " + getIndexerName());
-            }
-
-            @Override
-            public void handleChange(SemanticChronology sc) {
-               // noop
-            }
-
-            @Override
-            public void handleChange(ConceptChronology cc) {
-               // noop
-            }
-
-            @Override
-            public UUID getListenerUuid() {
-               return UuidT5Generator.get(getIndexerName());
-            }
-         };
-         Get.commitService().addChangeListener(this.changeListenerRef);
-         
-         if (reindexRequired)
+      try {
+         LOG.info("Starting " + getIndexerName() + " post-construct");
+         this.luceneWriterService = LookupService.getService(WorkExecutors.class)
+               .getIOExecutor();
+         try
          {
-            LOG.info("Starting reindex of '" + getIndexerName() + "' due to out-of-date index");
-            GenerateIndexes gi = new GenerateIndexes(this);
-            LookupService.getService(WorkExecutors.class).getExecutor().execute(gi);
-            gi.get();
-            LOG.info("Reindex complete");
+            final Path searchFolder     = LookupService.getService(ConfigurationService.class).getDataStoreFolderPath().resolve("search");
+            final File luceneRootFolder = new File(searchFolder.toFile(), DEFAULT_LUCENE_FOLDER);
+
+            this.luceneWriterFutureCheckerService = Executors.newFixedThreadPool(1,
+                  new NamedThreadFactory(indexName + " Lucene future checker", false));
+
+            luceneRootFolder.mkdirs();
+            this.indexFolder = new File(luceneRootFolder, indexName);
+
+            if (!this.indexFolder.exists() || this.indexFolder.list().length == 0) {
+               this.databaseValidity = DataStoreStartState.NO_DATASTORE;
+               LOG.info("Index folder missing or empty: " + this.indexFolder.getAbsolutePath());
+            } else if (this.indexFolder.list().length > 0) {
+               this.databaseValidity = DataStoreStartState.EXISTING_DATASTORE;
+
+               if (!getDataStorePath().resolve(DATASTORE_ID_FILE).toFile().isFile())
+               {
+                  LOG.warn("Existing index loaded from {}, but no datastore id was present!", getDataStorePath());
+                  Files.write(getDataStorePath().resolve(DATASTORE_ID_FILE), Get.assemblageService().getDataStoreId().get().toString().getBytes());
+               }
+            }
+            else {
+                LOG.error("Unexpected logic");
+                this.databaseValidity = DataStoreStartState.NO_DATASTORE;
+            }
+
+            this.indexFolder.mkdirs();
+
+            boolean reindexRequired = this.databaseValidity == DataStoreStartState.NO_DATASTORE;
+
+            LOG.info("Index: {} " + (reindexRequired ? "" : " data store id {} "), this.indexFolder.getAbsolutePath(), getDataStoreId() );
+
+            final Directory indexDirectory = new MMapDirectory(this.indexFolder.toPath()); // switch over to MMapDirectory - in theory - this gives us back some
+            // room on the JDK stack, letting the OS directly manage the caching of the index files - and more importantly, gives us a huge
+            // performance boost during any operation that tries to do multi-threaded reads of the index (like the SOLOR rules processing) because
+            // the default value of SimpleFSDirectory is a huge bottleneck.
+
+
+            try {
+               this.indexWriter = new IndexWriter(indexDirectory, getIndexWriterConfig());
+
+               Optional<UUID> temp = getDataStoreId();
+
+               if (temp.isPresent() && !temp.get().equals(Get.assemblageService().getDataStoreId().get()))
+               {
+                   LOG.error("Index ID {} does not match assemblage service ID {}.  Did someone swap indexes?  Reindexing...",
+                         temp, Get.assemblageService().getDataStoreId());
+                   throw new IndexFormatTooOldException("Index Mismatch", "Index mismatch");
+               }
+            } catch (IndexFormatTooOldException e) {  //TODO [DAN 1] test we should be able to catch other corrupt index issues here, and also solve by just reindexing... need to test
+               LOG.warn("Lucene index format was too old or didn't match the assemblage service in'" + getIndexerName() + "'.  Reindexing!");
+               RecursiveDelete.delete(this.indexFolder);
+               this.databaseValidity = DataStoreStartState.NO_DATASTORE;
+               this.indexFolder.mkdirs();
+               this.indexWriter = new IndexWriter(indexDirectory, getIndexWriterConfig());
+               reindexRequired = true;
+            }
+
+            // In the case of a blank index, we need to kick it to disk, otherwise, the search manager constructor fails.
+            this.indexWriter.commit();
+
+            final boolean applyAllDeletes = false;
+            final boolean writeAllDeletes = false;
+
+            // To get concurrent search, we have to provide an executor service (and use the IsaacFilteredCollectorManager)
+            this.referenceManager = new SearcherManager(this.indexWriter, applyAllDeletes, writeAllDeletes, new SearcherFactory() {
+               @Override
+               public IndexSearcher newSearcher(IndexReader reader,
+                     IndexReader previousReader) throws IOException {
+                  return new IndexSearcher(reader, Get.workExecutors().getIOExecutor());
+               }
+
+            });
+
+            // [3]: Create the ControlledRealTimeReopenThread that reopens the index periodically taking into
+            // account the changes made to the index and tracked by the TrackingIndexWriter instance
+            // The index is refreshed every 60sc when nobody is waiting
+            // and every 100 millis whenever is someone waiting (see search method)
+            // (see http://lucene.apache.org/core/4_3_0/core/org/apache/lucene/search/NRTManagerReopenThread.html)
+            this.reopenThread = new ControlledRealTimeReopenThread<>(this.indexWriter, this.referenceManager, 60.00, 0.1);
+            this.startReopenThread();
+
+            // Register for commits:
+            LOG.info("Registering indexer " + indexName + " for commits");
+            this.changeListenerRef = new ChronologyChangeListener() {
+               @Override
+               public void handleCommit(CommitRecord commitRecord) {
+                  if (LuceneIndexer.this.dbBuildMode == null) {
+                     LuceneIndexer.this.dbBuildMode = Get.configurationService().isInDBBuildMode();
+                  }
+
+                  if (LuceneIndexer.this.dbBuildMode) {
+                     LOG.debug("Ignore commit due to db build mode");
+                     return;
+                  }
+
+                  final int size = commitRecord.getSemanticNidsInCommit().size();
+
+                  if (size < 100) {
+                     LOG.info("submitting semantic elements " + commitRecord.getSemanticNidsInCommit().toString() + " to indexer " + getIndexerName() + " due to commit");
+                  } else {
+                     LOG.info("submitting " + size + " semantic elements to indexer " + getIndexerName() + " due to commit");
+                  }
+
+                  ArrayList<Future<Long>> futures = new ArrayList<>();
+                  commitRecord.getSemanticNidsInCommit().stream().forEach(semanticId -> {
+                     final SemanticChronology sc = Get.assemblageService().getSemanticChronology(semanticId);
+
+                     futures.add(index(sc));
+                  });
+                  // wait for all indexing operations to complete
+                  for (Future<Long> f : futures) {
+                     try {
+                        f.get();
+                     } catch (InterruptedException | ExecutionException e) {
+                        log.error("Unexpected error waiting for index update", e);
+                     }
+                  }
+                  commitWriter();
+                  LOG.info("Completed index of " + size + " semantics for " + getIndexerName());
+               }
+
+               @Override
+               public void handleChange(SemanticChronology sc) {
+                  // noop
+               }
+
+               @Override
+               public void handleChange(ConceptChronology cc) {
+                  // noop
+               }
+
+               @Override
+               public UUID getListenerUuid() {
+                  return UuidT5Generator.get(getIndexerName());
+               }
+            };
+            Get.commitService().addChangeListener(this.changeListenerRef);
+
+            if (reindexRequired)
+            {
+               LOG.info("Starting reindex of '" + getIndexerName() + "' due to out-of-date index");
+               GenerateIndexes gi = new GenerateIndexes(this);
+               LookupService.getService(WorkExecutors.class).getExecutor().execute(gi);
+               gi.get();
+               LOG.info("Reindex complete");
+            }
          }
+         catch (InterruptedException | ExecutionException | IOException e) {
+            LOG.fatal("Error during indexer start", e);
+            LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure(indexName, e);
+            throw new RuntimeException(e);
+         }
+
+         LOG.info("Indexer {} Started", this.indexName);
+      } finally {
+         progressTask.finished();
       }
-      catch (InterruptedException | ExecutionException | IOException e) {
-         LOG.fatal("Error during indexer start", e);
-         LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure(indexName, e);
-         throw new RuntimeException(e);
-      }
-      
-      LOG.info("Indexer {} Started", this.indexName);
    }
 
    /**
@@ -1092,6 +1104,9 @@ public abstract class LuceneIndexer
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping " + getIndexerName() + " pre-destroy. ");
+      if (!Get.useLuceneIndexes()) {
+         return;
+      }
       Get.commitService().removeChangeListener(this.changeListenerRef);
       commitWriter();
       try {

@@ -1,9 +1,13 @@
-package sh.isaac.komet.preferences;
+package sh.isaac.komet.preferences.window;
 
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.komet.preferences.KometPreferencesController;
+import sh.isaac.komet.preferences.ParentPanel;
 import sh.komet.gui.manifold.Manifold;
 
 import java.util.prefs.BackingStoreException;
+
+import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
 public class WindowTabPanePreferencesPanel extends ParentPanel {
     public enum Keys {
@@ -11,9 +15,9 @@ public class WindowTabPanePreferencesPanel extends ParentPanel {
     }
 
     public WindowTabPanePreferencesPanel(IsaacPreferences preferencesNode,
-                                         String groupName, Manifold manifold,
+                                          Manifold manifold,
                                          KometPreferencesController kpc) {
-        super(preferencesNode, groupName, manifold, kpc);
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Window tab configurations"), manifold, kpc);
     }
 
     @Override
@@ -22,12 +26,12 @@ public class WindowTabPanePreferencesPanel extends ParentPanel {
     }
 
     @Override
-    void saveFields() throws BackingStoreException {
+    protected void saveFields() throws BackingStoreException {
 
     }
 
     @Override
-    void revertFields() throws BackingStoreException {
+    protected void revertFields() throws BackingStoreException {
 
     }
 }

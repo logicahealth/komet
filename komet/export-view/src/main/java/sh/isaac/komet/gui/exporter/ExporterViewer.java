@@ -85,6 +85,7 @@ public class ExporterViewer implements MenuProvider {
             stampDialog.setTitle("Configure Table Export");
             stampDialog.setHeaderText("Please specify the parameters for export");
             stampDialog.getDialogPane().setContent(ec_.getView());
+            stampDialog.setResizable(true);
             stampDialog.initOwner(window_);
 
             if (stampDialog.showAndWait().orElse(null) == ButtonType.OK) {
@@ -103,6 +104,7 @@ public class ExporterViewer implements MenuProvider {
                     alert.setTitle("Error");
                     alert.setHeaderText("Unexpected error launching export");
                     alert.initOwner(window_);
+                    alert.setResizable(true);
                     alert.showAndWait();
                 }
             }

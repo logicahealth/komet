@@ -95,6 +95,7 @@ import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
@@ -255,11 +256,17 @@ public class ChronologyProvider
      */
     @PostConstruct
     private void startMe() {
-        LOG.info("Starting chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-        this.metadataLoaded.set(-1);
-        store = Get.service(DataStore.class);
-        if (store == null) {
-            throw new RuntimeException("Failed to get a data store!");
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting chronology provider");
+        Get.executor().execute(progressTask);
+        try {
+            LOG.info("Starting chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
+            this.metadataLoaded.set(-1);
+            store = Get.service(DataStore.class);
+            if (store == null) {
+                throw new RuntimeException("Failed to get a data store!");
+            }
+        } finally {
+            progressTask.finished();
         }
     }
 

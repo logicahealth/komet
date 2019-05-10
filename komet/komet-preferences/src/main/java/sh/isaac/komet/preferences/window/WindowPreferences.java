@@ -1,6 +1,8 @@
-package sh.isaac.komet.preferences;
+package sh.isaac.komet.preferences.window;
 
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.komet.preferences.KometPreferencesController;
+import sh.isaac.komet.preferences.ParentPanel;
 import sh.komet.gui.manifold.Manifold;
 
 import java.util.prefs.BackingStoreException;
@@ -26,12 +28,12 @@ public class WindowPreferences extends ParentPanel {
     }
 
     @Override
-    void saveFields() throws BackingStoreException {
+    protected void saveFields() throws BackingStoreException {
 
     }
 
     @Override
-    void revertFields() {
+    protected void revertFields() {
 
     }
 }

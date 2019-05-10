@@ -253,6 +253,7 @@ public class FxUtils {
             if (owner != null) {
                 pd.initOwner(owner);
             }
+            pd.setResizable(true);
             pd.showAndWait();
         }
     }

@@ -33,6 +33,7 @@ import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
@@ -113,13 +114,13 @@ public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptS
     private void showFindPopup(ActionEvent event) {
         this.popOver = new PopOver();
         this.popOver.getRoot().getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        this.popOver.getRoot().getStylesheets().add(Iconography.getStyleSheetStringUrl());
+        this.popOver.getRoot().getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
         this.popOver.setCloseButtonEnabled(true);
         this.popOver.setHeaderAlwaysVisible(false);
         this.popOver.setTitle("");
         this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifold);
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifold, null);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);

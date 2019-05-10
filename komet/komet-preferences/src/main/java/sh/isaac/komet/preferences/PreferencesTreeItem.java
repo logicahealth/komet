@@ -85,6 +85,14 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup> {
                     propertySheetClassName = "sh.komet.gui.contract.preferences.AttachmentItems";
                 } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.LogicActionPreferences")) {
                     propertySheetClassName = "sh.komet.gui.contract.preferences.LogicItems";
+                } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.WindowPreferences")) {
+                    propertySheetClassName = "sh.isaac.komet.preferences.window.WindowPreferences";
+                } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.WindowPreferencePanel")) {
+                    propertySheetClassName = "sh.isaac.komet.preferences.window.WindowPreferencePanel";
+                } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.WindowTabPanePreferencesPanel")) {
+                    propertySheetClassName = "sh.isaac.komet.preferences.window.WindowTabPanePreferencesPanel";
+                } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.LogicItems")) {
+                    propertySheetClassName = "sh.isaac.komet.preferences.LogicItemPanels";
                 }
                 Class preferencesSheetClass = Class.forName(propertySheetClassName);
                 Constructor<PreferenceGroup> c = preferencesSheetClass.getConstructor(

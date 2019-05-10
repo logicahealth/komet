@@ -37,7 +37,7 @@ public class TaskListProvider {
     *
     * @param task the task
     */
-   public void add(Task<?> task) {
+   public final void add(Task<?> task) {
       if (Platform.isFxApplicationThread()) {
          this.taskSet.add(task);
       } else {
@@ -49,12 +49,12 @@ public class TaskListProvider {
 
    //~--- get methods ---------------------------------------------------------
    /**
-    * Gets the observable task set.
+    * Gets an unmodifiable wrapper of the observable task set.
     *
     * @return the set
     */
    public ObservableSet<Task<?>> get() {
-      return this.taskSet;
+      return FXCollections.unmodifiableObservableSet(this.taskSet);
    }
 
    /**
@@ -62,7 +62,7 @@ public class TaskListProvider {
     *
     * @param task the task
     */
-   public void remove(Task<?> task) {
+   public final void remove(Task<?> task) {
       Platform.runLater(() -> {
             this.taskSet.remove(task);
       });

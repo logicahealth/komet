@@ -364,6 +364,7 @@ public class ContentManagerController
 			ibdfDialog.initOwner(cm_.getPrimaryStage().getOwner());
 			ibdfDialog.setHeaderText("Select 1 or more IBDF Files to add");
 			ibdfDialog.getDialogPane().setContent(ibdfPicker);
+			ibdfDialog.setResizable(true);
 			ibdfPicker.setPrefWidth(1024);
 
 			if (ibdfDialog.showAndWait().orElse(null) == ButtonType.OK)
@@ -671,6 +672,7 @@ public class ContentManagerController
 			sdoDialog.setHeaderText("Select 1 or more SDO Files to add");
 			sdoDialog.getDialogPane().setContent(sdoPicker);
 			sdoPicker.setPrefWidth(1024);
+			sdoDialog.setResizable(true);
 			sdoDialog.initOwner(cm_.getPrimaryStage().getOwner());
 
 			if (sdoDialog.showAndWait().orElse(null) == ButtonType.OK)
@@ -739,6 +741,7 @@ public class ContentManagerController
 			ibdfDialog.setTitle("Select Files");
 			ibdfDialog.setHeaderText("Select 1 or more IBDF Files to add");
 			ibdfDialog.getDialogPane().setContent(ibdfPicker);
+			ibdfDialog.setResizable(true);
 			ibdfDialog.initOwner(cm_.getPrimaryStage().getOwner());
 			ibdfPicker.setPrefWidth(1024);
 
@@ -1035,6 +1038,7 @@ public class ContentManagerController
 			ibdfDialog.setHeaderText("Select 1 or 2 IBDF files of the same content type to diff");
 			ibdfDialog.getDialogPane().setContent(ibdfPicker);
 			ibdfDialog.initOwner(cm_.getPrimaryStage().getOwner());
+			ibdfDialog.setResizable(true);
 			ibdfPicker.setPrefWidth(1024);
 
 			if (ibdfDialog.showAndWait().orElse(null) == ButtonType.OK)
@@ -1993,6 +1997,7 @@ public class ContentManagerController
 			alert.setTitle("Complete");
 			alert.setHeaderText("Job complete");
 			alert.initOwner(cm_.getPrimaryStage().getOwner());
+			alert.setResizable(true);
 			alert.showAndWait();
 		}
 
@@ -2007,6 +2012,7 @@ public class ContentManagerController
 			errorAlert.getDialogPane().setContent(text);
 			errorAlert.getDialogPane().setPadding(new Insets(5.0));
 			errorAlert.initOwner(cm_.getPrimaryStage().getOwner());
+			errorAlert.setResizable(true);
 			errorAlert.showAndWait();
 		}
 	}
@@ -2040,6 +2046,7 @@ public class ContentManagerController
 			mavenPathsDialog.setHeaderText("Please specify the Maven configuration");
 			mavenPathsDialog.getDialogPane().setContent(mavenGridPane);
 			mavenPathsDialog.initOwner(cm_.getPrimaryStage().getOwner());
+			mavenPathsDialog.setResizable(true);
 
 			mavenPanelController.m2PathBrowse.setOnAction((actionEvent) -> {
 				DirectoryChooser fc = new DirectoryChooser();
@@ -2092,6 +2099,7 @@ public class ContentManagerController
 			artifactDialog.setHeaderText("Please specify the Artifact Repository configuration");
 			artifactDialog.getDialogPane().setContent(artifactGridPane);
 			artifactDialog.initOwner(cm_.getPrimaryStage().getOwner());
+			artifactDialog.setResizable(true);
 
 			artifactController.artifactReadUrl.setText(sp_.getArtifactReadURL());
 			artifactController.artifactReleaseDeployUrl.setText(sp_.getArtifactReleaseDeployURL());
@@ -2130,6 +2138,7 @@ public class ContentManagerController
 			gitDialog.setHeaderText("Please specify the GIT configuration");
 			gitDialog.getDialogPane().setContent(gitGridPane);
 			gitDialog.initOwner(cm_.getPrimaryStage().getOwner());
+			gitDialog.setResizable(true);
 
 			gpController.gitUrl.setText(sp_.getGitURL());
 			gpController.gitUsername.setText(sp_.getGitUsername());

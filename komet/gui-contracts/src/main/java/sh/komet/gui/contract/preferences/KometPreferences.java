@@ -19,6 +19,7 @@ package sh.komet.gui.contract.preferences;
 import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.manifold.Manifold;
 
 /**

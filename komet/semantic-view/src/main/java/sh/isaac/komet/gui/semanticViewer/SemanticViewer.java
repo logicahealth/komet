@@ -113,6 +113,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.index.IndexedGenerationCallable;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.komet.gui.semanticViewer.HeaderNode.Filter;
 import sh.isaac.komet.gui.semanticViewer.cells.AttachedDataCellFactory;
@@ -121,6 +122,7 @@ import sh.isaac.komet.gui.semanticViewer.cells.StatusCell;
 import sh.isaac.komet.gui.semanticViewer.cells.StringCell;
 import sh.isaac.komet.gui.util.TableHeaderRowTooltipInstaller;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
@@ -672,7 +674,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
 		stage.setTitle("Semantic View");
-		stage.getScene().getStylesheets().add(Iconography.getStyleSheetStringUrl());
+		stage.getScene().getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
 		stage.getScene().getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
 		stage.setWidth(800);
 		stage.setHeight(600);
@@ -1782,7 +1784,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DetailNode createNode(Manifold manifold)
+	public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode)
 	{
 		manifoldConcept_= manifold;
 		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());

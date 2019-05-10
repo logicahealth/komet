@@ -105,6 +105,7 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.control.badged.ComponentPaneModel;
@@ -141,6 +142,9 @@ public class ConceptDetailPanelNode
     private static final int TRANSITION_OFF_TIME = 250;
     private static final int TRANSITION_ON_TIME = 750;
 
+    public enum Keys {
+        MANIFOLD_GROUP_NAME
+    }
     //~--- fields --------------------------------------------------------------
     private final HashMap<String, AtomicBoolean> disclosureStateMap = new HashMap<>();
     private final UUID listenerUuid = UUID.randomUUID();
@@ -162,6 +166,7 @@ public class ConceptDetailPanelNode
     private final Manifold conceptDetailManifold;
     private final ScrollPane scrollPane;
     private final ConceptLabelToolbar conceptLabelToolbar;
+    private final IsaacPreferences preferences;
 
     private final ObservableList<ObservableDescriptionDialect> newDescriptions = FXCollections.observableArrayList();
 
@@ -171,9 +176,11 @@ public class ConceptDetailPanelNode
     }
 
     //~--- constructors --------------------------------------------------------
-    public ConceptDetailPanelNode(Manifold conceptDetailManifold) {
+    public ConceptDetailPanelNode(Manifold conceptDetailManifold, IsaacPreferences preferences) {
         this.conceptDetailManifold = conceptDetailManifold;
-        this.historySwitch.setSelected(false);
+        this.preferences = preferences;
+        this.conceptDetailManifold.setGroupName(preferences.get(Keys.MANIFOLD_GROUP_NAME, Manifold.ManifoldGroup.TAXONOMY.getGroupName()));
+        this.historySwitch.setSelected(false); // add to pref...
         updateManifoldHistoryStates();
         conceptDetailManifold.focusedConceptProperty()
                 .addListener(this::setConcept);
