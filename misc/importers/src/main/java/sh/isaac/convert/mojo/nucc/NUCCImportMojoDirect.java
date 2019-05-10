@@ -44,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -150,7 +151,7 @@ public class NUCCImportMojoDirect extends DirectConverterBaseMojo implements Dir
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.NUCC_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"NUCC", false);
 		
-		setupModule("NUCC", MetaData.NUCC_MODULES____SOLOR.getPrimordialUuid(), date.getTime());
+		setupModule("NUCC", MetaData.NUCC_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://nucc.org/provider-taxonomy"), date.getTime());
 		
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, false, true, false, true, false, date.getTime());

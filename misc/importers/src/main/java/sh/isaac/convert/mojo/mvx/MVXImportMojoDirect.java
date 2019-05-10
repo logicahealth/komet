@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -138,7 +139,7 @@ public class MVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.MVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"MVX", false);
 		
-		setupModule("MVX", MetaData.MVX_MODULES____SOLOR.getPrimordialUuid(), date.getTime());
+		setupModule("MVX", MetaData.MVX_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://hl7.org/fhir/sid/mvx"), date.getTime());
 		
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, true, true, false, true, false, date.getTime());

@@ -482,6 +482,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Converter Version");
                createConcept("Converted IBDF Artifact Version");
                createConcept("Converted IBDF Artifact Classifier");
+               createConcept("FHIR URI");
                popParent();
             createConcept(TermAux.LANGUAGE);
             pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 

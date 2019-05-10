@@ -200,7 +200,7 @@ public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	
 	/**
 	 * Note, this routine is only valid if we are doing a maven conversion, as it makes assumptions about modules...
-	 * TODO In general, its kinda dumb... and needs to be rewritten.
+	 * TODO In general, its kinda dumb... and needs to be rewritten.  It won't handle any RF2 extensions properly
 	 */
 	private void addModuleMetadata()
 	{
@@ -229,7 +229,8 @@ public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements Dire
 				
 				// loadTerminologyMetadataAttributes on each module that came out of the RF2 content
 				dwh.makeTerminologyMetadataAnnotations(module, converterSourceArtifactVersion, Optional.empty(), 
-						Optional.of(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), importTime);
+						Optional.of(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), 
+						Optional.of("http://snomed.info/sct"), importTime);
 			}
 		}
 	}

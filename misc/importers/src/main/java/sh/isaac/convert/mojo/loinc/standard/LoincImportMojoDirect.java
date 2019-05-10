@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -268,7 +269,7 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 			dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.LOINC_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(),
 					converterUUID, "LOINC", false);
 
-			setupModule("LOINC", MetaData.LOINC_MODULES____SOLOR.getPrimordialUuid(), releaseDate.getTime());
+			setupModule("LOINC", MetaData.LOINC_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://loinc.org"), releaseDate.getTime());
 
 			//Set up our metadata hierarchy
 			dwh.makeMetadataHierarchy(true, true, true, true, true, true, releaseDate.getTime());

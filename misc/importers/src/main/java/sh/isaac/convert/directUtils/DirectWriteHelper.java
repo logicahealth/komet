@@ -1407,11 +1407,12 @@ public class DirectWriteHelper
 	 * @param converterSourceReleaseDate
 	 * @param converterOutputArtifactVersion
 	 * @param converterOutputArtifactClassifier
+	 * @param fhirURI 
 	 * @param time
 	 */
 	public void makeTerminologyMetadataAnnotations(UUID terminologyModuleVersionConcept, String converterSourceArtifactVersion,
 			Optional<String> converterSourceReleaseDate, Optional<String> converterOutputArtifactVersion, Optional<String> converterOutputArtifactClassifier,
-			long time)
+			Optional<String> fhirURI, long time)
 	{
 		makeBrittleStringAnnotation(MetaData.SOURCE_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
 				converterSourceArtifactVersion, time);
@@ -1432,6 +1433,12 @@ public class DirectWriteHelper
 		{
 			makeBrittleStringAnnotation(MetaData.SOURCE_RELEASE_DATE____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
 					converterSourceReleaseDate.get(), time);
+		}
+		
+		if (fhirURI.isPresent() && StringUtils.isNotBlank(fhirURI.get()))
+		{
+			makeBrittleStringAnnotation(MetaData.FHIR_URI____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
+					fhirURI.get(), time);
 		}
 	}
 

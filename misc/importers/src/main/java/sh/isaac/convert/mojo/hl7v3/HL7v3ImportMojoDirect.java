@@ -52,6 +52,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -246,7 +247,8 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 			dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.HL7_V3_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 					"HL7v3", false);
 			
-			UUID versionModule = setupModule("HL7v3", MetaData.HL7_V3_MODULES____SOLOR.getPrimordialUuid(), contentTime);
+			UUID versionModule = setupModule("HL7v3", MetaData.HL7_V3_MODULES____SOLOR.getPrimordialUuid(), 
+					Optional.of("http://terminology.hl7.org/CodeSystem/v3-"), contentTime);
 			
 			//Set up our metadata hierarchy
 			dwh.makeMetadataHierarchy(true, true, false, true, true, false, contentTime);

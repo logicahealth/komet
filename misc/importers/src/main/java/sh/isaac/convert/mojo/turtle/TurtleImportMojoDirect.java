@@ -412,7 +412,8 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 				
 				dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, Optional.of(new Date(releaseTime).toString()), 
-						Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), releaseTime);
+						Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), 
+						Optional.of(preferredNamespaceUri), releaseTime);
 	
 				for (Statement s : allStatements.get("http://rdfs.co/bevon/CoreGroup"))
 				{

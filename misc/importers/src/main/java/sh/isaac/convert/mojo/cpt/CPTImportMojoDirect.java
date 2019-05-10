@@ -49,6 +49,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -211,7 +212,7 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"CPT", false);
 		
-		setupModule("CPT", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), contentTime);
+		setupModule("CPT", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://www.ama-assn.org/go/cpt"), contentTime);
 		
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);

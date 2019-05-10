@@ -310,7 +310,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	 * @param releaseTime
 	 * @return
 	 */
-	protected UUID setupModule(String name, UUID parentModule, long releaseTime)
+	protected UUID setupModule(String name, UUID parentModule, Optional<String> fhirURI, long releaseTime)
 	{
 		//Create a module for this version.
 		String fullName = name + " " + converterSourceArtifactVersion + " module";
@@ -329,7 +329,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 		dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 		
 		dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, Optional.of(new Date(releaseTime).toString()), 
-				Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), releaseTime);
+				Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), fhirURI, releaseTime);
 		
 		return versionModule;
 	}
