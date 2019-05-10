@@ -647,7 +647,13 @@ public class CommitProvider
                             .getSemanticChronology(nid);
 
                     if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
-                        Get.taxonomyService().updateTaxonomy(sc);
+                        try {
+                            Get.taxonomyService().updateTaxonomy(sc);
+                        } catch (RuntimeException e) {
+                            //TODO better way of reporting errors without stopping processing of remaining content
+                            e.printStackTrace();
+                            LOG.error("While processing: " + sc);
+                        }
                     }
                 } else {
                     Get.identifierService()
