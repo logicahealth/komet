@@ -34,9 +34,50 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.komet.gui.cell.treetable;
+package sh.komet.gui.cell.table;
 
 //~--- JDK imports ------------------------------------------------------------
+
+import javafx.application.Platform;
+import javafx.beans.property.Property;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
+import javafx.event.ActionEvent;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PropertySheet;
+import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitTask;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.*;
+import sh.isaac.api.component.semantic.version.brittle.*;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.cell.CellFunctions;
+import sh.komet.gui.cell.CellHelper;
+import sh.komet.gui.contract.GuiConceptBuilder;
+import sh.komet.gui.contract.GuiSearcher;
+import sh.komet.gui.control.FixedSizePane;
+import sh.komet.gui.control.PropertyToPropertySheetItem;
+import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.control.property.PropertyEditorFactory;
+import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.style.StyleClasses;
+import sh.komet.gui.util.FxGet;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -45,85 +86,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import javafx.application.Platform;
-import javafx.beans.property.Property;
 
 //~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
-import javafx.event.ActionEvent;
-import javafx.geometry.HPos;
-import javafx.geometry.VPos;
-import javafx.scene.control.*;
-
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.controlsfx.control.PropertySheet;
-
-import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.commit.CommitTask;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.LongVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
-
-import sh.isaac.api.observable.ObservableChronology;
-import sh.komet.gui.cell.CellFunctions;
-import sh.komet.gui.cell.CellHelper;
-import sh.komet.gui.control.FixedSizePane;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.style.StyleClasses;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version;
-import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Int3_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Str3_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Str2_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.contract.GuiSearcher;
-import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.control.PropertyToPropertySheetItem;
-import sh.komet.gui.control.axiom.AxiomView;
-import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
+
 /**
  *
  * @author kec
  */
-public class TreeTableGeneralCell
-        extends KometTreeTableCell<ObservableCategorizedVersion> implements CellFunctions {
+public class TableGeneralCell extends KometTableCell implements CellFunctions {
 
     private static final Logger LOG = LogManager.getLogger();
 
     //~--- fields --------------------------------------------------------------
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final Manifold manifold;
     private final Button editButton = new Button("", Iconography.EDIT_PENCIL.getIconographic());
     private final GridPane textAndEditGrid = new GridPane();
@@ -135,7 +112,7 @@ public class TreeTableGeneralCell
     private final CellHelper cellHelper = new CellHelper(this);
 
     //~--- constructors --------------------------------------------------------
-    public TreeTableGeneralCell(Manifold manifold) {
+    public TableGeneralCell(Manifold manifold) {
         this.manifold = manifold;
         getStyleClass().add("komet-version-general-cell");
         getStyleClass().add("isaac-version");
@@ -168,13 +145,14 @@ public class TreeTableGeneralCell
 
     //~--- methods -------------------------------------------------------------
 
-
-    public GridPane getTextAndEditGrid() {
-        return textAndEditGrid;
-    }
-
+    @Override
     public FixedSizePane getPaneForText() {
         return paneForText;
+    }
+
+    @Override
+    public GridPane getTextAndEditGrid() {
+        return textAndEditGrid;
     }
 
     @Override
@@ -183,7 +161,7 @@ public class TreeTableGeneralCell
     }
 
     public void initializeConceptBuilder() {
-        this.cellHelper.initializeConceptBuilder(version);
+        this.cellHelper.initializeConceptBuilder(this.version);
     }
 
     public void search() {
@@ -250,7 +228,7 @@ public class TreeTableGeneralCell
     }
 
     @Override
-    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion version) {
-        cellHelper.updateItem(version, this, this.getTableColumn());
+    protected void updateItem(TableRow<ObservableChronology> row, ObservableVersion cellValue) {
+        cellHelper.updateItem(cellValue, this, this.getTableColumn());
     }
 }

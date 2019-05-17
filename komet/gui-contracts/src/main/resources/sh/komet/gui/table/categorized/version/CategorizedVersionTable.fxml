@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+
+          <TableView fx:id="listTable"  tableMenuButtonVisible="true"
+                         BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.1"
+                         xmlns:fx="http://javafx.com/fxml/1"
+                         fx:controller="sh.komet.gui.table.categorized.version.CategorizedVersionTableController">
+              <columns>
+                  <TableColumn fx:id="whatColumn" minWidth="50.0" prefWidth="-1.0" />
+                  <TableColumn fx:id="generalColumn" minWidth="300.0" prefWidth="-1.0" />
+                  <TableColumn fx:id="statusColumn" editable="false" maxWidth="-Infinity" prefWidth="-1.0" text="status" visible="false" />
+                  <TableColumn fx:id="authorTimeColumn" editable="false" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" text="author/time" />
+                  <TableColumn fx:id="timeColumn" prefWidth="75.0" text="time" visible="false" />
+                  <TableColumn fx:id="authorColumn" prefWidth="75.0" text="author" visible="false" />
+                  <TableColumn fx:id="modulePathColumn" editable="false" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" text="module/path" />
+                  <TableColumn fx:id="moduleColumn" prefWidth="75.0" text="module" visible="false" />
+                  <TableColumn fx:id="pathColumn" prefWidth="75.0" text="path" visible="false" />
+              </columns>
+              <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+              </columnResizePolicy>
+          </TableView>
