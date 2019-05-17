@@ -85,7 +85,7 @@ import sh.isaac.model.xml.StatusEnumSetAdaptor;
 @XmlRootElement(name = "StampCoordinate")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = {"stampCoordinateUuid", "stampPosition", "allowedStates",
-    "stampPrecedence", "moduleSpecifications", "modulePreferenceOrderForVersions"})
+    "stampPrecedence", "moduleSpecifications", "modulePreferenceOrderForVersions", "authorSpecifications"})
 public class StampCoordinateImpl
         implements StampCoordinate {
 
@@ -275,6 +275,9 @@ public class StampCoordinateImpl
         }
 
         if (!this.allowedStates.equals(other.getAllowedStates())) {
+            return false;
+        }
+        if (!this.authorSpecifications.equals(other.getAuthorSpecifications())) {
             return false;
         }
 
@@ -529,6 +532,7 @@ public class StampCoordinateImpl
     public StampCoordinateImpl deepClone() {
         StampCoordinateImpl newCoordinate = new StampCoordinateImpl(stampPrecedence,
                 stampPosition.deepClone(),
+                new HashSet<>(authorSpecifications),
                 new HashSet<>(moduleSpecifications),
                 new ArrayList<>(this.modulePriorityList),
                 EnumSet.copyOf(allowedStates));
