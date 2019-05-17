@@ -30,6 +30,7 @@ public class BatchViewNode implements ExplorationNode {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/BatchNode.fxml"));
             this.root = loader.load();
             this.controller = loader.getController();
+            this.controller.setManifold(manifold);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

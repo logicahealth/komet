@@ -14,13 +14,11 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.component.semantic.version.brittle.*;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.komet.gui.contract.GuiConceptBuilder;
@@ -51,13 +49,9 @@ public class CellHelper {
     public ContextMenu makeContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem item1 = new MenuItem("Search for contents");
-        item1.setOnAction((ActionEvent e) -> {
-            cell.search();
-        });
-        MenuItem item2 = new MenuItem("Initilize concept builder");
-        item2.setOnAction((ActionEvent e) -> {
-            cell.initializeConceptBuilder();
-        });
+        item1.setOnAction((ActionEvent e) -> cell.search());
+        MenuItem item2 = new MenuItem("Initialize concept builder");
+        item2.setOnAction((ActionEvent e) ->  cell.initializeConceptBuilder());
         contextMenu.getItems().addAll(item1, item2);
         return contextMenu;
     }
@@ -101,9 +95,6 @@ public class CellHelper {
         if (cell.getManifold().getLogicCoordinate()
                 .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
             premiseType = PremiseType.INFERRED;
-        } else if (cell.getManifold().getLogicCoordinate()
-                .getStatedAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
-            premiseType = PremiseType.STATED;
         }
         addDefToCell(expression, premiseType);
     }
@@ -384,206 +375,193 @@ public class CellHelper {
     }
 
     private void processInt1_Int2_Str3_Str4_Str5_Nid6_Nid7(Text assemblageNameText, Text referencedComponentText, Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(brittleVersion.getInt1());
-        buff.append("\n");
-        buff.append(brittleVersion.getInt2());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr3());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr4());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr5());
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid6()));
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid7()));
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = brittleVersion.getInt1() +
+                "\n" +
+                brittleVersion.getInt2() +
+                "\n" +
+                brittleVersion.getStr3() +
+                "\n" +
+                brittleVersion.getStr4() +
+                "\n" +
+                brittleVersion.getStr5() +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid6()) +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid7()) +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processLOINC_RECORD(Text assemblageNameText, Text referencedComponentText, LoincVersion brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(brittleVersion.getLoincNum());
-        buff.append(" ");
-        buff.append(brittleVersion.getShortName());
-        buff.append(" - ");
-        buff.append(brittleVersion.getLoincStatus());
-        buff.append("\n");
-        buff.append(brittleVersion.getLongCommonName());
-        buff.append("\nc:");
-        buff.append(brittleVersion.getComponent());
-        buff.append(" m: ");
-        buff.append(brittleVersion.getMethodType());
-        buff.append("\np: ");
-        buff.append(brittleVersion.getProperty());
-        buff.append(" - ");
-        buff.append(brittleVersion.getScaleType());
-        buff.append(" s: ");
-        buff.append(brittleVersion.getSystem());
-        buff.append(" t: ");
-        buff.append(brittleVersion.getTimeAspect());
 
-        Text defaultText = new Text(buff.toString());
+        String buff = brittleVersion.getLoincNum() +
+                " " +
+                brittleVersion.getShortName() +
+                " - " +
+                brittleVersion.getLoincStatus() +
+                "\n" +
+                brittleVersion.getLongCommonName() +
+                "\nc:" +
+                brittleVersion.getComponent() +
+                " m: " +
+                brittleVersion.getMethodType() +
+                "\np: " +
+                brittleVersion.getProperty() +
+                " - " +
+                brittleVersion.getScaleType() +
+                " s: " +
+                brittleVersion.getSystem() +
+                " t: " +
+                brittleVersion.getTimeAspect();
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processNid1_Int2(Text assemblageNameText, Text referencedComponentText, Nid1_Int2_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()));
-        buff.append("\n");
-        buff.append(brittleVersion.getInt2());
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+                "\n" +
+                brittleVersion.getInt2() +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processNid1_Int2_Str3_Str4_Nid5_Nid6(Text assemblageNameText, Text referencedComponentText, Nid1_Int2_Str3_Str4_Nid5_Nid6_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()));
-        buff.append("\n");
-        buff.append(brittleVersion.getInt2());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr3());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr4());
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid5()));
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid6()));
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+                "\n" +
+                brittleVersion.getInt2() +
+                "\n" +
+                brittleVersion.getStr3() +
+                "\n" +
+                brittleVersion.getStr4() +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid5()) +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid6()) +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processNid1_Nid2(Text assemblageNameText, Text referencedComponentText, Nid1_Nid2_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()));
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()));
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()) +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processNid1_Nid2_Int3(Text assemblageNameText, Text referencedComponentText, Nid1_Nid2_Int3_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()));
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()));
-        buff.append("\n");
-        buff.append(brittleVersion.getInt3());
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()) +
+                "\n" +
+                brittleVersion.getInt3() +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processNid1_Nid2_Str3(Text assemblageNameText, Text referencedComponentText, Nid1_Nid2_Str3_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()));
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()));
-        buff.append("\n");
-        buff.append(brittleVersion.getStr3());
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()) +
+                "\n" +
+                brittleVersion.getStr3() +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processNid1_Str2(Text assemblageNameText, Text referencedComponentText, Nid1_Str2_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()));
-        buff.append("\n");
-        buff.append(brittleVersion.getStr2());
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+                "\n" +
+                brittleVersion.getStr2() +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processStr1_Str2(Text assemblageNameText, Text referencedComponentText, Str1_Str2_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(brittleVersion.getStr1());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr2());
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = brittleVersion.getStr1() +
+                "\n" +
+                brittleVersion.getStr2() +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processStr1_Str2_Nid3_Nid4(Text assemblageNameText, Text referencedComponentText, Str1_Str2_Nid3_Nid4_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(brittleVersion.getStr1());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr2());
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid3()));
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid4()));
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = brittleVersion.getStr1() +
+                "\n" +
+                brittleVersion.getStr2() +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid3()) +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid4()) +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processStr1_Str2_Str3_Str4_Str5_Str6_Str7(Text assemblageNameText, Text referencedComponentText, Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(brittleVersion.getStr1());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr2());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr3());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr4());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr5());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr6());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr7());
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = brittleVersion.getStr1() +
+                "\n" +
+                brittleVersion.getStr2() +
+                "\n" +
+                brittleVersion.getStr3() +
+                "\n" +
+                brittleVersion.getStr4() +
+                "\n" +
+                brittleVersion.getStr5() +
+                "\n" +
+                brittleVersion.getStr6() +
+                "\n" +
+                brittleVersion.getStr7() +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processStr1_Nid2_Nid3_Nid4(Text assemblageNameText, Text referencedComponentText, Str1_Nid2_Nid3_Nid4_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(brittleVersion.getStr1());
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()));
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid3()));
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid4()));
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = brittleVersion.getStr1() +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()) +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid3()) +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid4()) +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 
     private void processStr1_Str2_Nid3_Nid4_Nid5(Text assemblageNameText, Text referencedComponentText, Str1_Str2_Nid3_Nid4_Nid5_Version brittleVersion) {
-        StringBuilder buff = new StringBuilder();
-        buff.append(brittleVersion.getStr1());
-        buff.append("\n");
-        buff.append(brittleVersion.getStr2());
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid3()));
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid4()));
-        buff.append("\n");
-        buff.append(cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid5()));
-        buff.append(" ");
 
-        Text defaultText = new Text(buff.toString());
+        String buff = brittleVersion.getStr1() +
+                "\n" +
+                brittleVersion.getStr2() +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid3()) +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid4()) +
+                "\n" +
+                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid5()) +
+                " ";
+        Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 

@@ -1,24 +1,20 @@
-package sh.komet.gui.table.categorized.version;
+package sh.komet.gui.table.version;
 
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.CategorizedVersion;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.komet.gui.cell.table.*;
 import sh.komet.gui.manifold.Manifold;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class CategorizedVersionTableController {
+public class VersionTableController {
 
      @FXML // fx:id="assemblageDetailRootPane"
     private BorderPane assemblageDetailRootPane;
@@ -53,23 +49,23 @@ public class CategorizedVersionTableController {
     @FXML  // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert listTable != null :
-                "fx:id=\"listTable\" was not injected: check your FXML file 'CategorizedVersionTable.fxml'.";
+                "fx:id=\"listTable\" was not injected: check your FXML file 'VersionTable.fxml'.";
         assert whatColumn != null :
-                "fx:id=\"assemblageExtensionWhat\" was not injected: check your FXML file 'CategorizedVersionTable.fxml'.";
+                "fx:id=\"assemblageExtensionWhat\" was not injected: check your FXML file 'VersionTable.fxml'.";
         assert generalColumn != null :
-                "fx:id=\"assemblageExtensionGeneral\" was not injected: check your FXML file 'CategorizedVersionTable.fxml'.";
+                "fx:id=\"assemblageExtensionGeneral\" was not injected: check your FXML file 'VersionTable.fxml'.";
         assert statusColumn != null :
-                "fx:id=\"assemblageExtensionStatus\" was not injected: check your FXML file 'CategorizedVersionTable.fxml'.";
+                "fx:id=\"assemblageExtensionStatus\" was not injected: check your FXML file 'VersionTable.fxml'.";
         assert timeColumn != null :
-                "fx:id=\"assemblageExtensionTime\" was not injected: check your FXML file 'CategorizedVersionTable.fxml'.";
+                "fx:id=\"assemblageExtensionTime\" was not injected: check your FXML file 'VersionTable.fxml'.";
         assert authorColumn != null :
-                "fx:id=\"assemblageExtensionAuthor\" was not injected: check your FXML file 'CategorizedVersionTable.fxml'.";
-        assert modulePathColumn != null : "fx:id=\"modulePathColumn\" was not injected: check your FXML file 'CategorizedVersionTable.fxml'.";
-        assert authorTimeColumn != null : "fx:id=\"authorTimeColumn\" was not injected: check your FXML file 'CategorizedVersionTable.fxml'.";
+                "fx:id=\"assemblageExtensionAuthor\" was not injected: check your FXML file 'VersionTable.fxml'.";
+        assert modulePathColumn != null : "fx:id=\"modulePathColumn\" was not injected: check your FXML file 'VersionTable.fxml'.";
+        assert authorTimeColumn != null : "fx:id=\"authorTimeColumn\" was not injected: check your FXML file 'VersionTable.fxml'.";
         assert moduleColumn != null :
-                "fx:id=\"assemblageExtensionModule\" was not injected: check your FXML file 'CategorizedVersionTable.fxml'.";
+                "fx:id=\"assemblageExtensionModule\" was not injected: check your FXML file 'VersionTable.fxml'.";
         assert pathColumn != null :
-                "fx:id=\"assemblageExtensionPath\" was not injected: check your FXML file 'CategorizedVersionTable.fxml'.";
+                "fx:id=\"assemblageExtensionPath\" was not injected: check your FXML file 'VersionTable.fxml'.";
 
         authorTimeColumn.setText("author\ntime");
         modulePathColumn.setText("module\npath");

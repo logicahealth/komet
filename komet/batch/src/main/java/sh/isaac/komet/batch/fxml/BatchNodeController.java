@@ -1,32 +1,42 @@
 package sh.isaac.komet.batch.fxml;
 /**
- * Sample Skeleton for 'BatchNode.fxml' Controller Class
+ * 'BatchNode.fxml' Controller Class
  */
-
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.table.version.VersionTable;
 
 public class BatchNodeController {
 
-    @FXML // ResourceBundle that was given to the FXMLLoader
+    @FXML
     private ResourceBundle resources;
 
-    @FXML // URL location of the FXML file that was given to the FXMLLoader
+    @FXML
     private URL location;
 
-    @FXML // fx:id="batchAnchor"
-    private AnchorPane batchAnchor; // Value injected by FXMLLoader
+    @FXML
+    private AnchorPane batchAnchor;
 
-    @FXML // fx:id="listTable"
-    private TableView<?> listTable; // Value injected by FXMLLoader
+    @FXML
+    private BorderPane batchBorderPane;
 
-    @FXML // This method is called by the FXMLLoader when initialization is complete
+    VersionTable versionTable;
+
+    Manifold manifold;
+
+    @FXML
     void initialize() {
         assert batchAnchor != null : "fx:id=\"batchAnchor\" was not injected: check your FXML file 'BatchNode.fxml'.";
-        assert listTable != null : "fx:id=\"listTable\" was not injected: check your FXML file 'BatchNode.fxml'.";
+        assert batchBorderPane != null : "fx:id=\"batchBorderPane\" was not injected: check your FXML file 'BatchNode.fxml'.";
+    }
 
+    public void setManifold(Manifold manifold) {
+        this.manifold = manifold;
+        this.versionTable = new VersionTable(manifold);
+        this.batchBorderPane.setCenter(this.versionTable.getRootNode());
     }
 }
