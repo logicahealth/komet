@@ -151,71 +151,94 @@ public class ImportViewController {
                         importReady.addBinding(newFileItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
                         ConcurrentHashMap<String, TreeItem<ImportItem>> newTreeItems = new ConcurrentHashMap<>();
                         fileItemsMap.put(newFileItem, newTreeItems);
-                        zipFile.stream().forEach((ZipEntry zipEntry) -> {
-                            if (zipEntry.getName().toLowerCase().endsWith(".zip")) {
-                                // maven artifact structure with nested zip file for actual content
-                                try (ZipFile nestedZipFile = new ZipFile(file, Charset.forName("UTF-8"))) {
-                                    ZipInputStream zis = new ZipInputStream(zipFile.getInputStream(zipEntry), Charset.forName("UTF-8"));
-                                    ZipEntry nestedEntry = zis.getNextEntry();
-                                    while (nestedEntry != null) {
-                                        if (!nestedEntry.getName().toUpperCase().contains("__MACOSX") && !nestedEntry.getName().contains("._")) {
-                                            byte[] itemBytes = null;
-                                            if (nestedEntry.getSize() < (500 * 1024 * 1024)) {
-                                                //We have to cache these unzipped bytes, as otherwise, 
-                                                //the import is terribly slow, because the java zip API only provides stream access
-                                                //to nested files, and when you try to unzip from a stream, it can't jump ahead whe you 
-                                                //call next entry, so you end up re-extracting the entire file for each file, which more 
-                                                //that triples the load times.
-                                                LOG.debug("Caching unzipped content");
-                                                itemBytes = IOUtils.toByteArray(zis);
-                                            } else {
-                                                LOG.info("content file too large to cache");
+                        zipFile.stream()
+                                .filter(entry -> !entry.getName().contains("__MACOSX") && !entry.getName().contains("._") && !entry.getName().contains(".DS_Store"))
+                                .forEach((ZipEntry zipEntry) -> {
+
+                                    if (zipEntry.getName().toLowerCase().endsWith(".zip")) {
+                                        // maven artifact structure with nested zip file for actual content
+
+                                        try (ZipFile nestedZipFile = new ZipFile(file, Charset.forName("UTF-8"))) {
+
+                                            ZipInputStream zis = new ZipInputStream(zipFile.getInputStream(zipEntry), Charset.forName("UTF-8"));
+                                            ZipEntry nestedEntry = zis.getNextEntry();
+
+                                            while (nestedEntry != null) {
+
+                                                if (!nestedEntry.getName().toUpperCase().contains("__MACOSX") && !nestedEntry.getName().contains("._")) {
+
+                                                    byte[] itemBytes = null;
+
+                                                    if (nestedEntry.getSize() < (500 * 1024 * 1024)) {
+
+                                                        //We have to cache these unzipped bytes, as otherwise,
+                                                        //the import is terribly slow, because the java zip API only provides stream access
+                                                        //to nested files, and when you try to unzip from a stream, it can't jump ahead whe you
+                                                        //call next entry, so you end up re-extracting the entire file for each file, which more
+                                                        //that triples the load times.
+
+                                                        LOG.debug("Caching unzipped content");
+                                                        itemBytes = IOUtils.toByteArray(zis);
+
+                                                    } else {
+
+                                                        LOG.info("content file too large to cache");
+                                                    }
+
+                                                    ImportItemZipEntry nestedImportItem = new ImportItemZipEntry(file, zipEntry, nestedEntry, itemBytes);
+                                                    TreeItem<ImportItem> nestedEntryItem = new TreeItem<>(nestedImportItem);
+                                                    importReady.addBinding(nestedEntryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
+                                                    newTreeItems.put(zipEntry.getName() + "/" + nestedEntry.getName(), nestedEntryItem);
+                                                }
+
+                                                nestedEntry = zis.getNextEntry();
                                             }
-                                            ImportItemZipEntry nestedImportItem = new ImportItemZipEntry(file, zipEntry, nestedEntry, itemBytes);
-                                            TreeItem<ImportItem> nestedEntryItem = new TreeItem<>(nestedImportItem);
-                                            importReady.addBinding(nestedEntryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
-                                            newTreeItems.put(zipEntry.getName() + "/" + nestedEntry.getName(), nestedEntryItem);
-                                        }
-                                        nestedEntry = zis.getNextEntry();
-                                    }
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
-                                TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
-                                importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
-                                newTreeItems.put(zipEntry.getName(), entryItem);
-                            } else if (!zipEntry.getName().toUpperCase().contains("__MACOSX") && !zipEntry.getName().contains("._")) {
-                                if (file.getName().toLowerCase().startsWith("rxnorm_")) {
-                                    if (zipEntry.getName().toLowerCase().endsWith(".rrf")) {
-                                        ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
-                                        TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
-                                        importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
-                                        if (importItem.nameProperty.get().toUpperCase().endsWith("RXNCONSO.RRF")
-                                                && !importItem.parentKey.toLowerCase().contains("prescribe")) {
-                                            importItem.importData.set(true);
-                                        } else {
-                                            importItem.importData.set(false);
+
+                                        } catch (IOException e) {
+
+                                            throw new RuntimeException(e);
                                         }
 
-                                        newTreeItems.put(zipEntry.getName(), entryItem);
-                                    }
-                                } else if (file.getName().toLowerCase().startsWith("loinc_")) {
-                                    if (zipEntry.getName().toLowerCase().equals("loinc.csv")) {
                                         ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
                                         TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
                                         importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
                                         newTreeItems.put(zipEntry.getName(), entryItem);
-                                    }
-                                } else {
-                                    ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
-                                    TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
-                                    importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
-                                    newTreeItems.put(zipEntry.getName(), entryItem);
-                                }
-                            }
-                        });
 
+                                    } else {
+
+                                        if (file.getName().toLowerCase().startsWith("rxnorm_")) {
+
+                                            if(zipEntry.getName().toLowerCase().endsWith("rxnconso.rrf") &&
+                                                    !zipEntry.getName().toLowerCase().contains("prescribe")){
+
+                                                ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
+                                                TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
+                                                importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
+                                                importItem.importData.set(true);
+                                                newTreeItems.put(zipEntry.getName(), entryItem);
+                                            }
+
+                                        } else if (file.getName().toLowerCase().startsWith("loinc_")) {
+
+                                            if (zipEntry.getName().toLowerCase().equals("loinc.csv")) {
+
+                                                ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
+                                                TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
+                                                importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
+                                                newTreeItems.put(zipEntry.getName(), entryItem);
+                                            }
+
+                                        }else {
+
+                                            ImportItemZipEntry importItem = new ImportItemZipEntry(file, zipEntry);
+                                            TreeItem<ImportItem> entryItem = new TreeItem<>(importItem);
+                                            importReady.addBinding(entryItem.getValue().importDataProperty());  //Bind to what stores the checkbox selections....
+                                            newTreeItems.put(zipEntry.getName(), entryItem);
+                                        }
+
+                                    }
+
+                                });
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -257,7 +280,9 @@ public class ImportViewController {
                             if (!fileTreeTable.getRoot().getChildren().contains(fileItem)) {
                                 fileTreeTable.getRoot().getChildren().add(fileItem);
                             }
-                            fileItem.getChildren().add(treeItem);
+                            if (!fileItem.getChildren().contains(treeItem)) {
+                                fileItem.getChildren().add(treeItem);
+                            }
                         } else {
                             String parentKey = treeItemValue.getParentKey();
                             TreeItem<ImportItem> parentItem = treeItems.get(parentKey);
