@@ -15,6 +15,7 @@ import javafx.scene.transform.Transform;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
+import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.interfaces.DraggableWithImage;
 
 /*
@@ -57,7 +58,6 @@ public class DescriptionTableCell<T extends IdentifiedObject> extends TableCell<
 
    @Override
    public Image getDragImage() {
-      
       SnapshotParameters snapshotParameters = new SnapshotParameters();
       //snapshotParameters.setFill(Color.BISQUE);
       dragOffset = 0;

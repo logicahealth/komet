@@ -31,6 +31,7 @@ public class BatchViewNode implements ExplorationNode {
             this.root = loader.load();
             this.controller = loader.getController();
             this.controller.setManifold(manifold);
+
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

@@ -37,6 +37,8 @@
 package sh.komet.gui.drag.drop;
 
 import java.util.function.IntSupplier;
+
+import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
@@ -82,13 +84,13 @@ public class DragDetectedCellEventHandler
     public void handle(MouseEvent event) {
         /* drag was detected, start a drag-and-drop gesture */
  /* allow any transfer mode */
-        Node eventNode = null;
+        Region eventNode = null;
         IdentifiedObject identifiedObject = null;
 
         if (nidSupplier != null) {
             identifiedObject = Get.identifiedObjectService().getChronology(nidSupplier.getAsInt()).get();
-            if (event.getSource() instanceof Node) {
-                eventNode = (Node) event.getSource();
+            if (event.getSource() instanceof Region) {
+                eventNode = (Region) event.getSource();
             } else {
                 LOG.warn("Non node source of drag? {}", event.getSource());
             }
@@ -108,9 +110,9 @@ public class DragDetectedCellEventHandler
                     .getSelectedItem() instanceof IdentifiedObject) {
                 identifiedObject = tableView.getSelectionModel()
                         .getSelectedItem();
-                eventNode = event.getPickResult()
+                eventNode = (Region) event.getPickResult()
                         .getIntersectedNode();
-                eventNode = eventNode.getParent();
+                eventNode = (Region) eventNode.getParent();
             }
         } else {
             LOG.warn("unhandled event source {}" + event.getSource());
