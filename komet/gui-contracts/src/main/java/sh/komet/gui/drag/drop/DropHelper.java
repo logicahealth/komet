@@ -7,6 +7,8 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -20,6 +22,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class DropHelper {
+
+    protected static final Logger LOG = LogManager.getLogger();
 
     private final Region region;
     private Background originalBackground;
@@ -45,7 +49,7 @@ public class DropHelper {
 
 
     private void handleDragDropped(DragEvent event) {
-        System.out.println("Dragging dropped: " + event);
+        LOG.debug("Dragging dropped: " + event);
         if (this.dragInProgress.getAsBoolean()) {
             return;
         }
@@ -83,7 +87,7 @@ public class DropHelper {
     }
 
     private void handleDragEntered(DragEvent event) {
-        System.out.println("Dragging entered: " + event);
+        LOG.debug("Dragging entered: " + event);
         if (this.dragInProgress.getAsBoolean()) {
             return;
         }
@@ -113,7 +117,7 @@ public class DropHelper {
     }
 
     private void handleDragExited(DragEvent event) {
-        System.out.println("Dragging exited: " + event);
+        LOG.debug("Dragging exited: " + event);
         if (this.dragInProgress.getAsBoolean()) {
             return;
         }

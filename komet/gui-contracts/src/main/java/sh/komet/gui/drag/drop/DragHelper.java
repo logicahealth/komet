@@ -6,6 +6,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Region;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.komet.gui.util.FxGet;
 
@@ -14,6 +16,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class DragHelper {
+
+    protected static final Logger LOG = LogManager.getLogger();
 
     private final Region region;
     private final Supplier<IdentifiedObject> objectToDragSupplier;
@@ -40,7 +44,7 @@ public class DragHelper {
     }
 
     private void handleDragDetected(MouseEvent event) {
-        System.out.println("Drag detected: " + event);
+        LOG.debug("Drag detected: " + event);
         if (acceptDrag.test(event)) {
             this.dragging = true;
             this.dragNotifier.accept(this.dragging);
@@ -56,7 +60,7 @@ public class DragHelper {
     }
 
     private void handleDragDone(DragEvent event) {
-        System.out.println("Drag done: " + event);
+        LOG.debug("Drag done: " + event);
         this.dragging = false;
         this.dragNotifier.accept(this.dragging);
         if (event.getAcceptedTransferMode() == TransferMode.MOVE) {
