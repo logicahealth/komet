@@ -731,7 +731,7 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 		// From MAP_TO
 		dwh.makeAttributeTypeConcept(null, "COMMENT", "Comment", null, false, DynamicDataType.STRING, null, time);
 
-		dwh.makeAttributeTypeConcept(null, "LOINC_NUM", "LOINC Identifier", null, "Carries the LOINC_NUM native identifier", false, DynamicDataType.STRING,
+		dwh.makeAttributeTypeConcept(null, "LOINC_NUM", "LOINC Identifier", null, "Carries the LOINC_NUM native identifier", true, null,
 				null, time);
 
 		dwh.makeAttributeTypeConcept(null, "ABBREVIATION", "Abbreviation", null, false, DynamicDataType.STRING, null, time);
@@ -1057,7 +1057,7 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 				dwh.makeStringAnnotation(dwh.getAttributeType("PATH_TO_ROOT"), concept, pathString, time);
 			}
 
-			dwh.makeStringAnnotation(dwh.getAttributeType("LOINC_NUM"), concept, code, time);
+			dwh.makeBrittleStringAnnotation(dwh.getAttributeType("LOINC_NUM"), concept, code, time);
 			dwh.makeBrittleStringAnnotation(MetaData.CODE____SOLOR.getPrimordialUuid(), concept, code, time);
 			this.concepts.add(concept);
 		}
