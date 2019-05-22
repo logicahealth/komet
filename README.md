@@ -116,10 +116,11 @@ REPO_PASSWORD
 
 Make sure that offline is set to false in your settings.xml file. 
 ```
-$ mvn jgitflow:release-start jgitflow:release-finish \
-         -DreleaseVersion=4.64 -DdevelopmentVersion=4.65-SNAPSHOT
+$ mvn gitflow:release-start gitflow:release-finish \
+         -DreleaseVersion=4.64 -DdevelopmentVersion=4.65-SNAPSHOT \
+         -DpostReleaseGoals="clean deploy"
 
-$ mvn jgitflow:release-start jgitflow:release-finish -Prelease-deploy
+$ mvn -e gitflow:release -DpostReleaseGoals="clean deploy"
 ```
 
 
@@ -136,4 +137,16 @@ Useful on linux, and with repo content
 
 ```
 -Dsun.awt.disablegrab=true -DM2_PATH=/mnt/STORAGE/Work/VetsEZ/Maven/repository/
+```
+To turn off messages such as the following from JAXB:
+```
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by com.sun.xml.bind.v2.runtime.reflect.opt.Injector (file:/home/tra/.m2/repository/com/sun/xml/bind/jaxb-impl/2.3.0/jaxb-impl-2.3.0.jar) to method java.lang.ClassLoader.defineClass(java.lang.String,byte[],int,int)
+WARNING: Please consider reporting this to the maintainers of com.sun.xml.bind.v2.runtime.reflect.opt.Injector
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+```
+Add the following flag to the java start  command
+```
+--add-opens java.base/java.lang=ALL-UNNAMED
 ```
