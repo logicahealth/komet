@@ -1066,9 +1066,9 @@
                <autoVersionSubmodules>true</autoVersionSubmodules>
                <enableFeatureVersions>true</enableFeatureVersions>
                <enableSshAgent>true</enableSshAgent>
-               <fetchRemote>false</fetchRemote>
+               <fetchRemote>true</fetchRemote>
                <installProject>true</installProject>
-               <pushReleases>false</pushReleases>
+               <pushReleases>true</pushReleases>
                <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
                <username>${git.user}</username>
                <password>${git.password}</password>
