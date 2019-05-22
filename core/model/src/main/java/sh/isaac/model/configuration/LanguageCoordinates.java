@@ -500,7 +500,6 @@ public class LanguageCoordinates {
          }
       }
       LOG.info("Expanded language type list from {} to {} in {}ms", startNids, endNids, System.currentTimeMillis() - time);
-      LOG.error("a", new Exception());
       return result.toArray(new ConceptSpecification[result.size()]);
    }
 }
