@@ -357,6 +357,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Clinvar Variant ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("NCBI Gene ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("Clinvar Description ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("FHIR URI");
+               createConcept("OID").addDescription("HL7 Object Identifier", TermAux.REGULAR_NAME_DESCRIPTION_TYPE).setPrimordialUuid("374ce9a6-7f66-5c70-94ae-9aeea2f95c73"); //UUID from the loader
                popParent();
 
             createConcept("Assemblage membership type");
@@ -482,7 +484,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Converter Version");
                createConcept("Converted IBDF Artifact Version");
                createConcept("Converted IBDF Artifact Classifier");
-               createConcept("FHIR URI");
                popParent();
             createConcept(TermAux.LANGUAGE);
             pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 

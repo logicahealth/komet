@@ -999,7 +999,7 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 	 */
 	private void makeAttributes(long contentTime)
 	{
-		dwh.makeAttributeTypeConcept(null, "OID", "HL7 Object Identifier", null, null, true, null, null, contentTime);
+		dwh.linkToExistingAttributeTypeConcept(MetaData.OID____SOLOR, contentTime, readbackCoordinate);
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 		dwh.makeAttributeTypeConcept(null, "vocabulary model", null, null, null, 
 				new DynamicColumnInfo[] {
