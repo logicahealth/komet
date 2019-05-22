@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>5.0.4-SNAPSHOT</version>)
+   <version>5.0.4-SNAPSHOT</version>
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
@@ -29,7 +29,11 @@
             <url>https://artifactory.informatics.com/artifactory/libs-release-local</url>
             <layout>default</layout>
         </repository>
-
+        <site>
+            <id>isaacs.website</id>
+            <name>ISAAC website</name>
+            <url>file:/Library/WebServer/Documents/isaac.web/</url>
+        </site>
     </distributionManagement>
 
    <licenses>
@@ -67,13 +71,6 @@
       <url>https://git.isaac.sh/git/summary/ISAAC.git</url>
    </scm>
 
-   <distributionManagement>
-      <site>
-         <id>isaacs.website</id>
-         <name>ISAAC website</name>
-         <url>file:/Library/WebServer/Documents/isaac.web/</url>
-      </site>
-   </distributionManagement>
 
    <properties>
       <!-- https://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http#35673586 -->
