@@ -1061,6 +1061,7 @@
             <artifactId>gitflow-maven-plugin</artifactId>
             <version>${gitflow-maven-plugin-version}</version>
             <configuration>
+                <tychoBuild>true</tychoBuild>
                <allowSnapshots>false</allowSnapshots>
                <autoVersionSubmodules>true</autoVersionSubmodules>
                <enableFeatureVersions>true</enableFeatureVersions>
