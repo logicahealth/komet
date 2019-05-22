@@ -565,7 +565,7 @@ public class Frills
       }
       
       int[] parents = Get.taxonomyService().getSnapshotNoTree(
-            new ManifoldCoordinateImpl(stampToUse, LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
+            new ManifoldCoordinateImpl(stampToUse, null))
             .getTaxonomyParentConceptNids(conceptModuleNid);
       for (int current : parents)
       {
