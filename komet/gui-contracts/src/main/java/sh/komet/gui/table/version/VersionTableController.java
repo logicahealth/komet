@@ -4,8 +4,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
-import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.komet.gui.cell.table.*;
@@ -122,7 +120,5 @@ public class VersionTableController {
         pathColumn.setCellValueFactory(this.valueFactory::getCellValue);
         pathColumn.setCellFactory(tableColumn -> new TableConceptCell(this.manifold, ObservableVersion::getPathNid));
 
-
-        listTable.getItems().add(Get.observableChronologyService().getObservableChronology(TermAux.SOLOR_ROOT));
     }
 }

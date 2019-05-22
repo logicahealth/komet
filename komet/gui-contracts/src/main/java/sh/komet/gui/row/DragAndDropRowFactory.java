@@ -4,16 +4,17 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.util.Callback;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.observable.ObservableChronology;
 import sh.komet.gui.drag.drop.DragHelper;
 
 public class DragAndDropRowFactory implements
-        Callback<TableView<IdentifiedObject>, TableRow<IdentifiedObject>> {
+        Callback<TableView<ObservableChronology>, TableRow<ObservableChronology>> {
 
     boolean isDragging = false;
 
     @Override
-    public TableRow<IdentifiedObject> call(TableView<IdentifiedObject> param) {
-        TableRow<IdentifiedObject> row = new TableRow<>();
+    public TableRow<ObservableChronology> call(TableView<ObservableChronology> param) {
+        TableRow<ObservableChronology> row = new TableRow<>();
         new DragHelper(row,
                 () -> row.getTableView().getItems().get(row.getIndex()),
                 mouseEvent ->

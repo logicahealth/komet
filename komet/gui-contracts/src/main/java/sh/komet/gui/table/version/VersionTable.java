@@ -2,8 +2,9 @@ package sh.komet.gui.table.version;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableView;
+import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.observable.ObservableChronology;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.table.version.VersionTableController;
 
 import java.io.IOException;
 import java.net.URL;
@@ -28,7 +29,7 @@ public class VersionTable {
         return controller;
     }
 
-    public TableView getRootNode() {
+    public TableView<ObservableChronology> getRootNode() {
         return tableView;
     }
 }

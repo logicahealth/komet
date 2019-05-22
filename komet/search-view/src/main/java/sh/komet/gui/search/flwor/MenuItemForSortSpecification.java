@@ -39,5 +39,11 @@ public class MenuItemForSortSpecification extends MenuItem {
     private void addRow(ActionEvent action) {
         this.sortSpecificationRows.add(new SortSpecification(rowToAdd));
     }
-    
+
+    @Override
+    public String toString() {
+        return "MenuItemForSortSpecification{" +
+                getText() +
+                '}';
+    }
 }

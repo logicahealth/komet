@@ -70,6 +70,7 @@ import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
+import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.preferences.PreferencesService;
@@ -1006,6 +1007,16 @@ public class Get
 
    public static void setUseLuceneIndexes(boolean useLuceneIndexes) {
       Get.useLuceneIndexes = useLuceneIndexes;
+   }
+
+   public static ObservableChronology observableChronology(UUID... uuids) {
+      return Get.observableChronologyService().getObservableChronology(Get.nidForUuids(uuids));
+   }
+   public static ObservableChronology observableChronology(int nid) {
+      return Get.observableChronologyService().getObservableChronology(nid);
+   }
+   public static ObservableChronology observableChronology(ConceptSpecification spec) {
+      return Get.observableChronologyService().getObservableChronology(spec);
    }
 }
 

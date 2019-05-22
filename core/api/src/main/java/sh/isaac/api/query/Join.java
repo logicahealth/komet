@@ -103,13 +103,13 @@ public class Join
             NidSet nidSet2 = searchSpace.get(joinSpec.getSecondAssemblage());
             StampCoordinate stampCoordinate = getLetItem(joinSpec.getStampCoordinateKey());
             for (int nid1: nidSet1.asArray()) {
-                ObservableChronology chron1 = Get.observableChronologyService().getObservableChronology(nid1);
+                ObservableChronology chron1 = Get.observableChronology(nid1);
                 LatestVersion<ObservableVersion> version1Latest = chron1.getLatestObservableVersion(stampCoordinate);
                 if (version1Latest.isPresent() && version1Latest.get().getPropertyMap().containsKey(joinSpec.getFirstField().getFieldSpec())) {
                     ObservableVersion v1 = version1Latest.get();
                     ReadOnlyProperty<?> v1Prop = v1.getPropertyMap().get(joinSpec.getFirstField().getFieldSpec());
                     for (int nid2: nidSet2.asArray()) {
-                        ObservableChronology chron2 = Get.observableChronologyService().getObservableChronology(nid2);
+                        ObservableChronology chron2 = Get.observableChronology(nid2);
                         LatestVersion<ObservableVersion> version2Latest = chron2.getLatestObservableVersion(stampCoordinate);
                         if (version2Latest.isPresent() && version2Latest.get().getPropertyMap().containsKey(joinSpec.getSecondField().getFieldSpec())) {
                             ObservableVersion v2 = version2Latest.get();
