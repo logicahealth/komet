@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>5.0.3</version>
+   <version>5.0.4-SNAPSHOT</version>)
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
@@ -12,7 +12,7 @@
       This ISAAC parent pom that standardizes common dependencies and plugins for ISAAC modules.
    </description>
 
-   <url>http://informatics-architecture.net/isaac</url>
+   <url>http://solor.io</url>
 
    <organization>
       <name>Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
@@ -20,6 +20,17 @@
    </organization>
 
    <inceptionYear>2013</inceptionYear>
+
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>informatics</id>
+            <name>informatics artifactory</name>
+            <url>https://artifactory.informatics.com/artifactory/libs-release-local</url>
+            <layout>default</layout>
+        </repository>
+
+    </distributionManagement>
 
    <licenses>
       <license>
