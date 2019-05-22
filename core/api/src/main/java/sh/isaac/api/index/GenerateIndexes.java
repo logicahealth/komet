@@ -82,26 +82,26 @@ public class GenerateIndexes extends TimedTask<Void> implements PersistTaskResul
     * @param indexersToReindex - optional - the indexers to reindex - if not provided, all indexers are reindexed
     */
    public GenerateIndexes(Class<?>... indexersToReindex) {
-      register(LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);  //we need to stop this job, if any part of isaac is shutting down
-      updateTitle("Index generation");
-      updateProgress(-1, Long.MAX_VALUE); // Indeterminate progress
+         register(LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);  //we need to stop this job, if any part of isaac is shutting down
+         updateTitle("Index generation");
+         updateProgress(-1, Long.MAX_VALUE); // Indeterminate progress
 
-      if ((indexersToReindex == null) || (indexersToReindex.length == 0)) {
-         this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
-      } else {
+         if ((indexersToReindex == null) || (indexersToReindex.length == 0)) {
+            this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
+         } else {
 
-         for (final Class<?> clazz : indexersToReindex) {
-            if (!IndexBuilderService.class.isAssignableFrom(clazz)) {
-               throw new RuntimeException("Invalid Class passed in to the index generator.  Classes must implement IndexBuilderService ");
-            }
+            for (final Class<?> clazz : indexersToReindex) {
+               if (!IndexBuilderService.class.isAssignableFrom(clazz)) {
+                  throw new RuntimeException("Invalid Class passed in to the index generator.  Classes must implement IndexBuilderService ");
+               }
 
-            final IndexBuilderService temp = (IndexBuilderService) LookupService.get().getService(clazz);
+               final IndexBuilderService temp = (IndexBuilderService) LookupService.get().getService(clazz);
 
-            if (temp != null) {
-               this.indexers.add(temp);
+               if (temp != null) {
+                  this.indexers.add(temp);
+               }
             }
          }
-      }
    }
    
     /**

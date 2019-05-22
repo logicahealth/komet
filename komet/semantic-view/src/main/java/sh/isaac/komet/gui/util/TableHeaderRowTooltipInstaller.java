@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.sun.javafx.scene.control.skin.TableHeaderRow;
+//import com.sun.javafx.scene.control.skin.TableHeaderRow;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -126,10 +126,11 @@ public class TableHeaderRowTooltipInstaller
 	{
 		for (Node subNode : node.getChildrenUnmodifiable())
 		{
-			if (subNode instanceof TableHeaderRow)
-			{
-				processLevelDeeper((TableHeaderRow) subNode, nameToTooltipMap);
-			}
+			//TODO broken in jdk11
+//			if (subNode instanceof TableHeaderRow)
+//			{
+//				processLevelDeeper((TableHeaderRow) subNode, nameToTooltipMap);
+//			}
 		}
 	}
 

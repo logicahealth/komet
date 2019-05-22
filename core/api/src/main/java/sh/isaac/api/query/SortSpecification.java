@@ -271,10 +271,10 @@ public class SortSpecification implements QueryFieldSpecification {
         }
         StampCoordinate stampCoordinate = (StampCoordinate) q.getLetDeclarations().get(getStampCoordinateKey());
         
-        ObservableChronology o1Chronology = Get.observableChronologyService().getObservableChronology(o1[comparisonIndex]);
+        ObservableChronology o1Chronology = Get.observableChronology(o1[comparisonIndex]);
         LatestVersion<? extends ObservableVersion>  o1LatestVersion = o1Chronology.getLatestVersion(stampCoordinate);
 
-        ObservableChronology o2Chronology = Get.observableChronologyService().getObservableChronology(o2[comparisonIndex]);
+        ObservableChronology o2Chronology = Get.observableChronology(o2[comparisonIndex]);
         LatestVersion<? extends ObservableVersion>  o2LatestVersion = o2Chronology.getLatestVersion(stampCoordinate);
 
         String o1String = getAttributeFunction().apply(

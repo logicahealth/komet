@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>komet</artifactId>
-        <version>4.65</version>
+        <version>5.0.0-SNAPSHOT</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>gui-contracts</artifactId>
@@ -56,18 +56,18 @@
             <version>${project.parent.version}</version>
             <type>jar</type>
         </dependency>
-      <dependency>
-         <groupId>sh.isaac.solor</groupId>
-         <artifactId>direct-import</artifactId>
-         <version>${project.parent.version}</version>
-         <scope>compile</scope>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.misc</groupId>
-         <artifactId>importers</artifactId>
-         <version>${project.parent.version}</version>
-         <scope>compile</scope>
-      </dependency>
+        <dependency>
+            <groupId>sh.isaac.solor</groupId>
+            <artifactId>direct-import</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.misc</groupId>
+            <artifactId>importers</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>sh.isaac.misc</groupId>
             <artifactId>util</artifactId>
@@ -78,16 +78,21 @@
             <artifactId>db-config-builder</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-      <dependency>
-         <groupId>sh.isaac.komet</groupId>
-         <artifactId>open-jdk-fixes</artifactId>
-         <version>${project.parent.version}</version>
-         <type>jar</type>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.core</groupId>
-         <artifactId>mojo</artifactId>
-         <version>${project.parent.version}</version>
-      </dependency>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>mojo</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>open-jdk-fixes</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.solor</groupId>
+            <artifactId>direct-export</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

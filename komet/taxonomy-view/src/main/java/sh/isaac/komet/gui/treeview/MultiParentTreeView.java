@@ -79,6 +79,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
+import org.controlsfx.control.ToggleSwitch;
 import sh.isaac.api.Get;
 import sh.isaac.api.RefreshListener;
 import sh.isaac.api.Status;
@@ -97,11 +98,11 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.komet.gui.alert.AlertPanel;
 import sh.komet.gui.control.ChoiceBoxControls;
+import sh.komet.gui.control.toggle.OnOffToggleSwitch;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
 import static sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory.MENU_TEXT;
-import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.layout.LayoutAnimator;
 
@@ -342,8 +343,6 @@ public class MultiParentTreeView
      * Tell the tree to stop whatever threading operations it has running, since
      * the application is exiting.
      *
-     * @see
-     * gov.va.isaac.interfaces.utility.ShutdownBroadcastListenerI#shutdown()
      */
     public static void globalShutdownRequested() {
         shutdownRequested = true;

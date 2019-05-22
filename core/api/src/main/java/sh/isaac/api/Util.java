@@ -71,20 +71,14 @@ public class Util {
     */
    public static <T> T addToTaskSetAndWaitTillDone(Task<T> task)
             throws InterruptedException, ExecutionException {
-      LookupService.get()
-                   .getService(ActiveTasks.class)
-                   .get()
-                   .add(task);
+      Get.activeTasks().add(task);
 
       try {
          final T returnValue = task.get();
 
          return returnValue;
       } finally {
-         LookupService.get()
-                      .getService(ActiveTasks.class)
-                      .get()
-                      .remove(task);
+         Get.activeTasks().remove(task);
       }
    }
 

@@ -147,6 +147,16 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
         this.parameters = paramaters;
     }
 
+    @Override
+    public SemanticBuilderImpl<C> setPrimordialUuid(UUID uuid) {
+        return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuid); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SemanticBuilderImpl<C> setPrimordialUuid(String uuidString) {
+        return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuidString); //To change body of generated methods, choose Tools | Templates.
+    }
+
     //~--- methods -------------------------------------------------------------
     /**
      * Builds the.

@@ -18,6 +18,8 @@ package sh.komet.gui.contract;
 
 import org.jvnet.hk2.annotations.Contract;
 import javafx.scene.Node;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
@@ -39,7 +41,7 @@ public interface NodeFactory<T extends ExplorationNode> {
     * @return the created node, not yet added to the scenegraph.  Call {@link ExplorationNode#getNode()} 
     * to get the appropriate node, when ready to add it to the scenegraph.
     */
-   T createNode(Manifold manifold);
+   T createNode(Manifold manifold, IsaacPreferences nodePreferences);
    
    /**
     * 
@@ -76,4 +78,10 @@ public interface NodeFactory<T extends ExplorationNode> {
     * @return the desired placement
     */
    PanelPlacement getPanelPlacement();
+
+   /**
+    *
+    * @return a ConceptSpecification that defines the type of this panel.
+    */
+   ConceptSpecification getPanelType();
 }

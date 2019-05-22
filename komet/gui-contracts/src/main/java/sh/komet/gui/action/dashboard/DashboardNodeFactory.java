@@ -19,6 +19,9 @@ package sh.komet.gui.action.dashboard;
 import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.manifold.Manifold;
@@ -35,7 +38,7 @@ public class DashboardNodeFactory
    public static final String MENU_TEXT  = "System Dashboard";
 
     @Override
-    public DashboardView createNode(Manifold manifold) {
+    public DashboardView createNode(Manifold manifold, IsaacPreferences preferencesNode) {
       DashboardView dashboard = new DashboardView(manifold);
       return dashboard;
     }
@@ -65,4 +68,9 @@ public class DashboardNodeFactory
    public ManifoldGroup[] getDefaultManifoldGroups() {
       return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
    }
+
+    @Override
+    public ConceptSpecification getPanelType() {
+        return MetaData.SYSTEM_DASHBOARD_PANEL____SOLOR;
+    }
 }

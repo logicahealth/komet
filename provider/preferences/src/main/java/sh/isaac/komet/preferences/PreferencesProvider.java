@@ -50,9 +50,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 
 
 //~--- classes ----------------------------------------------------------------
@@ -76,8 +78,14 @@ public class PreferencesProvider
     */
    @PostConstruct
    protected void startMe() {
-      //Just doing this to make sure it starts without errors
-      getConfigurationPreferences();
+      LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting Path provider");
+      Get.executor().execute(progressTask);
+      try {
+         //Just doing this to make sure it starts without errors
+         getConfigurationPreferences();
+      } finally {
+         progressTask.finished();
+      }
    }
    /**
     * Stop me.

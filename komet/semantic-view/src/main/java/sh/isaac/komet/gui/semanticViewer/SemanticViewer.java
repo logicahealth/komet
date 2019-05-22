@@ -58,6 +58,7 @@ import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 import com.sun.javafx.collections.ObservableMapWrapper;
 import com.sun.javafx.tk.Toolkit;
+import com.sun.javafx.tk.FontLoader;
 import javafx.application.Platform;
 import javafx.beans.binding.FloatBinding;
 import javafx.beans.property.BooleanProperty;
@@ -100,16 +101,19 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.index.IndexedGenerationCallable;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.komet.gui.semanticViewer.HeaderNode.Filter;
 import sh.isaac.komet.gui.semanticViewer.cells.AttachedDataCellFactory;
@@ -118,6 +122,7 @@ import sh.isaac.komet.gui.semanticViewer.cells.StatusCell;
 import sh.isaac.komet.gui.semanticViewer.cells.StringCell;
 import sh.isaac.komet.gui.util.TableHeaderRowTooltipInstaller;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
@@ -669,7 +674,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
 		stage.setTitle("Semantic View");
-		stage.getScene().getStylesheets().add(Iconography.getStyleSheetStringUrl());
+		stage.getScene().getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
 		stage.getScene().getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
 		stage.setWidth(800);
 		stage.setHeight(600);
@@ -1275,7 +1280,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 										? (nCol.getGraphic() instanceof Label ? ((Label)nCol.getGraphic()).getText() 
 												: ((Label)((HBox)nCol.getGraphic()).getChildren().get(0)).getText()) 
 										: nCol.getText());
-							nCol.setMinWidth(Toolkit.getToolkit().getFontLoader().computeStringWidth(text, f) + 70);
+							nCol.setMinWidth(computeStringWidth(text, f) + 70);
 							if (text.equalsIgnoreCase(SemanticGUIColumnType.TIME.toString()))
 							{
 								nCol.setPrefWidth(150);
@@ -1308,7 +1313,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 											temp += nCol.getWidth();
 										}
 									}
-									float parentColWidth = Toolkit.getToolkit().getFontLoader().computeStringWidth(col.getText(), f) + 70;
+									float parentColWidth = computeStringWidth(col.getText(), f) + 70;
 									if (temp < parentColWidth)
 									{
 										//bump the size of the first nested column, so the parent doesn't get clipped
@@ -1348,7 +1353,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 							}
 							else
 							{
-								col.setMinWidth(Toolkit.getToolkit().getFontLoader().computeStringWidth(text, f) + 70);
+								col.setMinWidth(computeStringWidth(text, f) + 70);
 							}
 						}
 					}
@@ -1388,6 +1393,17 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 				noRefresh_.getAndDecrement();
 			}
 		});
+	}
+	
+	private float computeStringWidth(String s, Font f)
+	{
+		float width = 0;
+		FontLoader fl = Toolkit.getToolkit().getFontLoader();
+		for (int i = 0; i < s.length(); i++)
+		{
+			width += fl.getCharWidth(s.charAt(i), f);
+		}
+		return width;
 	}
 	
 	private synchronized void loadRealData() throws IOException, NumberFormatException, InterruptedException
@@ -1768,7 +1784,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DetailNode createNode(Manifold manifold)
+	public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode)
 	{
 		manifoldConcept_= manifold;
 		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
@@ -1866,5 +1882,10 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	{
 		return (FxGet.fxConfiguration().isShowBetaFeaturesEnabled() && 
                         !FxGet.fxConfiguration().showKometFeaturesOnly())? PanelPlacement.CENTER : null;
+	}
+
+	@Override
+	public ConceptSpecification getPanelType() {
+		return MetaData.SEMANTIC_TREE_TABLE_PANEL____SOLOR;
 	}
 }

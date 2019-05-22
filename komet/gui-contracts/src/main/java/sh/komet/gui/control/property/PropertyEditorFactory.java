@@ -17,9 +17,13 @@
 package sh.komet.gui.control.property;
 
 import java.time.LocalDateTime;
+
+import sh.komet.gui.control.*;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import sh.komet.gui.control.concept.ConceptLabel;
 import sh.komet.gui.control.concept.ConceptForControlWrapper;
+import sh.komet.gui.control.image.ImageSourceEditor;
+import sh.komet.gui.control.image.PropertySheetImageWrapper;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,16 +53,6 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.isaac.model.statement.ResultImpl;
-import sh.komet.gui.control.PropertySheetBooleanWrapper;
-import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
-import sh.komet.gui.control.PropertySheetItemIntegerWrapper;
-import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
-import sh.komet.gui.control.PropertySheetItemStringListWrapper;
-import sh.komet.gui.control.PropertySheetPasswordWrapper;
-import sh.komet.gui.control.PropertySheetStampPrecedenceWrapper;
-import sh.komet.gui.control.PropertySheetStatusSetWrapper;
-import sh.komet.gui.control.PropertySheetStatusWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.circumstance.CircumstanceEditor;
 import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
 import sh.komet.gui.control.concept.AssemblageListEditor;
@@ -173,6 +167,8 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
         } else if (propertySheetItem instanceof PropertySheetItemObjectListWrapper) {
             return Editors.createChoiceEditor(propertySheetItem,
                     ((PropertySheetItemObjectListWrapper) propertySheetItem).getAllowedValues());
+        } else if (propertySheetItem instanceof PropertySheetImageWrapper) {
+            return new ImageSourceEditor(((PropertySheetImageWrapper)propertySheetItem).imageDataProperty());
         }
         
         

@@ -36,6 +36,8 @@ import sh.komet.gui.control.PropertyEditorType;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
+
+
 /**
  *
  * @author kec
@@ -57,6 +59,18 @@ then
    clinicalStatementIssuePropertySheetMenuItem.addPropertyToEdit("clinical statement issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
    /* */
 end
+
+
+rule "add image attachment"
+when
+   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.CONCEPT)
+then
+   /* */
+   PropertySheetMenuItem imagePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add Image", MetaData.CONCEPT_IMAGE____SOLOR);
+   imagePropertySheetMenuItem.addPropertyToEdit("Image", MetaData.IMAGE_DATA_FOR_SEMANTIC____SOLOR, PropertyEditorType.IMAGE);
+
+end
+
 
 rule "add concept comment attachment" 
 when

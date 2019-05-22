@@ -38,6 +38,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
 import sh.komet.gui.manifold.HistoryRecord;
@@ -151,7 +152,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
     private void showFindPopup(ActionEvent event) {
         this.popOver = new PopOver();
         this.popOver.getRoot().getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        this.popOver.getRoot().getStylesheets().add(Iconography.getStyleSheetStringUrl());
+        this.popOver.getRoot().getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
         this.popOver.setCloseButtonEnabled(true);
         this.popOver.setHeaderAlwaysVisible(false);
         this.popOver.setTitle("");
@@ -159,7 +160,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
         Manifold manifoldClone = manifold.deepClone();
         manifoldClone.setGroupName(Manifold.ManifoldGroup.UNLINKED.getGroupName());
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifoldClone);
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifoldClone, null);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);

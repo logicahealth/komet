@@ -66,6 +66,7 @@ import javafx.scene.control.Label;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -104,7 +105,7 @@ import sh.komet.gui.interfaces.EditInFlight;
 public class Manifold
          implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, ManifoldCoordinateProxy,
                     ChangeListener<ConceptSpecification> {
-   private static final WeakHashMap<Manifold, Object>              MANIFOLD_CHANGE_LISTENERS = new WeakHashMap<>();
+    private static final WeakHashMap<Manifold, Object>              MANIFOLD_CHANGE_LISTENERS = new WeakHashMap<>();
 
    private static final HashMap<String, Supplier<Node>>            ICONOGRAPHIC_SUPPLIER     = new HashMap<>();
    private static final HashMap<String, ArrayDeque<HistoryRecord>> GROUP_HISTORY_MAP         = new HashMap<>();
@@ -112,7 +113,7 @@ public class Manifold
 
    public enum ManifoldGroup {UNLINKED("unlinked"), SEARCH("search"), 
    TAXONOMY("taxonomy"), FLWOR("flwor"), CLINICAL_STATEMENT("statement"),
-   CORRELATION("correlation");
+   CORRELATION("correlation"), KOMET("KOMET");
       private String groupName;
       private ManifoldGroup(String name) {
          this.groupName = name;
@@ -132,6 +133,7 @@ public class Manifold
       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.TAXONOMY.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.FLWOR.getGroupName(), () -> Iconography.FLWOR_SEARCH.getIconographic());
       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.CORRELATION.getGroupName(), () -> new Label("C"));
+      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.KOMET.getGroupName(), () -> new Label("K"));
    }
 
    //~--- fields --------------------------------------------------------------
@@ -217,7 +219,7 @@ public class Manifold
    public SimpleStringProperty groupNameProperty() {
       return groupNameProperty;
    }
-   
+
    /**
     * Get a manifold for local use within a control group that is not linked to the selection of other concept
     * presentations.
@@ -416,7 +418,12 @@ public class Manifold
       return this.observableManifoldCoordinate.getStampCoordinate();
    }
    
-   public void addEditInFlight(EditInFlight editInFlight) {
+   @Override
+   public Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate() {
+      return this.observableManifoldCoordinate.getOptionalDestinationStampCoordinate();
+   }
+
+    public void addEditInFlight(EditInFlight editInFlight) {
       EDITS_IN_PROCESS.add(editInFlight);
       editInFlight.addCompletionListener((observable, oldValue, newValue) -> {
          EDITS_IN_PROCESS.remove(editInFlight);
@@ -472,7 +479,15 @@ public class Manifold
     public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
         return this.observableManifoldCoordinate.getModuleSpecPreferenceListForLanguage();
     }
-    
-    
+
+    @Override
+    public Set<ConceptSpecification> getAuthorSpecifications() {
+        return this.observableManifoldCoordinate.getAuthorSpecifications();
+    }
+
+    @Override
+    public NidSet getAuthorNids() {
+        return this.observableManifoldCoordinate.getAuthorNids();
+    }
 }
 

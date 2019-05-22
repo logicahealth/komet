@@ -113,6 +113,7 @@ public class ExportTaxonomy
    @Override
    public void execute()
             throws MojoExecutionException, MojoFailureException {
+      Headless.setHeadless();
       try {
          final IsaacTaxonomy taxonomy = LookupService.get()
                                                      .getService(IsaacTaxonomy.class);
@@ -199,6 +200,7 @@ public class ExportTaxonomy
                                          taxonomy.getClass()
                                                .getSimpleName() + ".json");
 
+         getLog().info("Exporting taxonomy to: " + ibdfPath);
          taxonomy.export(Optional.of(jsonPath), Optional.of(ibdfPath));
          
          //Sanity check

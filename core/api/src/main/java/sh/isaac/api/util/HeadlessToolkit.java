@@ -87,6 +87,8 @@ import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.sun.glass.ui.GlassRobot;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import com.sun.glass.ui.CommonDialogs.FileChooserResult;
@@ -98,7 +100,7 @@ import com.sun.javafx.perf.PerformanceTracker;
 import com.sun.javafx.runtime.VersionInfo;
 import com.sun.javafx.runtime.async.AsyncOperation;
 import com.sun.javafx.runtime.async.AsyncOperationListener;
-import com.sun.javafx.scene.text.HitInfo;
+//import com.sun.javafx.scene.text.HitInfo;
 import com.sun.javafx.scene.text.TextLayoutFactory;
 import com.sun.javafx.tk.AppletWindow;
 import com.sun.javafx.tk.DummyToolkit;
@@ -212,16 +214,16 @@ public class HeadlessToolkit
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
-   /**
-    * Convert hit info to FX.
-    *
-    * @param hit the hit
-    * @return the hit info
-    */
-   @Override
-   public HitInfo convertHitInfoToFX(Object hit) {
-      throw new UnsupportedOperationException("Not supported yet.");
-   }
+//   /**
+//    * Convert hit info to FX.
+//    *
+//    * @param hit the hit
+//    * @return the hit info
+//    */
+//   @Override
+//   public HitInfo convertHitInfoToFX(Object hit) {
+//      throw new UnsupportedOperationException("Not supported yet.");
+//   }
 
    /**
     * Convert shape to FX path.
@@ -482,56 +484,15 @@ public class HeadlessToolkit
          throw new RuntimeException("Failed trying to hack JavaFX for Headless!", e);
       }
    }
-
-   /**
-    * Load image.
-    *
-    * @param stream the stream
-    * @param width the width
-    * @param height the height
-    * @param preserveRatio the preserve ratio
-    * @param smooth the smooth
-    * @return the image loader
-    */
+   
    @Override
-   public ImageLoader loadImage(InputStream stream, int width, int height, boolean preserveRatio, boolean smooth) {
-      throw new UnsupportedOperationException("Not supported yet.");
+   public ImageLoader loadImage(String url, double width, double height, boolean preserveRatio, boolean smooth) {
+       throw new UnsupportedOperationException("Not supported yet.");
    }
 
-   /**
-    * Load image.
-    *
-    * @param url the url
-    * @param width the width
-    * @param height the height
-    * @param preserveRatio the preserve ratio
-    * @param smooth the smooth
-    * @return the image loader
-    */
    @Override
-   public ImageLoader loadImage(String url, int width, int height, boolean preserveRatio, boolean smooth) {
-      throw new UnsupportedOperationException("Not supported yet.");
-   }
-
-   /**
-    * Load image async.
-    *
-    * @param listener the listener
-    * @param url the url
-    * @param width the width
-    * @param height the height
-    * @param preserveRatio the preserve ratio
-    * @param smooth the smooth
-    * @return the async operation
-    */
-   @Override
-   public AsyncOperation loadImageAsync(AsyncOperationListener<? extends ImageLoader> listener,
-         String url,
-         int width,
-         int height,
-         boolean preserveRatio,
-         boolean smooth) {
-      throw new UnsupportedOperationException("Not supported yet.");
+   public ImageLoader loadImage(InputStream stream, double width, double height, boolean preserveRatio, boolean smooth) {
+       throw new UnsupportedOperationException("Not supported yet.");
    }
 
    /**
@@ -1021,5 +982,21 @@ public class HeadlessToolkit
    public TextLayoutFactory getTextLayoutFactory() {
       throw new UnsupportedOperationException("Not supported yet.");
    }
+   
+   @Override
+   public GlassRobot createRobot() {
+       throw new UnsupportedOperationException("not implemented");
+   }
+   
+   @Override
+   public AsyncOperation loadImageAsync(AsyncOperationListener<? extends ImageLoader> listener, String url, double width, double height, boolean preserveRatio, boolean smooth) {
+       throw new UnsupportedOperationException("Not supported yet.");
+   }
+   
+   @Override
+   public void exitAllNestedEventLoops() {
+       throw new UnsupportedOperationException("Not supported yet.");
+   }
+
 }
 

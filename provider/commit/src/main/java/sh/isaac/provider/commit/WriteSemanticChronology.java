@@ -145,9 +145,7 @@ public class WriteSemanticChronology
             return null;
         } finally {
             this.writeSemaphore.release();
-            LookupService.getService(ActiveTasks.class)
-                    .get()
-                    .remove(this);
+            Get.activeTasks().remove(this);
         }
     }
 }

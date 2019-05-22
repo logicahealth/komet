@@ -132,7 +132,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     private void deleteSelf(ActionEvent event) {
         try {
             PreferencesTreeItem parentTreeItem = (PreferencesTreeItem) this.treeItem.getParent();
-            ParentPanelPreferences parentPanel = (ParentPanelPreferences) parentTreeItem.getValue();
+            ParentPanel parentPanel = (ParentPanel) parentTreeItem.getValue();
             parentPanel.removeChild(this);
             parentPanel.save();
 
@@ -218,9 +218,9 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         }
     }
 
-    abstract void saveFields() throws BackingStoreException;
+    protected abstract void saveFields() throws BackingStoreException;
 
-    abstract void revertFields() throws BackingStoreException;
+    protected abstract void revertFields() throws BackingStoreException;
 
     @Override
     public String toString() {

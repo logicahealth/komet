@@ -12,7 +12,7 @@ import javax.inject.Singleton;
 public class ByteArrayArrayPostgresStoreProvider implements ByteArrayArrayStoreProvider {
     @Override
     public ByteArrayArrayStore get(int assemblageNid) {
-        return null;
+        return new ByteArrayArrayPostgresStore(assemblageNid);
     }
 
 }

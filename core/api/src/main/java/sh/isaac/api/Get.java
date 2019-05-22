@@ -39,42 +39,22 @@
 
 package sh.isaac.api;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-import javax.inject.Singleton;
+import com.lmax.disruptor.dsl.Disruptor;
+import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
-import com.lmax.disruptor.dsl.Disruptor;
-import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import javafx.concurrent.Task;
-import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.IntObjectHashMap;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.PostCommitService;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.concept.ConceptBuilderService;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.component.concept.ConceptSnapshotService;
-import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.*;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -82,12 +62,7 @@ import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.datastore.DataStore;
-import sh.isaac.api.externalizable.BinaryDataReaderService;
-import sh.isaac.api.externalizable.BinaryDataServiceFactory;
-import sh.isaac.api.externalizable.DataWriterService;
-import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.externalizable.IsaacExternalizableSpliterator;
-import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.externalizable.*;
 import sh.isaac.api.index.GenerateIndexes;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.index.IndexDescriptionQueryService;
@@ -95,6 +70,7 @@ import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
+import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.preferences.PreferencesService;
@@ -103,6 +79,19 @@ import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.api.query.QueryHandler;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.WorkExecutors;
+
+import javax.inject.Singleton;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -203,8 +192,10 @@ public class Get
    private static DataStore dataStore;
    
    private static PreferencesService preferencesService;
+
+   private static boolean useLuceneIndexes = true;
    
-   private static final OpenIntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = new OpenIntObjectHashMap<>();
+   private static final IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = new IntObjectHashMap<>();
     private static CountDownLatch termAuxCacheLatch = new CountDownLatch(1);
 
    
@@ -914,6 +905,9 @@ public class Get
     */
    public static Task<Void> startIndexTask(
          @SuppressWarnings("unchecked") Class<? extends IndexBuilderService>... indexersToReindex) {
+      if (!Get.useLuceneIndexes()) {
+         throw new UnsupportedOperationException();
+      }
       final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
 
       LookupService.getService(WorkExecutors.class)
@@ -1002,10 +996,27 @@ public class Get
 
       return services;
    }
-   
    private static final ConcurrentSkipListSet<ApplicationStates> APPLICATION_STATES = new ConcurrentSkipListSet<>();
    public static ConcurrentSkipListSet<ApplicationStates> applicationStates() {
        return APPLICATION_STATES;
+   }
+
+   public static boolean useLuceneIndexes() {
+      return useLuceneIndexes;
+   }
+
+   public static void setUseLuceneIndexes(boolean useLuceneIndexes) {
+      Get.useLuceneIndexes = useLuceneIndexes;
+   }
+
+   public static ObservableChronology observableChronology(UUID... uuids) {
+      return Get.observableChronologyService().getObservableChronology(Get.nidForUuids(uuids));
+   }
+   public static ObservableChronology observableChronology(int nid) {
+      return Get.observableChronologyService().getObservableChronology(nid);
+   }
+   public static ObservableChronology observableChronology(ConceptSpecification spec) {
+      return Get.observableChronologyService().getObservableChronology(spec);
    }
 }
 

@@ -54,7 +54,7 @@ limitations under the License.
 /*    -fx-border-width:1 2 3 4;
     -fx-border-color: red blue green yellow; */
     -fx-label-padding: 10 0 2 30; /* top, right, bottom, and left edges */
-    -fx-padding:-8 0 0 0;
+    -fx-padding:1 0 1 1;
     -fx-graphic-text-gap:0;
     /* -fx-rotate:30; */
 /*    -fx-scale-x:0.25;
@@ -748,8 +748,38 @@ limitations under the License.
    -fx-grid-lines-visible: false;
 }
 
-.component-panel:uncommitted * .property-pane {
+.tool-bar:uncommitted {
    -fx-background-color: -komet-uncommitted-fill;
+}
+
+.tool-bar:uncommitted * .cancel-button {
+    -fx-background-color: white;
+   -fx-border-color: -komet-uncommitted-border;
+      -fx-border-radius: 2;
+      -fx-border-width:2;
+      -fx-font-size:12;
+      -fx-padding:2 4 2 4;
+      -fx-font-weight: bold;
+}
+
+.tool-bar:uncommitted * .commit-button {
+   -fx-background-color: white;
+   -fx-border-color: -komet-uncommitted-border;
+      -fx-border-radius: 2;
+      -fx-border-width:2;
+      -fx-font-size:12;
+      -fx-padding:2 4 2 4;
+      -fx-font-weight: bold;
+}
+
+.property-sheet:uncommitted {
+    -fx-background-color: -komet-uncommitted-fill;
+}
+
+.property-sheet:uncommitted * .property-pane {
+    -fx-background-color: -komet-uncommitted-fill;
+    -fx-vbar-policy: never;
+    -fx-hbar-policy: never;
 }
 
 .component-panel:uncommitted * .cancel-button {
@@ -1053,5 +1083,6 @@ limitations under the License.
 }
 
 .tab-pane {
-    -fx-skin: "sh.isaac.komet.openjdk.KometTabPaneSkin";
+    /* -fx-skin: "sh.isaac.komet.openjdk.KometTabPaneSkin"; */
 }
+

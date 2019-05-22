@@ -151,7 +151,6 @@ public class ChangeSetWriterHandler
             try {
                updateTitle("Writing Changeset for commit " + commitRecord.getCommitComment());
                Get.activeTasks().add(this);
-               LookupService.getService(ActiveTasks.class).get().add(this);
                if ((commitRecord.getConceptsInCommit() != null) && (commitRecord.getConceptsInCommit().size() > 0)) {
                   conceptNidSetChange(commitRecord.getConceptsInCommit());
                   LOG.debug("handle Post Commit: {} concepts", commitRecord.getConceptsInCommit().size());

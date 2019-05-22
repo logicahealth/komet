@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>komet</artifactId>
-        <version>4.65</version>
+        <version>5.0.0-SNAPSHOT</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>application</artifactId>
@@ -16,7 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>sh.komet.fx.stage.MainApp</mainClass>
         <log4j.version>2.8.1</log4j.version>
-        <solor.db.version>1.32-SNAPSHOT</solor.db.version>
+        <solor.db.version>1.34</solor.db.version>
         <solor.snap.db.version>1.31</solor.snap.db.version>
         <custom.db.version>1.0.0</custom.db.version>
     </properties>
@@ -26,6 +26,39 @@
         <name>ISAAC's KOMET Collaborators</name>
     </organization>
     <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>batch</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>css</artifactId>
@@ -65,6 +98,7 @@
         <dependency>
             <groupId>org.glassfish.hk2</groupId>
             <artifactId>hk2-testng</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>de.codecentric.centerdevice</groupId>
@@ -73,6 +107,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>sh.isaac.provider</groupId>
@@ -196,12 +231,6 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.komet</groupId>
-            <artifactId>drag-tab</artifactId>
-            <version>${project.parent.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>sh.isaac.komet</groupId>
             <artifactId>dialog</artifactId>
             <version>${project.parent.version}</version>
             <type>jar</type>
@@ -212,13 +241,6 @@
             <version>${project.parent.version}</version>
             <type>jar</type>
         </dependency>
-        <!--dependency>
-           <groupId>javafx-packager</groupId>
-           <artifactId>javafx-packager</artifactId>
-           <version>1.8.0_20</version>
-           <scope>system</scope>
-           <systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
-        </dependency-->
         <dependency>
             <groupId>sh.isaac.komet</groupId>
             <artifactId>progress-view</artifactId>
@@ -230,9 +252,50 @@
             <artifactId>metacontent</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!--<dependency>-->
+        <!--<groupId>sh.isaac</groupId>-->
+        <!--<artifactId>scenic-view</artifactId>-->
+        <!--<version>11.0</version>-->
+        <!--</dependency>-->
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/jfx/libs</outputDirectory>
+                            <excludeArtifactIds>fontawesomefx-commons,solor-db,solor-snap-db,solor-us-db</excludeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-file</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <sourceFile>${project.build.directory}/${project.artifactId}-${project.version}.jar</sourceFile>
+                            <destinationFile>${project.build.directory}/jfx/${project.artifactId}-${project.version}.jar</destinationFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -242,8 +305,8 @@
                     <parallel>false</parallel>
                     <useSystemClassLoader>true</useSystemClassLoader>
                     <useManifestOnlyJar>false</useManifestOnlyJar>
-                    <argLine>-ea -d64 -Xmx12g -Djava.awt.headless=true</argLine>
-                    <!--                     <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
+                    <argLine>-ea -Xmx12g -Dfile.encoding=UTF-8</argLine>
+                    <!--                     <argLine>-Xmx8g -Xms8g -Dfile.encoding=UTF-8 -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
                     <!-- debugForkedProcess>true</debugForkedProcess -->
                     <includes>
                         <!-- Let JUnit annotations decide -->
@@ -267,150 +330,14 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.zenjava</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>${mainClass}</mainClass>
-                    <verbose>false</verbose>
-                    <appName>KOMET</appName>
-                    <nativeReleaseVersion>${project.version}</nativeReleaseVersion>
-                    <identifier>KOMT</identifier>
-                    <vendor>ISAAC's KOMET collaboration</vendor>
-                    <additionalAppResources>${project.build.directory}/data</additionalAppResources>
-                    <detail>true</detail>
-                    <skipNativeVersionNumberSanitizing>true</skipNativeVersionNumberSanitizing>
-                    <jvmArgs>
-                        <jvmArg>-Xms4G</jvmArg>
-                        <jvmArg>-Xmx16G</jvmArg>
-                    </jvmArgs>
-                    <bundleArguments>
-                        <icon.ico>${project.basedir}/src/main/resources/icons/KOMET.ico</icon.ico>
-                        <icon.png>${project.basedir}/src/main/resources/icons/KOMET.png</icon.png>
-                        <icon.icns>${project.basedir}/src/main/resources/icons/KOMET.icns</icon.icns>
-                    </bundleArguments>
-                </configuration>
-                <executions>
-                    <execution>
-                        <!-- required before build-native -->
-                        <id>create-jfxjar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>build-jar</goal>
-                        </goals>
-                    </execution>
-                    <!--               <execution>
-                       <id>create-native</id>
-                       <phase>package</phase>
-                       <goals>
-                          <goal>build-native</goal>
-                       </goals>
-                    </execution>-->
-                </executions>
-            </plugin>
         </plugins>
     </build>
     <profiles>
         <profile>
-            <id>build-mac-binary</id>
-            <!--         <activation>
-               <os>
-                  <name>Mac OS X</name>
-               </os>
-            </activation>-->
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.zenjava</groupId>
-                        <artifactId>javafx-maven-plugin</artifactId>
-                        <executions>
-                            <!--                     <execution>
-                               <id>mac.app</id>
-                               <phase>package</phase>
-                               <goals>
-                                  <goal>build-native</goal>
-                               </goals>
-                               <configuration>
-                                  <bundler>mac.app</bundler>
-                               </configuration>
-                            </execution>-->
-                            <execution>
-                                <id>dmg</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build-native</goal>
-                                </goals>
-                                <configuration>
-                                    <bundler>dmg</bundler>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>special-load</id>
+            <id>solor-database-11</id>
             <activation>
                 <property>
-                    <name>plugins</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.informatics</groupId>
-                    <artifactId>special-load</artifactId>
-                    <version>${project.parent.version}</version>
-                    <type>jar</type>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>external-plugins</id>
-            <activation>
-                <property>
-                    <name>komet-plugins</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>sh.komet.fx</groupId>
-                    <artifactId>yfiles-component-detail-graph</artifactId>
-                    <version>1.0-SNAPSHOT</version>
-                    <type>jar</type>
-                </dependency>
-                <dependency>
-                    <groupId>com.informatics</groupId>
-                    <artifactId>special-load</artifactId>
-                    <version>${project.parent.version}</version>
-                    <type>jar</type>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>test-yfiles</id>
-            <activation>
-                <property>
-                    <name>test.yfiles</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>yfiles</groupId>
-                    <artifactId>yfiles-for-javafx</artifactId>
-                    <version>3.0</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>solor-database</id>
-            <activation>
-                <property>
-                    <name>database</name>
+                    <name>database-11</name>
                     <value>solor</value>
                 </property>
             </activation>
@@ -452,62 +379,17 @@
             </build>
         </profile>
         <profile>
-            <id>custom-database</id>
+            <id>solor-full-database-11</id>
             <activation>
                 <property>
-                    <name>database</name>
-                    <value>custom</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>${database.groupId}</groupId>
-                    <artifactId>${database.artifactId}</artifactId>
-                    <version>${custom.db.version}</version>
-                    <type>zip</type>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>extract-solor-datastore</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifact>
-                                            <groupId>${database.groupId}</groupId>
-                                            <artifactId>${database.artifactId}</artifactId>
-                                            <version>${custom.db.version}</version>
-                                            <type>zip</type>
-                                        </artifact>
-                                    </artifactItems>
-                                    <outputDirectory>${project.build.directory}/data/isaac.data/</outputDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>solor-full-database</id>
-            <activation>
-                <property>
-                    <name>database</name>
+                    <name>database-11</name>
                     <value>solor-full</value>
                 </property>
             </activation>
             <dependencies>
                 <dependency>
                     <groupId>one.solor</groupId>
-                    <artifactId>solor-us-db</artifactId>
+                    <artifactId>solor-db</artifactId>
                     <version>${solor.db.version}</version>
                     <type>zip</type>
                 </dependency>
@@ -528,7 +410,7 @@
                                     <artifactItems>
                                         <artifact>
                                             <groupId>one.solor</groupId>
-                                            <artifactId>solor-us-db</artifactId>
+                                            <artifactId>solor-db</artifactId>
                                             <version>${solor.db.version}</version>
                                             <type>zip</type>
                                         </artifact>
@@ -579,12 +461,6 @@
                     <groupId>sh.isaac.provider</groupId>
                     <artifactId>postgress</artifactId>
                     <version>${project.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>sh.isaac.provider</groupId>
-                    <artifactId>query</artifactId>
-                    <version>${project.parent.version}</version>
-                    <scope>provided</scope>
                 </dependency>
             </dependencies>
         </profile>

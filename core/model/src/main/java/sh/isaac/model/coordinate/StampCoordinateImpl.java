@@ -85,7 +85,7 @@ import sh.isaac.model.xml.StatusEnumSetAdaptor;
 @XmlRootElement(name = "StampCoordinate")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = {"stampCoordinateUuid", "stampPosition", "allowedStates",
-    "stampPrecedence", "moduleSpecifications", "modulePreferenceOrderForVersions"})
+    "stampPrecedence", "moduleSpecifications", "modulePreferenceOrderForVersions", "authorSpecifications"})
 public class StampCoordinateImpl
         implements StampCoordinate {
 
@@ -100,9 +100,14 @@ public class StampCoordinateImpl
     StampPosition stampPosition;
 
     /**
-     * The module nids.
+     * The module concepts.
      */
     Set<ConceptSpecification> moduleSpecifications;
+
+    /**
+     * The author concepts.
+     */
+    Set<ConceptSpecification> authorSpecifications;
 
     /**
      * The allowed states.
@@ -141,16 +146,33 @@ public class StampCoordinateImpl
      * @param allowedStates the allowed states
      */
     public StampCoordinateImpl(StampPrecedence stampPrecedence,
-            StampPosition stampPosition,
-            Set<ConceptSpecification> moduleSpecifications,
-            List<ConceptSpecification> modulePriorityList,
-            EnumSet<Status> allowedStates) {
+                               StampPosition stampPosition,
+                               Set<ConceptSpecification> moduleSpecifications,
+                               List<ConceptSpecification> modulePriorityList,
+                               EnumSet<Status> allowedStates) {
+        this(stampPrecedence, stampPosition,
+                new HashSet(),
+                moduleSpecifications,
+                modulePriorityList,
+                allowedStates);
+    }
+    public StampCoordinateImpl(StampPrecedence stampPrecedence,
+                               StampPosition stampPosition,
+                               Set<ConceptSpecification> authorSpecifications,
+                               Set<ConceptSpecification> moduleSpecifications,
+                               List<ConceptSpecification> modulePriorityList,
+
+                               EnumSet<Status> allowedStates) {
         this.stampPrecedence = stampPrecedence;
         this.stampPosition = stampPosition;
+        this.authorSpecifications = authorSpecifications;
         this.moduleSpecifications = moduleSpecifications;
         this.modulePriorityList = modulePriorityList;
         this.allowedStates = allowedStates;
 
+        if (this.authorSpecifications == null) {
+            this.authorSpecifications = new HashSet<>();
+        }
         if (this.moduleSpecifications == null) {
             this.moduleSpecifications = new HashSet<>();
         }
@@ -253,6 +275,9 @@ public class StampCoordinateImpl
         }
 
         if (!this.allowedStates.equals(other.getAllowedStates())) {
+            return false;
+        }
+        if (!this.authorSpecifications.equals(other.getAuthorSpecifications())) {
             return false;
         }
 
@@ -374,6 +399,13 @@ public class StampCoordinateImpl
                     .append(", ");
         }
 
+        builder.append("authors: ");
+        if (this.authorSpecifications == null || this.authorSpecifications.isEmpty()) {
+            builder.append("any, ");
+        } else {
+            builder.append(Get.conceptDescriptionTextListFromSpecList(this.authorSpecifications))
+                    .append(", ");
+        }
         builder.append(this.allowedStates)
                 .append('}');
         return builder.toString();
@@ -500,6 +532,7 @@ public class StampCoordinateImpl
     public StampCoordinateImpl deepClone() {
         StampCoordinateImpl newCoordinate = new StampCoordinateImpl(stampPrecedence,
                 stampPosition.deepClone(),
+                new HashSet<>(authorSpecifications),
                 new HashSet<>(moduleSpecifications),
                 new ArrayList<>(this.modulePriorityList),
                 EnumSet.copyOf(allowedStates));
@@ -515,5 +548,20 @@ public class StampCoordinateImpl
 
     public void setModulePreferenceOrderForVersions(List<ConceptSpecification> modulePriorityList) {
         this.modulePriorityList = modulePriorityList;
+    }
+    @Override
+    @XmlElement(name = "Concept")
+    @XmlElementWrapper(name = "authors")
+    public Set<ConceptSpecification> getAuthorSpecifications() {
+        return moduleSpecifications;
+    }
+
+    public void setAuthorSpecifications(Set<ConceptSpecification> authorSpecifications) {
+        this.authorSpecifications = authorSpecifications;
+    }
+
+    @Override
+    public NidSet getAuthorNids() {
+        return NidSet.of(this.authorSpecifications);
     }
 }

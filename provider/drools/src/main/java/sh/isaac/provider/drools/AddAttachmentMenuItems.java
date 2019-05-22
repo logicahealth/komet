@@ -32,18 +32,15 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.model.observable.version.*;
 import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
-import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
-import sh.isaac.model.observable.version.ObservableLongVersionImpl;
-import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
-import sh.isaac.model.observable.version.ObservableStringVersionImpl;
-import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -141,12 +138,20 @@ public class AddAttachmentMenuItems {
                 version.setString("");
                 setupWithChronicle(version);
                 return version;
+            } else if (semanticTypeNid == MetaData.IMAGE_SEMANTIC____SOLOR.getNid()) {
+                ObservableImageVersionImpl version = new ObservableImageVersionImpl(Get.newUuidWithAssignment(),
+                        this.categorizedVersion.getPrimordialUuid(),
+                        assemblageSpecification.getNid());
+                version.setImageData(new byte[0]);
+                setupWithChronicle(version);
+                return version;
             } else {
                 throw new UnsupportedOperationException("Can't handle: " + Get.conceptDescriptionText(semanticTypeNid));
             }
         }
 
-        LOG.warn("No semantic type defined for assemblge: " + Get.conceptDescriptionText(assemblageSpecification.getNid()));
+        LOG.warn("No semantic type defined for assemblage: " + Get.conceptDescriptionText(assemblageSpecification.getNid()));
+
         ObservableStringVersionImpl version = new ObservableStringVersionImpl(Get.newUuidWithAssignment(),
                 this.categorizedVersion.getPrimordialUuid(),
                 assemblageSpecification.getNid());

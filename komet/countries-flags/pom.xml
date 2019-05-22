@@ -4,16 +4,22 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>komet</artifactId>
-        <version>4.65</version>
+        <version>5.0.0-SNAPSHOT</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>countries-flags</artifactId>
     <packaging>jar</packaging>
-   <name>ISAAC’s KOMET: Countries and flags</name>
-   <licenses>
-       <license>
-           <name>Flaticon free license (with attribution)</name>
-           <url>https://file000.flaticon.com/downloads/license/license.pdf</url>
-       </license>
-   </licenses>
+    <name>ISAAC’s KOMET: Countries and flags</name>
+    <licenses>
+        <license>
+            <name>Flaticon free license (with attribution)</name>
+            <url>https://file000.flaticon.com/downloads/license/license.pdf</url>
+        </license>
+    </licenses>
+    <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+        </dependency>
+    </dependencies>
 </project>

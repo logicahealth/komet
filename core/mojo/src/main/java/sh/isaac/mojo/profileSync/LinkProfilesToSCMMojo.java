@@ -46,6 +46,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.sync.SyncFiles;
+import sh.isaac.mojo.Headless;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -82,6 +83,7 @@ public class LinkProfilesToSCMMojo
    @Override
    public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
       super.execute();
 
       if (skipRun()) {

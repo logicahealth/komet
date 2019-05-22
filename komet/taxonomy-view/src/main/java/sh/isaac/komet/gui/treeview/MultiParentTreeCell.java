@@ -75,6 +75,7 @@ import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.komet.iconography.Iconography2;
 import sh.komet.gui.interfaces.DraggableWithImage;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
@@ -139,8 +140,8 @@ final public class MultiParentTreeCell
             conceptDescriptionText = treeItem.toString();
 
                if (!treeItem.isLeaf()) {
-                    Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLICK_TO_CLOSE.getIconographic()
-                                               : Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic();
+                    Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLICK_TO_CLOSE.getIconographic(24)
+                                               : Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic(24);
 
                     setDisclosureNode(iv);
                }

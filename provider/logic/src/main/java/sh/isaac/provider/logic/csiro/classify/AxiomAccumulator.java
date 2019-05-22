@@ -41,6 +41,19 @@ package sh.isaac.provider.logic.csiro.classify;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import au.csiro.ontology.Factory;
+import au.csiro.ontology.model.Axiom;
+import au.csiro.ontology.model.Concept;
+import au.csiro.ontology.model.ConceptInclusion;
+import au.csiro.ontology.model.Role;
+import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.collections.IntObjectHashMap;
+import sh.isaac.api.logic.LogicNode;
+import sh.isaac.model.logic.LogicalExpressionImpl;
+import sh.isaac.model.logic.node.AndNode;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
+
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
@@ -48,21 +61,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.mahout.math.map.OpenIntObjectHashMap;
-import org.apache.mahout.math.set.OpenIntHashSet;
-
-import au.csiro.ontology.Factory;
-import au.csiro.ontology.model.Axiom;
-import au.csiro.ontology.model.Concept;
-import au.csiro.ontology.model.ConceptInclusion;
-import au.csiro.ontology.model.Role;
-
-import sh.isaac.api.logic.LogicNode;
-import sh.isaac.model.logic.LogicalExpressionImpl;
-import sh.isaac.model.logic.node.AndNode;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
-import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -80,7 +78,7 @@ public class AxiomAccumulator
    Concept[] concepts;
 
    /** The roles. */
-   OpenIntObjectHashMap<Role> roles;
+   IntObjectHashMap<Role> roles;
 
    /** The never group role sequences. */
    OpenIntHashSet neverGroupRoleSequences;
@@ -101,7 +99,7 @@ public class AxiomAccumulator
     */
    public AxiomAccumulator(Concept[] concepts,
                            BitSet conceptSequences,
-                           OpenIntObjectHashMap<Role> roles,
+                           IntObjectHashMap<Role> roles,
                            OpenIntHashSet neverGroupRoleSequences,
                            int roleGroupConceptSequence) {
       this.concepts                 = concepts;
@@ -201,7 +199,7 @@ public class AxiomAccumulator
     */
    private Concept processRole(RoleNodeSomeWithNids roleNodeSome,
                                Concept[] concepts,
-                               OpenIntObjectHashMap<Role> roles,
+                               IntObjectHashMap<Role> roles,
                                OpenIntHashSet neverGroupRoleSequences,
                                int roleGroupConceptSequence) {
       // need to handle grouped, and never grouped...
@@ -236,7 +234,7 @@ public class AxiomAccumulator
     */
    private Concept getConcept(LogicNode logicNode,
                               Concept[] concepts,
-                              OpenIntObjectHashMap<Role> roles,
+                              IntObjectHashMap<Role> roles,
                               OpenIntHashSet neverGroupRoleSequences,
                               int roleGroupConceptSequence) {
       switch (logicNode.getNodeSemantic()) {
@@ -278,7 +276,7 @@ public class AxiomAccumulator
     */
    private Concept[] getConcepts(LogicNode[] logicNodes,
                                  Concept[] concepts,
-                                 OpenIntObjectHashMap<Role> roles,
+                                 IntObjectHashMap<Role> roles,
                                  OpenIntHashSet neverGroupRoleSequences,
                                  int roleGroupConceptSequence) {
       final Concept[] returnValues = new Concept[concepts.length];

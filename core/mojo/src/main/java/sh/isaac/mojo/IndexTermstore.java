@@ -89,6 +89,7 @@ public class IndexTermstore
    public void execute()
             throws MojoExecutionException {
       try {
+      Headless.setHeadless();
          final List<IndexBuilderService> indexers     = LookupService.get()
                                                                 .getAllServices(IndexBuilderService.class);
          final List<String>         indexerNames = new ArrayList<>();

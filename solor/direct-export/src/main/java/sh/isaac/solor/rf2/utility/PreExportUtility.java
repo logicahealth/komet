@@ -2,9 +2,9 @@ package sh.isaac.solor.rf2.utility;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Nid1_Nid2_Int3_Version;
 import sh.isaac.api.util.UuidT3Generator;
-import sh.komet.gui.manifold.Manifold;
 
 import java.util.HashMap;
 
@@ -15,9 +15,9 @@ import java.util.HashMap;
 public class PreExportUtility {
 
     private static HashMap<Integer, Integer[]> refsetDescriptorHeaders = new HashMap<>();
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifold;
 
-    public PreExportUtility(Manifold manifold) {
+    public PreExportUtility(ManifoldCoordinate manifold) {
         this.manifold = manifold;
 
     }

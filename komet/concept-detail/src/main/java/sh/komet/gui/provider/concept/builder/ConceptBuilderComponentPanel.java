@@ -73,6 +73,7 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
 import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import sh.komet.gui.style.StyleClasses;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -306,9 +307,13 @@ public class ConceptBuilderComponentPanel
         if (this.observableVersion instanceof ObservableDescriptionDialect) {
             ObservableDescriptionDialect descDialect = (ObservableDescriptionDialect) this.observableVersion;
             if (descDialect.getDescription().getText() != null
-                    && descDialect.getDescription().getText().length() > 2) {
-                versionsToCommit.add(descDialect.getDescription());
-                versionsToCommit.add(descDialect.getDialect());
+                    &! descDialect.getDescription().getText().isBlank()) {
+                if (descDialect.getDescription().getText().length() > 1) {
+                    versionsToCommit.add(descDialect.getDescription());
+                    versionsToCommit.add(descDialect.getDialect());
+                } else {
+                    FxGet.dialogs().showInformationDialog("Editorial error", "Not adding 1 character description: " + descDialect.getDescription().getText());
+                }
             }
             return versionsToCommit.toArray(new ObservableVersion[versionsToCommit.size()]);
         }

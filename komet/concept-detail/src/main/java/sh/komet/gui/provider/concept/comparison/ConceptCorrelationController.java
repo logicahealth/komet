@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.provider.concept.comparison;
 
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.logic.IsomorphicResultsFromPathHash;
 import java.net.URL;
 import java.util.Arrays;
@@ -195,9 +196,9 @@ public class ConceptCorrelationController {
                 .getStylesheets()
                 .add(FxGet.fxConfiguration().getUserCSSURL().toString());
         referenceBorderPane.getScene().getStylesheets()
-                .remove(Iconography.getStyleSheetStringUrl());
+                .remove(IconographyHelper.getStyleSheetStringUrl());
         referenceBorderPane.getScene().getStylesheets()
-                .add(Iconography.getStyleSheetStringUrl());
+                .add(IconographyHelper.getStyleSheetStringUrl());
 
         System.out.println("Updated css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
 

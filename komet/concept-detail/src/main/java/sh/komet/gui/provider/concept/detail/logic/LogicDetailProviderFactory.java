@@ -19,6 +19,9 @@ package sh.komet.gui.provider.concept.detail.logic;
 import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
@@ -40,7 +43,7 @@ public class LogicDetailProviderFactory implements DetailNodeFactory {
    }
 
    @Override
-   public DetailNode createNode(Manifold manifold) {
+   public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
       return new LogicDetailNode(manifold);
    }
    @Override
@@ -67,5 +70,10 @@ public class LogicDetailProviderFactory implements DetailNodeFactory {
    @Override
    public PanelPlacement getPanelPlacement() {
       return null;
+   }
+
+   @Override
+   public ConceptSpecification getPanelType() {
+      return MetaData.LOGIC_DETAILS_PANEL____SOLOR;
    }
 }

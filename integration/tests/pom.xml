@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>integration</artifactId>
-      <version>4.65</version>
+      <version>5.0.0-SNAPSHOT</version>
    </parent>
    <groupId>sh.isaac.integration</groupId>
    <artifactId>tests</artifactId>
@@ -167,7 +167,7 @@
                      <parallel>none</parallel>
                      <useSystemClassLoader>true</useSystemClassLoader>
                      <useManifestOnlyJar>false</useManifestOnlyJar>
-                     <argLine>-ea -d64 -Xmx12g -Djava.awt.headless=true</argLine>
+                     <argLine>-ea -Xmx12g -Djava.awt.headless=true</argLine>
                      <!-- <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
 <!--                     <debugForkedProcess>true</debugForkedProcess>  -->
                      <includes>
@@ -222,7 +222,7 @@
                      <parallel>false</parallel>
                      <useSystemClassLoader>true</useSystemClassLoader>
                      <useManifestOnlyJar>false</useManifestOnlyJar>
-                     <argLine>-ea -d64 -Xmx12g -Djava.awt.headless=true</argLine>
+                     <argLine>-ea -Xmx12g -Djava.awt.headless=true</argLine>
                      <includes>
                         <include>**/VhatXmlTests.java</include>
                      </includes>

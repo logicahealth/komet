@@ -121,3 +121,19 @@ $ mvn jgitflow:release-start jgitflow:release-finish \
 
 $ mvn jgitflow:release-start jgitflow:release-finish -Prelease-deploy
 ```
+
+
+## JDK 11 notes
+Crazy command to launch in eclipse:
+Also had to add javafx controls, base, and graphics as "modules" in the run configuration.
+Someday... will figure out if its even possible to properly integrate this information into the maven build, so Eclipse finds it...
+
+```
+-DSHOW_BETA_FEATURES=true --add-modules=javafx.controls --add-exports javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.util=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.beans=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.runtime=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.collections=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.binding=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.logging=ALL-UNNAMED --add-exports javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED --add-opens javafx.graphics/javafx.concurrent=ALL-UNNAMED
+```
+
+Useful on linux, and with repo content
+
+```
+-Dsun.awt.disablegrab=true -DM2_PATH=/mnt/STORAGE/Work/VetsEZ/Maven/repository/
+```

@@ -93,6 +93,7 @@ public class IBDFDiffMojo extends AbstractMojo
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException
 	{
+      Headless.setHeadless();
 		try
 		{
 			UUID authorUUID = UUID.fromString(author);

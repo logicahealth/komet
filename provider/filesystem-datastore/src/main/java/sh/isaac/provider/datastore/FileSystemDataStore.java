@@ -86,6 +86,7 @@ import sh.isaac.api.datastore.SequenceStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.model.ChronologyImpl;
@@ -266,8 +267,10 @@ public class FileSystemDataStore
      */
     @Override
     public void startup() {
+        LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting FileSystemDataStore");
+        Get.executor().execute(progressTask);
         try {
-            LOG.info("Startings FileSystemDataStore");
+            LOG.info("Starting FileSystemDataStore");
 
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
             Path folderPath = configurationService.getDataStoreFolderPath();
@@ -337,6 +340,8 @@ public class FileSystemDataStore
         } catch (IOException ex) {
             LOG.error("Error starting FileSystemDataStore", ex);
             throw new RuntimeException(ex);
+        } finally {
+            progressTask.finished();
         }
     }
 
@@ -508,9 +513,10 @@ public class FileSystemDataStore
    public void putAssemblageVersionType(int assemblageNid, VersionType type) throws IllegalStateException
    {
       VersionType oldValue = assemblageToVersionType_Map.computeIfAbsent(assemblageNid, (i -> type));
-      if (oldValue != type) {
+      if (oldValue != type && oldValue != VersionType.UNKNOWN) {
          throw new IllegalStateException("Tried to change the version type of " + assemblageNid + " from " + oldValue + " to " + type);
       }
+       assemblageToVersionType_Map.put(assemblageNid, type);
    }
 
    @Override
@@ -804,7 +810,8 @@ public class FileSystemDataStore
          if (elementSequence != Integer.MAX_VALUE) {
             return elementSequence;
          }
-         return getElementSequenceForNid(nid, ModelGet.identifierService().getAssemblageNid(nid).orElseThrow(() -> new RuntimeException("No assemblage nid available for " + nid 
+         return getElementSequenceForNid(nid, ModelGet.identifierService().getAssemblageNid(nid).orElseThrow(() ->
+                 new RuntimeException("No assemblage nid available for " + nid
                + " " + Get.identifierService().getUuidPrimordialForNid(nid))));
       }
    

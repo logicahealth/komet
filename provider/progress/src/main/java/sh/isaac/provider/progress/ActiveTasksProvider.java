@@ -44,6 +44,7 @@ package sh.isaac.provider.progress;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javax.inject.Singleton;
 
@@ -65,29 +66,5 @@ import sh.isaac.api.progress.PersistTaskResult;
 public class ActiveTasksProvider extends TaskListProvider
          implements ActiveTasks {
 
-   //~--- methods -------------------------------------------------------------
-   /**
-    * Adds the task to the active tasks set.
-    *
-    * @param task the task
-    */
-   @Override
-   public void add(Task<?> task) {
-      if (!task.isDone()) {
-         super.add(task);
-      } else {
-         if (task instanceof PersistTaskResult) {
-            Get.completedTasks().add(task);
-         }
-      }
-   }
-
-   @Override
-   public void remove(Task<?> task) {
-      super.remove(task);
-      if (task instanceof PersistTaskResult) {
-         Get.completedTasks().add(task);
-      }
-   }
 }
 

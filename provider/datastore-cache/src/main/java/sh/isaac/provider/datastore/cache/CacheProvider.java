@@ -2,17 +2,17 @@ package sh.isaac.provider.datastore.cache;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
+import sh.isaac.api.collections.UuidIntMapMapMemoryBased;
 import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.ModelGet;
@@ -21,15 +21,13 @@ import sh.isaac.model.collections.store.ByteArrayArrayStoreProvider;
 import sh.isaac.model.collections.store.IntIntArrayStoreProvider;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
-import javax.inject.Singleton;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BinaryOperator;
 import java.util.stream.IntStream;
 
-@Service(name = "CACHE")
-@Singleton
 public class CacheProvider
         implements DatastoreAndIdentiferService {
     private static final Logger LOG = LogManager.getLogger();
@@ -52,15 +50,23 @@ public class CacheProvider
     private final ConcurrentHashMap<Integer, SpinedIntIntArrayMap> spinedTaxonomyMapMap
             = new ConcurrentHashMap<>();
 
-    @Override
-    public void startup() {
-        this.datastoreService = Get.service(DataStoreSubService.class);
-        this.identifierService = Get.service(IdentifierService.class);
-        this.uuidIntMapMap = new ConcurrentUuidToIntHashMap();
+    public CacheProvider(DataStoreSubService datastoreService,
+            IdentifierService identifierService) {
+        this.datastoreService = datastoreService;
+        this.identifierService = identifierService;
+        this.uuidIntMapMap = new UuidIntMapMapMemoryBased();
         this.assemblageToObjectType_Map = new ConcurrentHashMap<>();
         this.assemblageToVersionType_Map = new ConcurrentHashMap<>();
         this.nidToAssemblageNidMap = new SpinedNidIntMap();
+    }
+
+    @Override
+    public void startup() {
         this.assemblageNids = this.identifierService.getAssemblageNids();
+        for (int assemblageNid: this.assemblageNids) {
+            this.assemblageToObjectType_Map.put(assemblageNid, this.datastoreService.getIsaacObjectTypeForAssemblageNid(assemblageNid));
+            this.assemblageToVersionType_Map.put(assemblageNid, this.datastoreService.getVersionTypeForAssemblageNid(assemblageNid));
+        }
 
     }
 
@@ -80,6 +86,10 @@ public class CacheProvider
 
     }
 
+    @Override
+    public int getMaxNid() {
+        return this.identifierService.getMaxNid();
+    }
 
     @Override
     public void addUuidForNid(UUID uuid, int nid) {
@@ -93,8 +103,12 @@ public class CacheProvider
 
     @Override
     public IsaacObjectType getObjectTypeForComponent(int componentNid) {
-        return this.assemblageToObjectType_Map.computeIfAbsent(componentNid,
-                key -> this.identifierService.getObjectTypeForComponent(key));
+        OptionalInt assemblageNid = getAssemblageNid(componentNid);
+        if (assemblageNid.isPresent()) {
+            return this.assemblageToObjectType_Map.computeIfAbsent(assemblageNid.getAsInt(),
+                    key -> this.identifierService.getObjectTypeForComponent(componentNid));
+        }
+        return IsaacObjectType.UNKNOWN;
     }
 
     @Override
@@ -147,7 +161,13 @@ public class CacheProvider
 
     @Override
     public IntStream getNidStreamOfType(IsaacObjectType objectType) {
-        return this.identifierService.getNidStreamOfType(objectType);
+        int maxNid = this.identifierService.getMaxNid();
+        NidSet allowedAssemblages = this.getAssemblageNidsForType(objectType);
+
+        return IntStream.rangeClosed(Integer.MIN_VALUE + 1, maxNid)
+                .filter((value) -> {
+                    return allowedAssemblages.contains(this.getAssemblageOfNid(value).orElseGet(() -> Integer.MAX_VALUE));
+                });
     }
 
     @Override
@@ -170,6 +190,7 @@ public class CacheProvider
             return optionalNid.getAsInt();
         }
         int nid = this.identifierService.getNidForUuids(uuids);
+
         for (UUID uuid : uuids) {
             this.uuidIntMapMap.put(uuid, nid);
         }
@@ -382,7 +403,8 @@ public class CacheProvider
         if (data == null) {
             Optional<ByteArrayDataBuffer> optionalByteBuffer = this.datastoreService.getChronologyVersionData(nid);
             if (optionalByteBuffer.isPresent()) {
-                spinedByteArrayArrayMap.put(nid, optionalByteBuffer.get().toDataArray());
+                data = optionalByteBuffer.get().toDataArray();
+                spinedByteArrayArrayMap.put(nid, data);
             } else {
                 return Optional.empty();
             }
@@ -401,8 +423,26 @@ public class CacheProvider
         return semanticNids;
     }
 
+    AtomicBoolean startGetAssemblageForNids = new AtomicBoolean(true);
+    private class GetAssemblageForNids implements Runnable {
+
+        @Override
+        public void run() {
+            long startTime = System.currentTimeMillis();
+            CacheBootstrap cacheBootstrap = (CacheBootstrap) CacheProvider.this.datastoreService;
+            cacheBootstrap.loadAssemblageOfNid(nidToAssemblageNidMap);
+            LOG.info("Loaded nidToAssemblageNidMap in " + DurationUtil.msTo8601(System.currentTimeMillis() - startTime));
+        }
+    }
+
     @Override
     public OptionalInt getAssemblageOfNid(int nid) {
+        if (startGetAssemblageForNids.get()) {
+            if (startGetAssemblageForNids.getAndSet(false)) {
+                Get.executor().execute(new GetAssemblageForNids());
+            }
+        }
+
         int value = nidToAssemblageNidMap.get(nid);
         if (value != Integer.MAX_VALUE) {
             return OptionalInt.of(value);
@@ -444,24 +484,34 @@ public class CacheProvider
 
     @Override
     public int[] getTaxonomyData(int assemblageNid, int conceptNid) {
-        int[] data = this.spinedTaxonomyMapMap.get(assemblageNid).get(conceptNid);
+        int[] data = getTaxonomyMap(assemblageNid).get(conceptNid);
         if (data == null) {
             data = this.datastoreService.getTaxonomyData(assemblageNid, conceptNid);
             this.spinedTaxonomyMapMap.get(assemblageNid).put(conceptNid, data);
         }
         return data;
     }
-
     @Override
     public int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction) {
         int[] accumulatedData = getTaxonomyMap(assemblageNid).accumulateAndGet(conceptNid, newData, accumulatorFunction);
         int[] accumulatedDatastoreData = this.datastoreService.accumulateAndGetTaxonomyData(assemblageNid, conceptNid, accumulatedData, accumulatorFunction);
         newData = accumulatedDatastoreData;
         while (!Arrays.equals(accumulatedData, accumulatedDatastoreData)) {
-            accumulatedData = getTaxonomyMap(assemblageNid).accumulateAndGet(conceptNid, newData, accumulatorFunction);
+            accumulatedData = getTaxonomyMap(assemblageNid).accumulateAndGet(conceptNid, accumulatedDatastoreData, accumulatorFunction);
             accumulatedDatastoreData = this.datastoreService.accumulateAndGetTaxonomyData(assemblageNid, conceptNid, accumulatedData, accumulatorFunction);
         }
         return accumulatedDatastoreData;
+    }
+
+    private void printArray(String prefix, int[] array) {
+        StringBuilder b = new StringBuilder(prefix);
+        b.append("\n");
+        for (int i = 0; i < array.length; i++) {
+            b.append(i).append(": ");
+            b.append(array[i]).append("\n");
+        }
+        b.append("\n");
+        System.out.println(b);
     }
 
     @Override

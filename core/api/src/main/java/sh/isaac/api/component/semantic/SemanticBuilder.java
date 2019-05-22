@@ -41,6 +41,7 @@ package sh.isaac.api.component.semantic;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.UUID;
 import sh.isaac.api.IdentifiedComponentBuilder;
 
 //~--- interfaces -------------------------------------------------------------
@@ -52,5 +53,17 @@ import sh.isaac.api.IdentifiedComponentBuilder;
  * @param <C> the generic type
  */
 public interface SemanticBuilder<C extends SemanticChronology>
-        extends IdentifiedComponentBuilder<C> {}
+        extends IdentifiedComponentBuilder<C> {
+    @Override
+    SemanticBuilder<C> setPrimordialUuid(String uuidString);
+
+   /**
+    * If not set, a randomly generated UUID will be automatically used.
+    * @param uuid the primordial uuid for the component to be built.
+    * @return the builder for chaining of operations in a fluent pattern.
+    */
+    @Override
+    SemanticBuilder<C> setPrimordialUuid(UUID uuid);
+
+}
 

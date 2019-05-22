@@ -208,118 +208,10 @@ public class ChronologyUpdate implements StaticIsaacCache {
         if (existing == null) {
             existing = new int[0];
         }
-        //TaxonomyRecord.validate(existing);
-        //TaxonomyRecord.validate(update);
-        OpenIntIntHashMap updateConceptsRecordStartMap = new OpenIntIntHashMap();
-        updateConceptsRecordStartMap.put(update[0], 0);
-        int recordEnd = update[1] + 1;
-        while (recordEnd < update.length) {
-            if (recordEnd < 0) {
-                throw new IllegalStateException("Record end cannot be negative. ");
-            }
-            int updateConcept = update[recordEnd];
-            if (updateConceptsRecordStartMap.containsKey(updateConcept)) {
-                throw new IllegalStateException("Concept in update record twice");
-            }
-            updateConceptsRecordStartMap.put(updateConcept, recordEnd);
-            recordEnd = recordEnd + update[recordEnd + 1] + 1;
-        }
-
-        // if length changed, then use this lengthChangedList for the merged result
-        AtomicReference<IntArrayList> lengthChangedListReference = new AtomicReference<>();
-
-        for (int i = 0; i < existing.length;) {
-            int currentConceptNid = existing[i];
-            int length = existing[i + 1] + 1;
-            if (updateConceptsRecordStartMap.containsKey(currentConceptNid)) {
-                int updateRecordStartIndex = updateConceptsRecordStartMap.get(currentConceptNid);
-                updateConceptsRecordStartMap.removeKey(currentConceptNid);
-
-                TypeStampTaxonomyRecords existingRecords = new TypeStampTaxonomyRecords(existing, i + 1);
-                int[] existingRecArray = existingRecords.toArray();
-                TypeStampTaxonomyRecords updateRecords = new TypeStampTaxonomyRecords(update, updateRecordStartIndex + 1);
-                existingRecords.merge(updateRecords);
-                int[] updatedExistingTypeStampRecords = existingRecords.toArray();
-
-                if (!Arrays.equals(updatedExistingTypeStampRecords, existingRecArray)) {
-                    if (existingRecArray.length == updatedExistingTypeStampRecords.length) {
-                        IntArrayList lengthChangedList = lengthChangedListReference.get();
-
-                        // case 1, same size, updated flag...
-                        if (lengthChangedList == null) {
-                            System.arraycopy(updatedExistingTypeStampRecords, 0, existing, i + 2, updatedExistingTypeStampRecords.length);
-                        } else {
-                            // add concept
-                            lengthChangedList.add(currentConceptNid);
-                            // add length
-                            lengthChangedList.add(updatedExistingTypeStampRecords.length + 1);
-                            for (int mergedArrayItem : updatedExistingTypeStampRecords) {
-                                // then add type stamp flag records. 
-                                lengthChangedList.add(mergedArrayItem);
-                            }
-                        }
-
-                    } else {
-                        // case 2, different size. 
-                        IntArrayList lengthChangedList = lengthChangedListReference.get();
-                        if (lengthChangedList == null) {
-                            lengthChangedList = new IntArrayList();
-                            for (int existingIndex = 0; existingIndex < i; existingIndex++) {
-                                lengthChangedList.add(existing[existingIndex]);
-                            }
-                            lengthChangedListReference.set(lengthChangedList);
-                        }
-                        // add concept
-                        lengthChangedList.add(currentConceptNid);
-                        // add length
-                        lengthChangedList.add(updatedExistingTypeStampRecords.length + 1);
-                        for (int mergedArrayItem : updatedExistingTypeStampRecords) {
-                            // then add type stamp flag records. 
-                            lengthChangedList.add(mergedArrayItem);
-                        }
-                    }
-                } else if (lengthChangedListReference.get() != null) {
-                    IntArrayList lengthChangedList = lengthChangedListReference.get();
-                    // just copy to result, as it will not change. 
-                    int copyEnd = i + length;
-                    for (int copyIndex = i; copyIndex < copyEnd; copyIndex++) {
-                        lengthChangedList.add(existing[copyIndex]);
-                    }
-                }
-
-            } else if (lengthChangedListReference.get() != null) {
-                IntArrayList lengthChangedList = lengthChangedListReference.get();
-                // just copy to result, as it will not change. 
-                int copyEnd = i + length;
-                for (int copyIndex = i; copyIndex < copyEnd; copyIndex++) {
-                    lengthChangedList.add(existing[copyIndex]);
-                }
-            }
-            i = i + length;
-        }
-        if (!updateConceptsRecordStartMap.isEmpty()) {
-            if (lengthChangedListReference.get() == null) {
-                lengthChangedListReference.set(new IntArrayList(existing));
-            }
-            // Find the update concepts
-            updateConceptsRecordStartMap.forEachPair((conceptId, recordStart) -> {
-                // copy in the entire record
-                int copyEnd = recordStart + update[recordStart + 1] + 1;
-                IntArrayList intList = lengthChangedListReference.get();
-                for (int copyIndex = recordStart; copyIndex < copyEnd; copyIndex++) {
-                    intList.add(update[copyIndex]);
-                }
-                return true;
-            });
-        }
-        IntArrayList lengthChangedList = lengthChangedListReference.get();
-        if (lengthChangedList != null) {
-            lengthChangedList.trimToSize();
-            int[] result = lengthChangedList.elements();
-            //TaxonomyRecord.validate(result);
-            return result;
-        }
-        return existing;
+        TaxonomyRecord existingRec = new TaxonomyRecord(existing);
+        TaxonomyRecord updateRec = new TaxonomyRecord(update);
+        existingRec.merge(updateRec);
+        return existingRec.pack();
     }
 
     /**
@@ -369,7 +261,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
      * @param taxonomyRecordForConcept the parent taxonomy record
      * @param taxonomyFlags the taxonomy flags
      * @param stampSequence the stamp sequence
-     * @param comparisonExpression the comparison expression
+     * @param logicalExpression the comparison expression
      */
     private static void processRelationshipRoot(int conceptNid, LogicNode logicNode,
             TaxonomyRecord taxonomyRecordForConcept,
@@ -503,11 +395,12 @@ public class ChronologyUpdate implements StaticIsaacCache {
     /**
      * Update isa rel.
      *
-     * @param conceptNode the concept node
+
+     * @param originNid the origin nid
+     * @param destinationNid the destination nid
      * @param taxonomyRecordForConcept the parent taxonomy record
      * @param taxonomyFlags the taxonomy flags
      * @param stampSequence the stamp sequence
-     * @param destinationNid the destination nid
      */
     private static void updateIsaRel(int originNid,
             int destinationNid,
@@ -543,7 +436,6 @@ public class ChronologyUpdate implements StaticIsaacCache {
      * @param parentTaxonomyRecord the parent taxonomy record
      * @param taxonomyFlags the taxonomy flags
      * @param stampSequence the stamp sequence
-     * @param originSequence the origin sequence
      */
     private static void updateSomeRole(RoleNodeSomeWithNids someNode,
             TaxonomyRecord parentTaxonomyRecord,

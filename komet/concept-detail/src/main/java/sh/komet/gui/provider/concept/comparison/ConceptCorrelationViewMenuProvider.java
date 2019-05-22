@@ -28,6 +28,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -56,7 +57,7 @@ public class ConceptCorrelationViewMenuProvider implements MenuProvider {
     private void newCorelationView(ActionEvent event) {
         MenuItem eventMenu = (MenuItem) event.getSource();
         IsaacPreferences parentPreferences = (IsaacPreferences) eventMenu.getProperties().get(MenuProvider.PARENT_PREFERENCES);
-        Manifold statementManifold = Manifold.make(Manifold.ManifoldGroup.CORRELATION);
+        Manifold statementManifold = FxGet.getManifold(Manifold.ManifoldGroup.CORRELATION);
         ConceptCorrelationController conceptCorrelationController = ConceptCorrelationView.show(statementManifold,
                 MenuProvider::handleCloseRequest);
         MenuProvider.WINDOW_COUNT.incrementAndGet();

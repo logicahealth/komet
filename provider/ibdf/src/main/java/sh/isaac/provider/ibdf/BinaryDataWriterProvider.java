@@ -169,6 +169,8 @@ public class BinaryDataWriterProvider
 
       this.dataPath = path;
       this.dataPath.toFile().getParentFile().mkdirs();
+      //this needs to be append mode, because the ibdf file writer is paused and resumed many times during the lifecycle - 
+      //specifically, to allow syncing to git....
       this.output = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(), true)));
       LOG.info("ibdf changeset writer has been configured to write to " + this.dataPath.toAbsolutePath().toString());
 

@@ -75,7 +75,7 @@ public class TypeStampTaxonomyRecord {
       if (this.typeNid != other.typeNid) {
          return false;
       }
-      return this.taxonomyFlags == other.taxonomyFlags;
+      return this.taxonomyFlags.equals(other.taxonomyFlags);
    }
 
    @Override

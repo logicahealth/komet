@@ -47,6 +47,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import sh.isaac.api.memory.HeapUseTicker;
+import sh.isaac.mojo.Headless;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -67,6 +68,7 @@ public class StopHeapTicker
    @Override
    public void execute()
             throws MojoExecutionException {
+      Headless.setHeadless();
       HeapUseTicker.stop();
    }
 }

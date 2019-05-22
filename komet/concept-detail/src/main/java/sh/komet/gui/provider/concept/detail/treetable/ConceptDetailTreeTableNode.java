@@ -93,8 +93,10 @@ public class ConceptDetailTreeTableNode
             ConceptDetailTreeTableController conceptDetailController = loader.getController();
 
             conceptDetailController.setManifold(conceptDetailManifold);
-            updateTitle(conceptDetailManifold.focusedConceptProperty(), null, 
-                    conceptDetailManifold.getFocusedConcept().get());
+            if (conceptDetailManifold.getFocusedConcept().isPresent()) {
+                updateTitle(conceptDetailManifold.focusedConceptProperty(), null,
+                        conceptDetailManifold.getFocusedConcept().get());
+            }
             conceptDetailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
         } catch (IOException ex) {
             throw new RuntimeException(ex);

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
 		<artifactId>misc</artifactId>
-		<version>4.65</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 	<groupId>sh.isaac.misc</groupId>
 	<artifactId>importers</artifactId>
@@ -39,30 +39,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>logic</artifactId>
-			<version>${project.parent.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>sh.isaac.solor</groupId>
 			<artifactId>direct-import</artifactId>
 			<version>${project.parent.version}</version>
-		</dependency>
- 		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>datastore-locator</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>stamp</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>query</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.opencsv</groupId>
@@ -90,6 +69,12 @@
 			<groupId>org.apache.jena</groupId>
 			<artifactId>jena-core</artifactId>
 			<version>3.7.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<!-- Some of the importer mojos do some futzing with log4j inner classes, need this to compile, but those classes 
@@ -106,6 +91,20 @@
 			<artifactId>log-config</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4-runtime</artifactId>
+			<version>4.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>se.liu.imt.mi.snomedct</groupId>
+			<artifactId>SnomedCTParser</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>sh.isaac.core</groupId>
+			<artifactId>metadata</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -155,7 +154,7 @@
 						</goals>
 						<configuration>
 							<descriptors>
-								<descriptor>src/assembly/assembly.xml</descriptor>
+								<descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
 							</descriptors>
 							<attach>false</attach>
 							<encoding>UTF-8</encoding>
@@ -219,18 +218,18 @@
 							<generateDirectory>${project.build.directory}/generated-sources/mvx</generateDirectory>
 						</configuration>
 					</execution>
-					<!--execution>
+					<execution>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
 							<generatePackage>coreschema</generatePackage>
-							<schemaDirectory>src/main/resources/hl7v3/datatypes</schemaDirectory>
+							<schemaDirectory>${project.basedir}/src/main/resources/hl7v3/datatypes</schemaDirectory>
 							<schemaIncludes>
 								<include>hl7-r2_datatypes.xsd</include>
 							</schemaIncludes>
 						</configuration>
-					</execution-->
+					</execution>
 					<execution>
 						<goals>
 							<goal>generate</goal>
@@ -238,7 +237,7 @@
 						<id>mif</id>
 						<configuration>
 							<generatePackage>mifschema</generatePackage>
-							<schemaDirectory>src/main/resources/hl7v3/mif</schemaDirectory>
+							<schemaDirectory>${project.basedir}/src/main/resources/hl7v3/mif</schemaDirectory>
 							<schemaIncludes>
 								<include>xhtml1-strict.xsd</include>
 								<include>mif-COMPLETE.xsd</include>
@@ -249,18 +248,20 @@
 			</plugin>
 			
 			<!-- Mark this project as a maven mojo -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-plugin-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>mojo-descriptor</id>
-						<goals>
-							<goal>descriptor</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>mojo-descriptor</id>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                        <configuration>
+                            <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>

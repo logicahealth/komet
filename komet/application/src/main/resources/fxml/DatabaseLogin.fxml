@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.fx.stage.DatabaseLoginController">
+   <children>
+      <GridPane layoutX="100.0" layoutY="110.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="ALWAYS" maxWidth="500.0" minWidth="10.0" prefWidth="296.0" />
+            <ColumnConstraints hgrow="ALWAYS" maxWidth="15.0" minWidth="10.0" prefWidth="15.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="15.0" vgrow="NEVER" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Username: " GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+            <Label text="Password: " GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+            <Label text="Database URL: " GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
+            <TextField fx:id="usernameTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <TextField fx:id="databaseTextField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+         </children>
+      </GridPane>
+   </children>
+</AnchorPane>

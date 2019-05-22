@@ -28,6 +28,7 @@ import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.INITIALIZED;
 import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
 import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.PROPERTY_SHEET_CLASS;
+
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -35,14 +36,14 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public class SynchronizationItems extends ParentPanelPreferences {
+public class SynchronizationItems extends ParentPanel {
 
     public static final String SYNCHRONIZATION_ITEMS_GROUP_NAME = "Synchronization items";
     private final IsaacPreferences userSyncItemsNode;
     private final IsaacPreferences configSyncItemsNode;
 
     public SynchronizationItems(IsaacPreferences preferencesNode, Manifold manifold,
-            KometPreferencesController kpc) {
+                                KometPreferencesController kpc) {
         super(getEquivalentUserPreferenceNode(preferencesNode), preferencesNode.get(GROUP_NAME, SYNCHRONIZATION_ITEMS_GROUP_NAME),
                 manifold, kpc);
         this.configSyncItemsNode = preferencesNode;
@@ -54,7 +55,7 @@ public class SynchronizationItems extends ParentPanelPreferences {
     private static IsaacPreferences getEquivalentUserPreferenceNode(IsaacPreferences configurationPreferences) {
         try {
             if (configurationPreferences.getNodeType() == PreferenceNodeType.CONFIGURATION) {
-                IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferences.class).node(SYNCHRONIZATION_ITEMS_GROUP_NAME);
+                IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferencePanel.class).node(SYNCHRONIZATION_ITEMS_GROUP_NAME);
                 // for version upgrade forward compatibility...
                 userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_USER_NAME");
                 userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_URL");
@@ -95,7 +96,7 @@ public class SynchronizationItems extends ParentPanelPreferences {
     }
 
     @Override
-    void saveFields() throws BackingStoreException {
+    protected void saveFields() throws BackingStoreException {
         // Copy the synchronization items from the user preferences to the 
         // configuration preferences
         configSyncItemsNode.putList(CHILDREN_NODES, userSyncItemsNode.getList(CHILDREN_NODES));
@@ -125,7 +126,7 @@ public class SynchronizationItems extends ParentPanelPreferences {
     }
 
     @Override
-    final void revertFields() throws BackingStoreException {
+    final protected void revertFields() throws BackingStoreException {
         // Revert the synchronization items from the 
         // configuration preferences to the user preferences
         configSyncItemsNode.putList(CHILDREN_NODES, userSyncItemsNode.getList(CHILDREN_NODES));

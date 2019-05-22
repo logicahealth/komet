@@ -37,22 +37,22 @@
 package sh.komet.fx.stage;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.prefs.BackingStoreException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
@@ -73,32 +73,42 @@ import javafx.scene.layout.Priority;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
+import sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.preferences.KometPreferencesController;
+import sh.isaac.komet.preferences.PreferenceGroup;
+import sh.isaac.komet.preferences.PreferencesTreeItem;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LoincDirectImporter;
 import sh.isaac.solor.direct.LoincExpressionToConcept;
 import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
-import sh.komet.fx.tabpane.DndTabPaneFactory;
-import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
 import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.NodeFactory.PanelPlacement;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.isaac.komet.gui.exporter.ExportView;
+import sh.komet.gui.contract.preferences.WindowPreferenceItems;
 import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelProviderFactory;
+import sh.komet.gui.search.extended.ExtendedSearchViewFactory;
+import sh.komet.gui.search.simple.SimpleSearchViewFactory;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.drag.drop.TabDragAndDropHandler;
 import sh.komet.gui.provider.concept.builder.ConceptBuilderNode;
+import sh.komet.progress.view.TaskProgressNodeFactory;
+
+import static sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -109,8 +119,13 @@ import sh.komet.gui.provider.concept.builder.ConceptBuilderNode;
 public class KometStageController
         implements StatusMessageConsumer {
 
-    private final Logger LOG = LogManager.getLogger();
-    private final HashMap<ManifoldGroup, Manifold> manifolds = new HashMap<>(); 
+    private static final Logger LOG = LogManager.getLogger();
+    public enum Keys {
+        FACTORY_CLASS,
+        TAB_PANE_INDEX,
+        INDEX_IN_TAB_PANE
+    }
+
 
     //~--- fields --------------------------------------------------------------
     ArrayList<TabPane> tabPanes = new ArrayList<>();
@@ -142,8 +157,15 @@ public class KometStageController
     private GridPane topGridPane;                      // Value injected by FXMLLoader
     @FXML                                                                          // fx:id="classifierMenuButton"
     private MenuButton classifierMenuButton;             // Value injected by FXMLLoader
+    private WindowPreferenceItems windowPreferenceItems;
+    private IsaacPreferences preferencesNode;
+
 
     private final ImageView vanityImage = new ImageView();
+
+    private TabPane leftTabPane   = new TabPane();
+    private TabPane centerTabPane = new TabPane();
+    private TabPane rightTabPane  = new TabPane();
 
     //~--- methods -------------------------------------------------------------
     /**
@@ -198,28 +220,25 @@ public class KometStageController
                 "fx:id=\"classifierMenuButton\" was not injected: check your FXML file 'KometStageScene.fxml'.";
 
         for (ManifoldGroup mg : ManifoldGroup.values()) {
-            manifolds.put(mg, Manifold.make(mg));
-        }
-
-        for (Entry<ManifoldGroup, Manifold> manifoldInfo : manifolds.entrySet()) {
-            manifoldInfo.getValue().focusedConceptProperty()
+            Manifold manifold = FxGet.getManifold(mg);
+            manifold.focusedConceptProperty()
                     .addListener(this::printSelectionDetails);
-            manifoldInfo.getValue().focusedConceptProperty()
+            manifold.focusedConceptProperty()
                     .addListener((ObservableValue<? extends IdentifiedObject> observable,
-                            IdentifiedObject oldValue,
-                            IdentifiedObject newValue) -> {
+                                  IdentifiedObject oldValue,
+                                  IdentifiedObject newValue) -> {
                         FxGet.statusMessageService()
                                 .reportSceneStatus(statusMessage.getScene(),
-                                        manifoldInfo.getKey().getGroupName() + " selected: " + (newValue == null ? "" : newValue.toUserString()));
+                                        mg.getGroupName() + " selected: " + (newValue == null ? "" : newValue.toUserString()));
                     });
         }
 
         leftBorderBox.getChildren()
-                .add(createWrappedTabPane(PanelPlacement.LEFT));
+                .add(createWrappedTabPane(PanelPlacement.LEFT, this.leftTabPane));
         editorLeftPane.getChildren()
-                .add(createWrappedTabPane(PanelPlacement.CENTER));
+                .add(createWrappedTabPane(PanelPlacement.CENTER, this.centerTabPane));
         rightBorderBox.getChildren()
-                .add(createWrappedTabPane(PanelPlacement.RIGHT));
+                .add(createWrappedTabPane(PanelPlacement.RIGHT, this.rightTabPane));
         classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
         classifierMenuButton.getItems().clear();
         classifierMenuButton.getItems().addAll(getTaskMenuItems());
@@ -231,6 +250,9 @@ public class KometStageController
         vanityImage.setSmooth(true);
         vanityImage.setCache(true);
         vanityBox.setGraphic(vanityImage);
+        this.leftTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
+        this.centerTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
+        this.rightTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
     }
 
     private List<MenuItem> getTaskMenuItems() {
@@ -238,12 +260,12 @@ public class KometStageController
 
             MenuItem selectiveImport = new MenuItem("Selective import and transform");
             selectiveImport.setOnAction((ActionEvent event) -> {
-                ImportView.show(manifolds.get(ManifoldGroup.TAXONOMY));
+                ImportView.show(FxGet.getManifold(ManifoldGroup.TAXONOMY));
             });
             items.add(selectiveImport);
 
             MenuItem selectiveExport = new MenuItem("Selective export");
-            selectiveExport.setOnAction(event -> ExportView.show(manifolds.get(ManifoldGroup.UNLINKED)));
+            selectiveExport.setOnAction(event -> ExportView.show(FxGet.getManifold(ManifoldGroup.UNLINKED)));
             items.add(selectiveExport);
             
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
@@ -251,7 +273,7 @@ public class KometStageController
             MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
 
             importTransformFull.setOnAction((ActionEvent event) -> {
-                ImportAndTransformTask itcTask = new ImportAndTransformTask(manifolds.get(ManifoldGroup.TAXONOMY),
+                ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.getManifold(ManifoldGroup.TAXONOMY),
                         ImportType.FULL);
                 Get.executor().submit(itcTask);
 
@@ -316,7 +338,7 @@ public class KometStageController
             completeClassify.setOnAction((ActionEvent event) -> {
                 //TODO change how we get the edit coordinate. 
                 EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                ClassifierService classifierService = Get.logicService().getClassifierService(manifolds.get(ManifoldGroup.SEARCH), editCoordinate);
+                ClassifierService classifierService = Get.logicService().getClassifierService(FxGet.getManifold(ManifoldGroup.SEARCH), editCoordinate);
                 classifierService.classify();
             });
             items.add(completeClassify);
@@ -342,7 +364,7 @@ public class KometStageController
 
             MenuItem addLabNavigationConcepts = new MenuItem("Add lab navigation concepts");
             addLabNavigationConcepts.setOnAction((ActionEvent event) -> {
-                LoincExpressionToNavConcepts conversionTask = new LoincExpressionToNavConcepts(manifolds.get(ManifoldGroup.UNLINKED));
+                LoincExpressionToNavConcepts conversionTask = new LoincExpressionToNavConcepts(FxGet.getManifold(ManifoldGroup.UNLINKED));
                 Get.executor().execute(conversionTask);
             });
             items.add(addLabNavigationConcepts);
@@ -370,6 +392,7 @@ public class KometStageController
                                 alert.setTitle("Beer has arrived!");
                                 alert.setHeaderText("Beer has been imported!");
                                 alert.initOwner(topGridPane.getScene().getWindow());
+                                alert.setResizable(true);
                                 alert.showAndWait();
                             });
                         }
@@ -391,7 +414,8 @@ public class KometStageController
                     Tab tab = new Tab(factory.getMenuText());
                     tab.setTooltip(new Tooltip(""));
 
-                    ExplorationNode node = factory.createNode(manifolds.get(factory.getDefaultManifoldGroups()[0]));
+                    IsaacPreferences newPreferences = this.preferencesNode.node(UUID.randomUUID().toString());
+                    ExplorationNode node = factory.createNode(FxGet.getManifold(factory.getDefaultManifoldGroups()[0]), newPreferences);
                     Node menuIcon = node.getMenuIcon();
                     menuIcon.parentProperty().addListener((observable, oldValue, newValue) -> {
                         System.out.println("Parent changed: " + newValue);
@@ -423,13 +447,138 @@ public class KometStageController
         menuItems.add(tabFactoryMenuItem);
 
     }
+    /**
+     *
+     * @param preferencesNode preferences of the window.
+     */
+    public void setPreferencesNode(IsaacPreferences preferencesNode) throws BackingStoreException {
+
+        this.preferencesNode = preferencesNode;
+        if (this.preferencesNode.children().length == 0) {
+            // New window, add default configuration
+            IsaacPreferences treeViewPreferences = preferencesNode.node(UUID.randomUUID().toString());
+            treeViewPreferences.put(Keys.FACTORY_CLASS, TreeViewExplorationNodeFactory.class.getName());
+            treeViewPreferences.putInt(Keys.TAB_PANE_INDEX, 0);
+            treeViewPreferences.putInt(Keys.INDEX_IN_TAB_PANE, 0);
+
+            IsaacPreferences conceptViewOnePreferences = preferencesNode.node(UUID.randomUUID().toString());
+            conceptViewOnePreferences.put(Keys.FACTORY_CLASS, ConceptDetailPanelProviderFactory.class.getName());
+            conceptViewOnePreferences.putInt(Keys.TAB_PANE_INDEX, 1);
+            conceptViewOnePreferences.putInt(Keys.INDEX_IN_TAB_PANE, 0);
+            conceptViewOnePreferences.put(MANIFOLD_GROUP_NAME, ManifoldGroup.TAXONOMY.getGroupName());
+
+            IsaacPreferences conceptViewTwoPreferences = preferencesNode.node(UUID.randomUUID().toString());
+            conceptViewTwoPreferences.put(Keys.FACTORY_CLASS, ConceptDetailPanelProviderFactory.class.getName());
+            conceptViewTwoPreferences.putInt(Keys.TAB_PANE_INDEX, 1);
+            conceptViewTwoPreferences.putInt(Keys.INDEX_IN_TAB_PANE, 1);
+            conceptViewTwoPreferences.put(MANIFOLD_GROUP_NAME, ManifoldGroup.SEARCH.getGroupName());
+
+            IsaacPreferences progressViewPreferences = preferencesNode.node(UUID.randomUUID().toString());
+            progressViewPreferences.put(Keys.FACTORY_CLASS, TaskProgressNodeFactory.class.getName());
+            progressViewPreferences.putInt(Keys.TAB_PANE_INDEX, 2);
+            progressViewPreferences.putInt(Keys.INDEX_IN_TAB_PANE, 0);
+
+            IsaacPreferences simpleSearchViewPreferences = preferencesNode.node(UUID.randomUUID().toString());
+            simpleSearchViewPreferences.put(Keys.FACTORY_CLASS, SimpleSearchViewFactory.class.getName());
+            simpleSearchViewPreferences.putInt(Keys.TAB_PANE_INDEX, 2);
+            simpleSearchViewPreferences.putInt(Keys.INDEX_IN_TAB_PANE, 1);
+
+            IsaacPreferences extendedSearchViewPreferences = preferencesNode.node(UUID.randomUUID().toString());
+            extendedSearchViewPreferences.put(Keys.FACTORY_CLASS, ExtendedSearchViewFactory.class.getName());
+            extendedSearchViewPreferences.putInt(Keys.TAB_PANE_INDEX, 2);
+            extendedSearchViewPreferences.putInt(Keys.INDEX_IN_TAB_PANE, 2);
+
+        }
+        IsaacPreferences[] children = this.preferencesNode.children();
+        Arrays.sort(children, (o1, o2) -> {
+            if (o1.getInt(Keys.TAB_PANE_INDEX, 0) != o2.getInt(Keys.TAB_PANE_INDEX, 0)) {
+                return Integer.compare(o1.getInt(Keys.TAB_PANE_INDEX, 0), o2.getInt(Keys.TAB_PANE_INDEX, 0));
+            }
+            return Integer.compare(o1.getInt(Keys.INDEX_IN_TAB_PANE, 0), o2.getInt(Keys.INDEX_IN_TAB_PANE, 0));
+        });
+        for (IsaacPreferences childNode: children) {
+            Optional<String> optionalFactoryClass = childNode.get(Keys.FACTORY_CLASS);
+            if (optionalFactoryClass.isPresent()) {
+                try {
+                    String factoryClassName = optionalFactoryClass.get();
+                    Class factoryClass = Class.forName(factoryClassName);
+                    NodeFactory factory = (NodeFactory) factoryClass.getDeclaredConstructor().newInstance();
+                    ExplorationNode en = factory.createNode(FxGet.getManifold(factory.getDefaultManifoldGroups()[0]), childNode);
+                    Tab tab = new Tab();
+                    tab.setGraphic(en.getMenuIcon());
+                    tab.setContent(new BorderPane(en.getNode()));
+                    tab.textProperty().bind(en.getTitle());
+                    tab.setTooltip(new Tooltip(""));
+                    tab.getTooltip().textProperty().bind(en.getToolTip());
+
+                    if (en instanceof DetailNode) {
+                        DetailNode dt = (DetailNode) en;
+                        //TODO this is broken by design, if more than one tab requests focus on change...
+                        dt.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
+                            if (dt.selectInTabOnChange()) {
+                                leftTabPane.getSelectionModel().select(tab);
+                            }
+                        });
+                    }
+
+                    int tabIndex = childNode.getInt(Keys.TAB_PANE_INDEX, 0);
+                    int indexInTab = childNode.getInt(Keys.INDEX_IN_TAB_PANE, 0);
+
+                    tabPanes.get(tabIndex).getTabs().add(indexInTab, tab);
+
+                } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    LOG.error(ex.getLocalizedMessage(), ex);
+                }
+            }
+        }
+    }
+    public void saveSettings() throws BackingStoreException {
+        preferencesNode.sync();
+    }
+
+//
+//    private void addTabFromSpecification(WindowPreferenceItems windowPreferenceItems, TabPane tabPane, List<ConceptSpecification> tabSpecs) {
+//        for (ConceptSpecification tabSpec: tabSpecs) {
+//            //Todo create a KOMET coordinate for the gui...
+//            Optional<NodeFactory<ExplorationNode>> optionalFactory = FxGet.nodeFactory(tabSpec);
+//            if (optionalFactory.isPresent()) {
+//                long start = System.currentTimeMillis();
+//                NodeFactory<ExplorationNode> factory = optionalFactory.get();
+//
+//                ExplorationNode en = factory.createNode(FxGet.getManifold(factory.getDefaultManifoldGroups()[0]).deepClone());
+//                Tab tab = new Tab();
+//                tab.setGraphic(en.getMenuIcon());
+//                tab.setContent(new BorderPane(en.getNode()));
+//                tab.textProperty().bind(en.getTitle());
+//                tab.setTooltip(new Tooltip(""));
+//                tab.getTooltip().textProperty().bind(en.getToolTip());
+//
+//                if (en instanceof DetailNode) {
+//                    DetailNode dt = (DetailNode) en;
+//                    if (!(en instanceof ConceptBuilderNode)) {
+//                        //TabDragAndDropHandler.setupTab(tab, dt);
+//                    }
+//
+//                    //TODO this is broken by design, if more than one tab requests focus on change...
+//                    dt.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
+//                        if (dt.selectInTabOnChange()) {
+//                            tabPane.getSelectionModel().select(tab);
+//                        }
+//                    });
+//                }
+//
+//                tabPane.getTabs().add(tab);
+//
+//                if ((System.currentTimeMillis() - start) > 250) {
+//                    LOG.warn("NodeFactory {} is slow!  Needs to background thread its work.  Took {}ms",
+//                            factory.getClass().getName(), System.currentTimeMillis() - start);
+//                }
+//            }
+//        }
+//    }
 
     @SuppressWarnings("unchecked")
-    private Pane createWrappedTabPane(PanelPlacement panelPlacement) {
-        Pane pane = DndTabPaneFactory.createDefaultDnDPane(FeedbackType.OUTLINE, true, (tabPane -> setupTabPane(tabPane, panelPlacement)));
-        TabPane tabPane = (TabPane) pane.getChildren()
-                .get(0);
-
+    private Pane createWrappedTabPane(PanelPlacement panelPlacement, TabPane tabPane) {
         tabPanes.add(tabPane);
 
         ArrayList<MenuItem> menuItems = new ArrayList<>();
@@ -447,7 +596,7 @@ public class KometStageController
                             .compareTo(o2.getText());
                 });
 
-        Pane wrapped = TabWrapper.wrap(pane, menuItems.toArray(new MenuItem[menuItems.size()]));
+        Pane wrapped = TabWrapper.wrap(tabPane, menuItems.toArray(new MenuItem[menuItems.size()]));
 
         HBox.setHgrow(wrapped, Priority.ALWAYS);
         return wrapped;
@@ -474,56 +623,4 @@ public class KometStageController
         });
     }
 
-    @SuppressWarnings("unchecked")
-    private TabPane setupTabPane(TabPane tabPane, PanelPlacement panelPlacement) {
-        HBox.setHgrow(tabPane, Priority.ALWAYS);
-        for (NodeFactory<? extends ExplorationNode> nf : Get.services(NodeFactory.class)) {
-            if (nf.isEnabled() && panelPlacement == nf.getPanelPlacement()) {
-                //Node has requested to be initially placed on the panel we are processing.
-                for (ManifoldGroup mg : nf.getDefaultManifoldGroups()) {
-                    long start = System.currentTimeMillis();
-                    Tab tab = new Tab();
-                    ExplorationNode en = nf.createNode(manifolds.get(mg));
-                    tab.setGraphic(en.getMenuIcon());
-                    tab.setContent(new BorderPane(en.getNode()));
-                    tab.textProperty().bind(en.getTitle());
-//                   en.getTitleNode().ifPresent((titleNode) -> {
-//                       tab.graphicProperty().set(titleNode);
-//                       ((Label) titleNode).getGraphic().parentProperty().addListener((observable, oldValue, newValue) -> {
-//                        System.out.println("Parent 3 changed: " + newValue);
-//                        tab.graphicProperty().set(en.getTitleNode().get());
-//                    });
-//                   });
-                    tab.setTooltip(new Tooltip(""));
-                    tab.getTooltip().textProperty().bind(en.getToolTip());
-
-                    if (en instanceof DetailNode) {
-                        DetailNode dt = (DetailNode) en;
-                        if (!(en instanceof ConceptBuilderNode)) {
-                            TabDragAndDropHandler.setupTab(tab, dt);
-                        }
-                        
-                        //TODO this is broken by design, if more than one tab requests focus on change...
-                        dt.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
-                            if (dt.selectInTabOnChange()) {
-                                tabPane.getSelectionModel().select(tab);
-                            }
-                        });
-                    }
-
-                    tabPane.getTabs().add(tab);
-
-                    LOG.debug("Executed {} to the {} with manifold {} in {}ms",
-                            nf.getClass().getName(), panelPlacement, mg, System.currentTimeMillis() - start);
-                    if ((System.currentTimeMillis() - start) > 250) {
-                        LOG.warn("NodeFactory {} is unacceptably slow!  Needs to background thread its work.  Took {}ms",
-                                nf.getClass().getName(), System.currentTimeMillis() - start);
-                    }
-                }
-            } else {
-                LOG.debug("NodeFactory {} did not request an initial placement", nf.getClass().getName());
-            }
-        }
-        return tabPane;
-    }
 }

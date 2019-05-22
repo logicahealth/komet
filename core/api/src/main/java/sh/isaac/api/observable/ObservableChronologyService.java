@@ -42,6 +42,7 @@ package sh.isaac.api.observable;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 
@@ -64,6 +65,9 @@ public interface ObservableChronologyService {
     * @return the ObservableConceptChronology with the provided id
     */
    ObservableConceptChronology getObservableConceptChronology(int id);
+   default ObservableConceptChronology getObservableConceptChronology(ConceptSpecification spec) {
+      return getObservableConceptChronology(spec.getNid());
+   }
 
    /**
     * Gets the observable semantic chronology.
@@ -74,6 +78,10 @@ public interface ObservableChronologyService {
    ObservableSemanticChronology getObservableSemanticChronology(int id);
    
    ObservableChronology getObservableChronology(int id);
+
+   default ObservableChronology getObservableChronology(ConceptSpecification spec) {
+      return getObservableChronology(spec.getNid());
+   }
    /**
     * 
     * @param stampCoordinate the coordinate to determine the latest versions of the snapshot

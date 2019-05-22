@@ -148,23 +148,24 @@ public interface ConceptBuilder
     /**
      * Useful for setting up a semantic type concept with the semantic fields, 
      * or an assemblage concept with the field concepts. 
+     * @param semanticUuid The uuid for the created semantic
      * @param componentUuid
      * @param fieldIndex
-     * @param assemblageUuid
+     * @param assemblage
      * @return the ConceptBuilder for a fluent interface. 
      */
-    ConceptBuilder addComponentIntSemantic(ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage);
-    
-    ConceptBuilder addComponentSemantic(ConceptSpecification semanticSpecification, ConceptSpecification assemblage);
-    
-    ConceptBuilder addStringSemantic(String component, ConceptSpecification assemblage);
-        
-    ConceptBuilder addFieldSemanticConcept(String fieldName, int fieldIndex);
+    ConceptBuilder addComponentIntSemantic(UUID semanticUuid, ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage);
 
-    default ConceptBuilder addFieldSemanticConcept(ConceptSpecification fieldSpecification, int fieldIndex) {
-        return addFieldSemanticConcept(fieldSpecification.getPrimordialUuid(), fieldIndex);
+    ConceptBuilder addStringSemantic(UUID semanticUuid, String text, ConceptSpecification assemblage);
+
+    ConceptBuilder addComponentSemantic(UUID semanticUuid, ConceptSpecification semanticSpecification, ConceptSpecification assemblage);
+
+    ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, String fieldName, int fieldIndex);
+
+    default ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, ConceptSpecification fieldSpecification, int fieldIndex) {
+        return addFieldSemanticConcept(semanticUuid, fieldSpecification.getPrimordialUuid(), fieldIndex);
     }
 
-    ConceptBuilder addFieldSemanticConcept(UUID conceptUuid, int fieldIndex);
+    ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, UUID conceptUuid, int fieldIndex);
 }
 

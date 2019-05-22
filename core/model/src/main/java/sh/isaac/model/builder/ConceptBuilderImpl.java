@@ -537,33 +537,31 @@ public class ConceptBuilderImpl
    }
 
     @Override
-    public ConceptBuilder addComponentIntSemantic(ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
-        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(component.getNid(), fieldIndex, this, assemblage.getNid()));
+    public ConceptBuilder addComponentIntSemantic(UUID semanticUuid, ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
+        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(component.getNid(), fieldIndex, this, assemblage.getNid()).setPrimordialUuid(semanticUuid));
         return this;
     }
 
     @Override
-    public ConceptBuilder addComponentSemantic(ConceptSpecification component, ConceptSpecification assemblage) {
-        addSemantic(Get.semanticBuilderService().getComponentSemanticBuilder(component.getNid(), this, assemblage.getNid()));
+    public ConceptBuilder addComponentSemantic(UUID semanticUuid, ConceptSpecification component, ConceptSpecification assemblage) {
+        addSemantic(Get.semanticBuilderService().getComponentSemanticBuilder(component.getNid(), this, assemblage.getNid()).setPrimordialUuid(semanticUuid));
         return this;
     }
 
     @Override
-    public ConceptBuilder addStringSemantic(String strValue, ConceptSpecification assemblage) {
-        addSemantic(Get.semanticBuilderService().getStringSemanticBuilder(strValue, this, assemblage.getNid()));
+    public ConceptBuilder addStringSemantic(UUID semanticUuid, String strValue, ConceptSpecification assemblage) {
+        addSemantic(Get.semanticBuilderService().getStringSemanticBuilder(strValue, this, assemblage.getNid()).setPrimordialUuid(semanticUuid));
         return this;
     }
 
     @Override
-    public ConceptBuilder addFieldSemanticConcept(String fieldName, int fieldIndex) {
+    public ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, String fieldName, int fieldIndex) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public ConceptBuilder addFieldSemanticConcept(UUID conceptUuid, int fieldIndex) {
-        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(conceptUuid), fieldIndex, this, TermAux.SEMANTIC_TYPE.getNid()));
+    public ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, UUID conceptUuid, int fieldIndex) {
+        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(conceptUuid), fieldIndex, this, TermAux.SEMANTIC_TYPE.getNid()).setPrimordialUuid(semanticUuid));
         return this;
     }
-   
-   
 }

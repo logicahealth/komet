@@ -19,6 +19,7 @@ package sh.komet.gui.tab;
 import javafx.geometry.Pos;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import sh.isaac.komet.iconography.Iconography;
@@ -31,7 +32,7 @@ import static sh.komet.gui.style.StyleClasses.ADD_TAB_MENU_BUTTON;
  * @author kec
  */
 public class TabWrapper {
-   public static Pane wrap(Pane dragAndDropTabPane, MenuItem... items) {
+   public static Pane wrap(TabPane dragAndDropTabPane, MenuItem... items) {
       StackPane stackPane = new StackPane();
       MenuButton addTabMenuButton = new MenuButton("", 
               Iconography.PLUS.getIconographic(), items);

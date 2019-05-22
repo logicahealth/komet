@@ -45,8 +45,9 @@ public class LoincTPMojoRunner extends LoincTPImportMojoDirect
 			mojo.converterOutputArtifactVersion = "bar";
 			mojo.converterSourceArtifactVersion = "foooo";
 			mojo.converterOutputArtifactId = "rxnorm-ibdf";
-			mojo.converterSourceLoincArtifactVersion = "2.61";
-			mojo.execute();
+			//mojo.converterSourceLoincArtifactVersion = "2.61";
+			throw new UnsupportedOperationException();
+			//mojo.execute();
 		}
 		finally
 		{

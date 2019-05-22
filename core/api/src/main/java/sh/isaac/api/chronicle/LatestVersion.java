@@ -242,7 +242,7 @@ public final class LatestVersion<V> {
     */
    @Override
    public String toString() {
-      return "LatestVersion{" + "value=" + this.value + ", contradictions=" + contradictions() + '}';
+      return "LatestVersion{" + this.value + ", contradictions=" + contradictions() + '}';
    }
 
    /**

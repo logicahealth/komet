@@ -9,7 +9,7 @@
       <!-- Quiet down various loggers that we don't want flooding the console with debug info -->
       <Logger name="net.sagebits.HK2Utilities" level="info" />
       <Logger name="sh.isaac.api.LookupService" level="info" />
-      <Logger name="sh.isaac.api.collections.UuidIntMapMap" level="info" />
+      <Logger name="sh.isaac.api.collections.UuidIntMapMapFileBased" level="info" />
       <Logger name="sh.isaac.model.waitfree.CasSequenceObjectMap" level="error" />
       <Logger name="sh.isaac.provider.identifier.IdentifierProvider" level="info" />
       <Logger name="sh.isaac.provider.query.lucene" level="info" />

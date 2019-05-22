@@ -66,6 +66,7 @@ public class MergeJars
 
    @Override
    public void execute() throws MojoExecutionException, MojoFailureException {
+      Headless.setHeadless();
       File tempZip = new File(mergedJar.getParentFile(), "temp.zip");
 
       try (ZipFile jar1 = new ZipFile(inputJar1);

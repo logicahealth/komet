@@ -130,8 +130,10 @@ public enum ObservableFields
 
    /** The module nid array for stamp coordinate. */
    MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("Module nid array for stamp coordinate", "Modules for stamp coordinates"),
-   
+
    MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Module specification set for stamp coordinate", "Module set"),
+
+   AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Author specification set for stamp coordinate", "Author set"),
 
    /** The allowed states for stamp coordinate. */
    ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),
@@ -153,6 +155,9 @@ public enum ObservableFields
 
    /** The stamp coordinate for taxonomy coordinate. */
    STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("Stamp coordinate for taxonomy coordinate", "Stamp coordinate for taxonomy"),
+   
+   /** The stamp coordinate for taxonomy coordinate. */
+   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE_DESTINATION("Stamp coordinate for taxonomy coordinate destination", "Stamp coordinate for taxonomy destination"),
 
    /** The language coordinate for taxonomy coordinate. */
    LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE("Language coordinate for taxonomy coordinate", "Language coordinate"),
@@ -342,9 +347,12 @@ public enum ObservableFields
    ASSEMBLAGE_LIST_FOR_QUERY("Assemblage list for query", "For list"),
    
    MANIFOLD_COORDINATE_REFERENCE("Manifold coordinate reference", "manifold"),
+
+   IMAGE_DATA_FOR_SEMANTIC("Image data for semantic", "Image data"),
 ;
    // this, ObservableFields..toExternalString()
-   /** The Constant namespace. */
+
+    /** The Constant namespace. */
    private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");
 
    //~--- fields --------------------------------------------------------------
@@ -359,7 +367,7 @@ public enum ObservableFields
    /**
     * Instantiates a new observable fields.
     *
-    * @param description the description
+    * @param fullyQualifiedDescription the description
     */
    ObservableFields(String fullyQualifiedDescription) {
       this.fullyQualifiedDescription = fullyQualifiedDescription;

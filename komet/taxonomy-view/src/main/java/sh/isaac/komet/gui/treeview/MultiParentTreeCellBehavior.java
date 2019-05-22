@@ -27,31 +27,31 @@ import sh.isaac.api.component.concept.ConceptChronology;
  */
 public class MultiParentTreeCellBehavior extends TreeCellBehavior<ConceptChronology> {
 
-   public MultiParentTreeCellBehavior(TreeCell<ConceptChronology> control) {
-      super(control);
-   }
+    public MultiParentTreeCellBehavior(TreeCell<ConceptChronology> control) {
+        super(control);
+    }
 
-   @Override
-   protected boolean handleDisclosureNode(double x, double y) {
+    @Override
+    protected boolean handleDisclosureNode(double x, double y) {
 
-      if (!super.handleDisclosureNode(x, y)) {
-         MultiParentTreeCell treeCell = (MultiParentTreeCell) getControl();
-         MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) treeCell.getTreeItem();
-         if (treeItem.isMultiParent() || treeItem.getMultiParentDepth() > 0) {
-            Node multiParentDisclosureNode = treeCell.getGraphic();
-            if (multiParentDisclosureNode != null) {
-               if (multiParentDisclosureNode.getBoundsInParent().contains(x, y)) {
-                  if (treeCell.getTreeItem() != null) {
-                     treeCell.openOrCloseParent(treeItem);
-                     return true;
-                  }
-                  
-               }
+        if (!super.handleDisclosureNode(x, y)) {
+            MultiParentTreeCell treeCell = (MultiParentTreeCell) getNode();
+            MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) treeCell.getTreeItem();
+            if (treeItem.isMultiParent() || treeItem.getMultiParentDepth() > 0) {
+                Node multiParentDisclosureNode = treeCell.getGraphic();
+                if (multiParentDisclosureNode != null) {
+                    if (multiParentDisclosureNode.getBoundsInParent().contains(x, y)) {
+                        if (treeCell.getTreeItem() != null) {
+                            treeCell.openOrCloseParent(treeItem);
+                            return true;
+                        }
+
+                    }
+                }
             }
-         }
-         return false;
-      } 
-      return true;
-   }
+            return false;
+        }
+        return true;
+    }
 
 }

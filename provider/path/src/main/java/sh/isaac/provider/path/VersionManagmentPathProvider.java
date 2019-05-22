@@ -64,10 +64,13 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.commit.StampService;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
+import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.coordinate.StampPathImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.api.component.semantic.version.LongVersion;
@@ -157,9 +160,27 @@ public class VersionManagmentPathProvider
     * @return the relative position
     */
    private RelativePosition traverseOrigins(StampedVersion v1, StampPath path) {
+
+
+      return traverseOrigins(v1.getStampSequence(), path);
+   }
+   private RelativePosition traverseOrigins(int v1, StampPath path) {
+      StampService stampService = Get.stampService();
       for (final StampPosition origin: path.getPathOrigins()) {
-         if (origin.getStampPathSpecification().getNid() == v1.getPathNid()) {
-            if (v1.getTime() <= origin.getTime()) {
+         if (origin.getStampPathSpecification().getNid() == stampService.getPathNidForStamp(v1)) {
+            if (stampService.getTimeForStamp(v1) <= origin.getTime()) {
+               return RelativePosition.BEFORE;
+            }
+         }
+      }
+
+      return RelativePosition.UNREACHABLE;
+   }
+   private RelativePosition traverseOrigins(StampCoordinate v1, StampPath path) {
+      StampService stampService = Get.stampService();
+      for (final StampPosition origin: path.getPathOrigins()) {
+         if (origin.getStampPathSpecification().getNid() == v1.getStampPosition().getPathNid()) {
+            if (v1.getStampPosition().getTime() <= origin.getTime()) {
                return RelativePosition.BEFORE;
             }
          }
@@ -233,26 +254,59 @@ public class VersionManagmentPathProvider
                      }).collect(Collectors.toList());
    }
 
-   /**
-    * Gets the relative position.
-    *
-    * @param stampSequence1 the stamp sequence 1
-    * @param stampSequence2 the stamp sequence 2
-    * @return the relative position
-    */
    @Override
-   public RelativePosition getRelativePosition(int stampSequence1, int stampSequence2) {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+   public RelativePosition getRelativePosition(int stampSequence1, StampCoordinate v2) {
+      StampService stampService = Get.stampService();
+
+
+      if (stampService.getPathNidForStamp(stampSequence1) == v2.getStampPosition().getPathNid()) {
+         if (stampService.getTimeForStamp(stampSequence1) < v2.getStampPosition().getTime()) {
+            return RelativePosition.BEFORE;
+         }
+
+         if (stampService.getTimeForStamp(stampSequence1) > v2.getStampPosition().getTime()) {
+            return RelativePosition.AFTER;
+         }
+
+         return RelativePosition.EQUAL;
+      }
+
+      if (traverseOrigins(stampSequence1, getStampPath(v2.getStampPosition().getPathNid())) == RelativePosition.BEFORE) {
+         return RelativePosition.BEFORE;
+      }
+
+      return traverseOrigins(v2, getStampPath(stampService.getPathNidForStamp(stampSequence1)));
    }
 
-   /**
-    * Gets the relative position.
-    *
-    * @param v1 the v 1
-    * @param v2 the v 2
-    * @return the relative position
-    */
+   @Override
+   public RelativePosition getRelativePosition(int stampSequence1, int stampSequence2) {
+      if (stampSequence1 == stampSequence2) {
+         return RelativePosition.EQUAL;
+      }
+      StampService stampService = Get.stampService();
+
+
+      if (stampService.getPathNidForStamp(stampSequence1) == stampService.getPathNidForStamp(stampSequence2)) {
+         if (stampService.getTimeForStamp(stampSequence1) < stampService.getTimeForStamp(stampSequence2)) {
+            return RelativePosition.BEFORE;
+         }
+
+         if (stampService.getTimeForStamp(stampSequence1) > stampService.getTimeForStamp(stampSequence2)) {
+            return RelativePosition.AFTER;
+         }
+
+         return RelativePosition.EQUAL;
+      }
+
+      if (traverseOrigins(stampSequence1, getStampPath(stampService.getPathNidForStamp(stampSequence2))) == RelativePosition.BEFORE) {
+         return RelativePosition.BEFORE;
+      }
+
+      return traverseOrigins(stampSequence2, getStampPath(stampService.getPathNidForStamp(stampSequence1)));
+   }
+
+
+
    @Override
    public RelativePosition getRelativePosition(StampedVersion v1, StampedVersion v2) {
       if (v1.getPathNid() == v2.getPathNid()) {
@@ -306,8 +360,14 @@ public class VersionManagmentPathProvider
     */
    @PostConstruct
    private void startMe() {
-      LOG.info("VersionManagementPathProvider starts");
-      setupPathMap();
+      LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting Path provider");
+      Get.executor().execute(progressTask);
+      try {
+         LOG.info("VersionManagementPathProvider starts");
+         setupPathMap();
+      } finally {
+         progressTask.finished();
+      }
    }
 
    /**

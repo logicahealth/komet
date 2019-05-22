@@ -15,6 +15,7 @@
  */
 package sh.komet.gui.search.extended;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.function.Predicate;
 import sh.isaac.api.Get;
@@ -25,6 +26,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.komet.gui.util.FxGet;
 
 /**
  * variable carrying class to help with search restrictions, create an
@@ -68,26 +70,33 @@ public class TimeStatusRestriction {
                     //Each integer passed in here is a semantic nid, of something that was indexed.  True 
                     //if we want it to be allowed for the query, false if not.
                     //We will return true, if there is any version which meets all present criteria.
-                    SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
-                    LatestVersion<Version> latest = sc.getLatestVersion(manifold);
-                    if (latest.isPresent()) {
-                        Version v = latest.get();
-                        if ((allowedStatus == null || allowedStatus.contains(v.getStatus()))
-                                && (afterTime == null || v.getTime() > afterTime)
-                                && (beforeTime == null || v.getTime() < beforeTime)) {
-                            if (sc.getVersionType() == VersionType.DESCRIPTION) {
-                                ConceptChronology concept = Get.concept(sc.getReferencedComponentNid());
-                                LatestVersion<Version> latestConcept = concept.getLatestVersion(manifold);
-                                if (latestConcept.isPresent()) {
-                                    if (allowedStatus == null || allowedStatus.contains(latestConcept.get().getStatus())) {
-                                        return true;
-                                    }
+                    try {
+                        SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
+                        LatestVersion<Version> latest = sc.getLatestVersion(manifold);
+                        if (latest.isPresent()) {
+                            Version v = latest.get();
+                            if ((allowedStatus == null || allowedStatus.contains(v.getStatus()))
+                                    && (afterTime == null || v.getTime() > afterTime)
+                                    && (beforeTime == null || v.getTime() < beforeTime)) {
+                                if (sc.getVersionType() == VersionType.DESCRIPTION) {
+                                    ConceptChronology concept = Get.concept(sc.getReferencedComponentNid());
+                                    LatestVersion<Version> latestConcept = concept.getLatestVersion(manifold);
+                                    if (latestConcept.isPresent()) {
+                                        if (allowedStatus == null || allowedStatus.contains(latestConcept.get().getStatus())) {
+                                            return true;
+                                        }
 
+                                    }
+                                    return false;
                                 }
-                                return false;
+                                return true;
                             }
-                            return true;
                         }
+                    } catch (Exception e) {
+                        FxGet.dialogs().showErrorDialog("Error testing: " + nid + " " +
+                                Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)) +
+                                "\n\n Query will continue with other matching components", e);
+                        e.printStackTrace();
                     }
                     return false;
 

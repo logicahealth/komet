@@ -141,14 +141,14 @@ public class GraphCollector
             taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
                                                               this.manifoldCoordinate);
 
-         if (destinationConceptNids.length == 0) {
-            // again for steping through with the debugger. Remove when issues resolved. 
-            taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
-                                                              this.manifoldCoordinate);
-         }
-         int parentCount = 0;
+//         if (destinationConceptNids.length == 0) {
+//            // again for steping through with the debugger. Remove when issues resolved. 
+//            taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
+//                                                              this.manifoldCoordinate);
+//         }
+//         int parentCount = 0;
          for (int destinationNid: destinationConceptNids) {
-            parentCount++;
+//            parentCount++;
             graphBuilder.add(destinationNid, originNid);
          }
 //         if (parentCount == 0) {

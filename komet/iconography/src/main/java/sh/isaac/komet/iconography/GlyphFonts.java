@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the 
+ * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

@@ -37,11 +37,7 @@
 package sh.komet.gui.provider.concept.detail.panel;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,6 +52,7 @@ import javafx.application.Platform;
 
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -88,6 +85,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
+import org.controlsfx.control.ToggleSwitch;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -107,14 +105,15 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 
-import sh.komet.gui.control.ComponentPanel;
+import sh.komet.gui.control.badged.ComponentPaneModel;
 import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.ExpandControl;
-import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.control.StampControl;
+import sh.komet.gui.control.toggle.OnOffToggleSwitch;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
@@ -143,7 +142,11 @@ public class ConceptDetailPanelNode
     private static final int TRANSITION_OFF_TIME = 250;
     private static final int TRANSITION_ON_TIME = 750;
 
+    public enum Keys {
+        MANIFOLD_GROUP_NAME
+    }
     //~--- fields --------------------------------------------------------------
+    private final HashMap<String, AtomicBoolean> disclosureStateMap = new HashMap<>();
     private final UUID listenerUuid = UUID.randomUUID();
     private final BorderPane conceptDetailPane = new BorderPane();
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
@@ -158,11 +161,12 @@ public class ConceptDetailPanelNode
     private final Button addDescriptionButton = new Button("+ Add");
     private final ToggleButton versionGraphToggle = new ToggleButton("", Iconography.SOURCE_BRANCH_1.getIconographic());
     private final ArrayList<Integer> sortedStampSequences = new ArrayList<>();
-    private final List<ComponentPanel> componentPanels = new ArrayList<>();
+    private final List<ComponentPaneModel> componentPaneModels = new ArrayList<>();
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final Manifold conceptDetailManifold;
     private final ScrollPane scrollPane;
     private final ConceptLabelToolbar conceptLabelToolbar;
+    private final IsaacPreferences preferences;
 
     private final ObservableList<ObservableDescriptionDialect> newDescriptions = FXCollections.observableArrayList();
 
@@ -172,9 +176,11 @@ public class ConceptDetailPanelNode
     }
 
     //~--- constructors --------------------------------------------------------
-    public ConceptDetailPanelNode(Manifold conceptDetailManifold) {
+    public ConceptDetailPanelNode(Manifold conceptDetailManifold, IsaacPreferences preferences) {
         this.conceptDetailManifold = conceptDetailManifold;
-        this.historySwitch.setSelected(false);
+        this.preferences = preferences;
+        this.conceptDetailManifold.setGroupName(preferences.get(Keys.MANIFOLD_GROUP_NAME, Manifold.ManifoldGroup.TAXONOMY.getGroupName()));
+        this.historySwitch.setSelected(false); // add to pref...
         updateManifoldHistoryStates();
         conceptDetailManifold.focusedConceptProperty()
                 .addListener(this::setConcept);
@@ -236,33 +242,28 @@ public class ConceptDetailPanelNode
             ConceptChronology focusedConcept = Get.concept(focusedConceptSpec);
             NidSet recursiveSemantics = focusedConcept.getRecursiveSemanticNids();
 
+            final Runnable runnable = () -> {
+                setConcept(
+                        conceptDetailManifold.focusedConceptProperty(),
+                        null,
+                        conceptDetailManifold.focusedConceptProperty()
+                                .get());
+            };
             if (commitRecord.getConceptsInCommit()
                     .contains(conceptDetailManifold.getFocusedConcept().get()
                             .getNid())) {
                 Platform.runLater(
-                        () -> {
-                            setConcept(
-                                    conceptDetailManifold.focusedConceptProperty(),
-                                    null,
-                                    conceptDetailManifold.focusedConceptProperty()
-                                            .get());
-                        });
+                        runnable);
             } else if (!recursiveSemantics.and(commitRecord.getSemanticNidsInCommit())
                     .isEmpty()) {
                 Platform.runLater(
-                        () -> {
-                            setConcept(
-                                    conceptDetailManifold.focusedConceptProperty(),
-                                    null,
-                                    conceptDetailManifold.focusedConceptProperty()
-                                            .get());
-                        });
+                        runnable);
             }
         }
     }
 
     private void addChronology(ObservableChronology observableChronology, ParallelTransition parallelTransition) {
-        if (ComponentPanel.isSemanticTypeSupported(observableChronology.getVersionType())) {
+        if (ComponentPaneModel.isSemanticTypeSupported(observableChronology.getVersionType())) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
                             this.conceptDetailManifold);
@@ -283,6 +284,7 @@ public class ConceptDetailPanelNode
 
         panel.setOpacity(0);
         VBox.setMargin(panel, insets);
+        VBox.setVgrow(panel, Priority.NEVER);
         componentPanelBox.getChildren()
                 .add(panel);
 
@@ -309,15 +311,17 @@ public class ConceptDetailPanelNode
                     "Categorized version has no latest version or uncommitted version: \n" + categorizedVersions);
         }
 
-        ComponentPanel panel = new ComponentPanel(conceptDetailManifold, categorizedVersion, stampOrderHashMap);
+        ComponentPaneModel componentPaneModel = new ComponentPaneModel(conceptDetailManifold, categorizedVersion,
+                stampOrderHashMap, disclosureStateMap);
 
-        componentPanels.add(panel);
-        panel.setOpacity(0);
-        VBox.setMargin(panel, new Insets(1, 5, 1, 5));
+        componentPaneModels.add(componentPaneModel);
+        componentPaneModel.getBadgedPane().setOpacity(0);
+        VBox.setMargin(componentPaneModel.getBadgedPane(), new Insets(1, 5, 1, 5));
+        VBox.setVgrow(componentPaneModel.getBadgedPane(), Priority.NEVER);
         componentPanelBox.getChildren()
-                .add(panel);
+                .add(componentPaneModel.getBadgedPane());
 
-        FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_ON_TIME), panel);
+        FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_ON_TIME), componentPaneModel.getBadgedPane());
 
         ft.setFromValue(0);
         ft.setToValue(1);
@@ -351,12 +355,12 @@ public class ConceptDetailPanelNode
         });
     }
     private void clearAnimationComplete(ActionEvent completeEvent) {
+        componentPanelBox.getChildren().clear();
+
         AtomicBoolean axiomHeaderAdded = new AtomicBoolean(false);
         populateVersionBranchGrid();
-        componentPanelBox.getChildren()
-                .clear();
-        componentPanelBox.getChildren()
-                .add(toolGrid);
+        componentPanelBox.getChildren().add(toolGrid);
+
 
         Optional<ConceptSpecification> focusedConceptSpec = this.conceptDetailManifold.getFocusedConcept();
 
@@ -390,7 +394,8 @@ public class ConceptDetailPanelNode
             while (iter.hasNext()) {
                 ObservableDescriptionDialect descDialect = iter.next();
                 if (descDialect.getCommitState() == CommitStates.UNCOMMITTED) {
-                    ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(conceptDetailManifold, descDialect, true, null);
+                    ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(conceptDetailManifold,
+                            descDialect, true, null);
                     parallelTransition.getChildren().add(addComponent(descPanel));
                     descPanel.setCommitHandler((event) -> {
                         newDescriptions.remove(descDialect);
@@ -533,7 +538,7 @@ public class ConceptDetailPanelNode
     private void expandAllAction(ObservableValue<? extends ExpandAction> observable,
             ExpandAction oldValue,
             ExpandAction newValue) {
-        componentPanels.forEach((panel) -> panel.doExpandAllAction(newValue));
+        componentPaneModels.forEach((componentPaneModel) -> componentPaneModel.doExpandAllAction(newValue));
     }
 
     private void populateVersionBranchGrid() {
@@ -658,7 +663,7 @@ public class ConceptDetailPanelNode
 
         stampOrderHashMap.clear();
         updateStampControls(newValue);
-        componentPanels.clear();
+        componentPaneModels.clear();
 
         IntArrayList stampSequences = stampOrderHashMap.keys();
         sortedStampSequences.clear();

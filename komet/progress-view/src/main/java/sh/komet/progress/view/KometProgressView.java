@@ -108,8 +108,12 @@ public class KometProgressView <T extends Task<?>> extends Control {
            while (c.next()) {
               if (c.wasAdded()) {
                  for (Task<?> task : c.getAddedSubList()) {
-                    task.addEventHandler(WorkerStateEvent.ANY,
-                            taskHandler);
+                    if (task.isDone()) {
+                        getTasks().remove(task);
+                    } else {
+                        task.addEventHandler(WorkerStateEvent.ANY,
+                                taskHandler);
+                    }
                  }
               } else if (c.wasRemoved()) {
                  for (Task<?> task : c.getRemoved()) {

@@ -132,9 +132,7 @@ public class UpdateInferredFormsTask
                                                                        logicCoordinate,
                                                                        stampCoordinate);
 
-      LookupService.getService(ActiveTasks.class)
-                   .get()
-                   .add(task);
+      Get.activeTasks().add(task);
       return task;
    }
 
@@ -169,9 +167,7 @@ public class UpdateInferredFormsTask
                                            }
                                         });
       } finally {
-         LookupService.getService(ActiveTasks.class)
-                      .get()
-                      .remove(this);
+         Get.activeTasks().remove(this);
       }
 
       throw new UnsupportedOperationException("Not supported yet.");

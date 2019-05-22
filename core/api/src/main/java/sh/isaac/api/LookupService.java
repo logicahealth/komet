@@ -70,7 +70,6 @@ import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.util.HeadlessToolkit;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class LookupService.
@@ -78,7 +77,6 @@ import sh.isaac.api.util.HeadlessToolkit;
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@SuppressWarnings("restriction")
 public class LookupService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
@@ -180,9 +178,35 @@ public class LookupService {
                }
 
                LOG.debug("Starting JavaFX Platform");
-               PlatformImpl.startup(() -> {
-                  // No need to do anything here
-               });
+               try {
+                  if (LookupService.class.getClassLoader().toString().startsWith("ClassRealm[plugin"))  //we are running in maven.
+                  {
+                     //Stupid (really stupid) hack to not run into issues with native libraries from javafx...
+                     //JavaFX is dumping theor dll files out to a path that uses javafx.version.  Maven runs each instance of a plugin in a different 
+                     //classloader, but then doesn't release refs / doesn't garbage collect the class loaders.  So any second attempt to start a javafx 
+                     //app during a maven build will fail, because the dll's were loaded by a different classloader.  Forcing it to cache the dll's to a different
+                     //location is the easiest way to avoid the double-loading issue.
+                     String s = System.getProperty("javafxHack");
+                     int i = 0;
+                     if (!StringUtils.isBlank(s))
+                     {
+                        i = Integer.parseInt(s);
+                        i++;
+                     }
+                     System.setProperty("javafxHack", i + "");
+                     System.setProperty("javafx.version", "mavenHack" + i);
+                  }
+                  PlatformImpl.startup(() -> {
+                     // No need to do anything here
+                  }, true);
+               } catch (IllegalStateException e) {
+                  if (e.getMessage().equals("Toolkit already initialized")) {
+                     //ignore - this happens sometimes in maven builds
+                  }
+                  else {
+                     throw e;
+                  }
+               }
                fxPlatformUp = true;
             }
          }
@@ -243,7 +267,10 @@ public class LookupService {
          }
          
          //Make sure metadata is imported, if the user prefs said to import metadata.
-         get().getService(MetadataService.class).importMetadata();
+         if (Get.useLuceneIndexes()) {
+            get().getService(MetadataService.class).importMetadata();
+         }
+
          
          //Now, check and make sure every provider has the same DB ID
          UUID expected = get().getService(MetadataService.class).getDataStoreId().get();
@@ -400,7 +427,7 @@ public class LookupService {
                startupFxPlatform();
 
                final ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("sh",
-                                                                                        "one",
+                                                                                        "net.sagebits",
                                                                                         "org.glassfish",
                                                                                         "com.informatics"));
 

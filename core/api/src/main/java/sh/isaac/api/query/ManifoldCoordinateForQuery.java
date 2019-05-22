@@ -17,6 +17,8 @@
 package sh.isaac.api.query;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import javafx.beans.property.SimpleObjectProperty;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -24,6 +26,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
@@ -73,9 +77,10 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
    @Override
    @XmlElement
    public UUID getManifoldCoordinateUuid() {
-      return ManifoldCoordinate.super.getManifoldCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+      return ManifoldCoordinate.super.getManifoldCoordinateUuid();
    }
    
+   @SuppressWarnings("unused")
    private void setManifoldCoordinateUuid(UUID uuid) {
         // noop for jaxb
    }
@@ -155,6 +160,11 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     public LogicCoordinate getLogicCoordinate() {
         return (LogicCoordinate) this.query.getLetDeclarations().get(logicCoordinateKeyProperty.get());
     }
+    
+    @Override
+    public Optional<StampCoordinate> getOptionalDestinationStampCoordinate() {
+        return Optional.empty();
+    }
 
     @Override
     public ManifoldCoordinate makeCoordinateAnalog(PremiseType taxonomyType) {
@@ -171,4 +181,13 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
         return getStampCoordinate().getImmutableAllStateAnalog(); 
     }
 
+    @Override
+    public Set<ConceptSpecification> getAuthorSpecifications() {
+        return getStampCoordinate().getAuthorSpecifications();
+    }
+
+    @Override
+    public NidSet getAuthorNids() {
+        return getStampCoordinate().getAuthorNids();
+    }
 }
