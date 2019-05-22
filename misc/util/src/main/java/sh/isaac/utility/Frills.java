@@ -783,7 +783,7 @@ public class Frills
    public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate,
          int requiredModuleSequence,
          int... optionalModuleSequences) {
-      final HashSet<ConceptSpecification> moduleSet = new HashSet();
+      final HashSet<ConceptSpecification> moduleSet = new HashSet<>();
 
       moduleSet.add(Get.conceptSpecification(requiredModuleSequence));
 
@@ -793,16 +793,12 @@ public class Frills
          }
       }
 
-      final EnumSet<Status> allowedStates = EnumSet.allOf(Status.class);
-
-      allowedStates.addAll(existingStampCoordinate.getAllowedStates());
-
       final StampCoordinate newStampCoordinate = new StampCoordinateImpl(
                                                      existingStampCoordinate.getStampPrecedence(),
                                                            existingStampCoordinate.getStampPosition(),
                                                            moduleSet,
-                                                           new ArrayList(),
-                                                           allowedStates);
+                                                           existingStampCoordinate.getModulePreferenceOrderForVersions(),
+                                                           existingStampCoordinate.getAllowedStates());
 
       return newStampCoordinate;
    }
