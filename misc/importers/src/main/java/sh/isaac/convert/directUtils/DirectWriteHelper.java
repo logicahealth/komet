@@ -979,7 +979,8 @@ public class DirectWriteHelper
 	 */
 	public void configureConceptAsIdentifier(UUID concept, long time)
 	{
-		identifierTypes.add(makeBrittleRefsetMember(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid(), concept, time));
+		makeBrittleRefsetMember(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid(), concept, time);
+		identifierTypes.add(concept);
 	}
 	
 	/**
@@ -1143,6 +1144,7 @@ public class DirectWriteHelper
 		{
 			parents.add(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid());
 			makeBrittleRefsetMember(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid(), concept, time);
+			identifierTypes.add(concept);
 		}
 		else if (dataType != null)
 		{
