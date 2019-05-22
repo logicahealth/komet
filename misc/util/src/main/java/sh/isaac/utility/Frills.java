@@ -1124,8 +1124,7 @@ public class Frills
    public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
       
       TaxonomySnapshot tss = Get.taxonomyService().getSnapshotNoTree(
-            new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp),
-                  LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()));
+            new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp), null));
       
       Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptNid, recursive, leafOnly, tss);
       if (leafOnly && temp.size() == 1) {
