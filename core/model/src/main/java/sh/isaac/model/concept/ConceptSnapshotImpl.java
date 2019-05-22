@@ -196,7 +196,7 @@ public class ConceptSnapshotImpl
       }
       else {
           //Use a coordinate that will return anything
-          return LanguageCoordinates.getFullyQualifiedCoordinate().getDescription(conceptChronology.getConceptDescriptionList(), this.manifoldCoordinate).get();
+          return LanguageCoordinates.getFullyQualifiedCoordinate(false).getDescription(conceptChronology.getConceptDescriptionList(), this.manifoldCoordinate).get();
        }
    }
 

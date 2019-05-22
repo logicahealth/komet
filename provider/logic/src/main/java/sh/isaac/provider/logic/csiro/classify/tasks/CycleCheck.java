@@ -78,7 +78,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	public CycleCheck(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate)
 	{
 		updateTitle("Cycle Check");
-		mc = new ManifoldCoordinateImpl(PremiseType.STATED, stampCoordinate, LanguageCoordinates.getFullyQualifiedCoordinate(), logicCoordinate);
+		mc = new ManifoldCoordinateImpl(PremiseType.STATED, stampCoordinate, LanguageCoordinates.getFullyQualifiedCoordinate(false), logicCoordinate);
 	}
 
 	/**

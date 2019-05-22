@@ -743,7 +743,7 @@ public class ChronologyProvider
          */
         public ConceptSnapshotProvider(ManifoldCoordinate manifoldCoordinate) {
             this.manifoldCoordinate = manifoldCoordinate;
-            this.regNameCoord = LanguageCoordinates.getRegularNameCoordinate();
+            this.regNameCoord = LanguageCoordinates.getRegularNameCoordinate(false);
         }
 
         //~--- methods ----------------------------------------------------------
