@@ -1196,36 +1196,40 @@
    <profiles>
        <profile>
            <id>release</id>
-           <plugin>
-               <groupId>com.amashchenko.maven.plugin</groupId>
-               <artifactId>gitflow-maven-plugin</artifactId>
-               <version>${gitflow-maven-plugin-version}</version>
-               <configuration>
-                   <tychoBuild>true</tychoBuild>
-                   <allowSnapshots>false</allowSnapshots>
-                   <autoVersionSubmodules>true</autoVersionSubmodules>
-                   <enableFeatureVersions>true</enableFeatureVersions>
-                   <enableSshAgent>true</enableSshAgent>
-                   <fetchRemote>true</fetchRemote>
-                   <installProject>true</installProject>
-                   <pushReleases>true</pushReleases>
-                   <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
-                   <username>${git.user}</username>
-                   <password>${git.password}</password>
-                   <postReleaseGoals>clean deploy</postReleaseGoals>
-                   <versionDigitToIncrement>2</versionDigitToIncrement>
-                   <gitFlowConfig>
-                       <productionBranch>master</productionBranch>
-                       <developmentBranch>develop-fx11</developmentBranch>
-                       <featureBranchPrefix>feature/</featureBranchPrefix>
-                       <releaseBranchPrefix>release/</releaseBranchPrefix>
-                       <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
-                       <supportBranchPrefix>support/</supportBranchPrefix>
-                       <versionTagPrefix></versionTagPrefix>
-                       <origin>origin</origin>
-                   </gitFlowConfig>
-               </configuration>
-           </plugin>
+           <build>
+               <plugins>
+                   <plugin>
+                       <groupId>com.amashchenko.maven.plugin</groupId>
+                       <artifactId>gitflow-maven-plugin</artifactId>
+                       <version>${gitflow-maven-plugin-version}</version>
+                       <configuration>
+                           <tychoBuild>true</tychoBuild>
+                           <allowSnapshots>false</allowSnapshots>
+                           <autoVersionSubmodules>true</autoVersionSubmodules>
+                           <enableFeatureVersions>true</enableFeatureVersions>
+                           <enableSshAgent>true</enableSshAgent>
+                           <fetchRemote>true</fetchRemote>
+                           <installProject>true</installProject>
+                           <pushReleases>true</pushReleases>
+                           <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
+                           <username>${git.user}</username>
+                           <password>${git.password}</password>
+                           <postReleaseGoals>clean deploy</postReleaseGoals>
+                           <versionDigitToIncrement>2</versionDigitToIncrement>
+                           <gitFlowConfig>
+                               <productionBranch>master</productionBranch>
+                               <developmentBranch>develop-fx11</developmentBranch>
+                               <featureBranchPrefix>feature/</featureBranchPrefix>
+                               <releaseBranchPrefix>release/</releaseBranchPrefix>
+                               <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
+                               <supportBranchPrefix>support/</supportBranchPrefix>
+                               <versionTagPrefix></versionTagPrefix>
+                               <origin>origin</origin>
+                           </gitFlowConfig>
+                       </configuration>
+                   </plugin>
+               </plugins>
+           </build>
        </profile>
       <profile>
          <id>dbdoclet</id>
