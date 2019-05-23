@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>5.0.5</version>
+   <version>5.1.0</version>
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
@@ -1039,7 +1039,35 @@
                   </toolchains>
               </configuration>
           </plugin>
-
+          <plugin>
+              <groupId>com.amashchenko.maven.plugin</groupId>
+              <artifactId>gitflow-maven-plugin</artifactId>
+              <version>${gitflow-maven-plugin-version}</version>
+              <configuration>
+                  <tychoBuild>false</tychoBuild>
+                  <allowSnapshots>false</allowSnapshots>
+                  <autoVersionSubmodules>true</autoVersionSubmodules>
+                  <enableFeatureVersions>true</enableFeatureVersions>
+                  <enableSshAgent>true</enableSshAgent>
+                  <fetchRemote>true</fetchRemote>
+                  <installProject>true</installProject>
+                  <pushReleases>true</pushReleases>
+                  <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
+                  <username>${git.user}</username>
+                  <password>${git.password}</password>
+                  <skipTestProject>true</skipTestProject>
+                  <gitFlowConfig>
+                      <productionBranch>master</productionBranch>
+                      <developmentBranch>develop-fx11</developmentBranch>
+                      <featureBranchPrefix>feature/</featureBranchPrefix>
+                      <releaseBranchPrefix>release/</releaseBranchPrefix>
+                      <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
+                      <supportBranchPrefix>support/</supportBranchPrefix>
+                      <versionTagPrefix></versionTagPrefix>
+                      <origin>origin</origin>
+                  </gitFlowConfig>
+              </configuration>
+          </plugin>
          <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
@@ -1062,34 +1090,6 @@
                <archive>
                   <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                </archive>               -->
-            </configuration>
-         </plugin>
-         <plugin>
-            <groupId>com.amashchenko.maven.plugin</groupId>
-            <artifactId>gitflow-maven-plugin</artifactId>
-            <version>${gitflow-maven-plugin-version}</version>
-            <configuration>
-                <tychoBuild>true</tychoBuild>
-               <allowSnapshots>false</allowSnapshots>
-               <autoVersionSubmodules>true</autoVersionSubmodules>
-               <enableFeatureVersions>true</enableFeatureVersions>
-               <enableSshAgent>true</enableSshAgent>
-               <fetchRemote>true</fetchRemote>
-               <installProject>true</installProject>
-               <pushReleases>true</pushReleases>
-               <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
-               <username>${git.user}</username>
-               <password>${git.password}</password>
-                <gitFlowConfig>
-                    <productionBranch>master</productionBranch>
-                    <developmentBranch>develop-fx11</developmentBranch>
-                    <featureBranchPrefix>feature/</featureBranchPrefix>
-                    <releaseBranchPrefix>release/</releaseBranchPrefix>
-                    <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
-                    <supportBranchPrefix>support/</supportBranchPrefix>
-                    <versionTagPrefix></versionTagPrefix>
-                    <origin>origin</origin>
-                </gitFlowConfig>
             </configuration>
          </plugin>
          <plugin>
@@ -1195,6 +1195,43 @@
    </modules>
 
    <profiles>
+       <profile>
+           <id>release</id>
+           <build>
+               <plugins>
+                   <plugin>
+                       <groupId>com.amashchenko.maven.plugin</groupId>
+                       <artifactId>gitflow-maven-plugin</artifactId>
+                       <version>${gitflow-maven-plugin-version}</version>
+                       <configuration>
+                           <tychoBuild>true</tychoBuild>
+                           <allowSnapshots>false</allowSnapshots>
+                           <autoVersionSubmodules>true</autoVersionSubmodules>
+                           <enableFeatureVersions>true</enableFeatureVersions>
+                           <enableSshAgent>true</enableSshAgent>
+                           <fetchRemote>true</fetchRemote>
+                           <installProject>true</installProject>
+                           <pushReleases>true</pushReleases>
+                           <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
+                           <username>${git.user}</username>
+                           <password>${git.password}</password>
+                           <postReleaseGoals>clean deploy</postReleaseGoals>
+                           <versionDigitToIncrement>2</versionDigitToIncrement>
+                           <gitFlowConfig>
+                               <productionBranch>master</productionBranch>
+                               <developmentBranch>develop-fx11</developmentBranch>
+                               <featureBranchPrefix>feature/</featureBranchPrefix>
+                               <releaseBranchPrefix>release/</releaseBranchPrefix>
+                               <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
+                               <supportBranchPrefix>support/</supportBranchPrefix>
+                               <versionTagPrefix></versionTagPrefix>
+                               <origin>origin</origin>
+                           </gitFlowConfig>
+                       </configuration>
+                   </plugin>
+               </plugins>
+           </build>
+       </profile>
       <profile>
          <id>dbdoclet</id>
          <reporting>
