@@ -114,7 +114,7 @@ public class VersionFinder {
             if (!allowSNAPSHOT && temp.endsWith("-SNAPSHOT")) {
                String subString = temp.substring(0, temp.indexOf("-SNAPSHOT"));
                // remove feature branch tags on version since this version finder expects only numeric versions.
-               if (Character.isDigit(subString.charAt(subString.length()-1)) == false) {
+               if (subString.lastIndexOf('-') > 0) {
                   LOG.warn("Stripping feature branch tag to create numeric-only version: " + temp);
                   int dashIndex = subString.lastIndexOf('-');
                   subString = subString.substring(0, dashIndex);
