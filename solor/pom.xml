@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>5.1.1-SNAPSHOT</version>
+        <version>5.1.1-BATCH-SNAPSHOT</version>
     </parent>
     <artifactId>solor</artifactId>
     <name>ISAAC SOLOR: (MMP)</name>
