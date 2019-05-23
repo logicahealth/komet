@@ -1055,6 +1055,7 @@
                   <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
                   <username>${git.user}</username>
                   <password>${git.password}</password>
+                  <skipTestProject>true</skipTestProject>
                   <gitFlowConfig>
                       <productionBranch>master</productionBranch>
                       <developmentBranch>develop-fx11</developmentBranch>
