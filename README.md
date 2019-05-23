@@ -122,8 +122,18 @@ $ mvn gitflow:release-start gitflow:release-finish \
 
 $ mvn gitflow:release -Prelease
 ```
-
-
+## Creating a feature branch
+```
+mvn gitflow:feature-start
+```
+You will be prompted for the feature name:
+```
+What is a name of feature branch? feature/: F2
+```
+## Finishing a feature branch
+```
+mvn gitflow:feature-finish
+```
 ## JDK 11 notes
 Crazy command to launch in eclipse:
 Also had to add javafx controls, base, and graphics as "modules" in the run configuration.
