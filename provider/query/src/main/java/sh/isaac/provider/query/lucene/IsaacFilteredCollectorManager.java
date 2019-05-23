@@ -18,6 +18,7 @@ package sh.isaac.provider.query.lucene;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.function.Predicate;
@@ -33,6 +34,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
+import sh.isaac.api.Get;
 
 /**
  *
@@ -116,7 +118,15 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
                     final int componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
                             .numericValue()
                             .intValue();
-                    filterPass = filter.test(componentNid);
+                     try {
+                        filterPass = filter.test(componentNid);
+                     } catch (IllegalStateException e) {
+                        StringBuilder b = new StringBuilder();
+                        b.append(e.getLocalizedMessage()).append("\n");
+                        b.append("Evaluating: ").append(componentNid).append(" uuids: ")
+                                .append(Arrays.toString(Get.identifierService().getUuidArrayForNid(componentNid)));
+                        LOG.error(b.toString());
+                     }
                   }
                   else
                   {
