@@ -120,7 +120,7 @@ $ mvn gitflow:release-start gitflow:release-finish \
          -DreleaseVersion=4.64 -DdevelopmentVersion=4.65-SNAPSHOT \
          -DpostReleaseGoals="clean deploy"
 
-$ mvn -e gitflow:release -DpostReleaseGoals="clean deploy"
+$ mvn gitflow:release -Prelease
 ```
 
 
