@@ -70,7 +70,6 @@ public class TimeStatusRestriction {
                     //Each integer passed in here is a semantic nid, of something that was indexed.  True 
                     //if we want it to be allowed for the query, false if not.
                     //We will return true, if there is any version which meets all present criteria.
-                    try {
                         SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
                         LatestVersion<Version> latest = sc.getLatestVersion(manifold);
                         if (latest.isPresent()) {
@@ -92,12 +91,6 @@ public class TimeStatusRestriction {
                                 return true;
                             }
                         }
-                    } catch (Exception e) {
-                        FxGet.dialogs().showErrorDialog("Error testing: " + nid + " " +
-                                Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)) +
-                                "\n\n Query will continue with other matching components", e);
-                        e.printStackTrace();
-                    }
                     return false;
 
                 }

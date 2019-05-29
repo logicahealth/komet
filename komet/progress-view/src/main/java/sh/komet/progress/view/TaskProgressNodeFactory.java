@@ -69,7 +69,7 @@ public class TaskProgressNodeFactory
    public static final String TITLE_BASE_SINGULAR = "Activity";
    @Override
    public TaskProgressNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      TaskProgressNode taskProgressNode = new TaskProgressNode(manifold);
+      TaskProgressNode taskProgressNode = new ActiveTasksProgressNode(manifold);
       return taskProgressNode;
    }
 

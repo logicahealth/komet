@@ -17,10 +17,7 @@
 package sh.isaac.provider.query.lucene;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 import java.util.function.Predicate;
 
 import org.apache.logging.log4j.LogManager;
@@ -120,9 +117,10 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
                             .intValue();
                      try {
                         filterPass = filter.test(componentNid);
-                     } catch (IllegalStateException e) {
+                     } catch (NoSuchElementException | IllegalStateException e) {
                         StringBuilder b = new StringBuilder();
                         b.append(e.getLocalizedMessage()).append("\n");
+                        b.append("Filtering document: ").append(document).append("\n");
                         b.append("Evaluating: ").append(componentNid).append(" uuids: ")
                                 .append(Arrays.toString(Get.identifierService().getUuidArrayForNid(componentNid)));
                         LOG.error(b.toString());

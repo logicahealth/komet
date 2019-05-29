@@ -5,29 +5,30 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import sh.isaac.komet.batch.fxml.BatchNodeController;
+import sh.isaac.komet.batch.fxml.CompositeActionNodeController;
 import sh.isaac.komet.batch.iconography.PluginIcons;
+import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.IOException;
 import java.util.Optional;
 
-import static sh.isaac.komet.batch.BatchViewFactory.LIST_VIEW;
+import static sh.isaac.komet.batch.CompositeActionFactory.ACTION_VIEW;
 
-public class BatchViewNode implements ExplorationNode {
+
+public class CompositeActionNode implements ExplorationNode {
 
     final Manifold manifold;
-    final SimpleStringProperty title = new SimpleStringProperty(LIST_VIEW);
-    final SimpleStringProperty toolTip = new SimpleStringProperty("List view to create batches of content for processing, export, or similar uses.");
+    final SimpleStringProperty title = new SimpleStringProperty(ACTION_VIEW);
+    final SimpleStringProperty toolTip = new SimpleStringProperty("Action view to create composite actions");
     final AnchorPane root;
-    final BatchNodeController controller;
+    final CompositeActionNodeController controller;
 
-    public BatchViewNode(Manifold manifold) {
+    public CompositeActionNode(Manifold manifold) {
         try {
             this.manifold = manifold;
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/BatchNode.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/CompositeActionNode.fxml"));
             this.root = loader.load();
             this.controller = loader.getController();
             this.controller.setManifold(manifold);
@@ -65,6 +66,6 @@ public class BatchViewNode implements ExplorationNode {
 
     @Override
     public Node getMenuIcon() {
-        return PluginIcons.SCRIPT_ICON.getStyledIconographic();
+        return Iconography.EDIT_PENCIL.getStyledIconographic();
     }
 }

@@ -29,6 +29,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.TaxonomySnapshot;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -42,13 +43,16 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
     private final CountDownLatch childrenLoadedLatch;
     private final MultiParentTreeItemImpl treeItemImpl;
     private final int fetcherId = FETCHER_SEQUENCE.incrementAndGet();
+    private int childrenFound = 0;
+    private final String parentName;
 
     public FetchChildren(CountDownLatch childrenLoadedLatch,
             MultiParentTreeItemImpl treeItemImpl) {
         this.childrenLoadedLatch = childrenLoadedLatch;
         this.treeItemImpl = treeItemImpl;
-        updateTitle("Fetching children for: " + treeItemImpl.getTreeView()
-                .getManifold().getPreferredDescriptionText(treeItemImpl.getValue()));
+        this.parentName = treeItemImpl.getTreeView()
+                .getManifold().getPreferredDescriptionText(treeItemImpl.getValue());
+        updateTitle("Fetching children for: " + this.parentName);
         Get.activeTasks().add(this);
         LOG.debug("###Starting Adding children for: " + treeItemImpl.getValue().getNid()
                                     + " from: " + fetcherId);
@@ -59,6 +63,11 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
             oldFetcher.cancel(false);  //Interrupts are bad for code that uses NIO.  
             Get.activeTasks().remove(oldFetcher);
         }
+        this.setCompleteMessageGenerator((task) -> {
+            String message = "Found " + childrenFound + " children in " + getFormattedDuration() + " for " + this.parentName;
+            updateMessage(message);
+            FxGet.statusMessageService().reportStatus(message);
+        });
     }
 
     @Override
@@ -137,11 +146,13 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                             
                         });
                 }
-                    
 
+                childrenFound = childrenToAdd.size();
             }
+
             return null;
         } finally {
+            this.done();
             childrenLoadedLatch.countDown();
             Get.activeTasks().remove(this);
             FETCHER_MAP.remove(treeItemImpl.getValue().getNid());

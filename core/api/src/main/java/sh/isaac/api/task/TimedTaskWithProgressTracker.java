@@ -111,7 +111,11 @@ public abstract class TimedTaskWithProgressTracker<T>
      */
     AtomicLong totalWork = new AtomicLong();
 
-    //~--- methods -------------------------------------------------------------
+    public double getCompletedUnitsOfWork() {
+        return completedUnitsOfWork.doubleValue();
+    }
+
+//~--- methods -------------------------------------------------------------
 
     /**
      * Adds the to total work.

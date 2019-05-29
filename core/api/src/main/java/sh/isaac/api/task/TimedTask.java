@@ -148,7 +148,7 @@ public abstract class TimedTask<T>
 
         if (this.completeMessageGenerator == null) {
             setCompleteMessageGenerator((task) -> {
-                updateMessage(getSimpleName() + " in " + DurationUtil.format(getDuration()));
+                updateMessage(getSimpleName() + " completed in " + DurationUtil.format(getDuration()));
             });
         }
         LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));

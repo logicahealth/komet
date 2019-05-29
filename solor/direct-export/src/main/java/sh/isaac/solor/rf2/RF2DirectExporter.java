@@ -106,7 +106,7 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
         updateTitle("Export " + this.exportMessage);
         addToTotalWork(exportConfigurations.size() + 4);
 
-        Get.activeTasks().get().addListener((SetChangeListener<? super Task<?>>) change -> {
+        Get.activeTasks().addListener((SetChangeListener<? super Task<?>>) change -> {
             if(change.wasRemoved()) {
                 this.completedUnitOfWork();
             }

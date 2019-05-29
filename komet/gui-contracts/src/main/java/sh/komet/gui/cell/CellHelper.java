@@ -19,6 +19,7 @@ import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.component.semantic.version.brittle.*;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.komet.gui.contract.GuiConceptBuilder;
@@ -172,7 +173,12 @@ public class CellHelper {
                  processDescriptionText(label, tableColumn, "No description for concept: " + Arrays.toString(version.getUuids()));
              }
         } else {
-            ObservableSemanticVersion semanticVersion = (ObservableSemanticVersion) version;
+            SemanticVersion semanticVersion;
+            if (version instanceof ObservableCategorizedVersion) {
+                semanticVersion = ((ObservableCategorizedVersion) version).unwrap();
+            } else {
+                semanticVersion = (ObservableSemanticVersion) version;
+            }
             String referencedComponentString = cell.getManifold().getPreferredDescriptionText(semanticVersion.getReferencedComponentNid());
             if (referencedComponentString == null || referencedComponentString.isEmpty()) {
                 LOG.warn("No referenced component text for: " + semanticVersion.getReferencedComponentNid());
@@ -206,21 +212,21 @@ public class CellHelper {
 
             switch (semanticType) {
                 case DESCRIPTION:
-                    DescriptionVersion description = (DescriptionVersion) version;
+                    DescriptionVersion description = (DescriptionVersion) semanticVersion;
                     processDescriptionText(label, tableColumn, description.getText());
                     break;
 
                 case COMPONENT_NID:
-                    processCOMPONENT_NID(assemblageNameText, referencedComponentText, (ComponentNidVersion) version);
+                    processCOMPONENT_NID(assemblageNameText, referencedComponentText, (ComponentNidVersion) semanticVersion);
                     break;
 
                 case STRING:
-                    StringVersion stringVersion = (StringVersion) version;
+                    StringVersion stringVersion = (StringVersion) semanticVersion;
                     processString(assemblageNameText, referencedComponentText, stringVersion.getString(), StyleClasses.SEMANTIC_TEXT);
                     break;
 
                 case LOGIC_GRAPH:
-                    addDefToCell((LogicGraphVersion) version);
+                    addDefToCell((LogicGraphVersion) semanticVersion);
                     break;
 
                 case MEMBER:
@@ -228,63 +234,63 @@ public class CellHelper {
                     break;
 
                 case LONG:
-                    processLONG(assemblageNameText, referencedComponentText, (LongVersion) version);
+                    processLONG(assemblageNameText, referencedComponentText, (LongVersion) semanticVersion);
                     break;
 
                 case RF2_RELATIONSHIP:
-                    processRF2_RELATIONSHIP(assemblageNameText, referencedComponentText, (Rf2Relationship) version);
+                    processRF2_RELATIONSHIP(assemblageNameText, referencedComponentText, (Rf2Relationship) semanticVersion);
                     break;
 
                 case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-                    processInt1_Int2_Str3_Str4_Str5_Nid6_Nid7(assemblageNameText, referencedComponentText, (Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version) version);
+                    processInt1_Int2_Str3_Str4_Str5_Nid6_Nid7(assemblageNameText, referencedComponentText, (Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version) semanticVersion);
                     break;
 
                 case LOINC_RECORD:
-                    processLOINC_RECORD(assemblageNameText, referencedComponentText, (LoincVersion) version);
+                    processLOINC_RECORD(assemblageNameText, referencedComponentText, (LoincVersion) semanticVersion);
                     break;
 
                 case Nid1_Int2:
-                    processNid1_Int2(assemblageNameText, referencedComponentText, (Nid1_Int2_Version) version);
+                    processNid1_Int2(assemblageNameText, referencedComponentText, (Nid1_Int2_Version) semanticVersion);
                     break;
 
                 case Nid1_Int2_Str3_Str4_Nid5_Nid6:
-                    processNid1_Int2_Str3_Str4_Nid5_Nid6(assemblageNameText, referencedComponentText, (Nid1_Int2_Str3_Str4_Nid5_Nid6_Version) version);
+                    processNid1_Int2_Str3_Str4_Nid5_Nid6(assemblageNameText, referencedComponentText, (Nid1_Int2_Str3_Str4_Nid5_Nid6_Version) semanticVersion);
                     break;
 
                 case Nid1_Nid2:
-                    processNid1_Nid2(assemblageNameText, referencedComponentText, (Nid1_Nid2_Version) version);
+                    processNid1_Nid2(assemblageNameText, referencedComponentText, (Nid1_Nid2_Version) semanticVersion);
                     break;
 
                 case Nid1_Nid2_Int3:
-                    processNid1_Nid2_Int3(assemblageNameText, referencedComponentText, (Nid1_Nid2_Int3_Version) version);
+                    processNid1_Nid2_Int3(assemblageNameText, referencedComponentText, (Nid1_Nid2_Int3_Version) semanticVersion);
                     break;
 
                 case Nid1_Nid2_Str3:
-                    processNid1_Nid2_Str3(assemblageNameText, referencedComponentText, (Nid1_Nid2_Str3_Version) version);
+                    processNid1_Nid2_Str3(assemblageNameText, referencedComponentText, (Nid1_Nid2_Str3_Version) semanticVersion);
                     break;
 
                 case Nid1_Str2:
-                    processNid1_Str2(assemblageNameText, referencedComponentText, (Nid1_Str2_Version) version);
+                    processNid1_Str2(assemblageNameText, referencedComponentText, (Nid1_Str2_Version) semanticVersion);
                     break;
 
                 case Str1_Str2:
-                    processStr1_Str2(assemblageNameText, referencedComponentText, (Str1_Str2_Version) version);
+                    processStr1_Str2(assemblageNameText, referencedComponentText, (Str1_Str2_Version) semanticVersion);
                     break;
 
                 case Str1_Str2_Nid3_Nid4:
-                    processStr1_Str2_Nid3_Nid4(assemblageNameText, referencedComponentText, (Str1_Str2_Nid3_Nid4_Version) version);
+                    processStr1_Str2_Nid3_Nid4(assemblageNameText, referencedComponentText, (Str1_Str2_Nid3_Nid4_Version) semanticVersion);
                     break;
 
                 case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-                    processStr1_Str2_Str3_Str4_Str5_Str6_Str7(assemblageNameText, referencedComponentText, (Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version) version);
+                    processStr1_Str2_Str3_Str4_Str5_Str6_Str7(assemblageNameText, referencedComponentText, (Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version) semanticVersion);
                     break;
 
                 case Str1_Nid2_Nid3_Nid4:
-                    processStr1_Nid2_Nid3_Nid4(assemblageNameText, referencedComponentText, (Str1_Nid2_Nid3_Nid4_Version) version);
+                    processStr1_Nid2_Nid3_Nid4(assemblageNameText, referencedComponentText, (Str1_Nid2_Nid3_Nid4_Version) semanticVersion);
                     break;
 
                 case Str1_Str2_Nid3_Nid4_Nid5:
-                    processStr1_Str2_Nid3_Nid4_Nid5(assemblageNameText, referencedComponentText, (Str1_Str2_Nid3_Nid4_Nid5_Version) version);
+                    processStr1_Str2_Nid3_Nid4_Nid5(assemblageNameText, referencedComponentText, (Str1_Str2_Nid3_Nid4_Nid5_Version) semanticVersion);
                     break;
 
                 default:

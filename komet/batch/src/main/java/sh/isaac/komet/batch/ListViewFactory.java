@@ -11,15 +11,15 @@ import sh.komet.gui.manifold.Manifold;
 import javax.inject.Singleton;
 
 
-@Service(name = "Batch view factory")
+@Service(name = "List view factory")
 @Singleton
-public class BatchViewFactory implements ExplorationNodeFactory<BatchViewNode> {
+public class ListViewFactory implements ExplorationNodeFactory<ListViewNode> {
 
     public static final String LIST_VIEW = "List view";
 
     @Override
-    public BatchViewNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {
-        return new BatchViewNode(manifold);
+    public ListViewNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {
+        return new ListViewNode(manifold);
     }
 
     @Override

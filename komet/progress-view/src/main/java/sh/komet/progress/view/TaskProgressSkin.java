@@ -129,13 +129,13 @@ import sh.komet.gui.interfaces.IconProvider;
  * @author kec
  * @param <T>
  */
-public class KometProgressSkin<T extends Task<?>>
-        extends SkinBase<KometProgressView<T>> {
+public class TaskProgressSkin<T extends Task<?>>
+        extends SkinBase<TaskProgressView<T>> {
    ListView<T> listView;
 
    //~--- constructors --------------------------------------------------------
 
-   public KometProgressSkin(KometProgressView<T> monitor) {
+   public TaskProgressSkin(TaskProgressView<T> monitor) {
       super(monitor);
       monitor.boundsInLocalProperty()
              .addListener(this::updateBounds);
@@ -265,32 +265,37 @@ public class KometProgressSkin<T extends Task<?>>
                     .add(graphic);
          }
 
-         GridPane.setConstraints(
-             progressBar,
-             1,
-             1,
-             1,
-             1,
-             HPos.LEFT,
-             VPos.CENTER,
-             Priority.ALWAYS,
-             Priority.NEVER,
-             insets);
-         cellGrid.getChildren()
-                 .add(progressBar);
-         GridPane.setConstraints(
-             cancelButton,
-             2,
-             1,
-             1,
-             1,
-             HPos.LEFT,
-             VPos.CENTER,
-             Priority.NEVER,
-             Priority.NEVER,
-             insets);
-         cellGrid.getChildren()
-                 .add(cancelButton);
+         if (progressBar.isVisible()) {
+            GridPane.setConstraints(
+                    progressBar,
+                    1,
+                    1,
+                    1,
+                    1,
+                    HPos.LEFT,
+                    VPos.CENTER,
+                    Priority.ALWAYS,
+                    Priority.NEVER,
+                    insets);
+            cellGrid.getChildren()
+                    .add(progressBar);
+         }
+         if (cancelButton.isVisible()) {
+            GridPane.setConstraints(
+                    cancelButton,
+                    2,
+                    1,
+                    1,
+                    1,
+                    HPos.LEFT,
+                    VPos.CENTER,
+                    Priority.NEVER,
+                    Priority.NEVER,
+                    insets);
+            cellGrid.getChildren()
+                    .add(cancelButton);
+         }
+
          GridPane.setConstraints(
              messageText,
              0,
@@ -335,6 +340,13 @@ public class KometProgressSkin<T extends Task<?>>
                setGraphic(null);
             } else {
                getStyleClass().setAll("task-list-cell");
+               if (task == null || task.isDone()) {
+                  progressBar.setVisible(false);
+                  if (cancelButton != null) {
+                     cancelButton.setVisible(false);
+                  }
+               }
+
                progressBar.progressProperty()
                           .bind(task.progressProperty());
                titleText.textProperty()

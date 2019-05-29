@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane fx:id="assemblageDetailRootPane" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.assemblage.view.AssemblageDetailController">
+<BorderPane fx:id="assemblageDetailRootPane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.assemblage.view.AssemblageDetailController">
    <center>
       <GridPane prefWidth="598.0" BorderPane.alignment="CENTER">
         <columnConstraints>
@@ -28,13 +28,13 @@
                   <TreeTableColumn fx:id="rowExpanderColumn" prefWidth="75.0" text="Column X" />
                 <TreeTableColumn fx:id="assemblageWhatColumn" minWidth="50.0" prefWidth="-1.0" />
                 <TreeTableColumn fx:id="assemblageGeneralColumn" minWidth="300.0" prefWidth="-1.0" />
-                  <TreeTableColumn fx:id="assemblageStatusColumn" editable="false" maxWidth="-Infinity" prefWidth="-1.0" text="status" visible="false" />
-                  <TreeTableColumn fx:id="assemblageAuthorTimeColumn" editable="false" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" text="author/time" />
-                  <TreeTableColumn fx:id="assemblageTimeColumn" prefWidth="75.0" text="time" visible="false" />
-                  <TreeTableColumn fx:id="assemblageAuthorColumn" prefWidth="75.0" text="author" visible="false" />
-                  <TreeTableColumn fx:id="assemblageModulePathColumn" editable="false" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" text="module/path" />
-                  <TreeTableColumn fx:id="assemblageModuleColumn" prefWidth="75.0" text="module" visible="false" />
-                  <TreeTableColumn fx:id="assemblagePathColumn" prefWidth="75.0" text="path" visible="false" />
+                  <TreeTableColumn fx:id="assemblageStatusColumn" editable="false" maxWidth="100.0" minWidth="50.0" prefWidth="50.0" text="status" visible="false" />
+                  <TreeTableColumn fx:id="assemblageAuthorTimeColumn" editable="false" maxWidth="225.0" minWidth="115.0" prefWidth="115.0" text="author/time" />
+                  <TreeTableColumn fx:id="assemblageTimeColumn" maxWidth="225.0" minWidth="115.0" prefWidth="115.0" text="time" visible="false" />
+                  <TreeTableColumn fx:id="assemblageAuthorColumn" maxWidth="225.0" minWidth="115.0" prefWidth="115.0" text="author" visible="false" />
+                  <TreeTableColumn fx:id="assemblageModulePathColumn" editable="false" maxWidth="225.0" minWidth="115.0" prefWidth="115.0" text="module/path" />
+                  <TreeTableColumn fx:id="assemblageModuleColumn" maxWidth="225.0" minWidth="115.0" prefWidth="115.0" text="module" visible="false" />
+                  <TreeTableColumn fx:id="assemblagePathColumn" maxWidth="225.0" minWidth="115.0" prefWidth="115.0" text="path" visible="false" />
               </columns>
                <columnResizePolicy>
                   <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

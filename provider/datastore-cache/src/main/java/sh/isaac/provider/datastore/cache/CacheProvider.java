@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.UuidIntMapMapMemoryBased;
@@ -235,7 +236,13 @@ public class CacheProvider
             return Arrays.asList(this.uuidIntMapMap.getKeysForValue(nid));
         }
 
-        List<UUID> uuids = this.identifierService.getUuidsForNid(nid);
+        List<UUID> uuids;
+        Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(nid);
+        if (optionalChronology.isPresent()) {
+            uuids = optionalChronology.get().getUuidList();
+        } else {
+            uuids = this.identifierService.getUuidsForNid(nid);
+        }
         for (UUID uuid : uuids) {
             this.uuidIntMapMap.put(uuid, nid);
         }

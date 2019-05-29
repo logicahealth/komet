@@ -42,13 +42,9 @@
       </dependency>
       <dependency>
          <groupId>de.jensd</groupId>
-         <artifactId>fontawesomefx-controls</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>de.jensd</groupId>
-               <artifactId>fontawesomefx-commons</artifactId>
-            </exclusion>
-         </exclusions>
+         <artifactId>fontawesomefx-commons</artifactId>
+         <version>${fontawesome.commons.version}</version>
+         <type>pom</type>
       </dependency>
       <dependency>
          <groupId>de.jensd</groupId>

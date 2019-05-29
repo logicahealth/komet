@@ -139,6 +139,7 @@
       <org.apache.lucene.version>7.2.1</org.apache.lucene.version>
       <xodus.version>1.1.0</xodus.version>
       <fontawesome.version>4.7.0-9.1.2</fontawesome.version>
+       <fontawesome.commons.version>11.0</fontawesome.commons.version>
       <repackage-mojo.version>1.0</repackage-mojo.version>
       <sisu-guice.version>3.2.6</sisu-guice.version>
       <sisu-inject-plexus.version>2.6.0</sisu-inject-plexus.version>
@@ -496,10 +497,15 @@
          </dependency>
          <dependency>
             <groupId>de.jensd</groupId>
-            <artifactId>fontawesomefx-fontawesome</artifactId>
-            <version>${fontawesome.version}</version>
+            <artifactId>fontawesomefx-commons</artifactId>
+            <version>${fontawesome.commons.version}</version>
          </dependency>
-         <dependency>
+          <dependency>
+              <groupId>de.jensd</groupId>
+              <artifactId>fontawesomefx-fontawesome</artifactId>
+              <version>${fontawesome.version}</version>
+          </dependency>
+          <dependency>
             <groupId>de.codecentric.centerdevice</groupId>
             <artifactId>javafxsvg</artifactId>
             <version>1.3.0</version>

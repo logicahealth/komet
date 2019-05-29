@@ -240,7 +240,7 @@ public class SpinedIntIntMap {
         final Supplier<? extends Spliterator.OfInt> streamSupplier = this.getValueSpliterator();
 
         return StreamSupport.intStream(streamSupplier, streamSupplier.get()
-                .characteristics(), false);
+                .characteristics(), false).filter(value -> value != Integer.MAX_VALUE);
     }
 
     public interface Processor {

@@ -63,5 +63,10 @@ public interface ProgressTracker {
     * @param unitsCompleted the units completed
     */
    void completedUnitsOfWork(long unitsCompleted);
+
+   double getCompletedUnitsOfWork();
+
+   double getTotalWork();
+
 }
 

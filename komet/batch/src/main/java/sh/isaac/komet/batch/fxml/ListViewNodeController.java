@@ -1,6 +1,6 @@
 package sh.isaac.komet.batch.fxml;
 /**
- * 'BatchNode.fxml' Controller Class
+ * 'ListViewNode.fxml' Controller Class
  */
 
 import javafx.collections.ObservableList;
@@ -25,7 +25,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
-public class BatchNodeController {
+public class ListViewNodeController {
 
     @FXML
     private ResourceBundle resources;
@@ -47,8 +47,8 @@ public class BatchNodeController {
 
     @FXML
     void initialize() {
-        assert batchAnchor != null : "fx:id=\"batchAnchor\" was not injected: check your FXML file 'BatchNode.fxml'.";
-        assert batchBorderPane != null : "fx:id=\"batchBorderPane\" was not injected: check your FXML file 'BatchNode.fxml'.";
+        assert batchAnchor != null : "fx:id=\"batchAnchor\" was not injected: check your FXML file 'ListViewNode.fxml'.";
+        assert batchBorderPane != null : "fx:id=\"batchBorderPane\" was not injected: check your FXML file 'ListViewNode.fxml'.";
     }
 
     public void setManifold(Manifold manifold) {

@@ -42,11 +42,9 @@ public class TasksCompletedNodeFactory
          implements ExplorationNodeFactory {
    
    public static final String TITLE_BASE = "Completions";
-   public static final String TITLE_BASE_SINGULAR = "Completion";
    @Override
    public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      //TODO why does this exist?  Its returning the same thing as the TaskProgressNodeFactory....
-      TaskProgressNode taskProgressNode = new TaskProgressNode(manifold);
+      TaskProgressNode taskProgressNode = new CompletedTasksProgressNode(manifold);
       return taskProgressNode;
    }
 

@@ -49,16 +49,16 @@ public class DurationUtil {
 
          if (hours != 0) {
             builder.append(hours)
-                   .append("h ");
+                   .append(" h ");
          }
 
          if (minutes != 0) {
             builder.append(minutes)
-                   .append("m ");
+                   .append(" m ");
          }
 
          builder.append(secs)
-                .append("s");
+                .append(" s");
          return builder.toString();
       }
 

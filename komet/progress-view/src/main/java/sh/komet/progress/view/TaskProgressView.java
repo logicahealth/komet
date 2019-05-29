@@ -19,11 +19,8 @@ package sh.komet.progress.view;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
@@ -84,50 +81,19 @@ import javafx.util.Callback;
  * @param <T> The type of the Task.
  * @author kec
  */
-public class KometProgressView <T extends Task<?>> extends Control {
+public class TaskProgressView<T extends Task<?>> extends Control {
    
 
     /**
      * Constructs a new task progress view.
      */
-    public KometProgressView() {
+    public TaskProgressView() {
         getStyleClass().add("task-progress-view");
-
-        EventHandler<WorkerStateEvent> taskHandler = evt -> {
-            if (evt.getEventType().equals(
-                    WorkerStateEvent.WORKER_STATE_SUCCEEDED)
-                    || evt.getEventType().equals(
-                            WorkerStateEvent.WORKER_STATE_CANCELLED)
-                    || evt.getEventType().equals(
-                            WorkerStateEvent.WORKER_STATE_FAILED)) {
-                getTasks().remove(evt.getSource());
-            }
-        };
-
-        getTasks().addListener((ListChangeListener.Change<? extends Task<?>> c) -> {
-           while (c.next()) {
-              if (c.wasAdded()) {
-                 for (Task<?> task : c.getAddedSubList()) {
-                    if (task.isDone()) {
-                        getTasks().remove(task);
-                    } else {
-                        task.addEventHandler(WorkerStateEvent.ANY,
-                                taskHandler);
-                    }
-                 }
-              } else if (c.wasRemoved()) {
-                 for (Task<?> task : c.getRemoved()) {
-                    task.removeEventHandler(WorkerStateEvent.ANY,
-                            taskHandler);
-                 }
-              }
-           }
-        });
     }
     
     @Override
     protected Skin<?> createDefaultSkin() {
-        return new KometProgressSkin<>(this);
+        return new TaskProgressSkin<>(this);
     }
 
     private final ObservableList<T> tasks = FXCollections

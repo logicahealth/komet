@@ -177,7 +177,7 @@ public enum Iconography implements Icons {
    ALERT_WARN2(MATERIAL_DESIGNS_WEBFONT, "alert-warn-2"),
    TEMPORARY_FIX(MATERIAL_ICON, "temporary-fix"),
    CHECK(FONT_AWSOME, "check"),
-   CHECKERED_FLAG(EMOJI_ONE, "checkered-flag"),
+   CHECKERED_FLAG(FONT_AWSOME, "checkered-flag"),
    // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
    DASHBOARD(OCT_ICON, "dashboard"),
    

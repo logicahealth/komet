@@ -164,7 +164,7 @@ public enum Iconography2 {
     ALERT_WARN2(MATERIAL_DESIGNS_WEBFONT, "ALERT_CIRCLE_OUTLINE", "alert-warn-2"),
     TEMPORARY_FIX(MATERIAL_ICON, "HEALING", "temporary-fix"),
     CHECK(FONT_AWSOME, "CHECK", "check"),
-    CHECKERED_FLAG(EMOJI_ONE, "CHECKERED_FLAG", "checkered-flag"),
+    CHECKERED_FLAG(FONT_AWSOME, "CHECKERED_FLAG", "checkered-flag"),
     // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
     DASHBOARD(OCT_ICON, "DASHBOARD", "dashboard"),
 

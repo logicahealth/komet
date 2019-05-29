@@ -66,5 +66,8 @@ import sh.isaac.api.progress.PersistTaskResult;
 public class ActiveTasksProvider extends TaskListProvider
          implements ActiveTasks {
 
+    public ActiveTasksProvider() {
+        Platform.runLater(() -> Get.completedTasks());
+    }
 }
 

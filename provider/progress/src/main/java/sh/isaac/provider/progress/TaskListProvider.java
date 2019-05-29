@@ -16,10 +16,12 @@
  */
 package sh.isaac.provider.progress;
 
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 
 /**
@@ -30,7 +32,7 @@ public class TaskListProvider {
 
    /** The task set. */
    ObservableSet<Task<?>> taskSet = FXCollections.observableSet(ConcurrentHashMap.newKeySet());
-
+   Set<Task<?>> unmodifiableSet = FXCollections.unmodifiableObservableSet(this.taskSet);
    //~--- methods -------------------------------------------------------------
    /**
     * Adds the task to the active tasks set.
@@ -39,11 +41,19 @@ public class TaskListProvider {
     */
    public final void add(Task<?> task) {
       if (Platform.isFxApplicationThread()) {
+         checkTitle(task);
          this.taskSet.add(task);
       } else {
          Platform.runLater(() -> {
+            checkTitle(task);
             this.taskSet.add(task);
          });
+      }
+   }
+
+   private void checkTitle(Task<?> task) {
+      if (task.getTitle() == null || task.getTitle().isEmpty()) {
+         System.out.println("Task with no title: " + task.getClass().getSimpleName());
       }
    }
 
@@ -53,8 +63,8 @@ public class TaskListProvider {
     *
     * @return the set
     */
-   public ObservableSet<Task<?>> get() {
-      return FXCollections.unmodifiableObservableSet(this.taskSet);
+   public Set<Task<?>> get() {
+      return unmodifiableSet;
    }
 
    /**
@@ -67,5 +77,12 @@ public class TaskListProvider {
             this.taskSet.remove(task);
       });
    }
-   
+
+   public void addListener(SetChangeListener<? super Task<?>> listener) {
+      taskSet.addListener(listener);
+   }
+
+   public void removeListener(SetChangeListener<? super Task<?>> listener) {
+      taskSet.removeListener(listener);
+   }
 }
