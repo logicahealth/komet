@@ -66,6 +66,17 @@ import sh.isaac.api.util.UUIDUtil;
 public interface ManifoldCoordinate
         extends StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy {
 
+    static UUID getManifoldCoordinateUuid(ManifoldCoordinate coordinate) {
+        ArrayList<UUID> uuidList = new ArrayList<>();
+        UUIDUtil.addSortedUuids(uuidList, coordinate.getTaxonomyPremiseType().getPremiseTypeConcept().getNid());
+        uuidList.add(coordinate.getStampCoordinateUuid());
+        uuidList.add(coordinate.getLanguageCoordinateUuid());
+        uuidList.add(coordinate.getLogicCoordinateUuid());
+        if (coordinate.getOptionalDestinationStampCoordinate().isPresent()) {
+            uuidList.add(coordinate.getOptionalDestinationStampCoordinate().get().getStampCoordinateUuid());
+        }
+        return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
+    }
     /**
      * 
      * @return a content based uuid, such that identical manifold coordinates
@@ -73,15 +84,7 @@ public interface ManifoldCoordinate
      * always have different uuids.
      */
     default UUID getManifoldCoordinateUuid() {
-       ArrayList<UUID> uuidList = new ArrayList<>();
-       UUIDUtil.addSortedUuids(uuidList, getTaxonomyPremiseType().getPremiseTypeConcept().getNid());
-       uuidList.add(getStampCoordinateUuid());
-       uuidList.add(getLanguageCoordinateUuid());
-       uuidList.add(getLogicCoordinateUuid());
-       if (getOptionalDestinationStampCoordinate().isPresent()) {
-           uuidList.add(getOptionalDestinationStampCoordinate().get().getStampCoordinateUuid());
-       }
-       return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
+       return getManifoldCoordinateUuid(this);
    }
     
     /**

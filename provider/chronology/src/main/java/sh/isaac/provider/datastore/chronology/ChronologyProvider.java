@@ -51,10 +51,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
@@ -97,6 +102,7 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.ChronologyService;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
@@ -113,7 +119,7 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 @Service
 @RunLevel(value = LookupService.SL_L2)
 public class ChronologyProvider
-        implements ConceptService, AssemblageService, IdentifiedObjectService, MetadataService {
+        implements ChronologyService, MetadataService {
 
     /**
      * The Constant LOG.
@@ -127,7 +133,19 @@ public class ChronologyProvider
    //but didn't load metadata because the database was already loaded, or the preferences said not to.
    private AtomicInteger metadataLoaded = new AtomicInteger(-1);
 
+   private AtomicLong writeSequence = new AtomicLong();
+
+   private Cache<Integer, Chronology> nidToChronologyCache = Caffeine.newBuilder()
+           .initialCapacity(1000).maximumSize(1000).build();
+
     //~--- methods -------------------------------------------------------------
+
+
+    @Override
+    public long getWriteSequence() {
+        return this.writeSequence.get();
+    }
+
     @Override
     public void importMetadata()
             throws Exception {
@@ -213,14 +231,18 @@ public class ChronologyProvider
    
     @Override
     public void writeConcept(ConceptChronology concept) {
+        this.writeSequence.incrementAndGet();
+        this.nidToChronologyCache.invalidate(concept.getNid());
         Get.conceptActiveService()
                 .updateStatus(concept);
-        store.putChronologyData((ChronologyImpl) concept);
+        this.store.putChronologyData((ChronologyImpl) concept);
     }
 
     @Override
     public void writeSemanticChronology(SemanticChronology semanticChronicle) {
-        store.putChronologyData((ChronologyImpl) semanticChronicle);
+        this.writeSequence.incrementAndGet();
+        this.nidToChronologyCache.invalidate(semanticChronicle.getNid());
+        this.store.putChronologyData((ChronologyImpl) semanticChronicle);
 //        if (semanticChronicle.getVersionType().equals(VersionType.LOGIC_GRAPH)) {
 //            Get.taxonomyService().updateTaxonomy(semanticChronicle);
 //        }
@@ -307,29 +329,37 @@ public class ChronologyProvider
 
     @Override
     public ConceptChronology getConceptChronology(ConceptSpecification conceptSpecification) {
-        return getConceptChronology(conceptSpecification.getNid());
+        return ChronologyProvider.this.getConceptChronology(conceptSpecification.getNid());
     }
 
     @Override
     public ConceptChronologyImpl getConceptChronology(int conceptId) {
-        Optional<ByteArrayDataBuffer> optionalByteBuffer = store.getChronologyVersionData(conceptId);
 
-        if (optionalByteBuffer.isPresent()) {
-            ByteArrayDataBuffer byteBuffer = optionalByteBuffer.get();
+        ConceptChronologyImpl chronology = (ConceptChronologyImpl) nidToChronologyCache.getIfPresent(conceptId);
+        if (chronology == null) {
+            Optional<ByteArrayDataBuffer> optionalByteBuffer = store.getChronologyVersionData(conceptId);
 
-            IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
-            return ConceptChronologyImpl.make(byteBuffer);
+            if (optionalByteBuffer.isPresent()) {
+                ByteArrayDataBuffer byteBuffer = optionalByteBuffer.get();
+                IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
+                chronology = ConceptChronologyImpl.make(byteBuffer);
+                if (!chronology.isUncommitted()) {
+                    nidToChronologyCache.put(chronology.getNid(), chronology);
+                }
+
+            } else {
+                throw new NoSuchElementException("No element for: " + conceptId + Arrays.toString(Get.identifierService().getUuidsForNid(conceptId).toArray()));
+            }
         }
 
-        throw new NoSuchElementException("No element for: " + conceptId + Arrays.toString(Get.identifierService().getUuidsForNid(conceptId).toArray()));
+        return chronology;
+
     }
 
     @Override
     public ConceptChronology getConceptChronology(UUID... conceptUuids) {
-        int nid = Get.identifierService()
-                .getNidForUuids(conceptUuids);
-
-        return ChronologyProvider.this.getConceptChronology(nid);
+        return ChronologyProvider.this.getConceptChronology(Get.identifierService()
+                .getNidForUuids(conceptUuids));
     }
 
     @Override
@@ -525,20 +555,24 @@ public class ChronologyProvider
 
     @Override
     public SemanticChronology getSemanticChronology(int semanticId) {
-        Optional<ByteArrayDataBuffer> optionalByteBuffer = store.getChronologyVersionData(semanticId);
 
-        if (optionalByteBuffer.isPresent()) {
-            ByteArrayDataBuffer byteBuffer = optionalByteBuffer.get();
+        SemanticChronology chronology = (SemanticChronology) nidToChronologyCache.getIfPresent(semanticId);
+        if (chronology == null) {
+            Optional<ByteArrayDataBuffer> optionalByteBuffer = store.getChronologyVersionData(semanticId);
 
-            IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
-            return SemanticChronologyImpl.make(byteBuffer);
+            if (optionalByteBuffer.isPresent()) {
+                ByteArrayDataBuffer byteBuffer = optionalByteBuffer.get();
+
+                IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
+                chronology = SemanticChronologyImpl.make(byteBuffer);
+                if (!chronology.isUncommitted()) {
+                    nidToChronologyCache.put(chronology.getNid(), chronology);
+                }
+            } else {
+                throw new NoSuchElementException("No element for: " + semanticId + Arrays.toString(Get.identifierService().getUuidsForNid(semanticId).toArray()));
+            }
         }
-
-        // Gather exception data...
-        List<UUID> uuids = Get.identifierService().getUuidsForNid(semanticId);
-        String assemblage = Get.conceptDescriptionText(ModelGet.identifierService().getAssemblageNid(semanticId).getAsInt());
-
-        throw new NoSuchElementException("No element for: " + semanticId + " " + uuids + " in " + assemblage);
+        return chronology;
     }
 
    @Override

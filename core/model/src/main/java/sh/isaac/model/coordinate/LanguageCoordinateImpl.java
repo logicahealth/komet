@@ -36,11 +36,10 @@
  */
 package sh.isaac.model.coordinate;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -56,14 +55,15 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCoordinateService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.util.ArrayUtil;
+import sh.isaac.model.ModelGet;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 
@@ -152,10 +152,15 @@ public class LanguageCoordinateImpl
         this(new ConceptProxy(languageConcept), dialectAssemblagePreferenceList, descriptionTypePreferenceList, new int[]{});
     }
 
+    UUID languageCoordinateUuid;
+
     @Override
     @XmlElement
     public UUID getLanguageCoordinateUuid() {
-        return LanguageCoordinate.super.getLanguageCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+        if (languageCoordinateUuid == null) {
+            languageCoordinateUuid = LanguageCoordinate.super.getLanguageCoordinateUuid();
+        }
+        return languageCoordinateUuid; //To change body of generated methods, choose Tools | Templates.
     }
   
     private void setLanguageCoordinateUuid(UUID uuid) {
@@ -246,6 +251,75 @@ public class LanguageCoordinateImpl
                 .getSpecifiedDescription(stampCoordinate, descriptionList, this);
     }
 
+    private long lastWriteSequence = 0;
+    private static Cache<PreferredDescriptionKey, LatestVersion<DescriptionVersion>> preferredDescriptionCache = Caffeine.newBuilder()
+            .initialCapacity(2000).maximumSize(2000).build();
+
+    private static class PreferredDescriptionKey {
+        final int conceptNid;
+        final UUID stampCoordinateUuid;
+        final UUID languageCoordinateUuid;
+
+        public PreferredDescriptionKey(int conceptNid, UUID stampCoordinateUuid, LanguageCoordinate languageCoordinate) {
+            this.conceptNid = conceptNid;
+            this.stampCoordinateUuid = stampCoordinateUuid;
+            this.languageCoordinateUuid = languageCoordinate.getLanguageCoordinateUuid();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PreferredDescriptionKey that = (PreferredDescriptionKey) o;
+            return conceptNid == that.conceptNid &&
+                    stampCoordinateUuid.equals(that.stampCoordinateUuid) &&
+                    languageCoordinateUuid.equals(that.languageCoordinateUuid);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(conceptNid, stampCoordinateUuid, languageCoordinateUuid);
+        }
+
+        @Override
+        public String toString() {
+            return "Key{"+ conceptNid +
+                    ", stampCoordinateUuid=" + stampCoordinateUuid +
+                    '}';
+        }
+    }
+
+    /**
+     * Implements a cache on preferred description.
+     * @param conceptNid the conceptId to get the fully specified latestDescription for
+     * @param stampCoordinate the stamp coordinate
+     * @return
+     */
+    public LatestVersion<DescriptionVersion> getPreferredDescription(
+            int conceptNid,
+            StampCoordinate stampCoordinate) {
+        if (ModelGet.chronologyService().getWriteSequence() != lastWriteSequence) {
+            this.lastWriteSequence = ModelGet.chronologyService().getWriteSequence();
+            this.preferredDescriptionCache.invalidateAll();
+        }
+        PreferredDescriptionKey preferredDescriptionKey = new PreferredDescriptionKey(conceptNid, stampCoordinate.getStampCoordinateUuid(), this);
+
+        LatestVersion<DescriptionVersion> preferredDescription = preferredDescriptionCache.getIfPresent(preferredDescriptionKey);
+        if (preferredDescription != null) {
+            //System.out.println("Found: " + preferredDescription.get().getText() + " with: " + preferredDescriptionKey);
+            return preferredDescription;
+        }
+        Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptNid);
+        if (optionalConcept.isPresent()) {
+            preferredDescription =  getPreferredDescription(optionalConcept.get().getConceptDescriptionList(), stampCoordinate);
+            //System.out.println("Adding: " + preferredDescription.get().getText() + " with: " + preferredDescriptionKey);
+            this.preferredDescriptionCache.put(preferredDescriptionKey, preferredDescription);
+            return preferredDescription;
+        }
+        this.preferredDescriptionCache.put(preferredDescriptionKey, LatestVersion.empty());
+        return LatestVersion.empty();
+    }
+
     /**
      *
      * @see sh.isaac.api.coordinate.LanguageCoordinate#getDescription(int,
@@ -290,6 +364,7 @@ public class LanguageCoordinateImpl
     }
 
     public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
+        this.languageCoordinateUuid = null;
         this.descriptionTypeSpecPreferenceList = ArrayUtil.toSpecificationArray(descriptionTypePreferenceList);
         //Don't need to clear altDescriptionTypeListCache here, because its ignored anyway
     }
@@ -302,6 +377,7 @@ public class LanguageCoordinateImpl
      * @param descriptionTypeNidPreferenceList
      */
     public void setDescriptionTypePreferenceListRecursive(int[] descriptionTypeNidPreferenceList) {
+        this.languageCoordinateUuid = null;
         this.descriptionTypeSpecPreferenceList = ArrayUtil.toSpecificationArray(descriptionTypeNidPreferenceList);
         if (getNextProrityLanguageCoordinate().isPresent()) {
             ((LanguageCoordinateImpl) getNextProrityLanguageCoordinate().get()).setDescriptionTypePreferenceListRecursive(descriptionTypeNidPreferenceList);
@@ -309,6 +385,7 @@ public class LanguageCoordinateImpl
     }
 
     public void setDescriptionTypePreferenceListRecursive(ConceptSpecification[] descriptionTypeSpecPreferenceList) {
+        this.languageCoordinateUuid = null;
         this.descriptionTypeSpecPreferenceList = descriptionTypeSpecPreferenceList;
         if (getNextProrityLanguageCoordinate().isPresent()) {
             ((LanguageCoordinateImpl) getNextProrityLanguageCoordinate().get()).setDescriptionTypePreferenceListRecursive(descriptionTypeSpecPreferenceList);
@@ -327,15 +404,18 @@ public class LanguageCoordinateImpl
     }
 
     public void setDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceNidList) {
+        this.languageCoordinateUuid = null;
         this.dialectAssemblageSpecPreferenceList = ArrayUtil.toSpecificationArray(dialectAssemblagePreferenceNidList);
         altDescriptionTypeListCache.clear();
     }
 
     public void setLanguageConceptNid(int languageConceptNid) {
+        this.languageCoordinateUuid = null;
         this.languageConcept = Get.conceptSpecification(languageConceptNid);
     }
 
     public void setLanguageConcept(ConceptSpecification languageConcept) {
+        this.languageCoordinateUuid = null;
         this.languageConcept = languageConcept;
     }
 
@@ -347,6 +427,7 @@ public class LanguageCoordinateImpl
     }
     
     public void setDialectAssemblageSpecPreferenceList(ConceptSpecification[] dialectAssemblageSpecPreferenceList) {
+        this.languageCoordinateUuid = null;
         this.dialectAssemblageSpecPreferenceList = dialectAssemblageSpecPreferenceList;
     }
     
@@ -357,6 +438,7 @@ public class LanguageCoordinateImpl
         return descriptionTypeSpecPreferenceList;
     }
     public void setDescriptionTypeSpecPreferenceList(ConceptSpecification[] descriptionTypeSpecPreferenceList) {
+        this.languageCoordinateUuid = null;
         this.descriptionTypeSpecPreferenceList = descriptionTypeSpecPreferenceList;
     }
 
@@ -368,6 +450,7 @@ public class LanguageCoordinateImpl
     }
 
     public void setModuleSpecPreferenceListForLanguage(ConceptSpecification[] moduleSpecPreferenceList) {
+        this.languageCoordinateUuid = null;
         this.moduleSpecPreferenceList = moduleSpecPreferenceList;
     }
 
@@ -390,6 +473,7 @@ public class LanguageCoordinateImpl
 
     public ChangeListener<ObservableLanguageCoordinate> setNextProrityLanguageCoordinateProperty(
             ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty) {
+        this.languageCoordinateUuid = null;
 
         final ChangeListener<ObservableLanguageCoordinate> listener = (ObservableValue<? extends ObservableLanguageCoordinate> observable,
                 ObservableLanguageCoordinate oldValue,
@@ -440,6 +524,7 @@ public class LanguageCoordinateImpl
      * @param languageCoordinate the next coordinate to fall back to
      */
     public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
+        this.languageCoordinateUuid = null;
         this.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
         altDescriptionTypeListCache.clear();
     }

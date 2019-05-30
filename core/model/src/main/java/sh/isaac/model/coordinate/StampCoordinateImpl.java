@@ -123,11 +123,15 @@ public class StampCoordinateImpl
      */
     public StampCoordinateImpl() {
     }
+    UUID stampCoordinateUuid;
 
     @Override
     @XmlElement
     public UUID getStampCoordinateUuid() {
-        return StampCoordinate.super.getStampCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+        if (this.stampCoordinateUuid == null) {
+            this.stampCoordinateUuid = StampCoordinate.super.getStampCoordinateUuid();
+        }
+        return this.stampCoordinateUuid;
     }
     private void setStampCoordinateUuid(UUID uuid) {
         // noop for jaxb
@@ -297,6 +301,7 @@ public class StampCoordinateImpl
     }
 
     public void setModuleSpecifications(Set<ConceptSpecification> moduleSpecifications) {
+        this.stampCoordinateUuid = null;
         this.moduleSpecifications = moduleSpecifications;
     }
 
@@ -425,6 +430,7 @@ public class StampCoordinateImpl
     }
 
     public void setAllowedStates(EnumSet<Status> allowedStates) {
+        this.stampCoordinateUuid = null;
         this.allowedStates = allowedStates;
     }
 
@@ -436,6 +442,7 @@ public class StampCoordinateImpl
      * @return the set change listener
      */
     public SetChangeListener<Status> setAllowedStatesProperty(SetProperty<Status> allowedStatesProperty) {
+        this.stampCoordinateUuid = null;
         final SetChangeListener<Status> listener = (change) -> {
             if (change.wasAdded()) {
                 this.allowedStates.add(change.getElementAdded());
@@ -474,6 +481,7 @@ public class StampCoordinateImpl
     }
 
     public void setStampPosition(StampPosition stampPosition) {
+        this.stampCoordinateUuid = null;
         this.stampPosition = stampPosition;
     }
 
@@ -486,6 +494,7 @@ public class StampCoordinateImpl
      */
     public ChangeListener<ObservableStampPosition> setStampPositionProperty(
             ObjectProperty<ObservableStampPosition> stampPositionProperty) {
+        this.stampCoordinateUuid = null;
         final ChangeListener<ObservableStampPosition> listener = (observable, oldValue, newValue) -> {
             this.stampPosition = newValue;
         };
@@ -507,6 +516,7 @@ public class StampCoordinateImpl
     }
 
     public void setStampPrecedence(StampPrecedence stampPrecedence) {
+        this.stampCoordinateUuid = null;
         this.stampPrecedence = stampPrecedence;
     }
 
@@ -519,6 +529,7 @@ public class StampCoordinateImpl
      */
     public ChangeListener<StampPrecedence> setStampPrecedenceProperty(
             ObjectProperty<StampPrecedence> stampPrecedenceProperty) {
+        this.stampCoordinateUuid = null;
         final ChangeListener<StampPrecedence> listener = (observable, oldValue, newValue) -> {
             this.stampPrecedence = newValue;
         };
@@ -547,6 +558,7 @@ public class StampCoordinateImpl
     }
 
     public void setModulePreferenceOrderForVersions(List<ConceptSpecification> modulePriorityList) {
+        this.stampCoordinateUuid = null;
         this.modulePriorityList = modulePriorityList;
     }
     @Override
@@ -557,6 +569,7 @@ public class StampCoordinateImpl
     }
 
     public void setAuthorSpecifications(Set<ConceptSpecification> authorSpecifications) {
+        this.stampCoordinateUuid = null;
         this.authorSpecifications = authorSpecifications;
     }
 

@@ -615,9 +615,9 @@ public class CommitProvider
         }
    }
     /**
-     * Increment and get nid.
+     * Increment and get commit sequence.
      *
-     * @return the long
+     * @return the commit sequence
      */
     @Override
     public long incrementAndGetSequence() {

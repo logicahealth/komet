@@ -44,14 +44,21 @@ import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl implements ManifoldCoordinate, ObservableCoordinate {
 
-    SimpleObjectProperty<PremiseType> premiseTypeProperty = new SimpleObjectProperty<>(this, TermAux.PREMISE_TYPE_FOR_MANIFOLD.toExternalString(), PremiseType.INFERRED);
+    private SimpleObjectProperty<PremiseType> premiseTypeProperty = new SimpleObjectProperty<>(this, TermAux.PREMISE_TYPE_FOR_MANIFOLD.toExternalString(), PremiseType.INFERRED);
 
-    SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.STAMP_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
+    private SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.STAMP_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
 
-    SimpleObjectProperty<LetItemKey> languageCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
+    private SimpleObjectProperty<LetItemKey> languageCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
 
-    SimpleObjectProperty<LetItemKey> logicCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.LOGIC_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
-    
+    private SimpleObjectProperty<LetItemKey> logicCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.LOGIC_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
+
+    {
+        premiseTypeProperty.addListener(observable -> this.cachedUuid = null);
+        stampCoordinateKeyProperty.addListener(observable -> this.cachedUuid = null);
+        languageCoordinateKeyProperty.addListener(observable -> this.cachedUuid = null);
+        logicCoordinateKeyProperty.addListener(observable -> this.cachedUuid = null);
+    }
+
     Query query;
 
     public ManifoldCoordinateForQuery() {
@@ -73,11 +80,15 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
         }
     }
     
-    
+    private UUID cachedUuid;
+
    @Override
    @XmlElement
    public UUID getManifoldCoordinateUuid() {
-      return ManifoldCoordinate.super.getManifoldCoordinateUuid();
+       if (cachedUuid == null) {
+           cachedUuid = ManifoldCoordinate.super.getManifoldCoordinateUuid();
+       }
+       return cachedUuid;
    }
    
    @SuppressWarnings("unused")

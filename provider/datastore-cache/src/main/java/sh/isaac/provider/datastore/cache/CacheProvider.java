@@ -56,6 +56,7 @@ public class CacheProvider
         this.datastoreService = datastoreService;
         this.identifierService = identifierService;
         this.uuidIntMapMap = new UuidIntMapMapMemoryBased();
+        this.uuidIntMapMap.enableInverseCache();
         this.assemblageToObjectType_Map = new ConcurrentHashMap<>();
         this.assemblageToVersionType_Map = new ConcurrentHashMap<>();
         this.nidToAssemblageNidMap = new SpinedNidIntMap();
