@@ -225,14 +225,17 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         }
 
                         addDescription(loincRecord, longCommonName,
-                                TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
+                                TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, true);
+
+                        addDescription(loincRecord, longCommonName,
+                                TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, true);
 
                         String shortName = loincRecord[SHORTNAME];
                         if (shortName == null || shortName.isEmpty()) {
                             shortName = longCommonName + " with no sn";
                         }
 
-                        addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp);
+                        addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, false);
 
                         // make a LOINC semantic
                         UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
@@ -281,7 +284,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     }
 
     private void addDescription(String[] loincRecord, String description, ConceptSpecification descriptionType,
-            UUID conceptUuid, int recordStamp) {
+            UUID conceptUuid, int recordStamp, boolean preferredInDialect) {
 
         UUID descriptionUuid
                 = UuidT5Generator.get(MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(),
@@ -311,7 +314,12 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                 TermAux.US_DIALECT_ASSEMBLAGE.getNid(),
                 descriptionToWrite.getNid());
         ComponentNidVersionImpl dialectVersion = dialectToWrite.createMutableVersion(recordStamp);
-        dialectVersion.setComponentNid(TermAux.ACCEPTABLE.getNid());
+        if (preferredInDialect) {
+            dialectVersion.setComponentNid(TermAux.PREFERRED.getNid());
+        } else {
+            dialectVersion.setComponentNid(TermAux.ACCEPTABLE.getNid());
+        }
+
         index(dialectToWrite);
         assemblageService.writeSemanticChronology(dialectToWrite);
     }
