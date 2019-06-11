@@ -39,5 +39,9 @@ public class MenuItemForReturnSpecification extends MenuItem {
     private void addRow(ActionEvent action) {
         this.returnSpecificationRows.add(new AttributeSpecification(rowToAdd));
     }
-    
+
+    @Override
+    public String toString() {
+        return "MenuItemForReturnSpecification{" + getText() + '}';
+    }
 }

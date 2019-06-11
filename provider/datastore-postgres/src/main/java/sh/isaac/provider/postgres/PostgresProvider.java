@@ -47,6 +47,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.datastore.ChronologySerializeable;
+import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 import sh.isaac.api.externalizable.DataWriteListener;
@@ -55,18 +56,20 @@ import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
 import sh.isaac.model.taxonomy.TaxonomyRecord;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
+import sh.isaac.provider.datastore.cache.CacheBootstrap;
 
 /**
  *
  * @author kec
  */
 public class PostgresProvider
-    implements DataStoreSubService, IdentifierService { // ExtendedStore
+    implements DataStoreSubService, IdentifierService, CacheBootstrap { // ExtendedStore
 
     private static final Logger LOG = LogManager.getLogger();
     private static final boolean LOG_SQL_FLAG = false;
@@ -114,6 +117,10 @@ public class PostgresProvider
     //        uniformly populated during startup.
     @Override // DataStoreSubService
     public void startup() {
+        startup(this);
+    }
+
+    public void startup(DataStore store) {
         LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting Postgres provider");
         Get.executor().execute(progressTask);
         LOG.info("Starting PostgresProvider proceeding to (or at) runlevel: {}", LookupService.getProceedingToRunLevel());
@@ -270,7 +277,7 @@ public class PostgresProvider
             } finally {
                 LOG.info("Connection closed.");
             }
-            this.identifierProvider = new PostgresIdentifierProvider(this, this.ds);
+            this.identifierProvider = new PostgresIdentifierProvider(store, this.ds);
 
             this.identifierProvider.startMe();
         } finally {
@@ -286,6 +293,11 @@ public class PostgresProvider
         }
     }
 // Use inheritence for UUID nid tables... ? Similar to partition scheme?
+
+    @Override
+    public int getMaxNid() {
+        return this.identifierProvider.getMaxNid();
+    }
 
     String sqlCreateSemantic() {
         // if not exists partition, insert it. 
@@ -326,6 +338,9 @@ public class PostgresProvider
     String sqlReadAssemblageNidForObjectNid() {
         return "SELECT assemblage_nid FROM identified_objects_table "
             + "WHERE o_nid = ?; ";
+    }
+    String loadAssemblageNidForObjectNid() {
+        return "SELECT o_nid, assemblage_nid FROM identified_objects_table ORDER BY o_nid ASC;";
     }
 
     String sqlReadAssemblageNidsForAssemblageType() {
@@ -1032,5 +1047,23 @@ public class PostgresProvider
     @Override
     public void optimizeForOutOfOrderLoading() {
         this.identifierProvider.optimizeForOutOfOrderLoading();
+    }
+
+    @Override
+    public void loadAssemblageOfNid(SpinedNidIntMap nidToAssemblageNidMap) {
+        // Get the assemblage nid id that contains the identified object nid.
+        // param: nid The nid of the object to find the assemblage container for
+        // return: the assemblage nid that contains the nid
+        try (Connection conn = this.ds.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(loadAssemblageNidForObjectNid())) {
+            logSqlStmt(stmt);
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                while (resultSet.next()) {
+                    nidToAssemblageNidMap.put(resultSet.getInt(1), resultSet.getInt(2));
+                }
+            }
+        } catch (SQLException ex) {
+            LOG.error(ex.getLocalizedMessage(), ex);
+        }
     }
 }

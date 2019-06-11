@@ -53,6 +53,7 @@ import java.util.UUID;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -349,8 +350,8 @@ public class ConceptSnapshotImpl
    }
 
    @Override
-   public StampCoordinate getDestinationStampCoordinate() {
-      return this.manifoldCoordinate.getDestinationStampCoordinate();
+   public Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate() {
+      return this.manifoldCoordinate.getOptionalDestinationStampCoordinate();
    }
 
    @Override
@@ -424,6 +425,16 @@ public class ConceptSnapshotImpl
     @Override
     public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
         return manifoldCoordinate.getModuleSpecPreferenceListForLanguage();
+    }
+
+    @Override
+    public Set<ConceptSpecification> getAuthorSpecifications() {
+        return manifoldCoordinate.getAuthorSpecifications();
+    }
+
+    @Override
+    public NidSet getAuthorNids() {
+        return manifoldCoordinate.getAuthorNids();
     }
 }
 

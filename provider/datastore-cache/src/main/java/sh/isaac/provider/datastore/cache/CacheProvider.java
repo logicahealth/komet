@@ -6,13 +6,13 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.UuidIntMapMapFileBased;
 import sh.isaac.api.collections.UuidIntMapMapMemoryBased;
 import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.ModelGet;
@@ -20,11 +20,11 @@ import sh.isaac.model.collections.*;
 import sh.isaac.model.collections.store.ByteArrayArrayStoreProvider;
 import sh.isaac.model.collections.store.IntIntArrayStoreProvider;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.model.taxonomy.TaxonomyRecord;
 
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BinaryOperator;
 import java.util.stream.IntStream;
 
@@ -58,11 +58,16 @@ public class CacheProvider
         this.assemblageToObjectType_Map = new ConcurrentHashMap<>();
         this.assemblageToVersionType_Map = new ConcurrentHashMap<>();
         this.nidToAssemblageNidMap = new SpinedNidIntMap();
-        this.assemblageNids = this.identifierService.getAssemblageNids();
     }
 
     @Override
     public void startup() {
+        this.assemblageNids = this.identifierService.getAssemblageNids();
+        for (int assemblageNid: this.assemblageNids) {
+            this.assemblageToObjectType_Map.put(assemblageNid, this.datastoreService.getIsaacObjectTypeForAssemblageNid(assemblageNid));
+            this.assemblageToVersionType_Map.put(assemblageNid, this.datastoreService.getVersionTypeForAssemblageNid(assemblageNid));
+        }
+
     }
 
     @Override
@@ -81,6 +86,10 @@ public class CacheProvider
 
     }
 
+    @Override
+    public int getMaxNid() {
+        return this.identifierService.getMaxNid();
+    }
 
     @Override
     public void addUuidForNid(UUID uuid, int nid) {
@@ -152,7 +161,13 @@ public class CacheProvider
 
     @Override
     public IntStream getNidStreamOfType(IsaacObjectType objectType) {
-        return this.identifierService.getNidStreamOfType(objectType);
+        int maxNid = this.identifierService.getMaxNid();
+        NidSet allowedAssemblages = this.getAssemblageNidsForType(objectType);
+
+        return IntStream.rangeClosed(Integer.MIN_VALUE + 1, maxNid)
+                .filter((value) -> {
+                    return allowedAssemblages.contains(this.getAssemblageOfNid(value).orElseGet(() -> Integer.MAX_VALUE));
+                });
     }
 
     @Override
@@ -408,8 +423,26 @@ public class CacheProvider
         return semanticNids;
     }
 
+    AtomicBoolean startGetAssemblageForNids = new AtomicBoolean(true);
+    private class GetAssemblageForNids implements Runnable {
+
+        @Override
+        public void run() {
+            long startTime = System.currentTimeMillis();
+            CacheBootstrap cacheBootstrap = (CacheBootstrap) CacheProvider.this.datastoreService;
+            cacheBootstrap.loadAssemblageOfNid(nidToAssemblageNidMap);
+            LOG.info("Loaded nidToAssemblageNidMap in " + DurationUtil.msTo8601(System.currentTimeMillis() - startTime));
+        }
+    }
+
     @Override
     public OptionalInt getAssemblageOfNid(int nid) {
+        if (startGetAssemblageForNids.get()) {
+            if (startGetAssemblageForNids.getAndSet(false)) {
+                Get.executor().execute(new GetAssemblageForNids());
+            }
+        }
+
         int value = nidToAssemblageNidMap.get(nid);
         if (value != Integer.MAX_VALUE) {
             return OptionalInt.of(value);

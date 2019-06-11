@@ -39,6 +39,7 @@ package sh.isaac.model.configuration;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -84,7 +85,12 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	{
 		// only for HK2
 		LOG.info("Setting up Configuration Service");
-		dataStore = Get.service(MetaContentService.class).<String,Object>openStore("GlobalDatastoreConfig");
+		MetaContentService service = LookupService.getService(MetaContentService.class);
+		if (service != null) {
+			dataStore = Get.service(MetaContentService.class).<String,Object>openStore("GlobalDatastoreConfig");
+		} else {
+			dataStore = new ConcurrentHashMap<>();
+		}
 		//need to delay the init of the defaultCoordianteProvider till the identifier service is up (level 2) but
 		//want this service to be available for other config options before starting the DB....
 	}

@@ -94,6 +94,11 @@ public class PostgresIdentifierProvider
         this.ds = ds;
     }
 
+    @Override
+    public int getMaxNid() {
+        return uuidIntMapMap.getMaxNid();
+    }
+
     //~--- sql -----------------------------------------------------------------
     String sqlReadUuidAdditionalForNid() {
         return "SELECT ouid FROM uuid_additional_table "

@@ -53,7 +53,8 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
         NidSet childrenNids = new NidSet();
         for (LatestVersion<ComponentNidVersion> childSemantic: children) {
             childSemantic.ifPresent((semantic) -> {
-                if (Get.concept(semantic.getComponentNid()).getLatestVersion(manifoldCoordinate.getDestinationStampCoordinate()).isPresent()) {
+                if (manifoldCoordinate.getOptionalDestinationStampCoordinate().isPresent() &&
+                        Get.concept(semantic.getComponentNid()).getLatestVersion(manifoldCoordinate.getOptionalDestinationStampCoordinate().get()).isPresent()) {
                     childrenNids.add(semantic.getComponentNid());
                 }
             });
@@ -68,7 +69,8 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
         for (SearchResult match: matches) {
             int semanticNid = match.getNid();
             treeAssemblage.getLatestSemanticVersion(semanticNid).ifPresent((t) -> {
-                if (Get.concept(t.getReferencedComponentNid()).getLatestVersion(manifoldCoordinate.getDestinationStampCoordinate()).isPresent()) {
+                if (manifoldCoordinate.getOptionalDestinationStampCoordinate().isPresent() &&
+                        Get.concept(t.getReferencedComponentNid()).getLatestVersion(manifoldCoordinate.getOptionalDestinationStampCoordinate().get()).isPresent()) {
                     parentNids.add(t.getReferencedComponentNid());
                 }
             });
@@ -86,8 +88,8 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
         List<LatestVersion<ComponentNidVersion>> children = treeAssemblage.getLatestSemanticVersionsForComponentFromAssemblage(parentNid);
         for (LatestVersion<ComponentNidVersion> childSemantic: children) {
             if (childSemantic.isPresent()) {
-                if (childSemantic.get().getComponentNid() == childNid && 
-                        Get.concept(childSemantic.get().getComponentNid()).getLatestVersion(manifoldCoordinate.getDestinationStampCoordinate()).isPresent()) {
+                if (manifoldCoordinate.getOptionalDestinationStampCoordinate().isPresent() && childSemantic.get().getComponentNid() == childNid &&
+                        Get.concept(childSemantic.get().getComponentNid()).getLatestVersion(manifoldCoordinate.getOptionalDestinationStampCoordinate().get()).isPresent()) {
                     return true;
                 }
             }

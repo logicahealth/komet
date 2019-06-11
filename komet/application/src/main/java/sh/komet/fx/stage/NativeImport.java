@@ -57,35 +57,39 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
 
     @Override
     protected Integer call() throws Exception {
-        LOG.info(":TIME: Clearing table row data");
-        //serviceDataStore.clear();
-        //serviceId.clear();
-        //serviceStamp.clear();
+        try {
+            LOG.info(":TIME: Clearing table row data");
+            //serviceDataStore.clear();
+            //serviceId.clear();
+            //serviceStamp.clear();
 
-        int nidSequenceCurrVal = Integer.MIN_VALUE;
-        int stampSequenceCurrVal = 1;
+            int nidSequenceCurrVal = Integer.MIN_VALUE;
+            int stampSequenceCurrVal = 1;
 
-        File csvDir = new File("target", "csv");
-        csvDir.mkdirs();
+            File csvDir = new File("target", "csv");
+            csvDir.mkdirs();
 
-        try (ZipFile zipFile = new ZipFile(importFile, Charset.forName("UTF-8"))) {
+            try (ZipFile zipFile = new ZipFile(importFile, Charset.forName("UTF-8"))) {
 
-            updateTitle("Native import Identifiers...");
-            nidSequenceCurrVal = importIdentifiers(zipFile, csvDir);
-            updateTitle("Native import Assemblage Types ...");
-            importTypes(zipFile, csvDir);
-            updateTitle("Native import STAMP ...");
-            stampSequenceCurrVal = importStampSequences(zipFile, csvDir);
-            updateTitle("Native import Taxonomy...");
-            importTaxonomyData(zipFile, csvDir);
-            updateTitle("Native import Concepts and Semantics...");
-            importConceptsAndSemantics(zipFile, csvDir);
+                updateTitle("Native import Identifiers...");
+                nidSequenceCurrVal = importIdentifiers(zipFile, csvDir);
+                updateTitle("Native import Assemblage Types ...");
+                importTypes(zipFile, csvDir);
+                updateTitle("Native import STAMP ...");
+                stampSequenceCurrVal = importStampSequences(zipFile, csvDir);
+                updateTitle("Native import Taxonomy...");
+                importTaxonomyData(zipFile, csvDir);
+                updateTitle("Native import Concepts and Semantics...");
+                importConceptsAndSemantics(zipFile, csvDir);
+            }
+
+            LOG.info(":TIME: write load script");
+            writeSqlLoadScript(csvDir, nidSequenceCurrVal, stampSequenceCurrVal);
+            LOG.info(":TIME: NativeImport completed");
+            return 0;
+        } finally {
+            Get.activeTasks().remove(this);
         }
-
-        LOG.info(":TIME: write load script");
-        writeSqlLoadScript(csvDir, nidSequenceCurrVal, stampSequenceCurrVal);
-        LOG.info(":TIME: NativeImport completed");
-        return 0;
     }
 
     protected int importIdentifiers(ZipFile zipFile, File csvDir) throws IOException {

@@ -36,6 +36,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.contract.preferences.*;
 import sh.komet.gui.contract.preferences.WindowPreferenceItems;
 import sh.komet.gui.manifold.Manifold;
@@ -118,7 +119,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
                 scene.getStylesheets()
                         .add(FxGet.fxConfiguration().getUserCSSURL().toString());
                 scene.getStylesheets()
-                        .add(Iconography.getStyleSheetStringUrl());
+                        .add(IconographyHelper.getStyleSheetStringUrl());
             } catch (IOException ex) {
                 LOG.error(ex.getLocalizedMessage(), ex);
                 throw new RuntimeException(ex);

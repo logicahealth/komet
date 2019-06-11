@@ -43,9 +43,12 @@ package sh.isaac.api.commit;
 
 import java.time.Instant;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -54,8 +57,15 @@ import javafx.concurrent.Task;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatastoreServices;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
+import sh.isaac.api.VersionManagmentPathService;
+import sh.isaac.api.collections.IntSet;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.snapshot.calculator.RelativePosition;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -230,6 +240,37 @@ public interface StampService
     * @return an IntStream of all stamp sequences known to the commit service.
     */
    IntStream getStampSequences();
+   /**
+    * Return the set of stamps that are between the two stamp coordinates, where
+    * the returned values are exclusive of the start coordinate, and inclusive of the
+    * end coordinate. IF authors are specified on the endCoordinate, only stamps from those
+    * authors are included in the results.
+    *
+    * @param startCoordinate
+    * @param endCoordinate
+    * @return all stamps between the provided coordinates.
+    */
+   default StampSequenceSet getStampsBetweenCoordinates(StampCoordinate startCoordinate, StampCoordinate endCoordinate) {
+      StampSequenceSet matchingStamps = new StampSequenceSet();
+
+      VersionManagmentPathService positionCalc = Get.versionManagmentPathService();
+      NidSet authorNids = endCoordinate.getAuthorNids();
+      StampService stampService = Get.stampService();
+      getStampSequences().forEach(stamp -> {
+         if (positionCalc.getRelativePosition(stamp, startCoordinate) == RelativePosition.AFTER) {
+            RelativePosition relativeToEnd = positionCalc.getRelativePosition(stamp, endCoordinate);
+            if (relativeToEnd == RelativePosition.EQUAL || relativeToEnd == RelativePosition.BEFORE) {
+               if (authorNids.isEmpty()) {
+                  matchingStamps.add(stamp);
+               } else if (authorNids.contains(stampService.getAuthorNidForStamp(stamp))) {
+                   matchingStamps.add(stamp);
+               }
+            }
+         }
+      });
+      return matchingStamps;
+   }
+
 
    /**
     * Gets the status for stamp.
@@ -261,6 +302,6 @@ public interface StampService
     * @param stamp
     * @return
     */
-   public Stamp getStamp(int stamp);
+   Stamp getStamp(int stamp);
 }
 

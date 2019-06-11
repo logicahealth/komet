@@ -73,13 +73,19 @@ public interface ObservableStampCoordinate
     * @return the set property
     */
    SetProperty<Status> allowedStatesProperty();
-   
+
    /**
-    * 
+    *
     * @return the specified modules property
     */
    SetProperty<ConceptSpecification> moduleSpecificationsProperty();
-   
+
+   /**
+    *
+    * @return the specified authors property
+    */
+   SetProperty<ConceptSpecification> authorSpecificationsProperty();
+
    /**
     * Module preference list property.
     *
@@ -101,6 +107,6 @@ public interface ObservableStampCoordinate
    ObjectProperty<StampPrecedence> stampPrecedenceProperty();
    
    @Override
-   public ObservableStampCoordinate deepClone();
+   ObservableStampCoordinate deepClone();
 }
 

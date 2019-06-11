@@ -40,7 +40,6 @@ package sh.komet.gui.control.concept;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -48,7 +47,6 @@ import java.util.function.Supplier;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 
 import javafx.scene.control.ContextMenu;
@@ -58,15 +56,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
 
 import javafx.stage.WindowEvent;
 import org.controlsfx.property.editor.PropertyEditor;
@@ -74,16 +65,14 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
-import sh.komet.gui.drag.drop.DragImageMaker;
-import sh.komet.gui.drag.drop.IsaacClipboard;
+import sh.komet.gui.drag.drop.DragAndDropHelper;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
-import sh.isaac.api.component.semantic.SemanticChronology;
+
 import sh.isaac.api.docbook.DocBook;
 
 //~--- classes ----------------------------------------------------------------
@@ -100,6 +89,7 @@ public class ManifoldLinkedConceptLabel
     Consumer<ManifoldLinkedConceptLabel> descriptionTextUpdater;
     Background originalBackground;
     final Supplier<List<MenuItem>> menuSupplier;
+    final DragAndDropHelper dragAndDropHelper;
 
     //~--- constructors --------------------------------------------------------
     public ManifoldLinkedConceptLabel(Manifold manifold,
@@ -122,12 +112,16 @@ public class ManifoldLinkedConceptLabel
            this.descriptionTextUpdater.accept(this);
         }
         this.getStyleClass().add(CONCEPT_LABEL.toString());
-        this.setOnDragOver(this::handleDragOver);
-        this.setOnDragEntered(this::handleDragEntered);
-        this.setOnDragDetected(this::handleDragDetected);
-        this.setOnDragExited(this::handleDragExited);
-        this.setOnDragDropped(this::handleDragDropped);
-        this.setOnDragDone(this::handleDragDone);
+        this.dragAndDropHelper = new DragAndDropHelper(this, () -> {
+            if (manifold.getFocusedConcept().isPresent()) {
+                return Get.concept(manifold.getFocusedConcept().get());
+            }
+            return null;
+
+        } , this::setValue, mouseEvent -> true,
+                dragEvent -> true);
+
+
         this.setMinWidth(100);
 
         ContextMenu contextMenu = new ContextMenu();
@@ -289,108 +283,9 @@ public class ManifoldLinkedConceptLabel
         }
     }
 
-    private void handleDragDetected(MouseEvent event) {
-        System.out.println("Drag detected: " + event);
-
-        if (this.manifold.getFocusedConcept().isPresent()) {
-            DragImageMaker dragImageMaker = new DragImageMaker(this);
-            Dragboard db = this.startDragAndDrop(TransferMode.COPY);
-
-            db.setDragView(dragImageMaker.getDragImage());
-
-            /* put a string on dragboard */
-            IsaacClipboard content = new IsaacClipboard(Get.concept(this.manifold.getFocusedConcept().get()));
-            db.setContent(content);
-            event.consume();
-        }
-    }
-
-    private void handleDragDone(DragEvent event) {
-        System.out.println("Dragging done: " + event);
-        this.setBackground(originalBackground);
-        this.transferMode = null;
-    }
-
     public void setConceptChronology(ConceptChronology conceptChronology) {
         this.manifold
                 .setFocusedConceptChronology(conceptChronology);
-    }
-
-    private void handleDragDropped(DragEvent event) {
-        System.out.println("Dragging dropped: " + event);
-
-        unlink();
-
-        Dragboard db = event.getDragboard();
-
-        if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
-            ConceptChronology conceptChronology = Get.serializer()
-                    .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
-
-            this.manifold
-                    .setFocusedConceptChronology(conceptChronology);
-        } else if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
-            ConceptVersion conceptVersion = Get.serializer()
-                    .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
-
-            this.manifold
-                    .setFocusedConceptChronology(conceptVersion.getChronology());
-        } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
-            SemanticChronology semanticChronology = Get.serializer()
-                    .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
-
-            this.manifold
-                    .setFocusedConceptChronology(Get.conceptService()
-                            .getConceptChronology(semanticChronology.getReferencedComponentNid()));
-        } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
-            DescriptionVersion descriptionVersion = Get.serializer()
-                    .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
-
-            this.manifold
-                    .setFocusedConceptChronology(
-                            Get.conceptService()
-                                    .getConceptChronology(descriptionVersion.getReferencedComponentNid()));
-        }
-
-        this.setBackground(originalBackground);
-    }
-
-    private void handleDragEntered(DragEvent event) {
-        System.out.println("Dragging entered: " + event);
-        this.originalBackground = this.getBackground();
-
-        Color backgroundColor;
-        Set<DataFormat> contentTypes = event.getDragboard()
-                .getContentTypes();
-
-        if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.CONCEPT_TYPES)) {
-            backgroundColor = Color.AQUA;
-            this.transferMode = TransferMode.COPY_OR_MOVE;
-        } else if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.DESCRIPTION_TYPES)) {
-            backgroundColor = Color.OLIVEDRAB;
-            this.transferMode = TransferMode.COPY_OR_MOVE;
-        } else {
-            backgroundColor = Color.RED;
-            this.transferMode = null;
-        }
-
-        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
-
-        this.setBackground(new Background(fill));
-    }
-
-    private void handleDragExited(DragEvent event) {
-        System.out.println("Dragging exited: " + event);
-        this.setBackground(originalBackground);
-        this.transferMode = null;
-    }
-
-    private void handleDragOver(DragEvent event) {
-        // System.out.println("Dragging over: " + event );
-        if (this.transferMode != null) {
-            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-            event.consume();
-        }
     }
 
     //~--- set methods ---------------------------------------------------------

@@ -20,6 +20,11 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.transform.NonInvertibleTransformException;
 import sh.komet.gui.interfaces.DraggableWithImage;
 
@@ -31,15 +36,37 @@ public class DragImageMaker implements DraggableWithImage {
 
    private double dragOffset = 0;
 
-   Node node;
+   Region node;
 
-   public DragImageMaker(Node node) {
+   public DragImageMaker(Region node) {
       this.node = node;
    }
 
    @Override
    public Image getDragImage() {
       SnapshotParameters snapshotParameters = new SnapshotParameters();
+      Paint fill = null;
+      if (node.getBackground() == null && node.getParent() != null && node.getParent() instanceof Region) {
+         Background background = null;
+         Region parent = (Region) node.getParent();
+         while (background == null
+                 && parent != null
+                 && parent instanceof Region) {
+            background = parent.getBackground();
+            if (parent.getParent() instanceof Region) {
+               parent = (Region) parent.getParent();
+            } else {
+               parent = null;
+            }
+         }
+         if (background != null) {
+            if (!background.getFills().isEmpty()) {
+               BackgroundFill backgroundFill = background.getFills().get(0);
+               fill = backgroundFill.getFill();
+            }
+
+         }
+      }
 
       dragOffset = 0;
 
@@ -70,7 +97,9 @@ public class DragImageMaker implements DraggableWithImage {
          throw new RuntimeException(ex);
       }
       snapshotParameters.setViewport(new Rectangle2D(0, 0, width, height));
-      return node.snapshot(snapshotParameters, null);
+      snapshotParameters.setFill(fill);
+      Image snapshotImage = node.snapshot(snapshotParameters, null);
+      return snapshotImage;
    }
 
    @Override

@@ -30,6 +30,7 @@ import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
@@ -39,7 +40,7 @@ import static sh.isaac.komet.iconography.IconSource.*;
  *
  * @author kec
  */
-public enum Iconography {
+public enum Iconography implements Icons {
    
    
 //TODO make Iconagraphy a service/provider 
@@ -228,74 +229,29 @@ public enum Iconography {
       this.unicode = null;
    }
 
-   public ImageView getImageView() {
-       Node node = getIconographic();
-       node.applyCss();
-       SnapshotParameters snapshotParameters = new SnapshotParameters();
-       snapshotParameters.setViewport(new Rectangle2D(0, 0, node.getLayoutBounds().getWidth(), node.getLayoutBounds().getHeight()));
-       Image image = node.snapshot(snapshotParameters, null);
-       return new ImageView(image);
+   public String getCssClass() {
+      return cssClass;
    }
 
-   public Node getIconographic(double size) {
-      Node node = getIconographic();
-      StackPane.setMargin(node, new Insets(0,0,5,0));
-      StackPane stack = new StackPane(node);
-      stack.setMinSize(size, size);
-      stack.setMaxSize(size, size);
-      stack.setPrefSize(size, size);
-      return stack;
-   }
-   
-   public Node getIconographic() {
-      switch (source) {
-         case MATERIAL_DESIGNS_WEBFONT:
-            if (unicode != null) {
-               return new MaterialDesignIconView((MaterialDesignIcon) unicode).setStyleClass(cssClass);
-            }
-            return new MaterialDesignIconView().setStyleClass(cssClass);
-         case FONT_AWSOME:
-            if (unicode != null) {
-               return new FontAwesomeIconView((FontAwesomeIcon) unicode).setStyleClass(cssClass);
-            }
-            return new FontAwesomeIconView().setStyleClass(cssClass);
-         case SVG:
-            return new SvgIconographic().setStyleClass(cssClass);
-         case MATERIAL_ICON:
-            return new MaterialIconView().setStyleClass(cssClass);
-         case EMOJI_ONE:
-            return new EmojiOneView().setStyleClass(cssClass);
-         case ICONS_525:
-            return new Icons525View().setStyleClass(cssClass);
-         case OCT_ICON:
-            return new OctIconView().setStyleClass(cssClass);
-         default:
-            throw new UnsupportedOperationException("ao Can't handle: " + source);
-      }
+   public IconSource getSource() {
+      return source;
    }
 
-   public static ImageView getImage(String resourceLocation, int size) {
-      ImageView imageView = new ImageView(Iconography.class.getResource(resourceLocation).toString());
-      imageView.setPreserveRatio(true);
-      imageView.setFitHeight(size);
-      return imageView;
+   public Enum getUnicode() {
+      return unicode;
    }
-   
-   public static ImageView getImage(String resourceLocation) {
-      return new ImageView(Iconography.class.getResource(resourceLocation).toString());
+
+   @Override
+   public AnchorPane getStyledIconographic() {
+      Node icon = getIconographic();
+      AnchorPane.setTopAnchor(icon, 0.0);
+      AnchorPane.setRightAnchor(icon, 0.0);
+      AnchorPane.setBottomAnchor(icon, 0.0);
+      AnchorPane.setLeftAnchor(icon, 0.0);
+      AnchorPane anchorPane = new AnchorPane(icon);
+      anchorPane.getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
+      return anchorPane;
    }
-   public static String getStyleSheetStringUrl() {
-      return Iconography.class.getResource("/sh/isaac/komet/iconography/Iconography.css").toString();
-   }
-   
-   public static Node combine(Iconography... icons) {
-      HBox hbox = new HBox(1);
-      hbox.getStyleClass().add("hbox");
-      for (Iconography icon: icons) {
-         hbox.getChildren().add(icon.getIconographic());
-      }
-      return hbox;
-   }
-   
+
    static boolean fontsLoaded = LoadFonts.load();
 }

@@ -49,6 +49,8 @@ import javafx.beans.property.ObjectProperty;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
+import java.util.Optional;
+
 //~--- interfaces -------------------------------------------------------------
 
 /**
@@ -94,13 +96,13 @@ public interface ObservableManifoldCoordinate
    public ObservableStampCoordinate getStampCoordinate();
    
    /**
-    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getDestinationStampCoordinate()
+    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getOptionalDestinationStampCoordinate()
     */
    @Override
-   public ObservableStampCoordinate getDestinationStampCoordinate();
+   public Optional<? extends ObservableStampCoordinate> getOptionalDestinationStampCoordinate();
    
    /**
-    * @return An observable version of {@link #getDestinationStampCoordinate()}
+    * @return An observable version of {@link #getOptionalDestinationStampCoordinate()}
     */
    public ObjectProperty<ObservableStampCoordinate> destinationStampCoordinateProperty();
 

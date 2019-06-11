@@ -422,7 +422,9 @@ public abstract class ChronologyImpl
         if (this.committedVersions.isEmpty() && this.uncommittedVersions.isEmpty()) {
            throw new IllegalStateException();
         }
-        ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), this.getVersionType());
+        if (data.isExternalData()) {
+            ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), this.getVersionType());
+        }
 
     }
     

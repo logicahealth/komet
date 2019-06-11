@@ -189,11 +189,14 @@ public class KometBaseMenus implements MenuProvider {
                 MenuItem importNative = new MenuItem("Native format file to CSV...");
                 importNative.setOnAction(this::importNative);
 
+                MenuItem splitChangeSet = new MenuItem("Split change set...");
+                splitChangeSet.setOnAction(this::splitChangeSet);
+
                 MenuItem executeFlwor = new MenuItem("Execute FLWOR...");
                 executeFlwor.setOnAction(this::executeFlwor);
 
                 return new MenuItem[]{selectiveImport, selectiveExport, importTransformFull,
-                    importSourcesFull, synchronize, exportNative, importNative, executeFlwor};
+                    importSourcesFull, synchronize, exportNative, importNative, splitChangeSet, executeFlwor};
             }
 
             case TOOLS: {
@@ -282,6 +285,17 @@ public class KometBaseMenus implements MenuProvider {
             Get.executor().submit(importFile);
         }
 
+    }
+
+    private void splitChangeSet(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Specify change set to split");
+        fileChooser.setInitialFileName("changeset.ibdf");
+        File zipFile = fileChooser.showOpenDialog(null);
+        if (zipFile != null) {
+            SplitChangeSet changeSet = new SplitChangeSet(zipFile);
+            Get.executor().submit(changeSet);
+        }
     }
 
     private void executeFlwor(ActionEvent event) {

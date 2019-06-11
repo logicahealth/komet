@@ -810,7 +810,8 @@ public class FileSystemDataStore
          if (elementSequence != Integer.MAX_VALUE) {
             return elementSequence;
          }
-         return getElementSequenceForNid(nid, ModelGet.identifierService().getAssemblageNid(nid).orElseThrow(() -> new RuntimeException("No assemblage nid available for " + nid 
+         return getElementSequenceForNid(nid, ModelGet.identifierService().getAssemblageNid(nid).orElseThrow(() ->
+                 new RuntimeException("No assemblage nid available for " + nid
                + " " + Get.identifierService().getUuidPrimordialForNid(nid))));
       }
    

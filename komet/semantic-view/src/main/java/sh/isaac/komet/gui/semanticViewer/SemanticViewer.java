@@ -122,6 +122,7 @@ import sh.isaac.komet.gui.semanticViewer.cells.StatusCell;
 import sh.isaac.komet.gui.semanticViewer.cells.StringCell;
 import sh.isaac.komet.gui.util.TableHeaderRowTooltipInstaller;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
@@ -673,7 +674,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
 		stage.setTitle("Semantic View");
-		stage.getScene().getStylesheets().add(Iconography.getStyleSheetStringUrl());
+		stage.getScene().getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
 		stage.getScene().getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
 		stage.setWidth(800);
 		stage.setHeight(600);

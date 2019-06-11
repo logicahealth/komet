@@ -25,6 +25,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
@@ -64,7 +65,7 @@ public class StatementView {
             scene.getStylesheets()
                 .add(FxGet.fxConfiguration().getUserCSSURL().toString());
             scene.getStylesheets()
-                .add(Iconography.getStyleSheetStringUrl());
+                .add(IconographyHelper.getStyleSheetStringUrl());
 
         } catch (IOException ex) {
             throw new RuntimeException(ex);

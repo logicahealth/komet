@@ -39,15 +39,13 @@
 
 package sh.isaac.model.coordinate;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import javax.xml.bind.annotation.XmlElement;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
@@ -306,11 +304,11 @@ public class ManifoldCoordinateImpl
    }
 
    /**
-    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getDestinationStampCoordinate()
+    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getOptionalDestinationStampCoordinate()
     */
    @Override
-   public StampCoordinate getDestinationStampCoordinate() {
-      return destinationStampCoordinate;
+   public Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate() {
+      return Optional.of(destinationStampCoordinate);
    }
 
    /**
@@ -379,4 +377,14 @@ public class ManifoldCoordinateImpl
          return ManifoldCoordinate.super.sortConcepts(concepts);
       }
    }
+
+    @Override
+    public Set<ConceptSpecification> getAuthorSpecifications() {
+        return getStampCoordinate().getAuthorSpecifications();
+    }
+
+    @Override
+    public NidSet getAuthorNids() {
+        return getStampCoordinate().getAuthorNids();
+    }
 }

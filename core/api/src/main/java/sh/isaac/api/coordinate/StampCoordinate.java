@@ -150,7 +150,7 @@ public interface StampCoordinate
    
    
    @Override
-   public StampCoordinate deepClone();
+   StampCoordinate deepClone();
    
    /**
     * Create a new Stamp Coordinate identical to the this coordinate, but with the modules modified.
@@ -159,6 +159,24 @@ public interface StampCoordinate
     * supplied modules should replace the existing modules
     * @return the new coordinate
     */
-   public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add);
+    StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add);
+
+    /**
+     * An empty list is a wild-card, and should match all authors. If there are
+     * one or more authors specified, only those authors will be included
+     * in the results.
+     * @return the set of authors to include in results based on this
+     * stamp coordinate.
+     */
+    Set<ConceptSpecification> getAuthorSpecifications();
+
+    /**
+     * An empty array is a wild-card, and should match all modules. If there are
+     * one or more author nids specified, only those authors will be included
+     * in the results.
+     * @return the set of author nids to include in results based on this
+     * stamp coordinate.
+     */
+    NidSet getAuthorNids();
 }
 

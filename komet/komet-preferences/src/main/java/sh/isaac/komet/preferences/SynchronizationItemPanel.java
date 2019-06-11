@@ -19,6 +19,7 @@ package sh.isaac.komet.preferences;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -77,22 +78,23 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
     private final StringProperty gitPassword = new SimpleStringProperty(this, ObservableFields.GIT_PASSWORD.toExternalString());
     private final StringProperty gitUrl = new SimpleStringProperty(this, ObservableFields.GIT_URL.toExternalString());
     private final StringProperty localFolder = new SimpleStringProperty(this, ObservableFields.GIT_LOCAL_FOLDER.toExternalString());
+    private final StringProperty localFolderAbsolutePath = new SimpleStringProperty(this, ObservableFields.GIT_LOCAL_FOLDER.toExternalString());
     private final String[] folderOptions;
     Button initializeButton = new Button("Initialize");
     {
         initializeButton.setOnAction((event) -> {
             try {
                 SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                DirectoryUtil.cleanDirectory(localFolder.get());
-                syncService.setRootLocation(new File(localFolder.get()));
+                DirectoryUtil.cleanDirectory(localFolderAbsolutePath.get());
+                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
                 syncService.linkAndFetchFromRemote(gitUrl.get(), gitUserName.get(), gitPassword.get().toCharArray());
                 setupSyncButtons();
-                if (localFolder.get().endsWith("preferences")) { 
-                    File from = new File(localFolder.get() + "/sh/isaac/komet/preferences/Change sets");
-                    File to = new File(localFolder.get() + "/sh/isaac/komet/preferences/" + SYNCHRONIZATION_ITEMS_GROUP_NAME);
+                if (localFolderAbsolutePath.get().endsWith("preferences")) {
+                    File from = new File(localFolderAbsolutePath.get() + "/sh/isaac/komet/preferences/Change sets");
+                    File to = new File(localFolderAbsolutePath.get() + "/sh/isaac/komet/preferences/" + SYNCHRONIZATION_ITEMS_GROUP_NAME);
                     DirectoryUtil.moveDirectory(from.toPath(), to.toPath());
                     FxGet.kometPreferences().reloadPreferences();
-                } else if (localFolder.get().endsWith("changesets")) {
+                } else if (localFolderAbsolutePath.get().endsWith("changesets")) {
                     LOG.info("Reading all synchronized changeset files");
                     int loaded = LookupService.get().getService(ChangeSetLoadService.class).readChangesetFiles();
                     LOG.info("Read {} changeset files", loaded);
@@ -108,7 +110,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         pushButton.setOnAction((event) -> {
             try {
                 SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                syncService.setRootLocation(new File(localFolder.get()));
+                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
                 syncService.updateCommitAndPush("Push commit", gitUserName.get(), 
                         gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
                 setupSyncButtons();
@@ -124,7 +126,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         pullButton.setOnAction((event) -> {
             try {
                 SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                syncService.setRootLocation(new File(localFolder.get()));
+                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
                 syncService.updateFromRemote(gitUserName.get(), 
                         gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
                 setupSyncButtons();
@@ -152,11 +154,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
         });
-        if (Files.exists(Paths.get("target"))) {
-            folderOptions = new String[] {"target/data/isaac.data/changesets", "target/data/isaac.data/preferences"};
-        } else {
-            folderOptions = new String[] {"data/isaac.data/changesets", "data/isaac.data/preferences"};
-        }        
+        folderOptions = new String[] {"changesets", "preferences"};
         revertFields();
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
@@ -169,13 +167,19 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         setupSyncButtons();
         localFolder.addListener((observable, oldValue, newValue) -> {
             setupSyncButtons();
+            setAbsolutePath(newValue);
         });
         
     }
-    
+
+    private void setAbsolutePath(String newValue) {
+        Path absolutePath = Paths.get(Get.configurationService().getDataStoreFolderPath().toString(), newValue);
+        localFolderAbsolutePath.setValue(absolutePath.toAbsolutePath().toString());
+    }
+
     private void setupSyncButtons() {
-        if (activeProperty.get() && new File(localFolder.get()).exists()) {
-            if (new File(localFolder.get(), ".git").exists()) {
+        if (activeProperty.get() && new File(localFolderAbsolutePath.get()).exists()) {
+            if (new File(localFolderAbsolutePath.get(), ".git").exists()) {
                 initializeButton.setDisable(true);
                 pushButton.setDisable(false);
                 pullButton.setDisable(false);
@@ -225,6 +229,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         getPreferencesNode().putPassword(GIT_PASSWORD, gitPassword.get().toCharArray());
         getPreferencesNode().put(GIT_URL, gitUrl.get());
         getPreferencesNode().put(GIT_LOCAL_FOLDER, localFolder.get());
+        setAbsolutePath(localFolder.get());
         setupSyncButtons();
     }
 
@@ -237,6 +242,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         gitPassword.set(new String(getPreferencesNode().getPassword(GIT_PASSWORD, "password".toCharArray())));
         gitUrl.set(getPreferencesNode().get(GIT_URL, "https://bitbucket.org/account/repo.git"));
         localFolder.set(getPreferencesNode().get(GIT_LOCAL_FOLDER, folderOptions[0]));
+        setAbsolutePath(localFolder.get());
         setupSyncButtons();
     }
 

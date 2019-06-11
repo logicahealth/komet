@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
 		<artifactId>misc</artifactId>
-		<version>5.0.0-SNAPSHOT</version>
+		<version>5.1.1-SNAPSHOT</version>
 	</parent>
 	<groupId>sh.isaac.misc</groupId>
 	<artifactId>importers</artifactId>
@@ -55,12 +55,10 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
-			<optional>true</optional> <!-- Don't bring in sub-dependencies -->
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
 			<artifactId>maven-plugin-annotations</artifactId>
-			<optional>true</optional> <!-- Don't bring in sub-dependencies -->
 		</dependency>
 		<dependency>
 			<groupId>org.testng</groupId>
@@ -86,6 +84,13 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<!-- This gets us nice console logging, so long as we are running ad-hoc tests from the src/test/java package -->
+		<dependency>
+			<groupId>sh.isaac.core</groupId>
+			<artifactId>log-config</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.antlr</groupId>
@@ -116,7 +121,6 @@
 						</goals>
 						<configuration>
 							<schemaDirectory>${project.basedir}/src/main/resources/cvx</schemaDirectory>
-							<packageLevelAnnotations>false</packageLevelAnnotations> <!-- Some god-awful bug in the JDK11  https://stackoverflow.com/questions/52157040/jaxb-package-info-ignored-when-using-java-10 -->
 							<schemaIncludes>
 								<include>CVX_version1.xsd</include>
 							</schemaIncludes>
@@ -131,7 +135,6 @@
 						</goals>
 						<configuration>
 							<schemaDirectory>${project.basedir}/src/main/resources/mvx</schemaDirectory>
-							<packageLevelAnnotations>false</packageLevelAnnotations> <!-- Some god-awful bug in the JDK11  https://stackoverflow.com/questions/52157040/jaxb-package-info-ignored-when-using-java-10 -->
 							<schemaIncludes>
 								<include>MVX_version1.xsd</include>
 							</schemaIncludes>
@@ -145,8 +148,7 @@
 						</goals>
 						<configuration>
 							<generatePackage>coreschema</generatePackage>
-							<schemaDirectory>src/main/resources/hl7v3/datatypes</schemaDirectory>
-							<packageLevelAnnotations>false</packageLevelAnnotations> <!-- Some god-awful bug in the JDK11  https://stackoverflow.com/questions/52157040/jaxb-package-info-ignored-when-using-java-10 -->
+							<schemaDirectory>${project.basedir}/src/main/resources/hl7v3/datatypes</schemaDirectory>
 							<schemaIncludes>
 								<include>hl7-r2_datatypes.xsd</include>
 							</schemaIncludes>
@@ -159,8 +161,7 @@
 						<id>mif</id>
 						<configuration>
 							<generatePackage>mifschema</generatePackage>
-							<schemaDirectory>src/main/resources/hl7v3/mif</schemaDirectory>
-							<packageLevelAnnotations>false</packageLevelAnnotations> <!-- Some god-awful bug in the JDK11  https://stackoverflow.com/questions/52157040/jaxb-package-info-ignored-when-using-java-10 -->
+							<schemaDirectory>${project.basedir}/src/main/resources/hl7v3/mif</schemaDirectory>
 							<schemaIncludes>
 								<include>xhtml1-strict.xsd</include>
 								<include>mif-COMPLETE.xsd</include>
@@ -169,6 +170,22 @@
 					</execution>
 				</executions>
 			</plugin>
+			
+			<!-- Mark this project as a maven mojo -->
+            <plugin>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>mojo-descriptor</id>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                        <configuration>
+                            <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>
