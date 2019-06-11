@@ -566,6 +566,7 @@ public class CommitProvider
     @Override
     public void postProcessImportNoChecks() {
         final Set<Integer> nids = this.deferredImportNoCheckNids.getAndSet(new ConcurrentSkipListSet<>());
+        ArrayList<Exception> exceptions = new ArrayList<>();
         if (nids != null) {
             LOG.info("Post processing import. Deferred set size: " + nids.size());
 
@@ -578,7 +579,12 @@ public class CommitProvider
                             .getSemanticChronology(nid);
 
                     if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
-                        Get.taxonomyService().updateTaxonomy(sc);
+                        try {
+                            Get.taxonomyService().updateTaxonomy(sc);
+                        } catch (RuntimeException e) {
+                            LOG.error("While processing: " + sc, e);
+                            exceptions.add(e);
+                        }
                     }
                 } else {
                     throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
@@ -607,6 +613,7 @@ public class CommitProvider
                     f.get();
                 } catch (InterruptedException | ExecutionException e) {
                     LOG.error("Unexpected error waiting for index update", e);
+                    exceptions.add(e);
                 }
             }
 
@@ -614,10 +621,15 @@ public class CommitProvider
                 try {
                     ibs.sync().get();
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    LOG.error("Error rebuilding indexes!", e);
+                    exceptions.add(e);
                 }
             }
             LOG.info("Post processing import complete");
+        }
+       if (exceptions.size() > 0) {
+            LOG.error("Encountered {} errors during postProcessImportNoChecks", exceptions.size());
+            throw new RuntimeException("Errors during import!", exceptions.get(0));
         }
     }
 
