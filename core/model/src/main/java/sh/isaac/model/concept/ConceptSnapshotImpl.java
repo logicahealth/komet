@@ -350,8 +350,8 @@ public class ConceptSnapshotImpl
    }
 
    @Override
-   public Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate() {
-      return this.manifoldCoordinate.getOptionalDestinationStampCoordinate();
+   public StampCoordinate getDestinationStampCoordinate() {
+      return this.manifoldCoordinate.getDestinationStampCoordinate();
    }
 
    @Override

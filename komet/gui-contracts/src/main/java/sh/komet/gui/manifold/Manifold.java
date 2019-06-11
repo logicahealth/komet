@@ -419,8 +419,8 @@ public class Manifold
    }
    
    @Override
-   public Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate() {
-      return this.observableManifoldCoordinate.getOptionalDestinationStampCoordinate();
+   public StampCoordinate getDestinationStampCoordinate() {
+      return this.observableManifoldCoordinate.getDestinationStampCoordinate();
    }
 
     public void addEditInFlight(EditInFlight editInFlight) {

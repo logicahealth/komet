@@ -17,7 +17,6 @@
 package sh.isaac.api.query;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import javafx.beans.property.SimpleObjectProperty;
@@ -162,8 +161,12 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     }
     
     @Override
-    public Optional<StampCoordinate> getOptionalDestinationStampCoordinate() {
-        return Optional.empty();
+    /**
+     * Note, ManifoldCoordinateForQuery doesn't support distinct destination stamp coordinates.  This always returns
+     * {@link #getStampCoordinate()}
+     */
+    public StampCoordinate getDestinationStampCoordinate() {
+        return getStampCoordinate();
     }
 
     @Override

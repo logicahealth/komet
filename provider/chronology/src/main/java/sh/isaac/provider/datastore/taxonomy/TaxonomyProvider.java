@@ -449,7 +449,7 @@ public class TaxonomyProvider
         public SnapshotCacheKey(ManifoldCoordinate mc) {
             this.taxPremiseType = mc.getTaxonomyPremiseType();
             this.stampCoordinate = mc.getStampCoordinate();
-            this.destinationCoordinate = mc.getOptionalDestinationStampCoordinate().get();
+            this.destinationCoordinate = mc.getDestinationStampCoordinate();
             customSortHash = mc.getCustomTaxonomySortHashCode();
         }
 
@@ -652,7 +652,7 @@ public class TaxonomyProvider
             }
             
             //filter out destinations that don't match the coordinate
-            if (Get.conceptService().getConceptChronology(childId).getLatestVersion(manifoldCoordinate.getOptionalDestinationStampCoordinate().get()).isAbsent()) {
+            if (Get.conceptService().getConceptChronology(childId).getLatestVersion(manifoldCoordinate.getDestinationStampCoordinate()).isAbsent()) {
                 return false;
             }
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);

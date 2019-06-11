@@ -78,9 +78,7 @@ public interface ManifoldCoordinate
        uuidList.add(getStampCoordinateUuid());
        uuidList.add(getLanguageCoordinateUuid());
        uuidList.add(getLogicCoordinateUuid());
-       if (getOptionalDestinationStampCoordinate().isPresent()) {
-           uuidList.add(getOptionalDestinationStampCoordinate().get().getStampCoordinateUuid());
-       }
+       uuidList.add(getDestinationStampCoordinate().getStampCoordinateUuid());
        return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
    }
     
@@ -103,7 +101,7 @@ public interface ManifoldCoordinate
    PremiseType getTaxonomyPremiseType();
    
    /**
-    * @return The optional destination stamp coordinate,
+    * @return The destination stamp coordinate,
     * 
     * In most cases, this coordinate will be the same object that is returned by {@link #getStampCoordinate()}, 
     * But, it may be a different coordinate, depending on the construction - for example, a use case like returning inactive concepts
@@ -112,7 +110,7 @@ public interface ManifoldCoordinate
     * This coordinate is used on the destination concepts in taxonomy operations, while {@link #getStampCoordinate()} is used 
     * on the relationships themselves.
     */
-   Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate();
+   StampCoordinate getDestinationStampCoordinate();
 
    /**
     * Gets the uuid.

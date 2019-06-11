@@ -256,8 +256,8 @@ public class TaxonomyRecord {
             NidSet typeSequenceSet,
             ManifoldCoordinate mc) {
 
-        if (mc.getOptionalDestinationStampCoordinate().isPresent() && this.conceptNidRecordMap.containsKey(conceptNid) &&
-                Get.concept(conceptNid).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+        if (this.conceptNidRecordMap.containsKey(conceptNid) &&
+                Get.concept(conceptNid).getLatestVersion(mc.getDestinationStampCoordinate()).isPresent()) {
             return this.conceptNidRecordMap.get(conceptNid)
                     .containsConceptNidViaType(typeSequenceSet, mc, RelativePositionCalculator.getCalculator(mc.getStampCoordinate()));
         }
@@ -275,8 +275,8 @@ public class TaxonomyRecord {
      */
     public boolean containsConceptNidViaType(int conceptNid, int typeSequence, ManifoldCoordinate mc) {
 
-        if (mc.getOptionalDestinationStampCoordinate().isPresent() && this.conceptNidRecordMap.containsKey(conceptNid) &&
-                Get.concept(conceptNid).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+        if (this.conceptNidRecordMap.containsKey(conceptNid) &&
+                Get.concept(conceptNid).getLatestVersion(mc.getDestinationStampCoordinate()).isPresent()) {
             return this.conceptNidRecordMap.get(conceptNid)
                     .containsConceptNidViaType(typeSequence, mc, RelativePositionCalculator.getCalculator(mc.getStampCoordinate()));
         }
@@ -298,8 +298,8 @@ public class TaxonomyRecord {
             ManifoldCoordinate mc,
             int flags) {
 
-        if (mc.getOptionalDestinationStampCoordinate().isPresent() && this.conceptNidRecordMap.containsKey(conceptNid) &&
-                Get.concept(conceptNid).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+        if (this.conceptNidRecordMap.containsKey(conceptNid) &&
+                Get.concept(conceptNid).getLatestVersion(mc.getDestinationStampCoordinate()).isPresent()) {
             return this.conceptNidRecordMap.get(conceptNid)
                     .containsConceptNidViaType(typeSequenceSet, flags, RelativePositionCalculator.getCalculator(mc.getStampCoordinate()));
         }
@@ -536,8 +536,8 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (mc.getOptionalDestinationStampCoordinate().isPresent() &&computer.isLatestActive(stampsForConceptIntStream.keys().elements()) &&
-                    Get.concept(possibleParentSequence).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+            if (computer.isLatestActive(stampsForConceptIntStream.keys().elements()) &&
+                    Get.concept(possibleParentSequence).getLatestVersion(mc.getDestinationStampCoordinate()).isPresent()) {
                 conceptSequencesForTypeSet.add(possibleParentSequence);
             }
 
@@ -597,8 +597,8 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (mc.getOptionalDestinationStampCoordinate().isPresent() &&computer.isLatestActive(stampsForConceptIntStream.keys().elements()) &&
-                    Get.concept(destinationConceptNid).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+            if (computer.isLatestActive(stampsForConceptIntStream.keys().elements()) &&
+                    Get.concept(destinationConceptNid).getLatestVersion(mc.getDestinationStampCoordinate()).isPresent()) {
                 conceptNidIntSet.add(destinationConceptNid);
             }
 
@@ -664,9 +664,9 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (mc.getOptionalDestinationStampCoordinate().isPresent() && computer.isLatestActive(stampsForConceptIntSet.keys().elements()) &&
+            if (computer.isLatestActive(stampsForConceptIntSet.keys().elements()) &&
                     Get.conceptService().getConceptChronology(destinationConceptNid).getLatestVersion(
-                            mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+                            mc.getDestinationStampCoordinate()).isPresent()) {
                 conceptNidIntSet.add(destinationConceptNid);
             }
 
@@ -711,9 +711,9 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (mc.getOptionalDestinationStampCoordinate().isPresent() && computer.isLatestActive(stampsForConceptIntSet.keys().elements()) &&
+            if (computer.isLatestActive(stampsForConceptIntSet.keys().elements()) &&
                     Get.conceptService().getConceptChronology(destinationConceptNid).getLatestVersion(
-                            mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+                            mc.getDestinationStampCoordinate()).isPresent()) {
                 found.set(true);
                 return false;  //this value is ignored, stupid hack to break out of forEach
             }
@@ -756,7 +756,7 @@ public class TaxonomyRecord {
         final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc.getStampCoordinate());
         final OpenIntHashSet typeSequenceIntSet = new OpenIntHashSet();
 
-        if (mc.getOptionalDestinationStampCoordinate().isPresent() && Get.concept(destinationId).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isAbsent()) {
+        if (Get.concept(destinationId).getLatestVersion(mc.getDestinationStampCoordinate()).isAbsent()) {
            //destinations that aren't available can't have a rel
            return new int[0];
         }
