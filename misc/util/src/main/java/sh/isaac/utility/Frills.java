@@ -2117,7 +2117,7 @@ public class Frills
                                            stampCoordinate.getStampPrecedence(),
                                                  stampPosition,
                                                  stampCoordinate.getModuleSpecifications(),
-                                                 new ArrayList(),
+                                                 new ArrayList<>(),
                                                  stampCoordinate.getAllowedStates());
 
       if (temp.getModuleNids()
@@ -2389,7 +2389,7 @@ public class Frills
       vhatModules.forEach((moduleNid) -> {
           vhatModulesConceptSpecSet.add(Get.conceptSpecification(moduleNid));
        });
-      final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, vhatModulesConceptSpecSet, new ArrayList(), Status.ACTIVE_ONLY_SET);
+      final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, vhatModulesConceptSpecSet, new ArrayList<>(), Status.ACTIVE_ONLY_SET);
 
       final Set<Integer> matchingVuidSemanticNids = new HashSet<>();
 

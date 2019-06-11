@@ -132,7 +132,6 @@ import sh.isaac.api.query.Query;
 import sh.isaac.api.query.SortSpecification;
 import sh.isaac.api.query.clauses.*;
 import sh.isaac.api.util.NaturalOrder;
-import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.xml.Jaxb;
@@ -278,7 +277,7 @@ public class FLWORQueryController
 
     private LetItemsController letItemsController;
     private Query query;
-    private final List<AttributeSpecification> resultColumns = new ArrayList();
+    private final List<AttributeSpecification> resultColumns = new ArrayList<>();
 
     ObservableList<JoinProperty> joinProperties = FXCollections.observableArrayList();
 
