@@ -461,18 +461,20 @@ public abstract class LuceneIndexer
             bqParts.add(buildPrefixQuery(query, field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer()), Occur.SHOULD);
             booleanQueryBuilder.add(bqParts.build(), Occur.MUST);
          } else {
+            BooleanQuery.Builder bqParts = new BooleanQuery.Builder();
+            
             final QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
 
             qp1.setAllowLeadingWildcard(true);
-            booleanQueryBuilder.add(qp1.parse(query), Occur.SHOULD);
+            bqParts.add(qp1.parse(query), Occur.SHOULD);
 
             final QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                                     new PerFieldAnalyzer());
 
             qp2.setAllowLeadingWildcard(true);
-            booleanQueryBuilder.add(qp2.parse(query), Occur.SHOULD);
+            bqParts.add(qp2.parse(query), Occur.SHOULD);
+            booleanQueryBuilder.add(bqParts.build(), Occur.MUST);
          }
-
          
          final BooleanQuery wrap = new BooleanQuery.Builder().add(booleanQueryBuilder.build(), Occur.MUST).build();
          return wrap;

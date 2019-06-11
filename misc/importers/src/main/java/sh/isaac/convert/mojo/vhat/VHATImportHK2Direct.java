@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
@@ -183,7 +184,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.VHAT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 					"VHAT", true);
 			
-			setupModule("VHAT", MetaData.VHAT_MODULES____SOLOR.getPrimordialUuid(), time);
+			setupModule("VHAT", MetaData.VHAT_MODULES____SOLOR.getPrimordialUuid(), Optional.empty(), time);
 			
 			//Set up our metadata hierarchy
 			dwh.makeMetadataHierarchy(true, true, true, true, true, true, time);

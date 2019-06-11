@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -36,8 +35,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
@@ -97,16 +94,46 @@ public class DescriptionIndexer extends LuceneIndexer
    /** The desc extended type sequence. */
    private int descExtendedTypeNid= 0;
    
-   //As we are indexing, typically, each concept has more than one description, and they will likely come in near each other.
-   //Cache the answer as to whether or not a concept is part of the metadata tree.  The key will be a combination of the concept nid
-   //along with the path nid.  This really only matters for bulk indexing, so let the cache clear after a few minutes.
-   private Cache<String, Boolean> isMetadataCache = Caffeine.newBuilder().maximumSize(5000).expireAfterWrite(5, TimeUnit.MINUTES).build();
+   private HashSet<Integer> metadataConcepts = new HashSet<>();
 
    private DescriptionIndexer() throws IOException {
       super(INDEX_NAME);
    }
 
-   /**
+   @Override
+   public void startBatchReindex() {
+      super.startBatchReindex();
+      if (LookupService.getCurrentRunLevel() >= LookupService.SL_L4 ) {
+         LOG.info("Populating metadata lookup hash");
+         populateMetadataCache(TermAux.SOLOR_METADATA.getNid());
+         LOG.info("System contains " + metadataConcepts.size() + " metadata concepts");
+      }
+      else {
+         //We will just index without the cache, which is slower, but still accurate.
+         //Note, this may be a bug, if this reindex gets triggered on a DB with content during startup, because we now rely on the 
+         //taxonomy provider.  We may have to move the startup-reindex to a later runlevel...
+         LOG.info("Can't populate metadata lookup hash for this batch reindex, because the taxonomy provider isn't started yet");
+      }
+   }
+   
+   private void populateMetadataCache(int nid) {
+     if (!metadataConcepts.add(nid)) {
+        // some of the metadata is linked in multiple locations, we don't need to reprocess it.
+        return;
+     }
+     for (int child : Get.taxonomyService().getAllTaxonomyChildren(nid)) {
+         populateMetadataCache(child);
+     }
+   }
+   
+   @Override
+   public void finishBatchReindex() {
+      super.finishBatchReindex();
+      //Don't keep this, as it will become outdated.  The code that uses it falls back to a different lookup when the structure isn't populated.
+      metadataConcepts.clear();
+   }
+
+/**
     * {@inheritDoc}
     */
    @Override
@@ -134,48 +161,16 @@ public class DescriptionIndexer extends LuceneIndexer
       String                      lastDescType     = null;
 
       boolean isMetadata = false;
-      //We don't keep track of isMetadata per path (or module), if the user really wants to only get hits from metadata on a particular
-      //stamp, they will have to post-filter.  This is meant to be a quick filter - so we error toward marking it metadata if it is metadata 
-      //anywhere.
-      for (final int pathNid : pathNids)
-      {
-         //Because we are only indexing descriptions, we will assume the referencedComponentNid is a concept.
-         String key = pathNid + ":" + semanticChronology.getReferencedComponentNid();
-         try
-         {
-            isMetadata = isMetadataCache.get(key, pathAndRefComp -> {
-            try 
-            {
-               for (int stamp : Get.concept(semanticChronology.getReferencedComponentNid()).getVersionStampSequences()) {
-                  if (Get.stampService().getModuleNidForStamp(stamp) == TermAux.CORE_METADATA_MODULE.getNid()) {
-                     return true;
-                  }
-               }
-               return false;
-            }
-            catch (Exception e) 
-            {
-               //This should no longer happen, but leave the catch here, so it doesn't break indexing if I'm wrong.
-               LOG.warn("Failed to calculate parent path for {} because {}, will assume not metadata for indexing.", 
-                     semanticChronology.getReferencedComponentNid(), e);
-               return false;
-            }
-            }).booleanValue();
-         }
-         catch (Exception e)
-         {
-            LOG.error("Unexpected error calculating isMetadata for " + semanticChronology, e);
-         }
-         
-         // Add a metadata marker for concepts that are metadata, to vastly improve performance of various prefix / filtering searches we want to
-         // support in the isaac-rest API
-         if (isMetadata) {
-            break;
-         }
+      if (metadataConcepts.size() > 0) {
+          isMetadata = metadataConcepts.contains(semanticChronology.getReferencedComponentNid());
       }
       
-      if (isMetadata)
-      {
+      //This is an if instead of an else, to guard against the metadataConcepts cache being emptied during a one-off index op.
+      if (!isMetadata && metadataConcepts.size() == 0){
+          isMetadata = Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
+      }
+      
+      if (isMetadata) {
          doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
       }
       
@@ -193,14 +188,12 @@ public class DescriptionIndexer extends LuceneIndexer
          }
       }
       
-      for (Integer i : uniqueDescriptionTypes)
-      {
+      for (Integer i : uniqueDescriptionTypes) {
          addField(doc, FIELD_INDEXED_DESCRIPTION_TYPE_NID, i.toString(), false);
       }
 
       final Set<String> uniqueExtensionTypes = new HashSet<>();
 
-      
       Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(semanticChronology.getNid(), getDescriptionExtendedTypeNid()).forEach(nestedSemantic -> {
          for (Version nestedVersions : nestedSemantic.getVersionList()) {
             // this is a UUID, but we want to treat it as a string anyway
@@ -208,8 +201,7 @@ public class DescriptionIndexer extends LuceneIndexer
          }
       });
 
-      for (String s : uniqueExtensionTypes)
-      {
+      for (String s : uniqueExtensionTypes) {
          addField(doc, FIELD_INDEXED_EXTENDED_DESCRIPTION_TYPE_UUID, s, false);
       }
    }

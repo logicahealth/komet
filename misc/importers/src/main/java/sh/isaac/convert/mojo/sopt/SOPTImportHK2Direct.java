@@ -43,6 +43,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -163,7 +164,7 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.SOPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"SOPT", false);
 		
-		setupModule("SOPT", MetaData.SOPT_MODULES____SOLOR.getPrimordialUuid(), contentTime);
+		setupModule("SOPT", MetaData.SOPT_MODULES____SOLOR.getPrimordialUuid(), Optional.empty(), contentTime);
 		
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);

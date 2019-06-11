@@ -36,20 +36,17 @@
  */
 package sh.isaac.provider.datastore.taxonomy;
 
-//~--- JDK imports ------------------------------------------------------------
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import java.lang.ref.WeakReference;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -60,27 +57,16 @@ import java.util.function.BinaryOperator;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
-
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.application.Platform;
-
-import javafx.beans.value.ObservableValue;
-
-import javafx.concurrent.Task;
-import javafx.concurrent.Worker.State;
-
-//~--- JDK imports ------------------------------------------------------------
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
-
+import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker.State;
 import sh.isaac.api.ConceptActiveService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -89,6 +75,7 @@ import sh.isaac.api.RefreshListener;
 import sh.isaac.api.Status;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.TaxonomyLink;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
@@ -96,12 +83,14 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.tree.TaxonomyLinkage;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
@@ -110,9 +99,6 @@ import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
-import sh.isaac.api.TaxonomySnapshot;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.tree.TaxonomyLinkage;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -145,6 +131,8 @@ public class TaxonomyProvider
      */
     private final ConcurrentHashMap<SnapshotCacheKey, Task<Tree>> snapshotCache = new ConcurrentHashMap<>(5);
     private final ConcurrentHashMap<SnapshotCacheKey, TaxonomySnapshot> noTreeSnapshotCache = new ConcurrentHashMap<>(5);
+    private final NidSet isANidSet = new NidSet();  //init in startup
+    private final NidSet childOfTypeNidSet = new NidSet();  //init in startup
     private final UUID listenerUUID = UUID.randomUUID();
 
     /**
@@ -286,6 +274,10 @@ public class TaxonomyProvider
             this.snapshotCache.clear();
             this.noTreeSnapshotCache.clear();
             this.refreshListeners.clear();
+            this.isANidSet.clear();
+            this.isANidSet.add(TermAux.IS_A.getNid());
+            this.childOfTypeNidSet.clear();
+            this.childOfTypeNidSet.add(TermAux.CHILD_OF.getNid());
         } catch (final Exception e) {
             LookupService.getService(SystemStatusService.class)
                     .notifyServiceConfigurationFailure("Taxonomy Provider", e);
@@ -317,6 +309,8 @@ public class TaxonomyProvider
             this.refreshListeners.clear();
             this.identifierService = null;
             this.store = null;
+            this.isANidSet.clear();
+            this.childOfTypeNidSet.clear();
             Get.commitService().removeChangeListener(this);
         } catch (InterruptedException | ExecutionException ex) {
             LOG.error("Exception during service stop. ", ex);
@@ -531,6 +525,77 @@ public class TaxonomyProvider
     public Supplier<TreeNodeVisitData> getTreeNodeVisitDataSupplier(int conceptAssemblageNid) {
         return () -> new TreeNodeVisitDataImpl(conceptAssemblageNid);
     }
+    
+    /**
+     * @see sh.isaac.api.TaxonomyService#wasEverKindOf(int, int)
+     */
+    public boolean wasEverKindOf(int childNid, int parentNid) {
+        if (wasEverChildOf(childNid, parentNid)) {
+            return true;
+        }
+
+        for (int directParentNid : getTaxonomyRecord(childNid).getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(isANidSet).toArray()) {
+            if (directParentNid == childNid) {
+                LOG.warn(Get.conceptDescriptionText(childNid) + " has a taxonomy isA record that points to itself");
+                continue;
+            }
+            if (wasEverKindOf(directParentNid, parentNid, 0)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    /**
+     * Just the recursive portion of wasEverKindOf, with a depth limit for cycle detection
+     * @param childNid
+     * @param parentNid
+     * @param depth
+     * @return
+     */
+    private boolean wasEverKindOf(int childNid, int parentNid, int depth) {
+        if (depth > 40) {
+            LOG.warn("Taxonomy depth > 40: " + depth + "; \n" + Get.conceptDescriptionText(childNid) + " <? \n" + Get.conceptDescriptionText(parentNid));
+        }
+        if (depth > 60) {
+            LOG.error("Taxonomy depth > 60" + Get.conceptDescriptionText(childNid) + " <? " + Get.conceptDescriptionText(parentNid));
+            LOG.error("Return false secondary to presumed cycle. ");
+            // TODO raise alert to user via alert mechanism. 
+            return false;
+        }
+        if (wasEverChildOf(childNid, parentNid)) {
+            return true;
+        }
+
+        for (int directParentNid : getTaxonomyRecord(childNid).getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(isANidSet).toArray()) {
+            if (directParentNid == childNid) {
+                LOG.warn(Get.conceptDescriptionText(childNid) + " has a taxonomy isA record that points to itself");
+                continue;
+            }
+            if (wasEverKindOf(directParentNid, parentNid, depth + 1)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * @see sh.isaac.api.TaxonomyService#wasEverChildOf(int, int)
+     */
+    public boolean wasEverChildOf(int childNid, int parentNid) {
+        for (int directParentNid : getTaxonomyRecord(childNid).getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(isANidSet).toArray()) {
+            if (directParentNid == parentNid) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int[] getAllTaxonomyChildren(int parentNid) {
+        return getTaxonomyRecord(parentNid).getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(childOfTypeNidSet).toArray();
+    }
 
     //~--- inner classes -------------------------------------------------------
     /**
@@ -539,23 +604,12 @@ public class TaxonomyProvider
     private class TaxonomySnapshotProvider
             implements TaxonomySnapshot {
 
-        int isaNid = TermAux.IS_A.getNid();
-        int childOfNid = TermAux.CHILD_OF.getNid();
-        NidSet childOfTypeNidSet = new NidSet();
-        NidSet isaTypeNidSet = new NidSet();
-
         /**
          * The manifoldCoordinate.
          */
         final ManifoldCoordinate manifoldCoordinate;
         Tree treeSnapshot;
         final Task<Tree> treeTask;
-
-        //~--- initializers -----------------------------------------------------
-        {
-            isaTypeNidSet.add(isaNid);
-            childOfTypeNidSet.add(childOfNid);
-        }
 
         //~--- constructors -----------------------------------------------------
         public TaxonomySnapshotProvider(ManifoldCoordinate manifoldCoordinate, Task<Tree> treeTask) {
@@ -657,7 +711,7 @@ public class TaxonomyProvider
             }
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
 
-            return taxonomyRecordPrimitive.containsNidViaType(parentId, isaNid, manifoldCoordinate);
+            return taxonomyRecordPrimitive.containsNidViaType(parentId, TermAux.IS_A.getNid(), manifoldCoordinate);
         }
 
         /**
@@ -793,7 +847,7 @@ public class TaxonomyProvider
 
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
 
-            return taxonomyRecordPrimitive.getDestinationNidsOfType(isaTypeNidSet, manifoldCoordinate);
+            return taxonomyRecordPrimitive.getDestinationNidsOfType(isANidSet, manifoldCoordinate);
         }
 
         /**
@@ -820,22 +874,12 @@ public class TaxonomyProvider
     //TODO merge the code above with this somehow, maybe so the above code falls back to this code when the tree isn't available, rather than
     // copy and paste inheritance.
     private class TaxonomySnapshotNoTree implements TaxonomySnapshot {
-        int isaNid = TermAux.IS_A.getNid();
-        int childOfNid = TermAux.CHILD_OF.getNid();
-        NidSet childOfTypeNidSet = new NidSet();
-        NidSet isaTypeNidSet = new NidSet();
-        
         //These caches are for specific performance issues in some rest API usage patterns.  These help make up for not having a fully computed tree.
         ConcurrentHashMap<String, Boolean> childOfCache = new ConcurrentHashMap<>(250);
         ConcurrentHashMap<Integer, int[]> parentsCache = new ConcurrentHashMap<>(250);
         ConcurrentHashMap<Integer, int[]> childrenCache = new ConcurrentHashMap<>(250);
 
         final ManifoldCoordinate mc;
-        //init code
-        {
-            isaTypeNidSet.add(isaNid);
-            childOfTypeNidSet.add(childOfNid);
-        }
 
         public TaxonomySnapshotNoTree(ManifoldCoordinate mc) {
             LOG.debug("Building a new non-tree taxonomy snapshot for {}", mc);
@@ -847,7 +891,7 @@ public class TaxonomyProvider
             return childOfCache.computeIfAbsent(childId + ":" + parentId, (key) -> 
             {
                 TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
-                return taxonomyRecordPrimitive.containsNidViaType(parentId, isaNid, mc);
+                return taxonomyRecordPrimitive.containsNidViaType(parentId, TermAux.IS_A.getNid(), mc);
             });
         }
 
@@ -933,7 +977,7 @@ public class TaxonomyProvider
         public int[] getTaxonomyParentConceptNids(int childId) {
             return parentsCache.computeIfAbsent(childId, childIdAgain -> {
                 TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
-                return taxonomyRecordPrimitive.getDestinationNidsOfType(isaTypeNidSet, mc);
+                return taxonomyRecordPrimitive.getDestinationNidsOfType(isANidSet, mc);
             });
         }
 

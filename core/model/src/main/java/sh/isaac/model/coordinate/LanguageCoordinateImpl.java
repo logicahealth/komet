@@ -41,16 +41,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCoordinateService;
@@ -60,7 +60,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.util.ArrayUtil;
@@ -419,7 +418,7 @@ public class LanguageCoordinateImpl
     @Override
     public LanguageCoordinateImpl deepClone() {
         LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConcept,
-                dialectAssemblageSpecPreferenceList.clone(),
+                dialectAssemblageSpecPreferenceList == null ? null : dialectAssemblageSpecPreferenceList.clone(),
                 descriptionTypeSpecPreferenceList.clone(),
                 moduleSpecPreferenceList == null ? null : moduleSpecPreferenceList.clone());
         if (this.nextProrityLanguageCoordinate != null) {

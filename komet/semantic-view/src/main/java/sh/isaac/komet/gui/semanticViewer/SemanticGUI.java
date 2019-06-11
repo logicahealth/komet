@@ -434,7 +434,7 @@ public class SemanticGUI
 			}
 			else if (oc.get() instanceof ConceptChronology)
 			{
-				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampCoordinate(), null);
+				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampCoordinate(), manifold_.getLanguageCoordinate());
 				text = (conDesc.isPresent() ? conDesc.get() : "off path [NID]:" + oc.get().getNid());
 			}
 			else if (oc.get() instanceof SemanticChronology)
@@ -632,8 +632,8 @@ public class SemanticGUI
 				return new DynamicData[] {new DynamicNidImpl(((ComponentNidVersion)semantic).getComponentNid())};
 			case DESCRIPTION:
 				return new DynamicData[] {new DynamicStringImpl(((DescriptionVersion)semantic).getText()), 
-						new DynamicNidImpl(((DescriptionVersion)semantic).getDescriptionTypeConceptNid()),
 						new DynamicNidImpl(((DescriptionVersion)semantic).getLanguageConceptNid()),
+						new DynamicNidImpl(((DescriptionVersion)semantic).getDescriptionTypeConceptNid()),
 						new DynamicNidImpl(((DescriptionVersion)semantic).getCaseSignificanceConceptNid())};
 			case DYNAMIC:
 				return ((DynamicVersion<?>)semantic).getData();

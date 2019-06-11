@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -244,7 +245,7 @@ public class LoincTPImportHK2Direct extends DirectConverterBaseMojo implements D
 			dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.LOINC_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(),
 					converterUUID, "LOINC Tech Preview", false);
 
-			setupModule("LOINC Tech Preview", MetaData.LOINC_MODULES____SOLOR.getPrimordialUuid(), releaseDate.getTime());
+			setupModule("LOINC Tech Preview", MetaData.LOINC_MODULES____SOLOR.getPrimordialUuid(), Optional.empty(), releaseDate.getTime());
 
 			//Set up our metadata hierarchy
 			dwh.makeMetadataHierarchy(true, true, false, false, true, false, releaseDate.getTime());

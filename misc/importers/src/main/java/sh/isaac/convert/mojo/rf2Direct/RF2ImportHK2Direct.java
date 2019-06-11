@@ -231,7 +231,8 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 				
 				// loadTerminologyMetadataAttributes on each module that came out of the RF2 content
 				dwh.makeTerminologyMetadataAnnotations(module, converterSourceArtifactVersion, Optional.empty(), 
-						Optional.of(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), importTime);
+						Optional.of(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), 
+						Optional.of("http://snomed.info/sct"), importTime);
 			}
 		}
 	}

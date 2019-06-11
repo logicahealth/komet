@@ -538,13 +538,6 @@ public class StampProvider
                });
             }
          }
-         for (int stamp = 1; stamp < nextStampSequence.get(); stamp++) {
-             try {
-                 String descripton = describeStampSequence(stamp);
-             } catch (NoSuchElementException e) {
-                 LOG.warn(e.getLocalizedMessage());
-             }
-         }
       } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Stamp Provider", e);

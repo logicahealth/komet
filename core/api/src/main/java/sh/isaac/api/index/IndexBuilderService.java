@@ -39,9 +39,7 @@
 
 package sh.isaac.api.index;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.DatastoreServices;
@@ -121,15 +119,6 @@ public interface IndexBuilderService extends DatastoreServices, IndexQueryServic
     * a search where the chronicle's results must be included.
     */
    long indexNow(Chronology chronicle);
-
-   /**
-    * Locate the concept most closely tied to a search result, and merge them together, maintaining the best score.
-    * This is a convenience method.
-    *
-    * @param searchResult the search result
-    * @return the merged results, in a collection that iterates in the same order as they were passed in.
-    */
-   Collection<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult);
 
    /**
     * Report indexed items.

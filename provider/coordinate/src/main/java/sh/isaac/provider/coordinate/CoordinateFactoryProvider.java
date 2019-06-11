@@ -448,16 +448,18 @@ public class CoordinateFactoryProvider
         final LatestVersion<DescriptionVersion> preferredForDialect = new LatestVersion<>(DescriptionVersion.class);
         final SemanticSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.assemblageService().getSnapshot(ComponentNidVersion.class,
                 stampCoordinate);
-        for (int dialectAssemblageNid : languageCoordinate.getDialectAssemblagePreferenceList()) {
-            if (!preferredForDialect.isPresent()) {
-                for (DescriptionVersion description : descriptionsForLanguageOfType) {
-                    for (LatestVersion<ComponentNidVersion> acceptabilityVersion : acceptabilitySnapshot
-                            .getLatestSemanticVersionsForComponentFromAssemblage(description.getNid(), dialectAssemblageNid)) {
-                        acceptabilityVersion.ifPresent((acceptability) -> {
-                            if (acceptability.getComponentNid() == getPreferredConceptNid()) {
-                                preferredForDialect.addLatest(description);
-                            }
-                        });
+        if (languageCoordinate.getDialectAssemblagePreferenceList() != null) {
+            for (int dialectAssemblageNid : languageCoordinate.getDialectAssemblagePreferenceList()) {
+                if (!preferredForDialect.isPresent()) {
+                    for (DescriptionVersion description : descriptionsForLanguageOfType) {
+                        for (LatestVersion<ComponentNidVersion> acceptabilityVersion : acceptabilitySnapshot
+                                .getLatestSemanticVersionsForComponentFromAssemblage(description.getNid(), dialectAssemblageNid)) {
+                            acceptabilityVersion.ifPresent((acceptability) -> {
+                                if (acceptability.getComponentNid() == getPreferredConceptNid()) {
+                                    preferredForDialect.addLatest(description);
+                                }
+                            });
+                        }
                     }
                 }
             }

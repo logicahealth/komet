@@ -430,18 +430,36 @@ public class Frills
     * @param assemblageNid
     * @return true, if it is a semantic definition
     */
-   public static boolean definesIdentifierSemantic(int assemblageNid) 
-   {
-      if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) 
-      {
+   public static boolean definesIdentifierSemantic(int assemblageNid) {
+      if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) {
          Optional<SemanticChronology> semantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
                assemblageNid, MetaData.IDENTIFIER_SOURCE____SOLOR.getNid()).findAny();
-      if (semantic.isPresent())
-         {
+         if (semantic.isPresent()) {
             return true;
          }
       }
       return false;
+   }
+   
+   /**
+    * Returns the child of {@link MetaData#SEMANTIC_TYPE____SOLOR} if a concept has a {@link MetaData#SEMANTIC_TYPE____SOLOR} semantic attached to it 
+    * on the development latest coordinate. 
+    * @param assemblageNid
+    * @return the nid that specifies the type, if found, or empty, if it doesn't have a semanticType annotation.
+    */
+   public static Optional<Integer> getStaticSemanticType(int assemblageNid) {
+      if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) {
+         Optional<SemanticChronology> semantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
+               assemblageNid, MetaData.SEMANTIC_TYPE____SOLOR.getNid()).findAny();
+         if (semantic.isPresent())
+         {
+            LatestVersion<ComponentNidVersion> v = semantic.get().getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
+            if (v.isPresent()) {
+                return Optional.of(v.get().getComponentNid());
+            }
+         }
+      }
+      return Optional.empty();
    }
 
    /**
@@ -547,7 +565,7 @@ public class Frills
       }
       
       int[] parents = Get.taxonomyService().getSnapshotNoTree(
-            new ManifoldCoordinateImpl(stampToUse, LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
+            new ManifoldCoordinateImpl(stampToUse, null))
             .getTaxonomyParentConceptNids(conceptModuleNid);
       for (int current : parents)
       {
@@ -765,7 +783,7 @@ public class Frills
    public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate,
          int requiredModuleSequence,
          int... optionalModuleSequences) {
-      final HashSet<ConceptSpecification> moduleSet = new HashSet();
+      final HashSet<ConceptSpecification> moduleSet = new HashSet<>();
 
       moduleSet.add(Get.conceptSpecification(requiredModuleSequence));
 
@@ -775,16 +793,12 @@ public class Frills
          }
       }
 
-      final EnumSet<Status> allowedStates = EnumSet.allOf(Status.class);
-
-      allowedStates.addAll(existingStampCoordinate.getAllowedStates());
-
       final StampCoordinate newStampCoordinate = new StampCoordinateImpl(
                                                      existingStampCoordinate.getStampPrecedence(),
                                                            existingStampCoordinate.getStampPosition(),
                                                            moduleSet,
-                                                           new ArrayList(),
-                                                           allowedStates);
+                                                           existingStampCoordinate.getModulePreferenceOrderForVersions(),
+                                                           existingStampCoordinate.getAllowedStates());
 
       return newStampCoordinate;
    }
@@ -1110,8 +1124,7 @@ public class Frills
    public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
       
       TaxonomySnapshot tss = Get.taxonomyService().getSnapshotNoTree(
-            new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp),
-                  LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()));
+            new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp), null));
       
       Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptNid, recursive, leafOnly, tss);
       if (leafOnly && temp.size() == 1) {

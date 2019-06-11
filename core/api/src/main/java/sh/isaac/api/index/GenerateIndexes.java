@@ -131,7 +131,6 @@ public class GenerateIndexes extends TimedTask<Void> implements PersistTaskResul
       Get.activeTasks().add(this);
 
       try {
-
          final List<IndexStatusListener> islList = LookupService.get().getAllServices(IndexStatusListener.class);
 
          for (final IndexBuilderService i : this.indexers) {
