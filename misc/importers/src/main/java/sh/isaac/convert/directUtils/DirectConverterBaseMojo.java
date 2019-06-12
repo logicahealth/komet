@@ -69,6 +69,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
