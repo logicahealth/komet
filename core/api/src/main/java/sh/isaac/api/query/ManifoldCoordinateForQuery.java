@@ -158,9 +158,13 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     }
     
     @Override
+    /**
+     * Note, ManifoldCoordinateForQuery doesn't support distinct destination stamp coordinates.  This always returns
+     * {@link #getStampCoordinate()}
+     */
     public StampCoordinate getDestinationStampCoordinate() {
-        // TODO Don't know if this ever needs to be supported
-        throw new UnsupportedOperationException();
+        // TODO maybe support this some day...
+        return getStampCoordinate();
     }
 
     @Override
