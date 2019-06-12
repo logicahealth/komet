@@ -70,18 +70,22 @@
          <groupId>com.monitorjbl</groupId>
          <artifactId>xlsx-streamer</artifactId>
          <version>2.1.0</version>
+         <exclusions>
+            <exclusion>
+               <groupId>xml-apis</groupId>
+               <artifactId>xml-apis</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>xml-apis</groupId>
+               <artifactId>xml-apis-ext</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
        <dependency>
            <groupId>sh.isaac.integration</groupId>
            <artifactId>import-utils</artifactId>
-           <version>5.1.1-SNAPSHOT</version>
+           <version>${project.parent.version}</version>
            <scope>compile</scope>
        </dependency>
-      <dependency>
-         <groupId>sh.isaac.integration</groupId>
-         <artifactId>import-utils</artifactId>
-         <version>5.1.1-SNAPSHOT</version>
-         <scope>compile</scope>
-      </dependency>
    </dependencies>
 </project>
