@@ -22,7 +22,7 @@ pipeline {
 	}
 	tools {
 		// Maven installation declared in the Jenkins "Global Tool Configuration"
-		maven 'M3' 
+		maven 'M3-J8' 
 	}
 	stages {
 		stage('Build') {
