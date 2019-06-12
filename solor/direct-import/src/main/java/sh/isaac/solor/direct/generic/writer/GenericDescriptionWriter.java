@@ -1,24 +1,16 @@
-package sh.isaac.solor.direct.clinvar.writers;
+package sh.isaac.solor.direct.generic.writer;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.solor.direct.clinvar.model.DescriptionArtifact;
+import sh.isaac.solor.direct.generic.artifact.DescriptionArtifact;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,32 +18,28 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 2019-03-10
  * aks8m - https://github.com/aks8m
  */
-public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void> {
+public class GenericDescriptionWriter extends GenericWriter {
 
-    private final Set<DescriptionArtifact> descriptionArtifacts;
+    private final ArrayList<DescriptionArtifact> descriptionArtifacts;
     private final Semaphore writeSemaphore;
     private final StampService stampService;
     private final IdentifierService identifierService;
     private final AssemblageService assemblageService;
-    private final List<IndexBuilderService> indexers;
-    private final int batchSize = 10000;
-    private static final Logger LOG = LogManager.getLogger();
 
+    public GenericDescriptionWriter(ArrayList<DescriptionArtifact> descriptionArtifacts, Semaphore writeSemaphore) {
 
-    public GenomicDescriptionWriter(Set<DescriptionArtifact> descriptionArtifacts, Semaphore writeSemaphore) {
+        super(
+                "Importing description batch of size: " + descriptionArtifacts.size(),
+                "Solorizing concepts",
+                descriptionArtifacts.size()
+        );
+
         this.descriptionArtifacts = descriptionArtifacts;
         this.writeSemaphore = writeSemaphore;
-
         this.stampService = Get.stampService();
         this.assemblageService = Get.assemblageService();
         this.identifierService = Get.identifierService();
-        this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
-
-
         this.writeSemaphore.acquireUninterruptibly();
-        updateTitle("Importing description batch of size: " + this.descriptionArtifacts.size());
-        updateMessage("Solorizing descriptions");
-        addToTotalWork(this.descriptionArtifacts.size() / this.batchSize);
         Get.activeTasks().add(this);
     }
 
@@ -121,11 +109,5 @@ public class GenomicDescriptionWriter extends TimedTaskWithProgressTracker<Void>
         }
 
         return null;
-    }
-
-    private void index(Chronology chronicle) {
-        for (IndexBuilderService indexer: indexers) {
-            indexer.indexNow(chronicle);
-        }
     }
 }

@@ -15,3 +15,4 @@ PostgresProviderPath/
 komet/application/src/installer/install4j/*~
 .DS_Store
 .DS_*
+/komet/application/Solor

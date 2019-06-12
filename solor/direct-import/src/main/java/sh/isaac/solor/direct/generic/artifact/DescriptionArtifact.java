@@ -1,11 +1,8 @@
-package sh.isaac.solor.direct.clinvar.model;
+package sh.isaac.solor.direct.generic.artifact;
 
 import sh.isaac.api.Status;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.solor.direct.clinvar.model.fields.ComponentFields;
-import sh.isaac.solor.direct.clinvar.model.fields.DescriptionFields;
-import sh.isaac.solor.direct.clinvar.model.fields.IdentifierFields;
 
 import java.util.UUID;
 
@@ -13,7 +10,7 @@ import java.util.UUID;
  * 2019-03-07
  * aks8m - https://github.com/aks8m
  */
-public final class DescriptionArtifact implements ComponentFields, DescriptionFields, IdentifierFields {
+public final class DescriptionArtifact implements GenericArtifact {
 
     //Concept Fields
     private final Status status;
@@ -66,72 +63,58 @@ public final class DescriptionArtifact implements ComponentFields, DescriptionFi
         return UuidT5Generator.get(this.term);
     }
 
-    @Override
     public Status getStatus() {
         return this.status;
     }
 
-    @Override
     public long getTime() {
         return this.time;
     }
 
-    @Override
     public int getAuthorNid() {
         return this.authorNid;
     }
 
-    @Override
     public int getModuleNid() {
         return this.moduleNid;
     }
 
-    @Override
     public int getPathNid() {
         return this.pathNid;
     }
 
-    @Override
     public UUID getReferencedComponentUUID() {
         return this.referencedComponentUUID;
     }
 
-    @Override
     public int getLanguageConceptNid() {
         return LanguageCoordinates.iso639toConceptNid(this.iso639LanguageCode);
     }
 
-    @Override
     public int getDescriptionAssemblageNid() {
         return LanguageCoordinates.iso639toDescriptionAssemblageNid(this.iso639LanguageCode);
     }
 
-    @Override
     public int getTypeNid() {
         return this.typeNid;
     }
 
-    @Override
     public String getTerm() {
         return this.term;
     }
 
-    @Override
     public int getCaseSignificanceNid() {
         return this.caseSignificanceNid;
     }
 
-    @Override
     public UUID getIdentifierComponentUUID() {
         return UuidT5Generator.get(this.identifierAssemblageUUID, this.identifierValue);
     }
 
-    @Override
     public String getIdentifierValue() {
         return this.identifierValue;
     }
 
-    @Override
     public UUID getIdentifierAssemblageUUID() {
         return this.identifierAssemblageUUID;
     }

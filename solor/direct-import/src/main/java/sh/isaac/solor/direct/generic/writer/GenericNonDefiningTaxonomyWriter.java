@@ -1,22 +1,15 @@
-package sh.isaac.solor.direct.clinvar.writers;
+package sh.isaac.solor.direct.generic.writer;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
-import sh.isaac.solor.direct.clinvar.model.NonDefiningTaxonomyArtifact;
+import sh.isaac.solor.direct.generic.artifact.NonDefiningTaxonomyArtifact;
 
-import java.util.List;
-import java.util.Set;
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,31 +17,28 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 2019-03-10
  * aks8m - https://github.com/aks8m
  */
-public class GenomicNonDefiningTaxonomyWriter extends TimedTaskWithProgressTracker<Void> {
+public class GenericNonDefiningTaxonomyWriter extends GenericWriter {
 
-    private final Set<NonDefiningTaxonomyArtifact> nonDefiningTaxonomy;
+    private final ArrayList<NonDefiningTaxonomyArtifact> nonDefiningTaxonomy;
     private final Semaphore writeSemaphore;
     private final AssemblageService assemblageService;
     private final IdentifierService identifierService;
     private final StampService stampService;
-    private final List<IndexBuilderService> indexers;
-    private final int batchSize = 10000;
-    private static final Logger LOG = LogManager.getLogger();
 
+    public GenericNonDefiningTaxonomyWriter(ArrayList<NonDefiningTaxonomyArtifact> nonDefiningTaxonomy, Semaphore writeSemaphore) {
 
-    public GenomicNonDefiningTaxonomyWriter(Set<NonDefiningTaxonomyArtifact> nonDefiningTaxonomy, Semaphore writeSemaphore) {
+        super(
+                "Importing non-defining relationships batch of size: " + nonDefiningTaxonomy.size(),
+                "Solorizing non-defining relationships",
+                nonDefiningTaxonomy.size()
+        );
+
         this.nonDefiningTaxonomy = nonDefiningTaxonomy;
         this.writeSemaphore = writeSemaphore;
-
         this.assemblageService = Get.assemblageService();
         this.identifierService = Get.identifierService();
         this.stampService = Get.stampService();
-        this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
-
         this.writeSemaphore.acquireUninterruptibly();
-        updateTitle("Importing non-defining relationships batch of size: " + this.nonDefiningTaxonomy.size());
-        updateMessage("Solorizing non-defining relationships");
-        addToTotalWork(this.nonDefiningTaxonomy.size() / this.batchSize);
         Get.activeTasks().add(this);
     }
 
@@ -105,11 +95,5 @@ public class GenomicNonDefiningTaxonomyWriter extends TimedTaskWithProgressTrack
         }
 
         return null;
-    }
-
-    private void index(Chronology chronicle) {
-        for (IndexBuilderService indexer: indexers) {
-            indexer.indexNow(chronicle);
-        }
     }
 }
