@@ -73,7 +73,7 @@ public interface ObservableStampCoordinate
     * @return the set property
     */
    SetProperty<Status> allowedStatesProperty();
-
+   
    /**
     *
     * @return the specified modules property

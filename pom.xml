@@ -1084,12 +1084,12 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
             <configuration>
-               <!--               If you need to define your own MANIFEST.MF file you can
+               <!--If you need to define your own MANIFEST.MF file you can
                simply achieve that via Maven Archiver configuration like
                in the following example:
                <archive>
                   <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-               </archive>               -->
+               </archive>-->
             </configuration>
          </plugin>
          <plugin>

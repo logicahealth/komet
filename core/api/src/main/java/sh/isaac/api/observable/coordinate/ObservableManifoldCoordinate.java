@@ -49,8 +49,6 @@ import javafx.beans.property.ObjectProperty;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
-import java.util.Optional;
-
 //~--- interfaces -------------------------------------------------------------
 
 /**

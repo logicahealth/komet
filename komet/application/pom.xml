@@ -252,11 +252,6 @@
             <artifactId>metacontent</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>sh.isaac</groupId>-->
-        <!--<artifactId>scenic-view</artifactId>-->
-        <!--<version>11.0</version>-->
-        <!--</dependency>-->
     </dependencies>
     <build>
         <plugins>
@@ -305,8 +300,8 @@
                     <parallel>false</parallel>
                     <useSystemClassLoader>true</useSystemClassLoader>
                     <useManifestOnlyJar>false</useManifestOnlyJar>
-                    <argLine>-ea -Xmx12g -Dfile.encoding=UTF-8</argLine>
-                    <!--                     <argLine>-Xmx8g -Xms8g -Dfile.encoding=UTF-8 -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
+                    <argLine>-ea -Xmx12g -Dfile.encoding=UTF-8 -Djava.awt.headless=true</argLine>
+                    <!--<argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -Dfile.encoding=UTF-8 -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
                     <!-- debugForkedProcess>true</debugForkedProcess -->
                     <includes>
                         <!-- Let JUnit annotations decide -->

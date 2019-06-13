@@ -36,6 +36,14 @@
  */
 package sh.isaac.model.taxonomy;
 
+import static sh.isaac.api.commit.StampService.FIRST_STAMP_SEQUENCE;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.Get;
@@ -47,16 +55,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.IntStream;
-
-import static sh.isaac.api.commit.StampService.FIRST_STAMP_SEQUENCE;
-
-//~--- JDK imports ------------------------------------------------------------
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
 /**
  * For each concept nid (a key in the map), there is a list of
  * type-stamp-flags. These type-stamp-flags compact into a primitive long value.

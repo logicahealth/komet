@@ -73,7 +73,6 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
     private final TaxonomyService taxonomyService;
     private final long commitTime = System.currentTimeMillis();
 
-
     private final NidSet components = new NidSet();
     private final NidSet systems = new NidSet();
     private final ManifoldCoordinate manifold;

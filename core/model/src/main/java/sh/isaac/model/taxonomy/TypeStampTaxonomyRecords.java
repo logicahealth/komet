@@ -37,12 +37,14 @@
 package sh.isaac.model.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
-import org.apache.mahout.math.map.OpenLongObjectHashMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 

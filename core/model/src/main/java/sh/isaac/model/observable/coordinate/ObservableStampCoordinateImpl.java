@@ -87,13 +87,13 @@ public class ObservableStampCoordinateImpl
    /** The stamp position property. */
    ObjectProperty<ObservableStampPosition> stampPositionProperty;
 
-    /** The module specifications property. */
-    SimpleSetProperty<ConceptSpecification> moduleSpecificationsProperty;
+   /** The module specifications property. */
+   SimpleSetProperty<ConceptSpecification> moduleSpecificationsProperty;
 
-    /** The author specifications property. */
-    SimpleSetProperty<ConceptSpecification> authorSpecificationsProperty;
+   /** The author specifications property. */
+   SimpleSetProperty<ConceptSpecification> authorSpecificationsProperty;
 
-    /** The allowed states. */
+   /** The allowed states. */
    SetProperty<Status> allowedStates;
 
    //~--- constructors --------------------------------------------------------
@@ -174,7 +174,6 @@ public class ObservableStampCoordinateImpl
    public ObservableStampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
       return new ObservableStampCoordinateImpl(this.stampCoordinate.makeModuleAnalog(modules, add));
    }
-
 
    /**
     * Stamp position property.

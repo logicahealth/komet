@@ -16,8 +16,11 @@
  */
 package sh.isaac.model.coordinate;
 
-import java.util.*;
-
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import sh.isaac.api.Status;

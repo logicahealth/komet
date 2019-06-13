@@ -18,6 +18,7 @@ package sh.komet.gui.search.extended;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.function.Predicate;
+import org.apache.logging.log4j.LogManager;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -96,7 +97,7 @@ public class TimeStatusRestriction {
                         FxGet.dialogs().showErrorDialog("Error testing: " + nid + " " +
                                 Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)) +
                                 "\n\n Query will continue with other matching components", e);
-                        e.printStackTrace();
+                        LogManager.getLogger().error("unexpected", e);
                     }
                     return false;
 

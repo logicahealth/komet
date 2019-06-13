@@ -173,7 +173,8 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.ICD10_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				termName, false);
 
-		setupModule(termName, MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://hl7.org/fhir/sid/icd-10-" + sourceType), contentTime);
+		setupModule(termName, MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid(), 
+				Optional.of("http://hl7.org/fhir/sid/icd-10-" + sourceType), contentTime);
 
 		// Normally, the importer configures this to the parent ICD10 modules UUID - but then we get duplicates generated between CM and PCS.
 		// Need to use a different namespace for each.

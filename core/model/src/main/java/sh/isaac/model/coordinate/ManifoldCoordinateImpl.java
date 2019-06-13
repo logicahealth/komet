@@ -39,7 +39,11 @@
 
 package sh.isaac.model.coordinate;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import javax.xml.bind.annotation.XmlElement;
 import sh.isaac.api.ConfigurationService;
@@ -148,7 +152,7 @@ public class ManifoldCoordinateImpl
    @Override
    @XmlElement
    public UUID getManifoldCoordinateUuid() {
-      return ManifoldCoordinate.super.getManifoldCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+      return ManifoldCoordinate.super.getManifoldCoordinateUuid(); 
    }
    
    @SuppressWarnings("unused")

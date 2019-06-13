@@ -166,6 +166,7 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
      * {@link #getStampCoordinate()}
      */
     public StampCoordinate getDestinationStampCoordinate() {
+        // TODO maybe support this some day...
         return getStampCoordinate();
     }
 

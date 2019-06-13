@@ -13,7 +13,6 @@
      <modules>
         <module>taxonomy-view</module>
         <module>iconography</module>
-        <!--<module>drag-tab</module>-->
         <module>application</module>
         <module>gui-contracts</module>
         <module>search-view</module>
@@ -29,7 +28,7 @@
         <module>export-view</module>
         <module>open-jdk-fixes</module>
         <module>komet-preferences</module>
-    <module>changeset-view</module>
-         <module>batch</module>
+        <module>changeset-view</module>
+        <module>batch</module>
      </modules>
 </project>

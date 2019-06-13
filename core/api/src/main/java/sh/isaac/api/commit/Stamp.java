@@ -54,7 +54,6 @@ import java.util.Collection;
 import org.apache.mahout.math.set.AbstractIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.util.Hashcode;
 
 //~--- classes ----------------------------------------------------------------

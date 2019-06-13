@@ -49,7 +49,12 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.collections.IntObjectHashMap;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;

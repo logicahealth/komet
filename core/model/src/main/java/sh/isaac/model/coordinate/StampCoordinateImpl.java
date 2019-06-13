@@ -146,10 +146,10 @@ public class StampCoordinateImpl
      * @param allowedStates the allowed states
      */
     public StampCoordinateImpl(StampPrecedence stampPrecedence,
-                               StampPosition stampPosition,
-                               Set<ConceptSpecification> moduleSpecifications,
-                               List<ConceptSpecification> modulePriorityList,
-                               EnumSet<Status> allowedStates) {
+            StampPosition stampPosition,
+            Set<ConceptSpecification> moduleSpecifications,
+            List<ConceptSpecification> modulePriorityList,
+            EnumSet<Status> allowedStates) {
         this(stampPrecedence, stampPosition,
                 new HashSet(),
                 moduleSpecifications,

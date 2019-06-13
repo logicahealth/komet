@@ -751,7 +751,8 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.RXNORM_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(),
 				converterUUID, RXNORM_TERMINOLOGY_NAME, false);
 
-		setupModule(RXNORM_TERMINOLOGY_NAME, MetaData.RXNORM_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://www.nlm.nih.gov/research/umls/rxnorm"), defaultTime);
+		setupModule(RXNORM_TERMINOLOGY_NAME, MetaData.RXNORM_MODULES____SOLOR.getPrimordialUuid(), 
+				Optional.of("http://www.nlm.nih.gov/research/umls/rxnorm"), defaultTime);
 
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, true, false, true, true, true, defaultTime);

@@ -24,7 +24,7 @@ import org.apache.logging.log4j.LogManager;
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
 public enum DatabaseImplementation {
-	FILESYSTEM, XODUS, BDB, MV, EXTERNAL, DEFAULT;
+	FILESYSTEM, XODUS, BDB, MV, POSTGRESQL, EXTERNAL, DEFAULT;
 	
 	private String serviceName = null;
 	
