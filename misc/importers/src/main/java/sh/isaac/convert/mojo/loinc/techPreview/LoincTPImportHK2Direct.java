@@ -457,10 +457,6 @@ public class LoincTPImportHK2Direct extends DirectConverterBaseMojo implements D
 		}
 		finally
 		{
-			if (ler.get() != null)
-			{
-				ler.get().close();
-			}
 			if (loincExpressionDebug != null)
 			{
 				loincExpressionDebug.close();
