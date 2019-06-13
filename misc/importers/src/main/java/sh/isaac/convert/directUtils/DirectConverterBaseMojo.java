@@ -69,6 +69,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
@@ -243,6 +244,13 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 				lt.setActiveOnly(IBDFPreloadActiveOnly());
 				lt.skipVersionTypes(getIBDFSkipTypes());
 				lt.execute();
+			}
+			
+			// Don't need to build indexes - but don't disable till after the pre-loads, as we might need indexes on those.
+			for (IndexBuilderService ibs : LookupService.getServices(IndexBuilderService.class))
+			{
+				ibs.refreshQueryEngine();  //refresh, so that the data loaded above is available
+				ibs.setEnabled(false);
 			}
 			
 			DataWriteListenerImpl listener = new DataWriteListenerImpl(ibdfFileToWrite, toIgnore == null ? null : toIgnore.get());
