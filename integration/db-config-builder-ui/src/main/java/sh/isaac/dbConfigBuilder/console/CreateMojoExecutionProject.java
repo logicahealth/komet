@@ -109,7 +109,7 @@ public class CreateMojoExecutionProject
 			System.out.println("Creating a content converter config for " + ssc);
 			System.out.println();
 
-			String converterVersion = VersionFinder.findProjectVersion(true);
+			String converterVersion = VersionFinder.findProjectVersion();
 
 			System.out.println("What version of the converter software should be utilized?  Press enter for the default of " + converterVersion);
 
@@ -151,7 +151,7 @@ public class CreateMojoExecutionProject
 				{
 					System.out.println("What version of the dependency " + selectedConverter.getIBDFDependencies().get(i) + " should be used?");
 					System.out.println("The version pattern for ibdf files is {sourceVersion}-loader-{converterVersion}");
-					System.out.println("The newest converterVersion would be " + VersionFinder.findProjectVersion(true));
+					System.out.println("The newest converterVersion would be " + VersionFinder.findProjectVersion());
 					System.out.println("For the sourceVersion parameter, " + SupportedConverterTypes.findByIBDFArtifactId(selectedConverter.getIBDFDependencies().get(i))
 							.getSourceVersionDescription());
 					String dependencyVersion = bufferedReader.readLine();

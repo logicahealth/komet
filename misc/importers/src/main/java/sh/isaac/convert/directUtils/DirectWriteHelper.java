@@ -1424,7 +1424,7 @@ public class DirectWriteHelper
 					converterOutputArtifactVersion.get(), time);
 		}
 		makeBrittleStringAnnotation(MetaData.CONVERTER_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
-				VersionFinder.findProjectVersion(true), time);
+				VersionFinder.findProjectVersion(), time);
 
 		if (converterOutputArtifactClassifier.isPresent() && StringUtils.isNotBlank(converterOutputArtifactClassifier.get()))
 		{
