@@ -4,7 +4,7 @@ import javafx.beans.property.ObjectProperty;
 import sh.isaac.api.component.semantic.version.MutableImageVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
-public interface ObservabeImageVersion extends ObservableSemanticVersion, MutableImageVersion {
+public interface ObservableImageVersion extends ObservableSemanticVersion, MutableImageVersion {
 
     ObjectProperty<byte[]> imageDataProperty();
 

@@ -8,13 +8,12 @@ import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-import sh.isaac.api.observable.semantic.version.ObservabeImageVersion;
+import sh.isaac.api.observable.semantic.version.ObservableImageVersion;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ImageVersionImpl;
-import sh.isaac.model.semantic.version.LongVersionImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.UUID;
 
 public class ObservableImageVersionImpl
         extends ObservableAbstractSemanticVersionImpl
-        implements ObservabeImageVersion {
+        implements ObservableImageVersion {
     /** The long property. */
     SimpleObjectProperty<byte[]> imageDataProperty;
 

@@ -42,15 +42,26 @@ package sh.isaac.api.chronicle;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.security.InvalidParameterException;
-
 import java.util.Locale;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.StringUtils;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.ImageVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableImageVersion;
+import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 
-import sh.isaac.api.component.semantic.version.*;
-import sh.isaac.api.observable.semantic.version.*;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -302,23 +313,18 @@ public enum VersionType {
       case MEMBER:
          return ObservableSemanticVersion.class;
 
-         case LONG:
+      case LONG:
+         return ObservableLongVersion.class;
 
-            return ObservableLongVersion.class;
+      case STRING:
+         return ObservableStringVersion.class;
 
-         case STRING:
-
-            return ObservableStringVersion.class;
-
-         case IMAGE:
-            return ObservableStringVersion.class;
-            
+      case IMAGE:
+         return ObservableImageVersion.class;
+      
+      // TODO implement Observable pattern
       case DYNAMIC:
-
-      // TODO implement Observable pattern
       case LOGIC_GRAPH:
-
-      // TODO implement Observable pattern
       default:
          throw new RuntimeException("f Can't handle: " + this);
       }
