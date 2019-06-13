@@ -170,22 +170,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			
-			<!-- Mark this project as a maven mojo -->
-            <plugin>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>mojo-descriptor</id>
-                        <goals>
-                            <goal>descriptor</goal>
-                        </goals>
-                        <configuration>
-                            <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 		</plugins>
 	</build>
 </project>
