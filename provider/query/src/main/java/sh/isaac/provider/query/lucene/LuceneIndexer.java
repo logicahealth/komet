@@ -916,7 +916,7 @@ public abstract class LuceneIndexer
     */
    @PostConstruct
    private void startMe() {
-      if (!Get.useLuceneIndexes()) {
+      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
          return;
       }
       LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting " +
@@ -1106,7 +1106,7 @@ public abstract class LuceneIndexer
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping " + getIndexerName() + " pre-destroy. ");
-      if (!Get.useLuceneIndexes()) {
+      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
          return;
       }
       Get.commitService().removeChangeListener(this.changeListenerRef);
@@ -1138,7 +1138,7 @@ public abstract class LuceneIndexer
     */
    @Override
    public Path getDataStorePath() {
-      if (!Get.useLuceneIndexes()) {
+      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
             return null;
       }
       return this.indexFolder.toPath();
