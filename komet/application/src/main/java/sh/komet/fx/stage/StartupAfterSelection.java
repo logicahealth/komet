@@ -17,8 +17,6 @@ import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.PreferenceGroup;

@@ -1138,6 +1138,9 @@ public abstract class LuceneIndexer
     */
    @Override
    public Path getDataStorePath() {
+      if (!Get.useLuceneIndexes()) {
+            return null;
+      }
       return this.indexFolder.toPath();
    }
 
@@ -1214,9 +1217,13 @@ public abstract class LuceneIndexer
     */
    @Override
    public Optional<UUID> getDataStoreId() {
-      Path p = getDataStorePath().resolve(DATASTORE_ID_FILE);
+      Path p = getDataStorePath();
+      if (p != null)
+      {
+         p = p.resolve(DATASTORE_ID_FILE);
+      }
       try {
-         if (p.toFile().isFile())
+         if (p != null && p.toFile().isFile())
          {
             return Optional.of(UUID.fromString(new String(Files.readAllBytes(p))));
          }
