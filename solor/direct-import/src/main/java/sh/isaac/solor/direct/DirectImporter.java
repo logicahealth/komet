@@ -70,6 +70,9 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.io.IOUtils;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.solor.direct.clinvar.ClinvarImporter;
+import sh.isaac.solor.direct.cvx.CVXImporter;
+import sh.isaac.solor.direct.livd.LIVDImporter;
+import sh.isaac.solor.direct.srf.SRFImporter;
 
 //~--- non-JDK imports --------------------------------------------------------
 //~--- classes ----------------------------------------------------------------
@@ -319,7 +322,6 @@ public class DirectImporter
 
         HashMap<String, UUID> createdColumnConcepts = new HashMap<>();
         ConcurrentHashMap<Integer, Boolean> configuredDynamicSemantics = new ConcurrentHashMap<>();
-        HashMap<String, Set<String>> genomicGeneDescriptionsMap = new HashMap<>();
 
         LOG.info(builder.toString());
 
@@ -427,6 +429,40 @@ public class DirectImporter
                             clinvarImporter.runImport(br);
                             break;
 
+                        case CVX:
+                            CVXImporter cvxImporter = new CVXImporter(this.writeSemaphore, WRITE_PERMITS);
+                            cvxImporter.runImport(csp.get());
+
+                            break;
+                        case LIVD:
+                            LIVDImporter livdImporter = new LIVDImporter(this.writeSemaphore, WRITE_PERMITS);
+                            livdImporter.runImport(csp.get());
+                            break;
+
+                        case SRF_CONCEPT:
+                        case SRF_DESCRIPTION:
+                        case SRF_STATED_RELATIONSHIP:
+                        case SRF_INFERRED_RELATIONSHIP:
+                        case SRF_INT1_ASSEMBLAGE:
+                        case SRF_NID1_ASSEMBLAGE:
+                        case SRF_STR1_ASSEMBLAGE:
+                        case SRF_MEMBER_ASSEMBLAGE:
+                        case SRF_NID1_INT2_ASSEMBLAGE:
+                        case SRF_NID1_NID2_ASSEMBLAGE:
+                        case SRF_NID1_STR2_ASSEMBLAGE:
+                        case SRF_STR1_STR2_ASSEMBLAGE:
+                        case SRF_NID1_NID2_INT3_ASSEMBLAGE:
+                        case SRF_NID1_NID2_STR3_ASSEMBLAGE:
+                        case SRF_STR1_NID2_NID3_NID4_ASSEMBLAGE:
+                        case SRF_STR1_STR2_NID3_NID4_ASSEMBLAGE:
+                        case SRF_STR1_STR2_NID3_NID4_NID5_ASSEMBLAGE:
+                        case SRF_NID1_INT2_STR3_STR4_NID5_NID6_ASSEMBLAGE:
+                        case SRF_INT1_INT2_STR3_STR4_STR5_NID6_NID7_ASSEMBLAGE:
+                        case SRF_STR1_STR2_STR3_STR4_STR5_STR6_STR7_ASSEMBLAGE:
+
+                            SRFImporter.RunImport(br, importSpecification, this.writeSemaphore, WRITE_PERMITS, importType);
+                            break;
+
                         default:
                             throw new UnsupportedOperationException("Can't handle: " + importSpecification.streamType);
                     }
@@ -443,105 +479,87 @@ public class DirectImporter
 
     protected void processEntry(ContentProvider contentProvider, ArrayList<ImportSpecification> entriesToImport1) {
         String entryName = contentProvider.getStreamSourceName().toLowerCase();
-        boolean isSOLORReleaseFormat = entryName.startsWith("srf_");
 
-        if (entryName.contains("sct2_concept_") || (entryName.contains("solor_concept"))) {
-            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.CONCEPT, isSOLORReleaseFormat));
-        } else if ((entryName.contains("sct2_description_") || entryName.contains("sct2_textdefinition_"))
-                || (entryName.contains("solor_description") || entryName.contains("solor_textdefinition"))) {
-            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DESCRIPTION, isSOLORReleaseFormat));
+        if (entryName.contains("sct2_concept_")) {
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.CONCEPT));
+        } else if ((entryName.contains("sct2_description_") || entryName.contains("sct2_textdefinition_"))) {
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DESCRIPTION));
         } else if (entryName.contains("der2_crefset_") && entryName.contains("language")) {
-            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DIALECT, isSOLORReleaseFormat));
-        } else if (entryName.contains("sct2_identifier_") || entryName.contains("solor_identifier")) {
-            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.ALTERNATIVE_IDENTIFIER, isSOLORReleaseFormat));
-        } else if (entryName.contains("sct2_relationship_") || entryName.contains("solor_relationship")) {
-            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.INFERRED_RELATIONSHIP, isSOLORReleaseFormat));
-        } else if (entryName.contains("sct2_statedrelationship_") || entryName.contains("solor_statedrelationship")) {
-            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.STATED_RELATIONSHIP, isSOLORReleaseFormat));
-        } else if (entryName.contains("refset_") || entryName.contains("assemblage_")) {
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DIALECT));
+        } else if (entryName.contains("sct2_identifier_")) {
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.ALTERNATIVE_IDENTIFIER));
+        } else if (entryName.contains("sct2_relationship_")) {
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.INFERRED_RELATIONSHIP));
+        } else if (entryName.contains("sct2_statedrelationship_")) {
+            entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.STATED_RELATIONSHIP));
+        } else if (entryName.contains("refset_")) {
             if (importDynamic) {
-                entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DYNAMIC, entryName, isSOLORReleaseFormat));
+                entriesToImport1.add(new ImportSpecification(contentProvider, ImportStreamType.DYNAMIC, entryName));
             } else {
                 if (entryName.contains("_ccirefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.NID1_NID2_INT3_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.NID1_NID2_INT3_REFSET));
                 } else if (entryName.contains("_cirefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.NID1_INT2_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.NID1_INT2_REFSET));
                 } else if (entryName.contains("_cissccrefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.NID1_INT2_STR3_STR4_NID5_NID6_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.NID1_INT2_STR3_STR4_NID5_NID6_REFSET));
                 } else if (entryName.contains("_crefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.NID1_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.NID1_REFSET));
                 } else if (entryName.contains("_ssccrefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.STR1_STR2_NID3_NID4_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.STR1_STR2_NID3_NID4_REFSET));
                 } else if (entryName.contains("_ssrefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.STR1_STR2_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.STR1_STR2_REFSET));
                 } else if (entryName.contains("_sssssssrefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET,
-                            isSOLORReleaseFormat));
-                } else if (entryName.contains("_refset") || entryName.contains("assemblage_ ")) {
+                            ImportStreamType.STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET));
+                } else if (entryName.contains("_refset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.MEMBER_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.MEMBER_REFSET));
                 } else if (entryName.contains("_iisssccrefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET));
                 } else if (entryName.contains("_srefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.STR1_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.STR1_REFSET));
                 } else if (entryName.contains("_ccrefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.NID1_NID2_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.NID1_NID2_REFSET));
                 } else if (entryName.contains("_ccsrefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.NID1_NID2_STR3_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.NID1_NID2_STR3_REFSET));
                 } else if (entryName.contains("_csrefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.NID1_STR2_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.NID1_STR2_REFSET));
                 } else if (entryName.contains("_irefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.INT1_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.INT1_REFSET));
                 } else if (entryName.contains("_scccrefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.STR1_NID2_NID3_NID4_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.STR1_NID2_NID3_NID4_REFSET));
                 } else if (entryName.contains("_sscccrefset")) {
                     entriesToImport1.add(new ImportSpecification(
                             contentProvider,
-                            ImportStreamType.STR1_STR2_NID3_NID4_NID5_REFSET,
-                            isSOLORReleaseFormat));
+                            ImportStreamType.STR1_STR2_NID3_NID4_NID5_REFSET));
                 } else {
                     LOG.info("Ignoring: " + contentProvider.getStreamSourceName());
                 }
@@ -549,18 +567,105 @@ public class DirectImporter
         } else if (entryName.toUpperCase().endsWith("RXNCONSO.RRF")) {
             entriesToImport1.add(new ImportSpecification(
                     contentProvider,
-                    ImportStreamType.RXNORM_CONSO,
-                    isSOLORReleaseFormat));
+                    ImportStreamType.RXNORM_CONSO));
         } else if (entryName.toUpperCase().endsWith("LOINC.CSV")) {
             entriesToImport1.add(new ImportSpecification(
                     contentProvider,
-                    ImportStreamType.LOINC,
-                    isSOLORReleaseFormat));
-        } else if (entryName.endsWith("variant_summary.txt")) {
+                    ImportStreamType.LOINC));
+        } else if (entryName.toLowerCase().endsWith(".xlsx") && entryName.toLowerCase().contains("cvx")) {
             entriesToImport1.add(new ImportSpecification(
                     contentProvider,
-                    ImportStreamType.CLINVAR,
-                    isSOLORReleaseFormat));
+                    ImportStreamType.CVX));
+        } else if (entryName.toLowerCase().endsWith(".xlsx") && entryName.toLowerCase().contains("livd")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.LIVD));
+        }else if (entryName.toLowerCase().contains("variant")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.CLINVAR));
+        } else if (entryName.contains("solor_concept")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_CONCEPT));
+        }else if (entryName.contains("solor_description")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_DESCRIPTION));
+        }else if (entryName.contains("solor_relationship")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_INFERRED_RELATIONSHIP));
+        }else if (entryName.contains("solor_statedrelationship")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_STATED_RELATIONSHIP));
+        }else if (entryName.contains("assemblage_cci")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_NID1_NID2_INT3_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_ci")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_NID1_INT2_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_cisscc")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_NID1_INT2_STR3_STR4_NID5_NID6_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_c")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_NID1_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_sscc")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_STR1_STR2_NID3_NID4_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_ss")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_STR1_STR2_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_sssssss")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_STR1_STR2_STR3_STR4_STR5_STR6_STR7_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_ ")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_MEMBER_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_iissscc")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_INT1_INT2_STR3_STR4_STR5_NID6_NID7_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_s")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_STR1_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_cc")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_NID1_NID2_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_ccs")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_NID1_NID2_STR3_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_cs")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_NID1_STR2_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_i")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_INT1_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_sccc")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_STR1_NID2_NID3_NID4_ASSEMBLAGE));
+        } else if (entryName.contains("assemblage_ssccc")) {
+            entriesToImport1.add(new ImportSpecification(
+                    contentProvider,
+                    ImportStreamType.SRF_STR1_STR2_NID3_NID4_NID5_ASSEMBLAGE));
+        } else {
+            LOG.info("Ignoring: " + contentProvider.getStreamSourceName());
         }
     }
 
@@ -734,7 +839,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing iissscc semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -748,7 +853,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing iissscc semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -813,7 +918,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing i semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -827,7 +932,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing i semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -859,7 +964,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -873,7 +978,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -905,7 +1010,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ci semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -919,7 +1024,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ci semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -951,7 +1056,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing cisscc semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -965,7 +1070,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing cisscc semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -997,7 +1102,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing cci semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1011,7 +1116,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing cci semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1043,7 +1148,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing iissscc semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1057,7 +1162,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing iissscc semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1089,7 +1194,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ccs semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1103,7 +1208,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ccs semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1135,7 +1240,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing c semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1149,7 +1254,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing c semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1181,7 +1286,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing cs semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1195,7 +1300,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing cs semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1227,7 +1332,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing s semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1241,7 +1346,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing s semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1305,7 +1410,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing sscc semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1319,7 +1424,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing sscc semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1351,7 +1456,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ss semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1365,7 +1470,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ss semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1397,7 +1502,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing sssssss semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1411,7 +1516,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing sssssss semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1442,7 +1547,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing sccc semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1456,7 +1561,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing sccc semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1520,7 +1625,7 @@ public class DirectImporter
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing ssccc semantics from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1534,7 +1639,7 @@ public class DirectImporter
             BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing ssccc semantics from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
             Get.executor()
                     .submit(writer);
         }
@@ -1586,14 +1691,8 @@ public class DirectImporter
              * So, we only care about 06 on, which is the {@link DynamicRefsetWriter#VARIABLE_FIELD_START} constant, which will match up
              * with the '1' in the attribute order column....
              */
-            if (importSpecification.isSolorReleaseFormat()) {
-                if (!importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci snapshot descriptor")) {
-                    throw new RuntimeException("assemblage_cci snapshot descriptor is missing or not sorted to the top of the assemblages!");
-                }
-            } else {
-                if (!importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
-                    throw new RuntimeException("der2_ccirefset_refsetdescriptor is missing or not sorted to the top of the refsets!");
-                }
+            if (!importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
+                throw new RuntimeException("der2_ccirefset_refsetdescriptor is missing or not sorted to the top of the refsets!");
             }
 
             /*
@@ -1735,8 +1834,7 @@ public class DirectImporter
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing concepts from: " + trimZipName(
-                                importSpecification.contentProvider.getStreamSourceName()), importType,
-                        importSpecification.isSolorReleaseFormat());
+                                importSpecification.contentProvider.getStreamSourceName()), importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1752,8 +1850,7 @@ public class DirectImporter
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing concepts from: " + trimZipName(
-                            importSpecification.contentProvider.getStreamSourceName()), importType,
-                    importSpecification.isSolorReleaseFormat());
+                            importSpecification.contentProvider.getStreamSourceName()), importType);
 
             Get.executor()
                     .submit(conceptWriter);
@@ -1793,8 +1890,7 @@ public class DirectImporter
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing descriptions from: " + trimZipName(
-                                importSpecification.contentProvider.getStreamSourceName()), importType,
-                        importSpecification.isSolorReleaseFormat());
+                                importSpecification.contentProvider.getStreamSourceName()), importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1813,8 +1909,7 @@ public class DirectImporter
                     columnsToWrite,
                     this.writeSemaphore,
                     "Finishing descriptions from: " + trimZipName(
-                            importSpecification.contentProvider.getStreamSourceName()), importType,
-                    importSpecification.isSolorReleaseFormat());
+                            importSpecification.contentProvider.getStreamSourceName()), importType);
 
             Get.executor()
                     .submit(descriptionWriter);
@@ -1915,7 +2010,7 @@ public class DirectImporter
                         this.writeSemaphore,
                         "Processing inferred rels from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1932,7 +2027,7 @@ public class DirectImporter
                     this.writeSemaphore,
                     "Finishing inferred rels from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
 
             Get.executor()
                     .submit(relWriter);
@@ -1974,7 +2069,7 @@ public class DirectImporter
                         this.writeSemaphore,
                         "Processing stated rels from: " + trimZipName(
                                 importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                        importSpecification, importType);
 
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
@@ -1991,7 +2086,7 @@ public class DirectImporter
                     this.writeSemaphore,
                     "Finishing stated rels from: " + trimZipName(
                             importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, importSpecification.isSolorReleaseFormat());
+                    importSpecification, importType);
 
             Get.executor()
                     .submit(relWriter);

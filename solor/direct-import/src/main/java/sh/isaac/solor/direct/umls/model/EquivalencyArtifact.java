@@ -1,7 +1,6 @@
 package sh.isaac.solor.direct.umls.model;
 
 import sh.isaac.api.Status;
-import sh.isaac.solor.direct.clinvar.model.fields.ComponentFields;
 
 import java.util.UUID;
 
@@ -10,7 +9,7 @@ import java.util.UUID;
  *
  * @author kmaulden
  */
-public class EquivalencyArtifact implements ComponentFields {
+public class EquivalencyArtifact  {
 
     private final Status status;
     private final long time;
@@ -46,32 +45,26 @@ public class EquivalencyArtifact implements ComponentFields {
     }
 
     //TODO: what is the componentUUID here?
-    @Override
     public UUID getComponentUUID() {
         return null;
     }
 
-    @Override
     public Status getStatus() {
         return this.status;
     }
 
-    @Override
     public long getTime() {
         return this.time;
     }
 
-    @Override
     public int getAuthorNid() {
         return this.authorNid;
     }
 
-    @Override
     public int getModuleNid() {
         return this.moduleNid;
     }
 
-    @Override
     public int getPathNid() {
         return this.pathNid;
     }

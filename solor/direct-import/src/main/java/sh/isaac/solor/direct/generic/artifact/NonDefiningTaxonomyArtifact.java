@@ -1,9 +1,7 @@
-package sh.isaac.solor.direct.clinvar.model;
+package sh.isaac.solor.direct.generic.artifact;
 
 import sh.isaac.api.Status;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.solor.direct.clinvar.model.fields.ComponentFields;
-import sh.isaac.solor.direct.clinvar.model.fields.ComponentSemanticFields;
 
 import java.util.UUID;
 
@@ -11,7 +9,7 @@ import java.util.UUID;
  * 2019-03-16
  * aks8m - https://github.com/aks8m
  */
-public final class NonDefiningTaxonomyArtifact implements ComponentFields, ComponentSemanticFields {
+public final class NonDefiningTaxonomyArtifact implements GenericArtifact{
 
     //Concept Fields
     private final Status status;
@@ -51,42 +49,34 @@ public final class NonDefiningTaxonomyArtifact implements ComponentFields, Compo
                 this.referencedComponentUUID.toString() + this.semanticComponentUUID.toString());
     }
 
-    @Override
     public Status getStatus() {
         return this.status;
     }
 
-    @Override
     public long getTime() {
         return this.time;
     }
 
-    @Override
     public int getAuthorNid() {
         return this.authorNid;
     }
 
-    @Override
     public int getModuleNid() {
         return this.moduleNid;
     }
 
-    @Override
     public int getPathNid() {
         return this.pathNid;
     }
 
-    @Override
     public UUID getReferencedComponent() {
         return this.referencedComponentUUID;
     }
 
-    @Override
     public UUID getSemanticComponentUUID() {
         return this.semanticComponentUUID;
     }
 
-    @Override
     public UUID getNidSemanticAssemblageUUID() {
         return this.nidSemanticAssemblageUUID;
     }

@@ -127,6 +127,8 @@ public enum Iconography implements Icons {
    ICON_EDIT(SVG, "icon-edit"),
    ICON_EXPAND(SVG, "icon-expand"),
    ICON_EXPORT(MATERIAL_DESIGNS_WEBFONT, "icon-export"),
+   ICON_IMPORT(MATERIAL_DESIGNS_WEBFONT, "icon-import"),
+   IMPORT_GLYPH(MATERIAL_DESIGNS_WEBFONT, "import-glyph"),
    ICON_GO_TO_LINK(SVG, "icon-goto-link"),
    CASE_SENSITIVE_NOT(SVG, "not-case-sensitive"),
    ICON_RELOAD(SVG, "icon-reload"),
