@@ -425,7 +425,7 @@ public class DynamicUsageDescriptionImpl
 
          case DESCRIPTION:
             if (brittleColumnTitles.isPresent() && brittleColumnTitles.get().length != 4) {
-               logger.error("Brittle semantic info is invalid!  {} != {}", brittleColumnTitles.get().length, 1);
+               logger.error("Brittle semantic info is invalid!  {} != {}", brittleColumnTitles.get().length, 4);
                brittleColumnTitles = Optional.empty();
             }
             dsud.refexColumnInfo = new DynamicColumnInfo[] {

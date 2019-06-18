@@ -192,8 +192,6 @@ public class Get
    private static DataStore dataStore;
    
    private static PreferencesService preferencesService;
-
-   private static boolean useLuceneIndexes = true;
    
    private static final IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = new IntObjectHashMap<>();
     private static CountDownLatch termAuxCacheLatch = new CountDownLatch(1);
@@ -905,7 +903,7 @@ public class Get
     */
    public static Task<Void> startIndexTask(
          @SuppressWarnings("unchecked") Class<? extends IndexBuilderService>... indexersToReindex) {
-      if (!Get.useLuceneIndexes()) {
+      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
          throw new UnsupportedOperationException();
       }
       final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
@@ -999,14 +997,6 @@ public class Get
    private static final ConcurrentSkipListSet<ApplicationStates> APPLICATION_STATES = new ConcurrentSkipListSet<>();
    public static ConcurrentSkipListSet<ApplicationStates> applicationStates() {
        return APPLICATION_STATES;
-   }
-
-   public static boolean useLuceneIndexes() {
-      return useLuceneIndexes;
-   }
-
-   public static void setUseLuceneIndexes(boolean useLuceneIndexes) {
-      Get.useLuceneIndexes = useLuceneIndexes;
    }
 
    public static ObservableChronology observableChronology(UUID... uuids) {

@@ -193,6 +193,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                pushParent(current());
                   createConcept("Solor genomic module");
+                  createConcept("Solor LIVD module");
                   createConcept("SOLOR quality assurance rule module");
                   createConcept("SOLOR temporary concept module")
                           .addDescription("The temporary module is used for concepts such as those that represent feature paths, that are never part of a release.", TermAux.DEFINITION_DESCRIPTION_TYPE);
@@ -201,7 +202,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
                   createConcept(TermAux.SOLOR_OVERLAY_MODULE).addDescription("SOLOR overlay", TermAux.REGULAR_NAME_DESCRIPTION_TYPE)
                      .addUuids(UUID.fromString("1f2016a6-960e-11e5-8994-feff819cdc9f"));
-                  createConcept("Solor umls module");
+                  createConcept("Solor UMLS module");
                
                   popParent();
 
@@ -229,7 +230,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.DELOITTE_USER);
                createConcept("Bootstrap administrator", "admin");
                createConcept("Clinvar User");
-               createConcept("umls User");
+               createConcept("UMLS User");
+               createConcept("LIVD User");
+               createConcept("CVX User");
                popParent();
             createConcept(TermAux.PATH);
             pushParent(current());
@@ -294,6 +297,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Clinvar Variant ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("NCBI Gene ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("Clinvar Description ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("CVX Code").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("CVX Description ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("FHIR URI");
                createConcept("OID").addDescription("HL7 Object Identifier", TermAux.REGULAR_NAME_DESCRIPTION_TYPE).setPrimordialUuid("374ce9a6-7f66-5c70-94ae-9aeea2f95c73"); //UUID from the loader
                popParent();
@@ -378,6 +383,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   ConceptBuilder builder = createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   builder.getPreferredDescriptionBuilder().setDescriptionText("SNOMED legacy implication");
                   createConcept("Clinvar Definition Assemblage");
+                  createConcept("CVX Definition Assemblage");
                   popParent();
                createConcept(TermAux.CONCEPT_ASSEMBLAGE);
                pushParent(current());
@@ -394,7 +400,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
                   createConcept("Clinvar Variant to Gene Non-Defining Taxonomy");
                   createConcept("Clinvar Gene to Phenotype Non-Defining Taxonomy");
-                  createConcept("umls equivalency assemblage");
+                  createConcept("UMLS equivalency assemblage");
+                  createConcept("LIVD Assemblage");
                   popParent();
                createConcept("Rule assemblage");
                pushParent(current());
@@ -737,6 +744,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                      createConcept("Export specification panel").addStringSemantic(UUID.fromString("088cabd6-47d2-57aa-8726-2ec91f287ce4"), "sh.komet.gui.exportation.ExportSpecificationFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                         .getPreferredDescriptionBuilder().setDescriptionText("Export specification").setModule(TermAux.KOMET_MODULE);
 
+                     createConcept("Import specification panel").addStringSemantic(UUID.fromString("de59f527-95f5-53ad-97fa-c57574f3befa"),"sh.komet.gui.io.IOSpecificationFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Import specification").setModule(TermAux.KOMET_MODULE);
+
                      popParent();
                   createConcept("Detail nodes").getPreferredDescriptionBuilder().setModule(TermAux.KOMET_MODULE);
                   pushParent(current());
@@ -902,7 +912,20 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                         createConcept(ObservableFields.LOINC_SHORT_NAME);
                         createConcept(ObservableFields.LOINC_LONG_COMMON_NAME);
                         popParent();
-                   
+                   createConcept("LIVD Semantics");
+                   pushParent(current());
+                       createConcept("LIVD Publication Version ID");
+                       createConcept("LIVD Manufacturer");
+                       createConcept("LIVD Model");
+                       createConcept("LIVD Equipment UID");
+                       createConcept("LIVD Equipment UID Type");
+                       createConcept("LIVD Vendor Analyte Code");
+                       createConcept("LIVD Vendor Analyte Name");
+                       createConcept("LIVD Vendor Specimen Description");
+                       createConcept("LIVD Vendor Result Description");
+                       createConcept("LIVD Vendor Reference ID");
+                       createConcept("LIVD Vendor Comment");
+                       popParent();
                    popParent();
             createConcept("Clinical statement properties");
             pushParent(current());

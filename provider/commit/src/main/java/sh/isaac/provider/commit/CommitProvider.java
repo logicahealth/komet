@@ -662,7 +662,7 @@ public class CommitProvider
                             " in deferred set: " + nid + " UUIDs: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)));
                 }
             }
-            if (Get.useLuceneIndexes()) {
+            if (Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
                 ArrayList<Future<Long>> futures = new ArrayList<>();
                 List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
                 for (final int nid : nids) {

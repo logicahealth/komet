@@ -916,7 +916,7 @@ public abstract class LuceneIndexer
     */
    @PostConstruct
    private void startMe() {
-      if (!Get.useLuceneIndexes()) {
+      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
          return;
       }
       LabelTaskWithIndeterminateProgress progressTask = new LabelTaskWithIndeterminateProgress("Starting " +
@@ -1106,7 +1106,7 @@ public abstract class LuceneIndexer
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping " + getIndexerName() + " pre-destroy. ");
-      if (!Get.useLuceneIndexes()) {
+      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
          return;
       }
       Get.commitService().removeChangeListener(this.changeListenerRef);
@@ -1138,6 +1138,9 @@ public abstract class LuceneIndexer
     */
    @Override
    public Path getDataStorePath() {
+      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
+            return null;
+      }
       return this.indexFolder.toPath();
    }
 
@@ -1214,9 +1217,13 @@ public abstract class LuceneIndexer
     */
    @Override
    public Optional<UUID> getDataStoreId() {
-      Path p = getDataStorePath().resolve(DATASTORE_ID_FILE);
+      Path p = getDataStorePath();
+      if (p != null)
+      {
+         p = p.resolve(DATASTORE_ID_FILE);
+      }
       try {
-         if (p.toFile().isFile())
+         if (p != null && p.toFile().isFile())
          {
             return Optional.of(UUID.fromString(new String(Files.readAllBytes(p))));
          }

@@ -658,4 +658,32 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 		dataStore.clear();
 		defaultCoordinateProvider = new DefaultCoordinateProvider();
 	}
+
+	@Override
+	public boolean enableLuceneIndexes()
+	{
+		String temp = System.getProperty(SystemPropertyConstants.ENABLE_LUCENE);
+		
+		if (StringUtils.isNotBlank(temp))
+		{
+			boolean enableFromSystem = Boolean.parseBoolean(temp);
+			LOG.info("Overriding datastore configuration for 'enableLuceneIndexes' with System Property " + SystemPropertyConstants.ENABLE_LUCENE + ": " + enableFromSystem);
+			return enableFromSystem;
+		}
+		
+		if (hasOption("enableLucene"))
+		{
+			return getOption("enableLucene");
+		}
+		else
+		{
+			return GlobalDatastoreConfiguration.super.enableLuceneIndexes();
+		}
+	}
+
+	@Override
+	public void setEnableLuceneIndexs(boolean enable)
+	{
+		putOption("enableLucene", Boolean.valueOf(enable));
+	}
 }
