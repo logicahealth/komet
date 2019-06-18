@@ -12,6 +12,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -76,6 +77,7 @@ public class StartupAfterSelection implements Runnable {
             Get.configurationService().setSingleUserMode(true);  //TODO eventually, this needs to be replaced with a proper user identifier
             Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
             Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
+//            Get.configurationService().setDatabaseImplementation(DatabaseImplementation.MV);
             LookupService.startupIsaac();
 
             if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
