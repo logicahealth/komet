@@ -28,7 +28,6 @@
         <module>path</module>
         <module>progress</module>
         <module>sync-git</module>
-        <module>concept</module>
         <module>ibdf</module>
         <module>logic</module>
         <module>observable</module>
