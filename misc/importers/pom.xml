@@ -150,18 +150,6 @@
 						<goals>
 							<goal>generate</goal>
 						</goals>
-						<configuration>
-							<generatePackage>coreschema</generatePackage>
-							<schemaDirectory>${project.basedir}/src/main/resources/hl7v3/datatypes</schemaDirectory>
-							<schemaIncludes>
-								<include>hl7-r2_datatypes.xsd</include>
-							</schemaIncludes>
-						</configuration>
-					</execution>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
 						<id>mif</id>
 						<configuration>
 							<generatePackage>mifschema</generatePackage>

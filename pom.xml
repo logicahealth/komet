@@ -91,7 +91,6 @@
       <HK2Utilities.version>1.5.2</HK2Utilities.version>
       <httpclient.version>4.5.5</httpclient.version>
       <javassist.version>3.22.0-GA</javassist.version>
-      <jaxb2-maven-plugin.version>2.3.1</jaxb2-maven-plugin.version>
       <jbpm.version>6.5.0.Final</jbpm.version>
       <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
       <jersey.version>2.25.1</jersey.version>
@@ -109,6 +108,7 @@
       <maven-core.version>3.6.0</maven-core.version>
       <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
       <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+      <maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
       <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
       <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
       <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
@@ -817,11 +817,17 @@
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-install-plugin</artifactId>
+               <version>${maven-install-plugin.version}</version>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-javadoc-plugin</artifactId>
                <version>${maven-javadoc-plugin.version}</version>
                <configuration>
                   <failOnError>false</failOnError>
                   <additionalparam>-Xdoclint:none</additionalparam>
+                  <detectOfflineLinks>false</detectOfflineLinks>
                </configuration>
             </plugin>
             <plugin>
@@ -879,16 +885,6 @@
                      <exclude>org.drools*</exclude>
                   </excludes>
                </configuration>
-            </plugin>
-            <plugin>
-               <!--
-                  TODO: Consider this alternative:
-                  http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
-                  https://github.com/whummer/jaxb-facets
-               -->
-               <groupId>org.codehaus.mojo</groupId>
-               <artifactId>jaxb2-maven-plugin</artifactId>
-               <version>${jaxb2-maven-plugin.version}</version>
             </plugin>
             <plugin>
                <groupId>org.jvnet.jaxb2.maven2</groupId>
@@ -990,17 +986,17 @@
                            </action>
                         </pluginExecution>
                         <pluginExecution>
-                        	<pluginExecutionFilter>
-                        		<groupId>org.apache.maven.plugins</groupId>
-                        		<artifactId>maven-toolchains-plugin</artifactId>
-                        		<versionRange>[1.1,)</versionRange>
-                        		<goals>
-                        			<goal>toolchain</goal>
-                        		</goals>
-                        	</pluginExecutionFilter>
-                        	<action>
-                        		<ignore></ignore>
-                        	</action>
+                           <pluginExecutionFilter>
+                              <groupId>org.apache.maven.plugins</groupId>
+                              <artifactId>maven-toolchains-plugin</artifactId>
+                              <versionRange>[1.1,)</versionRange>
+                              <goals>
+                                 <goal>toolchain</goal>
+                              </goals>
+                           </pluginExecutionFilter>
+                           <action>
+                              <ignore></ignore>
+                           </action>
                         </pluginExecution>
                      </pluginExecutions>
                   </lifecycleMappingMetadata>
@@ -1090,6 +1086,7 @@
                <archive>
                   <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                </archive>-->
+               <skipIfEmpty>true</skipIfEmpty>
             </configuration>
          </plugin>
          <plugin>
