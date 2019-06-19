@@ -11,7 +11,6 @@
     <description>Aggregator project for ISAAC's SOLOR modules</description>
     <packaging>pom</packaging>
     <modules>
-        <module>rxnorm-mojo</module>
         <module>solor-parent</module>
         <module>solor-mojo</module>
         <module>direct-import</module>
