@@ -1236,6 +1236,14 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 				{
 					return new ReadOnlyObjectWrapper<>(callback.getValue().getValue());
 				});
+				nestedStrCol.setComparator(new Comparator<SemanticGUI>()
+				{
+					@Override
+					public int compare(SemanticGUI o1, SemanticGUI o2)
+					{
+						return Long.compare(o1.getSemantic().getTime(), o2.getSemantic().getTime());
+					}
+				});
 				
 				nestedStrCol.setCellFactory((colInfo) -> 
 				{
