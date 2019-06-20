@@ -104,7 +104,7 @@
 		</dependency>
 		<!-- This gets us nice console logging, so long as we are running ad-hoc tests from the src/test/java package -->
 		<dependency>
-			<groupId>sh.isaac.uts-core.core</groupId>
+			<groupId>sh.isaac.core</groupId>
 			<artifactId>log-config</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
@@ -119,7 +119,7 @@
 			<artifactId>SnomedCTParser</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>sh.isaac.uts-core.core</groupId>
+			<groupId>sh.isaac.core</groupId>
 			<artifactId>metadata</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
@@ -159,18 +159,6 @@
 							<generateDirectory>${project.build.directory}/generated-sources/mvx</generateDirectory>
 						</configuration>
 					</execution>
-					<!--execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<generatePackage>coreschema</generatePackage>
-							<schemaDirectory>src/main/resources/hl7v3/datatypes</schemaDirectory>
-							<schemaIncludes>
-								<include>hl7-r2_datatypes.xsd</include>
-							</schemaIncludes>
-						</configuration>
-					</execution-->
 					<execution>
 						<goals>
 							<goal>generate</goal>
