@@ -377,7 +377,7 @@ public class TaxonomyProvider
     }
 
     @Override
-    public TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, EnumSet<Status> allowedStates, boolean computeTree) {
+    public TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, Set<Status> allowedStates, boolean computeTree) {
         return computeTree ? 
                 getSnapshot(new ManifoldCoordinateImpl(
                     new StampCoordinateImpl(StampPrecedence.TIME,

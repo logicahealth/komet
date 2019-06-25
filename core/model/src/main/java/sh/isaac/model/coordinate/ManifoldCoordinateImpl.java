@@ -40,8 +40,10 @@
 package sh.isaac.model.coordinate;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import javax.xml.bind.annotation.XmlElement;
@@ -259,7 +261,20 @@ public class ManifoldCoordinateImpl
 
    /**
     * {@inheritDoc}
-    * @see sh.isaac.api.coordinate.StampCoordinate#makeModuleAnalog(int[], boolean)
+    */
+   @Override
+   public ManifoldCoordinate makeCoordinateAnalog(Set<Status> statusSet) {
+      ManifoldCoordinateImpl mc = new ManifoldCoordinateImpl(this.taxonomyPremiseType,
+               this.stampCoordinate.makeCoordinateAnalog(statusSet),
+               this.destinationStampCoordinate,
+               this.languageCoordinate,
+               this.logicCoordinate);
+       mc.setCustomSorter(this.customSorter);
+       return mc;
+   }
+
+   /**
+    * {@inheritDoc}
     */
    @Override
    public ManifoldCoordinateImpl makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
@@ -270,6 +285,20 @@ public class ManifoldCoordinateImpl
             this.logicCoordinate);
        mc.setCustomSorter(this.customSorter);
        return mc;
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public ManifoldCoordinate makeModulePreferenceOrderAnalog(List<ConceptSpecification> newModulePreferenceOrder) {
+       ManifoldCoordinateImpl mc = new ManifoldCoordinateImpl(this.taxonomyPremiseType, 
+               this.stampCoordinate.makeModulePreferenceOrderAnalog(newModulePreferenceOrder), 
+               this.destinationStampCoordinate,
+               this.languageCoordinate, 
+               this.logicCoordinate);
+          mc.setCustomSorter(this.customSorter);
+          return mc;
    }
 
    /**

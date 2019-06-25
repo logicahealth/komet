@@ -15,7 +15,7 @@
  */
 package sh.komet.gui.search.extended;
 
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.Predicate;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -36,10 +36,10 @@ public class TimeStatusRestriction {
 
     Long afterTime;
     Long beforeTime;
-    EnumSet<Status> allowedStatus;
+    Set<Status> allowedStatus;
     ManifoldCoordinate manifold;
 
-    public TimeStatusRestriction(Long afterTime, Long beforeTime, EnumSet<Status> allowedStatus, ManifoldCoordinate manifold) {
+    public TimeStatusRestriction(Long afterTime, Long beforeTime, Set<Status> allowedStatus, ManifoldCoordinate manifold) {
         this.afterTime = afterTime;
         this.beforeTime = beforeTime;
         this.allowedStatus = allowedStatus;
@@ -54,7 +54,7 @@ public class TimeStatusRestriction {
         return beforeTime;
     }
 
-    public EnumSet<Status> getAllowedStates() {
+    public Set<Status> getAllowedStates() {
         return allowedStatus;
     }
 

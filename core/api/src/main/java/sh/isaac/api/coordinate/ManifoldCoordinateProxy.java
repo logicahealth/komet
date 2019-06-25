@@ -46,4 +46,13 @@ public interface ManifoldCoordinateProxy extends ManifoldCoordinate {
       return getManifoldCoordinate().getCoordinateUuid();
    }
    
+   @Override
+   public default StampCoordinate getDestinationStampCoordinate() {
+      return getManifoldCoordinate().getDestinationStampCoordinate();
+   }
+   
+   @Override
+   public default LogicCoordinate getLogicCoordinate() {
+      return getManifoldCoordinate().getLogicCoordinate();
+   }
 }

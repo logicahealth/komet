@@ -329,6 +329,11 @@ public class ConceptSnapshotImpl
    }
 
    @Override
+   public StampCoordinate makeModulePreferenceOrderAnalog(List<ConceptSpecification> newModulePreferenceOrder) {
+      return this.manifoldCoordinate.makeModulePreferenceOrderAnalog(newModulePreferenceOrder);
+   }
+
+   @Override
    public PremiseType getTaxonomyPremiseType() {
       return this.manifoldCoordinate.getTaxonomyPremiseType();
    }
@@ -426,4 +431,3 @@ public class ConceptSnapshotImpl
         return manifoldCoordinate.getModuleSpecPreferenceListForLanguage();
     }
 }
-

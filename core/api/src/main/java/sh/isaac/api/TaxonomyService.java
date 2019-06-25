@@ -39,7 +39,6 @@
 
 package sh.isaac.api;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 
@@ -150,8 +149,8 @@ public interface TaxonomyService
      * {@link #getSnapshotNoTree(ManifoldCoordinate)}
      * @return the Snapshot service
      */
-   TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, EnumSet<Status> allowedStates, boolean computeTree);
-   
+   TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, Set<Status> allowedStates, boolean computeTree);
+
    /**
     * 
     * @param conceptAssemblageNid The assemblage Nid which specifies the assemblage where the concepts in this tree

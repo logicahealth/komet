@@ -415,11 +415,6 @@ public class Manifold
    public ObservableStampCoordinate getStampCoordinate() {
       return this.observableManifoldCoordinate.getStampCoordinate();
    }
-   
-   @Override
-   public StampCoordinate getDestinationStampCoordinate() {
-      return this.observableManifoldCoordinate.getDestinationStampCoordinate();
-   }
 
     public void addEditInFlight(EditInFlight editInFlight) {
       EDITS_IN_PROCESS.add(editInFlight);
@@ -439,23 +434,8 @@ public class Manifold
     }
 
     @Override
-    public StampCoordinate getImmutableAllStateAnalog() {
-        return getStampCoordinate().getImmutableAllStateAnalog();
-    }
-
-    @Override
     public int[] getModulePreferenceListForLanguage() {
         return this.observableManifoldCoordinate.getModulePreferenceListForLanguage();
-    }
-
-    @Override
-    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
-        return this.observableManifoldCoordinate.getModulePreferenceOrderForVersions();
-    }
-
-    @Override
-    public Set<ConceptSpecification> getModuleSpecifications() {
-        return this.observableManifoldCoordinate.getModuleSpecifications();
     }
 
     @Override
@@ -477,7 +457,4 @@ public class Manifold
     public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
         return this.observableManifoldCoordinate.getModuleSpecPreferenceListForLanguage();
     }
-    
-    
 }
-

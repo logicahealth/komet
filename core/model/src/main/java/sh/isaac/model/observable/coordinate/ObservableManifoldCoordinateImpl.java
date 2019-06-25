@@ -198,7 +198,22 @@ public class ObservableManifoldCoordinateImpl
    public ObservableManifoldCoordinate makeCoordinateAnalog(Status... state) {
       return new ObservableManifoldCoordinateImpl(this.manifoldCoordinate.makeCoordinateAnalog(state));
    }
+   
+   
 
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public StampCoordinate makeCoordinateAnalog(Set<Status> statusSet) {
+      return new ObservableManifoldCoordinateImpl(this.manifoldCoordinate.makeCoordinateAnalog(statusSet));
+   }
+
+   @Override
+   public StampCoordinate makeModulePreferenceOrderAnalog(List<ConceptSpecification> newModulePreferenceOrder) {
+      return new ObservableManifoldCoordinateImpl(this.manifoldCoordinate.makeModulePreferenceOrderAnalog(newModulePreferenceOrder));
+   }
+   
    @Override
    public ObservableManifoldCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
       return new ObservableManifoldCoordinateImpl(this.manifoldCoordinate.makeModuleAnalog(modules, add));
@@ -223,8 +238,6 @@ public class ObservableManifoldCoordinateImpl
       }
       return this.taxonomyTypeProperty;
    }
-   
-   
 
    /**
     * Gets the taxonomy type.

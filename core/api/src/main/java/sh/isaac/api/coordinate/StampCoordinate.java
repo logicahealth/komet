@@ -159,5 +159,13 @@ public interface StampCoordinate
     * @return the new coordinate
     */
    public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add);
+   
+   /**
+    * Create a new Stamp Coordinate identical to the this coordinate, with the {@link #getModulePreferenceOrderForVersions()} 
+    * replaced by this new list.
+    * @param newModulePreferenceOrder 
+    * @return the new coordinate
+    */
+   public StampCoordinate makeModulePreferenceOrderAnalog(List<ConceptSpecification> newModulePreferenceOrder);
 }
 

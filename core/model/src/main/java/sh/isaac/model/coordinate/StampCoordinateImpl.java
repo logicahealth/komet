@@ -36,24 +36,15 @@
  */
 package sh.isaac.model.coordinate;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SetProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.WeakChangeListener;
-
-import javafx.collections.SetChangeListener;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -61,10 +52,11 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import sh.isaac.api.ConceptProxy;
-
-//~--- JDK imports ------------------------------------------------------------
-//~--- non-JDK imports --------------------------------------------------------
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SetProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.WeakChangeListener;
+import javafx.collections.SetChangeListener;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
@@ -76,7 +68,6 @@ import sh.isaac.api.observable.coordinate.ObservableStampPosition;
 import sh.isaac.model.xml.StampPositionAdaptor;
 import sh.isaac.model.xml.StatusEnumSetAdaptor;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class StampCoordinateImpl.
  *
@@ -110,19 +101,22 @@ public class StampCoordinateImpl
     EnumSet<Status> allowedStates;
 
     List<ConceptSpecification> modulePriorityList;
-
-    private StampCoordinateImmutableWrapper stampCoordinateImmutable = null;
+    
+    private transient HashMap<Integer, StampCoordinate> statusAnalogCache = new HashMap<>();
 
     /**
      * No arg constructor for JAXB.
      */
-    public StampCoordinateImpl() {
+    private StampCoordinateImpl() {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @XmlElement
     public UUID getStampCoordinateUuid() {
-        return StampCoordinate.super.getStampCoordinateUuid(); //To change body of generated methods, choose Tools | Templates.
+        return StampCoordinate.super.getStampCoordinateUuid();
     }
     private void setStampCoordinateUuid(UUID uuid) {
         // noop for jaxb
@@ -142,18 +136,18 @@ public class StampCoordinateImpl
      */
     public StampCoordinateImpl(StampPrecedence stampPrecedence,
             StampPosition stampPosition,
-            Set<ConceptSpecification> moduleSpecifications,
+            Collection<ConceptSpecification> moduleSpecifications,
             List<ConceptSpecification> modulePriorityList,
-            EnumSet<Status> allowedStates) {
+            Set<Status> allowedStates) {
         this.stampPrecedence = stampPrecedence;
-        this.stampPosition = stampPosition;
-        this.moduleSpecifications = moduleSpecifications;
-        this.modulePriorityList = modulePriorityList;
-        this.allowedStates = allowedStates;
-
-        if (this.moduleSpecifications == null) {
-            this.moduleSpecifications = new HashSet<>();
+        this.stampPosition = stampPosition.deepClone();
+        this.moduleSpecifications = new HashSet<>();
+        this.moduleSpecifications.addAll(moduleSpecifications);
+        this.modulePriorityList = new ArrayList<>();
+        if (modulePriorityList != null) {
+            this.modulePriorityList.addAll(modulePriorityList);
         }
+        this.allowedStates = EnumSet.copyOf(allowedStates);
     }
 
     /**
@@ -168,69 +162,13 @@ public class StampCoordinateImpl
      */
     public StampCoordinateImpl(StampPrecedence stampPrecedence,
             StampPosition stampPosition,
-            Set<ConceptSpecification> moduleSpecifications,
-            EnumSet<Status> allowedStates) {
+            Collection<ConceptSpecification> moduleSpecifications,
+            Set<Status> allowedStates) {
         this(stampPrecedence, stampPosition, moduleSpecifications, new ArrayList<>(), allowedStates);
     }
 
     /**
-     * Instantiates a new stamp coordinate impl, with an empty modulePriority
-     * list.
-     *
-     * @param stampPrecedence the stamp precedence
-     * @param stampPosition the stamp position
-     * @param moduleNids the modules to include in the version computation
-     * @param allowedStates the allowed states
-     */
-    public StampCoordinateImpl(StampPrecedence stampPrecedence,
-            StampPosition stampPosition,
-            NidSet moduleNids,
-            EnumSet<Status> allowedStates) {
-        this(stampPrecedence, stampPosition, null, new ArrayList<>(), allowedStates);
-        if (moduleNids != null) {
-            moduleNids.stream().forEach(nid -> moduleSpecifications.add(new ConceptProxy(nid)));
-        }
-    }
-
-    /**
-     * Instantiates a new stamp coordinate impl.
-     *
-     * @param stampPrecedence the stamp precedence
-     * @param stampPosition the stamp position
-     * @param moduleSpecifications the module specifications
-     * @param moduleSpecificationPriorities the priority of the modules to use
-     * when contradictions is encountered.
-     * @param allowedStates the allowed states
-     */
-    public StampCoordinateImpl(StampPrecedence stampPrecedence,
-            StampPosition stampPosition,
-            Collection<ConceptSpecification> moduleSpecifications,
-            List<ConceptSpecification> moduleSpecificationPriorities,
-            EnumSet<Status> allowedStates) {
-        this(stampPrecedence,
-                stampPosition,
-                new HashSet<>(moduleSpecifications),
-                moduleSpecificationPriorities,
-                allowedStates);
-    }
-
-    //~--- methods -------------------------------------------------------------
-    @Override
-    public StampCoordinate getImmutableAllStateAnalog() {
-        StampCoordinateImmutableWrapper coordinate = this.stampCoordinateImmutable;
-        if (coordinate != null) {
-            return coordinate;
-        }
-        coordinate = new StampCoordinateImmutableWrapper(this);
-        this.stampCoordinateImmutable = coordinate;
-        return coordinate;
-    }
-
-    /**
-     * Equals.
-     *
-     * @param obj the obj
-     * @return true, if successful
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -264,6 +202,9 @@ public class StampCoordinateImpl
         return this.moduleSpecifications.equals(other.getModuleSpecifications());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @XmlElement(name = "Concept")
     @XmlElementWrapper(name = "modules")
@@ -272,13 +213,12 @@ public class StampCoordinateImpl
     }
 
     public void setModuleSpecifications(Set<ConceptSpecification> moduleSpecifications) {
+        statusAnalogCache.clear();
         this.moduleSpecifications = moduleSpecifications;
     }
 
     /**
-     * Hash code.
-     *
-     * @return the int
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -293,10 +233,7 @@ public class StampCoordinateImpl
     }
 
     /**
-     * Make analog.
-     *
-     * @param stampPositionTime the stamp position time
-     * @return the stamp coordinate impl
+     * {@inheritDoc}
      */
     @Override
     public StampCoordinateImpl makeCoordinateAnalog(long stampPositionTime) {
@@ -311,28 +248,17 @@ public class StampCoordinateImpl
     }
 
     /**
-     * Make analog.
-     *
-     * @param states the states
-     * @return the stamp coordinate impl
+     * {@inheritDoc}
      */
     @Override
-    public StampCoordinateImpl makeCoordinateAnalog(Status... states) {
-        final EnumSet<Status> newAllowedStates = EnumSet.noneOf(Status.class);
-
-        newAllowedStates.addAll(Arrays.asList(states));
-        return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSpecifications, this.modulePriorityList, newAllowedStates);
-    }
-
-    @Override
-    public StampCoordinate makeCoordinateAnalog(EnumSet<Status> states) {
-        return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSpecifications, this.modulePriorityList, states);
+    public StampCoordinate makeCoordinateAnalog(Set<Status> states) {
+        return statusAnalogCache.computeIfAbsent(states.hashCode(), hashCodeAgain -> {
+            return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSpecifications, this.modulePriorityList, states);
+        });
     }
 
     /**
-     * @see
-     * sh.isaac.api.coordinate.StampCoordinate#makeModuleAnalog(Collection<ConceptSpecification>,
-     * boolean)
+     * {@inheritDoc}
      */
     @Override
     public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
@@ -343,11 +269,17 @@ public class StampCoordinateImpl
         }
         return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, newNids, this.modulePriorityList, this.allowedStates);
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public StampCoordinate makeModulePreferenceOrderAnalog(List<ConceptSpecification> newModulePreferenceOrder) {
+        return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSpecifications, newModulePreferenceOrder, this.allowedStates);
+    }
 
     /**
-     * To string.
-     *
-     * @return the string
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -379,11 +311,8 @@ public class StampCoordinateImpl
         return builder.toString();
     }
 
-    //~--- get methods ---------------------------------------------------------
     /**
-     * Gets the allowed states.
-     *
-     * @return the allowed states
+     * {@inheritDoc}
      */
     @Override
     @XmlElement(name = "allowedStatus")
@@ -396,7 +325,6 @@ public class StampCoordinateImpl
         this.allowedStates = allowedStates;
     }
 
-    //~--- set methods ---------------------------------------------------------
     /**
      * Set allowed states property.
      *
@@ -416,23 +344,16 @@ public class StampCoordinateImpl
         return listener;
     }
 
-    //~--- get methods ---------------------------------------------------------
     /**
-     * Gets the module nids.
-     *
-     * @return the module nids
+     * {@inheritDoc}
      */
     @Override
     public NidSet getModuleNids() {
         return NidSet.of(this.moduleSpecifications);
     }
 
-    //~--- set methods ---------------------------------------------------------
-    //~--- get methods ---------------------------------------------------------
     /**
-     * Gets the stamp position.
-     *
-     * @return the stamp position
+     * {@inheritDoc}
      */
     @Override
     @XmlElement(name = "stampPosition")
@@ -442,10 +363,10 @@ public class StampCoordinateImpl
     }
 
     public void setStampPosition(StampPosition stampPosition) {
+        statusAnalogCache.clear();
         this.stampPosition = stampPosition;
     }
 
-    //~--- set methods ---------------------------------------------------------
     /**
      * Set stamp position property.
      *
@@ -455,6 +376,7 @@ public class StampCoordinateImpl
     public ChangeListener<ObservableStampPosition> setStampPositionProperty(
             ObjectProperty<ObservableStampPosition> stampPositionProperty) {
         final ChangeListener<ObservableStampPosition> listener = (observable, oldValue, newValue) -> {
+            statusAnalogCache.clear();
             this.stampPosition = newValue;
         };
 
@@ -462,11 +384,8 @@ public class StampCoordinateImpl
         return listener;
     }
 
-    //~--- get methods ---------------------------------------------------------
     /**
-     * Gets the stamp precedence.
-     *
-     * @return the stamp precedence
+     * {@inheritDoc}
      */
     @Override
     @XmlElement(name = "stampPrecedence")
@@ -475,10 +394,10 @@ public class StampCoordinateImpl
     }
 
     public void setStampPrecedence(StampPrecedence stampPrecedence) {
+        statusAnalogCache.clear();
         this.stampPrecedence = stampPrecedence;
     }
 
-    //~--- set methods ---------------------------------------------------------
     /**
      * Set stamp precedence property.
      *
@@ -488,6 +407,7 @@ public class StampCoordinateImpl
     public ChangeListener<StampPrecedence> setStampPrecedenceProperty(
             ObjectProperty<StampPrecedence> stampPrecedenceProperty) {
         final ChangeListener<StampPrecedence> listener = (observable, oldValue, newValue) -> {
+            statusAnalogCache.clear();
             this.stampPrecedence = newValue;
         };
 
@@ -495,7 +415,9 @@ public class StampCoordinateImpl
         return listener;
     }
 
-    //~--- inner classes -------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public StampCoordinateImpl deepClone() {
         StampCoordinateImpl newCoordinate = new StampCoordinateImpl(stampPrecedence,
@@ -506,6 +428,9 @@ public class StampCoordinateImpl
         return newCoordinate;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @XmlElement(name = "Concept")
     @XmlElementWrapper(name = "modulePreferenceOrder")
