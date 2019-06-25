@@ -1759,9 +1759,7 @@ public class Frills
     */
    public static Optional<SemanticChronology> getInferredDefinitionChronology(int conceptId,
          LogicCoordinate logicCoordinate) {
-      return Get.assemblageService()
-                .getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageNid())
-                .findAny();
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageNid()).findAny();
    }
 
    /**
@@ -1811,25 +1809,22 @@ public class Frills
          StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
          LogicCoordinate logicCoordinate) {
-      LOG.debug("Getting {} logic graph chronology for {}", (stated ? "stated"
-            : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
+      LOG.debug("Getting {} logic graph chronology for {}", (stated ? "stated" : "inferred"), 
+            Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
-      final Optional<SemanticChronology> defChronologyOptional = stated ? getStatedDefinitionChronology(
-                                                                                              id,
-                                                                                                    logicCoordinate)
+      final Optional<SemanticChronology> defChronologyOptional = stated ? getStatedDefinitionChronology(id, logicCoordinate)
             : getInferredDefinitionChronology(id, logicCoordinate);
 
       if (defChronologyOptional.isPresent()) {
-         LOG.debug("Got {} logic graph chronology for {}", (stated ? "stated"
-               : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
+         LOG.debug("Got {} logic graph chronology for {}", (stated ? "stated": "inferred"), 
+               Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
-         final SemanticChronology semanticChronology =
-            (SemanticChronology) defChronologyOptional.get();
+         final SemanticChronology semanticChronology = (SemanticChronology) defChronologyOptional.get();
 
          return Optional.of(semanticChronology);
       } else {
-         LOG.warn("NO {} logic graph chronology for {}", (stated ? "stated"
-               : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
+         LOG.warn("NO {} logic graph chronology for {}", (stated ? "stated" : "inferred"), 
+               Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
          return Optional.empty();
       }
    }
@@ -2209,11 +2204,8 @@ public class Frills
     * @return the stated definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SemanticChronology> getStatedDefinitionChronology(int conceptId,
-         LogicCoordinate logicCoordinate) {
-      return Get.assemblageService()
-                .getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageNid())
-                .findAny();
+   public static Optional<SemanticChronology> getStatedDefinitionChronology(int conceptId, LogicCoordinate logicCoordinate) {
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageNid()).findAny();
    }
    
    /**
