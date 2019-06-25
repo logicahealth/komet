@@ -47,7 +47,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import javax.xml.bind.annotation.XmlElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -82,7 +81,7 @@ public interface StampCoordinate
      * always have different uuids.
      */
     default UUID getStampCoordinateUuid() {
-        ArrayList<UUID> uuidList = new ArrayList();
+        ArrayList<UUID> uuidList = new ArrayList<>();
         for (Status status: getAllowedStates()) {
             UUIDUtil.addSortedUuids(uuidList, status.getSpecifyingConcept().getNid());
         }
