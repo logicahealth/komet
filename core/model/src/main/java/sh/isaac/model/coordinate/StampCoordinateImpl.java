@@ -128,7 +128,7 @@ public class StampCoordinateImpl
      * @param stampPrecedence the stamp precedence
      * @param stampPosition the stamp position
      * @param moduleSpecifications the module nids to include in the version
-     * computation
+     * computation.  If not provided, all modules are allowed.
      * @param modulePriorityList empty if no preference, or module nids in the
      * priority order that should be used if a version computation returns two
      * different versions for different modules.
@@ -142,7 +142,9 @@ public class StampCoordinateImpl
         this.stampPrecedence = stampPrecedence;
         this.stampPosition = stampPosition.deepClone();
         this.moduleSpecifications = new HashSet<>();
-        this.moduleSpecifications.addAll(moduleSpecifications);
+        if (moduleSpecifications != null) {
+            this.moduleSpecifications.addAll(moduleSpecifications);
+        }
         this.modulePriorityList = new ArrayList<>();
         if (modulePriorityList != null) {
             this.modulePriorityList.addAll(modulePriorityList);
@@ -156,8 +158,7 @@ public class StampCoordinateImpl
      *
      * @param stampPrecedence the stamp precedence
      * @param stampPosition the stamp position
-     * @param moduleSpecifications the modules to include in the version
-     * computation
+     * @param moduleSpecifications the modules to include in the version computation.  If not provided, all modules are allowed.
      * @param allowedStates the allowed states
      */
     public StampCoordinateImpl(StampPrecedence stampPrecedence,
