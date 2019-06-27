@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>5.1.1-SNAPSHOT</version>
+      <version>5.1.1-livd-SNAPSHOT</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>search-view</artifactId>
