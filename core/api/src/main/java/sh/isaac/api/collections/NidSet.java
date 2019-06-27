@@ -39,6 +39,8 @@
 
 package sh.isaac.api.collections;
 
+import java.util.ArrayList;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Arrays;
@@ -48,6 +50,7 @@ import java.util.stream.IntStream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 
@@ -181,16 +184,18 @@ public class NidSet extends AbstractIntSet<NidSet> {
       }
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * To string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String toString() {
       return toString((nid) -> Integer.toString(nid));
+   }
+
+   public Collection<ConceptSpecification> toConceptSpec() {
+      ArrayList<ConceptSpecification> result = new ArrayList<>(this.size());
+      this.stream().forEach(item -> result.add(new ConceptProxy(item)));
+      return result;
    }
 }
 
