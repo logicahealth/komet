@@ -479,25 +479,73 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                namespace = UuidT5Generator.PATH_ID_FROM_FS_DESC;
             }
             
-            if (semanticType == VersionType.LOGIC_GRAPH) {
-                setPrimordialUuid(UuidFactory.getUuidForLogicGraphSemantic(namespace, assemblageUuid, refCompUuid, (LogicalExpression) parameters[0], consumer));
-            } else if (semanticType == VersionType.MEMBER) {
-                setPrimordialUuid(UuidFactory.getUuidForMemberSemantic(namespace, assemblageUuid, refCompUuid, consumer));
-            } else if (semanticType == VersionType.DYNAMIC) {
-                setPrimordialUuid(UuidFactory.getUuidForDynamic(namespace, assemblageUuid, refCompUuid,
-                        (parameters != null && parameters.length > 0 ? ((AtomicReference<DynamicData[]>) parameters[0]).get() : null), consumer));
-            } else if (semanticType == VersionType.COMPONENT_NID) {
-                UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]);
-                setPrimordialUuid(UuidFactory.getUuidForComponentNidSemantic(namespace, assemblageUuid, refCompUuid, componentUuid, consumer));
-            } else if (semanticType == VersionType.DESCRIPTION) {
-                setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace, refCompUuid,
-                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]),
-                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]),
-                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]),
-                        (String) parameters[3],
-                        consumer));
-            } else if (semanticType == VersionType.STRING) {
-                setPrimordialUuid(UuidFactory.getUuidForStringSemantic(namespace, assemblageUuid, refCompUuid, (String) parameters[0], consumer));
+            switch (semanticType) {
+                case COMPONENT_NID:
+                {
+                    UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]);
+                    setPrimordialUuid(UuidFactory.getUuidForComponentNidSemantic(namespace, assemblageUuid, refCompUuid, componentUuid, consumer));
+                    break;
+                }
+                case DESCRIPTION:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace, refCompUuid,
+                            Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]),
+                            Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]),
+                            Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]),
+                            (String) parameters[3],
+                            consumer));
+                    break;
+                }
+                case DYNAMIC:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForDynamic(namespace, assemblageUuid, refCompUuid,
+                            (parameters != null && parameters.length > 0 ? ((AtomicReference<DynamicData[]>) parameters[0]).get() : null), consumer));
+                    break;
+                }
+                case LOGIC_GRAPH:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForLogicGraphSemantic(namespace, assemblageUuid, refCompUuid, (LogicalExpression) parameters[0], consumer));
+                    break;
+                }
+                case LONG:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForLongSemantic(namespace, assemblageUuid, refCompUuid, (Long) parameters[0], consumer));
+                    break;
+                }
+                case MEMBER:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForMemberSemantic(namespace, assemblageUuid, refCompUuid, consumer));
+                    break;
+                }
+                case Nid1_Int2:
+                {
+                    UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]);
+                    setPrimordialUuid(UuidFactory.getUuidForNidIntSemantic(namespace, assemblageUuid, refCompUuid, componentUuid, (Integer) parameters[1], consumer));
+                    break;
+                }
+                case STRING:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForStringSemantic(namespace, assemblageUuid, refCompUuid, (String) parameters[0], consumer));
+                    break;
+                }
+                case Str1_Nid2_Nid3_Nid4:
+                case Str1_Str2:
+                case Str1_Str2_Nid3_Nid4:
+                case Str1_Str2_Nid3_Nid4_Nid5:
+                case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+                case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
+                case LOINC_RECORD:
+                case MEASURE_CONSTRAINTS:
+                case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+                case Nid1_Nid2:
+                case Nid1_Nid2_Int3:
+                case Nid1_Nid2_Str3:
+                case Nid1_Str2:
+                case RF2_RELATIONSHIP:
+                case CONCEPT:
+                case UNKNOWN:
+                default :
+                    throw new UnsupportedOperationException("Cannot generate proper UUID for type " + semanticType);
             }
         }
         return this;
