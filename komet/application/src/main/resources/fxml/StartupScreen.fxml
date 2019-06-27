@@ -16,13 +16,12 @@
       </ToolBar>
    </bottom>
    <right>
-      <AnchorPane fx:id="progressAnchor" maxHeight="577.0" maxWidth="396.0" minHeight="577.0" minWidth="396.0" prefHeight="577.0" prefWidth="396.0" BorderPane.alignment="CENTER" />
+      <AnchorPane fx:id="progressAnchor" maxHeight="577.0" maxWidth="396.0" minHeight="363.0" minWidth="396.0" prefHeight="363.0" prefWidth="396.0" BorderPane.alignment="CENTER" />
    </right>
    <center>
-      <ImageView pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+      <ImageView fx:id="imageView" fitHeight="467.0" fitWidth="571.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
          <image>
             <Image url="@../images/about.png" />
-         </image>
-      </ImageView>
+         </image></ImageView>
    </center>
 </BorderPane>

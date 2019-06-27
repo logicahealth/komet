@@ -43,7 +43,7 @@ public class StartupScreenController {
         taskProgressNode  = factory.createNode(null, null);
         taskDisplayNode = taskProgressNode.getNode();
         AnchorPane.setBottomAnchor(taskDisplayNode, 0.0);
-        AnchorPane.setTopAnchor(taskDisplayNode, 0.0);
+        AnchorPane.setTopAnchor(taskDisplayNode, 5.0);
         AnchorPane.setLeftAnchor(taskDisplayNode, 0.0);
         AnchorPane.setRightAnchor(taskDisplayNode, 0.0);
         progressAnchor.getChildren().add(taskDisplayNode);
