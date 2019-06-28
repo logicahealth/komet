@@ -294,7 +294,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             default:
                 throw new UnsupportedOperationException("p Can't handle: " + this.semanticType);
         }
-        transaction.addComponentNidToTransaction(version.getNid(), version.getPathNid());
+        transaction.addVersionToTransaction(version);
         getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
         builtObjects.add(semanticChronicle);
         ModelGet.identifierService().setupNid(semanticChronicle.getNid(), semanticChronicle.getAssemblageNid(), semanticChronicle.getIsaacObjectType(), semanticChronicle.getVersionType());
@@ -435,7 +435,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             default:
                 throw new UnsupportedOperationException("q Can't handle: " + this.semanticType);
         }
-        transaction.addComponentNidToTransaction(version.getNid(), version.getPathNid());
+        transaction.addVersionToTransaction(version);
         Task<Void> primaryNested = Get.commitService()
                 .addUncommitted(transaction, semanticChronology);
 

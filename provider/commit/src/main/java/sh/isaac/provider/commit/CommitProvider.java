@@ -1360,37 +1360,44 @@ public class CommitProvider
         return pendingTransactions;
     }
 
+    private static boolean singleTransactionOnly = false;
+    private static boolean logTransactionCreation = false;
     @Override
     public Transaction newTransaction(ChangeCheckerMode performTests) {
-        if (pendingTransactions.isEmpty()) {
-            TransactionImpl transaction = new TransactionImpl(performTests);
-            StringBuilder sb = new StringBuilder();
-            sb.append("New transaction:").append(transaction.getTransactionId()).append("\n");
-            for (StackTraceElement element: Thread.currentThread().getStackTrace()) {
-                if (element.toString().startsWith("java.base/java.lang.Thread.getStackTrace")) {
-                    continue;
-                }
-                if (element.toString().startsWith("org.testng")) {
-                    break;
-                }
-                sb.append("   ").append(element).append("\n");
+        if (singleTransactionOnly &! pendingTransactions.isEmpty()) {
+            for (Transaction transaction: pendingTransactions) {
+                LOG.info("Pending transaction: " + transaction.getTransactionId());
             }
-            LOG.info(sb);
-            pendingTransactions.add(transaction);
-            return transaction;
-        }
-        for (Transaction transaction: pendingTransactions) {
-            LOG.info("Pending transaction: " + transaction.getTransactionId());
-        }
 
-        throw new IllegalStateException("Second transaction.");
+            throw new IllegalStateException("Second transaction.");
+        }
+        TransactionImpl transaction = new TransactionImpl(performTests);
+        if (logTransactionCreation) {
+            logStackTrace(transaction);
+        }
+        pendingTransactions.add(transaction);
+        return transaction;
     }
 
+    private void logStackTrace(TransactionImpl transaction) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("New transaction:").append(transaction.getTransactionId()).append("\n");
+        for (StackTraceElement element: Thread.currentThread().getStackTrace()) {
+            if (element.toString().startsWith("java.base/java.lang.Thread.getStackTrace")) {
+                continue;
+            }
+            if (element.toString().startsWith("org.testng")) {
+                break;
+            }
+            sb.append("   ").append(element).append("\n");
+        }
+        LOG.info(sb);
+    }
 
 
     @Override
     public Task<Void> addUncommitted(Transaction transaction, Version version) {
-        transaction.addComponentNidToTransaction(version.getNid(), version.getPathNid());
+        transaction.addVersionToTransaction(version);
         if (version.getChronology().getIsaacObjectType() == IsaacObjectType.CONCEPT) {
             return addUncommitted(transaction, (ConceptChronology) version.getChronology());
         }

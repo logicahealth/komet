@@ -20,11 +20,7 @@ public interface Transaction {
 
     Set<Integer> getStampsForTransaction();
 
-    void addComponentNidToTransaction(int componentNid, int pathNid);
-
-    default void addVersionToTransaction(Version v) {
-        addComponentNidToTransaction(v.getNid(), v.getPathNid());
-    }
+    void addVersionToTransaction(Version v);
 
     Set<Integer> getComponentNidsForTransaction();
 

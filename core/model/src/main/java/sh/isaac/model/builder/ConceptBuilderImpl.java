@@ -329,7 +329,7 @@ public class ConceptBuilderImpl
       } else {
          version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate);
       }
-      transaction.addComponentNidToTransaction(version.getNid(), version.getPathNid());
+      transaction.addVersionToTransaction(version);
 
       builtObjects.add(conceptChronology);
 

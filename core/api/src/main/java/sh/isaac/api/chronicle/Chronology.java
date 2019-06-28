@@ -319,7 +319,7 @@ public interface Chronology
        for (Version version: getVersionList()) {
            if (version.getCommitState() == CommitStates.UNCOMMITTED &&
                    transaction.containsTransactionId(Get.stampService().getTransactionIdForStamp(version.getStampSequence()))) {
-                transaction.addComponentNidToTransaction(getNid(), pathNid);
+                transaction.addVersionToTransaction(version);
                return (V) version;
            }
        }
@@ -328,7 +328,7 @@ public interface Chronology
        if (latestVersion.isPresent()) {
            V v = ((Version) latestVersion.get()).makeAnalog(transaction, authorNid);
            v.setPathNid(pathNid);
-           transaction.addComponentNidToTransaction(getNid(), pathNid);
+           transaction.addVersionToTransaction(v);
            return v;
        }
        throw new IllegalStateException("No latest version for stamp: " + stampCoordinate + "\n\n" + this);

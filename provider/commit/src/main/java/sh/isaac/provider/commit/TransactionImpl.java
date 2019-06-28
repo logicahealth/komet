@@ -9,6 +9,7 @@ import sh.isaac.api.alert.AlertCategory;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.alert.AlertType;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitTask;
@@ -83,8 +84,8 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
     }
 
     @Override
-    public void addComponentNidToTransaction(int componentNid, int pathNid) {
-        children.computeIfAbsent(pathNid, pathNidKey -> new TransactionsForPath(this.changeCheckerMode, pathNidKey)).addComponentNidToTransaction(componentNid);
+    public void addVersionToTransaction(Version v) {
+        children.computeIfAbsent(v.getPathNid(), pathNidKey -> new TransactionsForPath(this.changeCheckerMode, pathNidKey)).addComponentNidToTransaction(v.getNid());
     }
 
     @Override
