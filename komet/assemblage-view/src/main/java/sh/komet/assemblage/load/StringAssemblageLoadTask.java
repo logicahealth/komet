@@ -30,6 +30,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -43,6 +44,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.solor.direct.BrittleRefsetWriter;
 import static sh.isaac.solor.direct.DirectImporter.trimZipName;
@@ -83,7 +85,8 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
     protected Void call() throws Exception {
         ZonedDateTime zonedDateTime = DateTimeUtil.epochToZonedDateTime(System.currentTimeMillis());
         String dateTime = DateTimeUtil.format(zonedDateTime);
-        ConceptSpecification assemblageSpec = build(makeBuilder(assemblageName, "SOLOR", MetaData.ASSEMBLAGE____SOLOR), UUID.randomUUID().toString());
+        Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+        ConceptSpecification assemblageSpec = build(transaction, makeBuilder(assemblageName, "SOLOR", MetaData.ASSEMBLAGE____SOLOR), UUID.randomUUID().toString());
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         int writePermits = 4;
@@ -133,6 +136,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
             Get.assemblageService().sync();
             writeSemaphore.release(writePermits);
         }
+        transaction.commit();
         return null;
     }
 
@@ -146,7 +150,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
         return defBuilder.build();
     }
 
-    private ConceptSpecification build(ConceptBuilder builder, String uuidStr) throws IllegalStateException {
+    private ConceptSpecification build(Transaction transaction, ConceptBuilder builder, String uuidStr) throws IllegalStateException {
         int stampSequence = Get.stampService()
                 .getStampSequence(Status.ACTIVE,
                         System.currentTimeMillis(),
@@ -155,7 +159,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
                         MetaData.DEVELOPMENT_PATH____SOLOR.getNid());
         builder.setPrimordialUuid(uuidStr);
         final List<Chronology> builtObjects = new ArrayList<>();
-        builder.build(stampSequence, builtObjects);
+        builder.build(transaction, stampSequence, builtObjects);
         builtObjects.forEach((builtObject) -> {
             if (builtObject instanceof ConceptChronology) {
                 Get.conceptService().writeConcept(

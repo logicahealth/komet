@@ -3,6 +3,7 @@ package sh.isaac.solor.direct;
 import sh.isaac.MetaData;
 import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
@@ -13,6 +14,7 @@ import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.logic.assertions.SufficientSet;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT3Generator;
 
 import java.io.UnsupportedEncodingException;
@@ -61,6 +63,7 @@ public class GenomicRelationshipWriter extends TimedTaskWithProgressTracker<Void
             AssemblageService assemblageService = Get.assemblageService();
             IdentifierService identifierService = Get.identifierService();
             HashSet<Integer> defferedTaxonomyNids = new HashSet<>();
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
 
             for(Map.Entry<String, Set<String>> entry : this.genomicRelationshipMap.entrySet()){
 
@@ -110,7 +113,7 @@ public class GenomicRelationshipWriter extends TimedTaskWithProgressTracker<Void
                                 MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid());
                         sb.setStatus(this.state);
                         int graphStamp = stampService.getStampSequence(this.state, this.commitTime, authorNid, moduleNid, pathNid);
-                        SemanticChronology sc = sb.build(graphStamp, new ArrayList<>());
+                        SemanticChronology sc = sb.build(transaction, graphStamp, new ArrayList<>());
                         defferedTaxonomyNids.add(sc.getNid());
                         assemblageService.writeSemanticChronology(sc);
 
@@ -120,6 +123,8 @@ public class GenomicRelationshipWriter extends TimedTaskWithProgressTracker<Void
 
                 completedUnitOfWork();
             }
+
+            transaction.commit("Genomic relationship import");
 
             for(int nid : defferedTaxonomyNids){
                 taxonomyService.updateTaxonomy(Get.assemblageService().getSemanticChronology(nid));

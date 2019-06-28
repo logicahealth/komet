@@ -33,6 +33,7 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -40,6 +41,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -147,6 +149,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 			int pathNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate().getPathNid();
 			List<String[]> noSuchElementList = new ArrayList<>();
 
+			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
 			boolean skippedAny = false;
 			int skipped = 0;
 			for (String[] refsetRecord : refsetRecords)
@@ -232,7 +235,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 									int stampSequence = assemblageStamps[assemblageStamps.length - 1];  //use the largest (newest) stamp on the concept, 
 									//since we probably just loaded the concept....
 									
-									List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(assemblageNid,
+									List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(transaction, assemblageNid,
 											"DynamicDefinition for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()),
 											dci.toArray(new DynamicColumnInfo[dci.size()]),
 											null, null, stampSequence);
@@ -325,6 +328,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 			{
 				LOG.error("Continuing after import failed with no such element exception for these records: \n" + noSuchElementList.toString());
 			}
+			transaction.commit("Dynamic refset writer");
 			return skipped;
 		}
 		finally

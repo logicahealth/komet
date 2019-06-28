@@ -69,6 +69,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -156,11 +157,11 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		log.info("LOINC Processing Begins " + new Date().toString());
 
@@ -268,10 +269,10 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 			dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.LOINC_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(),
 					converterUUID, "LOINC", false);
 
-			setupModule("LOINC", MetaData.LOINC_MODULES____SOLOR.getPrimordialUuid(), releaseDate.getTime());
+			setupModule(transaction, "LOINC", MetaData.LOINC_MODULES____SOLOR.getPrimordialUuid(), releaseDate.getTime());
 
 			//Set up our metadata hierarchy
-			dwh.makeMetadataHierarchy(true, true, true, true, true, true, releaseDate.getTime());
+			dwh.makeMetadataHierarchy(transaction, true, true, true, true, true, true, releaseDate.getTime());
 
 			this.fieldMap = loincData.get().getFieldMap();
 			this.fieldMapInverse = loincData.get().getFieldMapInverse();
@@ -309,21 +310,21 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 			skippable.add("SOURCE");
 			skippable.add("FINAL");  //deleted in 2.38
 
-			initDescriptionTypes(sourceVersion, releaseDate.getTime());
-			dwh.makeAssociationTypeConcept(null, "MAP_TO", "Map To", null, "Associations from the LOINC 'Map To' table", null, IsaacObjectType.CONCEPT, null,
+			initDescriptionTypes(transaction, sourceVersion, releaseDate.getTime());
+			dwh.makeAssociationTypeConcept(transaction,null, "MAP_TO", "Map To", null, "Associations from the LOINC 'Map To' table", null, IsaacObjectType.CONCEPT, null,
 					null, releaseDate.getTime());
 
-			initAttributeTypes(sourceVersion, releaseDate.getTime());
+			initAttributeTypes(transaction, sourceVersion, releaseDate.getTime());
 
-			initClassStructure(sourceVersion, releaseDate.getTime());
-			initAxisStructure(sourceVersion, releaseDate.getTime());
+			initClassStructure(transaction, sourceVersion, releaseDate.getTime());
+			initAxisStructure(transaction, sourceVersion, releaseDate.getTime());
 
 			// Every time concept created add membership to "All CPT Concepts"
-			UUID allLoincConceptsRefset = dwh.makeRefsetTypeConcept(null, "All LOINC Concepts", null, null, releaseDate.getTime());
+			UUID allLoincConceptsRefset = dwh.makeRefsetTypeConcept(transaction, null, "All LOINC Concepts", null, null, releaseDate.getTime());
 
 			if (sourceOrg != null)
 			{
-				UUID sourceOrgUuid = dwh.makeConceptEnNoDialect(null, "Source Organization",
+				UUID sourceOrgUuid = dwh.makeConceptEnNoDialect(transaction, null, "Source Organization",
 						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), new UUID[] { dwh.getMetadataRoot() }, Status.ACTIVE,
 						releaseDate.getTime());
 
@@ -334,7 +335,7 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 					// ﻿"COPYRIGHT_ID","NAME","COPYRIGHT","TERMS_OF_USE","URL"
 					if (line.length > 0)
 					{
-						UUID lineConcept = dwh.makeConceptEnNoDialect(null, line[0], MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						UUID lineConcept = dwh.makeConceptEnNoDialect(transaction, null, line[0], MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 								new UUID[] { sourceOrgUuid }, Status.ACTIVE, releaseDate.getTime());
 
 						dwh.makeDescriptionEnNoDialect(lineConcept, line[1], dwh.getDescriptionType("NAME"), Status.ACTIVE, releaseDate.getTime());
@@ -367,7 +368,7 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 			checkForLeftoverPropertyTypes(headerFields);
 
 			// Root
-			final UUID rootConcept = dwh.makeConceptEnNoDialect(null, "LOINC", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+			final UUID rootConcept = dwh.makeConceptEnNoDialect(transaction,null, "LOINC", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 					new UUID[] { MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid() }, Status.ACTIVE, releaseDate.getTime());
 
 			dwh.makeDescriptionEnNoDialect(rootConcept, "Logical Observation Identifiers Names and Codes",
@@ -391,7 +392,7 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 				{
 					if (line.length > 0)
 					{
-						processDataLine(line);
+						processDataLine(transaction, line);
 					}
 
 					line = loincData.get().readLine();
@@ -455,7 +456,7 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 				int pos = 0;
 				for (final Entry<UUID, HashSet<UUID>> items : this.multiaxialPathsToRoot.entrySet())
 				{
-					dwh.makeParentGraph(items.getKey(), items.getValue(), Status.ACTIVE, releaseDate.getTime());
+					dwh.makeParentGraph(transaction, items.getKey(), items.getValue(), Status.ACTIVE, releaseDate.getTime());
 					pos++;
 					if (pos % 1000 == 0)
 					{
@@ -520,220 +521,220 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 	 * @param sourceVersion
 	 * @param time
 	 */
-	private void initAxisStructure(int sourceVersion, long time)
+	private void initAxisStructure(Transaction transaction, int sourceVersion, long time)
 	{
-		UUID axisNode = dwh.makeOtherMetadataRootNode("Axis", time);
+		UUID axisNode = dwh.makeOtherMetadataRootNode(transaction, "Axis", time);
 //		this.concepts.put(classConcept.getPrimordialUuid(), classConcept);
 
-		UUID otherType = dwh.makeOtherTypeConcept(axisNode, null, "COMPONENT", "Component", null, null, null, null, time);
+		UUID otherType = dwh.makeOtherTypeConcept(transaction, axisNode, null, "COMPONENT", "Component", null, null, null, null, time);
 //		this.concepts.put(temp.getPrimordialUuid(), temp);
-		dwh.configureConceptAsAssociation(otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
+		dwh.configureConceptAsAssociation(transaction, otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
 
-		otherType = dwh.makeOtherTypeConcept(axisNode, null, "PROPERTY", "Property", null, null, null, null, time);
+		otherType = dwh.makeOtherTypeConcept(transaction, axisNode, null, "PROPERTY", "Property", null, null, null, null, time);
 //	this.concepts.put(temp.getPrimordialUuid(), temp);
-		dwh.configureConceptAsAssociation(otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
+		dwh.configureConceptAsAssociation(transaction, otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
 
-		otherType = dwh.makeOtherTypeConcept(axisNode, null, "TIME_ASPCT", "Time Aspect", null, null, null, null, time);
+		otherType = dwh.makeOtherTypeConcept(transaction, axisNode, null, "TIME_ASPCT", "Time Aspect", null, null, null, null, time);
 //	this.concepts.put(temp.getPrimordialUuid(), temp);
-		dwh.configureConceptAsAssociation(otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
+		dwh.configureConceptAsAssociation(transaction, otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
 
-		otherType = dwh.makeOtherTypeConcept(axisNode, null, "SYSTEM", "System", null, null, null, null, time);
+		otherType = dwh.makeOtherTypeConcept(transaction, axisNode, null, "SYSTEM", "System", null, null, null, null, time);
 //	this.concepts.put(temp.getPrimordialUuid(), temp);
-		dwh.configureConceptAsAssociation(otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
+		dwh.configureConceptAsAssociation(transaction, otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
 		
-		otherType = dwh.makeOtherTypeConcept(axisNode, null, "SCALE_TYP", "Scale Type", null, null, null, null, time);
+		otherType = dwh.makeOtherTypeConcept(transaction, axisNode, null, "SCALE_TYP", "Scale Type", null, null, null, null, time);
 //		this.concepts.put(temp.getPrimordialUuid(), temp);
-		dwh.configureConceptAsAssociation(otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
+		dwh.configureConceptAsAssociation(transaction, otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
 
-		otherType = dwh.makeOtherTypeConcept(axisNode, null, "METHOD_TYP", "Method Type", null, null, null, null, time);
+		otherType = dwh.makeOtherTypeConcept(transaction, axisNode, null, "METHOD_TYP", "Method Type", null, null, null, null, time);
 //	this.concepts.put(temp.getPrimordialUuid(), temp);
-		dwh.configureConceptAsAssociation(otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
+		dwh.configureConceptAsAssociation(transaction, otherType, "The Axis Type Association", null, IsaacObjectType.CONCEPT, null, time);
 	}
 
 	/**
 	 * @param sourceVersion
 	 * @param time
 	 */
-	private void initClassStructure(int sourceVersion, long time)
+	private void initClassStructure(Transaction transaction, int sourceVersion, long time)
 	{
-		UUID classNode = dwh.makeOtherMetadataRootNode("Class", time);
+		UUID classNode = dwh.makeOtherMetadataRootNode(transaction, "Class", time);
 //		this.concepts.put(classConcept.getPrimordialUuid(), classConcept);
 
-		UUID otherType = dwh.makeOtherTypeConcept(classNode, null, "CLASS", "Class", null, null, null, null, time);
+		UUID otherType = dwh.makeOtherTypeConcept(transaction, classNode, null, "CLASS", "Class", null, null, null, null, time);
 //		this.concepts.put(temp.getPrimordialUuid(), temp);
-		dwh.configureConceptAsAssociation(otherType, "The Class Association", null, IsaacObjectType.CONCEPT, null, time);
+		dwh.configureConceptAsAssociation(transaction, otherType, "The Class Association", null, IsaacObjectType.CONCEPT, null, time);
 	}
 
 	/**
 	 * @param sourceVersion
 	 * @param time
 	 */
-	private void initDescriptionTypes(int sourceVersion, long time)
+	private void initDescriptionTypes(Transaction transaction, int sourceVersion, long time)
 	{
-		dwh.makeDescriptionTypeConcept(null, "CONSUMER_NAME", "Consumer Name", null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "CONSUMER_NAME", "Consumer Name", null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null,
 				time);
 		if (sourceVersion <= 1)
 		{
 			// deleted in 2.38
-			dwh.makeDescriptionTypeConcept(null, "EXACT_CMP_SY", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
+			dwh.makeDescriptionTypeConcept(transaction, null, "EXACT_CMP_SY", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
 		}
 		if (sourceVersion <= 5)
 		{	// deleted in 2.52
-			dwh.makeDescriptionTypeConcept(null, "ACSSYM", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
-			dwh.makeDescriptionTypeConcept(null, "BASE_NAME", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
+			dwh.makeDescriptionTypeConcept(transaction, null, "ACSSYM", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
+			dwh.makeDescriptionTypeConcept(transaction, null, "BASE_NAME", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
 		}
 
 		if (sourceVersion >= 6)
 		{
 			//Added in 2.52
-			dwh.makeDescriptionTypeConcept(null, "DefinitionDescription", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null,
+			dwh.makeDescriptionTypeConcept(transaction, null, "DefinitionDescription", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null,
 					time);
 		}
 
-		dwh.makeDescriptionTypeConcept(null, "SHORTNAME", "Short Name", null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
+		dwh.makeDescriptionTypeConcept(transaction, null, "SHORTNAME", "Short Name", null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
 
-		dwh.makeDescriptionTypeConcept(null, "LONG_COMMON_NAME", "Long Common Name", null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "LONG_COMMON_NAME", "Long Common Name", null,
 				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
 
 		//from multiaxial
-		dwh.makeDescriptionTypeConcept(null, "CODE_TEXT", "Code Test", null, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "CODE_TEXT", "Code Test", null, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null,
 				time);
 
 		//from source_organization
-		dwh.makeDescriptionTypeConcept(null, "NAME", "Name", null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
+		dwh.makeDescriptionTypeConcept(transaction, null, "NAME", "Name", null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
 	}
 
 	/**
 	 * @param sourceVersion
 	 * @param time
 	 */
-	private void initAttributeTypes(int sourceVersion, long time)
+	private void initAttributeTypes(Transaction transaction, int sourceVersion, long time)
 	{
 		if (sourceVersion <= 1)
 		{
 			// replaced with DATE_LAST_CHANGED in 2.38
-			dwh.makeAttributeTypeConcept(null, "DT_LAST_CH", "Date Last Changed", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "DT_LAST_CH", "Date Last Changed", null, false, DynamicDataType.STRING, null, time);
 			// deleted in 2.38
-			dwh.makeAttributeTypeConcept(null, "ANSWERLIST", "Answer List", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "SCOPE", "Scope", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "IPCC_UNITS", "IPCC Units", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "REFERENCE", "Reference", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "SETROOT", "", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "PANELELEMENTS", "Panel Elements", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "INPC_PERCENTAGE", "INPC Percentage", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "DEFINITION_DESCRIPTION_HELP", "Definition Description Help", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "RELAT_NMS", "Related Names", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "ANSWERLIST", "Answer List", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "SCOPE", "Scope", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "IPCC_UNITS", "IPCC Units", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "REFERENCE", "Reference", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "SETROOT", "", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "PANELELEMENTS", "Panel Elements", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "INPC_PERCENTAGE", "INPC Percentage", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "DEFINITION_DESCRIPTION_HELP", "Definition Description Help", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "RELAT_NMS", "Related Names", null, false, DynamicDataType.STRING, null, time);
 		}
 		if (sourceVersion >= 2 && sourceVersion <= 6)
 		{
 			// replaced with VersionLastChanged in 2.54
-			dwh.makeAttributeTypeConcept(null, "DATE_LAST_CHANGED", "Date Last Changed", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "DATE_LAST_CHANGED", "Date Last Changed", null, false, DynamicDataType.STRING, null, time);
 		}
 		if (sourceVersion <= 4)
 		{
 			// Moved from ID - turned out it wasn't unique (see loinc_num 42040-6 and 39807-3)  //deleted in 2.52
-			dwh.makeAttributeTypeConcept(null, "NAACCR_ID", "NAACCR ID", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "NAACCR_ID", "NAACCR ID", null, false, DynamicDataType.STRING, null, time);
 		}
 
 		if (sourceVersion <= 5)
 		{
 			// deleted in 2.52
-			dwh.makeAttributeTypeConcept(null, "CHNG_TYPE", "Change Type", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "COMMENTS", "Comments", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "MOLAR_MASS", "Molar Mass", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "CODE_TABLE", "Code Table", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "HL7_V2_DATATYPE", "", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "HL7_V3_DATATYPE", "", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "CURATED_RANGE_AND_UNITS", "Curated Range and Units", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "CHNG_TYPE", "Change Type", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "COMMENTS", "Comments", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "MOLAR_MASS", "Molar Mass", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "CODE_TABLE", "Code Table", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "HL7_V2_DATATYPE", "", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "HL7_V3_DATATYPE", "", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "CURATED_RANGE_AND_UNITS", "Curated Range and Units", null, false, DynamicDataType.STRING, null, time);
 		}
 
 		if (sourceVersion >= 2)
 		{
 			// added in 2.38
-			dwh.makeAttributeTypeConcept(null, "COMMON_ORDER_RANK", "Common Order Rank", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "COMMON_ORDER_RANK", "Common Order Rank", null, false, DynamicDataType.STRING, null, time);
 		}
 
 		if (sourceVersion >= 3)
 		{
 			// added in 2.40 (or maybe 2.39, 2.39 is untested - they failed to document it)
-			dwh.makeAttributeTypeConcept(null, "COMMON_SI_TEST_RANK", "Common SI Test Rank", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "COMMON_SI_TEST_RANK", "Common SI Test Rank", null, false, DynamicDataType.STRING, null, time);
 		}
 		if (sourceVersion >= 4)
 		{
-			dwh.makeAttributeTypeConcept(null, "HL7_ATTACHMENT_STRUCTURE", "HL7 Attachement Structure", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "HL7_ATTACHMENT_STRUCTURE", "HL7 Attachement Structure", null, false, DynamicDataType.STRING, null, time);
 		}
 		if (sourceVersion >= 5)
 		{
 			// added in 2.50
-			dwh.makeAttributeTypeConcept(null, "EXTERNAL_COPYRIGHT_LINK", "External Copyright Link", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "EXTERNAL_COPYRIGHT_LINK", "External Copyright Link", null, false, DynamicDataType.STRING, null, time);
 		}
 		if (sourceVersion >= 6)
 		{
 			// added in 2.52
-			dwh.makeAttributeTypeConcept(null, "UnitsAndRange", "Units and Range", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "PanelType", "Panel Type", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "AskAtOrderEntry", "Ask at Order Entry", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "AssociatedObservations", "Associated Observations", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "UnitsAndRange", "Units and Range", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "PanelType", "Panel Type", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "AskAtOrderEntry", "Ask at Order Entry", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "AssociatedObservations", "Associated Observations", null, false, DynamicDataType.STRING, null, time);
 		}
 		if (sourceVersion >= 7)
 		{
 			// added in 2.54
-			dwh.makeAttributeTypeConcept(null, "VersionLastChanged", "Version Last Changed", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "VersionLastChanged", "Version Last Changed", null, false, DynamicDataType.STRING, null, time);
 		}
 		if (sourceVersion >= 8)
 		{
 			//added in 2.59
-			dwh.makeAttributeTypeConcept(null, "VersionFirstReleased", "Version First Released", null, false, DynamicDataType.STRING, null, time);
-			dwh.makeAttributeTypeConcept(null, "ValidHL7AttachmentRequest", "Valid HL7 Attachment Request", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "VersionFirstReleased", "Version First Released", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "ValidHL7AttachmentRequest", "Valid HL7 Attachment Request", null, false, DynamicDataType.STRING, null, time);
 		}
 		
 //		if (sourceVersion <= 8)
 //		{
 			//the release notes claim this was deleted in 2.63, but doesn't seem to have been
-			dwh.makeAttributeTypeConcept(null, "DOCUMENT_SECTION", "Document Section", null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "DOCUMENT_SECTION", "Document Section", null, false, DynamicDataType.STRING, null, time);
 //		}
 		
-		dwh.makeAttributeTypeConcept(null, "CHNG_TYPE", "Change Type", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "CLASSTYPE", "Class Type", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "FORMULA", "Formula", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "SPECIES", "Species", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "EXMPL_ANSWERS", "Example Answers", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "SURVEY_QUEST_TEXT", "Survey Question Text", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "SURVEY_QUEST_SRC", "Survey Question Source", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "UNITSREQUIRED", "Units Required", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "SUBMITTED_UNITS", "Submitted Units", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "ORDER_OBS", "Order OBS", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "CDISC_COMMON_TESTS", "CDISC Common Tests", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "HL7_FIELD_SUBFIELD_ID", "HL7 Field Subfield Id", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "EXTERNAL_COPYRIGHT_NOTICE", "External Copyright Notice", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "EXAMPLE_UNITS", "Example Units", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "EXAMPLE_UCUM_UNITS", "Example UCUM Units", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "EXAMPLE_SI_UCUM_UNITS", "Example SI UCUM Units", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "STATUS_REASON", "Status Reason", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "STATUS_TEXT", "Status Text", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "CHANGE_REASON_PUBLIC", "Change Reason Public", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "COMMON_TEST_RANK", "Common Test Rank", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "STATUS", "Status", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "RELATEDNAMES2", "Related Names 2", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "CHNG_TYPE", "Change Type", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "CLASSTYPE", "Class Type", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "FORMULA", "Formula", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "SPECIES", "Species", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "EXMPL_ANSWERS", "Example Answers", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "SURVEY_QUEST_TEXT", "Survey Question Text", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "SURVEY_QUEST_SRC", "Survey Question Source", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "UNITSREQUIRED", "Units Required", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "SUBMITTED_UNITS", "Submitted Units", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "ORDER_OBS", "Order OBS", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "CDISC_COMMON_TESTS", "CDISC Common Tests", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "HL7_FIELD_SUBFIELD_ID", "HL7 Field Subfield Id", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "EXTERNAL_COPYRIGHT_NOTICE", "External Copyright Notice", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "EXAMPLE_UNITS", "Example Units", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "EXAMPLE_UCUM_UNITS", "Example UCUM Units", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "EXAMPLE_SI_UCUM_UNITS", "Example SI UCUM Units", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "STATUS_REASON", "Status Reason", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "STATUS_TEXT", "Status Text", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "CHANGE_REASON_PUBLIC", "Change Reason Public", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "COMMON_TEST_RANK", "Common Test Rank", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "STATUS", "Status", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "RELATEDNAMES2", "Related Names 2", null, false, DynamicDataType.STRING, null, time);
 
 		//from multiaxial
-		dwh.makeAttributeTypeConcept(null, "SEQUENCE", "Sequence", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "IMMEDIATE_PARENT", "Immediate Parent", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "PATH_TO_ROOT", "Path to Root", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "SEQUENCE", "Sequence", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "IMMEDIATE_PARENT", "Immediate Parent", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "PATH_TO_ROOT", "Path to Root", null, false, DynamicDataType.STRING, null, time);
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, time, readbackCoordinate);
 
 		// From Source_Organization
-		dwh.makeAttributeTypeConcept(null, "COPYRIGHT", "Copyright", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "TERMS_OF_USE", "Terms of Use", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "URL", "Url", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "COPYRIGHT", "Copyright", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "TERMS_OF_USE", "Terms of Use", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "URL", "Url", null, false, DynamicDataType.STRING, null, time);
 
 		// From MAP_TO
-		dwh.makeAttributeTypeConcept(null, "COMMENT", "Comment", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "COMMENT", "Comment", null, false, DynamicDataType.STRING, null, time);
 
-		dwh.makeAttributeTypeConcept(null, "LOINC_NUM", "LOINC Identifier", null, "Carries the LOINC_NUM native identifier", false, DynamicDataType.STRING,
+		dwh.makeAttributeTypeConcept(transaction, null, "LOINC_NUM", "LOINC Identifier", null, "Carries the LOINC_NUM native identifier", false, DynamicDataType.STRING,
 				null, time);
 
-		dwh.makeAttributeTypeConcept(null, "ABBREVIATION", "Abbreviation", null, false, DynamicDataType.STRING, null, time);
+		dwh.makeAttributeTypeConcept(transaction, null, "ABBREVIATION", "Abbreviation", null, false, DynamicDataType.STRING, null, time);
 	}
 
 	/**
@@ -847,7 +848,7 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 	 * @throws ParseException the parse exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	private void processDataLine(String[] fields) throws ParseException, IOException
+	private void processDataLine(Transaction transaction, String[] fields) throws ParseException, IOException
 	{
 		Integer index = this.fieldMap.get("VersionLastChanged"); // They changed this in 2.54 release
 		Long time;
@@ -920,7 +921,7 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 
 					if (!concepts.contains(axisConcept))
 					{
-						dwh.makeConceptEnNoDialect(axisConcept, fields[fieldIndex], MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						dwh.makeConceptEnNoDialect(transaction, axisConcept, fields[fieldIndex], MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 								new UUID[] {type}, status, time);
 						concepts.add(axisConcept);
 					}
@@ -936,7 +937,7 @@ public class LoincImportMojoDirect extends DirectConverterBaseMojo implements Di
 
 					if (!concepts.contains(classConcept))
 					{
-						dwh.makeConceptEnNoDialect(classConcept, fields[fieldIndex], MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						dwh.makeConceptEnNoDialect(transaction, classConcept, fields[fieldIndex], MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 								new UUID[] {type}, status, time);
 						concepts.add(classConcept);
 						if (this.classMapping.hasMatch(fields[fieldIndex]))

@@ -47,6 +47,7 @@ import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
@@ -56,6 +57,7 @@ import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.solor.direct.DirectImporter;
 
 /**
@@ -175,6 +177,8 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     @Override
     protected Void call() throws Exception {
         try {
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+
             this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
              StampService stampService = Get.stampService();
             int authorNid = TermAux.USER.getNid();
@@ -183,120 +187,121 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             int stamp = stampService.getStampSequence(Status.ACTIVE, System.currentTimeMillis(), authorNid, moduleNid, pathNid);
             int legacyStamp = stampService.getStampSequence(Status.ACTIVE, System.currentTimeMillis(), authorNid, LEGACY_HUMAN_DX_MODULE.getNid(), pathNid);
             
-            buildConcept(HUMAN_DX_ASSEMBLAGES.getPrimordialUuid(), 
+            buildConcept(transaction, HUMAN_DX_ASSEMBLAGES.getPrimordialUuid(),
                     HUMAN_DX_ASSEMBLAGES.getFullyQualifiedName(), stamp, MetaData.ASSEMBLAGE____SOLOR.getNid());           
             
-            buildConcept(INEXACT_RXNORM_ASSOCIATION_TYPE.getPrimordialUuid(), 
+            buildConcept(transaction, INEXACT_RXNORM_ASSOCIATION_TYPE.getPrimordialUuid(),
                     INEXACT_RXNORM_ASSOCIATION_TYPE.getFullyQualifiedName(), stamp, 
                     HUMAN_DX_ASSEMBLAGES.getNid());          
 
-            buildConcept(INEXACT_RXNORM_PRODUCT.getPrimordialUuid(), 
+            buildConcept(transaction, INEXACT_RXNORM_PRODUCT.getPrimordialUuid(),
                     INEXACT_RXNORM_PRODUCT.getFullyQualifiedName(), stamp, 
                     new ConceptProxy("Medicinal product (product)", 
                             UUID.fromString("ae364969-80c6-32b9-9c1d-eaebed617d9b")).getNid());          
 
-            buildConcept(RXNORM_PRODUCT.getPrimordialUuid(), 
+            buildConcept(transaction, RXNORM_PRODUCT.getPrimordialUuid(),
                     RXNORM_PRODUCT.getFullyQualifiedName(), stamp, 
                     new ConceptProxy("Medicinal product (product)", 
                             UUID.fromString("ae364969-80c6-32b9-9c1d-eaebed617d9b")).getNid());          
                         
             
-            buildConcept(LEGACY_HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), 
+            buildConcept(transaction, LEGACY_HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(),
                     LEGACY_HUMAN_DX_ROOT_CONCEPT.getFullyQualifiedName(), legacyStamp, MetaData.SOLOR_CONCEPT____SOLOR.getNid());          
             
-           buildConcept(HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getPrimordialUuid(), 
+           buildConcept(transaction, HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getPrimordialUuid(),
                     HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getFullyQualifiedName(), legacyStamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
-            buildConcept(HDX_LEGACY_IS_A.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_LEGACY_IS_A.getPrimordialUuid(),
                     HDX_LEGACY_IS_A.getFullyQualifiedName(), legacyStamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
  
-            buildConcept(LEGACY_HUMAN_DX_MODULE.getPrimordialUuid(), 
+            buildConcept(transaction, LEGACY_HUMAN_DX_MODULE.getPrimordialUuid(),
                     LEGACY_HUMAN_DX_MODULE.getFullyQualifiedName(), legacyStamp, MetaData.MODULE____SOLOR.getNid());           
 
-            buildConcept(HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(), 
+            buildConcept(transaction, HUMAN_DX_ROOT_CONCEPT.getPrimordialUuid(),
                     HUMAN_DX_ROOT_CONCEPT.getFullyQualifiedName(), stamp, MetaData.SOLOR_CONCEPT____SOLOR.getNid());           
             
-            buildConcept(HUMAN_DX_MODULE.getPrimordialUuid(), 
+            buildConcept(transaction, HUMAN_DX_MODULE.getPrimordialUuid(),
                     HUMAN_DX_MODULE.getFullyQualifiedName(), stamp, MetaData.MODULE____SOLOR.getNid());           
 
             
-            buildConcept(REFID_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, REFID_ASSEMBLAGE.getPrimordialUuid(),
                     REFID_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());  
             
-            buildConcept(HDX_DEPRECATED.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_DEPRECATED.getPrimordialUuid(),
                     HDX_DEPRECATED.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());  
             
-            buildConcept(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE.getPrimordialUuid(),
                     HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());  
             
-            buildConcept(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE.getPrimordialUuid(),
                     HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());  
             
-            buildConcept(ALLERGEN_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, ALLERGEN_ASSEMBLAGE.getPrimordialUuid(),
                     ALLERGEN_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
-            buildConcept(IS_DIAGNOSIS_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, IS_DIAGNOSIS_ASSEMBLAGE.getPrimordialUuid(),
                     IS_DIAGNOSIS_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
-            buildConcept(IS_CATEGORY_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, IS_CATEGORY_ASSEMBLAGE.getPrimordialUuid(),
                     IS_CATEGORY_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
-            buildConcept(SNOMED_MAP_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, SNOMED_MAP_ASSEMBLAGE.getPrimordialUuid(),
                     SNOMED_MAP_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
-            buildConcept(INEXACT_SNOMED_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, INEXACT_SNOMED_ASSEMBLAGE.getPrimordialUuid(),
                     INEXACT_SNOMED_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());   
             
-            buildConcept(INEXACT_RXCUI_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, INEXACT_RXCUI_ASSEMBLAGE.getPrimordialUuid(),
                     INEXACT_RXCUI_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
-            buildConcept(SNOMED_SIB_CHILD_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, SNOMED_SIB_CHILD_ASSEMBLAGE.getPrimordialUuid(),
                     SNOMED_SIB_CHILD_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
-            buildConcept(HDX_ENTITY_ASSEMBLAGE.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_ENTITY_ASSEMBLAGE.getPrimordialUuid(),
                     HDX_ENTITY_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());           
             
             
-            buildConcept(HDX_ICD10CM_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_ICD10CM_MAP.getPrimordialUuid(),
                     HDX_ICD10CM_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_ICD10PCS_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_ICD10PCS_MAP.getPrimordialUuid(),
                     HDX_ICD10PCS_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_ICF_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_ICF_MAP.getPrimordialUuid(),
                     HDX_ICF_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_ICPC_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_ICPC_MAP.getPrimordialUuid(),
                     HDX_ICPC_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_MDC_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_MDC_MAP.getPrimordialUuid(),
                     HDX_MDC_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_MESH_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_MESH_MAP.getPrimordialUuid(),
                     HDX_MESH_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_RADLEX_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_RADLEX_MAP.getPrimordialUuid(),
                     HDX_RADLEX_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_RXCUI_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_RXCUI_MAP.getPrimordialUuid(),
                     HDX_RXCUI_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_CCS_SINGLE_ICD_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_CCS_SINGLE_ICD_MAP.getPrimordialUuid(),
                     HDX_CCS_SINGLE_ICD_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_CCS_MULTI_1_ICD_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_CCS_MULTI_1_ICD_MAP.getPrimordialUuid(),
                     HDX_CCS_MULTI_1_ICD_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_CCS_MULTI_2_ICD_MAP.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_CCS_MULTI_2_ICD_MAP.getPrimordialUuid(),
                     HDX_CCS_MULTI_2_ICD_MAP.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
-            buildConcept(HDX_REVIEW_REQUIRED.getPrimordialUuid(), 
+            buildConcept(transaction, HDX_REVIEW_REQUIRED.getPrimordialUuid(),
                     HDX_REVIEW_REQUIRED.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid()); 
             
             File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
             System.out.println("Importing from: " + importDirectory.getAbsolutePath());
 
-            int fileCount = loadDatabase(importDirectory);
+            int fileCount = loadDatabase(transaction, importDirectory);
+            transaction.commit("Health Ontology Import");
             return null;
         } finally {
             Get.taxonomyService().notifyTaxonomyListenersToRefresh();
@@ -305,7 +310,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
         }
     }
 
-    private int loadDatabase(File contentDirectory)
+    private int loadDatabase(Transaction transaction, File contentDirectory)
             throws Exception {
         int fileCount = 0;
         List<Path> zipFiles = Files.walk(contentDirectory.toPath())
@@ -327,7 +332,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
                                         .withCSVParser(new CSVParserBuilder().withSeparator('\t').build()).build();
                         fileCount++;
 
-                        readHo(reader, entry);
+                        readHo(transaction, reader, entry);
                     }
                 }
             }
@@ -335,7 +340,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
         return fileCount;
     }
 
-    private void readHo(CSVReader reader, ZipEntry entry)
+    private void readHo(Transaction transaction, CSVReader reader, ZipEntry entry)
             throws IOException {
         long commitTime = System.currentTimeMillis();
         AssemblageService assemblageService = Get.assemblageService();
@@ -356,7 +361,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             columnsToWrite.add(columns);
 
             if (columnsToWrite.size() == writeSize) {
-                HoWriter hoWriter = new HoWriter(
+                HoWriter hoWriter = new HoWriter(transaction,
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing HO records from: " + DirectImporter.trimZipName(
@@ -376,7 +381,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             LOG.warn("No data in file: " + entry.getName());
         }
         if (!columnsToWrite.isEmpty()) {
-                HoWriter hoWriter = new HoWriter(
+                HoWriter hoWriter = new HoWriter(transaction,
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing HO records from: " + DirectImporter.trimZipName(
@@ -401,7 +406,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
         this.writeSemaphore.release(WRITE_PERMITS);
     }
     
-    protected void buildConcept(UUID conceptUuid, String conceptName, int stamp, int parentConceptNid) throws IllegalStateException, NoSuchElementException {
+    protected void buildConcept(Transaction transaction, UUID conceptUuid, String conceptName, int stamp, int parentConceptNid) throws IllegalStateException, NoSuchElementException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
         eb.necessarySet(eb.and(eb.conceptAssertion(parentConceptNid)));
         ConceptBuilderService builderService = Get.conceptBuilderService();
@@ -411,7 +416,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
         builder.setPrimordialUuid(conceptUuid);
         List<Chronology> builtObjects = new ArrayList<>();
-        builder.build(stamp, builtObjects);
+        builder.build(transaction, stamp, builtObjects);
         for (Chronology chronology : builtObjects) {
             Get.identifiedObjectService().putChronologyData(chronology);
             index(chronology);

@@ -44,6 +44,7 @@
  */
 package sh.isaac.api.commit;
 
+import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.alert.AlertType;
 
@@ -52,7 +53,11 @@ import sh.isaac.api.alert.AlertType;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.transaction.Transaction;
+
+import java.util.Optional;
+import java.util.UUID;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -65,18 +70,32 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  */
 public interface ChangeChecker
         extends Comparable<ChangeChecker> {
-   /**
-    * Check.
-    *
-    * @param cc the cc
-    * @param checkPhase the check phase
-    * @return An AlertObject that typically has an {@link AlertType} of {@link AlertType#ERROR} or  {@link AlertType#SUCCESS} 
-    * To prevent a commit, return an AlertObject which responds true for {@link AlertType#preventsCheckerPass()}
-    */
-   AlertObject check(Chronology cc, 
-              CheckPhase checkPhase);
-   
-   /**
+    /**
+     * Check.
+     *
+     * @param chronology the to test
+     * @param pathConceptNid the pathConcept for the version to be tested the chronology
+     * @param transaction the transaction governing the change
+     * @return An AlertObject that typically has an {@link AlertType} of {@link AlertType#ERROR} or  {@link AlertType#SUCCESS}
+     * To prevent a commit, return an AlertObject which responds true for {@link AlertType#preventsCheckerPass()}
+     */
+    default Optional<AlertObject> check(Chronology chronology,
+                                int pathConceptNid,
+                                Transaction transaction) {
+
+
+        for (Version v: chronology.getVersionList()) {
+            if (v.getPathNid() == pathConceptNid && transaction.containsTransactionId(Get.stampService().getTransactionIdForStamp(v.getStampSequence()))) {
+                return check(v, transaction);
+            }
+        }
+        throw new IllegalStateException("No version to test for: " + chronology + " path: " + Get.conceptDescriptionText(pathConceptNid));
+    }
+
+
+    Optional<AlertObject> check(Version version, Transaction transaction);
+
+    /**
     * The description of the change checker (which should describe what it is checking for)
     * @return
     */

@@ -76,6 +76,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
@@ -236,7 +237,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 	 * @throws IOException 
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		init();
 		
@@ -357,7 +358,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 					dwh.makeDescriptionEn(parentModule, title + " modules", regularName, 
 							insensitive, 
 							Status.ACTIVE, releaseTime, preferred);
-					dwh.makeParentGraph(parentModule, Arrays.asList(new UUID[] {MetaData.MODULE____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
+					dwh.makeParentGraph(transaction, parentModule, Arrays.asList(new UUID[] {MetaData.MODULE____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
 				}
 				
 				//We have now created a Bevon modules grouping concept.  Configure to that module for further work...
@@ -409,7 +410,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				dwh.makeDescriptionEn(versionModule, title + " " + version + " module", regularName, 
 						insensitive, 
 						Status.ACTIVE, releaseTime, preferred);
-				dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(transaction, versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 				
 				dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, Optional.of(new Date(releaseTime).toString()), 
 						Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), releaseTime);
@@ -423,18 +424,18 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				}
 				
 				//Set up our metadata hierarchy
-				dwh.makeMetadataHierarchy(true, true, true, true, true, true, releaseTime);
+				dwh.makeMetadataHierarchy(transaction, true, true, true, true, true, true, releaseTime);
 				
 				//Need to make the root concept, and its rel, prior to adding its descriptions - also the coregroup concept
 				rootConcept = getConceptUUID(preferredNamespaceUri, subject);  //make sure our nid is assigned to the combination of both nids.
 				//But also give it two UUIDs, so everything attached ends up in the right spot.
 				rootConceptId2 = getConceptUUID(subject);
 				dwh.makeConcept(rootConcept, Status.ACTIVE, releaseTime, new UUID[] {rootConceptId2});
-				dwh.makeParentGraph(rootConcept, Arrays.asList(new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(transaction, rootConcept, Arrays.asList(new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
 				
 				coreGroupConcept = getConceptUUID("http://rdfs.co/bevon/CoreGroup");
 				dwh.makeConcept(coreGroupConcept, Status.ACTIVE, releaseTime);
-				dwh.makeParentGraph(coreGroupConcept, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(transaction, coreGroupConcept, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
 				
 				//Create some types...
 				anu = new AnonymousNodeUtil(string -> getConceptUUID(string), resource -> conceptsToBeBuilt.put(getConceptUUID(resource.getURI()), resource));
@@ -472,7 +473,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				{
 					if (allPredicates.contains(entry.getKey()))
 					{
-						dwh.makeRefsetTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, releaseTime);
+						dwh.makeRefsetTypeConcept(transaction, getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, releaseTime);
 					}
 				}
 				
@@ -500,7 +501,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 								}
 							}
 						}
-						dwh.makeAssociationTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null, null, 
+						dwh.makeAssociationTypeConcept(transaction, getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null, null,
 								null, null, additionalParents, 
 								releaseTime);
 					}
@@ -533,7 +534,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 						//Add the relationships parent
 						additionalParents.add(dwh.getRelationTypesNode().get());
 						
-						dwh.makeAssociationTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null, 
+						dwh.makeAssociationTypeConcept(transaction, getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null,
 								null, null, null, additionalParents, releaseTime);
 						possibleAssociations.put(entry.getKey(), entry.getValue());
 					}
@@ -561,9 +562,9 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 							}
 						}
 						
-						UUID dynamicSemantic = dwh.makeAttributeTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue().getNiceName(), 
+						UUID dynamicSemantic = dwh.makeAttributeTypeConcept(transaction, getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue().getNiceName(),
 								null, false, null, additionalParents, releaseTime);
-						dwh.configureConceptAsDynamicAssemblage(dynamicSemantic, "Stores anonymous RDF node data", 
+						dwh.configureConceptAsDynamicAssemblage(transaction, dynamicSemantic, "Stores anonymous RDF node data",
 								anu.getColumnConstructionInfo(entry.getKey()), entry.getValue().getReferencedComponentTypeRestriction(), 
 								entry.getValue().getReferencedComponentTypeSubRestriction(), releaseTime);
 						
@@ -594,17 +595,17 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 						}
 						
 						//"nice name" and FQN, URI as alt name
-						dwh.makeDescriptionTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue().getKey(), null, entry.getValue().getValue(), 
+						dwh.makeDescriptionTypeConcept(transaction, getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue().getKey(), null, entry.getValue().getValue(),
 								additionalParents, releaseTime);
 					}
 				}
 				
-				generatePlaceholdersForMissing(releaseTime);  //Some type rels have extended types that point to concepts we don't have - must create now
+				generatePlaceholdersForMissing(transaction, releaseTime);  //Some type rels have extended types that point to concepts we don't have - must create now
 				//for the next step to work properly
 				dwh.processTaxonomyUpdates();  //process our metadata, so the taxonomy works properly for other things during load
 				Get.taxonomyService().notifyTaxonomyListenersToRefresh();
 				
-				process(statements, false);  //Don't add any isA's to the parent, because this will cause cycles, due to how we are generating 
+				process(transaction, statements, false);  //Don't add any isA's to the parent, because this will cause cycles, due to how we are generating
 				//unresolved references
 				processedSubjects.add(subject);
 				processedSubjects.add(preferredNamespaceUri);
@@ -624,7 +625,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				{
 					try
 					{
-						process(entries.getValue(), true);
+						process(transaction, entries.getValue(), true);
 					}
 					catch (Exception e)
 					{
@@ -635,7 +636,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				}
 			}
 			
-			generatePlaceholdersForMissing(releaseTime);
+			generatePlaceholdersForMissing(transaction, releaseTime);
 			
 			if (conceptsToBeBuilt.size() > 0)
 			{
@@ -684,7 +685,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 		}
 	}
 	
-	private void generatePlaceholdersForMissing(long releaseTime)
+	private void generatePlaceholdersForMissing(Transaction transaction, long releaseTime)
 	{
 		Iterator<UUID> it = conceptsToBeBuilt.keySet().iterator();
 		while (it.hasNext())
@@ -710,7 +711,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				dwh.makeDescriptionEnNoDialect(unresolvedConcepts, "These are external ontology references that were not fully resolved while processing this file.  They are created here"
 						+ " as placeholders, so they could be manually resolved and also to make the hierarchy navigable.", 
 						definition, Status.ACTIVE, releaseTime);
-				dwh.makeParentGraph(unresolvedConcepts, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(transaction, unresolvedConcepts, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
 			}
 			
 			Iterator<Entry<UUID, Resource>> i = conceptsToBeBuilt.entrySet().iterator();
@@ -728,7 +729,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				{
 					dwh.makeDescriptionEnNoDialect(entry.getKey(), entry.getValue().getLocalName(), regularName, Status.ACTIVE, releaseTime);
 				}
-				dwh.makeParentGraph(entry.getKey(), Arrays.asList(new UUID[] {unresolvedConcepts}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(transaction, entry.getKey(), Arrays.asList(new UUID[] {unresolvedConcepts}), Status.ACTIVE, releaseTime);
 			}
 		}
 	}
@@ -821,7 +822,7 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 	/**
 	 * @param subjectStatements a list of statements which all share the same subject
 	 */
-	private UUID process(List<Statement> subjectStatements, boolean writeParentGraphs)
+	private UUID process(Transaction transaction, List<Statement> subjectStatements, boolean writeParentGraphs)
 	{
 
 		String subjectFQN = subjectStatements.get(0).getSubject().getURI();
@@ -936,17 +937,17 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				dwh.makeDescriptionEnNoDialect(concept, subjectRegularName, regularName, Status.ACTIVE, time);
 			}
 			
-			boolean madeRefset = handleProperties(concept,time, subjectRegularName, properties, collectionType);
+			boolean madeRefset = handleProperties(transaction, concept,time, subjectRegularName, properties, collectionType);
 
 			if (writeParentGraphs) 
 			{
-				writeParentGraph(subjectFQN, concept, parentStatements, (madeRefset ? new UUID[] {dwh.getRefsetTypesNode().get()} : null), time);
+				writeParentGraph(transaction, subjectFQN, concept, parentStatements, (madeRefset ? new UUID[] {dwh.getRefsetTypesNode().get()} : null), time);
 			}
 			return concept;
 		}
 	}
 	
-	private UUID writeParentGraph(String subjectFQN, UUID concept, ArrayList<Statement> parentStatements, UUID[] additionalParents, long time)
+	private UUID writeParentGraph(Transaction transaction, String subjectFQN, UUID concept, ArrayList<Statement> parentStatements, UUID[] additionalParents, long time)
 	{
 		ArrayList<UUID> parents = new ArrayList<>();
 		for (Statement s : parentStatements)
@@ -995,12 +996,12 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 				dwh.makeDescriptionEnNoDialect(orphanParent, "These are ontology references that do not have any parents in the supplied ontology graph.", 
 						definition, 
 						Status.ACTIVE, releaseTime);
-				dwh.makeParentGraph(orphanParent, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(transaction, orphanParent, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
 			}
 			parents.add(orphanParent);
 		}
 
-		UUID logicGraph = dwh.makeParentGraph(concept, parents, Status.ACTIVE, time);
+		UUID logicGraph = dwh.makeParentGraph(transaction, concept, parents, Status.ACTIVE, time);
 		HashSet<String> uniquePredicates = new HashSet<>();
 		for (Statement s : parentStatements)
 		{
@@ -1017,12 +1018,12 @@ public class TurtleImportMojoDirect extends DirectConverterBaseMojo implements D
 	 * @param propStatements
 	 * @return true, if this concept was turned into a refset definition by the properties we processed
 	 */
-	private boolean handleProperties(UUID concept, long time, String localName, ArrayList<Statement> propStatements, String collectionType)
+	private boolean handleProperties(Transaction transaction, UUID concept, long time, String localName, ArrayList<Statement> propStatements, String collectionType)
 	{
 		boolean madeRefset = false;
 		if (findPredicateValues("http://www.w3.org/1999/02/22-rdf-syntax-ns#_", true, propStatements).size() > 0)
 		{
-			dwh.configureConceptAsDynamicAssemblage(concept, collectionType, null, null, null, time);
+			dwh.configureConceptAsDynamicAssemblage(transaction, concept, collectionType, null, null, null, time);
 			madeRefset = true;
 		}
 

@@ -47,6 +47,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.assertions.Assertion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.utility.Frills;
 
@@ -90,13 +91,13 @@ public class BugDemo
 						new DynamicData[] { new DynamicUUIDImpl(Get.identifierService().getUuidPrimordialForNid(MetaData.AND____SOLOR.getAssemblageNid())) }));
 
 		// build the description and the extended type
-		try
-		{
-			descriptionSemanticBuilder.build(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE).get();
+		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		try {
+			descriptionSemanticBuilder.build(transaction, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate()).get();
+			transaction.commit();
 			Assert.fail("build worked when it shouldn't have");
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
+			transaction.cancel();
 			// expected
 		}
 
@@ -126,9 +127,10 @@ public class BugDemo
 		LogicalExpression parentDef = defBuilder.build();
 		cb.setLogicalExpression(parentDef);
 
-		cb.build(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE);
+		Transaction transaction1 = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+		cb.build(transaction1, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
 
-		Optional<CommitRecord> cr = Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "created extended type concept").get();
+		Optional<CommitRecord> cr = transaction1.commit("created extended type concept").get();
 
 		if (!cr.isPresent())
 		{
@@ -147,12 +149,14 @@ public class BugDemo
 				Get.semanticBuilderService().getDynamicBuilder(descriptionSemanticBuilder, DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid(),
 						new DynamicData[] { new DynamicUUIDImpl(Get.identifierService().getUuidPrimordialForNid(cb.getNid())) }));
 
+		Transaction transaction2 = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+
 		// build the description and the extended type
-		SemanticChronology newDescription = descriptionSemanticBuilder.build(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE)
+		SemanticChronology newDescription = descriptionSemanticBuilder.build(transaction2, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate())
 				.get();
 
 		// commit them.
-		cr = Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
+		cr = transaction2.commit(
 				"creating new description semantic: NID=" + newDescription.getNid() + ", text=foo").get();
 
 		if (!cr.isPresent())
@@ -182,7 +186,8 @@ public class BugDemo
 	{
 		SemanticChronology lg = Frills.getLogicGraphChronology(MetaData.ACTION_PURPOSE____SOLOR.getNid(), true).get();
 
-		MutableLogicGraphVersion mlg = lg.createMutableVersion(Status.ACTIVE, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
+		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		MutableLogicGraphVersion mlg = lg.createMutableVersion(transaction, Status.ACTIVE, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
 
 		LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
 		NecessarySet(And(new Assertion[] { ConceptAssertion(MetaData.ACTION_PURPOSE____SOLOR.getNid(), defBuilder),
@@ -190,11 +195,10 @@ public class BugDemo
 		LogicalExpression parentDef = defBuilder.build();
 
 		mlg.setGraphData(parentDef.getData(DataTarget.INTERNAL));
-
-		Get.commitService().addUncommittedNoChecks(lg).get();
+		Get.commitService().addUncommitted(transaction, lg).get();
 		
-		Get.commitService().addUncommitted(lg).get();
+		Get.commitService().addUncommitted(transaction, lg).get();
 		
-		Frills.commitCheck(Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "test"));
+		Frills.commitCheck(transaction.commit("test"));
 	}
 }

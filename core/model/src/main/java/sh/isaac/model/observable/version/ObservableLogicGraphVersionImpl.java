@@ -65,6 +65,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableLogicGraphVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -150,19 +151,30 @@ public class ObservableLogicGraphVersionImpl
       return this.logicGraphProperty;
    }
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      LogicGraphVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableLogicGraphVersionImpl newObservableVersion = new ObservableLogicGraphVersionImpl(
-                                                                 newVersion,
-                                                                       (ObservableSemanticChronology) chronology);
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+        LogicGraphVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        return setupAnalog(newVersion);
+    }
 
-      ((ObservableChronologyImpl) chronology).getVersionList()
-            .add(newObservableVersion);
-      return (V) newObservableVersion;
-   }
 
-   @Override
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        LogicGraphVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        return setupAnalog(newVersion);
+    }
+
+    private <V extends Version> V setupAnalog(LogicGraphVersion newVersion) {
+        ObservableLogicGraphVersionImpl newObservableVersion = new ObservableLogicGraphVersionImpl(
+                newVersion,
+                (ObservableSemanticChronology) chronology);
+
+        ((ObservableChronologyImpl) chronology).getVersionList()
+                .add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
+
+    @Override
    public String toString() {
       if (this.logicGraphProperty != null) {
           return "ObservableLogicGraphVersionImpl{data[][]:" + new LogicalExpressionImpl(this.logicGraphProperty.get(), DataSource.INTERNAL);

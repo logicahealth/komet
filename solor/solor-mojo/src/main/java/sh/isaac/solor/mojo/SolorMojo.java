@@ -31,9 +31,11 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.classifier.ClassifierResults;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LoincDirectImporter;
 import sh.isaac.solor.direct.DirectImporter;
@@ -79,7 +81,9 @@ public class SolorMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         Get.configurationService().setDBBuildMode(BuildMode.DB);
+
         try {
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
             Get.configurationService().setIBDFImportPathFolderPath(new File(importFolderLocation).toPath());
 
             if (this.dataStoreLocation != null) {
@@ -97,7 +101,7 @@ public class SolorMojo extends AbstractMojo {
             rf2Importer.run();
             LookupService.syncAll();
 
-            LoincDirectImporter loincImporter = new LoincDirectImporter();
+            LoincDirectImporter loincImporter = new LoincDirectImporter(transaction);
             getLog().info("  Importing LOINC files.");
             loincImporter.run();
             LookupService.syncAll();
@@ -113,12 +117,12 @@ public class SolorMojo extends AbstractMojo {
 
                 if (loincImporter.foundLoinc()) {
                     getLog().info("Convert LOINC expressions...");
-                    LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
+                    LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept(transaction);
                     Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
                     convertLoincTask.get();
 
                     getLog().info("Adding navigation concepts...");
-                    LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(coordinate);
+                    LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction, coordinate);
                     Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
                     addNavigationConceptsTask.get();
                 }
@@ -128,7 +132,7 @@ public class SolorMojo extends AbstractMojo {
                 ClassifierResults classifierResults = classifierResultsTask.get();
                 getLog().info(classifierResults.toString());
             }
-
+            transaction.commit("Solor mojo");
             Get.startIndexTask().get();
             LookupService.syncAll();  //This should be unnecessary....
             LookupService.shutdownIsaac();

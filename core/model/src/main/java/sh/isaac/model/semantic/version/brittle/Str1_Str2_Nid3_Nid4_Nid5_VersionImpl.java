@@ -22,6 +22,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
@@ -74,12 +75,29 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       this.getStatus(),
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       this.getModuleNid(),
-                                       ec.getPathNid());
+              .getStampSequence(
+                      this.getStatus(),
+                      Long.MAX_VALUE,
+                      ec.getAuthorNid(),
+                      this.getModuleNid(),
+                      ec.getPathNid());
+      return setupAnalog(stampSequence);
+   }
+
+
+   @Override
+   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+      final int stampSequence = Get.stampService()
+              .getStampSequence(transaction,
+                      this.getStatus(),
+                      Long.MAX_VALUE,
+                      authorNid,
+                      this.getModuleNid(),
+                      this.getPathNid());
+      return setupAnalog(stampSequence);
+   }
+
+   private <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Str1_Str2_Nid3_Nid4_Nid5_Version newVersion = new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setStr1(this.str1);
@@ -88,7 +106,7 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       newVersion.setNid4(this.nid4);
       newVersion.setNid5(this.nid5);
       chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;   
+      return (V) newVersion;
    }
 
    @Override

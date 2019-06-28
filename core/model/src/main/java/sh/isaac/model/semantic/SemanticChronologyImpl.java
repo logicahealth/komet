@@ -58,6 +58,7 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.semantic.version.*;
 import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
@@ -138,16 +139,17 @@ public class SemanticChronologyImpl
     * @return the m
     */
    @Override
-   public <V extends Version> V createMutableVersion(Status status, EditCoordinate ec) {
+   public <V extends Version> V createMutableVersion(Transaction transaction, Status status, EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
+                                           transaction,
                                        status,
                                        Long.MAX_VALUE,
                                        ec.getAuthorNid(),
                                        ec.getModuleNid(),
                                        ec.getPathNid());
       final V version = createMutableVersionInternal(stampSequence);
-
+      transaction.addVersionToTransaction(version);
       addVersion(version);
       return version;
    }

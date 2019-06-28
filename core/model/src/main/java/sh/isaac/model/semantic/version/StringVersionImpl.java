@@ -44,6 +44,7 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 
@@ -101,6 +102,22 @@ public class StringVersionImpl
                       ec.getAuthorNid(),
                       this.getModuleNid(),
                       ec.getPathNid());
+      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+      final StringVersionImpl newVersion = new StringVersionImpl(this, stampSequence);
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+      final int stampSequence = Get.stampService()
+              .getStampSequence(transaction,
+                      this.getStatus(),
+                      Long.MAX_VALUE,
+                      authorNid,
+                      this.getModuleNid(),
+                      this.getPathNid());
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final StringVersionImpl newVersion = new StringVersionImpl(this, stampSequence);
 

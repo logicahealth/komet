@@ -57,6 +57,7 @@ import sh.isaac.api.Get;
 
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -67,6 +68,7 @@ import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.transaction.Transaction;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -98,7 +100,7 @@ public interface Chronology
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
-   <V extends Version> V createMutableVersion(Status state, EditCoordinate ec);
+   <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec);
    
    /**
     * Create a mutable version with Long.MAX_VALUE as the time, indicating
@@ -112,15 +114,15 @@ public interface Chronology
     * @param moduleOverride create version on this module, instead of the edit coordinates module. 
     * @return the mutable version
     */
-   default <V extends Version> V createMutableVersion(Status state, EditCoordinate ec, ConceptSpecification moduleOverride) {
-       return createMutableVersion(state, ec, moduleOverride.getNid());
+   default <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec, ConceptSpecification moduleOverride) {
+       return createMutableVersion(transaction, state, ec, moduleOverride.getNid());
    }
 
-   default <V extends Version> V createMutableVersion(Status state, EditCoordinate ec, Optional<ConceptSpecification> moduleOverride) {
+   default <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec, Optional<ConceptSpecification> moduleOverride) {
        if (moduleOverride.isPresent()) {
-           return createMutableVersion(state, ec, moduleOverride.get());
+           return createMutableVersion(transaction, state, ec, moduleOverride.get());
        }
-       return createMutableVersion(state, ec);
+       return createMutableVersion(transaction, state, ec);
    }
 
    /**
@@ -135,9 +137,10 @@ public interface Chronology
     * @param moduleOverrideNid create version on this module, instead of the edit coordinates module. 
     * @return the mutable version
     */
-   default <V extends Version> V createMutableVersion(Status state, EditCoordinate ec, int moduleOverrideNid) {
+   default <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec, int moduleOverrideNid) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
+                                       transaction,
                                        state,
                                        Long.MAX_VALUE,
                                        ec.getAuthorNid(),
@@ -304,5 +307,31 @@ public interface Chronology
    
    NidSet getRecursiveSemanticNids();
 
+    /**
+     * Returns a mutable version for editing. Will return an existing uncommitted version if the
+     * transaction identifier matches, if not it will clone the latest version according to the stamp
+     * coordinate.
+     * @param stampCoordinate
+     * @param transaction
+     * @return a mutable version
+     */
+   default <V extends Version> V getVersionToEdit(StampCoordinate stampCoordinate, int authorNid, int pathNid, Transaction transaction) {
+       for (Version version: getVersionList()) {
+           if (version.getCommitState() == CommitStates.UNCOMMITTED &&
+                   transaction.containsTransactionId(Get.stampService().getTransactionIdForStamp(version.getStampSequence()))) {
+                transaction.addComponentNidToTransaction(getNid(), pathNid);
+               return (V) version;
+           }
+       }
+
+       LatestVersion<V> latestVersion = getLatestVersion(stampCoordinate);
+       if (latestVersion.isPresent()) {
+           V v = ((Version) latestVersion.get()).makeAnalog(transaction, authorNid);
+           v.setPathNid(pathNid);
+           transaction.addComponentNidToTransaction(getNid(), pathNid);
+           return v;
+       }
+       throw new IllegalStateException("No latest version for stamp: " + stampCoordinate + "\n\n" + this);
+   }
 }
 

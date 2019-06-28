@@ -84,6 +84,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.transaction.Transaction;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -233,9 +234,9 @@ public class PostgresStampProvider
      * Set pending stamps for commit.
      *
      * @param pendingStamps the pending stamps
+     * TODO: delete method?
      */
-    @Override
-    synchronized public void addPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps) {
+    synchronized private void addPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps) {
         for (Map.Entry<UncommittedStamp, Integer> entry : pendingStamps.entrySet()) {
             cacheUncommittedStampToStampSequenceMap.get().remove(entry.getKey());
         }
@@ -260,9 +261,9 @@ public class PostgresStampProvider
      *
      * @param authorNid the author nid
      * @return the task
+     * TODO: delete method?
      */
-    @Override
-    public synchronized Task<Void> cancel(int authorNid) {
+    private synchronized Task<Void> cancel(int authorNid) {
         Map<UncommittedStamp, Integer> map = cacheUncommittedStampToStampSequenceMap.get();
 
         map.forEach(
@@ -580,7 +581,7 @@ public class PostgresStampProvider
      * @return the activated stamp sequence
      */
     @Override
-    public int getActivatedStampSequence(int stampSequence) {
+    public int getActiveStampSequence(int stampSequence) {
         return getStampSequence(
             Status.ACTIVE,
             getTimeForStamp(stampSequence),
@@ -719,9 +720,9 @@ public class PostgresStampProvider
      * Gets the pending stamps for commit.
      *
      * @return the pending stamps for commit
+     * TODO: delete method?
      */
-    @Override
-    public ConcurrentHashMap<UncommittedStamp, Integer> getPendingStampsForCommit() {
+    private ConcurrentHashMap<UncommittedStamp, Integer> getPendingStampsForCommit() {
         ConcurrentHashMap<UncommittedStamp, Integer> pendingStampsForCommit
             = cacheUncommittedStampToStampSequenceMap.get();
 
@@ -762,6 +763,12 @@ public class PostgresStampProvider
      */
     @Override
     public int getStampSequence(Status status, long time, int authorSequence, int moduleSequence, int pathSequence) {
+        if (time == Long.MAX_VALUE) {
+            throw new IllegalStateException("Uncommitted stamps must be accompanied by a transaction");
+        }
+        if (time == Long.MIN_VALUE) {
+            throw new IllegalStateException("Canceled stamps cannot be created directly. They must be created using a transaction");
+        }
         if (status == Status.PRIMORDIAL) {
             throw new UnsupportedOperationException(status + " is not an assignable value.");
         }
@@ -1136,4 +1143,23 @@ public class PostgresStampProvider
         }
     }
 
+    @Override
+    public Task<Void> cancel(Transaction transaction) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Task<Void> commit(Transaction transaction, long commitTime) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getStampSequence(Transaction transaction, Status status, long time, int authorNid, int moduleNid, int pathNid) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public UUID getTransactionIdForStamp(int stampSequence) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -60,6 +60,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -139,17 +140,29 @@ public class ObservableLongVersionImpl
       return this.longProperty;
    }
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      LongVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(
-                                                           newVersion,
-                                                                 (ObservableSemanticChronology) chronology);
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+        LongVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(
+                newVersion,
+                (ObservableSemanticChronology) chronology);
 
-      ((ObservableChronologyImpl) chronology).getVersionList()
-            .add(newObservableVersion);
-      return (V) newObservableVersion;
-   }
+        ((ObservableChronologyImpl) chronology).getVersionList()
+                .add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        LongVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(
+                newVersion,
+                (ObservableSemanticChronology) chronology);
+
+        ((ObservableChronologyImpl) chronology).getVersionList()
+                .add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
 
    @Override
    public String toString() {

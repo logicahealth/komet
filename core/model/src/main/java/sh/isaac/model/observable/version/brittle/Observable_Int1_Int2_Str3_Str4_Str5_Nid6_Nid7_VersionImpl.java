@@ -55,6 +55,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
@@ -518,11 +519,21 @@ public class Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
 
     @Override
     public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newObservableVersion = 
-              new Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-      return (V) newObservableVersion;
+        Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        return seputAnalog(newVersion);
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        return seputAnalog(newVersion);
+    }
+
+    private <V extends Version> V seputAnalog(Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion) {
+        Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newObservableVersion =
+                new Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
     }
 }
 

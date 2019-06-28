@@ -49,6 +49,7 @@ import java.util.UUID;
 import sh.isaac.api.Status;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.transaction.Transaction;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -242,5 +243,10 @@ public class CategorizedVersion
     public boolean deepEquals(Object other) {
         return delegate.deepEquals(other);
     }
+
+   @Override
+   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+      return delegate.makeAnalog(transaction, authorNid);
+   }
 }
 

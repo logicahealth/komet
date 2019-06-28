@@ -22,6 +22,7 @@
 package sh.isaac.convert.mojo.loinc.techPreview;
 
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
@@ -51,7 +52,7 @@ public class LoincTPImportMojoDirect extends DirectConverterBaseMojo implements 
 	}
 
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException {
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException {
 		throw new UnsupportedOperationException();
 
 	}

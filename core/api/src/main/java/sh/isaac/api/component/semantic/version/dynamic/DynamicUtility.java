@@ -56,6 +56,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.transaction.Transaction;
 
 /**
  * {@link DynamicUtility}
@@ -139,8 +140,8 @@ public interface DynamicUtility {
     * @param editCoord - optional - the edit coordinate to construct this on - if null, uses the system default coordinate
     * @return all of the created (but uncommitted) SemanticChronologies
     */
-   public SemanticChronology[] configureConceptAsDynamicSemantic(int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
-         IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, EditCoordinate editCoord);
+   public SemanticChronology[] configureConceptAsDynamicSemantic(Transaction transaction, int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
+                                                                 IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, EditCoordinate editCoord);
    
    /**
     * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
@@ -153,7 +154,7 @@ public interface DynamicUtility {
     * @param stampSequence - the stamp to construct this on
     * @return all of the created (but unwritten) SemanticChronologies.  It is up to the caller to write the chronologies to the appropriate store.
     */
-   public List<Chronology> configureConceptAsDynamicSemantic(int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
+   public List<Chronology> configureConceptAsDynamicSemantic(Transaction transaction, int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
          IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, int stampSequence);
    
    /**
@@ -164,7 +165,7 @@ public interface DynamicUtility {
     * @param extraParents - optional - by default, listed under {@link DynamicConstants#DYNAMIC_COLUMNS}
     * @return the list of chronology objects created but not committed
     */
-   public ArrayList<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(String columnName, String columnDescription, 
+   public ArrayList<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(Transaction transaction, String columnName, String columnDescription,
             EditCoordinate editCoordinate, UUID[] extraParents);
 
    /**

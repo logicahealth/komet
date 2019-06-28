@@ -101,6 +101,7 @@ import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.ChronologyService;
 import sh.isaac.model.ModelGet;
@@ -267,10 +268,11 @@ public class ChronologyProvider
         }
 
       //Store the DB id as a semantic
+      Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
       Get.semanticBuilderService()
             .getStringSemanticBuilder(getDataStoreId().get().toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
-            .build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE).get();
-      Get.commitService().commit(EditCoordinates.getDefaultUserMetadata(), "Storing database ID on root concept").get();
+            .build(transaction, EditCoordinates.getDefaultUserMetadata()).get();
+      transaction.commit("Storing database ID on root concept").get();
     }
 
     /**
@@ -440,11 +442,12 @@ public class ChronologyProvider
                 if (!temp.equals(fromFile)) {
                    LOG.info("Semantic Store has {} while file store has {}.  This is expected, if an IBDF file with an existing ID was merged into a datastore."
                          + "  Updating the semantic store to match the file store id.", temp, fromFile);
-                   
-                   MutableStringVersion sv = sdic.get().createMutableVersion(Status.ACTIVE, EditCoordinates.getDefaultUserMetadata());
+
+                   Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+                   MutableStringVersion sv = sdic.get().createMutableVersion(transaction, Status.ACTIVE, EditCoordinates.getDefaultUserMetadata());
                    sv.setString(fromFile.toString());
-                   Get.commitService().addUncommitted(sdic.get());
-                   Get.commitService().commit(EditCoordinates.getDefaultUserMetadata(), "Updating database ID on root concept").get();
+                   Get.commitService().addUncommitted(transaction, sv);
+                   transaction.commit("Updating database ID on root concept").get();
                 }
                    
              } catch (Exception e) {

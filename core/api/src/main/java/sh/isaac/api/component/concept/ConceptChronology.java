@@ -63,6 +63,7 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.transaction.Transaction;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -110,7 +111,7 @@ public interface ConceptChronology
     * @return the mutable version
     */
    @Override
-   ConceptVersion createMutableVersion(Status state, EditCoordinate ec);
+   ConceptVersion createMutableVersion(Transaction transaction, Status state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
 

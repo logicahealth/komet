@@ -31,6 +31,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -85,16 +86,26 @@ public class ObservableComponentNidVersionImpl
     }
 
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      ComponentNidVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableComponentNidVersionImpl newObservableVersion = 
-              new ObservableComponentNidVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-      return (V) newObservableVersion;
-   }
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+        ComponentNidVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        ObservableComponentNidVersionImpl newObservableVersion =
+                new ObservableComponentNidVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
 
-   //~--- methods -------------------------------------------------------------
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        ComponentNidVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        ObservableComponentNidVersionImpl newObservableVersion =
+                new ObservableComponentNidVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
+
+    //~--- methods -------------------------------------------------------------
 
    /**
     * Case significance concept nid property.

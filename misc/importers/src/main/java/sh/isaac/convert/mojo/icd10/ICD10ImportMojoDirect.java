@@ -56,6 +56,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -141,11 +142,11 @@ public class ICD10ImportMojoDirect extends DirectConverterBaseMojo implements Di
 	}
 	
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		this.statusUpdates = statusUpdates;
 		
@@ -173,31 +174,31 @@ public class ICD10ImportMojoDirect extends DirectConverterBaseMojo implements Di
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.ICD10_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				termName, false);
 
-		setupModule(termName, MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid(), contentTime);
+		setupModule(transaction, termName, MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid(), contentTime);
 
 		// Normally, the importer configures this to the parent ICD10 modules UUID - but then we get duplicates generated between CM and PCS.
 		// Need to use a different namespace for each.
 		converterUUID.configureNamespace(Get.identifierService().getUuidPrimordialForNid(dwh.getModuleNid()));
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
+		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept(null, "Short Description", null, null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "Short Description", null, null,
 				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(null, "Long Description", null, null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "Long Description", null, null,
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeAttributeTypeConcept(null, "ICD-10 Order Number", null, null, true, null, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "ICD-10 Order Number", null, null, true, null, null, contentTime);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		allICDConceptsRefset = dwh.makeRefsetTypeConcept(null, "All " + termName + " Concepts", null, null, contentTime);
-		HIPPA_Valid = dwh.makeRefsetTypeConcept(null, "HIPAA Valid", null, null, contentTime);
+		allICDConceptsRefset = dwh.makeRefsetTypeConcept(transaction, null, "All " + termName + " Concepts", null, null, contentTime);
+		HIPPA_Valid = dwh.makeRefsetTypeConcept(transaction, null, "HIPAA Valid", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-		icdRootConcept = dwh.makeConceptEnNoDialect(null, termName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		icdRootConcept = dwh.makeConceptEnNoDialect(transaction, null, termName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 
 		log.info("Metadata load stats");
@@ -225,10 +226,10 @@ public class ICD10ImportMojoDirect extends DirectConverterBaseMojo implements Di
 		 */
 
 		// Process headers first to get parent values for concepts
-		importer.getIntermediateHeaderConcepts().forEach(icd10Item -> process(icd10Item));
+		importer.getIntermediateHeaderConcepts().forEach(icd10Item -> process(transaction, icd10Item));
 
 		// Process leaf concepts
-		importer.getLeafConcepts().forEach(icd10Item -> process(icd10Item));
+		importer.getLeafConcepts().forEach(icd10Item -> process(transaction, icd10Item));
 
 		if (importer.getAllCodesCount() != conceptCount)
 		{
@@ -257,7 +258,7 @@ public class ICD10ImportMojoDirect extends DirectConverterBaseMojo implements Di
 		converterUUID.clearCache();
 	}
 
-	private void process(ICD10 row)
+	private void process(Transaction transaction, ICD10 row)
 	{
 		try
 		{
@@ -287,7 +288,7 @@ public class ICD10ImportMojoDirect extends DirectConverterBaseMojo implements Di
 			if (code.length() <= 3)
 			{
 				// Hang it on root
-				dwh.makeParentGraph(concept, icdRootConcept, status, contentTime);
+				dwh.makeParentGraph(transaction, concept, icdRootConcept, status, contentTime);
 			}
 			else
 			{
@@ -306,7 +307,7 @@ public class ICD10ImportMojoDirect extends DirectConverterBaseMojo implements Di
 					}
 					else
 					{
-						dwh.makeParentGraph(concept, temp, status, contentTime);
+						dwh.makeParentGraph(transaction, concept, temp, status, contentTime);
 						break;
 					}
 				}

@@ -42,6 +42,7 @@ import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.transaction.Transaction;
 
 /**
  *
@@ -137,8 +138,8 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    }
 
    @Override
-   public <V extends Version> V createMutableVersion(Status state, EditCoordinate ec) {
-      return getChronology().createMutableVersion(state, ec);
+   public <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec) {
+      return getChronology().createMutableVersion(transaction, state, ec);
    }
 
    @Override

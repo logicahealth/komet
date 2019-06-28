@@ -53,6 +53,7 @@ import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptVersionImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
@@ -104,6 +105,15 @@ public class ObservableConceptVersionImpl
     @Override
     public <V extends Version> V makeAnalog(EditCoordinate ec) {
         ConceptVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        ObservableConceptVersionImpl newObservableVersion
+                = new ObservableConceptVersionImpl(newVersion, (ObservableConceptChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        ConceptVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
         ObservableConceptVersionImpl newObservableVersion
                 = new ObservableConceptVersionImpl(newVersion, (ObservableConceptChronology) chronology);
         ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);

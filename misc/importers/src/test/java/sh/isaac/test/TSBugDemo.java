@@ -28,9 +28,11 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.EditCoordinates;
@@ -57,7 +59,8 @@ public class TSBugDemo
 			Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 			Get.configurationService().setDataStoreFolderPath(db.toPath());
 			LookupService.startupIsaac();
-	
+
+			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
 			// Create a concept with two parents.
 			ConverterUUID converterUUID = new ConverterUUID(UUID.randomUUID(), true);
 			DirectWriteHelper dwh = new DirectWriteHelper(TermAux.USER.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, 
@@ -65,7 +68,7 @@ public class TSBugDemo
 	
 			UUID concept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString("hi"), Status.ACTIVE, System.currentTimeMillis());
 			
-			UUID parentGraph = dwh.makeParentGraph(concept, Arrays.asList(new UUID[] {
+			UUID parentGraph = dwh.makeParentGraph(transaction, concept, Arrays.asList(new UUID[] {
 				MetaData.ACCEPTABLE____SOLOR.getPrimordialUuid(), 
 				MetaData.ACTIVE_ONLY_DESCRIPTION_LUCENE_MATCH____QUERY_CLAUSE.getPrimordialUuid(), 
 				MetaData.ACTIVE_ONLY_DESCRIPTION_REGEX_MATCH____QUERY_CLAUSE.getPrimordialUuid()}),
@@ -81,12 +84,12 @@ public class TSBugDemo
 					.getVersionList().get(0)).getGraphData();
 			
 			//retire the 3-parent graph
-			MutableLogicGraphVersion v = Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(parentGraph)).createMutableVersion(Status.INACTIVE, 
+			MutableLogicGraphVersion v = Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(parentGraph))
+					.createMutableVersion(transaction, Status.INACTIVE,
 					EditCoordinates.getDefaultUserSolorOverlay());
 			v.setGraphData(data);
-			
-			Get.commitService().commit(EditCoordinates.getDefaultUserSolorOverlay(), "test commit").get();
-			
+			transaction.commit("test commit").get();
+
 			//TODO broken:
 	//		Assert.assertEquals(tss.getTaxonomyParentConceptNids(Get.identifierService().getNidForUuids(concept)).length, 0);
 			
@@ -96,10 +99,10 @@ public class TSBugDemo
 			
 			//TODO still broken after forced cache clear, and regen of TSS:
 	//		Assert.assertEquals(tss.getTaxonomyParentConceptNids(Get.identifierService().getNidForUuids(concept)).length, 0);
-			
-			
+
+			transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
 			//Make a new stated parent graph with only 2 parents
-			dwh.makeParentGraph(concept, Arrays.asList(new UUID[] {
+			dwh.makeParentGraph(transaction, concept, Arrays.asList(new UUID[] {
 					MetaData.ACTIVE_ONLY_DESCRIPTION_LUCENE_MATCH____QUERY_CLAUSE.getPrimordialUuid(), 
 					MetaData.ACTIVE_ONLY_DESCRIPTION_REGEX_MATCH____QUERY_CLAUSE.getPrimordialUuid()}),
 				 Status.ACTIVE, System.currentTimeMillis());

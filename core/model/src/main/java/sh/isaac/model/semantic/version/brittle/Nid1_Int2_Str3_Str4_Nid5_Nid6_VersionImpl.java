@@ -47,6 +47,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_Version;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
@@ -108,6 +109,22 @@ public class Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl
                                        ec.getAuthorNid(),
                                        this.getModuleNid(),
                                        ec.getPathNid());
+      return setupAnalog(stampSequence);
+   }
+   @Override
+   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+
+      final int stampSequence = Get.stampService()
+              .getStampSequence(transaction,
+                      this.getStatus(),
+                      Long.MAX_VALUE,
+                      authorNid,
+                      this.getModuleNid(),
+                      this.getPathNid());
+      return setupAnalog(stampSequence);
+   }
+
+   private <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl newVersion = new Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setNid1(this.nid1);
@@ -117,7 +134,7 @@ public class Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl
       newVersion.setNid5(this.nid5);
       newVersion.setNid6(this.nid6);
       chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;   
+      return (V) newVersion;
    }
 
    @Override

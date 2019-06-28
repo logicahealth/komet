@@ -55,6 +55,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -127,11 +128,11 @@ public class CVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		// There is no global release date for cvx - but each item has its own date. This date will only be used for metadata.
 		Date date = new Date();
@@ -140,23 +141,23 @@ public class CVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"CVX", false);
 		
-		setupModule("CVX", MetaData.CVX_MODULES____SOLOR.getPrimordialUuid(), date.getTime());
+		setupModule(transaction, "CVX", MetaData.CVX_MODULES____SOLOR.getPrimordialUuid(), date.getTime());
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(true, true, true, false, true, false, date.getTime());
+		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, date.getTime());
 		
-		dwh.makeDescriptionTypeConcept(null, "Short Description", null, null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "Short Description", null, null,
 				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, date.getTime());
 		
-		dwh.makeDescriptionTypeConcept(null, "Full Vaccine Name", null, null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "Full Vaccine Name", null, null,
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, date.getTime());
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, date.getTime(), readbackCoordinate);
 		
-		dwh.makeAttributeTypeConcept(null, CVXFieldsV1.VaccineStatus.name(), null, null, false, DynamicDataType.STRING, null, date.getTime());
+		dwh.makeAttributeTypeConcept(transaction, null, CVXFieldsV1.VaccineStatus.name(), null, null, false, DynamicDataType.STRING, null, date.getTime());
 
 		// Every time concept created add membership to "All CPT Concepts"
-		dwh.makeRefsetTypeConcept(null, "All CVX Concepts", null, null, date.getTime());
+		dwh.makeRefsetTypeConcept(transaction, null, "All CVX Concepts", null, null, date.getTime());
 
 		final CVXReader importer = new CVXReader(inputFileLocationPath);
 		CVXCodes terminology;
@@ -194,7 +195,7 @@ public class CVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		statusUpdates.accept("Loading content");
 
 		// Create CVX root concept under SOLOR_CONCEPT____SOLOR
-		final UUID cvxRootConcept = dwh.makeConceptEnNoDialect(null, "CVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		final UUID cvxRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "CVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, date.getTime());
 
 		for (CVXInfo row : terminology.getCVXInfo())
@@ -210,7 +211,7 @@ public class CVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 
 				// Create row concept
 				final UUID rowConcept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(code), status, lastUpdateTime);
-				dwh.makeParentGraph(rowConcept, cvxRootConcept, Status.ACTIVE, lastUpdateTime);
+				dwh.makeParentGraph(transaction, rowConcept, cvxRootConcept, Status.ACTIVE, lastUpdateTime);
 
 				dwh.makeDescriptionEnNoDialect(rowConcept, shortDesc, dwh.getDescriptionType("Short Description"), status, lastUpdateTime);
 				dwh.makeDescriptionEnNoDialect(rowConcept, vacName, dwh.getDescriptionType("Full Vaccine Name"), status, lastUpdateTime);

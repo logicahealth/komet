@@ -47,14 +47,18 @@ package sh.isaac.api.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.time.Instant;
+import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.map.AbstractIntIntMap;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
+import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
 import sh.isaac.api.collections.NidSet;
 
 import sh.isaac.api.collections.StampSequenceSet;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -112,6 +116,37 @@ public class CommitRecord {
       this.commitComment    = commitComment;
    }
 
+   /**
+    * Instantiates a new commit record.
+    *
+    * @param commitTime the commit time
+    * @param stampsInCommit the stamps in commit
+    * @param stampAliases the stamp aliases
+    * @param componentsInCommit the components in commit
+    * @param commitComment the commit comment
+    */
+   public CommitRecord(Instant commitTime,
+                       StampSequenceSet stampsInCommit,
+                       OpenIntIntHashMap stampAliases,
+                       Set<Integer> componentsInCommit,
+                       String commitComment) {
+      this.commitTime       = commitTime;
+      this.stampsInCommit   = StampSequenceSet.of(stampsInCommit);
+      this.stampAliases     = stampAliases.copy();
+
+      this.conceptNidsInCommit = new NidSet();
+      this.semanticNidsInCommit  = new NidSet();
+      IdentifierService idService = Get.identifierService();
+      for (Integer nid: componentsInCommit) {
+         if (idService.getObjectTypeForComponent(nid) == IsaacObjectType.CONCEPT) {
+            this.conceptNidsInCommit.add(nid);
+         } else {
+            this.semanticNidsInCommit.add(nid);
+         }
+      }
+      this.commitComment    = commitComment;
+   }
+
    //~--- methods -------------------------------------------------------------
 
    /**
@@ -122,8 +157,8 @@ public class CommitRecord {
    @Override
    public String toString() {
       return "CommitRecord{" + "commitTime=" + this.commitTime + ", stampsInCommit=" + this.stampsInCommit +
-             ", stampAliases=" + this.stampAliases + ", commitComment=" + this.commitComment + ", conceptSequencesInCommit=" +
-             this.conceptNidsInCommit + ", semanticSequencesInCommit=" + this.semanticNidsInCommit + '}';
+             ", stampAliases=" + this.stampAliases + ", commitComment=" + this.commitComment + ", conceptNidsInCommit=" +
+             this.conceptNidsInCommit + ", semanticNidsInCommit=" + this.semanticNidsInCommit + '}';
    }
 
    //~--- get methods ---------------------------------------------------------

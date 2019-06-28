@@ -61,6 +61,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
@@ -256,19 +257,32 @@ public class ObservableDescriptionVersionImpl
       return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getLanguageConceptNid();
    }
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      DescriptionVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(
-                                                                  newVersion,
-                                                                        (ObservableSemanticChronology) chronology);
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+        DescriptionVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(
+                newVersion,
+                (ObservableSemanticChronology) chronology);
 
-      ((ObservableChronologyImpl) chronology).getVersionList()
-            .add(newObservableVersion);
-      return (V) newObservableVersion;
-   }
+        ((ObservableChronologyImpl) chronology).getVersionList()
+                .add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
 
-   /**
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        DescriptionVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(
+                newVersion,
+                (ObservableSemanticChronology) chronology);
+
+        ((ObservableChronologyImpl) chronology).getVersionList()
+                .add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
+
+    /**
     * Text property.
     *
     * @return the string property

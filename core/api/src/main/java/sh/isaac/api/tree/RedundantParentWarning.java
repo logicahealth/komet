@@ -27,8 +27,8 @@ import sh.isaac.api.alert.AlertType;
  */
 public class RedundantParentWarning extends AlertObject {
    
-   public RedundantParentWarning(String alertTitle, String alertDescription, Callable<Boolean> resolutionTester) {
-      super(alertTitle, alertDescription, AlertType.WARNING, AlertCategory.TAXONOMY, resolutionTester);
+   public RedundantParentWarning(String alertTitle, String alertDescription, Callable<Boolean> resolutionTester, int... nids) {
+      super(alertTitle, alertDescription, AlertType.WARNING, AlertCategory.TAXONOMY, resolutionTester, nids);
    }
    
 }

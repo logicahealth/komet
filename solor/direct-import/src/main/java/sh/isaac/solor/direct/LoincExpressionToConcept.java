@@ -44,6 +44,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
@@ -68,8 +69,10 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
     private final List<IndexBuilderService> indexers;
     private final TaxonomyService taxonomyService;
     private final long commitTime = System.currentTimeMillis();
+    private final Transaction transaction;
 
-    public LoincExpressionToConcept() {
+    public LoincExpressionToConcept(Transaction transaction) {
+        this.transaction = transaction;
         this.taxonomyService = Get.taxonomyService();
         this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
         Get.activeTasks().add(this);
@@ -109,7 +112,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     }
                     LogicalExpression logicalExpression = builder.build();
                     logicalExpression.getNodeCount();
-                    addLogicGraph(loincCode,
+                    addLogicGraph(transaction, loincCode,
                             logicalExpression);
                 }
                 completedUnitOfWork();
@@ -292,8 +295,8 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
      * @param logicalExpression the logical expression
      * @return the semantic chronology
      */
-    public SemanticChronology addLogicGraph(String loincCode,
-            LogicalExpression logicalExpression) {
+    public SemanticChronology addLogicGraph(Transaction transaction, String loincCode,
+                                            LogicalExpression logicalExpression) {
 
         int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
                 commitTime, TermAux.USER.getNid(),
@@ -338,7 +341,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
 
         final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
 
-        final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
+        final SemanticChronology sci = (SemanticChronology) sb.build(transaction, stamp,
                 builtObjects);
         // There should be no other build objects, so ignore the builtObjects list...
 

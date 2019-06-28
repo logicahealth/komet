@@ -8,6 +8,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.transaction.Transaction;
 
 /**
  * {@link SemanticBuildListenerI}
@@ -84,24 +85,22 @@ public interface SemanticBuildListenerI
    /**
     * A listener method that applies to a SemanticBuilder before building a component with a state of ACTIVE. 
     * @param editCoordinate the edit coordinate that determines the author, module and path for the change
-    * @param changeCheckerMode determines if added to the commit manager with or without checks.
      * @param builtObjects
     */
-   default public void applyBefore(
+   default void applyBefore(
+         Transaction transaction,
          EditCoordinate editCoordinate, 
-         ChangeCheckerMode changeCheckerMode,
          List<Chronology> builtObjects) {}
 
    /**
     * A listener method that applies to a SemanticBuilder after building a component with a state of ACTIVE. 
     * @param editCoordinate the edit coordinate that determines the author, module and path for the change
-    * @param changeCheckerMode determines if added to the commit manager with or without checks. 
-     * @param builtSemanticVersion 
-     * @param builtObjects 
+    * @param builtSemanticVersion
+    * @param builtObjects
     */
-   default public void applyAfter(
-         EditCoordinate editCoordinate, 
-         ChangeCheckerMode changeCheckerMode,
+   default void applyAfter(
+         Transaction transaction,
+         EditCoordinate editCoordinate,
          SemanticVersion builtSemanticVersion,
          List<Chronology> builtObjects) {}
 }

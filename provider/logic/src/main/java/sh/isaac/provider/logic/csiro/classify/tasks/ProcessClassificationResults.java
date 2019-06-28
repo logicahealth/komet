@@ -47,6 +47,7 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.mahout.math.list.IntArrayList;
 import au.csiro.ontology.Node;
@@ -74,6 +75,7 @@ import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.api.task.AggregateTaskInput;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 
@@ -91,10 +93,8 @@ public class ProcessClassificationResults
     int classificationCountDuplicatesToNote = 10;
 
     /**
-     * Instantiates a new process classification results.
+     * Instantiates a new process classification results task.
      *
-     * @param stampCoordinate the stamp coordinate
-     * @param logicCoordinate the logic coordinate
      */
     public ProcessClassificationResults() {
         updateTitle("Retrieve inferred axioms");
@@ -123,8 +123,9 @@ public class ProcessClassificationResults
             final Ontology inferredAxioms = this.inputData.getClassifiedOntology();
             Set<Integer> affectedConceptNids = this.inputData.getAffectedConceptNidSet();
             this.addToTotalWork(affectedConceptNids.size());
-            final ClassifierResults classifierResults = collectResults(inferredAxioms, affectedConceptNids);
-
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+            final ClassifierResults classifierResults = collectResults(transaction, inferredAxioms, affectedConceptNids);
+            transaction.commit("Classifier");
             return classifierResults;
         } finally {
             Get.taxonomyService().notifyTaxonomyListenersToRefresh();
@@ -139,7 +140,7 @@ public class ProcessClassificationResults
      * @param affectedConcepts the affected concepts
      * @return the classifier results
      */
-    private ClassifierResults collectResults(Ontology classifiedResult, Set<Integer> affectedConcepts) {
+    private ClassifierResults collectResults(Transaction transaction, Ontology classifiedResult, Set<Integer> affectedConcepts) {
         final HashSet<IntArrayList> equivalentSets = new HashSet<>();
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             completedUnitOfWork();
@@ -178,7 +179,7 @@ public class ProcessClassificationResults
         });
         return new ClassifierResults(affectedConcepts,
                 equivalentSets,
-                writeBackInferred(classifiedResult, affectedConcepts));
+                writeBackInferred(transaction, classifiedResult, affectedConcepts));
     }
 
     /**
@@ -191,7 +192,7 @@ public class ProcessClassificationResults
      * @throws IllegalStateException the illegal state exception
      */
     private void testForProperSetSize(NidSet inferredSemanticSequences,
-            int conceptSequence,
+            int conceptNid,
             NidSet statedSemanticSequences,
             AssemblageService semanticService)
             throws IllegalStateException {
@@ -199,7 +200,7 @@ public class ProcessClassificationResults
             classificationDuplicateCount++;
             if (classificationDuplicateCount < classificationCountDuplicatesToNote) {
                 LOG.error("Cannot have more than one inferred definition per concept. Found: "
-                        + inferredSemanticSequences + "\n\nProcessing concept: " + Get.conceptService().getConceptChronology(conceptSequence).toUserString());
+                        + inferredSemanticSequences + "\n\nProcessing concept: " + Get.conceptService().getConceptChronology(conceptNid).toUserString());
             }
         }
 
@@ -213,13 +214,13 @@ public class ProcessClassificationResults
             if (statedSemanticSequences.isEmpty()) {
                 builder.append("No stated definition for concept: ")
                         .append(Get.conceptService()
-                                .getConceptChronology(conceptSequence)
+                                .getConceptChronology(conceptNid)
                                 .toUserString())
                         .append("\n");
             } else {
                 builder.append("Processing concept: ")
                         .append(Get.conceptService()
-                                .getConceptChronology(conceptSequence)
+                                .getConceptChronology(conceptNid)
                                 .toUserString())
                         .append("\n");
                 statedSemanticSequences.stream().forEach((semanticSequence) -> {
@@ -239,7 +240,7 @@ public class ProcessClassificationResults
      * @param affectedConcepts the affected concepts
      * @return the optional
      */
-    private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, Set<Integer> affectedConcepts) {
+    private Optional<CommitRecord> writeBackInferred(Transaction transaction, Ontology inferredAxioms, Set<Integer> affectedConcepts) {
         final AssemblageService assemblageService = Get.assemblageService();
         final AtomicInteger sufficientSets = new AtomicInteger();
         final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
@@ -328,8 +329,7 @@ public class ProcessClassificationResults
                                                 this.inputData.getLogicCoordinate().getInferredAssemblageNid());
 
                                 // get classifier edit coordinate...
-                                builder.build(EditCoordinates.getClassifierSolorOverlay(),
-                                        ChangeCheckerMode.INACTIVE);
+                                builder.build(transaction, EditCoordinates.getClassifierSolorOverlay());
                                 
                                 if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
                                     LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
@@ -350,13 +350,13 @@ public class ProcessClassificationResults
                                             .getLogicalExpression()
                                             .equals(inferredExpression)) {
                                         final MutableLogicGraphVersion newVersion
-                                                = ((SemanticChronology) inferredChronology).createMutableVersion(
+                                                = ((SemanticChronology) inferredChronology).createMutableVersion(transaction,
                                                         sh.isaac.api.Status.ACTIVE,
                                                         EditCoordinates.getClassifierSolorOverlay());
 
                                         newVersion.setGraphData(
                                                 inferredExpression.getData(DataTarget.INTERNAL));
-                                        commitService.addUncommittedNoChecks(inferredChronology);
+                                        commitService.addUncommitted(transaction, newVersion);
                                     }
                                 }
                             }
@@ -375,9 +375,7 @@ public class ProcessClassificationResults
                         .error("Error during writeback - skipping concept ", e);
             }
         });
-
-        final Task<Optional<CommitRecord>> commitTask = commitService.commit(
-                EditCoordinates.getClassifierSolorOverlay(), "classifier run");
+        final Task<Optional<CommitRecord>> commitTask = transaction.commit( "classifier run");
 
         try {
             final Optional<CommitRecord> commitRecord = commitTask.get();

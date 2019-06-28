@@ -47,7 +47,9 @@ import javafx.application.Platform;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.constants.SystemPropertyConstants;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.convert.delta.vhat.VHATDeltaImport;
 import sh.isaac.mojo.IndexTermstore;
 import sh.isaac.mojo.LoadTermstore;
@@ -74,7 +76,8 @@ public class SimpleTest
          lt.setibdfFilesFolder(new File("../../metadata/target/generated-resource/"));
          lt.execute();
          new IndexTermstore().execute();
-         VHATDeltaImport i = new VHATDeltaImport(
+         Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+         VHATDeltaImport i = new VHATDeltaImport(transaction,
             //new String(Files.readAllBytes(Paths.get("src/test/resources/VHAT XML Update files/Test File 2.xml"))),
             new String(Files.readAllBytes(Paths.get("src/test/resources/VHAT XML Update files/Test File 1.xml"))),
             TermAux.USER.getPrimordialUuid(), Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),

@@ -59,6 +59,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.transaction.Transaction;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -127,15 +128,13 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     * Builds the.
     *
     * @param editCoordinate the edit coordinate
-    * @param changeCheckerMode the change checker mode
     * @return the optional wait task
     * @throws IllegalStateException the illegal state exception
     */
    @Override
-   public final OptionalWaitTask<T> build(EditCoordinate editCoordinate,
-         ChangeCheckerMode changeCheckerMode)
+   public final OptionalWaitTask<T> build(Transaction transaction, EditCoordinate editCoordinate)
             throws IllegalStateException {
-      return build(editCoordinate, changeCheckerMode, new ArrayList<>());
+      return build(transaction, editCoordinate, new ArrayList<>());
    }
 
    //~--- set methods ---------------------------------------------------------

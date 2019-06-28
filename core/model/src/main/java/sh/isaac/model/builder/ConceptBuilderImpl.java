@@ -53,6 +53,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
@@ -65,6 +66,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
@@ -277,7 +279,7 @@ public class ConceptBuilderImpl
     * @throws IllegalStateException the illegal state exception
     */
    @Override
-   public ConceptChronology build(int stampCoordinate,
+   public ConceptChronology build(Transaction transaction, int stampCoordinate,
            List<Chronology> builtObjects)
            throws IllegalStateException {
       
@@ -298,8 +300,8 @@ public class ConceptBuilderImpl
       conceptChronology.createMutableVersion(stampCoordinate);
       ModelGet.identifierService().setupNid(conceptChronology.getNid(), conceptChronology.getAssemblageNid(), conceptChronology.getIsaacObjectType(), conceptChronology.getVersionType());
       builtObjects.add(conceptChronology);
-      getDescriptionBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
-      getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
+      getDescriptionBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
+      getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
       return conceptChronology;
    }
 
@@ -307,15 +309,13 @@ public class ConceptBuilderImpl
     * Builds the.
     *
     * @param editCoordinate the edit coordinate
-    * @param changeCheckerMode the change checker mode
     * @param builtObjects the built objects
     * @return the optional wait task
     * @throws IllegalStateException the illegal state exception
     */
    @Override
-   public OptionalWaitTask<ConceptChronology> build(EditCoordinate editCoordinate,
-           ChangeCheckerMode changeCheckerMode,
-           List<Chronology> builtObjects)
+   public OptionalWaitTask<ConceptChronology> build(Transaction transaction, EditCoordinate editCoordinate,
+                                                    List<Chronology> builtObjects)
            throws IllegalStateException {
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
       UUID[] uuids = getUuids();
@@ -323,26 +323,22 @@ public class ConceptBuilderImpl
       for (int i = 1; i < uuids.length; i++) {
          conceptChronology.addAdditionalUuids(uuids[i]);
       }
+      Version version;
       if (getModule().isPresent()) {
-        conceptChronology.createMutableVersion(this.state, editCoordinate, getModule().get());
+         version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate, getModule().get());
       } else {
-        conceptChronology.createMutableVersion(this.state, editCoordinate);
+         version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate);
       }
+      transaction.addComponentNidToTransaction(version.getNid(), version.getPathNid());
+
       builtObjects.add(conceptChronology);
 
-      getDescriptionBuilders().forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate, changeCheckerMode, builtObjects)));
-      getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate, changeCheckerMode, builtObjects)));
+      getDescriptionBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, editCoordinate, builtObjects)));
+      getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, editCoordinate, builtObjects)));
 
 
-      Task<Void> primaryNested;
-
-      if (changeCheckerMode == ChangeCheckerMode.ACTIVE) {
-         primaryNested = Get.commitService()
-                 .addUncommitted(conceptChronology);
-      } else {
-         primaryNested = Get.commitService()
-                 .addUncommittedNoChecks(conceptChronology);
-      }
+      Task<Void> primaryNested = Get.commitService()
+              .addUncommitted(transaction, conceptChronology);
 
       return new OptionalWaitTask<>(primaryNested, conceptChronology, nestedBuilders);
    }

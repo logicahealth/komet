@@ -9,12 +9,12 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservabeImageVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ImageVersionImpl;
-import sh.isaac.model.semantic.version.LongVersionImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +89,17 @@ public class ObservableImageVersionImpl
     @Override
     public <V extends Version> V makeAnalog(EditCoordinate ec) {
         ImageVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        return setupAnalog(newVersion);
+    }
+
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        ImageVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        return setupAnalog(newVersion);
+    }
+
+    private <V extends Version> V setupAnalog(ImageVersion newVersion) {
         ObservableImageVersionImpl newObservableVersion = new ObservableImageVersionImpl(
                 newVersion,
                 (ObservableSemanticChronology) chronology);

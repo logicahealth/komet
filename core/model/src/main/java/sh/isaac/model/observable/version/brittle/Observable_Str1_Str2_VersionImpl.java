@@ -54,6 +54,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Str1_Str2_Version;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -247,7 +248,17 @@ public class Observable_Str1_Str2_VersionImpl
       ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
     }
-    
-    
+
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        Str1_Str2_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        Observable_Str1_Str2_VersionImpl newObservableVersion =
+                new Observable_Str1_Str2_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
+
+
 }
 

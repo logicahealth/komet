@@ -111,6 +111,10 @@ DEPLOYMENT_SNAPSHOT_REPO
 REPO_USERNAME
 REPO_PASSWORD
 ```
+#GitFlow Implementation
+We use the Git-Flow Maven plugin hosted on GitHub by Aleksandr Mashchenko
+
+https://github.com/aleksandr-m/gitflow-maven-plugin
 
 ## Performing a release
 

@@ -19,6 +19,7 @@ package sh.isaac.api.chronicle;
 import java.util.UUID;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.transaction.Transaction;
 
 /**
  *
@@ -33,8 +34,22 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
    Chronology getChronology();
    
    VersionType getSemanticType();
-   
-   /**
+
+ /**
+  * Create a analog version with Long.MAX_VALUE as the time, indicating
+  * the version is uncommitted. It is the responsibility of the caller to
+  * add the mutable version to the commit manager when changes are complete
+  * prior to committing the component. Values for all properties except time & author
+  * will be copied from this version.
+  * @param <V> the mutable version type
+  * @param authorNid the nid for the author concept
+  * @param transaction the transaction that will govern persistence of the analog.
+  *
+  * @return the mutable version
+  */
+ <V extends Version> V makeAnalog(Transaction transaction, int authorNid);
+
+ /**
     * Create a analog version with Long.MAX_VALUE as the time, indicating
     * the version is uncommitted. It is the responsibility of the caller to
     * add the mutable version to the commit manager when changes are complete
@@ -43,7 +58,7 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
     * from this version. 
     *
     * @param <V> the mutable version type
-    * @param ec edit coordinate to provide the author, module, and path for the mutable version
+    * @param ec edit coordinate to provide the author and path for the mutable version
     * @return the mutable version
     */
    <V extends Version> V makeAnalog(EditCoordinate ec);

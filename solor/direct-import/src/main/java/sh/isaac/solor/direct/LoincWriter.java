@@ -32,6 +32,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
@@ -44,6 +45,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -162,9 +164,11 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     private final long commitTime;
     private final IdentifierService identifierService = Get.identifierService();
     private final AssemblageService assemblageService = Get.assemblageService();
+    private final Transaction transaction;
 
-    public LoincWriter(List<String[]> loincRecordsRecords,
+    public LoincWriter(Transaction transaction, List<String[]> loincRecordsRecords,
             Semaphore writeSemaphore, String message, long commitTime) {
+        this.transaction = transaction;
         this.loincRecords = loincRecordsRecords;
         this.writeSemaphore = writeSemaphore;
         this.writeSemaphore.acquireUninterruptibly();
@@ -195,6 +199,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
             List<String[]> noSuchElementList = new ArrayList<>();
 
+
             for (String[] loincRecord : loincRecords) {
                 try {
 
@@ -214,7 +219,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                             
                             LogicalExpression logicalExpression = builder.build();
                             logicalExpression.getNodeCount();
-                            addLogicGraph(loincRecord[LOINC_NUM],
+                            addLogicGraph(transaction, loincRecord[LOINC_NUM],
                                     logicalExpression);
 
                         }
@@ -332,8 +337,8 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
      * @param logicalExpression the logical expression
      * @return the semantic chronology
      */
-    public SemanticChronology addLogicGraph(String loincCode,
-            LogicalExpression logicalExpression) {
+    public SemanticChronology addLogicGraph(Transaction transaction, String loincCode,
+                                            LogicalExpression logicalExpression) {
 
         int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
                 commitTime, TermAux.USER.getNid(),
@@ -378,7 +383,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
         final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
 
-        final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
+        final SemanticChronology sci = (SemanticChronology) sb.build(transaction, stamp,
                 builtObjects);
         // There should be no other build objects, so ignore the builtObjects list...
 

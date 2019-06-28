@@ -53,6 +53,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -124,11 +125,11 @@ public class MVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 
 		// There is no global release date for mvx - but each item has its own date. This date will only be used for metadata.
@@ -138,18 +139,18 @@ public class MVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.MVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"MVX", false);
 		
-		setupModule("MVX", MetaData.MVX_MODULES____SOLOR.getPrimordialUuid(), date.getTime());
+		setupModule(transaction, "MVX", MetaData.MVX_MODULES____SOLOR.getPrimordialUuid(), date.getTime());
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(true, true, true, false, true, false, date.getTime());
+		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, date.getTime());
 		
-		dwh.makeDescriptionTypeConcept(null, "Manufacturer Name", null, null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "Manufacturer Name", null, null,
 				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, date.getTime());
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, date.getTime(), readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		dwh.makeRefsetTypeConcept(null, "All MVX Concepts", null, null, date.getTime());
+		dwh.makeRefsetTypeConcept(transaction, null, "All MVX Concepts", null, null, date.getTime());
 
 		final MVXReader importer = new MVXReader(inputFileLocationPath);
 		MVXCodes terminology;
@@ -176,7 +177,7 @@ public class MVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		statusUpdates.accept("Loading content");
 
 		// Create MVX root concept under SOLOR_CONCEPT____SOLOR
-		final UUID mvxRootConcept = dwh.makeConceptEnNoDialect(null, "MVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		final UUID mvxRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "MVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, date.getTime());
 
 		for (MVXInfo row : terminology.getMVXInfo())
@@ -190,7 +191,7 @@ public class MVXImportMojoDirect extends DirectConverterBaseMojo implements Dire
 
 				// Create row concept
 				final UUID rowConcept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(code), status, lastUpdated);
-				dwh.makeParentGraph(rowConcept, mvxRootConcept, Status.ACTIVE, lastUpdated);
+				dwh.makeParentGraph(transaction, rowConcept, mvxRootConcept, Status.ACTIVE, lastUpdated);
 				
 				dwh.makeDescriptionEnNoDialect(rowConcept, manfName, dwh.getDescriptionType("Manufacturer Name"), status, lastUpdated);
 

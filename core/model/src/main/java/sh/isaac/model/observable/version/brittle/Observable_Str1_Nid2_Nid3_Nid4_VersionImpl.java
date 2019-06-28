@@ -29,6 +29,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Str1_Nid2_Nid3_Nid4_Version;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
@@ -327,11 +328,21 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
 
     @Override
     public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      Str1_Nid2_Nid3_Nid4_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      Observable_Str1_Nid2_Nid3_Nid4_VersionImpl newObservableVersion = 
-              new Observable_Str1_Nid2_Nid3_Nid4_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-      return (V) newObservableVersion;
+        Str1_Nid2_Nid3_Nid4_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        return setupAnalog(newVersion);
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        Str1_Nid2_Nid3_Nid4_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        return setupAnalog(newVersion);
+    }
+
+    private <V extends Version> V setupAnalog(Str1_Nid2_Nid3_Nid4_VersionImpl newVersion) {
+        Observable_Str1_Nid2_Nid3_Nid4_VersionImpl newObservableVersion =
+                new Observable_Str1_Nid2_Nid3_Nid4_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
     }
 }
 

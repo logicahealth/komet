@@ -39,6 +39,7 @@ import sh.isaac.api.index.IndexBuilderService;
 
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 
 /**
  *
@@ -57,7 +58,10 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
     //~--- fields --------------------------------------------------------------
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
 
-    public LoincDirectImporter() {
+    private final Transaction transaction;
+
+    public LoincDirectImporter(Transaction transaction) {
+        this.transaction = transaction;
         File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
         updateTitle("Importing LOINC from " + importDirectory.getAbsolutePath());
         Get.activeTasks()
@@ -144,7 +148,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
             columnsToWrite.add(columns);
 
             if (columnsToWrite.size() == writeSize) {
-                LoincWriter loincWriter = new LoincWriter(
+                LoincWriter loincWriter = new LoincWriter(transaction,
                         columnsToWrite,
                         this.writeSemaphore,
                         "Processing LOINC records from: " + DirectImporter.trimZipName(
@@ -164,7 +168,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
             LOG.warn("No data in file: " + entry.getName());
         }
         if (!columnsToWrite.isEmpty()) {
-            LoincWriter loincWriter = new LoincWriter(
+            LoincWriter loincWriter = new LoincWriter(transaction,
                     columnsToWrite,
                     this.writeSemaphore,
                     "Reading LOINC records from: " + DirectImporter.trimZipName(

@@ -37,6 +37,8 @@
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.transaction.Transaction;
 import sh.komet.gui.control.image.PropertySheetImageWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import java.util.ArrayList;
@@ -134,8 +136,8 @@ public class PropertySheetMenuItem
 
     public void commit() {
         try {
-            CommitTask commitTask = Get.commitService()
-                    .commit(FxGet.editCoordinate(), "temporary comment", getVersionInFlight());
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+            CommitTask commitTask = transaction.commitObservableVersions("No comment", getVersionInFlight());
             Optional<CommitRecord> optionalCommitRecord = commitTask.get();
             completionListeners.forEach((listener) -> {
                 listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.COMMITTED);

@@ -22,7 +22,7 @@ package sh.isaac.api.alert;
  */
 public class SuccessAlert extends AlertObject {
    
-   public SuccessAlert(String alertTitle, String alertDescription, AlertCategory alertCategory) {
-      super(alertTitle, alertDescription, AlertType.SUCCESS, alertCategory, null);
+   public SuccessAlert(String alertTitle, String alertDescription, AlertCategory alertCategory, int... nids) {
+      super(alertTitle, alertDescription, AlertType.SUCCESS, alertCategory, null, nids);
    }
 }

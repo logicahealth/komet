@@ -14,12 +14,14 @@ public class CompositeActionNodeController {
 
 
     @FXML
-    private ListView<ActionNodeController> actionList;
+    private ListView<ActionNodeController> actionListView;
+
+    private Manifold manifold;
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
-        assert actionList != null : "fx:id=\"actionList\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
-        actionList.setCellFactory(param -> new ActionCell());
+        assert actionListView != null : "fx:id=\"actionListView\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
+        actionListView.setCellFactory(param -> new ActionCell(actionListView, manifold));
     }
 
     @FXML
@@ -28,7 +30,8 @@ public class CompositeActionNodeController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ActionNode.fxml"));
             Object root = loader.load();
             ActionNodeController actionNodeController = loader.getController();
-            actionList.getItems().add(actionNodeController);
+            actionNodeController.setManifold(manifold);
+            actionListView.getItems().add(actionNodeController);
         } catch (IOException e) {
             FxGet.dialogs().showErrorDialog(e);
         }
@@ -36,7 +39,7 @@ public class CompositeActionNodeController {
 
     @FXML
     void newCompositeAction(ActionEvent event) {
-        actionList.getItems().clear();
+        actionListView.getItems().clear();
     }
 
     @FXML
@@ -50,6 +53,6 @@ public class CompositeActionNodeController {
     }
 
     public void setManifold(Manifold manifold) {
-
+        this.manifold = manifold;
     }
 }

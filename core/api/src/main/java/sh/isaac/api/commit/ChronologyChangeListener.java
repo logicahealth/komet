@@ -48,6 +48,7 @@ import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 
@@ -82,6 +83,14 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 public interface ChronologyChangeListener {
 
    final static Logger log = LogManager.getLogger(ChronologyChangeListener.class);
+
+   default void handleChange(Chronology chronology) {
+      if (chronology instanceof ConceptChronology) {
+         handleChange((ConceptChronology) chronology);
+      } else {
+         handleChange((SemanticChronology) chronology);
+      }
+   }
    /**
     * Don't do work on or block the calling thread.
     * @param cc a ConceptChronology that has changed, but has not been committed.

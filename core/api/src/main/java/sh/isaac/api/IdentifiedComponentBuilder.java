@@ -41,23 +41,23 @@ package sh.isaac.api;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.CommittableComponent;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidT5Generator;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.commit.CommittableComponent;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.identity.IdentifiedObject;
-import sh.isaac.api.task.OptionalWaitTask;
-import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.SemanticBuilder;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -102,20 +102,20 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
    /**
     * Create a component with a state of ACTIVE.
     *
+    * @param transaction the transaction governing the component builder
     * @param editCoordinate the edit coordinate that determines the author, module and path for the change
-    * @param changeCheckerMode determines if added to the commit manager with or without checks.
     * @return a task which will return the constructed component after it has been added to the commit manager -
     * the write to the commit manager is not complete until the task is complete (the task has already been launched)
     * @throws IllegalStateException the illegal state exception
     */
-   OptionalWaitTask<T> build(EditCoordinate editCoordinate,
-                             ChangeCheckerMode changeCheckerMode)
+   OptionalWaitTask<T> build(Transaction transaction, EditCoordinate editCoordinate)
             throws IllegalStateException;
 
    /**
     * The caller is responsible to write the component to the proper store when
     * all updates to the component are complete.
     *
+    * @param transaction the transaction governing the component builder
     * @param stampSequence the stamp sequence
     * @param builtObjects a list objects build as a result of call build.
     * Includes top-level object being built.
@@ -123,22 +123,21 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * @return the constructed component, not yet written to the database.
     * @throws IllegalStateException the illegal state exception
     */
-   T build(int stampSequence,
+   T build(Transaction transaction, int stampSequence,
            List<Chronology> builtObjects)
             throws IllegalStateException;
 
    /**
     * Create a component with a state of ACTIVE.
     *
+    * @param transaction the transaction governing the component builder
     * @param editCoordinate the edit coordinate that determines the author, module (unless overridden) and path for the change
-    * @param changeCheckerMode determines if added to the commit manager with or without checks.
     * @param subordinateBuiltObjects a list of subordinate objects also build as a result of building this object.  Includes top-level object being built.
     * @return a task which will return the constructed component after it has been added to the commit manager -
     * the write to the commit manager is not complete until the task is complete (the task has already been launched)
     * @throws IllegalStateException the illegal state exception
     */
-   OptionalWaitTask<T> build(EditCoordinate editCoordinate,
-                             ChangeCheckerMode changeCheckerMode,
+   OptionalWaitTask<T> build(Transaction transaction, EditCoordinate editCoordinate,
                              List<Chronology> subordinateBuiltObjects)
             throws IllegalStateException;
 
@@ -173,9 +172,9 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * define the state that the component will be created with.  if setState is not called,
     * the component will be build as active.  Note, this will not impact any nested builders.
     * Nested builders should have their own state set, if you wish to override the default
-    * active value.  This is only used for calls to {@link #build(EditCoordinate, ChangeCheckerMode)}
-    * or {@link #build(EditCoordinate, ChangeCheckerMode, List)} (where a active state would otherwise be assumed)
-    * It is not used with a call to {@link #build(int, List)}
+    * active value.  This is only used for calls to {@link #build(Transaction, EditCoordinate)}
+    * or {@link #build(Transaction, EditCoordinate, List)} (where a active state would otherwise be assumed)
+    * It is not used with a call to {@link #build(Transaction, int, List)}
     *
     * @param state the state
     * @return the builder for chaining of operations in a fluent pattern.
@@ -197,7 +196,7 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * Throws runtime exception if Primordial UUID has been set and is random (t4).
     * Does nothing if UUID has already been set to a non-random (Not a Type 4 UUID) value.
     * 
-    * @param namespace - optional - what namespace to use to generate the UUIDs.  Defaults to {@link UuidT5Generator.PATH_ID_FROM_FS_DESC} 
+    * @param namespace - optional - what namespace to use to generate the UUIDs.  Defaults to {@link UuidT5Generator.PATH_ID_FROM_FS_DESC}
     * if not provided
     * @param consumer - an optional function that can be passed in.  Has no impact on the UUID generation.  Implementors of 
     * the method will receive the UUID seed string into the consumer during generation (useful as a debug aid), and the resulting UUID

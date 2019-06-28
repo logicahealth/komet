@@ -56,6 +56,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.transaction.Transaction;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -96,7 +97,7 @@ public interface ObservableConceptChronology
     * @return the mutable version
     */
    @Override
-   ObservableConceptVersion createMutableVersion(Status state, EditCoordinate ec);
+   ObservableConceptVersion createMutableVersion(Transaction transaction, Status state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
 

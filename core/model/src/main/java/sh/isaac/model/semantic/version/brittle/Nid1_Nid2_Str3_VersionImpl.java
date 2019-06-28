@@ -47,6 +47,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Str3_Version;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
@@ -94,12 +95,29 @@ public class Nid1_Nid2_Str3_VersionImpl
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       this.getStatus(),
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       this.getModuleNid(),
-                                       ec.getPathNid());
+              .getStampSequence(
+                      this.getStatus(),
+                      Long.MAX_VALUE,
+                      ec.getAuthorNid(),
+                      this.getModuleNid(),
+                      ec.getPathNid());
+      return setupAnalog(stampSequence);
+   }
+
+
+   @Override
+   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+      final int stampSequence = Get.stampService()
+              .getStampSequence(transaction,
+                      this.getStatus(),
+                      Long.MAX_VALUE,
+                      authorNid,
+                      this.getModuleNid(),
+                      this.getPathNid());
+      return setupAnalog(stampSequence);
+   }
+
+   private <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Nid1_Nid2_Str3_VersionImpl newVersion = new Nid1_Nid2_Str3_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setNid1(this.nid1);
@@ -107,7 +125,7 @@ public class Nid1_Nid2_Str3_VersionImpl
       newVersion.setStr3(this.str3);
 
       chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;   
+      return (V) newVersion;
    }
 
 

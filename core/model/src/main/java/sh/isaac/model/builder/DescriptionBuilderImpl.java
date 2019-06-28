@@ -61,6 +61,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.chronicle.Chronology;
@@ -179,7 +180,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
     * @throws IllegalStateException the illegal state exception
     */
    @Override
-   public T build(int stampSequence,
+   public T build(Transaction transaction, int stampSequence,
                   List<Chronology> builtObjects)
             throws IllegalStateException {
       if (this.conceptNid == Integer.MAX_VALUE) {
@@ -203,9 +204,9 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
        
       final int finalStamp = stampSequence;
 
-      final SemanticChronology newDescription = (SemanticChronology) descBuilder.build(finalStamp, builtObjects);
+      final SemanticChronology newDescription = (SemanticChronology) descBuilder.build(transaction, finalStamp, builtObjects);
       ModelGet.identifierService().setupNid(newDescription.getNid(), newDescription.getAssemblageNid(), newDescription.getIsaacObjectType(), newDescription.getVersionType());
-      getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
+      getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
       return (T) newDescription;
    }
 
@@ -213,14 +214,12 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
     * Builds the.
     *
     * @param editCoordinate the edit coordinate
-    * @param changeCheckerMode the change checker mode
     * @param builtObjects the built objects
     * @return the optional wait task
     * @throws IllegalStateException the illegal state exception
     */
    @Override
-   public OptionalWaitTask<T> build(EditCoordinate editCoordinate,
-                                    ChangeCheckerMode changeCheckerMode,
+   public OptionalWaitTask<T> build(Transaction transaction, EditCoordinate editCoordinate,
                                     List<Chronology> builtObjects)
             throws IllegalStateException {
       if (this.conceptNid == Integer.MAX_VALUE) {
@@ -244,8 +243,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       
 
       final OptionalWaitTask<SemanticChronology> newDescription =
-         (OptionalWaitTask<SemanticChronology>) descBuilder.setStatus(this.state).build(editCoordinate,
-                                                                                          changeCheckerMode,
+         (OptionalWaitTask<SemanticChronology>) descBuilder.setStatus(this.state).build(transaction, editCoordinate,
                                                                                           builtObjects);
 
       nestedBuilders.add(newDescription);
@@ -255,8 +253,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
                 builder.setModule(moduleSpec);
             });
           
-            nestedBuilders.add(builder.build(editCoordinate,
-            changeCheckerMode,
+            nestedBuilders.add(builder.build(transaction, editCoordinate,
             builtObjects));
                       });
       return new OptionalWaitTask<>(null, (T) newDescription.getNoWait(), nestedBuilders);

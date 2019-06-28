@@ -60,6 +60,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -132,7 +133,7 @@ public class Rf2ImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	}
 
 	@Override
-	public void convertContent(Consumer<String> messages, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Transaction transaction, Consumer<String> messages, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		try
 		{

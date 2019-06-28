@@ -48,9 +48,11 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
@@ -250,8 +252,10 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
             // TODO alert user that content is not sufficiently formed to submit for commit. 
             FxGet.dialogs().showErrorDialog("Error during commit", ex);
             return;
-        } 
-        CommitTask commitTask = Get.commitService().commit(FxGet.editCoordinate(), "", versionsToCommit);
+        }
+
+        Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+        CommitTask commitTask = transaction.commitObservableVersions("Lambda graph edit", versionsToCommit);
         Get.executor().execute(() -> {
             try {
                 Optional<CommitRecord> commitRecord = commitTask.get();

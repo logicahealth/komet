@@ -20,7 +20,10 @@ import javafx.scene.control.SelectionMode;
 import javafx.stage.Window;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.dbConfigBuilder.artifacts.MavenArtifactUtils;
@@ -147,8 +150,10 @@ public class ArtifactImporter
 								}
 							}
 						}
+						Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
 
-						dc.convertContent(string -> updateTitle(string), (work, total) -> updateProgress(work, total));
+						dc.convertContent(transaction, string -> updateTitle(string), (work, total) -> updateProgress(work, total));
+						transaction.commit();
 						fs.close();
 						Get.indexDescriptionService().refreshQueryEngine();
 

@@ -56,6 +56,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -65,6 +66,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.cell.CellFunctions;
 import sh.komet.gui.cell.CellHelper;
@@ -177,10 +179,8 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     }
 
     private void commitEdit(ActionEvent event) {
-        CommitTask commitTask = Get.commitService().commit(
-                FxGet.editCoordinate(),
-                "No comment",
-                this.mutableVersion);
+        Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+        CommitTask commitTask = transaction.commitObservableVersions("No comment", this.mutableVersion);
         Get.executor().execute(() -> {
             try {
                 Optional<CommitRecord> commitRecord = commitTask.get();

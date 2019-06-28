@@ -63,6 +63,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -130,11 +131,11 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdates) throws IOException 
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdates) throws IOException
 	{
 		long contentTime;
 		try
@@ -211,27 +212,27 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"CPT", false);
 		
-		setupModule("CPT", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), contentTime);
+		setupModule(transaction, "CPT", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), contentTime);
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
+		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept(null, "LONGULT", null, "Long Description Upper/Lower Case",
+		dwh.makeDescriptionTypeConcept(transaction, null, "LONGULT", null, "Long Description Upper/Lower Case",
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(null, "MEDU", null, "Medium Description Upper Case",
+		dwh.makeDescriptionTypeConcept(transaction, null, "MEDU", null, "Medium Description Upper Case",
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(null, "SHORTU", null, "Short Description Upper Case",
+		dwh.makeDescriptionTypeConcept(transaction, null, "SHORTU", null, "Short Description Upper Case",
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept(null, "All CPT Concepts", null, null, contentTime);
+		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept(transaction, null, "All CPT Concepts", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-		final UUID cptRootConcept = dwh.makeConceptEnNoDialect(null, "CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		final UUID cptRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 
 		log.info("Metadata load stats");
@@ -268,7 +269,7 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			{
 				// Make a new grouping concept
 				firstThree = d.code.substring(0, 3);
-				parent = dwh.makeConceptEnNoDialect(null, firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				parent = dwh.makeConceptEnNoDialect(transaction, null, firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {cptRootConcept}, Status.ACTIVE, contentTime);
 				dwh.makeDescriptionEnNoDialect(parent, "Grouping concept for all codes that start with " + firstThree, 
 						MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, contentTime);
@@ -288,7 +289,7 @@ public class CPTImportMojoDirect extends DirectConverterBaseMojo implements Dire
 			
 			UUID concept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(d.code), Status.ACTIVE, contentTime);
 
-			dwh.makeParentGraph(concept, parent, Status.ACTIVE, contentTime);
+			dwh.makeParentGraph(transaction, concept, parent, Status.ACTIVE, contentTime);
 			dwh.makeBrittleStringAnnotation(MetaData.CODE____SOLOR.getPrimordialUuid(), concept, d.code, contentTime);
 
 			dwh.makeDynamicRefsetMember(allCPTConceptsRefset, concept, contentTime);

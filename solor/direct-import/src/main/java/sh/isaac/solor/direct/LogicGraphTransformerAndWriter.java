@@ -39,6 +39,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -61,6 +62,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
@@ -136,16 +138,17 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     @Override
     protected Void call() throws Exception {
         try {
-
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
             int count = 0;
             for (TransformationGroup transformationGroup : transformationRecords) {
-                transformRelationships(transformationGroup.conceptNid, transformationGroup.relationshipNids, transformationGroup.getPremiseType());
+                transformRelationships(transaction, transformationGroup.conceptNid, transformationGroup.relationshipNids, transformationGroup.getPremiseType());
                 if (count % 1000 == 0) {
                     updateMessage("Processing concept: " + Get.conceptDescriptionText(transformationGroup.conceptNid));
                 }
                 count++;
                 completedUnitOfWork();
             }
+            transaction.commit("Logic graph transformer");
             return null;
         } finally {
             this.writeSemaphore.release();
@@ -153,7 +156,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
         }
     }
 
-    private void transformAtTimePath(StampPosition stampPosition, int conceptNid, List<SemanticChronology> relationships, PremiseType premiseType) {
+    private void transformAtTimePath(Transaction transaction, StampPosition stampPosition, int conceptNid, List<SemanticChronology> relationships, PremiseType premiseType) {
 
         final LogicalExpressionBuilder logicalExpressionBuilder = Get.logicalExpressionBuilderService()
                 .getLogicalExpressionBuilder();
@@ -250,7 +253,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                 if (le.isMeaningful()) {
 
                     // TODO [graph] what if the modules are different across the graph rels?
-                    addLogicGraph(conceptNid,
+                    addLogicGraph(transaction, conceptNid,
                             le,
                             premiseType,
                             stampPosition.getTime(),
@@ -270,10 +273,9 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     /**
      * Transform relationships.
      *
-     * @param stated the stated
-     * @throws SQLException the SQL exception
+     * @param premiseType the stated
      */
-    private void transformRelationships(int conceptNid, int[] relNids, PremiseType premiseType) {
+    private void transformRelationships(Transaction transaction, int conceptNid, int[] relNids, PremiseType premiseType) {
         updateMessage("Converting " + premiseType + " relationships into logic graphs");
 
         List<SemanticChronology> relationshipChronologiesForConcept = new ArrayList<>();
@@ -292,7 +294,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             relationshipChronologiesForConcept.add(relationshipChronology);
         }
         for (StampPosition stampPosition : stampPositionsToProcess) {
-            transformAtTimePath(stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
+            transformAtTimePath(transaction, stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
         }
 
     }
@@ -308,11 +310,11 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
      * @param stampCoordinate for determining current version if a graph already
      * exists.
      */
-    public void addLogicGraph(int conceptNid,
-            LogicalExpression logicalExpression,
-            PremiseType premiseType,
-            long time,
-            int moduleNid, StampCoordinate stampCoordinate) {
+    public void addLogicGraph(Transaction transaction, int conceptNid,
+                              LogicalExpression logicalExpression,
+                              PremiseType premiseType,
+                              long time,
+                              int moduleNid, StampCoordinate stampCoordinate) {
         if (time == Long.MAX_VALUE) {
             time = commitTime.toEpochMilli();
         }
@@ -364,7 +366,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
 
             final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
             int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
-            final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
+            final SemanticChronology sci = (SemanticChronology) sb.build(transaction, stamp,
                     builtObjects);
             // There should be no other build objects, so ignore the builtObjects list...
 

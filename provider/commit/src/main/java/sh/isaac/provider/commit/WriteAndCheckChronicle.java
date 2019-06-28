@@ -42,35 +42,34 @@ package sh.isaac.provider.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.lang.ref.WeakReference;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.alert.AlertType;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckAndWriteTask;
-import sh.isaac.api.commit.CheckPhase;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.transaction.Transaction;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class WriteAndCheckConceptChronicle.
+ * The Class WriteAndCheckChronicle.
  *
  * @author kec
  */
-public class WriteAndCheckConceptChronicle
+public class WriteAndCheckChronicle
         extends CheckAndWriteTask {
-   /** The cc. */
-   private ConceptChronology cc;
+   /** The chronology. */
+   private Chronology chronology;
 
    /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker> checkers;
@@ -84,12 +83,14 @@ public class WriteAndCheckConceptChronicle
    /** The uncommitted tracking. */
    private final BiConsumer<Chronology, Boolean> uncommittedTracking;
 
+   private final Transaction transaction;
+
    //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new write and check concept chronicle.
     *
-    * @param cc the cc
+    * @param chronology the chronology
     * @param checkers the checkers
     * @param writeSemaphore the write semaphore
     * @param changeListeners the change listeners
@@ -97,19 +98,21 @@ public class WriteAndCheckConceptChronicle
     * written to the ConceptService.  Parameter 1 is the Concept, Parameter two is true to indicate that the
     * change checker is active for this implementation.
     */
-   public WriteAndCheckConceptChronicle(ConceptChronology cc,
-         ConcurrentSkipListSet<ChangeChecker> checkers,
-         Semaphore writeSemaphore,
-         ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
-         BiConsumer<Chronology, Boolean> uncommittedTracking) {
-      this.cc                  = cc;
+   public WriteAndCheckChronicle(Transaction transaction,
+                                 Chronology chronology,
+                                 ConcurrentSkipListSet<ChangeChecker> checkers,
+                                 Semaphore writeSemaphore,
+                                 ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
+                                 BiConsumer<Chronology, Boolean> uncommittedTracking) {
+      this.transaction = transaction;
+      this.chronology = chronology;
       this.checkers            = checkers;
       this.writeSemaphore      = writeSemaphore;
       this.changeListeners     = changeListeners;
       this.uncommittedTracking = uncommittedTracking;
-      updateTitle("Write and check concept");
+      updateTitle("Check");
 
-      updateMessage("writing " + cc.getNid());  //It is NOT safe to try to print a concept description here, as the semantic might be 
+      updateMessage("writing " + chronology.getNid());  //It is NOT safe to try to print a concept description here, as the semantic might be
       //in the middle of being written on another thread, and some of the data store providers don't cleanly handle the read back of a partially 
       //written item.
       updateProgress(-1, Long.MAX_VALUE);           // Indeterminate progress
@@ -130,20 +133,26 @@ public class WriteAndCheckConceptChronicle
       try {
          
          updateProgress(1, 4);
-         updateMessage("checking: " + this.cc.getNid() + " against " + checkers.size() + " change checkers");
+         updateMessage("checking: " + this.chronology.getNid() + " against " + checkers.size() + " change checkers");
 
-         if (this.cc.getCommitState() == CommitStates.UNCOMMITTED) {
+         if (this.chronology.getCommitState() == CommitStates.UNCOMMITTED) {
             AtomicBoolean fail = new AtomicBoolean(false);
             StringBuilder sb = new StringBuilder();
             this.checkers.stream().forEach((check) -> {
-               AlertObject ao = check.check(this.cc, CheckPhase.ADD_UNCOMMITTED);
-               if (ao.getAlertType() == AlertType.ERROR || ao.getAlertType() == AlertType.WARNING) {
-                  sb.append(System.lineSeparator());
-                     sb.append(ao.toString());
-                     if (ao.getAlertType().preventsCheckerPass()) {
-                        fail.set(true);
+               for (Version v: chronology.getVersionList()) {
+                  if (v.isUncommitted() && transaction.containsTransactionId(Get.stampService().getTransactionIdForStamp(v.getStampSequence()))) {
+                     Optional<AlertObject> optionalAlertObject = check.check(v, transaction);
+                     if (optionalAlertObject.isPresent() &&
+                             (optionalAlertObject.get().getAlertType() == AlertType.ERROR || optionalAlertObject.get().getAlertType() == AlertType.WARNING)) {
+                        AlertObject alertObject = optionalAlertObject.get();
+                        sb.append(System.lineSeparator());
+                        sb.append(alertObject.toString());
+                        if (alertObject.failCommit()) {
+                           fail.set(true);
+                        }
                      }
                   }
+               }
             });
             
             if (fail.get()) {
@@ -155,28 +164,27 @@ public class WriteAndCheckConceptChronicle
          }
          
          updateProgress(2, 4);
-         updateMessage("writing: " + " " + this.cc.getNid());
-         
-         Get.conceptService()
-            .writeConcept(this.cc);
+         updateMessage("writing: " + " " + this.chronology.getNid());
+
+         Get.identifiedObjectService().putChronologyData(this.chronology);
          // get any updates that may have occured during merge write...
-         this.cc = Get.conceptService().getConceptChronology(this.cc.getNid());
-         this.uncommittedTracking.accept(this.cc, true);
+         this.chronology = Get.identifiedObjectService().getChronology(this.chronology.getNid()).get();
+         this.uncommittedTracking.accept(this.chronology, true);
 
          updateProgress(3, 4);
-         updateMessage("notifying: " + cc.getNid());  
+         updateMessage("notifying: " + chronology.getNid());
          this.changeListeners.forEach((listenerRef) -> {
             final ChronologyChangeListener listener = listenerRef.get();
 
             if (listener == null) {
                this.changeListeners.remove(listenerRef);
             } else {
-               listener.handleChange(this.cc);
+               listener.handleChange(this.chronology);
             }
          });
          updateProgress(4, 4);
 
-         updateMessage("Write and check complete: " + cc.getNid()); 
+         updateMessage("Write and check complete: " + chronology.getNid());
          return null;
       } finally {
          this.writeSemaphore.release();

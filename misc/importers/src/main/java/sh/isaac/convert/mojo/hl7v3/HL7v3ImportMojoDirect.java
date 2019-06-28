@@ -117,6 +117,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -207,11 +208,11 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdates) throws IOException 
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdates) throws IOException
 	{
 		try
 		{
@@ -246,27 +247,27 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 			dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.HL7_V3_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 					"HL7v3", false);
 			
-			UUID versionModule = setupModule("HL7v3", MetaData.HL7_V3_MODULES____SOLOR.getPrimordialUuid(), contentTime);
+			UUID versionModule = setupModule(transaction, "HL7v3", MetaData.HL7_V3_MODULES____SOLOR.getPrimordialUuid(), contentTime);
 			
 			//Set up our metadata hierarchy
-			dwh.makeMetadataHierarchy(true, true, false, true, true, false, contentTime);
+			dwh.makeMetadataHierarchy(transaction, true, true, false, true, true, false, contentTime);
 
 			//description types
-			dwh.makeDescriptionTypeConcept(null, "name", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
-			dwh.makeDescriptionTypeConcept(null, "code", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
-			dwh.makeDescriptionTypeConcept(null, "print name", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
-			dwh.makeDescriptionTypeConcept(null, "title", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
-			dwh.makeDescriptionTypeConcept(null, "documentation", null, null, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
-			dwh.makeDescriptionTypeConcept(null, "description", null, null, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
+			dwh.makeDescriptionTypeConcept(transaction, null, "name", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
+			dwh.makeDescriptionTypeConcept(transaction, null, "code", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
+			dwh.makeDescriptionTypeConcept(transaction, null, "print name", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
+			dwh.makeDescriptionTypeConcept(transaction, null, "title", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
+			dwh.makeDescriptionTypeConcept(transaction, null, "documentation", null, null, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
+			dwh.makeDescriptionTypeConcept(transaction, null, "description", null, null, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 			
 			//association types
-			dwh.makeAssociationTypeConcept(null, "specializes domain", null, null, null, null, null, null, null, contentTime);
-			dwh.makeAssociationTypeConcept(null, "specialized by domain", null, null, null, null, null, null, null, contentTime);
+			dwh.makeAssociationTypeConcept(transaction, null, "specializes domain", null, null, null, null, null, null, null, contentTime);
+			dwh.makeAssociationTypeConcept(transaction, null, "specialized by domain", null, null, null, null, null, null, null, contentTime);
 			
 			//attributes
-			makeAttributes(contentTime);
+			makeAttributes(transaction, contentTime);
 			
-			makeTerminologySpecificAttributes(gvm, contentTime);
+			makeTerminologySpecificAttributes(transaction, gvm, contentTime);
 
 			log.info("Metadata load stats");
 			for (String line : dwh.getLoadStats().getSummary())
@@ -324,10 +325,10 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 						new DynamicArrayImpl<DynamicString>(copyrightYears) },
 					contentTime);
 
-			rootConceptUUID = dwh.makeConceptEnNoDialect(null, "HL7v3", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+			rootConceptUUID = dwh.makeConceptEnNoDialect(transaction, null, "HL7v3", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 					new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 			
-			UUID conceptDomains = dwh.makeConceptEnNoDialect(null, "Concept Domains", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+			UUID conceptDomains = dwh.makeConceptEnNoDialect(transaction, null, "Concept Domains", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 					new UUID[] {rootConceptUUID}, Status.ACTIVE, contentTime); 
 
 			// Build a hashmap from codeSystem name -> OID
@@ -379,7 +380,7 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 					continue;
 				}
 
-				UUID conceptDomain = dwh.makeConceptEnNoDialect(null, cd.getName(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+				UUID conceptDomain = dwh.makeConceptEnNoDialect(transaction, null, cd.getName(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {conceptDomains}, status.get(), contentTime);
 				
 				conceptDomainCount++;
@@ -438,7 +439,7 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 			log.info("Processed " + conceptDomainCount + " concept domains");
 			log.info("Skipped " + deprecatedConceptDomains + " deprecated concept domains");
 
-			UUID codeSystems = dwh.makeConceptEnNoDialect(null, "Code Systems", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+			UUID codeSystems = dwh.makeConceptEnNoDialect(transaction, null, "Code Systems", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 					new UUID[] {rootConceptUUID}, Status.ACTIVE, contentTime);  
 
 			// Process the Code systems
@@ -491,7 +492,7 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 					showProgress();
 				}
 				
-				UUID codeSystem = dwh.makeConceptEnNoDialect(createCodeSystemUUID(cs.getName()), cs.getName(), 
+				UUID codeSystem = dwh.makeConceptEnNoDialect(transaction, createCodeSystemUUID(cs.getName()), cs.getName(),
 						dwh.getDescriptionType("name"), new UUID[] {codeSystems}, Status.ACTIVE, contentTime);
 
 				dwh.makeDescriptionEnNoDialect(codeSystem, cs.getTitle(), dwh.getDescriptionType("title"), Status.ACTIVE, contentTime);
@@ -575,7 +576,7 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 						codeSystemCodePointers.add(conceptUUID);
 						codeSystemConceptPointers.add(c);
 
-						dwh.makeParentGraph(concept, codeSystem, Status.ACTIVE, contentTime);
+						dwh.makeParentGraph(transaction, concept, codeSystem, Status.ACTIVE, contentTime);
 
 						dwh.makeDynamicSemantic(dwh.getAttributeType("is selectable"), concept, new DynamicBooleanImpl(c.isIsSelectable()), contentTime);
 
@@ -817,7 +818,7 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 	 * Setup attributes and associations that come from individual values sets and code sets in HL7
 	 * @param contentTime
 	 */
-	private void makeTerminologySpecificAttributes(GlobalVocabularyModel gvm, long contentTime)
+	private void makeTerminologySpecificAttributes(Transaction transaction, GlobalVocabularyModel gvm, long contentTime)
 	{
 		HashMap<String, SupportedConceptRelationship> supportedConceptRelationshipsToSCR = new HashMap<>();
 		HashMap<String, SupportedConceptProperty> supportedConceptPropertiesToSCP = new HashMap<>();
@@ -874,7 +875,7 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 					}
 					else
 					{
-						UUID assnType = dwh.makeAssociationTypeConcept(null, scr.getName(), null, null, flatten(scr.getDescription()), scr.getInverseName(), 
+						UUID assnType = dwh.makeAssociationTypeConcept(transaction, null, scr.getName(), null, null, flatten(scr.getDescription()), scr.getInverseName(),
 								null, null, null, contentTime);
 						supportedConceptRelationshipsToSCR.put(scr.getName(), scr);
 
@@ -933,7 +934,7 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 						}
 						else
 						{
-							dwh.makeAttributeTypeConcept(null, scp.getPropertyName(), null, null, flatten(scp.getDescription()), 
+							dwh.makeAttributeTypeConcept(transaction, null, scp.getPropertyName(), null, null, flatten(scp.getDescription()),
 									new DynamicColumnInfo[] {
 											new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), 
 													DynamicDataType.STRING, StringUtils.isNotBlank(scp.getDefaultValue()) ? new DynamicStringImpl(scp.getDefaultValue()) : null,
@@ -987,7 +988,7 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 				throw new RuntimeException("Non-unique value set name!");
 			}
 
-			dwh.makeRefsetTypeConcept(null, vs.getName(), null, null, contentTime);
+			dwh.makeRefsetTypeConcept(transaction, null, vs.getName(), null, null, contentTime);
 		}
 	}
 
@@ -995,11 +996,11 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 	 * Setup the attribute metadata for hl7v3
 	 * @param contentTime
 	 */
-	private void makeAttributes(long contentTime)
+	private void makeAttributes(Transaction transaction, long contentTime)
 	{
-		dwh.makeAttributeTypeConcept(null, "OID", "HL7 Object Identifier", null, null, true, null, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "OID", "HL7 Object Identifier", null, null, true, null, null, contentTime);
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
-		dwh.makeAttributeTypeConcept(null, "vocabulary model", null, null, null, 
+		dwh.makeAttributeTypeConcept(transaction, null, "vocabulary model", null, null, null,
 				new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, 
 								//reuse description type name
@@ -1008,55 +1009,55 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 								//Reuse description type 
 								dwh.getDescriptionType("title"), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(2, 
-								makeOrGetAttributeColumn("package kind", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "package kind", contentTime), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(3, 
-								makeOrGetAttributeColumn("definition kind", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "definition kind", contentTime), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(4, 
-								makeOrGetAttributeColumn("schema version", contentTime), DynamicDataType.STRING, null, false, true)
+								makeOrGetAttributeColumn(transaction, "schema version", contentTime), DynamicDataType.STRING, null, false, true)
 						}, 
 				null, null, contentTime);
-		dwh.makeAttributeTypeConcept(null, "package location", null, null, null, 
+		dwh.makeAttributeTypeConcept(transaction, null, "package location", null, null, null,
 				new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, 
-								makeOrGetAttributeColumn("combined id", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "combined id", contentTime), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(1, 
-								makeOrGetAttributeColumn("root", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "root", contentTime), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(2, 
-								makeOrGetAttributeColumn("artifact", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "artifact", contentTime), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(3, 
-								makeOrGetAttributeColumn("realm namespace", contentTime), DynamicDataType.ARRAY, null, false, true),
+								makeOrGetAttributeColumn(transaction, "realm namespace", contentTime), DynamicDataType.ARRAY, null, false, true),
 						new DynamicColumnInfo(4, 
-								makeOrGetAttributeColumn("version", contentTime), DynamicDataType.STRING, null, false, true)
+								makeOrGetAttributeColumn(transaction, "version", contentTime), DynamicDataType.STRING, null, false, true)
 						}, 
 				null, null, contentTime);
-				dwh.makeAttributeTypeConcept(null, "rendering information", null, null, null, 
+				dwh.makeAttributeTypeConcept(transaction, null, "rendering information", null, null, null,
 						new DynamicColumnInfo[] {
 								new DynamicColumnInfo(0, 
-										makeOrGetAttributeColumn("rendering time", contentTime), DynamicDataType.STRING, null, false, true),
+										makeOrGetAttributeColumn(transaction, "rendering time", contentTime), DynamicDataType.STRING, null, false, true),
 								new DynamicColumnInfo(1, 
-										makeOrGetAttributeColumn("application", contentTime), DynamicDataType.STRING, null, false, true)
+										makeOrGetAttributeColumn(transaction, "application", contentTime), DynamicDataType.STRING, null, false, true)
 								}, 
 				null, null, contentTime);
-				dwh.makeAttributeTypeConcept(null, "legalese", null, null, null, 
+				dwh.makeAttributeTypeConcept(transaction, null, "legalese", null, null, null,
 						new DynamicColumnInfo[] {
 								new DynamicColumnInfo(0, 
-										makeOrGetAttributeColumn("copyright owner", contentTime), DynamicDataType.STRING, null, false, true),
+										makeOrGetAttributeColumn(transaction, "copyright owner", contentTime), DynamicDataType.STRING, null, false, true),
 								new DynamicColumnInfo(1, 
-										makeOrGetAttributeColumn("copyright years", contentTime), DynamicDataType.ARRAY, null, false, true)
+										makeOrGetAttributeColumn(transaction, "copyright years", contentTime), DynamicDataType.ARRAY, null, false, true)
 								}, 
 				null, null, contentTime);
-		dwh.makeAttributeTypeConcept(null, "history item", null, null, null, 
+		dwh.makeAttributeTypeConcept(transaction, null, "history item", null, null, null,
 				new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, 
-								makeOrGetAttributeColumn("datetime", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "datetime", contentTime), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(1,
-								makeOrGetAttributeColumn("responsible person name", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "responsible person name", contentTime), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(2, 
-								makeOrGetAttributeColumn("id", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "id", contentTime), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(3, 
-								makeOrGetAttributeColumn("is substantive change", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn(transaction, "is substantive change", contentTime), DynamicDataType.BOOLEAN, null, false, true),
 						new DynamicColumnInfo(4, 
-								makeOrGetAttributeColumn("is backward compatible change", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn(transaction, "is backward compatible change", contentTime), DynamicDataType.BOOLEAN, null, false, true),
 						new DynamicColumnInfo(5, 
 								//reuse description type
 								dwh.getDescriptionType("description"), DynamicDataType.STRING, null, false, true)
@@ -1064,94 +1065,94 @@ public class HL7v3ImportMojoDirect extends DirectConverterBaseMojo implements Di
 				null, null, contentTime);
 		
 		//Items for associations
-		dwh.makeAttributeTypeConcept(null, "is navigable", null, null, false, DynamicDataType.BOOLEAN, null, contentTime);
-		dwh.makeAttributeTypeConcept(null, "reflexivity", null, null, false, DynamicDataType.NID, null, contentTime);
-		dwh.makeAttributeTypeConcept(null, "symmetry", null, null, false, DynamicDataType.NID, null, contentTime);
-		dwh.makeAttributeTypeConcept(null, "transitivity", null, null, false, DynamicDataType.NID, null, contentTime);
-		dwh.makeAttributeTypeConcept(null, "relationship kind", null, null, false, DynamicDataType.NID, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "is navigable", null, null, false, DynamicDataType.BOOLEAN, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "reflexivity", null, null, false, DynamicDataType.NID, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "symmetry", null, null, false, DynamicDataType.NID, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "transitivity", null, null, false, DynamicDataType.NID, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "relationship kind", null, null, false, DynamicDataType.NID, null, contentTime);
 
-		dwh.makeAttributeTypeConcept(null, "released version", null, null, null, 
+		dwh.makeAttributeTypeConcept(transaction, null, "released version", null, null, null,
 				new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, 
-								makeOrGetAttributeColumn("release date", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "release date", contentTime), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(1, 
-								makeOrGetAttributeColumn("publisher version", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "publisher version", contentTime), DynamicDataType.STRING, null, false, true),
 						new DynamicColumnInfo(2,
-								makeOrGetAttributeColumn("hl7 maintained indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn(transaction, "hl7 maintained indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
 						new DynamicColumnInfo(3, 
-								makeOrGetAttributeColumn("complete codes indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn(transaction, "complete codes indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
 						new DynamicColumnInfo(4, 
-								makeOrGetAttributeColumn("hl7 approved indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn(transaction, "hl7 approved indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
 						}, 
 				null, null, contentTime);
 		
-		dwh.makeAttributeTypeConcept(null, "supported concept relationship", null, null, false, DynamicDataType.NID, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "supported concept relationship", null, null, false, DynamicDataType.NID, null, contentTime);
 		
-		dwh.makeAttributeTypeConcept(null, "supported concept property", null, null, null, 
+		dwh.makeAttributeTypeConcept(transaction, null, "supported concept property", null, null, null,
 				new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, 
-								makeOrGetAttributeColumn("property name", contentTime), DynamicDataType.NID, null, false, true),
+								makeOrGetAttributeColumn(transaction, "property name", contentTime), DynamicDataType.NID, null, false, true),
 						new DynamicColumnInfo(1, 
-								makeOrGetAttributeColumn("type", contentTime), DynamicDataType.NID, null, false, true),
+								makeOrGetAttributeColumn(transaction, "type", contentTime), DynamicDataType.NID, null, false, true),
 						new DynamicColumnInfo(2, 
-								makeOrGetAttributeColumn("is mandatory indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn(transaction, "is mandatory indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
 						new DynamicColumnInfo(3, 
-								makeOrGetAttributeColumn("is apply to value sets indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn(transaction, "is apply to value sets indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
 						new DynamicColumnInfo(4, 
-								makeOrGetAttributeColumn("default value", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn(transaction, "default value", contentTime), DynamicDataType.STRING, null, false, true),
 						}, 
 				null, null, contentTime);
 		
-		dwh.makeAttributeTypeConcept(null, "supported concept property type", null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(null, "property default handling kind", null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(null, "is selectable", null, null, false, DynamicDataType.BOOLEAN, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "supported concept property type", null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "property default handling kind", null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "is selectable", null, null, false, DynamicDataType.BOOLEAN, null, contentTime);
 		
 		// add property types for ConceptDomains in use
-		dwh.makeAttributeTypeConcept(null, ConceptDomainPropertyKind.CONCEPTUAL_SPACE_FOR_CLASS_CODE.value(), null, 
+		dwh.makeAttributeTypeConcept(transaction, null, ConceptDomainPropertyKind.CONCEPTUAL_SPACE_FOR_CLASS_CODE.value(), null,
 				"Specifies the classCode for which the domain defines the conceptual space", false, 
 				DynamicDataType.NID, null, contentTime);
 		
 		for (Reflexivity r : Reflexivity.values())
 		{
-			dwh.makeAttributeTypeConcept(null, r.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+			dwh.makeAttributeTypeConcept(transaction, null, r.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		}
 		
 		for (Symmetry s : Symmetry.values())
 		{
-			dwh.makeAttributeTypeConcept(null, s.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+			dwh.makeAttributeTypeConcept(transaction, null, s.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		}
 		for (Transitivity t : Transitivity.values())
 		{
-			dwh.makeAttributeTypeConcept(null, t.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+			dwh.makeAttributeTypeConcept(transaction, null, t.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		}
 		for (ConceptRelationshipKind crk : ConceptRelationshipKind.values())
 		{
-			dwh.makeAttributeTypeConcept(null, crk.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+			dwh.makeAttributeTypeConcept(transaction, null, crk.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		}
 
 		for (ConceptPropertyTypeKind t : ConceptPropertyTypeKind.values())
 		{
-			dwh.makeAttributeTypeConcept(null, t.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+			dwh.makeAttributeTypeConcept(transaction, null, t.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		}
 
 		// TODO this is sometimes used as an attribute on a supportedConceptProperty - need to handle those.
 		for (PropertyDefaultHandlingKind t : PropertyDefaultHandlingKind.values())
 		{
-			dwh.makeAttributeTypeConcept(null, t.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+			dwh.makeAttributeTypeConcept(transaction, null, t.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		}
 	}
 	
-	private UUID makeOrGetAttributeColumn(String columnName, long contentTime)
+	private UUID makeOrGetAttributeColumn(Transaction transaction, String columnName, long contentTime)
 	{
 		UUID root = dwh.getOtherMetadataRootType("Attribute Columns");
 		if (root == null)
 		{
-			root = dwh.makeOtherMetadataRootNode("Attribute Columns", contentTime);
+			root = dwh.makeOtherMetadataRootNode(transaction, "Attribute Columns", contentTime);
 		}
 		UUID toReturn = dwh.getOtherType(root, columnName);
 		if (toReturn == null)
 		{
-			toReturn = dwh.makeOtherTypeConcept(root, null, columnName, null, null, null, null, null, contentTime);
+			toReturn = dwh.makeOtherTypeConcept(transaction, root, null, columnName, null, null, null, null, null, contentTime);
 		}
 		return toReturn;
 	}

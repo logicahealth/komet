@@ -60,6 +60,7 @@ import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -114,18 +115,29 @@ public class ObservableStringVersionImpl
 
    //~--- methods -------------------------------------------------------------
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      StringVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableStringVersionImpl newObservableVersion = new ObservableStringVersionImpl(
-                                                             newVersion,
-                                                                   (ObservableSemanticChronology) chronology);
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+        StringVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        ObservableStringVersionImpl newObservableVersion = new ObservableStringVersionImpl(
+                newVersion,
+                (ObservableSemanticChronology) chronology);
 
-      ((ObservableChronologyImpl) chronology).getVersionList()
-            .add(newObservableVersion);
-      return (V) newObservableVersion;
-   }
+        ((ObservableChronologyImpl) chronology).getVersionList()
+                .add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
 
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        StringVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        ObservableStringVersionImpl newObservableVersion = new ObservableStringVersionImpl(
+                newVersion,
+                (ObservableSemanticChronology) chronology);
+
+        ((ObservableChronologyImpl) chronology).getVersionList()
+                .add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
    /**
     * string property.
     *

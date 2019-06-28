@@ -72,6 +72,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
@@ -82,6 +83,7 @@ import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 
 import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.transaction.Transaction;
 import sh.komet.gui.cell.CellFunctions;
 import sh.komet.gui.cell.CellHelper;
 import sh.komet.gui.control.FixedSizePane;
@@ -199,10 +201,8 @@ public class TreeTableGeneralCell
     }
 
     private void commitEdit(ActionEvent event) {
-        CommitTask commitTask = Get.commitService().commit(
-                FxGet.editCoordinate(),
-                "No comment",
-                this.mutableVersion);
+        Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+        CommitTask commitTask = transaction.commitObservableVersions("No comment", this.mutableVersion);
         Get.executor().execute(() -> {
             try {
                 Optional<CommitRecord> commitRecord = commitTask.get();

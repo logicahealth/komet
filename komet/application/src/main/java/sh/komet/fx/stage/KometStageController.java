@@ -70,10 +70,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
 import sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory;
 import sh.isaac.komet.iconography.Iconography;
@@ -348,27 +350,6 @@ public class KometStageController
             });
             items.add(recomputeTaxonomy);
 
-            MenuItem importLoincRecords = new MenuItem("Import LOINC records");
-            importLoincRecords.setOnAction((ActionEvent event) -> {
-                LoincDirectImporter importTask = new LoincDirectImporter();
-                Get.executor().execute(importTask);
-            });
-            items.add(importLoincRecords);
-
-            MenuItem addLabNavigationConcepts = new MenuItem("Add lab navigation concepts");
-            addLabNavigationConcepts.setOnAction((ActionEvent event) -> {
-                LoincExpressionToNavConcepts conversionTask = new LoincExpressionToNavConcepts(FxGet.getManifold(ManifoldGroup.UNLINKED));
-                Get.executor().execute(conversionTask);
-            });
-            items.add(addLabNavigationConcepts);
-            
-            MenuItem convertLoincExpressions = new MenuItem("Convert LOINC expressions");
-            convertLoincExpressions.setOnAction((ActionEvent event) -> {
-                LoincExpressionToConcept conversionTask = new LoincExpressionToConcept();
-                Get.executor().execute(conversionTask);
-            });
-            items.add(convertLoincExpressions);
-            
             File beer = new File("../../integration/tests/src/test/resources/turtle/bevontology-0.8.ttl");
             if (beer.isFile()) {
                 // This should only appear if you are running from eclipse / netbeans....
@@ -378,7 +359,9 @@ public class KometStageController
                         try {
                             TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
                             timd.configure(null, beer.toPath(),"0.8", null);
-                            timd.convertContent(update -> {}, (work, totalWork) -> {});
+                            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+                            timd.convertContent(transaction, update -> {}, (work, totalWork) -> {});
+                            transaction.commit("Beer has arrived!");
                             Get.indexDescriptionService().refreshQueryEngine();
                             Platform.runLater(() -> {
                                 Alert alert = new Alert(AlertType.INFORMATION);

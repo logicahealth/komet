@@ -38,10 +38,12 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.RemoteServiceInfo;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
@@ -231,28 +233,9 @@ public class KometBaseMenus implements MenuProvider {
                     Get.taxonomyService().notifyTaxonomyListenersToRefresh();
                 });
 
-                MenuItem importLoincRecords = new MenuItem("Import LOINC records");
-                importLoincRecords.setOnAction((ActionEvent event) -> {
-                    LoincDirectImporter importTask = new LoincDirectImporter();
-                    Get.executor().execute(importTask);
-                });
-
-                MenuItem addLabNavigationConcepts = new MenuItem("Add lab navigation concepts");
-                addLabNavigationConcepts.setOnAction((ActionEvent event) -> {
-                    LoincExpressionToNavConcepts conversionTask = new LoincExpressionToNavConcepts(FxGet.getManifold(Manifold.ManifoldGroup.UNLINKED));
-                    Get.executor().execute(conversionTask);
-                });
-
-                MenuItem convertLoincExpressions = new MenuItem("Convert LOINC expressions");
-                convertLoincExpressions.setOnAction((ActionEvent event) -> {
-                    LoincExpressionToConcept conversionTask = new LoincExpressionToConcept();
-                    Get.executor().execute(conversionTask);
-                });
-
 
                 return new MenuItem[]{
                     completeClassify, completeReindex, recomputeTaxonomy,
-                    importLoincRecords, addLabNavigationConcepts, convertLoincExpressions,
                     transformSourcesFull, transformSourcesActiveOnly
                 };
             }

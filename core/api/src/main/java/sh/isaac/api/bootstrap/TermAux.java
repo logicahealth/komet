@@ -512,13 +512,11 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Language coordinate key for manifold", "Language coordiante key", UUID.fromString("2621ca26-8efb-56e2-9b1c-61313c40c27f"));
     public static ConceptProxy LOGIC_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Logic coordinate key for manifold", "Logic coordinate key", UUID.fromString("300bf628-b40d-534f-9072-7b38c4f6f1b5"));
     public static ConceptProxy PREMISE_TYPE_FOR_MANIFOLD = new ConceptProxy("Premise type for manifold", "Premise type", UUID.fromString("7df6c6cb-9f91-5515-a05b-6b2886938363"));
-    public static ConceptProxy REFLECTION_CLASS_ASSEMBLAGE = new ConceptProxy("Reflection class assemblage", "Reflection class", UUID.fromString("57e1643b-da06-5684-a2ef-044727c25b81"));
+    public static ConceptProxy REFLECTION_CLASS_ASSEMBLAGE = new ConceptProxy("Reflection class assemblage", "Reflection class", UUID.fromString("43f5bdcb-c902-5ea2-9ed7-2572fa468bae"));
     public static ConceptProxy PROVIDER_CLASS_ASSEMBLAGE = new ConceptProxy("Provider class assemblage", "Provider classs", UUID.fromString("8551edb2-6e34-52fe-9113-d25b742b303a"));
+    public static ConceptProxy ANY_ASSEMBLAGE = new ConceptProxy("Any assemblage", "Any assemblage", UUID.fromString("6b8b1f01-9da2-585e-828c-eb1c7b93d250"));
 
-   
     /*
-    public static ConceptProxy SPEC91 = new ConceptProxy("", "", UUID.fromString("6b8b1f01-9da2-585e-828c-eb1c7b93d250"));
-    public static ConceptProxy SPEC92 = new ConceptProxy("", "", UUID.fromString("43f5bdcb-c902-5ea2-9ed7-2572fa468bae"));
     public static ConceptProxy SPEC93 = new ConceptProxy("", "", UUID.fromString("9533dce4-efde-51a3-94f8-a4fb06b9d08c"));
     public static ConceptProxy SPEC94 = new ConceptProxy("", "", UUID.fromString("11d47ca2-4207-5aaa-a068-196038aeee4c"));
     public static ConceptProxy SPEC95 = new ConceptProxy("", "", UUID.fromString("de49d207-a26e-5f8a-b905-953a4dd13c21"));

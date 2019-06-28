@@ -63,6 +63,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.semantic.types.DynamicArrayImpl;
@@ -165,14 +166,15 @@ public class SemanticIndexerConfiguration implements IsaacCache {
          throw new RuntimeException("It doesn't make sense to index a dynamic without indexing any column data");
       }
 
+      Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
       final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService()
               .getDynamicBuilder(assemblageNid,
                       DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                               .getNid(),
                       data);
-
-      return sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
-              .get();
+      SemanticChronology sc = sb.build(transaction, EditCoordinates.getDefaultUserMetadata()).get();
+      transaction.commit();
+      return sc;
 
       // TODO [Dan 3] need to fix the ecosystem of index configuration change indexer
 //    Get.commitService().commit("Index Config Change").get();
@@ -237,25 +239,23 @@ public class SemanticIndexerConfiguration implements IsaacCache {
          throw new RuntimeException("It doesn't make sense to index a dynamic without indexing any column data");
       }
 
+      Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
       final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService()
               .getDynamicBuilder(assemblageNid,
                       DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                               .getNid(),
                       data);
 
-      sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
+      sb.build(transaction, EditCoordinates.getDefaultUserMetadata())
               .get();
-      Get.commitService()
-              .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "Index Config Change")
-              .get();
-
+      transaction.commit("Index Config Change").get();
       if (!skipReindex) {
          Get.startIndexTask(new Class[]{IndexSemanticQueryService.class});
       }
    }
 
    /**
-    * Disable all indexing of the specified refex. To change the index config, use the {@link #configureColumnsToIndex(int, Integer[]) method.
+    * Disable all indexing of the specified refex. To change the index config, use the {@link #configureColumnsToIndex(int, Integer[], boolean) method.
     *
     * Note that this causes a full DB reindex, on this thread.
     *
@@ -282,12 +282,12 @@ public class SemanticIndexerConfiguration implements IsaacCache {
                     .getService(IndexSemanticQueryService.class));
          }
 
-         ((SemanticChronology) rdv.getChronology()).createMutableVersion(Status.INACTIVE,
+         Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+
+         ((SemanticChronology) rdv.getChronology()).createMutableVersion(transaction, Status.INACTIVE,
                  EditCoordinates.getDefaultUserMetadata());
-         Get.commitService()
-                 .addUncommitted(rdv.getChronology());
-         Get.commitService()
-                 .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "Index Config Change");
+         Get.commitService().addUncommitted(transaction, rdv);
+         transaction.commit("Index Config Change");
          LOG.info("Index disabled for dynamic assemblage concept '" + assemblageConceptNid + "'");
          Get.startIndexTask(new Class[]{IndexSemanticQueryService.class});
       } else {

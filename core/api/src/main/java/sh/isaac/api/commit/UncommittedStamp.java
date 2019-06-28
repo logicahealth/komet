@@ -44,11 +44,13 @@ package sh.isaac.api.commit;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.Hashcode;
 
 //~--- classes ----------------------------------------------------------------
@@ -61,6 +63,10 @@ import sh.isaac.api.util.Hashcode;
 public class UncommittedStamp {
    /** The hash code. */
    public int hashCode = Integer.MAX_VALUE;
+
+   public long transactionMsb;
+
+   public long transactionLsb;
 
    /** The status. */
    public Status status;
@@ -95,6 +101,8 @@ public class UncommittedStamp {
       this.authorNid = input.readInt();
       this.moduleNid = input.readInt();
       this.pathNid   = input.readInt();
+      this.transactionMsb = input.readLong();
+      this.transactionLsb = input.readLong();
    }
 
    /**
@@ -105,20 +113,40 @@ public class UncommittedStamp {
     * @param moduleNid the module nid
     * @param pathNid the path nid
     */
+   public UncommittedStamp(Transaction transaction, Status status, int authorNid, int moduleNid, int pathNid) {
+      super();
+      this.status         = status;
+      this.authorNid = authorNid;
+      this.moduleNid = moduleNid;
+      this.pathNid   = pathNid;
+      this.transactionLsb = transaction.getTransactionId().getLeastSignificantBits();
+      this.transactionMsb = transaction.getTransactionId().getMostSignificantBits();
+      assert status != null:
+              "s: " + status + " a: " + authorNid + " m: " + moduleNid + " p: " + pathNid;
+      assert pathNid < 0:
+              "s: " + status + " a: " + authorNid + " m: " + moduleNid + " p: " + pathNid;
+      assert moduleNid < 0:
+              "s: " + status + " a: " + authorNid + " m: " + moduleNid + " p: " + pathNid;
+      assert authorNid < 0:
+              "s: " + status + " a: " + authorNid + " m: " + moduleNid + " p: " + pathNid;
+   }
+
    public UncommittedStamp(Status status, int authorNid, int moduleNid, int pathNid) {
       super();
       this.status         = status;
       this.authorNid = authorNid;
       this.moduleNid = moduleNid;
       this.pathNid   = pathNid;
+      this.transactionLsb = 0;
+      this.transactionMsb = 0;
       assert status != null:
-             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
+              "s: " + status + " a: " + authorNid + " m: " + moduleNid + " p: " + pathNid;
       assert pathNid < 0:
-             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
+              "s: " + status + " a: " + authorNid + " m: " + moduleNid + " p: " + pathNid;
       assert moduleNid < 0:
-             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
+              "s: " + status + " a: " + authorNid + " m: " + moduleNid + " p: " + pathNid;
       assert authorNid < 0:
-             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
+              "s: " + status + " a: " + authorNid + " m: " + moduleNid + " p: " + pathNid;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -137,7 +165,9 @@ public class UncommittedStamp {
          if ((this.status == other.status) &&
                (this.authorNid == other.authorNid) &&
                (this.pathNid == other.pathNid) &&
-               (this.moduleNid == other.moduleNid)) {
+                 (this.moduleNid == other.moduleNid) &&
+                 (this.transactionLsb == other.transactionLsb) &&
+                 (this.transactionMsb == other.transactionMsb)) {
             return true;
          }
       }
@@ -160,6 +190,10 @@ public class UncommittedStamp {
       return this.hashCode;
    }
 
+   public UUID getTransactionId() {
+      return new UUID(transactionMsb, transactionLsb);
+   }
+
    /**
     * To string.
     *
@@ -179,6 +213,8 @@ public class UncommittedStamp {
          sb.append(", p: ");
          sb.append(Get.conceptDescriptionText(this.pathNid));
          sb.append('}');
+         sb.append(", id: ");
+         sb.append(getTransactionId());
          return sb.toString();
       } catch (RuntimeException e) {
          e.printStackTrace();
@@ -191,6 +227,8 @@ public class UncommittedStamp {
          sb.append(this.moduleNid);
          sb.append(", p: ");
          sb.append(this.pathNid);
+         sb.append(", id: ");
+         sb.append(getTransactionId());
          sb.append('}');
          return sb.toString();
      }
@@ -208,6 +246,8 @@ public class UncommittedStamp {
       output.writeInt(this.authorNid);
       output.writeInt(this.moduleNid);
       output.writeInt(this.pathNid);
+      output.writeLong(this.transactionMsb);
+      output.writeLong(this.transactionLsb);
    }
 }
 

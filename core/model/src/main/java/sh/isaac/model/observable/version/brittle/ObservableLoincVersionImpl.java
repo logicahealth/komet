@@ -55,6 +55,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableLoincVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
@@ -636,11 +637,21 @@ public class ObservableLoincVersionImpl
 
     @Override
     public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      LoincVersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableLoincVersionImpl newObservableVersion = 
-              new ObservableLoincVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-      return (V) newObservableVersion;
+        LoincVersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        return setupVerson(newVersion);
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        LoincVersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        return setupVerson(newVersion);
+    }
+
+    private <V extends Version> V setupVerson(LoincVersionImpl newVersion) {
+        ObservableLoincVersionImpl newObservableVersion =
+                new ObservableLoincVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
     }
 }
 

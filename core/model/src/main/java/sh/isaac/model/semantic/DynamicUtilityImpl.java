@@ -84,6 +84,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.assertions.Assertion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.types.DynamicArrayImpl;
@@ -282,7 +283,7 @@ public class DynamicUtilityImpl
     * {@inheritDoc}
     */
    @Override
-   public List<Chronology> configureConceptAsDynamicSemantic(int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
+   public List<Chronology> configureConceptAsDynamicSemantic(Transaction transaction, int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
          IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, int stampSequence) {
       if (StringUtils.isBlank(semanticDescription)) {
          throw new RuntimeException("Semantic description is required");
@@ -300,11 +301,11 @@ public class DynamicUtilityImpl
       definitionBuilder.addPreferredInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
       definitionBuilder.setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid());
 
-      definitionBuilder.build(stampSequence, builtSemantics);
+      definitionBuilder.build(transaction, stampSequence, builtSemantics);
 
       Get.semanticBuilderService()
             .getDynamicBuilder(definitionBuilder, DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), null)
-            .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
+            .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(transaction, stampSequence, builtSemantics);
 
       // define the data columns (if any)
       if (columns != null) {
@@ -315,13 +316,13 @@ public class DynamicUtilityImpl
          for (final DynamicColumnInfo ci : sortedColumns) {
             final DynamicData[] data = configureDynamicDefinitionDataForColumn(ci);
             Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid(), data)
-                     .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
+                     .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(transaction, stampSequence, builtSemantics);
          }
          DynamicArray<DynamicData> indexInfo = configureColumnIndexInfo(columns);
          if (indexInfo != null) {
             Get.semanticBuilderService()
                .getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION.getNid(), new DynamicData[] { indexInfo })
-               .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
+               .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(transaction, stampSequence, builtSemantics);
          }
       }
 
@@ -329,7 +330,7 @@ public class DynamicUtilityImpl
 
       if (data != null) {
             Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid(), data)
-                  .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
+                  .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(transaction, stampSequence, builtSemantics);
       }
       return builtSemantics;
    }
@@ -338,7 +339,7 @@ public class DynamicUtilityImpl
     * {@inheritDoc}
     */
    @Override
-   public SemanticChronology[] configureConceptAsDynamicSemantic(int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
+   public SemanticChronology[] configureConceptAsDynamicSemantic(Transaction transaction, int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
          IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, EditCoordinate editCoord) {
       if (StringUtils.isBlank(semanticDescription)) {
          throw new RuntimeException("Semantic description is required");
@@ -360,13 +361,13 @@ public class DynamicUtilityImpl
       definitionBuilder.addPreferredInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
       definitionBuilder.setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
 
-      final SemanticChronology definitionSemantic = definitionBuilder.build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow();
+      final SemanticChronology definitionSemantic = definitionBuilder.build(transaction, localEditCoord).getNoThrow();
       builtSemantics.add(definitionSemantic);
 
       builtSemantics.add(Get.semanticBuilderService()
             .getDynamicBuilder(definitionSemantic.getNid(), DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), null)
             .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
-            .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow());
+            .build(transaction, localEditCoord).getNoThrow());
 
       // define the data columns (if any)
       if (columns != null) {
@@ -379,14 +380,14 @@ public class DynamicUtilityImpl
             builtSemantics
                   .add(Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid(), data)
                         .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
-                        .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow());
+                        .build(transaction, localEditCoord).getNoThrow());
          }
          DynamicArray<DynamicData> indexInfo = configureColumnIndexInfo(columns);
          if (indexInfo != null) {
             builtSemantics.add(Get.semanticBuilderService()
                   .getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION.getNid(), new DynamicData[] { indexInfo })
                   .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
-                  .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow());
+                  .build(transaction, localEditCoord).getNoThrow());
          }
       }
 
@@ -396,7 +397,7 @@ public class DynamicUtilityImpl
          builtSemantics.add(
                Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid(), data)
                   .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
-                  .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow());
+                  .build(transaction, localEditCoord).getNoThrow());
       }
       return builtSemantics.toArray(new SemanticChronology[builtSemantics.size()]);
    }
@@ -405,8 +406,8 @@ public class DynamicUtilityImpl
     * {@inheritDoc}
     */
    @Override
-   public ArrayList<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(String columnName, String columnDescription, 
-         EditCoordinate editCoordinate, UUID[] extraParents) {
+   public ArrayList<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(Transaction transaction, String columnName, String columnDescription,
+                                                                                    EditCoordinate editCoordinate, UUID[] extraParents) {
          if (StringUtils.isBlank(columnName)) {
             throw new RuntimeException("Column name is required");
          }
@@ -458,8 +459,9 @@ public class DynamicUtilityImpl
             s.setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
          }
 
-         builder.build(editCoordinate == null ? Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate() : editCoordinate,
-               ChangeCheckerMode.ACTIVE, builtObjects).getNoThrow();
+         builder.build(transaction,
+                 editCoordinate == null ? Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate() : editCoordinate,
+                 builtObjects).getNoThrow();
 
          return builtObjects;
       }

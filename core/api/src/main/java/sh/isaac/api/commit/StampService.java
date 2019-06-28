@@ -41,31 +41,24 @@ package sh.isaac.api.commit;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.time.Instant;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.concurrent.Task;
-
 import org.jvnet.hk2.annotations.Contract;
-
 import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.VersionManagmentPathService;
-import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
+import sh.isaac.api.transaction.Transaction;
+
+import java.time.Instant;
+import java.util.UUID;
+import java.util.stream.IntStream;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -75,6 +68,7 @@ import sh.isaac.api.snapshot.calculator.RelativePosition;
 @Contract
 public interface StampService
         extends DatastoreServices {
+   static final UUID UNKNOWN_TRANSACTION_ID = new UUID(0,0);
    /**
     * STAMP sequences start at 1, in part to ensure that uninitialized values
     * (a zero by default) are not treated as valid stamp sequences.
@@ -95,13 +89,24 @@ public interface StampService
 
    /**
     * Used by the commit manger to cancel pending stamps for a particular
-    * author. Should only be used by developers creating their own commit
+    * transaction. Should only be used by developers creating their own commit
     * service.
     *
-    * @param authorNid the author nid
+    * @param transaction the author nid
     * @return the task
     */
-   Task<Void> cancel(int authorNid);
+   Task<Void> cancel(Transaction transaction);
+
+   /**
+    * Used by the commit manger to commit a
+    * transaction. Should only be used by developers creating their own commit
+    * service.
+    *
+    * @param transaction the author nid
+    * @param commitTime the commit time to associate with this transaction.
+    * @return the task
+    */
+   Task<Void> commit(Transaction transaction, long commitTime);
 
    /**
     * Describe stamp sequence.
@@ -138,11 +143,11 @@ public interface StampService
    /**
     * Gets the activated stamp sequence.
     *
-    * @param stampSequence a stamp sequence to create an analog of
+    * @param stampSequence a presumably inactive stamp sequence to create an active analog of.
     * @return a stampSequence with a Status of {@link Status#ACTIVE}, but the
     * same time, author, module, and path as the provided stamp sequence.
     */
-   int getActivatedStampSequence(int stampSequence);
+   int getActiveStampSequence(int stampSequence);
 
    /**
     * Gets the author nid for stamp.
@@ -186,27 +191,7 @@ public interface StampService
     */
    int getPathNidForStamp(int stampSequence);
 
-   /**
-    * Used by the commit manager to get the pending stamps, so that there is a
-    * definitive list if items in the commit. Should only be used by developers
-    * creating their own commit service.
-    *
-    * @return the pending stamps for commit
-    */
-   ConcurrentHashMap<UncommittedStamp, Integer> getPendingStampsForCommit();
-
    //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Used to revert a commit in progress, i.e. a commit that failed because of
-    * a data check error, or some other intervening circumstance. Not for use
-    * (will not work) to undo a successful commit. Should only be used by
-    * developers creating their own commit service.
-    *
-    * @param pendingStamps the pending stamps
-    */
-   void addPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps);
-
    //~--- get methods ---------------------------------------------------------
 
    /**
@@ -225,6 +210,30 @@ public interface StampService
     * returned. If no sequence has this combination, a new sequence will be
     * created and returned.
     *
+    *
+    *
+    * @param status the status
+    * @param time the time
+    * @param authorNid the author nid
+    * @param moduleNid the module nid
+    * @param pathNid the path nid
+    * @return the stampSequence
+    * @throws IllegalStateException if the time is either Long.MAX_VALUE or Long.MIN_VALUE. Uncommitted versions
+    * must use transactions.
+    */
+   int getStampSequence(Status status, long time, int authorNid, int moduleNid, int pathNid);
+
+   /**
+    * An idempotent operation to return a sequence that uniquely identified by
+    * this combination of status, time, author, module, and path (STAMP) for a
+    * particular transaction. If an existing sequence associated with the
+    * transaction has this combination, that existing sequence will be
+    * returned. If no sequence for a particular transaction has this combination,
+    * a new sequence will be created and returned.
+    *
+    *
+    * @param transaction the transaction
+    * @param status the status
     * @param status the status
     * @param time the time
     * @param authorNid the author nid
@@ -232,13 +241,15 @@ public interface StampService
     * @param pathNid the path nid
     * @return the stampSequence
     */
-   int getStampSequence(Status status, long time, int authorNid, int moduleNid, int pathNid);
+    int getStampSequence(Transaction transaction, Status status, long time, int authorNid, int moduleNid, int pathNid);
 
-   /**
-    * Gets the stamp sequences.
-    *
-    * @return an IntStream of all stamp sequences known to the commit service.
-    */
+
+
+      /**
+       * Gets the stamp sequences.
+       *
+       * @return an IntStream of all stamp sequences known to the stamp service.
+       */
    IntStream getStampSequences();
    /**
     * Return the set of stamps that are between the two stamp coordinates, where
@@ -299,9 +310,17 @@ public interface StampService
    /**
     * Get the stamp object from an int stamp
     * If the provided stamp is invalid / less than 0, this returns a default stamp, with most fields set to unspecified.
-    * @param stamp
+    * @param stampSequence
     * @return
     */
-   Stamp getStamp(int stamp);
+   Stamp getStamp(int stampSequence);
+
+   /**
+    *
+    * @param stampSequence
+    * @return the transaction id for an uncommitted stamp, or UNKNOWN_TRANSACTION_ID if the stamp is committed,
+    * or is not associated with a transaction.
+    */
+   UUID getTransactionIdForStamp(int stampSequence);
 }
 

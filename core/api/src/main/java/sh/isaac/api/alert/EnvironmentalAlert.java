@@ -24,12 +24,12 @@ import java.util.concurrent.Callable;
  */
 public class EnvironmentalAlert extends AlertObject {
    
-   public EnvironmentalAlert(String alertTitle, String alertDescription, AlertType alertType, Callable<Boolean> resolutionTester) {
-      super(alertTitle, alertDescription, alertType, AlertCategory.ENVIRONMENT, resolutionTester);
+   public EnvironmentalAlert(String alertTitle, String alertDescription, AlertType alertType, Callable<Boolean> resolutionTester, int... nids) {
+      super(alertTitle, alertDescription, alertType, AlertCategory.ENVIRONMENT, resolutionTester, nids);
    }
 
-   public EnvironmentalAlert(String alertTitle, String alertDescription, AlertType alertType) {
-      super(alertTitle, alertDescription, alertType, AlertCategory.ENVIRONMENT);
+   public EnvironmentalAlert(String alertTitle, String alertDescription, AlertType alertType, int... nids) {
+      super(alertTitle, alertDescription, alertType, AlertCategory.ENVIRONMENT, nids);
    }
    
 }

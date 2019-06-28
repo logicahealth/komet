@@ -25,6 +25,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
@@ -63,14 +64,24 @@ public class ObservableSemanticVersionImpl extends ObservableAbstractSemanticVer
     }
 
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      SemanticVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableAbstractSemanticVersionImpl newObservableVersion = 
-              new ObservableSemanticVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-      return (V) newObservableVersion;
-   }
+    @Override
+    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+        SemanticVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        return setupAnalog(newVersion);
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        SemanticVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        return setupAnalog(newVersion);
+    }
+
+    private <V extends Version> V setupAnalog(SemanticVersion newVersion) {
+        ObservableAbstractSemanticVersionImpl newObservableVersion =
+                new ObservableSemanticVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
+    }
 
     @Override
     public Chronology createChronologyForCommit(int stampSequence) {

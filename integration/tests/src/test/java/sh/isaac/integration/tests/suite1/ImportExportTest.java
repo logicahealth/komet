@@ -423,6 +423,7 @@ public class ImportExportTest {
     * @param taxonomyTree the taxonomy tree
     */
    private void logTree(int root, Tree taxonomyTree) {
+      StringBuilder sb = new StringBuilder("\n\n");
       taxonomyTree.depthFirstProcess(root,
                                      (TreeNodeVisitData t,
                                       int conceptSequence) -> {
@@ -430,8 +431,10 @@ public class ImportExportTest {
                                         final char[] padding     = new char[paddingSize];
 
                                         Arrays.fill(padding, ' ');
-                                        LOG.info(new String(padding) + Get.conceptDescriptionText(conceptSequence));
+                                        sb.append(padding).append(Get.conceptDescriptionText(conceptSequence)).append("\n");
                                      }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getConceptAssemblageNid()));
+      sb.append("\n\n");
+      LOG.info(sb);
    }
 }
 

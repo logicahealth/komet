@@ -94,11 +94,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.commit.ChronologyChangeListener;
-import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.commit.CommitTask;
-import sh.isaac.api.commit.StampService;
+import sh.isaac.api.commit.*;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -106,6 +102,7 @@ import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.control.badged.ComponentPaneModel;
@@ -343,8 +340,8 @@ public class ConceptDetailPanelNode
     
     private void handleCommit(ObservableDescriptionDialect observableDescriptionDialect, 
             ObservableVersion[] versionsToCommit) {
-       
-        CommitTask commitTask = Get.commitService().commit(FxGet.editCoordinate(), "", versionsToCommit);
+        Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+        CommitTask commitTask = transaction.commitObservableVersions("", versionsToCommit);
         Get.executor().execute(() -> {
             try {
                 Optional<CommitRecord> commitRecord = commitTask.get();

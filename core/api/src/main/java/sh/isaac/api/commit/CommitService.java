@@ -41,26 +41,23 @@ package sh.isaac.api.commit;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.DatastoreServices;
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.StampAlias;
+import sh.isaac.api.externalizable.StampComment;
+import sh.isaac.api.transaction.Transaction;
+
 import java.util.Optional;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import javafx.collections.ObservableList;
-
-import javafx.concurrent.Task;
-
-import org.jvnet.hk2.annotations.Contract;
-
-import sh.isaac.api.DatastoreServices;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.externalizable.StampAlias;
-import sh.isaac.api.externalizable.StampComment;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.observable.ObservableVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -98,78 +95,29 @@ public interface CommitService
     */
    void addChangeListener(ChronologyChangeListener changeListener);
 
-   /**
-    * Adds the uncommitted.
-    *
-    * @param cc the cc
-    * @return the task
-    */
-   Task<Void> addUncommitted(ConceptChronology cc);
+   Task<Void> addUncommitted(Transaction transaction, Version version);
 
    /**
-    * Adds the uncommitted.
+    * TODO remove and depend on transaction?
     *
-    * @param sc the sc
-    * @return the task
+    * @param transaction
+    * @param chronology
+    * @return
     */
-   Task<Void> addUncommitted(SemanticChronology sc);
-
-   /**
-    * Adds the uncommitted no checks.
-    *
-    * @param cc the cc
-    * @return the task
-    */
-   Task<Void> addUncommittedNoChecks(ConceptChronology cc);
-
-   /**
-    * Adds the uncommitted no checks.
-    *
-    * @param sc the sc
-    * @return the task
-    */
-   Task<Void> addUncommittedNoChecks(SemanticChronology sc);
-
-   /**
-    * Cancels all pending changes using the provided EditCoordinate. The caller
-    * may chose to block on the returned task if synchronous operation is
-    * desired.
-    *
-    * @param editCoordinate the edit coordinate to determine which changes to
-    *                       cancel.
-    * @return task representing the cancel.
-    */
-   Task<Void> cancel(EditCoordinate editCoordinate);
-
-   /**
-    * Cancels all pending changes using the provided EditCoordinate. The caller
-    * may chose to block on the returned task if synchronous operation is
-    * desired.
-    *
-    * @param chronicle      the chronicle to cancel changes upon.
-    * @param editCoordinate the edit coordinate to determine which changes to
-    *                       cancel.
-    * @return task representing the cancel.
-    */
-   Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate);
+   Task<Void> addUncommitted(Transaction transaction, Chronology chronology);
 
    /**
     * Commit all pending changes for the provided EditCoordinate. The caller may
     * chose to block on the returned task if synchronous operation is desired.
     *
-    * @param editCoordinate the edit coordinate to determine which changes to
+    * @param transaction the transaction to determine which changes to
     *                       commit.
     * @param commitComment  comment to associate with the commit.
     * @return task representing the cancel.
+    * TODO remove and depend on transaction?
     */
-   CommitTask commit(EditCoordinate editCoordinate, String commitComment);
+   CommitTask commit(Transaction transaction, String commitComment, ConcurrentSkipListSet<AlertObject> alertCollection);
 
-
-   
-   CommitTask commit(
-         EditCoordinate editCoordinate,
-         String commitComment, 
-         ObservableVersion... versionsToCommit);
 
    /**
     * Import a object and immediately write to the proper service with no checks of any type performed.
@@ -286,5 +234,12 @@ public interface CommitService
     * @return the uncommitted concept nids
     */
    ObservableList<Integer> getUncommittedConceptNids();
+
+   /**
+    *
+    * @param changeCheckerMode true if tests should be performed.
+    * @return a new transaction that will perform tests depending on value of performTests.
+    */
+   Transaction newTransaction(ChangeCheckerMode changeCheckerMode);
 }
 

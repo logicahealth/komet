@@ -65,6 +65,7 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -159,16 +160,17 @@ public class ConceptChronologyImpl
     * @return the concept version impl
     */
    @Override
-   public ConceptVersionImpl createMutableVersion(Status state, EditCoordinate ec) {
+   public ConceptVersionImpl createMutableVersion(Transaction transaction, Status state, EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
+                                       transaction,
                                        state,
                                        Long.MAX_VALUE,
                                        ec.getAuthorNid(),
                                        ec.getModuleNid(),
                                        ec.getPathNid());
       final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence);
-
+      transaction.addVersionToTransaction(newVersion);
       addVersion(newVersion);
       return newVersion;
    }
@@ -208,6 +210,11 @@ public class ConceptChronologyImpl
       builder.append(">[");
       builder.append(getPrimordialUuid());
       builder.append("] \n");
+      for (Version v: getVersionList()) {
+         builder.append("   ");
+         builder.append(v);
+         builder.append("\n");
+      }
       return builder.toString();
    }
    
@@ -220,6 +227,11 @@ public class ConceptChronologyImpl
       builder.append(" <");
       builder.append(getNid());
       builder.append("> \n");
+      for (Version v: getVersionList()) {
+         builder.append("   ");
+         builder.append(v);
+         builder.append("\n");
+      }
       
       
       builder.append("\nTaxonomy record: \n");

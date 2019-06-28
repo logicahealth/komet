@@ -35,12 +35,14 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.SearchResult;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
 import sh.isaac.model.configuration.LanguageCoordinates;
@@ -71,10 +73,11 @@ public class QueryProviderTest {
 		System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
 		Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 		LookupService.startupIsaac();
-
+		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
 		TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
 		timd.configure(null, Paths.get(QueryProviderTest.class.getResource("/turtle/bevontology-0.8.ttl").toURI()), "0.8", null);
-		timd.convertContent(update -> {}, (work, total) ->{});
+		timd.convertContent(transaction, update -> {}, (work, total) ->{});
+		transaction.commit("Suite 2");
 		
 		di = LookupService.get().getService(DescriptionIndexer.class);
 		di.forceMerge();  //Just a way to force the query exporters to refresh more quickly than they would

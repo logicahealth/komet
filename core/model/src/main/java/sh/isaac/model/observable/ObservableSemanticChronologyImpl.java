@@ -51,6 +51,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.version.*;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -146,8 +147,8 @@ public class ObservableSemanticChronologyImpl
     * @return the m
     */
    @Override
-   public <V extends Version> V createMutableVersion(Status status, EditCoordinate ec) {
-      return (V) wrapInObservable(getSemanticChronology().createMutableVersion(status, ec));
+   public <V extends Version> V createMutableVersion(Transaction transaction, Status status, EditCoordinate ec) {
+      return (V) wrapInObservable(getSemanticChronology().createMutableVersion(transaction, status, ec));
    }
 
    /**

@@ -52,6 +52,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.model.semantic.DynamicUtilityImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -153,17 +154,36 @@ public class DynamicImpl
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       this.getStatus(),
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       this.getModuleNid(),
-                                       ec.getPathNid());
+              .getStampSequence(
+                      this.getStatus(),
+                      Long.MAX_VALUE,
+                      ec.getAuthorNid(),
+                      this.getModuleNid(),
+                      ec.getPathNid());
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final DynamicImpl newVersion = new DynamicImpl(this, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;   
+      return (V) newVersion;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+      final int stampSequence = Get.stampService()
+              .getStampSequence(transaction,
+                      this.getStatus(),
+                      Long.MAX_VALUE,
+                      authorNid,
+                      this.getModuleNid(),
+                      this.getPathNid());
+      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+      final DynamicImpl newVersion = new DynamicImpl(this, stampSequence);
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;
    }
 
    /**

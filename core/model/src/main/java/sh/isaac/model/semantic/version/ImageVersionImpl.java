@@ -1,11 +1,11 @@
 package sh.isaac.model.semantic.version;
 
-import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.MutableImageVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 import java.util.Arrays;
@@ -91,6 +91,22 @@ public class ImageVersionImpl
                         ec.getAuthorNid(),
                         this.getModuleNid(),
                         ec.getPathNid());
+        return setupAnalog(stampSequence);
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        final int stampSequence = Get.stampService()
+                .getStampSequence(transaction,
+                        this.getStatus(),
+                        Long.MAX_VALUE,
+                        authorNid,
+                        this.getModuleNid(),
+                        this.getPathNid());
+        return setupAnalog(stampSequence);
+    }
+
+    private <V extends Version> V setupAnalog(int stampSequence) {
         SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
         final ImageVersionImpl newVersion = new ImageVersionImpl(this, stampSequence);
 

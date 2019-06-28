@@ -20,8 +20,10 @@ import java.util.List;
 import java.util.concurrent.Future;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.DirectImporter;
@@ -55,6 +57,7 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
    @Override
    protected Void call() throws Exception {
       try {
+         Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
          completedUnitOfWork();
          updateMessage("Importing new content...");
          DirectImporter importer = new DirectImporter(importType, entriesToImport);
@@ -69,13 +72,13 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
          completedUnitOfWork();
 
          updateMessage("Convert LOINC expressions...");
-         LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
+         LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept(transaction);
          Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
          convertLoincTask.get();
          completedUnitOfWork();
 
          updateMessage("Adding navigation concepts...");
-         LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(manifold);
+         LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction, manifold);
          Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
          addNavigationConceptsTask.get();
          completedUnitOfWork();

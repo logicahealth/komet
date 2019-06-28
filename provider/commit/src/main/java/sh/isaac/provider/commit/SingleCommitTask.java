@@ -17,6 +17,7 @@
 package sh.isaac.provider.commit;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Optional;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.Get;
@@ -25,13 +26,13 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.ChangeChecker;
-import sh.isaac.api.commit.CheckPhase;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.transaction.Transaction;
 
 /**
  *
@@ -40,19 +41,19 @@ import sh.isaac.api.observable.ObservableVersion;
 public class SingleCommitTask extends CommitTask {
 
     final ObservableVersion[] versionsToCommit;
-    final EditCoordinate editCoordinate;
+    final Transaction transaction;
     final String commitComment;
-    final CommitProvider commitService;
+    final Collection<ChangeChecker> checkers;
 
     public SingleCommitTask(
-            EditCoordinate editCoordinate,
+            Transaction transaction,
             String commitComment,
-            CommitProvider commitService,
+            Collection<ChangeChecker> checkers,
             ObservableVersion... versionsToCommit) {
         this.versionsToCommit = versionsToCommit;
-        this.editCoordinate = editCoordinate;
+        this.transaction = transaction;
         this.commitComment = commitComment;
-        this.commitService = commitService;
+        this.checkers = checkers;
     }
 
     @Override
@@ -69,11 +70,12 @@ public class SingleCommitTask extends CommitTask {
                 semanticNidsInCommit.add(independentChronology.getNid());
             }
 
-            for (ChangeChecker checker : commitService.getCheckers()) {
-                AlertObject ao = checker.check(independentChronology, CheckPhase.COMMIT);
-                if (ao.getAlertType().preventsCheckerPass()) {
-                    this.alertCollection.add(ao);
-                    LOG.info("commit '{}' prevented by changechecker {} because {}", commitComment, checker.getDescription(), ao);
+            for (ChangeChecker checker : checkers) {
+                Optional<AlertObject> optionalAlertObject = checker.check(observableVersion, transaction);
+                if (optionalAlertObject.isPresent() && optionalAlertObject.get().failCommit()) {
+                    AlertObject alertObject = optionalAlertObject.get();
+                    this.alertCollection.add(alertObject);
+                    LOG.info("commit '{}' prevented by changechecker {} because {}", commitComment, checker.getDescription(), alertObject);
                 }
             }
             if (this.alertCollection.size() > 0) {
@@ -89,12 +91,12 @@ public class SingleCommitTask extends CommitTask {
         for (ObservableVersion observableVersion : versionsToCommit) {
             // Status status, long time, int authorNid, int moduleNid, int pathNid
             int stampSequence = Get.stampService().getStampSequence(observableVersion.getStatus(),
-                    commitTime, editCoordinate.getAuthorNid(),
-                    editCoordinate.getModuleNid(), editCoordinate.getPathNid());
+                    commitTime, observableVersion.getAuthorNid(),
+                    observableVersion.getModuleNid(), observableVersion.getPathNid());
             stampsInCommit.add(stampSequence);
             
             Chronology chronologyForCommit = observableVersion.createChronologyForCommit(stampSequence);
-            this.commitService.handleChangeNotification(chronologyForCommit);
+            ((CommitProvider) Get.commitService()).handleChangeNotification(chronologyForCommit);
             Get.identifiedObjectService().putChronologyData(chronologyForCommit);
             
         }
@@ -104,7 +106,7 @@ public class SingleCommitTask extends CommitTask {
                 conceptNidsInCommit,
                 semanticNidsInCommit,
                 commitComment);
-        commitService.handleCommitNotification(commitRecord);
+        ((CommitProvider) Get.commitService()).handleCommitNotification(commitRecord);
         return Optional.of(commitRecord);
     }
 

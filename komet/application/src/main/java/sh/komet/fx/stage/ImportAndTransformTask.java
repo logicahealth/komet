@@ -18,8 +18,10 @@ package sh.komet.fx.stage;
 import java.util.concurrent.Future;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.LoincExpressionToConcept;
@@ -49,6 +51,7 @@ public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> i
    protected Void call() throws Exception {
       try {
          completedUnitOfWork();
+         Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
          updateMessage("Importing new content...");
          DirectImporter importer = new DirectImporter(importType);
          Future<?> importTask = Get.executor().submit(importer);
@@ -62,13 +65,13 @@ public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> i
          completedUnitOfWork();
          
          updateMessage("Convert LOINC expressions...");
-         LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
+         LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept(transaction);
          Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
          convertLoincTask.get();
          completedUnitOfWork();
          
          updateMessage("Adding navigation concepts...");
-         LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(manifold);
+         LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction, manifold);
          Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
          addNavigationConceptsTask.get();
          completedUnitOfWork();
@@ -78,7 +81,7 @@ public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> i
          Future<?> classifyTask = classifierService.classify();
          classifyTask.get();
          completedUnitOfWork();
-         
+         transaction.commit();
          return null;
       } finally {
          this.done();

@@ -127,6 +127,7 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.Assertion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.SctId;
 import sh.isaac.api.util.SemanticTags;
@@ -205,9 +206,9 @@ public class Frills
     * @return the concept chronology
     * @throws RuntimeException the runtime exception
     */
-   public static List<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(String columnName,
-         String columnDescription) {
-      return Get.service(DynamicUtility.class).buildUncommittedNewDynamicSemanticColumnInfoConcept(columnName, columnDescription, null, null);
+   public static List<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(Transaction transaction, String columnName,
+                                                                                      String columnDescription) {
+      return Get.service(DynamicUtility.class).buildUncommittedNewDynamicSemanticColumnInfoConcept(transaction, columnName, columnDescription, null, null);
    }
 
    /**
@@ -228,7 +229,7 @@ public class Frills
     * @param editCoord the edit coord
     * @return the concept chronology that represents the new dynamic semantic type.
     */
-   public static ConceptChronology buildUncommittedNewDynamicSemanticUsageDescription(String semanticFQN,
+   public static ConceptChronology buildUncommittedNewDynamicSemanticUsageDescription(Transaction transaction, String semanticFQN,
          String semanticPreferredTerm,
          String semanticDescription,
          DynamicColumnInfo[] columns,
@@ -269,61 +270,15 @@ public class Frills
          definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
          builder.addDescription(definitionBuilder);
 
-         final ConceptChronology newCon = builder.build(localEditCoord, ChangeCheckerMode.ACTIVE, new ArrayList<>())
+         final ConceptChronology newCon = builder.build(transaction, localEditCoord, new ArrayList<>())
                                                  .getNoThrow();
 
-         LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(newCon.getNid(), semanticDescription, 
+         LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(transaction, newCon.getNid(), semanticDescription,
             columns, referencedComponentRestriction, referencedComponentSubRestriction, localEditCoord);
 
          return newCon;
       } catch (final IllegalStateException e) {
          throw new RuntimeException("Creation of dynamic Failed!", e);
-      }
-   }
-
-   /**
-    * Create a new concept using the provided columnName and columnDescription values which is suitable 
-    * for use as a column descriptor within {@link DynamicUsageDescription}.
-    * 
-    * The new concept will be created under the concept {@link DynamicConstants#DYNAMIC_COLUMNS}
-    * 
-    * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
-    * to be created) would look roughly like this:
-    * 
-    * Frills.createNewDynamicSemanticUsageDescriptionConcept(
-    *    "The name of the Semantic", 
-    *    "The description of the Semantic",
-    *    new DynamicColumnInfo[]{new DynamicColumnInfo(
-    *       0,
-    *       DynamicColumnInfo.createNewDynamicSemanticColumnInfoConcept(
-    *          "column name",
-    *          "column description"
-    *          )
-    *       DynamicDataType.STRING,
-    *       new DynamicStringImpl("default value")
-    *       )}
-    *    )
-    *
-    * @param columnName the column name
-    * @param columnDescription the column description
-    * @return the concept chronology<? extends concept version<?>>
-    * @throws RuntimeException the runtime exception
-    */
-   public static ConceptChronology createNewDynamicSemanticColumnInfoConcept(String columnName, String columnDescription)
-            throws RuntimeException {
-      final ConceptChronology newCon = (ConceptChronology)buildUncommittedNewDynamicSemanticColumnInfoConcept(columnName, columnDescription).get(0);
-
-      try {  //TODO [DAN 3] figure out what edit coords we should use for this sort of work.
-         Get.commitService()
-            .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "creating new dynamic column: " + columnName)
-            .get();
-         return newCon;
-      } catch (InterruptedException | ExecutionException e) {
-         final String msg = "Failed committing new DynamicSemanticColumnInfo concept columnName=\"" + columnName +
-                            "\", columnDescription=\"" + columnDescription + "\"";
-
-         LOG.error(msg, e);
-         throw new RuntimeException(msg, e);
       }
    }
 
@@ -356,8 +311,9 @@ public class Frills
          IsaacObjectType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
+      Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
       final ConceptChronology newDynamicSemanticUsageDescriptionConcept =
-         buildUncommittedNewDynamicSemanticUsageDescription(semanticFQN,
+         buildUncommittedNewDynamicSemanticUsageDescription(transaction, semanticFQN,
              semanticPreferredTerm,
              semanticDescription,
              columns,
@@ -367,12 +323,9 @@ public class Frills
              editCoord);
 
       try {
-         Get.commitService()
-            .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), 
-                  "creating new dynamic assemblage (DynamicSemanticUsageDescription): NID=" +
-                newDynamicSemanticUsageDescriptionConcept.getNid() + ", FQN=" + semanticFQN + ", PT=" +
-                semanticPreferredTerm + ", DESC=" + semanticDescription)
-            .get();
+         transaction.commit("creating new dynamic assemblage (DynamicSemanticUsageDescription): NID=" +
+                 newDynamicSemanticUsageDescriptionConcept.getNid() + ", FQN=" + semanticFQN + ", PT=" +
+                 semanticPreferredTerm + ", DESC=" + semanticDescription).get();
       } catch (InterruptedException | ExecutionException e) {
          throw new RuntimeException("Commit of dynamic Failed!", e);
       }
@@ -515,11 +468,11 @@ public class Frills
          
          //TODO switch this over to the observable create / commit pattern
          try {
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
             int nid = Get.conceptBuilderService().getDefaultConceptBuilder(termTypeFQN, ConceptProxy.METADATA_SEMANTIC_TAG, defBuilder.build(), 
-                 MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).setT5UuidNested(Get.concept(module).getPrimordialUuid()).build(
-                       new EditCoordinateImpl(TermAux.USER.getNid(),  TermAux.CORE_METADATA_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid()), ChangeCheckerMode.ACTIVE).get().getNid();
-             commitCheck(Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
-                 "creating new edit module for terminology type " + Get.conceptDescriptionText(termTypeConcept)));
+                 MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).setT5UuidNested(Get.concept(module).getPrimordialUuid()).build(transaction,
+                       new EditCoordinateImpl(TermAux.USER.getNid(),  TermAux.CORE_METADATA_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid())).get().getNid();
+             commitCheck(transaction.commit("creating new edit module for terminology type " + Get.conceptDescriptionText(termTypeConcept)));
              return nid;
          }
          catch (Exception e) {
@@ -531,7 +484,7 @@ public class Frills
    /**
     * Walk up the module tree, looking for the module concept nid directly under {@link MetaData#MODULE____SOLOR} - return it if found, otherwise, return null.
     * 
-    * @param module the module to look up
+    * @param conceptModuleNid the module to look up
     * @param stamp - optional - uses default if not provided.  If provided, and doesn't include the metadata modules, it will use a modified stamp
     * that includes the metadata module, since that module is required to read the module hierarchy.
     */
@@ -885,11 +838,11 @@ public class Frills
    }
    
    /**
-    * calls {@link Frills#resetStatus(Status, Chronology, EditCoordinate, StampCoordinate...)} but has types specified for concepts
+    * calls {@link Frills#resetStatus(Transaction, Status, Chronology, EditCoordinate, StampCoordinate...)} but has types specified for concepts
     */
-   private static VersionUpdatePair<ConceptVersion> resetConceptState(Status status, ConceptChronology chronology, 
+   private static VersionUpdatePair<ConceptVersion> resetConceptState(Transaction transaction, Status status, ConceptChronology chronology,
          EditCoordinate editCoordinate, StampCoordinate ... readCoordinates) throws Exception {   
-      return resetStatus(status, chronology, editCoordinate, readCoordinates);
+      return resetStatus(transaction, status, chronology, editCoordinate, readCoordinates);
    }
    
    /**
@@ -907,10 +860,10 @@ public class Frills
     *           it tries each in order, until is finds the first one that is present.
     * @return - null, if no change was required, or, the mutable that will need to be committed. Also returns the latestVersion that the state was read from for
     *         convenience.
-    * @throws RestException
+    * @throws Exception
     */
    @SuppressWarnings({"unchecked" })
-   private static <T extends Version> VersionUpdatePair<T> resetStatus(Status status, Chronology chronology, EditCoordinate editCoordinate,
+   private static <T extends Version> VersionUpdatePair<T> resetStatus(Transaction transaction, Status status, Chronology chronology, EditCoordinate editCoordinate,
          StampCoordinate... readCoordinates) throws Exception {
       String detail = chronology.getIsaacObjectType() + " " + chronology.getClass().getSimpleName() + " (UUID=" + chronology.getPrimordialUuid() + ")";
       LatestVersion<Version> latestVersion = null;
@@ -937,9 +890,9 @@ public class Frills
 
       VersionUpdatePair<T> versionsHolder = new VersionUpdatePair<>();
       if (chronology instanceof SemanticChronology) {
-         versionsHolder.set((T) ((SemanticChronology) chronology).<T>createMutableVersion(status, editCoordinate), (T)latestVersion.get());
+         versionsHolder.set((T) ((SemanticChronology) chronology).<T>createMutableVersion(transaction, status, editCoordinate), (T)latestVersion.get());
       } else if (chronology instanceof ConceptChronology) {
-         versionsHolder.set((T)((ConceptChronology) chronology).createMutableVersion(status, editCoordinate), (T)latestVersion.get());
+         versionsHolder.set((T)((ConceptChronology) chronology).createMutableVersion(transaction, status, editCoordinate), (T)latestVersion.get());
       } else {
          throw new RuntimeException("Unsupported ObjectChronology type " + detail);
       }
@@ -963,7 +916,7 @@ public class Frills
     * @return - empty optional, if no change, or the uncommitted chronology of the object that was changed.
     * @throws Exception
     */
-   public static Optional<Chronology> resetStatusWithNoCommit(Status status, int componentToModify, EditCoordinate editCoordinate, StampCoordinate... readCoordinates) throws Exception {
+   public static Optional<Chronology> resetStatusWithNoCommit(Transaction transaction, Status status, int componentToModify, EditCoordinate editCoordinate, StampCoordinate... readCoordinates) throws Exception {
 
       final IsaacObjectType type = Get.identifierService().getObjectTypeForComponent(componentToModify);
 
@@ -977,7 +930,7 @@ public class Frills
             ConceptChronology cc = Get.conceptService().getConceptChronology(componentToModify);
             nid = cc.getNid();
 
-            VersionUpdatePair<ConceptVersion> updatePair = resetConceptState(status, cc, editCoordinate, readCoordinates);
+            VersionUpdatePair<ConceptVersion> updatePair = resetConceptState(transaction, status, cc, editCoordinate, readCoordinates);
             if (updatePair != null) {
                priorState = updatePair.latest.getStatus();
                objectToCommit = cc;
@@ -990,7 +943,7 @@ public class Frills
             nid = semantic.getNid();
             switch (semantic.getVersionType()) {
                case DESCRIPTION: {
-                  VersionUpdatePair<DescriptionVersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<DescriptionVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -1003,7 +956,7 @@ public class Frills
                   break;
                }
                case STRING: {
-                  VersionUpdatePair<StringVersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<StringVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -1014,7 +967,7 @@ public class Frills
                   break;
                }
                case DYNAMIC: {
-                  VersionUpdatePair<DynamicImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<DynamicImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -1024,7 +977,7 @@ public class Frills
                   break;
                }
                case COMPONENT_NID: {
-                  VersionUpdatePair<ComponentNidVersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<ComponentNidVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -1034,7 +987,7 @@ public class Frills
                   break;
                }
                case LOGIC_GRAPH: {
-                  VersionUpdatePair<LogicGraphVersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<LogicGraphVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -1044,7 +997,7 @@ public class Frills
                   break;
                }
                case LONG: {
-                  VersionUpdatePair<LongVersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<LongVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -1054,7 +1007,7 @@ public class Frills
                   break;
                }
                case MEMBER:
-                  VersionUpdatePair<VersionImpl> semanticUpdatePair = resetStatus(status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<VersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();

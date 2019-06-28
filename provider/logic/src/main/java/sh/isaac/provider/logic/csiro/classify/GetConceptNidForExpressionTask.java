@@ -64,6 +64,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
@@ -186,14 +187,14 @@ public class GetConceptNidForExpressionTask
                                             "expression",
                                             this.expression,
                                             MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
-         final ConceptChronology concept = builder.build(this.statedEditCoordinate, ChangeCheckerMode.INACTIVE)
+         Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+         final ConceptChronology concept = builder.build(transaction, this.statedEditCoordinate)
                                                   .get();
 
          updateMessage("Commiting new expression...");
 
          try {
-            Get.commitService()
-               .commit(Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate(), "Expression commit.")
+            transaction.commit("Expression commit.")
                .get();
             updateMessage("Classifying new concept...");
             this.classifierProvider.classify()

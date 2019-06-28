@@ -146,6 +146,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
          pushParent(current());
             // order (int), field type (concept) 
             // order (int), field concept (concept)
+            createConcept(TermAux.ANY_ASSEMBLAGE);
             createConcept(TermAux.SEMANTIC_TYPE);
             pushParent(current());
                 createConcept(TermAux.MEMBERSHIP_SEMANTIC);
@@ -331,7 +332,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.REFLECTION_CLASS_ASSEMBLAGE);
                createConcept(TermAux.PROVIDER_CLASS_ASSEMBLAGE);
                createConcept(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
-               createConcept("Issue managment assemblage").addComponentSemantic(UUID.fromString("6b0a4de8-e2db-54a1-9c87-fb365df15662"), STRING_SEMANTIC, SEMANTIC_TYPE);
+               createConcept("Issue management assemblage").addComponentSemantic(UUID.fromString("6b0a4de8-e2db-54a1-9c87-fb365df15662"), STRING_SEMANTIC, SEMANTIC_TYPE);
                pushParent(current());
                   createConcept("Content issue assemblage").addComponentSemantic(UUID.fromString("0b50bab6-8b0a-51d6-ad03-caf478ab5040"), STRING_SEMANTIC, SEMANTIC_TYPE);
                   createConcept("KOMET issue assemblage").addComponentSemantic(UUID.fromString("2d97a6b5-7fbf-581f-b9ab-5c61c1d9bc60"), STRING_SEMANTIC, SEMANTIC_TYPE);

@@ -16,5 +16,10 @@
             <artifactId>api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>sh.isaac.provider</groupId>
+            <artifactId>commit</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

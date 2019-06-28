@@ -19,6 +19,7 @@ package sh.komet.gui.provider.concept.detail.logic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -39,11 +40,15 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
@@ -125,7 +130,16 @@ public class LogicDetailNode
             ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
             ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
             mutableVersion.setGraphData(editInFlight.getData(DataTarget.INTERNAL));
-            Get.commitService().commit(FxGet.editCoordinate(), "Lambda graph edit", mutableVersion);
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+            CommitTask commitTask = transaction.commitObservableVersions("Lambda graph edit", mutableVersion);
+            Get.executor().execute(() -> {
+                try {
+                    Optional<CommitRecord> commitRecord = commitTask.get();
+                    //completeCommit(commitTask, commitRecord);
+                } catch (InterruptedException | ExecutionException ex) {
+                    FxGet.dialogs().showErrorDialog("Error during commit", ex);
+                }
+            });
         }
         setConcept(conceptDetailManifold.getFocusedConcept().get());
     }

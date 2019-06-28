@@ -67,12 +67,15 @@ import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.docbook.DocBook;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.AbstractLogicNode;
@@ -347,7 +350,8 @@ public class AxiomView {
             ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
             ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
             mutableVersion.setGraphData(this.expression.getData(DataTarget.INTERNAL));
-            Get.commitService().commit(FxGet.editCoordinate(), "Axiom view edit", mutableVersion);
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+            CommitTask commitTask = transaction.commitObservableVersions("Axiom view edit", mutableVersion);
         }
         updateExpression();
     }

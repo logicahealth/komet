@@ -41,12 +41,14 @@ import com.opencsv.CSVReader;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.ContentStreamProvider;
@@ -325,6 +327,8 @@ public class DirectImporter
 
         addToTotalWork(specificationsToImport.size());
 
+        Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+
         for (ImportSpecification importSpecification : specificationsToImport) {
             String message = "Importing " + trimZipName(importSpecification.contentProvider.getStreamSourceName());
             updateMessage(message);
@@ -419,7 +423,7 @@ public class DirectImporter
                             break;
 
                         case LOINC:
-                            readLOINC(br, importSpecification);
+                            readLOINC(transaction, br, importSpecification);
                             break;
 
                         case CLINVAR:
@@ -436,7 +440,7 @@ public class DirectImporter
             }
             completedUnitOfWork();
         }
-
+        transaction.commit("Direct import");
         LOG.info("Loaded " + fileCount + " files in " + ((System.currentTimeMillis() - time) / 1000) + " seconds");
         return fileCount;
     }
@@ -564,9 +568,9 @@ public class DirectImporter
         }
     }
 
-    private void readLOINC(BufferedReader br, ImportSpecification importSpecification) throws IOException, InterruptedException, ExecutionException {
+    private void readLOINC(Transaction transaction, BufferedReader br, ImportSpecification importSpecification) throws IOException, InterruptedException, ExecutionException {
         updateMessage("Transforming LOINC expressions...");
-        LoincExpressionToConcept expressionToConceptTask = new LoincExpressionToConcept();
+        LoincExpressionToConcept expressionToConceptTask = new LoincExpressionToConcept(transaction);
         Get.executor().submit(expressionToConceptTask).get();
 
         updateMessage("Importing LOINC data...");
@@ -591,7 +595,7 @@ public class DirectImporter
                 columnsToWrite.add(columns);
 
                 if (columnsToWrite.size() == writeSize) {
-                    LoincWriter loincWriter = new LoincWriter(
+                    LoincWriter loincWriter = new LoincWriter(transaction,
                             columnsToWrite,
                             this.writeSemaphore,
                             "Processing LOINC records from: " + DirectImporter.trimZipName(
@@ -613,7 +617,7 @@ public class DirectImporter
                         + importSpecification.contentProvider.getStreamSourceName());
             }
             if (!columnsToWrite.isEmpty()) {
-                LoincWriter loincWriter = new LoincWriter(
+                LoincWriter loincWriter = new LoincWriter(transaction,
                         columnsToWrite,
                         this.writeSemaphore,
                         "Reading LOINC records from: " + DirectImporter.trimZipName(

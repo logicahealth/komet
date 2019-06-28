@@ -110,8 +110,8 @@ public class TreeCycleResolver
          int parentConceptIndex;
          int maxDepth = 0;
 
-         for (int i = 0; i < treeCycleError.cycle.length; i++) {
-            int conceptSeqeuence = treeCycleError.cycle[i];
+         for (int i = 0; i < treeCycleError.getAffectedComponents().length; i++) {
+            int conceptSeqeuence = treeCycleError.getAffectedComponents()[i];
             int newDepth         = treeCycleError.visitData.getDistance(conceptSeqeuence);
 
             if (newDepth > maxDepth) {
@@ -120,12 +120,12 @@ public class TreeCycleResolver
             }
          }
 
-         int bottomConceptSequence = treeCycleError.cycle[bottomConceptIndex];
+         int bottomConceptSequence = treeCycleError.getAffectedComponents()[bottomConceptIndex];
 
          if (bottomConceptIndex > 0) {
-            parentConceptIndex = treeCycleError.cycle[bottomConceptIndex - 1];
+            parentConceptIndex = treeCycleError.getAffectedComponents()[bottomConceptIndex - 1];
          } else {
-            parentConceptIndex = treeCycleError.cycle[1];
+            parentConceptIndex = treeCycleError.getAffectedComponents()[1];
          }
 
          System.out.println("Parent concept in cycle is: " + Get.conceptDescriptionText(parentConceptIndex));

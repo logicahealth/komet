@@ -56,6 +56,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Nid1_Int2_Version;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -243,21 +244,29 @@ public class Observable_Nid1_Int2_VersionImpl
               this.nid1Property.get() != ((Nid1_Int2_VersionImpl) this.stampedVersionProperty.get()).getNid1()) {
          this.nid1Property.set(((Nid1_Int2_VersionImpl) this.stampedVersionProperty.get()).getNid1());
       }
-     if (this.int2Property != null && 
+      if (this.int2Property != null &&
               this.int2Property.get() != ((Nid1_Int2_VersionImpl) this.stampedVersionProperty.get()).getInt2()) {
          this.int2Property.set(((Nid1_Int2_VersionImpl) this.stampedVersionProperty.get()).getInt2());
       }
     }
-      
-    
 
     @Override
     public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      Nid1_Int2_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      Observable_Nid1_Int2_VersionImpl newObservableVersion = 
-              new Observable_Nid1_Int2_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-      return (V) newObservableVersion;
+        Nid1_Int2_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        return setupAnalog(newVersion);
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        Nid1_Int2_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        return setupAnalog(newVersion);
+    }
+
+    private <V extends Version> V setupAnalog(Nid1_Int2_VersionImpl newVersion) {
+        Observable_Nid1_Int2_VersionImpl newObservableVersion =
+                new Observable_Nid1_Int2_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
     }
 }
 

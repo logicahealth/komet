@@ -116,12 +116,12 @@ public abstract class ChronologyImpl
      * Data that has not yet been persisted. This data will need to be merged
      * with the written data when the chronicle is next serialized.
      */
-    private final CopyOnWriteArrayList<Version> uncommittedVersions = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Version> unwrittenVersions = new CopyOnWriteArrayList<>();
 
     /**
      * Data that has already been persisted.
      */
-    private final CopyOnWriteArrayList<Version> committedVersions = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Version> writtenVersions = new CopyOnWriteArrayList<>();
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -131,30 +131,32 @@ public abstract class ChronologyImpl
      */
     protected ChronologyImpl() {
     }
+
+
     /**
-     * 
+     * Removes uncommitted written and unwritten versions.
      * @return true if uncommitted versions where removed. 
      */
     public boolean removeUncommittedVersions() {
         boolean anyRemoved = false;
-        if (this.uncommittedVersions != null) {
+        if (this.unwrittenVersions != null) {
             List<Version> toRemove = new ArrayList<>();
-            for (Version v: this.uncommittedVersions) {
+            for (Version v: this.unwrittenVersions) {
                 if (v.getTime() == Long.MAX_VALUE) {
                     toRemove.add(v);
                     anyRemoved = true;
                 }
             };
-            this.uncommittedVersions.removeAll(toRemove);
+            this.unwrittenVersions.removeAll(toRemove);
         }
         List<Version> toRemove = new ArrayList<>();
-            for (Version v: this.committedVersions) {
+            for (Version v: this.writtenVersions) {
                 if (v.getTime() == Long.MAX_VALUE) {
                     toRemove.add(v);
                     anyRemoved = true;
                 }
             };
-        this.committedVersions.removeAll(toRemove);
+        this.writtenVersions.removeAll(toRemove);
         return anyRemoved;
     }
 
@@ -339,9 +341,9 @@ public abstract class ChronologyImpl
      */
     public <V extends Version> void addVersion(V version) {
         if (version.isUncommitted()) {
-            this.uncommittedVersions.add(version);
+            this.unwrittenVersions.add(version);
         } else {
-            this.committedVersions.add(version);
+            this.writtenVersions.add(version);
         }
     }
 
@@ -419,7 +421,7 @@ public abstract class ChronologyImpl
             constructorEnd(data);
         }
         readVersionList(data);
-        if (this.committedVersions.isEmpty() && this.uncommittedVersions.isEmpty()) {
+        if (this.writtenVersions.isEmpty() && this.unwrittenVersions.isEmpty()) {
            throw new IllegalStateException();
         }
         if (data.isExternalData()) {
@@ -874,8 +876,8 @@ public abstract class ChronologyImpl
     public <V extends Version> List<V> getUnwrittenVersionList() {
         final ArrayList<V> results = new ArrayList<>();
 
-        if (this.uncommittedVersions != null) {
-            results.addAll((Collection<V>) this.uncommittedVersions);
+        if (this.unwrittenVersions != null) {
+            results.addAll((Collection<V>) this.unwrittenVersions);
         }
 
         return results;
@@ -911,19 +913,19 @@ public abstract class ChronologyImpl
     public <V extends StampedVersion> Optional<V> getVersionForStamp(int stampSequence) {
 
         if (Get.stampService().isUncommitted(stampSequence)) {
-            for (Version version : this.uncommittedVersions) {
+            for (Version version : this.unwrittenVersions) {
                 if (version.getStampSequence() == stampSequence) {
                     return Optional.of((V) version);
                 }
             }
             return Optional.empty();
         }
-        for (Version version : this.committedVersions) {
+        for (Version version : this.writtenVersions) {
             if (version.getStampSequence() == stampSequence) {
                 return Optional.of((V) version);
             }
         }
-        for (Version version : this.uncommittedVersions) {
+        for (Version version : this.unwrittenVersions) {
             if (version.getStampSequence() == stampSequence) {
                 LOG.warn("Returning committed from uncommitted: " + stampSequence + " in: \n" + this);
                 return Optional.of((V) version);
@@ -1001,15 +1003,15 @@ public abstract class ChronologyImpl
     @Override
     public <V extends Version> List<V> getVersionList() {
 
-        ArrayList<Version> versionList = new ArrayList<>(this.uncommittedVersions.size()
-                + this.committedVersions.size());
-        versionList.addAll(this.uncommittedVersions);
-        versionList.addAll(this.committedVersions);
+        ArrayList<Version> versionList = new ArrayList<>(this.unwrittenVersions.size()
+                + this.writtenVersions.size());
+        versionList.addAll(this.unwrittenVersions);
+        versionList.addAll(this.writtenVersions);
         return (List<V>) versionList;
     }
 
     public CopyOnWriteArrayList<Version> getCommittedVersionList() {
-        return this.committedVersions;
+        return this.writtenVersions;
     }
 
     public Map<Integer, Version> getStampVersionMap() {
@@ -1028,10 +1030,10 @@ public abstract class ChronologyImpl
     public int[] getVersionStampSequences() {
         final OpenIntHashSet builder = new OpenIntHashSet();
 
-        for (Version v : this.uncommittedVersions) {
+        for (Version v : this.unwrittenVersions) {
             builder.add(v.getStampSequence());
         }
-        for (Version v : this.committedVersions) {
+        for (Version v : this.writtenVersions) {
             builder.add(v.getStampSequence());
         }
         return builder.keys().elements();
@@ -1046,8 +1048,8 @@ public abstract class ChronologyImpl
      * @param versions the new versions
      */
     public <V extends Version> void setVersions(Collection<V> versions) {
-        this.uncommittedVersions.clear();
-        this.committedVersions.clear();
+        this.unwrittenVersions.clear();
+        this.writtenVersions.clear();
         versions.forEach((V version) -> addVersion(version));
     }
 

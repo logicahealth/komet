@@ -53,6 +53,7 @@ import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
@@ -163,6 +164,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     //SNOMED Sibling/Child	
     public static final int SNOMED_SIB_CHILD_3 = 31;
 
+    private final Transaction transaction;
     private final List<String[]> hoRecords;
     private final Semaphore writeSemaphore;
     private final List<IndexBuilderService> indexers;
@@ -192,8 +194,9 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         return Get.nidWithAssignment(UuidT5Generator.get(HUMAN_DX_MODULE.getPrimordialUuid(), refid));
     }
 
-    public HoWriter(List<String[]> hoRecords,
-            Semaphore writeSemaphore, String message, long commitTime, HoDirectImporter importer) {
+    public HoWriter(Transaction transaction, List<String[]> hoRecords,
+                    Semaphore writeSemaphore, String message, long commitTime, HoDirectImporter importer) {
+        this.transaction = transaction;
         this.hoRecords = hoRecords;
         this.writeSemaphore = writeSemaphore;
         this.writeSemaphore.acquireUninterruptibly();
@@ -441,7 +444,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     SemanticBuilder semanticBuilder = Get.semanticBuilderService()
                             .getComponentSemanticBuilder(snomedAllergyMap.get(hoRec[SNOMEDCT]), conceptNid, HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
                     List<Chronology> builtObjects = new ArrayList<>();
-                    semanticBuilder.build(stamp, builtObjects);
+                    semanticBuilder.build(transaction, stamp, builtObjects);
                     buildAndIndex(semanticBuilder, stamp, hoRec);
                 }
             } else {
@@ -455,7 +458,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     SemanticBuilder semanticBuilder = Get.semanticBuilderService()
                             .getComponentSemanticBuilder(snomedNid, conceptNid, HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
                     List<Chronology> builtObjects = new ArrayList<>();
-                    semanticBuilder.build(stamp, builtObjects);
+                    semanticBuilder.build(transaction, stamp, builtObjects);
                     buildAndIndex(semanticBuilder, stamp, hoRec);
                 } else {
                     throw new NoSuchElementException("No identifier for: " + hoRec[SNOMEDCT]);
@@ -482,13 +485,13 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
         SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(legacyHdxNid, solorNid, assemblageConceptNid);
         List<Chronology> builtObjects = new ArrayList<>();
-        semanticBuilder.build(stamp, builtObjects);
+        semanticBuilder.build(transaction, stamp, builtObjects);
         buildAndIndex(semanticBuilder, stamp, hoRec);
     }
 
     protected void buildAndIndex(IdentifiedComponentBuilder builder, int stamp, String[] hoRec) throws IllegalStateException {
         List<Chronology> builtObjects = new ArrayList<>();
-        builder.build(stamp, builtObjects);
+        builder.build(transaction, stamp, builtObjects);
         for (Chronology chronology : builtObjects) {
             Get.identifiedObjectService().putChronologyData(chronology);
             if (chronology.getVersionType() == VersionType.LOGIC_GRAPH) {
@@ -582,7 +585,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             if (!Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
                 SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(conceptNid, refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
                 List<Chronology> builtObjects = new ArrayList<>();
-                semanticBuilder.build(stamp, builtObjects);
+                semanticBuilder.build(transaction, stamp, builtObjects);
                 buildAndIndex(semanticBuilder, stamp, hoRec);
                 addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, legacyStamp);
             }
@@ -651,7 +654,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             if (!Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
                 SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(conceptNid, refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
                 List<Chronology> builtObjects = new ArrayList<>();
-                semanticBuilder.build(stamp, builtObjects);
+                semanticBuilder.build(transaction, stamp, builtObjects);
                 buildAndIndex(semanticBuilder, stamp, hoRec);
                 addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, legacyStamp);
             }
@@ -740,7 +743,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             if (!Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
                 SemanticBuilder semanticBuilder = Get.semanticBuilderService().getComponentSemanticBuilder(conceptNid, refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
                 List<Chronology> builtObjects = new ArrayList<>();
-                semanticBuilder.build(stamp, builtObjects);
+                semanticBuilder.build(transaction, stamp, builtObjects);
                 buildAndIndex(semanticBuilder, stamp, hoRec);
                 addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, legacyStamp);
             }
@@ -820,7 +823,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     .getComponentSemanticBuilder(refidToSolorNid(hoRec[REFID]),
                             refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
             List<Chronology> builtObjects = new ArrayList<>();
-            semanticBuilder.build(stamp, builtObjects);
+            semanticBuilder.build(transaction, stamp, builtObjects);
             buildAndIndex(semanticBuilder, stamp, hoRec);
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, legacyStamp);
         }
@@ -893,7 +896,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     .getComponentSemanticBuilder(refidToSolorNid(hoRec[REFID]),
                             refidToNid(hoRec[REFID]), HDX_SOLOR_EQUIVALENCE_ASSEMBLAGE.getNid());
             List<Chronology> builtObjects = new ArrayList<>();
-            semanticBuilder.build(stamp, builtObjects);
+            semanticBuilder.build(transaction, stamp, builtObjects);
 
             buildAndIndex(semanticBuilder, stamp, hoRec);
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, legacyStamp);

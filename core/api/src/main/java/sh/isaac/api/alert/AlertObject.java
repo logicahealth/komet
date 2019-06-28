@@ -16,16 +16,18 @@
  */
 package sh.isaac.api.alert;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import sh.isaac.api.Get;
+
+import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
  *
  * @author kec
  */
-public class AlertObject {
+public class AlertObject implements Comparable<AlertObject> {
+   final UUID alertId = UUID.randomUUID();
+   final int[] affectedComponents;
    final String alertTitle;
    final String alertDescription;
    final AlertType alertType;
@@ -33,7 +35,13 @@ public class AlertObject {
    final Callable<Boolean> resolutionTester;
    private final List<Resolver> resolvers = new ArrayList<>();
 
-   public AlertObject(String alertTitle, String alertDescription, AlertType alertType, AlertCategory alertCategory, Callable<Boolean> resolutionTester) {
+   public AlertObject(String alertTitle,
+                      String alertDescription,
+                      AlertType alertType,
+                      AlertCategory alertCategory,
+                      Callable<Boolean> resolutionTester,
+                      int... affectedComponents) {
+      this.affectedComponents = affectedComponents;
       this.alertTitle = alertTitle;
       this.alertDescription = alertDescription;
       this.alertType = alertType;
@@ -42,8 +50,12 @@ public class AlertObject {
    }
 
 
-   public AlertObject(String alertTitle, String alertDescription, AlertType alertType, AlertCategory alertCategory) {
-      this(alertTitle, alertDescription, alertType, alertCategory, null);
+   public AlertObject(String alertTitle, String alertDescription, AlertType alertType, AlertCategory alertCategory, int... affectedComponents) {
+      this(alertTitle, alertDescription, alertType, alertCategory, null, affectedComponents);
+   }
+
+   public int[] getAffectedComponents() {
+      return affectedComponents;
    }
 
    public String getAlertTitle() {
@@ -70,9 +82,19 @@ public class AlertObject {
       return resolvers;
    }
 
+   public Boolean failCommit() {
+      return getAlertType().preventsCheckerPass();
+   }
+
+   @Override
+   public int compareTo(AlertObject o) {
+      return this.alertId.compareTo(o.alertId);
+   }
+
    @Override
    public String toString() {
-      return this.getClass().getSimpleName() + " alertTitle=" + alertTitle + ", alertType=" + alertType + 
-             ", alertDescription=" + alertDescription + ", resolvers=" + resolvers + ", resolutionTester=" + resolutionTester;
+      return this.getClass().getSimpleName() +  ", alertTitle=" + alertTitle + ", alertType=" + alertType +
+             ", alertDescription=" + alertDescription + ", resolvers=" + resolvers + ", resolutionTester="
+              + resolutionTester + " " + Arrays.toString(affectedComponents);
    }
 }

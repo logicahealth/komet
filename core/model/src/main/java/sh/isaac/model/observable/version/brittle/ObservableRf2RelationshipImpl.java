@@ -58,6 +58,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableRf2Relationship;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -439,11 +440,21 @@ public class ObservableRf2RelationshipImpl
 
     @Override
     public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      Rf2RelationshipImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableRf2RelationshipImpl newObservableVersion = 
-              new ObservableRf2RelationshipImpl(newVersion, (ObservableSemanticChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-      return (V) newObservableVersion;
+        Rf2RelationshipImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+        return setupAnalog(newVersion);
+    }
+
+    @Override
+    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        Rf2RelationshipImpl newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+        return setupAnalog(newVersion);
+    }
+
+    private <V extends Version> V setupAnalog(Rf2RelationshipImpl newVersion) {
+        ObservableRf2RelationshipImpl newObservableVersion =
+                new ObservableRf2RelationshipImpl(newVersion, (ObservableSemanticChronology) chronology);
+        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        return (V) newObservableVersion;
     }
 }
 
