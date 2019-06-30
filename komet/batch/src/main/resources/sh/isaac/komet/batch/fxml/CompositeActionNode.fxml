@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.ToolBar?>
@@ -13,8 +15,11 @@
          <top>
             <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
               <items>
-                  <Button mnemonicParsing="false" onAction="#addAction" text="add" />
-                  <Separator opacity="0.0" prefHeight="28.0" prefWidth="373.0" />
+                  <Button mnemonicParsing="false" onAction="#addAction" text="add action" />
+                  <Separator layoutX="310.0" layoutY="10.0" opacity="0.0" prefHeight="28.0" prefWidth="25.0" />
+                  <Label text="list for actions: " />
+                  <ChoiceBox fx:id="listChoiceBox" prefWidth="150.0" />
+                  <Separator opacity="0.0" prefHeight="28.0" prefWidth="33.0" />
                 <Button mnemonicParsing="false" onAction="#newCompositeAction" text="new" />
                   <Button layoutX="10.0" layoutY="11.0" mnemonicParsing="false" onAction="#openCompositeAction" text="open" />
                   <Button layoutX="58.0" layoutY="11.0" mnemonicParsing="false" onAction="#saveCompositeAction" text="save" />

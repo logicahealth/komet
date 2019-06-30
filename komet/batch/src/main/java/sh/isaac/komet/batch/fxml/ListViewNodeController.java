@@ -3,18 +3,22 @@ package sh.isaac.komet.batch.fxml;
  * 'ListViewNode.fxml' Controller Class
  */
 
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import sh.isaac.api.Get;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.util.UUIDUtil;
 import sh.komet.gui.drag.drop.DropHelper;
+import sh.komet.gui.interfaces.ComponentList;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.row.DragAndDropRowFactory;
 import sh.komet.gui.table.version.VersionTable;
@@ -25,7 +29,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
-public class ListViewNodeController {
+public class ListViewNodeController implements ComponentList {
 
     @FXML
     private ResourceBundle resources;
@@ -39,16 +43,23 @@ public class ListViewNodeController {
     @FXML
     private BorderPane batchBorderPane;
 
+    @FXML
+    private TextField listName;
+
     private VersionTable versionTable;
 
     private Manifold manifold;
 
     private DropHelper dropHelper;
 
+    private final UUID listId = UUID.randomUUID();
+
     @FXML
     void initialize() {
         assert batchAnchor != null : "fx:id=\"batchAnchor\" was not injected: check your FXML file 'ListViewNode.fxml'.";
         assert batchBorderPane != null : "fx:id=\"batchBorderPane\" was not injected: check your FXML file 'ListViewNode.fxml'.";
+        this.listName.setText("Unamed " + UUID.randomUUID().toString());
+        FxGet.addComponentList(this);
     }
 
     public void setManifold(Manifold manifold) {
@@ -83,6 +94,9 @@ public class ListViewNodeController {
 
     @FXML
     void clearList(ActionEvent event) {
+        listName.setText("untitled list");
+        listName.selectAll();
+        listName.requestFocus();
         versionTable.getRootNode().getItems().clear();
     }
 
@@ -90,13 +104,18 @@ public class ListViewNodeController {
     void exportList(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Specify file for export");
-        fileChooser.setInitialFileName("list-export.txt");
+        if (!listName.getText().isEmpty()) {
+            fileChooser.setInitialFileName(listName.getText() + ".txt");
+        } else {
+            fileChooser.setInitialFileName("list-export.txt");
+        }
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home"), "Solor"));
         final File exportFile = fileChooser.showSaveDialog(null);
         if (exportFile != null) {
             try {
                 exportFile.createNewFile();
                 try (FileWriter writer = new FileWriter(exportFile)) {
+                    writer.write(listName.getText() + "\n");
                     for (ObservableChronology item: versionTable.getRootNode().getItems()) {
                         writer.write(item.getPrimordialUuid().toString() + "\n");
                     }
@@ -113,12 +132,22 @@ public class ListViewNodeController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Specify file for import");
         fileChooser.setInitialFileName("list-export.txt");
+
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home"), "Solor"));
         File importFile = fileChooser.showOpenDialog(null);
         if (importFile != null) {
             try (FileReader reader = new FileReader(importFile); BufferedReader bufferedReader = new BufferedReader(reader)) {
                 ObservableList<ObservableChronology> items = versionTable.getRootNode().getItems();
-                bufferedReader.lines().forEach(uuidStr -> items.add(Get.observableChronology(UUID.fromString(uuidStr))));
+                listName.setText(importFile.getName().substring(0, importFile.getName().lastIndexOf(".")));
+                items.clear();
+                int lineCount = 0;
+                bufferedReader.lines().forEach(lineString -> {
+                    if (lineCount == 0 &! UUIDUtil.isUUID(lineString)) {
+                        listName.setText(lineString);
+                    } else {
+                        items.add(Get.observableChronology(UUID.fromString(lineString)));
+                    }
+                });
             } catch (IOException e) {
                 FxGet.dialogs().showErrorDialog(e);
             }
@@ -126,5 +155,23 @@ public class ListViewNodeController {
 
     }
 
+    public void close() {
+        System.out.println("Closing ListViewNodeController");
+        FxGet.removeComponentList(this);
+    }
 
+    @Override
+    public ObservableList<ObservableChronology> getComponents() {
+        return versionTable.getRootNode().getItems();
+    }
+
+    @Override
+    public StringProperty nameProperty() {
+        return listName.textProperty();
+    }
+
+    @Override
+    public UUID getListId() {
+        return listId;
+    }
 }

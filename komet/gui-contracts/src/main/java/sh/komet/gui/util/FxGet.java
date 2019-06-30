@@ -17,6 +17,7 @@
 package sh.komet.gui.util;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -26,11 +27,14 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.WeakChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javax.inject.Singleton;
+
+import javafx.collections.transformation.SortedList;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
@@ -47,7 +51,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
@@ -58,6 +61,7 @@ import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.SessionProperty;
+import sh.komet.gui.interfaces.ComponentList;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.provider.StatusMessageProvider;
@@ -71,6 +75,10 @@ import sh.komet.gui.provider.StatusMessageProvider;
 public class FxGet implements StaticIsaacCache {
     private static final HashMap<Manifold.ManifoldGroup, Manifold> MANIFOLDS = new HashMap<>();
 
+
+    private static final ConcurrentSkipListSet<ComponentList> componentList = new ConcurrentSkipListSet();
+
+    private static final ObservableList<ComponentListKey> componentListKeys = FXCollections.observableArrayList(new ArrayList<>());
 
     private static DialogService DIALOG_SERVICE = null;
     private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
@@ -342,5 +350,73 @@ public class FxGet implements StaticIsaacCache {
 
         }
         return MANIFOLDS.get(manifoldGroup);
+    }
+    public static ObservableList<ComponentListKey> componentListKeys() {
+        return componentListKeys;
+    }
+
+    public static void addComponentList(ComponentList list) {
+        componentList.add(list);
+        componentListKeys.add(new ComponentListKey(list));
+        sortComponentList();
+    }
+
+    public static void removeComponentList(ComponentList list) {
+        componentList.remove(list);
+        componentListKeys.remove(new ComponentListKey(list));
+    }
+
+    private static void sortComponentList() {
+        componentListKeys.sort(
+                (o1, o2) -> {
+                    return o1.compareTo(o2);
+                });
+    }
+
+    public static class ComponentListKey implements Comparable<ComponentListKey> {
+        private final ComponentList componentList;
+
+        public ComponentListKey(ComponentList componentList) {
+            this.componentList = componentList;
+            this.componentList.nameProperty().addListener(new WeakChangeListener<>((observable, oldValue, newValue) -> {
+                // force sort when name changes.
+                sortComponentList();
+            }));
+        }
+
+        public UUID getListId() {
+            return componentList.getListId();
+        }
+
+        public String getName() {
+            return componentList.nameProperty().getValue();
+        }
+
+        @Override
+        public int compareTo(ComponentListKey o) {
+            int nameCompare = getName().compareTo(o.getName());
+            if (nameCompare != 0) {
+                return nameCompare;
+            }
+            return getListId().compareTo(o.getListId());
+        }
+
+        @Override
+        public String toString() {
+            return getName();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ComponentListKey that = (ComponentListKey) o;
+            return this.getListId().equals(that.getListId());
+        }
+
+        @Override
+        public int hashCode() {
+            return this.getListId().hashCode();
+        }
     }
 }

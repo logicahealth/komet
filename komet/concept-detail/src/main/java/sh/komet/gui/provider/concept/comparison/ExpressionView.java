@@ -143,7 +143,17 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
     @Override
     public Node getNode() {
         return conceptDetailPane;
-    }    
-    
-    
+    }
+
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
+
 }

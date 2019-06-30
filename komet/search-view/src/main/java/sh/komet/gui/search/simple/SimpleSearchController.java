@@ -333,4 +333,14 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     public ReadOnlyProperty<String> getToolTip() {
         return toolTipText;
     }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

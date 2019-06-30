@@ -84,5 +84,15 @@ public class GroovyViewProvider implements ExplorationNode {
     public Optional<Node> getTitleNode() {
         return Optional.of(titleNode);
     }
-    
+
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

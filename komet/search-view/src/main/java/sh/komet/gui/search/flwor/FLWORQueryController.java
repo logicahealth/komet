@@ -1146,4 +1146,14 @@ public class FLWORQueryController
 
         return node;
     }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

@@ -3,6 +3,7 @@ package sh.isaac.komet.batch.fxml;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 import sh.isaac.komet.batch.ActionCell;
 import sh.komet.gui.manifold.Manifold;
@@ -16,12 +17,17 @@ public class CompositeActionNodeController {
     @FXML
     private ListView<ActionNodeController> actionListView;
 
+    @FXML
+    private ChoiceBox<FxGet.ComponentListKey> listChoiceBox;
+
+
     private Manifold manifold;
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert actionListView != null : "fx:id=\"actionListView\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
         actionListView.setCellFactory(param -> new ActionCell(actionListView, manifold));
+        listChoiceBox.setItems(FxGet.componentListKeys());
     }
 
     @FXML

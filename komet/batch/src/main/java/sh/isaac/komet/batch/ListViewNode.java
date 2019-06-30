@@ -66,4 +66,14 @@ public class ListViewNode implements ExplorationNode {
     public Node getMenuIcon() {
         return PluginIcons.SCRIPT_ICON.getStyledIconographic();
     }
+
+    @Override
+    public void close() {
+        controller.close();
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

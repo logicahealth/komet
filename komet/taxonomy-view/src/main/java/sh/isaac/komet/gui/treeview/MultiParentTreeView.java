@@ -711,4 +711,14 @@ public class MultiParentTreeView
     public TreeView<ConceptChronology> getTreeView() {
         return treeView;
     }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

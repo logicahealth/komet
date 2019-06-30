@@ -392,6 +392,14 @@ public class KometStageController
 
                     IsaacPreferences newPreferences = this.preferencesNode.node(UUID.randomUUID().toString());
                     ExplorationNode node = factory.createNode(FxGet.getManifold(factory.getDefaultManifoldGroups()[0]), newPreferences);
+                    tab.setOnCloseRequest(event1 -> {
+                        if (!node.canClose()) {
+                            event1.consume();
+                        }
+                    });
+                    tab.setOnClosed(event1 -> {
+                        node.close();
+                    });
                     Node menuIcon = node.getMenuIcon();
                     menuIcon.parentProperty().addListener((observable, oldValue, newValue) -> {
                         System.out.println("Parent changed: " + newValue);

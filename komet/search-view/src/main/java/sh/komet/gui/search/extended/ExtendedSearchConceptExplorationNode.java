@@ -102,7 +102,17 @@ public class ExtendedSearchConceptExplorationNode implements ConceptExplorationN
         controller.getSearchResults().requestFocus();
         controller.getSearchResults().getSelectionModel().selectFirst();
     }
-    
-    
+
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
+
 }
 

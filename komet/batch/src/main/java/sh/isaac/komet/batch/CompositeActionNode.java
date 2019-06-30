@@ -68,4 +68,14 @@ public class CompositeActionNode implements ExplorationNode {
     public Node getMenuIcon() {
         return Iconography.EDIT_PENCIL.getStyledIconographic();
     }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

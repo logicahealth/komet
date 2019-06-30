@@ -167,4 +167,14 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
         
         return assemblageMenuList;
     }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

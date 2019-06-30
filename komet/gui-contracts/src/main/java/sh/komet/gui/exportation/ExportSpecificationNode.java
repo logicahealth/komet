@@ -60,4 +60,14 @@ public class ExportSpecificationNode implements ExplorationNode {
     public Node getMenuIcon() {
         return Iconography.ICON_EXPORT.getIconographic();
     }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

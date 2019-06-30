@@ -48,4 +48,14 @@ public class CompletedTasksProgressNode extends TaskProgressNode {
     public Node getMenuIcon() {
         return Iconography.CHECKERED_FLAG.getIconographic();
     }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

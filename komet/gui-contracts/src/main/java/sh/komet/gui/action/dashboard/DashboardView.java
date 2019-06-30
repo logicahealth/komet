@@ -406,4 +406,16 @@ public class DashboardView
     public Optional<Node> getTitleNode() {
         return Optional.of(titleLabel);
     }
+
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
+
 }

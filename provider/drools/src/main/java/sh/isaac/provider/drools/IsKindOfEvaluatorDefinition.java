@@ -86,7 +86,7 @@ public class IsKindOfEvaluatorDefinition extends IsaacBaseEvaluatorDefinition im
 
     /**
      * @return @see
-     * gov.va.isaac.drools.evaluators.IsaacBaseEvaluatorDefinition#getId()
+     * gov.va.isaac.drools.evaluators.IsaacBaseEvaluatorDefinition#getListId()
      */
     @Override
     protected String getId() {

@@ -300,4 +300,14 @@ Root[0]➞[41]
     public Node getNode() {
         return conceptDetailPane;
     }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

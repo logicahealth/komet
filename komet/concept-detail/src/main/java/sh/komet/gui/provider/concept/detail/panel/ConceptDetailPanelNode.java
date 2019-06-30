@@ -745,4 +745,14 @@ public class ConceptDetailPanelNode
         return this.conceptLabelToolbar.getFocusTabOnConceptChange().get();
     }
 
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
+
 }

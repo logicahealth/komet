@@ -70,4 +70,14 @@ public interface ExplorationNode {
    
    
    Node getMenuIcon();
+
+   /**
+    * When called, the node should release all resources, as it is closed.
+    */
+   void close();
+
+   /**
+    * Indicate if a node should not close for any reason (uncommitted work, etc).
+    */
+   boolean canClose();
 }

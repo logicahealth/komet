@@ -21,13 +21,13 @@
  * are work of the U.S. Government and are not subject to copyright
  * protection in the United States. Portions contributed by government
  * employees are USGovWork (17USC §105). Not subject to copyright.
- * 
+ *
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
  * Apache License, Version 2.0.
  *
  * See: https://www.usa.gov/government-works
- * 
+ *
  * Contributions prior to 2013:
  *
  * Copyright (C) International Health Terminology Standards Development Organisation.
@@ -38,6 +38,7 @@ package sh.isaac.komet.gui.assemblageviewer;
 
 import java.io.IOException;
 import java.util.Optional;
+
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -65,135 +66,125 @@ import sh.komet.gui.util.FxGet;
  */
 @Service
 @PerLookup
-public class AssemblageViewer implements ExplorationNodeFactory
-{
-	private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+public class AssemblageViewer implements ExplorationNodeFactory {
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-	private AssemblageViewerController drlvc_;
-	private Manifold manifold_;
+    private AssemblageViewerController drlvc_;
+    private Manifold manifold_;
 
-	private AssemblageViewer()
-	{
-		// created by HK2
-		LOG.debug(this.getClass().getSimpleName() + " construct time (blocking GUI): {}", 0);
-	}
+    private AssemblageViewer() {
+        // created by HK2
+        LOG.debug(this.getClass().getSimpleName() + " construct time (blocking GUI): {}", 0);
+    }
 
-	public Region getView()
-	{
-		if (drlvc_ == null)
-		{
-			try
-			{
-				drlvc_ = AssemblageViewerController.construct(manifold_);
-			}
-			catch (IOException e)
-			{
-				LoggerFactory.getLogger(this.getClass()).error("Unexpected error initing AssemblageViewer", e);
-				FxGet.dialogs().showErrorDialog("Unexpected error creating AssemblageViewer", e);
-				return new Label("Unexpected error initializing view, see log file");
-			}
+    public Region getView() {
+        if (drlvc_ == null) {
+            try {
+                drlvc_ = AssemblageViewerController.construct(manifold_);
+            } catch (IOException e) {
+                LoggerFactory.getLogger(this.getClass()).error("Unexpected error initing AssemblageViewer", e);
+                FxGet.dialogs().showErrorDialog("Unexpected error creating AssemblageViewer", e);
+                return new Label("Unexpected error initializing view, see log file");
+            }
 
-		}
-		
-		String style = AssemblageViewer.class.getResource("/css/semantic-view.css").toString();
-		if (!drlvc_.getRoot().getStylesheets().contains(style))
-		{
-			drlvc_.getRoot().getStylesheets().add(style);
-		}
-		
-		return drlvc_.getRoot();
-	}
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getMenuText()
-	{
-		return "Dynamic Assemblage Definitions";
-	}
+        String style = AssemblageViewer.class.getResource("/css/semantic-view.css").toString();
+        if (!drlvc_.getRoot().getStylesheets().contains(style)) {
+            drlvc_.getRoot().getStylesheets().add(style);
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Node getMenuIcon()
-	{
-		return Iconography.PAPERCLIP.getIconographic();
-	}
+        return drlvc_.getRoot();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public PanelPlacement getPanelPlacement()
-	{
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getMenuText() {
+        return "Dynamic Assemblage Definitions";
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ManifoldGroup[] getDefaultManifoldGroups()
-	{
-		return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Node getMenuIcon() {
+        return Iconography.PAPERCLIP.getIconographic();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode)
-	{
-		manifold_ = manifold;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PanelPlacement getPanelPlacement() {
+        return null;
+    }
 
-		return new ExplorationNode()
-		{
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ManifoldGroup[] getDefaultManifoldGroups() {
+        return new ManifoldGroup[]{ManifoldGroup.UNLINKED};
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Node getMenuIcon()
-	{
-		return Iconography.PAPERCLIP.getIconographic();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
+        manifold_ = manifold;
 
-			@Override
-			public ReadOnlyProperty<String> getToolTip()
-			{
-				return new SimpleStringProperty("Shows all of the Dynamic Semantics in the system");
-			}
+        return new ExplorationNode() {
 
-			@Override
-			public Optional<Node> getTitleNode()
-			{
-				return Optional.empty();
-			}
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            public Node getMenuIcon() {
+                return Iconography.PAPERCLIP.getIconographic();
+            }
 
-			@Override
-			public ReadOnlyProperty<String> getTitle()
-			{
-				return new SimpleStringProperty(getMenuText());
-			}
+            @Override
+            public ReadOnlyProperty<String> getToolTip() {
+                return new SimpleStringProperty("Shows all of the Dynamic Semantics in the system");
+            }
 
-			@Override
-			public Node getNode()
-			{
-				return getView();
-			}
+            @Override
+            public Optional<Node> getTitleNode() {
+                return Optional.empty();
+            }
 
-			@Override
-			public Manifold getManifold()
-			{
-				return manifold_;
-			}
-		};
-	}
+            @Override
+            public ReadOnlyProperty<String> getTitle() {
+                return new SimpleStringProperty(getMenuText());
+            }
 
-	@Override
-	public ConceptSpecification getPanelType() {
-		return MetaData.ASSEMBLAGE_PANEL____SOLOR;
-	}
+            @Override
+            public Node getNode() {
+                return getView();
+            }
+
+            @Override
+            public Manifold getManifold() {
+                return manifold_;
+            }
+
+            @Override
+            public void close() {
+                // nothing to do...
+            }
+
+            @Override
+            public boolean canClose() {
+                return true;
+            }
+        };
+    }
+
+    @Override
+    public ConceptSpecification getPanelType() {
+        return MetaData.ASSEMBLAGE_PANEL____SOLOR;
+    }
 }

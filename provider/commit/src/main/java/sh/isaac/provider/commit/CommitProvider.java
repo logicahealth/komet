@@ -108,6 +108,10 @@ public class CommitProvider
      */
     private static final Logger LOG = LogManager.getLogger();
 
+    private static boolean singleTransactionOnly = false;
+
+    private static boolean logTransactionCreation = false;
+
     /**
      * The Constant DEFAULT_COMMIT_MANAGER_FOLDER.
      */
@@ -1360,8 +1364,6 @@ public class CommitProvider
         return pendingTransactions;
     }
 
-    private static boolean singleTransactionOnly = false;
-    private static boolean logTransactionCreation = false;
     @Override
     public Transaction newTransaction(ChangeCheckerMode performTests) {
         if (singleTransactionOnly &! pendingTransactions.isEmpty()) {

@@ -377,4 +377,14 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     public Node getNode() {
         return this.scrollPane;
     }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

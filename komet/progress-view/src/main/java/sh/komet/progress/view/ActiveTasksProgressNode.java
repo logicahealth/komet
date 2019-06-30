@@ -91,4 +91,14 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
     public Node getMenuIcon() {
         return progressIcon;
     }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }
