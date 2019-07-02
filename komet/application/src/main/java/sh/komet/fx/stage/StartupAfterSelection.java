@@ -17,8 +17,6 @@ import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.PreferenceGroup;
@@ -102,7 +100,7 @@ public class StartupAfterSelection implements Runnable {
             public void run() {
                 try {
                     kometPreferences = FxGet.kometPreferences();
-                    kometPreferences.loadPreferences(FxGet.getManifold(Manifold.ManifoldGroup.TAXONOMY));
+                    kometPreferences.loadPreferences(FxGet.manifold(Manifold.ManifoldGroup.TAXONOMY));
 
 
                     if (Get.metadataService()
@@ -135,7 +133,7 @@ public class StartupAfterSelection implements Runnable {
                             controller.setPreferencesNode(windowPreference.getPreferenceNode());
                             root.setId(stageUuid.toString());
                             Stage stage = new Stage(StageStyle.UNIFIED);
-                            stage.setTitle(FxGet.getConfigurationName());
+                            stage.setTitle(FxGet.configurationName());
                             Scene scene = new Scene(mainApp.setupStageMenus(stage, root));
                             stage.setScene(scene);
                             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));

@@ -57,7 +57,7 @@ public class ConceptCorrelationViewMenuProvider implements MenuProvider {
     private void newCorelationView(ActionEvent event) {
         MenuItem eventMenu = (MenuItem) event.getSource();
         IsaacPreferences parentPreferences = (IsaacPreferences) eventMenu.getProperties().get(MenuProvider.PARENT_PREFERENCES);
-        Manifold statementManifold = FxGet.getManifold(Manifold.ManifoldGroup.CORRELATION);
+        Manifold statementManifold = FxGet.manifold(Manifold.ManifoldGroup.CORRELATION);
         ConceptCorrelationController conceptCorrelationController = ConceptCorrelationView.show(statementManifold,
                 MenuProvider::handleCloseRequest);
         MenuProvider.WINDOW_COUNT.incrementAndGet();

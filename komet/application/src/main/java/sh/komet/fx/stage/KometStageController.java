@@ -215,7 +215,7 @@ public class KometStageController
                 "fx:id=\"classifierMenuButton\" was not injected: check your FXML file 'KometStageScene.fxml'.";
 
         for (ManifoldGroup mg : ManifoldGroup.values()) {
-            Manifold manifold = FxGet.getManifold(mg);
+            Manifold manifold = FxGet.manifold(mg);
             manifold.focusedConceptProperty()
                     .addListener(this::printSelectionDetails);
             manifold.focusedConceptProperty()
@@ -255,12 +255,12 @@ public class KometStageController
 
             MenuItem selectiveImport = new MenuItem("Selective import and transform");
             selectiveImport.setOnAction((ActionEvent event) -> {
-                ImportView.show(FxGet.getManifold(ManifoldGroup.TAXONOMY));
+                ImportView.show(FxGet.manifold(ManifoldGroup.TAXONOMY));
             });
             items.add(selectiveImport);
 
             MenuItem selectiveExport = new MenuItem("Selective export");
-            selectiveExport.setOnAction(event -> ExportView.show(FxGet.getManifold(ManifoldGroup.UNLINKED)));
+            selectiveExport.setOnAction(event -> ExportView.show(FxGet.manifold(ManifoldGroup.UNLINKED)));
             items.add(selectiveExport);
             
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
@@ -268,7 +268,7 @@ public class KometStageController
             MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
 
             importTransformFull.setOnAction((ActionEvent event) -> {
-                ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.getManifold(ManifoldGroup.TAXONOMY),
+                ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.manifold(ManifoldGroup.TAXONOMY),
                         ImportType.FULL);
                 Get.executor().submit(itcTask);
 
@@ -333,7 +333,7 @@ public class KometStageController
             completeClassify.setOnAction((ActionEvent event) -> {
                 //TODO change how we get the edit coordinate. 
                 EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                ClassifierService classifierService = Get.logicService().getClassifierService(FxGet.getManifold(ManifoldGroup.SEARCH), editCoordinate);
+                ClassifierService classifierService = Get.logicService().getClassifierService(FxGet.manifold(ManifoldGroup.SEARCH), editCoordinate);
                 classifierService.classify();
             });
             items.add(completeClassify);
@@ -391,7 +391,7 @@ public class KometStageController
                     tab.setTooltip(new Tooltip(""));
 
                     IsaacPreferences newPreferences = this.preferencesNode.node(UUID.randomUUID().toString());
-                    ExplorationNode node = factory.createNode(FxGet.getManifold(factory.getDefaultManifoldGroups()[0]), newPreferences);
+                    ExplorationNode node = factory.createNode(FxGet.manifold(factory.getDefaultManifoldGroups()[0]), newPreferences);
                     tab.setOnCloseRequest(event1 -> {
                         if (!node.canClose()) {
                             event1.consume();
@@ -487,7 +487,7 @@ public class KometStageController
                     String factoryClassName = optionalFactoryClass.get();
                     Class factoryClass = Class.forName(factoryClassName);
                     NodeFactory factory = (NodeFactory) factoryClass.getDeclaredConstructor().newInstance();
-                    ExplorationNode en = factory.createNode(FxGet.getManifold(factory.getDefaultManifoldGroups()[0]), childNode);
+                    ExplorationNode en = factory.createNode(FxGet.manifold(factory.getDefaultManifoldGroups()[0]), childNode);
                     Tab tab = new Tab();
                     tab.setGraphic(en.getMenuIcon());
                     tab.setContent(new BorderPane(en.getNode()));

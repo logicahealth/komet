@@ -8,23 +8,35 @@
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.isaac.komet.batch.fxml.CompositeActionNodeController">
    <children>
       <BorderPane prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
-            <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-              <items>
-                  <Button mnemonicParsing="false" onAction="#addAction" text="add action" />
-                  <Separator layoutX="310.0" layoutY="10.0" opacity="0.0" prefHeight="28.0" prefWidth="25.0" />
-                  <Label text="list for actions: " />
-                  <ChoiceBox fx:id="listChoiceBox" prefWidth="150.0" />
-                  <Separator opacity="0.0" prefHeight="28.0" prefWidth="33.0" />
-                <Button mnemonicParsing="false" onAction="#newCompositeAction" text="new" />
-                  <Button layoutX="10.0" layoutY="11.0" mnemonicParsing="false" onAction="#openCompositeAction" text="open" />
-                  <Button layoutX="58.0" layoutY="11.0" mnemonicParsing="false" onAction="#saveCompositeAction" text="save" />
-              </items>
-            </ToolBar>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <ToolBar prefHeight="40.0" prefWidth="200.0">
+                    <items>
+                        <Button mnemonicParsing="false" onAction="#applyActions" text="apply" />
+                        <Label text="   to: " />
+                        <ChoiceBox fx:id="listChoiceBox" prefHeight="27.0" prefWidth="252.0" />
+                        <Separator opacity="0.0" prefHeight="28.0" prefWidth="12.0" />
+                        <Button mnemonicParsing="false" onAction="#commitActions" text="commit" />
+                        <Button mnemonicParsing="false" onAction="#cancelActions" text="cancel" />
+                    </items>
+                  </ToolBar>
+                  <ToolBar prefHeight="40.0" prefWidth="200.0">
+                     <items>
+                        <Button mnemonicParsing="false" onAction="#addAction" text="add" />
+                        <Separator orientation="VERTICAL" prefHeight="28.0" prefWidth="26.0" />
+                      <Button mnemonicParsing="false" onAction="#newCompositeAction" text="new" />
+                        <Button mnemonicParsing="false" onAction="#openCompositeAction" text="open" />
+                        <Button mnemonicParsing="false" onAction="#saveCompositeAction" text="save" />
+                     </items>
+                  </ToolBar>
+               </children>
+            </VBox>
          </top>
          <center>
             <ListView fx:id="actionListView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />

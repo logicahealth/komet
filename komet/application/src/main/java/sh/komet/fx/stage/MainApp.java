@@ -63,7 +63,6 @@ import sh.isaac.api.LookupService;
 
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.SystemUtils;
-import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.RootPreferences;
 import sh.isaac.komet.statement.StatementView;
@@ -292,7 +291,7 @@ public class MainApp
     }
 
     private void newStatement(ActionEvent event) {
-        Manifold statementManifold = FxGet.getManifold(ManifoldGroup.CLINICAL_STATEMENT);
+        Manifold statementManifold = FxGet.manifold(ManifoldGroup.CLINICAL_STATEMENT);
         StatementViewController statementController = StatementView.show(statementManifold,
                 MenuProvider::handleCloseRequest);
 
@@ -316,13 +315,13 @@ public class MainApp
                 stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
                 stage.getProperties().put(WindowProperties.NAME_SUFFIX, " " + Integer.toString(MenuProvider.WINDOW_SEQUENCE.incrementAndGet()));
                 stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
-                        FxGet.getConfigurationName() +
+                        FxGet.configurationName() +
                         stage.getProperties().get(WindowProperties.NAME_SUFFIX)
                 );
             } else {
                 stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
                 stage.getProperties().put(WindowProperties.NAME_SUFFIX, "");
-                stage.setTitle(FxGet.getConfigurationName());
+                stage.setTitle(FxGet.configurationName());
                 MenuProvider.WINDOW_SEQUENCE.incrementAndGet();
             }
             FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
@@ -360,7 +359,7 @@ public class MainApp
     }
 
     private void handlePrefs(ActionEvent event) {
-        Stage prefStage = FxGet.kometPreferences().showPreferences(FxGet.getManifold(ManifoldGroup.TAXONOMY));
+        Stage prefStage = FxGet.kometPreferences().showPreferences(FxGet.manifold(ManifoldGroup.TAXONOMY));
         //ScenicView.show(prefStage.getScene());
     }
 

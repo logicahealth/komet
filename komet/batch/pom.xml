@@ -16,24 +16,29 @@
         A batch edit implementation for ISAAC's KOMET.
     </description>
     <dependencies>
-    <dependency>
-        <groupId>sh.isaac.core</groupId>
-        <artifactId>metadata</artifactId>
-        <version>${project.parent.version}</version>
-        <type>jar</type>
-    </dependency>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>metadata</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
 
-    <!-- ISAAC App Utils. -->
-    <dependency>
-        <groupId>sh.isaac.komet</groupId>
-        <artifactId>iconography</artifactId>
-        <version>${project.parent.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>sh.isaac.komet</groupId>
-        <artifactId>gui-contracts</artifactId>
-        <version>${project.parent.version}</version>
-    </dependency>
+        <!-- ISAAC App Utils. -->
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>iconography</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>gui-contracts</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>search-view</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

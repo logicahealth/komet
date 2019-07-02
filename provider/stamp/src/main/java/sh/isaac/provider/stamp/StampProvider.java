@@ -57,6 +57,7 @@ import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.DataToBytesUtils;
+import sh.isaac.provider.commit.CancelUncommittedStamps;
 import sh.isaac.provider.commit.TransactionImpl;
 
 import javax.annotation.PostConstruct;
@@ -85,7 +86,7 @@ import java.util.stream.IntStream;
 @Service(name = "Stamp Provider")
 @RunLevel(value = LookupService.SL_L2)
 public class StampProvider
-        implements StampService {
+        implements StampService, CancelUncommittedStamps {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
     /**
      * The Constant LOG.
@@ -792,13 +793,28 @@ public class StampProvider
                 getPathNidForStamp(stampSequence));
     }
 
+    boolean cancelUncommittedStamps = false;
+
+    @Override
+    public void setCancelUncommittedStamps(boolean cancelUncommittedStamps) {
+        this.cancelUncommittedStamps = cancelUncommittedStamps;
+    }
+
     @Override
     public int getStampSequence(Status status, long time, int authorNid, int moduleNid, int pathNid) {
-        if (time == Long.MAX_VALUE) {
-            throw new IllegalStateException("Uncommitted stamps must be accompanied by a transaction");
-        }
-        if (time == Long.MIN_VALUE) {
-            throw new IllegalStateException("Canceled stamps cannot be created directly. They must be created using a transaction");
+
+        if (cancelUncommittedStamps && time == Long.MAX_VALUE) {
+            time = Long.MIN_VALUE;
+            LOG.warn("Canceling uncommitted stamp: " + Get.conceptDescriptionText(authorNid) + " " +
+                    Get.conceptDescriptionText(moduleNid) + " " +
+                    Get.conceptDescriptionText(pathNid));
+        } else {
+            if (time == Long.MAX_VALUE) {
+                throw new IllegalStateException("Uncommitted stamps must be accompanied by a transaction");
+            }
+            if (time == Long.MIN_VALUE) {
+                throw new IllegalStateException("Canceled stamps cannot be created directly. They must be created using a transaction");
+            }
         }
         return getStampSequence(null, status, time, authorNid, moduleNid, pathNid);
     }

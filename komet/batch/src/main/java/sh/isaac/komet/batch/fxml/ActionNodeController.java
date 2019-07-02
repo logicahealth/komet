@@ -15,6 +15,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.komet.batch.ActionCell;
+import sh.isaac.komet.batch.action.Action;
 import sh.komet.gui.cell.list.ConceptCell;
 import sh.komet.gui.control.concept.ConceptSpecificationEditor;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
@@ -76,6 +77,10 @@ public class ActionNodeController {
 
     public ActionCell getActionCell() {
         return actionCell;
+    }
+
+    public Action getAction() {
+        throw new UnsupportedOperationException();
     }
 
     public void setManifold(Manifold manifold) {

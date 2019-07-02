@@ -24,7 +24,6 @@ import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.control.property.WindowProperties;
@@ -80,7 +79,7 @@ public class StatementView {
         stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
         stage.getProperties().put(WindowProperties.NAME_SUFFIX, " statement " +  Integer.toString(MenuProvider.WINDOW_SEQUENCE.incrementAndGet()));
         stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
-                        FxGet.getConfigurationName() +
+                        FxGet.configurationName() +
                         stage.getProperties().get(WindowProperties.NAME_SUFFIX));
         FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
         stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +

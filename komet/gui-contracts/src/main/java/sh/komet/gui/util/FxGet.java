@@ -153,7 +153,7 @@ public class FxGet implements StaticIsaacCache {
         FxGet.CONFIGURATION_NAME_PROPERTY.set(configurationName);
     }
     
-    public static String getConfigurationName() {
+    public static String configurationName() {
         return FxGet.CONFIGURATION_NAME_PROPERTY.get();
     }
 
@@ -329,7 +329,7 @@ public class FxGet implements StaticIsaacCache {
         NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(nodeSpecConcept.getNid(), TermAux.PROVIDER_CLASS_ASSEMBLAGE.getNid());
         for (int nid: semanticNids.asArray()) {
             SemanticChronology chronology = Get.assemblageService().getSemanticChronology(nid);
-            LatestVersion<StringVersion> optionalProviderClassStr = chronology.getLatestVersion(FxGet.getManifold(Manifold.ManifoldGroup.KOMET));
+            LatestVersion<StringVersion> optionalProviderClassStr = chronology.getLatestVersion(FxGet.manifold(Manifold.ManifoldGroup.KOMET));
             if (optionalProviderClassStr.isPresent()) {
                 StringVersion providerClassString = optionalProviderClassStr.get();
                 try {
@@ -342,7 +342,7 @@ public class FxGet implements StaticIsaacCache {
         return Optional.empty();
     }
 
-    public static Manifold getManifold(Manifold.ManifoldGroup manifoldGroup) {
+    public static Manifold manifold(Manifold.ManifoldGroup manifoldGroup) {
         if (MANIFOLDS.isEmpty()) {
             for (Manifold.ManifoldGroup mg : Manifold.ManifoldGroup.values()) {
                 MANIFOLDS.put(mg, Manifold.make(mg));
@@ -392,6 +392,9 @@ public class FxGet implements StaticIsaacCache {
             return componentList.nameProperty().getValue();
         }
 
+        public ComponentList getComponentList() {
+            return componentList;
+        }
         @Override
         public int compareTo(ComponentListKey o) {
             int nameCompare = getName().compareTo(o.getName());

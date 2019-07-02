@@ -66,6 +66,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitService;
+import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.metacontent.MetaContentService;
@@ -145,6 +146,9 @@ public class ChangeSetLoadProvider
 
         final CommitService commitService = Get.commitService();
 
+        final CancelUncommittedStamps stampProvider = (CancelUncommittedStamps) Get.stampService();
+        stampProvider.setCancelUncommittedStamps(true);
+
         ArrayList<String> files = new ArrayList();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(this.changesetPath, path -> path.toFile().isFile()
                 && path.toString().endsWith(".ibdf")
@@ -189,6 +193,8 @@ public class ChangeSetLoadProvider
             }
 
         }
+
+        stampProvider.setCancelUncommittedStamps(false);
         LOG.info(
                 "Finished Change Set Load Provider load.  Loaded {}, Skipped {} because they were previously processed",
                 loaded.get(),

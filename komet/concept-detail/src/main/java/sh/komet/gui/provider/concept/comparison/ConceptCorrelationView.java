@@ -76,7 +76,7 @@ public class ConceptCorrelationView {
         stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
         stage.getProperties().put(WindowProperties.NAME_SUFFIX, " correlation "  +  Integer.toString(MenuProvider.WINDOW_SEQUENCE.incrementAndGet()));
         stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
-                        FxGet.getConfigurationName() +
+                        FxGet.configurationName() +
                         stage.getProperties().get(WindowProperties.NAME_SUFFIX));
         FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
         stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +

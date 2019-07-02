@@ -35,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.contract.preferences.*;
 import sh.komet.gui.contract.preferences.WindowPreferenceItems;
@@ -109,7 +108,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
                         .toString());
 
                 this.preferencesStage = new Stage();
-                this.preferencesStage.setTitle(FxGet.getConfigurationName() + " preferences");
+                this.preferencesStage.setTitle(FxGet.configurationName() + " preferences");
                 FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
                     this.preferencesStage.setTitle(newValue + " preferences");
                 });

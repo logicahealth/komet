@@ -95,16 +95,16 @@ public class KometBaseMenus implements MenuProvider {
             case FILE: {
                 MenuItem selectiveImport = new MenuItem("Selective import and transform");
                 selectiveImport.setOnAction((ActionEvent event) -> {
-                    ImportView.show(FxGet.getManifold(Manifold.ManifoldGroup.TAXONOMY));
+                    ImportView.show(FxGet.manifold(Manifold.ManifoldGroup.TAXONOMY));
                 });
 
                 MenuItem selectiveExport = new MenuItem("Selective export");
-                selectiveExport.setOnAction(event -> ExportView.show(FxGet.getManifold(Manifold.ManifoldGroup.UNLINKED)));
+                selectiveExport.setOnAction(event -> ExportView.show(FxGet.manifold(Manifold.ManifoldGroup.UNLINKED)));
 
                 MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
 
                 importTransformFull.setOnAction((ActionEvent event) -> {
-                    ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.getManifold(Manifold.ManifoldGroup.TAXONOMY),
+                    ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.manifold(Manifold.ManifoldGroup.TAXONOMY),
                             ImportType.FULL);
                     Get.executor().submit(itcTask);
 
@@ -219,7 +219,7 @@ public class KometBaseMenus implements MenuProvider {
                 completeClassify.setOnAction((ActionEvent event) -> {
                     //TODO change how we get the edit coordinate. 
                     EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                    ClassifierService classifierService = Get.logicService().getClassifierService(FxGet.getManifold(Manifold.ManifoldGroup.SEARCH), editCoordinate);
+                    ClassifierService classifierService = Get.logicService().getClassifierService(FxGet.manifold(Manifold.ManifoldGroup.SEARCH), editCoordinate);
                     classifierService.classify();
                 });
 

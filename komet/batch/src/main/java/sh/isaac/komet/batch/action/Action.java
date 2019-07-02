@@ -8,6 +8,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.provider.commit.TransactionImpl;
 
 public class Action {
@@ -30,7 +31,7 @@ public class Action {
         throw new UnsupportedOperationException();
     }
 
-    public void apply(Chronology chronology, TransactionImpl transaction, StampCoordinate stampCoordinate, EditCoordinate editCoordinate) {
+    public void apply(Chronology chronology, Transaction transaction, StampCoordinate stampCoordinate, EditCoordinate editCoordinate) {
         LatestVersion<Version> latestVersion = chronology.getLatestVersion(stampCoordinate);
         if (latestVersion.isAbsent()) {
             throw new UnsupportedOperationException("Batch editing requires a latest version to update. None found for: " + chronology);
