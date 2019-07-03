@@ -402,7 +402,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
         builder.setPrimordialUuid(conceptUuid);
         for (int parentNid : parentConceptNids) {
-            builder.addComponentSemantic(UuidT5Generator.get(conceptUuid.toString() + parentNid + "1"), new ConceptProxy(parentNid), HDX_LEGACY_IS_A);
+            builder.addComponentSemantic(new ConceptProxy(parentNid), HDX_LEGACY_IS_A).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + parentNid + "1"));
         }
 
         addMaps(hoRec, builder);
@@ -417,21 +417,23 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
         });
 
+        //TODO Dan notes, these setPriomordial UUID calls are probably no longer needed, since the builder is now fixed... but maybe you do want to generate these UUIDs
+        //in a special way.
         if (!hoRec[DEPRECATED].isEmpty()) {
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[DEPRECATED] + "2"), hoRec[DEPRECATED], HDX_DEPRECATED);
+            builder.createAddStringSemantic(hoRec[DEPRECATED], HDX_DEPRECATED).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[DEPRECATED] + "2"));
         }
 
         if (!hoRec[REFID].isEmpty()) {
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "3"), hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.createAddStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "3"));
         }
         if (!hoRec[MAPPED_TO_ALLERGEN].isEmpty()) {
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[MAPPED_TO_ALLERGEN] + "4"), hoRec[MAPPED_TO_ALLERGEN], ALLERGEN_ASSEMBLAGE);
+            builder.createAddStringSemantic(hoRec[MAPPED_TO_ALLERGEN], ALLERGEN_ASSEMBLAGE).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[MAPPED_TO_ALLERGEN] + "4"));
         }
         if (!hoRec[IS_DIAGNOSIS].isEmpty()) {
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[IS_DIAGNOSIS] + "5"), hoRec[IS_DIAGNOSIS], IS_DIAGNOSIS_ASSEMBLAGE);
+            builder.createAddStringSemantic(hoRec[IS_DIAGNOSIS], IS_DIAGNOSIS_ASSEMBLAGE).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[IS_DIAGNOSIS] + "5"));
         }
         if (!hoRec[IS_CATEGORY].isEmpty()) {
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[IS_CATEGORY] + "6"), hoRec[IS_CATEGORY], IS_CATEGORY_ASSEMBLAGE);
+            builder.createAddStringSemantic(hoRec[IS_CATEGORY], IS_CATEGORY_ASSEMBLAGE).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[IS_CATEGORY] + "6"));
         }
         if (!hoRec[SNOMEDCT].isEmpty()) {
             if (!hoRec[MAPPED_TO_ALLERGEN].isEmpty() && Boolean.parseBoolean(hoRec[MAPPED_TO_ALLERGEN])) {
@@ -448,7 +450,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
                 if (Get.identifierService().hasUuid(snomedUuid)) {
                     int snomedNid = Get.nidForUuids(snomedUuid);
-                    builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[SNOMEDCT] + "7"), hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE);
+                    builder.createAddStringSemantic(hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[SNOMEDCT] + "7"));
                     // Add reverse semantic
                     addReverseSemantic(hoRec, conceptNid, snomedNid, legacyStamp);
 
@@ -560,7 +562,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "8"), hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.createAddStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "8"));
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
@@ -629,8 +631,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "9"), hoRec[REFID], REFID_ASSEMBLAGE);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + "TRUE" + "10"), "TRUE", HDX_REVIEW_REQUIRED);
+            builder.createAddStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "9"));
+            builder.createAddStringSemantic("TRUE", HDX_REVIEW_REQUIRED).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + "TRUE" + "10"));
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
@@ -719,7 +721,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "10"), hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.createAddStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "10"));
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
@@ -795,7 +797,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "11"), hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.createAddStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "11"));
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             addMaps(hoRec, builder);
             String[] abbreviations = hoRec[ABBREVIATIONS].split("; ");
@@ -809,7 +811,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             });
 
             if (hoRec[SNOMEDCT].isEmpty()) {
-                builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + "TRUE" + "12"), "TRUE", HDX_REVIEW_REQUIRED);
+                builder.createAddStringSemantic("TRUE", HDX_REVIEW_REQUIRED).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + "TRUE" + "12"));
             }
 
             int conceptNid = builder.getNid();
@@ -835,7 +837,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         if (this.importer.getHdxSolorConcepts().containsKey(hdxConceptHash)) {
             int conceptNid = this.importer.getHdxSolorConcepts().get(hdxConceptHash).getNid();
             addReverseSemantic(hoRec, refidToNid(hoRec[REFID]), conceptNid, legacyStamp);
-            //builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            //builder.createAddStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
             addItemsIfNew(hoRec, REFID, conceptNid, REFID_ASSEMBLAGE, stamp);
             addItemsIfNew(hoRec, ICD10CM, conceptNid, HDX_ICD10CM_MAP, stamp);
             addItemsIfNew(hoRec, ICD10PCS, conceptNid, HDX_ICD10PCS_MAP, stamp);
@@ -870,7 +872,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "13"), hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.createAddStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE).setPrimordialUuid(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "13"));
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
@@ -925,13 +927,13 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         if (!hoRec[index].isEmpty()) {
             String[] dataArray = hoRec[index].split("; ");
             for (String data : dataArray) {
-                builder.addStringSemantic(UuidT5Generator.get(hoRec[REFID] + data + "14"), data, assemblage);
+                builder.createAddStringSemantic( data, assemblage).setPrimordialUuid(UuidT5Generator.get(hoRec[REFID] + data + "14"));
             }
         }
     }
 
     private void addItemsIfNew(String[] hoRec, int index, int conceptNid, ConceptSpecification assemblage, int stamp) {
-        HashSet<String> existing = new HashSet();
+        HashSet<String> existing = new HashSet<>();
         Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, assemblage.getNid())
                 .forEach(semanticChronology -> {
                     for (Version v : semanticChronology.getVersionList()) {
@@ -954,7 +956,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         if (Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
             return;
         }
-        HashSet<String> existing = new HashSet();
+        HashSet<String> existing = new HashSet<>();
         Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(snomedNid, TermAux.ENGLISH_LANGUAGE.getNid())
                 .forEach(semanticChronology -> {
                     for (Version v : semanticChronology.getVersionList()) {

@@ -22,7 +22,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
+import java.util.Set;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.CheckBox;
@@ -447,21 +447,22 @@ public class StampSelectionController
 
 	public TimeStatusRestriction getTimeStatusRestriction()
 	{
-            EnumSet<Status> allowedStatuses;
-            switch(status.getSelectionModel().getSelectedItem()) {
-                case ACTIVE:
-                    allowedStatuses = Status.makeActiveOnlySet();
-                    break;
-                case ACTIVE_AND_INACTIVE:
-                    allowedStatuses = Status.makeAnyStateSet();
-                    break;
-                case INACTIVE:
-                    allowedStatuses = Status.INACTIVE_STATUS_SET;
-                    break;
-                default: 
-                    throw new UnsupportedOperationException(status.getSelectionModel().getSelectedItem());
-                
-            }
+		Set<Status> allowedStatuses;
+		switch (status.getSelectionModel().getSelectedItem())
+		{
+			case ACTIVE:
+				allowedStatuses = Status.makeActiveOnlySet();
+				break;
+			case ACTIVE_AND_INACTIVE:
+				allowedStatuses = Status.makeAnyStateSet();
+				break;
+			case INACTIVE:
+				allowedStatuses = Status.INACTIVE_STATUS_SET;
+				break;
+			default :
+				throw new UnsupportedOperationException(status.getSelectionModel().getSelectedItem());
+
+		}
 		return new TimeStatusRestriction(timeSelectStart.getSelectionModel().getSelectedIndex() == 0 ? null 
 				: timeStart.getDateTimeValue().atZone(ZoneOffset.systemDefault()).toInstant().toEpochMilli(), 
 				timeSelectEnd.getSelectionModel().getSelectedIndex() == 0 ? null 

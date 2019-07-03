@@ -72,6 +72,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
@@ -536,32 +537,58 @@ public class ConceptBuilderImpl
       return VersionType.CONCEPT;
    }
 
+   @Override
+   public IdentifiedComponentBuilder<? extends SemanticChronology> createAddComponentIntSemantic(ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
+      SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService()
+            .getComponentIntSemanticBuilder(component.getNid(), fieldIndex, this, assemblage.getNid());
+      addSemantic(builder);
+      return builder;
+   }
+
+   @Override
+   public ConceptBuilder addComponentIntSemantic(ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
+      createAddComponentIntSemantic(component, fieldIndex, assemblage);
+      return this;
+   }
+
+   @Override
+   public IdentifiedComponentBuilder<? extends SemanticChronology> createAddComponentSemantic(ConceptSpecification component, ConceptSpecification assemblage) {
+      SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService()
+               .getComponentSemanticBuilder(component.getNid(), this, assemblage.getNid());
+      addSemantic(builder);
+      return builder;
+   }
+   
+   @Override
+   public ConceptBuilder addComponentSemantic(ConceptSpecification component, ConceptSpecification assemblage) {
+      createAddComponentSemantic(component, assemblage);
+      return this;
+   }
+
     @Override
-    public ConceptBuilder addComponentIntSemantic(UUID semanticUuid, ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
-        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(component.getNid(), fieldIndex, this, assemblage.getNid()).setPrimordialUuid(semanticUuid));
+    public IdentifiedComponentBuilder<? extends SemanticChronology> createAddStringSemantic(String strValue, ConceptSpecification assemblage) {
+        SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService()
+                .getStringSemanticBuilder(strValue, this, assemblage.getNid());
+        addSemantic(builder);
+        return builder;
+     }
+    
+    @Override
+    public ConceptBuilder addStringSemantic(String strValue, ConceptSpecification assemblage) {
+        createAddStringSemantic(strValue, assemblage);
         return this;
+     }
+
+    @Override
+    public IdentifiedComponentBuilder<? extends SemanticChronology> createAddFieldSemanticConcept(String fieldName, int fieldIndex) {
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
 
     @Override
-    public ConceptBuilder addComponentSemantic(UUID semanticUuid, ConceptSpecification component, ConceptSpecification assemblage) {
-        addSemantic(Get.semanticBuilderService().getComponentSemanticBuilder(component.getNid(), this, assemblage.getNid()).setPrimordialUuid(semanticUuid));
-        return this;
-    }
-
-    @Override
-    public ConceptBuilder addStringSemantic(UUID semanticUuid, String strValue, ConceptSpecification assemblage) {
-        addSemantic(Get.semanticBuilderService().getStringSemanticBuilder(strValue, this, assemblage.getNid()).setPrimordialUuid(semanticUuid));
-        return this;
-    }
-
-    @Override
-    public ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, String fieldName, int fieldIndex) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, UUID conceptUuid, int fieldIndex) {
-        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(conceptUuid), fieldIndex, this, TermAux.SEMANTIC_TYPE.getNid()).setPrimordialUuid(semanticUuid));
-        return this;
-    }
+    public IdentifiedComponentBuilder<? extends SemanticChronology> createAddFieldSemanticConcept(UUID conceptUuid, int fieldIndex) {
+        SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService()
+                .getComponentIntSemanticBuilder(Get.nidForUuids(conceptUuid), fieldIndex, this, TermAux.SEMANTIC_TYPE.getNid());
+        addSemantic(builder);
+        return builder;
+     }
 }

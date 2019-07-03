@@ -230,6 +230,4 @@ public interface ConceptSnapshot
        }
        return LatestVersion.empty();
    }
-   
 }
-

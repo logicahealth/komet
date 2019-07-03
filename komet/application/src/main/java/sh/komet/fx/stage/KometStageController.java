@@ -36,14 +36,17 @@
  */
 package sh.komet.fx.stage;
 
+import static sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME;
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.prefs.BackingStoreException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
@@ -73,16 +76,13 @@ import javafx.scene.layout.Priority;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
+import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.komet.preferences.KometPreferencesController;
-import sh.isaac.komet.preferences.PreferenceGroup;
-import sh.isaac.komet.preferences.PreferencesTreeItem;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LoincDirectImporter;
@@ -92,7 +92,6 @@ import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.NodeFactory.PanelPlacement;
 import sh.komet.gui.contract.StatusMessageConsumer;
-import sh.isaac.komet.gui.exporter.ExportView;
 import sh.komet.gui.contract.preferences.WindowPreferenceItems;
 import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
@@ -105,10 +104,7 @@ import sh.komet.gui.search.extended.ExtendedSearchViewFactory;
 import sh.komet.gui.search.simple.SimpleSearchViewFactory;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.provider.concept.builder.ConceptBuilderNode;
 import sh.komet.progress.view.TaskProgressNodeFactory;
-
-import static sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME;
 
 //~--- classes ----------------------------------------------------------------
 /**

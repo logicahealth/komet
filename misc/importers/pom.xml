@@ -59,10 +59,12 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
+			<optional>true</optional> <!-- Don't bring in sub-dependencies -->
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
 			<artifactId>maven-plugin-annotations</artifactId>
+			<optional>true</optional> <!-- Don't bring in sub-dependencies -->
 		</dependency>
 		<dependency>
 			<groupId>org.testng</groupId>

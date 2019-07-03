@@ -601,7 +601,7 @@ public class CommitProvider
 
     }
     private void removeDuplicates(Optional<? extends Chronology> optionalExistingChronology, ChronologyImpl newChronology) {
-        HashSet<String> existingSamps = new HashSet();
+        HashSet<String> existingSamps = new HashSet<>();
         for (Version v : optionalExistingChronology.get().getVersionList()) {
             existingSamps.add(v.getSampKey());
         }
