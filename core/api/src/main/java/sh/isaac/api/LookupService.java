@@ -275,7 +275,7 @@ public class LookupService {
          
          //Make sure metadata is imported, if the user prefs said to import metadata.
          get().getService(MetadataService.class).importMetadata();
-         
+
          //Now, check and make sure every provider has the same DB ID
          UUID expected = get().getService(MetadataService.class).getDataStoreId().get();
          

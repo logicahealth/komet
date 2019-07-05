@@ -161,8 +161,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                         .addComponentIntSemantic(TermAux.CONCEPT_FIELD, 2, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
                         .addComponentIntSemantic(TermAux.STRING_FIELD, 3, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.IMAGE_SEMANTIC)
-                        .addComponentIntSemantic(TermAux.IMAGE_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
-                ;
+                        .addComponentIntSemantic(TermAux.IMAGE_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 popParent();
             createConcept(TermAux.SEMANTIC_FIELD_TYPE);
             pushParent(current());
@@ -203,7 +202,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.SOLOR_OVERLAY_MODULE).addDescription("SOLOR overlay", TermAux.REGULAR_NAME_DESCRIPTION_TYPE)
                      .addUuids(UUID.fromString("1f2016a6-960e-11e5-8994-feff819cdc9f"));
                   createConcept("Solor UMLS module");
-               
                   popParent();
 
                createConcept(TermAux.SCT_CORE_MODULE);
@@ -242,38 +240,38 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                masterPath.addUuids(UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66")); // UUID from WB_AUX_PATH
                popParent();
             createConcept("Sufficient concept definition operator");
-               pushParent(current());
+            pushParent(current());
                createConcept(TermAux.SUFFICIENT_CONCEPT_DEFINITION);
                createConcept(TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION);
                popParent();
-               
+
             createConcept(TermAux.STATEMENT_TYPE);
-                pushParent(current());
+            pushParent(current());
                 createConcept(TermAux.REQUEST_STATEMENT);
                 createConcept(TermAux.PERFORMANCE_STATEMENT);
                 popParent();
 
             createConcept("Priority").setPrimordialUuid(UUID.fromString("61c1f346-2103-3032-8066-2add812a5b74"));
-                pushParent(current());
+            pushParent(current());
                 createConcept("Routine").setPrimordialUuid(UUID.fromString("90581618-c1c5-3e6e-ab21-80b18ded492c"));
                 createConcept("Immediate").setPrimordialUuid(UUID.fromString("bffcefca-d520-3d4a-ac37-ce8376376136"));
                 popParent();
             
             createConcept(TermAux.SUBJECT_OF_INFORMATION);
-                pushParent(current());
+            pushParent(current());
                 createConcept(TermAux.SUBJECT_OF_RECORD);
                 createConcept(TermAux.MATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD);
-                    pushParent(current());
+                pushParent(current());
                     createConcept(TermAux.MOTHER_OF_SUBJECT_OF_RECORD);
                     popParent();
                 createConcept(TermAux.PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD);
-                    pushParent(current());
+                pushParent(current());
                     createConcept(TermAux.FATHER_OF_SUBJECT_OF_RECORD);
                     popParent();
                 popParent();
 
-                createConcept(TermAux.MODE);
-                pushParent(current());
+            createConcept(TermAux.MODE);
+            pushParent(current());
                 createConcept(TermAux.TEMPLATE);
                 createConcept(TermAux.INSTANCE);
                 popParent();
@@ -304,7 +302,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                popParent();
 
             createConcept("Assemblage membership type");
-               pushParent(current());
+            pushParent(current());
                createConcept("Normal member").setPrimordialUuid("bebbda5d-2fa4-5106-8f02-f2d4673fb1c9");
                createConcept("Marked parent").setPrimordialUuid("5b5adb62-6ced-5013-b849-cad9d1bd34f3");
                popParent();
@@ -439,8 +437,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Converted IBDF Artifact Classifier");
                popParent();
             createConcept(TermAux.LANGUAGE);
-            pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 
-            //confusing than necessary, also, making 2 parents, one of language, the other under assemblage.
+            pushParent(current());  
+            //A while ago, there were two different language trees in the metadata - the language assembly, and the language concept.  In practice, 
+            //this was nothing but confusing.  We retired the language assembly long ago, but has maintained the UUIDs of the language assembly children
+            //as extra UUIDs on each of these languages... but I believe those were also unecessary.  The most recent cleanup of this code removed those 
+            //old hardcoded UUIDs.  If it causes an issue, talk to Dan, we can restore (just) those UUIDs.
+            //Note, that each of these language concepts does still have two parents - one here, of LANGUAGE, and the other being DESCRIPTION_ASSEMBLAGE.
                createConcept(TermAux.ENGLISH_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
                        .addComponentSemantic(DESCRIPTION_SEMANTIC, SEMANTIC_TYPE)

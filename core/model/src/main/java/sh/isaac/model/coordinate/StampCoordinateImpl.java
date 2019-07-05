@@ -126,7 +126,7 @@ public class StampCoordinateImpl
     private void setStampCoordinateUuid(UUID uuid) {
         // noop for jaxb
     }
-    
+
     /**
      * Instantiates a new stamp coordinate impl.
      *
