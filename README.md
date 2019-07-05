@@ -129,6 +129,7 @@ to build this code.
 
 ## Performing a release
 Make sure that offline is set to false in your settings.xml file. 
+
 ```
 $ mvn gitflow:release-start gitflow:release-finish\
          -DreleaseVersion=4.64 -DdevelopmentVersion=4.65-SNAPSHOT\
