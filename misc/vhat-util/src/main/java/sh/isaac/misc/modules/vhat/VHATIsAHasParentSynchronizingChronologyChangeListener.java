@@ -126,41 +126,17 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
     * Set of nids of component versions created by VHATIsAHasParentSynchronizingChronologyChangeListener which should NOT be processed by
     * VHATIsAHasParentSynchronizingChronologyChangeListener, in order to avoid infinite recursion
     */
-   private final Set<Integer> nidsOfGeneratedSemanticsToIgnore = new ConcurrentSkipListSet<>();
+   private final ConcurrentLinkedQueue<Integer> nidsOfGeneratedSemanticsToIgnore = new ConcurrentLinkedQueue<>();
    private final UUID providerUuid = UUID.randomUUID();
 
-   private final ConcurrentSkipListSet<Integer> semanticNidsForUnhandledLogicGraphChanges = new ConcurrentSkipListSet<>();
-   private final ConcurrentSkipListSet<Integer> semanticNidsForUnhandledHasParentAssociationChanges = new ConcurrentSkipListSet<>();
+   private final ConcurrentLinkedQueue<Integer> semanticNidsForUnhandledLogicGraphChanges = new ConcurrentLinkedQueue<>();
+   private final ConcurrentLinkedQueue<Integer> semanticNidsForUnhandledHasParentAssociationChanges = new ConcurrentLinkedQueue<>();
 
    private ConcurrentLinkedQueue<Future<?>> inProgressJobs = new ConcurrentLinkedQueue<>();
    private ScheduledFuture<?> sf;
 
    private VHATIsAHasParentSynchronizingChronologyChangeListener() {
       //For HK2 to construct
-   }
-
-   /**
-    * Allow clients to exempt and unexempt specified components from handling by the listener, presumably because the client is creating all necessary component
-    * changes itself
-    * 
-    * @param nids
-    */
-   public void addNidsOfGeneratedSemanticsToIgnore(int... nids) {
-      for (int nid : nids) {
-         nidsOfGeneratedSemanticsToIgnore.add(nid);
-      }
-   }
-
-   /**
-    * Allow clients to exempt and unexempt specified components from handling by the listener, presumably because the client is creating all necessary component
-    * changes itself
-    * 
-    * @param nids
-    */
-   public void removeNidsOfGeneratedSemanticsToIgnore(int... nids) {
-      for (int nid : nids) {
-         nidsOfGeneratedSemanticsToIgnore.remove(nid);
-      }
    }
 
    /*
