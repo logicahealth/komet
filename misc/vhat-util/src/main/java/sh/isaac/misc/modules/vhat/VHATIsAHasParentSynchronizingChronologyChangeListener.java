@@ -321,6 +321,17 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       LOG.debug("HandleCommit looking for - " + semanticNidsForUnhandledLogicGraphChanges.size() + " logic graphs: " + semanticNidsForUnhandledLogicGraphChanges + " and "
             + semanticNidsForUnhandledHasParentAssociationChanges.size() + " associations: " + semanticNidsForUnhandledHasParentAssociationChanges + " the commit contains "
             + commitRecord.getSemanticNidsInCommit());
+      
+      //Cleanup previously submitted jobs, to prevent a leak
+      Iterator<Future<?>> it = inProgressJobs.iterator();
+      while (it.hasNext())
+      {
+          if (it.next().isDone())
+          {
+             it.remove();
+          }
+      }
+      
       for (int logicGraphNid : semanticNidsForUnhandledLogicGraphChanges.toArray(new Integer[semanticNidsForUnhandledLogicGraphChanges.size()])) {
          if (!commitRecord.getSemanticNidsInCommit().contains(logicGraphNid)) {
             LOG.trace("HandleCommit NOT handling logic graph " + logicGraphNid + " which is not contained in the commit record list: "
@@ -414,7 +425,9 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                // Our logic depends on the retirements above, being done...
                if (f.get() != null) {
                   try {
-                     f.get().get();
+                     Future<?> future = f.get();
+                     future.get();  //Wait for it to finish
+                     inProgressJobs.remove(future);
                   } catch (Exception e) {
                      LOG.error("error in required prior thread", e);
                      return;
