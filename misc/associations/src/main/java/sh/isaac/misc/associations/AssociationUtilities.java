@@ -109,7 +109,13 @@ public class AssociationUtilities
    {
       ArrayList<AssociationInstance> results = new ArrayList<>();
       StampCoordinate localStamp = stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp;
-      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, getAssociationConceptNids())
+      
+      Set<Integer> associationTypes = getAssociationConceptNids();
+      if (associationTypes.size() == 0) 
+      {
+          return results;
+      }
+      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, associationTypes)
          .forEach(associationC -> 
             {
                LatestVersion<Version> latest = associationC.getLatestVersion(localStamp);
