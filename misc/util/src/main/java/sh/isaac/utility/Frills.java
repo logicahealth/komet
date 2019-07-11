@@ -1788,7 +1788,7 @@ public class Frills
 
          return Optional.of(semanticChronology);
       } else {
-         LOG.warn("NO {} logic graph chronology for {}", (stated ? "stated"
+         LOG.debug("NO {} logic graph chronology for {}", (stated ? "stated"
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
          return Optional.empty();
       }
@@ -1823,7 +1823,7 @@ public class Frills
 
          return Optional.of(semanticChronology);
       } else {
-         LOG.warn("NO {} logic graph chronology for {}", (stated ? "stated" : "inferred"), 
+         LOG.debug("NO {} logic graph chronology for {}", (stated ? "stated" : "inferred"), 
                Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
          return Optional.empty();
       }
@@ -1849,7 +1849,7 @@ public class Frills
          LOG.debug("Got logic graph semantic for {}",
              Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
       } else {
-         LOG.warn("NO logic graph semantic for {}",
+         LOG.debug("NO logic graph semantic for {}",
              Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
       }
 
