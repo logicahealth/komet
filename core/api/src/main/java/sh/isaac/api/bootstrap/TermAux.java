@@ -516,15 +516,16 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy PROVIDER_CLASS_ASSEMBLAGE = new ConceptProxy("Provider class assemblage", "Provider classs", UUID.fromString("8551edb2-6e34-52fe-9113-d25b742b303a"));
     public static ConceptProxy ANY_ASSEMBLAGE = new ConceptProxy("Any assemblage", "Any assemblage", UUID.fromString("6b8b1f01-9da2-585e-828c-eb1c7b93d250"));
 
+    public static ConceptProxy CONCEPT_HAS_TAXONOMY_DISTANCE_FROM = new ConceptProxy("Concept has taxonomy distance from", "Within taxonomy distance", UUID.fromString("9533dce4-efde-51a3-94f8-a4fb06b9d08c"));
+    public static ConceptProxy INTEGER_REFERENCE = new ConceptProxy("Integer reference", "Integer reference", UUID.fromString("11d47ca2-4207-5aaa-a068-196038aeee4c"));
+    public static ConceptProxy BOOLEAN_REFERENCE = new ConceptProxy("Boolean reference", "Boolean reference", UUID.fromString("de49d207-a26e-5f8a-b905-953a4dd13c21"));
+
     /*
-    public static ConceptProxy SPEC93 = new ConceptProxy("", "", UUID.fromString("9533dce4-efde-51a3-94f8-a4fb06b9d08c"));
-    public static ConceptProxy SPEC94 = new ConceptProxy("", "", UUID.fromString("11d47ca2-4207-5aaa-a068-196038aeee4c"));
-    public static ConceptProxy SPEC95 = new ConceptProxy("", "", UUID.fromString("de49d207-a26e-5f8a-b905-953a4dd13c21"));
     public static ConceptProxy SPEC96 = new ConceptProxy("", "", UUID.fromString("6b8fa23c-358e-5335-ac17-9239ea821842"));
     public static ConceptProxy SPEC97 = new ConceptProxy("", "", UUID.fromString("1123d55e-75f6-502f-80a1-d9f0fe86eb7a"));
     public static ConceptProxy SPEC98 = new ConceptProxy("", "", UUID.fromString("2e2c07eb-ecdb-5e90-812d-488b1c743272"));
     public static ConceptProxy SPEC99 = new ConceptProxy("", "", UUID.fromString("3d2c2f1f-a14f-5004-9467-7dd347e1d61a"));
-*/
+    */
    // J+
 
    // ~--- methods -------------------------------------------------------------

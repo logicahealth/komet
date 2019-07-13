@@ -41,8 +41,12 @@ package sh.isaac.api.tree;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Arrays;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
+
+import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -165,6 +169,10 @@ public interface Tree {
     * @return true if the childNid is a descendent of the parentNid by any route. 
     */
    boolean isChildOf(int childNid, int parentNid);
+
+   int[] getLowestCommonAncestor(int nid1, int nid2);
+
+   float getTaxonomyDistance(int nid1, int nid2, boolean directed);
 
    /**
     * 

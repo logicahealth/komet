@@ -16,17 +16,14 @@
  */
 package sh.komet.gui.search.flwor;
 
+import javafx.beans.property.*;
 import sh.isaac.api.query.JoinProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleBooleanProperty;
 import sh.isaac.api.query.LetItemKey;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
@@ -40,17 +37,13 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.query.clauses.ChangedBetweenVersions;
-import sh.isaac.api.query.properties.AssemblageForIterationClause;
+import sh.isaac.api.query.properties.*;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.Join;
 import sh.isaac.api.query.JoinSpecification;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
-import sh.isaac.api.query.properties.ConceptClause;
-import sh.isaac.api.query.properties.ManifoldClause;
-import sh.isaac.api.query.properties.QueryStringClause;
-import sh.isaac.api.query.properties.ReferencedComponentClause;
-import sh.isaac.api.query.properties.StampCoordinateClause;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
+import sh.komet.gui.control.PropertySheetItemIntegerWrapper;
 import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
@@ -222,6 +215,13 @@ public class QueryClause {
                 setupAssemblageForIteration("for each");
                 return setupStampCoordinateClause("stamp key");
 
+            case CONCEPT_HAS_TAXONOMY_DISTANCE_FROM:
+                setupAssemblageForIteration("for each");
+                setupManifoldClause("manifold");
+                setupTaxonomyDistanceClause("taxonomy distance");
+                setupDirectedTaxonomyClause("undirected");
+                return setupConceptClause("distance from");
+
             default:
                 throw new UnsupportedOperationException("Can't handle: " + this.clauseProperty.get().getClauseSemantic());
         }
@@ -347,6 +347,47 @@ public class QueryClause {
         });
         return clausePropertySheet;
     }
+
+    protected PropertySheet setupDirectedTaxonomyClause(String keyName) {
+        UndirectedTaxonomyClause undirectedTaxonomyClause = (UndirectedTaxonomyClause) clauseProperty.get();
+        SimpleObjectProperty<LetItemKey> undirectedTaxonomyKeyProperty = new SimpleObjectProperty<>(this, TermAux.BOOLEAN_REFERENCE.toExternalString());
+
+        LetItemKey undirectedTaxonomyKey = undirectedTaxonomyClause.getUndirectedTaxonomyKey();
+        if (undirectedTaxonomyKey == null) {
+            undirectedTaxonomyKey = new LetItemKey(keyName);
+            undirectedTaxonomyKeyProperty.set(undirectedTaxonomyKey);
+            letPropertySheet.getLetItemObjectMap().put(undirectedTaxonomyKey, Boolean.TRUE);
+        }
+
+        this.clauseSpecificProperties.add(undirectedTaxonomyKeyProperty);
+        SimpleBooleanProperty booleanProperty = new SimpleBooleanProperty(this, MetaData.BOOLEAN_FIELD____SOLOR.toExternalString());
+        booleanProperty.set((Boolean) letPropertySheet.getLetItemObjectMap().get(undirectedTaxonomyKey));
+        this.clauseSpecificProperties.add(booleanProperty);
+        this.clausePropertySheet.getItems().add(new PropertySheetBooleanWrapper(this.manifold, booleanProperty));
+        return clausePropertySheet;
+    }
+
+
+    protected PropertySheet setupTaxonomyDistanceClause(String keyName) {
+        TaxonomyDistanceClause taxonomyDistanceClause = (TaxonomyDistanceClause) clauseProperty.get();
+        SimpleObjectProperty<LetItemKey> taxonomyDistanceKeyProperty = new SimpleObjectProperty<>(this, TermAux.INTEGER_REFERENCE.toExternalString());
+
+        LetItemKey taxonomyDistanceKey = taxonomyDistanceClause.getTaxonomyDistanceKey();
+        if (taxonomyDistanceKey == null) {
+            taxonomyDistanceKey = new LetItemKey(keyName);
+            taxonomyDistanceClause.setTaxonomyDistanceKey(taxonomyDistanceKey);
+            letPropertySheet.getLetItemObjectMap().put(taxonomyDistanceKey, 2);
+        }
+
+
+        this.clauseSpecificProperties.add(taxonomyDistanceKeyProperty);
+        SimpleIntegerProperty integerProperty = new SimpleIntegerProperty(this, MetaData.INTEGER_FIELD____SOLOR.toExternalString());
+        this.clauseSpecificProperties.add(integerProperty);
+        integerProperty.set((Integer) letPropertySheet.getLetItemObjectMap().get(taxonomyDistanceKey));
+        this.clausePropertySheet.getItems().add(new PropertySheetItemIntegerWrapper(this.manifold, integerProperty));
+        return clausePropertySheet;
+    }
+
     protected PropertySheet setupConceptClause(String keyName) {
         SimpleObjectProperty<LetItemKey> conceptSpecificationKeyProperty = new SimpleObjectProperty<>(this, MetaData.CONCEPT_REFERENCE____SOLOR.toExternalString());
         this.clauseSpecificProperties.add(conceptSpecificationKeyProperty);
@@ -409,7 +450,7 @@ public class QueryClause {
             letPropertySheet.getLetItemObjectMap().put(referencedComponentKey, TermAux.UNINITIALIZED_COMPONENT_ID);
         }
 
-        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("key",
+        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper(keyName + " key",
                 conceptSpecificationKeyProperty, this.letPropertySheet.getConceptSpecificationKeys()));
 
         conceptSpecificationKeyProperty.addListener((observable, oldValue, newValue) -> {

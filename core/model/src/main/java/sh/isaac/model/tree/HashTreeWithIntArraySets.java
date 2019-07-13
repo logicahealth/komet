@@ -38,13 +38,14 @@
 
 
 package sh.isaac.model.tree;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.OptionalInt;
-import java.util.Queue;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+
+import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
@@ -60,6 +61,8 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
+import sh.isaac.api.util.time.DateTimeUtil;
+import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.collections.IntObjectMap;
 import sh.isaac.model.collections.MergeIntArray;
@@ -507,6 +510,166 @@ public class HashTreeWithIntArraySets
       return new int[0];
    }
 
+
+   /**
+    *
+    * @param nid
+    * @return an array where the root of the tree is the first element, then each child on a path to the
+    * nid.
+    */
+   List<int[]> getAncestorNidArrays(int nid) {
+      ArrayList<IntArrayList> seedList = new ArrayList<IntArrayList>();
+      IntArrayList firstList = new IntArrayList();
+      firstList.add(nid);
+      seedList.add(firstList);
+
+      getAncestorNidArrays(nid, firstList, seedList);
+
+      List<int[]> results = new ArrayList<>(seedList.size());
+      for (int i = 0; i < seedList.size(); i++) {
+         IntArrayList pathToRoot = seedList.get(i);
+         pathToRoot.trimToSize();
+         pathToRoot.reverse();
+         results.add(pathToRoot.elements());
+      }
+
+      return results;
+   }
+
+   private List<IntArrayList> getAncestorNidArrays(int nid, IntArrayList currentList, ArrayList<IntArrayList> ancestorListList) {
+      int[] parents = getParentNidsNoFilter(nid);
+
+      for (int i = parents.length - 1; i >= 0; i--) {
+         if (i == 0) {
+            currentList.add(parents[i]);
+            getAncestorNidArrays(parents[i], currentList, ancestorListList);
+         } else {
+            IntArrayList newList = currentList.copy();
+            ancestorListList.add(newList);
+            newList.add(parents[i]);
+            getAncestorNidArrays(parents[i], newList, ancestorListList);
+         }
+      }
+      return ancestorListList;
+   }
+
+   @Override
+   public float getTaxonomyDistance(int nid1, int nid2, boolean directed) {
+      boolean debugDistance = false;
+      Instant startInstant = Instant.now();
+      float distance = descendentDepth(nid1, nid2);
+      if (!Float.isNaN(distance)) {
+         if (debugDistance) System.out.println("Distance time 1: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
+         return distance;
+      }
+      distance = descendentDepth(nid2, nid1);
+      if (!Float.isNaN(distance)) {
+         if (debugDistance) System.out.println("Distance time 2: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
+         return distance;
+      }
+      if (directed) {
+         if (debugDistance) System.out.println("Distance time 3: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
+         return Float.NaN;
+      }
+      List<int[]>  nid1AncestorNidArrays = getAncestorNidArrays(nid1);
+
+      if (debugDistance) for (int i = 0; i < nid1AncestorNidArrays.size(); i++) {
+         int[] path = nid1AncestorNidArrays.get(i);
+         StringBuilder buff = new StringBuilder();
+         buff.append("nid1 path: ").append(i).append(" ");
+         for (int item: path) {
+            buff.append(item).append(" ");
+         }
+         System.out.println(buff);
+
+      }
+      List<int[]>  nid2AncestorNidArrays = getAncestorNidArrays(nid2);
+      if (debugDistance) for (int i = 0; i < nid2AncestorNidArrays.size(); i++) {
+         int[] path = nid2AncestorNidArrays.get(i);
+         StringBuilder buff = new StringBuilder();
+         buff.append("nid2 path: ").append(i).append(" ");
+         for (int item: path) {
+            buff.append(item).append(" ");
+         }
+         System.out.println(buff);
+
+      }
+
+      int ancestorIndex = -1;
+
+      int level = findLevel(nid1AncestorNidArrays, nid2AncestorNidArrays, ancestorIndex);
+      if (debugDistance) System.out.println("Level: " + level);
+
+      int nid2ToLowestCommonAncestorDistance = Integer.MAX_VALUE;
+      OpenIntHashSet lowestCommonAncestors = new OpenIntHashSet();
+      for (int[] pathToRoot: nid2AncestorNidArrays) {
+         lowestCommonAncestors.add(pathToRoot[level]);
+         nid2ToLowestCommonAncestorDistance = Math.min(nid2ToLowestCommonAncestorDistance, pathToRoot.length - level);
+      }
+      if (debugDistance) System.out.println("nid2ToLowestCommonAncestorDistance: " + nid2ToLowestCommonAncestorDistance);
+
+      int nid1ToLowestCommonAncestorDistance = Integer.MAX_VALUE;
+
+      for (int[] pathToRoot: nid1AncestorNidArrays) {
+         if (lowestCommonAncestors.contains(pathToRoot[level])) {
+            nid1ToLowestCommonAncestorDistance = Math.min(nid1ToLowestCommonAncestorDistance, pathToRoot.length - level);
+         }
+      }
+      if (debugDistance) System.out.println("nid1ToLowestCommonAncestorDistance: " + nid1ToLowestCommonAncestorDistance);
+      if (debugDistance) System.out.println("Distance time 4: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
+      return nid2ToLowestCommonAncestorDistance + nid1ToLowestCommonAncestorDistance;
+   }
+
+   @Override
+   public int[] getLowestCommonAncestor(int nid1, int nid2) {
+      if (isDescendentOf(nid1, nid2)) {
+         return new int[] { nid2 };
+      }
+      if (isDescendentOf(nid2, nid1)) {
+         return new int[] { nid1 };
+      }
+
+      List<int[]>  nid1AncestorNidArrays = getAncestorNidArrays(nid1);
+      List<int[]>  nid2AncestorNidArrays = getAncestorNidArrays(nid2);
+
+      int ancestorIndex = -1;
+
+      int level = findLevel(nid1AncestorNidArrays, nid2AncestorNidArrays, ancestorIndex);
+
+      OpenIntHashSet lowestCommonAncestors = new OpenIntHashSet();
+      for (int[] ancestors: nid2AncestorNidArrays) {
+         lowestCommonAncestors.add(ancestors[level]);
+      }
+      return lowestCommonAncestors.keys().elements();
+   }
+
+   private int findLevel(List<int[]> nid1AncestorNidArrays, List<int[]> nid2AncestorNidArrays, int ancestorIndex) {
+      int newIndex = ancestorIndex + 1;
+      OpenIntHashSet possibleParents = new OpenIntHashSet();
+      for (int[] ancestors: nid1AncestorNidArrays) {
+         if (newIndex < ancestors.length) {
+            possibleParents.add(ancestors[newIndex]);
+         }
+      }
+
+      List<int[]>  newNid2AncestorNidArrays = new ArrayList<>(nid2AncestorNidArrays.size());
+      for (int[] ancestors: nid2AncestorNidArrays) {
+         if (newIndex < ancestors.length &&
+                 possibleParents.contains(ancestors[newIndex])) {
+            newNid2AncestorNidArrays.add(ancestors);
+         } else {
+            // discard
+         }
+      }
+
+      if (newNid2AncestorNidArrays.size() > 0) {
+         nid2AncestorNidArrays.clear();
+         nid2AncestorNidArrays.addAll(newNid2AncestorNidArrays);
+         return findLevel(nid1AncestorNidArrays, nid2AncestorNidArrays, newIndex);
+      }
+      return ancestorIndex;
+   }
+
    /**
     * {@inheritDoc}
     */
@@ -550,7 +713,32 @@ public class HashTreeWithIntArraySets
 
       return false;
    }
-   
+
+   private float descendentDepth(int childNid, int parentNid) {
+      return descendentDepth(childNid, parentNid, 1, new NidSet());
+   }
+
+   private float descendentDepth(int childNid, int parentNid, int depth, NidSet visitedNids) {
+      if (visitedNids.contains(childNid)) {
+         return Float.NaN;
+      }
+      visitedNids.add(childNid);
+      int[] parentNids = getParentNidsNoFilter(childNid);
+
+      if (Arrays.binarySearch(parentNids, parentNid) >= 0) {
+         return depth;
+      }
+
+      for (int nidToTest: parentNids) {
+         float newDepth = descendentDepth(nidToTest, parentNid, depth + 1, visitedNids);
+         if (newDepth != Float.NaN) {
+            return newDepth;
+         }
+      }
+
+      return Float.NaN;
+   }
+
    /**
     * @param childNid
     * @param parentNid
@@ -561,9 +749,8 @@ public class HashTreeWithIntArraySets
       if (visitedNids.contains(childNid)) {
          return false;
       }
-      else {
-        visitedNids.add(childNid);
-      }
+      visitedNids.add(childNid);
+
 
       int[] parentNids = getParentNidsNoFilter(childNid);
 

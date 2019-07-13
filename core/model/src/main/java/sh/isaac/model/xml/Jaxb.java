@@ -38,23 +38,7 @@ import sh.isaac.api.query.Not;
 import sh.isaac.api.query.Or;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.Xor;
-import sh.isaac.api.query.clauses.ChangedBetweenVersions;
-import sh.isaac.api.query.clauses.ComponentIsActive;
-import sh.isaac.api.query.clauses.ConceptIs;
-import sh.isaac.api.query.clauses.ConceptIsChildOf;
-import sh.isaac.api.query.clauses.ConceptIsDescendentOf;
-import sh.isaac.api.query.clauses.ConceptIsKindOf;
-import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
-import sh.isaac.api.query.clauses.DescriptionRegexMatch;
-import sh.isaac.api.query.clauses.ReferencedComponentIs;
-import sh.isaac.api.query.clauses.ReferencedComponentIsActive;
-import sh.isaac.api.query.clauses.ReferencedComponentIsKindOf;
-import sh.isaac.api.query.clauses.ReferencedComponentIsMemberOf;
-import sh.isaac.api.query.clauses.ReferencedComponentIsNotActive;
-import sh.isaac.api.query.clauses.ReferencedComponentIsNotKindOf;
-import sh.isaac.api.query.clauses.ReferencedComponentIsNotMemberOf;
-import sh.isaac.api.query.clauses.RelRestriction;
-import sh.isaac.api.query.clauses.SemanticContainsString;
+import sh.isaac.api.query.clauses.*;
 import sh.isaac.api.xml.JaxbMap;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.coordinate.LogicCoordinateImpl;
@@ -108,6 +92,7 @@ public class Jaxb {
                     StampPrecedence.class,
                     Status.class,
                     StatusEnumSetAdaptor.class,
+                    TaxonomyRelatedConcepts.class,
                     Xor.class 
             );
         } catch (JAXBException ex) {

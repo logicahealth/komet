@@ -1041,6 +1041,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
                createConcept(LOGIC_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
                createConcept(PREMISE_TYPE_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.CONCEPT_HAS_TAXONOMY_DISTANCE_FROM).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.INTEGER_REFERENCE).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.BOOLEAN_REFERENCE).setModule(TermAux.KOMET_MODULE);
                popParent();
             createConcept("Query clause parameters");
             pushParent(current());

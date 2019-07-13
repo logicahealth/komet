@@ -15,31 +15,34 @@
  */
 package sh.komet.fx.stage;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
-import javax.inject.Singleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.tree.Tree;
+import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LogicGraphTransformerAndWriter;
 import sh.isaac.solor.direct.TransformationGroup;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
+
+import javax.inject.Singleton;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
 
 /**
  *
@@ -48,6 +51,7 @@ import sh.komet.gui.contract.MenuProvider;
 @Service
 @Singleton
 public class DeveloperMenus implements MenuProvider {
+    private static final Logger LOG = LogManager.getLogger();
 
     @Override
     public EnumSet<AppMenu> getParentMenus() {
@@ -97,11 +101,15 @@ public class DeveloperMenus implements MenuProvider {
             MenuItem debugCprConversion = new MenuItem("Debug CPR conversion");
             debugCprConversion.setOnAction(this::debugCprConversion);
 
+            MenuItem testTaxonomyDistance = new MenuItem("Test taxonomy distance");
+            testTaxonomyDistance.setOnAction(this::testTaxonomyDistance);
+
+
             return new MenuItem[]{debugConversion, debugEarFindingConversion, debugIsoniazidConversion,
             debugLamivudineConversion, debugConnectiveTissueConversion, debugAdductorMuscleConversion,
             debugPrematureConversion, debugSepsisConversion, debugDizzinessConversion,
             debugNonallopathicConversion, debugNephronophthisisConversion, debugTenosynovitisConversion, 
-            debugCprConversion};
+            debugCprConversion, testTaxonomyDistance};
         }
         return new MenuItem[]{};
     }
@@ -111,7 +119,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Structure of respiratory region of nose (body structure)", UUID.fromString("aebff175-243b-38b3-9b02-5910f7388d0d"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -120,7 +128,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Ear and auditory finding (finding)", UUID.fromString("703b38f0-8f1d-3832-8e6d-b27322e3b9c2"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -130,7 +138,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Product containing isoniazid and rifampicin (medicinal product)", UUID.fromString("7c342128-1eb4-329f-91f7-ad917e16847c"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -140,7 +148,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Product containing lamivudine and zidovudine (medicinal product)", UUID.fromString("4f1120bf-ff56-3396-8689-bfe71e6f90d3"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -150,7 +158,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Disorder of connective tissue (disorder)", UUID.fromString("47641f4c-7d62-398a-a2dd-8ced54edea08"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -160,7 +168,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Structure of adductor muscle of lower limb (body structure)", UUID.fromString("18d3fc15-8a84-315f-8a88-a1a2af7b7ab5"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -169,7 +177,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Premature labor (finding)", UUID.fromString("23763987-fe6a-3afb-8c1e-56f48d426c68"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -178,7 +186,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Sepsis (disorder)", UUID.fromString("052b5b5e-46c6-3fab-aa24-bd8d6bd7f9cd"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -187,7 +195,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Dizziness (finding)", UUID.fromString("075bd2cc-1a6e-3e89-9eb9-08e383c1665a"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -196,7 +204,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Nonallopathic lesion (finding)", UUID.fromString("10daed5a-d009-3dcb-9fb2-86ab63ec19f3"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -205,7 +213,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Nephronophthisis - medullary cystic disease (disorder)", UUID.fromString("842add9a-148e-317b-a6f3-ac66ecfae611"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -214,7 +222,7 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Tenosynovitis (disorder)", UUID.fromString("51c3117f-245b-3fab-a704-4687d6b55de4"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -223,8 +231,29 @@ public class DeveloperMenus implements MenuProvider {
             ConceptProxy debugProxy = new ConceptProxy("Cardiopulmonary resuscitation (procedure)", UUID.fromString("61e1cc85-7e14-3935-8af2-a8523c0dfe5d"));
             processRecords(debugProxy);
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(DeveloperMenus.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         }
+    }
+
+    private void testTaxonomyDistance(ActionEvent event) {
+
+        Instant startInstant = Instant.now();
+
+        ConceptProxy concept1 = new ConceptProxy("Renal anasarca (disorder)", UUID.fromString("fb334dc1-c6fd-3136-9f56-0b1dfeb417c2"));
+        ConceptProxy concept2 = new ConceptProxy("Hearing loss of bilateral ears caused by noise (disorder)", UUID.fromString("749ad125-b01a-3973-afbb-04bb9d599e98"));
+
+        TaxonomySnapshot snapshot = Get.taxonomyService().getSnapshot(FxGet.manifold(Manifold.ManifoldGroup.TAXONOMY));
+
+        Tree snapshotTree = snapshot.getTaxonomyTree();
+
+        LOG.info("Distance setup time: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
+        startInstant = Instant.now();
+        Float distanceDirected = snapshotTree.getTaxonomyDistance(concept1.getNid(), concept2.getNid(), true);
+        LOG.info("Directed distance: " + distanceDirected + " in " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
+        startInstant = Instant.now();
+
+        Float distanceUndirected = snapshotTree.getTaxonomyDistance(concept1.getNid(), concept2.getNid(), false);
+        LOG.info("Undirected distance: " + distanceUndirected + " in " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
     }
 
     protected void processRecords(ConceptProxy debugProxy) throws InterruptedException, ExecutionException, NoSuchElementException {
