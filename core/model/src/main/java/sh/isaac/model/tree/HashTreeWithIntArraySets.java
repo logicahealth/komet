@@ -529,7 +529,6 @@ public class HashTreeWithIntArraySets
       for (int i = 0; i < seedList.size(); i++) {
          IntArrayList pathToRoot = seedList.get(i);
          pathToRoot.trimToSize();
-         pathToRoot.reverse();
          results.add(pathToRoot.elements());
       }
 
@@ -557,21 +556,29 @@ public class HashTreeWithIntArraySets
    public float getTaxonomyDistance(int nid1, int nid2, boolean directed) {
       boolean debugDistance = false;
       Instant startInstant = Instant.now();
-      float distance = descendentDepth(nid1, nid2);
-      if (!Float.isNaN(distance)) {
+      float taxonomyDistance = descendentDepth(nid1, nid2);
+      if (!Float.isNaN(taxonomyDistance)) {
          if (debugDistance) System.out.println("Distance time 1: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
-         return distance;
+         return taxonomyDistance;
       }
-      distance = descendentDepth(nid2, nid1);
-      if (!Float.isNaN(distance)) {
+      taxonomyDistance = descendentDepth(nid2, nid1);
+      if (!Float.isNaN(taxonomyDistance)) {
          if (debugDistance) System.out.println("Distance time 2: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
-         return distance;
+         return taxonomyDistance;
       }
       if (directed) {
          if (debugDistance) System.out.println("Distance time 3: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
          return Float.NaN;
       }
-      List<int[]>  nid1AncestorNidArrays = getAncestorNidArrays(nid1);
+
+      return getMinimalCommonAncestorSolutions(nid1, nid2).get(0).taxonomyDistance;
+
+   }
+
+   private List<Solution> getMinimalCommonAncestorSolutions(int nid1, int nid2) {
+      Instant startInstant = Instant.now();
+      boolean debugDistance = false;
+      List<int[]> nid1AncestorNidArrays = getAncestorNidArrays(nid1);
 
       if (debugDistance) for (int i = 0; i < nid1AncestorNidArrays.size(); i++) {
          int[] path = nid1AncestorNidArrays.get(i);
@@ -595,79 +602,227 @@ public class HashTreeWithIntArraySets
 
       }
 
-      int ancestorIndex = -1;
-
-      int level = findLevel(nid1AncestorNidArrays, nid2AncestorNidArrays, ancestorIndex);
-      if (debugDistance) System.out.println("Level: " + level);
-
-      int nid2ToLowestCommonAncestorDistance = Integer.MAX_VALUE;
-      OpenIntHashSet lowestCommonAncestors = new OpenIntHashSet();
-      for (int[] pathToRoot: nid2AncestorNidArrays) {
-         lowestCommonAncestors.add(pathToRoot[level]);
-         nid2ToLowestCommonAncestorDistance = Math.min(nid2ToLowestCommonAncestorDistance, pathToRoot.length - level);
-      }
-      if (debugDistance) System.out.println("nid2ToLowestCommonAncestorDistance: " + nid2ToLowestCommonAncestorDistance);
-
-      int nid1ToLowestCommonAncestorDistance = Integer.MAX_VALUE;
-
-      for (int[] pathToRoot: nid1AncestorNidArrays) {
-         if (lowestCommonAncestors.contains(pathToRoot[level])) {
-            nid1ToLowestCommonAncestorDistance = Math.min(nid1ToLowestCommonAncestorDistance, pathToRoot.length - level);
+      OpenIntHashSet nid1Ancestors = new OpenIntHashSet();
+      for (int[] ancestorArray: nid1AncestorNidArrays) {
+         for (int ancestorNid: ancestorArray) {
+            nid1Ancestors.add(ancestorNid);
          }
       }
-      if (debugDistance) System.out.println("nid1ToLowestCommonAncestorDistance: " + nid1ToLowestCommonAncestorDistance);
+
+      OpenIntHashSet nid2Ancestors = new OpenIntHashSet();
+      for (int[] ancestorArray: nid2AncestorNidArrays) {
+         for (int ancestorNid: ancestorArray) {
+            nid2Ancestors.add(ancestorNid);
+         }
+      }
+      OpenIntHashSet commonAncestors = new OpenIntHashSet();
+
+      nid1Ancestors.forEachKey(element -> {
+         if (nid2Ancestors.contains(element)) {
+            commonAncestors.add(element);
+         }
+         return true;
+      });
+
+      if (debugDistance) {
+         StringBuilder sb = new StringBuilder();
+         sb.append("Common ancestors: \n");
+         commonAncestors.forEachKey(element -> {
+            sb.append("   ").append(element).append(": ").append(Get.conceptDescriptionText(element)).append("\n");
+            return true;
+         });
+         System.out.println(sb.toString());
+      }
+
+      SortedSet<DistanceRecord> nid1DistanceRecords = new TreeSet<>();
+      SortedSet<DistanceRecord> nid2DistanceRecords = new TreeSet<>();
+      commonAncestors.forEachKey(element -> {
+
+         for (int[] ancestorNidArray:  nid1AncestorNidArrays) {
+            for (int distance = 1; distance < ancestorNidArray.length; distance++) {
+               if (ancestorNidArray[distance] == element) {
+                  nid1DistanceRecords.add(new DistanceRecord(nid1, element, distance));
+                  break;
+               }
+            }
+         }
+
+         for (int[] ancestorNidArray:  nid2AncestorNidArrays) {
+            for (int distance = 1; distance < ancestorNidArray.length; distance++) {
+               if (ancestorNidArray[distance] == element) {
+                  nid2DistanceRecords.add(new DistanceRecord(nid2, element, distance));
+                  break;
+               }
+            }
+         }
+
+         return true;
+      });
+
+
+      if (debugDistance) {
+         StringBuilder sb = new StringBuilder("Nid 1 Distance records: \n");
+         nid1DistanceRecords.forEach(distanceRecord -> {
+            sb.append("   ").append(distanceRecord).append("\n");
+         });
+         sb.append("Nid 2 Distance records: \n");
+         nid2DistanceRecords.forEach(distanceRecord -> {
+            sb.append("   ").append(distanceRecord).append("\n");
+         });
+         System.out.println(sb);
+      }
+
+      Solution currentBestSolution = null;
+      // possibleBestSolutions may contain solutions that where best at one time, but later superseded by a better solution
+      SortedSet<Solution> possibleBestSolutions = new TreeSet<>();
+      for (DistanceRecord nid1DistanceRecord: nid1DistanceRecords) {
+         if (currentBestSolution != null && currentBestSolution.taxonomyDistance < nid1DistanceRecord.distance) {
+            break;
+         }
+         for (DistanceRecord nid2DistanceRecord: nid2DistanceRecords) {
+            if (currentBestSolution != null && currentBestSolution.taxonomyDistance < nid2DistanceRecord.distance) {
+               break;
+            }
+            if (nid1DistanceRecord.isSolution(nid2DistanceRecord)) {
+               if (currentBestSolution == null) {
+                  currentBestSolution = new Solution(nid1DistanceRecord, nid2DistanceRecord);
+                  possibleBestSolutions.add(currentBestSolution);
+               } else {
+                  if (nid1DistanceRecord.distance + nid2DistanceRecord.distance < currentBestSolution.taxonomyDistance) {
+                     currentBestSolution = new Solution(nid1DistanceRecord, nid2DistanceRecord);
+                     possibleBestSolutions.add(currentBestSolution);
+                  }
+               }
+            }
+         }
+      }
+      if (debugDistance) {
+         StringBuilder sb = new StringBuilder("Best solutions: \n");
+         possibleBestSolutions.forEach(solutionRecord -> {
+            sb.append("   ").append(solutionRecord).append("\n");
+         });
+         System.out.println(sb);
+      }
+      List<Solution> bestSolutionList = new ArrayList<>();
+      int bestSolutionDistance = Integer.MAX_VALUE;
+      for (Solution solution: possibleBestSolutions) {
+         // Sorted set, values come out in natural order, small to large.
+         // First item will be the shortest distance
+         if (bestSolutionDistance == Integer.MAX_VALUE) {
+            bestSolutionList.add(solution);
+         } else if (solution.taxonomyDistance == bestSolutionDistance) {
+            // possible to parents with same distance...
+            bestSolutionList.add(solution);
+         } else {
+            break; // Exit loop, all subsequent solutions will be worse.
+         }
+      }
+
+
       if (debugDistance) System.out.println("Distance time 4: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
-      return nid2ToLowestCommonAncestorDistance + nid1ToLowestCommonAncestorDistance;
+      return bestSolutionList;
    }
 
    @Override
    public int[] getLowestCommonAncestor(int nid1, int nid2) {
-      if (isDescendentOf(nid1, nid2)) {
+      float taxonomyDistance = descendentDepth(nid1, nid2);
+      if (!Float.isNaN(taxonomyDistance)) {
          return new int[] { nid2 };
       }
-      if (isDescendentOf(nid2, nid1)) {
+      taxonomyDistance = descendentDepth(nid2, nid1);
+      if (!Float.isNaN(taxonomyDistance)) {
          return new int[] { nid1 };
       }
-
-      List<int[]>  nid1AncestorNidArrays = getAncestorNidArrays(nid1);
-      List<int[]>  nid2AncestorNidArrays = getAncestorNidArrays(nid2);
-
-      int ancestorIndex = -1;
-
-      int level = findLevel(nid1AncestorNidArrays, nid2AncestorNidArrays, ancestorIndex);
-
-      OpenIntHashSet lowestCommonAncestors = new OpenIntHashSet();
-      for (int[] ancestors: nid2AncestorNidArrays) {
-         lowestCommonAncestors.add(ancestors[level]);
+      List<Solution> solutionList = getMinimalCommonAncestorSolutions(nid1, nid2);
+      int[] result = new int[solutionList.size()];
+      for (int i = 0; i < result.length; i++) {
+         result[i] = solutionList.get(i).nid1SolutionPart.ancestorNid;
       }
-      return lowestCommonAncestors.keys().elements();
+      return result;
    }
 
-   private int findLevel(List<int[]> nid1AncestorNidArrays, List<int[]> nid2AncestorNidArrays, int ancestorIndex) {
-      int newIndex = ancestorIndex + 1;
-      OpenIntHashSet possibleParents = new OpenIntHashSet();
-      for (int[] ancestors: nid1AncestorNidArrays) {
-         if (newIndex < ancestors.length) {
-            possibleParents.add(ancestors[newIndex]);
-         }
+   private static class Solution implements Comparable<Solution> {
+      final DistanceRecord nid1SolutionPart;
+      final DistanceRecord nid2SolutionPart;
+      final int taxonomyDistance;
+
+      public Solution(DistanceRecord nid1SolutionPart, DistanceRecord nid2SolutionPart) {
+         this.nid1SolutionPart = nid1SolutionPart;
+         this.nid2SolutionPart = nid2SolutionPart;
+         this.taxonomyDistance = nid1SolutionPart.distance + nid2SolutionPart.distance;
       }
 
-      List<int[]>  newNid2AncestorNidArrays = new ArrayList<>(nid2AncestorNidArrays.size());
-      for (int[] ancestors: nid2AncestorNidArrays) {
-         if (newIndex < ancestors.length &&
-                 possibleParents.contains(ancestors[newIndex])) {
-            newNid2AncestorNidArrays.add(ancestors);
-         } else {
-            // discard
+      @Override
+      public int compareTo(Solution o) {
+         if (this.taxonomyDistance != o.taxonomyDistance) {
+            return Integer.compare(this.taxonomyDistance, o.taxonomyDistance);
          }
+         int comparison = this.nid1SolutionPart.compareTo(o.nid1SolutionPart);
+         if (comparison != 0) {
+            return comparison;
+         }
+         return this.nid2SolutionPart.compareTo(o.nid2SolutionPart);
       }
 
-      if (newNid2AncestorNidArrays.size() > 0) {
-         nid2AncestorNidArrays.clear();
-         nid2AncestorNidArrays.addAll(newNid2AncestorNidArrays);
-         return findLevel(nid1AncestorNidArrays, nid2AncestorNidArrays, newIndex);
+      @Override
+      public String toString() {
+         return "Solution{" +
+                 "taxonomyDistance=" + taxonomyDistance +
+                 ",\n   nid1SolutionPart=" + nid1SolutionPart +
+                 ",\n   nid2SolutionPart=" + nid2SolutionPart +
+                 '}';
       }
-      return ancestorIndex;
+   }
+
+   private static class DistanceRecord implements Comparable<DistanceRecord> {
+      final int childNid;
+      final int ancestorNid;
+      final int distance;
+
+      public DistanceRecord(int childNid, int ancestorNid, int distance) {
+         this.childNid = childNid;
+         this.ancestorNid = ancestorNid;
+         this.distance = distance;
+      }
+
+      boolean isSolution(DistanceRecord another) {
+         return this.ancestorNid == another.ancestorNid;
+      }
+
+      @Override
+      public boolean equals(Object o) {
+         if (this == o) return true;
+         if (o == null || getClass() != o.getClass()) return false;
+         DistanceRecord that = (DistanceRecord) o;
+         return childNid == that.childNid &&
+                 ancestorNid == that.ancestorNid &&
+                 distance == that.distance;
+      }
+
+      @Override
+      public int hashCode() {
+         return Objects.hash(childNid, ancestorNid, distance);
+      }
+
+      @Override
+      public int compareTo(DistanceRecord o) {
+         if (this.distance != o.distance) {
+            return Integer.compare(this.distance, o.distance);
+         }
+         if (this.ancestorNid != o.ancestorNid) {
+            return Integer.compare(this.ancestorNid, o.ancestorNid);
+         }
+         return Integer.compare(this.childNid, o.childNid);
+      }
+
+      @Override
+      public String toString() {
+         return "DistanceRecord{" +
+                 "childNid=" + childNid + " " + Get.conceptDescriptionText(childNid) +
+                 ", ancestorNid=" + ancestorNid + " " + Get.conceptDescriptionText(ancestorNid) +
+                 ", distance=" + distance +
+                 '}';
+      }
    }
 
    /**

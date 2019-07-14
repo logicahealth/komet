@@ -239,6 +239,7 @@ public class DeveloperMenus implements MenuProvider {
 
         Instant startInstant = Instant.now();
 
+        // minimal common ancestor = new ConceptProxy("Disorder of body system (disorder)", UUID.fromString("1088bacb-ed50-3fa0-8f75-6b7b9030487e"))
         ConceptProxy concept1 = new ConceptProxy("Renal anasarca (disorder)", UUID.fromString("fb334dc1-c6fd-3136-9f56-0b1dfeb417c2"));
         ConceptProxy concept2 = new ConceptProxy("Hearing loss of bilateral ears caused by noise (disorder)", UUID.fromString("749ad125-b01a-3973-afbb-04bb9d599e98"));
 
