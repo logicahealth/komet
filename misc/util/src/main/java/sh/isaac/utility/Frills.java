@@ -551,7 +551,10 @@ public class Frills
     * 
     * @param module the module to look up
     * @param stamp - optional - uses default if not provided.  If provided, and doesn't include the metadata modules, it will use a modified stamp
-    * that includes the metadata module, since that module is required to read the module hierarchy.
+    * that includes the metadata module, since that module is required to read the module hierarchy.  It also modifies the time, to always use the latest 
+    * time when evaluating the parents, because 1) the parent hierarchy of the modules shouldn't ever change from one version to another and 
+    * 2) often times, the metadata hierarchy gets built with a timestamp that is later than the version in the content, since metadata is loaded at DB build time
+    * not content conversion time.
     */
    private static Integer findTermTypeConcept(int conceptModuleNid, StampCoordinate stamp) {
       StampCoordinate stampToUse = stamp == null ? StampCoordinates.getDevelopmentLatest() : stamp;
@@ -561,6 +564,10 @@ public class Frills
          if (stamp.getModuleNids().size() > 0 && !stamp.getModuleNids().contains(MetaData.CORE_METADATA_MODULE____SOLOR.getNid()))
          {
             stampToUse = stamp.makeModuleAnalog(Arrays.asList(new ConceptSpecification[] {MetaData.CORE_METADATA_MODULE____SOLOR}), true);
+         }
+         if (stamp.getStampPosition().getTime() != Long.MAX_VALUE)
+         {
+             stampToUse = stampToUse.makeCoordinateAnalog(Long.MAX_VALUE);
          }
       }
       
@@ -2227,7 +2234,9 @@ public class Frills
       } else {
          oc.getVersionList().stream().filter(version -> {
             return stamp.getAllowedStates().contains(version.getStatus())
-                  && (stamp.getModuleNids().size() == 0 ? true : stamp.getModuleNids().contains(version.getModuleNid()));
+                  && (stamp.getModuleNids().size() == 0 ? true : stamp.getModuleNids().contains(version.getModuleNid())
+                  && (version.getTime() <= stamp.getStampPosition().getTime())
+                  && (version.getPathNid() == stamp.getStampPosition().getPathNid()));
          }).forEach(version -> {
             modules.add(version.getModuleNid());
          });
