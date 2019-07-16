@@ -63,6 +63,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -426,7 +428,7 @@ public class FLWORQueryController
                 query.setReturnAttributeList(resultColumns);
 
                 rootClause.setEnclosingQuery(query);
-                marshaller.marshal(query, new FileWriter(selectedFile));
+                marshaller.marshal(query, new FileWriter(selectedFile, Charset.forName(StandardCharsets.UTF_8.name())));
                 this.query.setLetDeclarations(currentMap);
             }
 
@@ -443,7 +445,7 @@ public class FLWORQueryController
         fileChooser.setInitialFileName("export.txt");
         File selectedFile = fileChooser.showSaveDialog(spacerLabel.getScene().getWindow());
         if (selectedFile != null) {
-            try (FileWriter writer = new FileWriter(selectedFile)) {
+            try (FileWriter writer = new FileWriter(selectedFile, Charset.forName(StandardCharsets.UTF_8.name()))) {
                 int columnCount = resultTable.getColumns().size();
                 for (int i = 0; i < columnCount; i++) {
                     TableColumn<List<String>, ?> column = resultTable.getColumns().get(i);

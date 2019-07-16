@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.List;
@@ -313,7 +315,7 @@ public class KometBaseMenus implements MenuProvider {
                 
                 List<List<String>> results = queryFromDisk.executeQuery();
                 
-                try (FileWriter writer = new FileWriter(resultsFile)) {
+                try (FileWriter writer = new FileWriter(resultsFile, Charset.forName(StandardCharsets.UTF_8.name()))) {
                     for (List<String> row: results) {
                         for (int i = 0; i < row.size(); i++) {
                             writer.append(row.get(i));

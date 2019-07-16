@@ -3,6 +3,16 @@ package sh.isaac.komet.batch.fxml;
  * 'BatchNode.fxml' Controller Class
  */
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ResourceBundle;
+import java.util.UUID;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,11 +29,6 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.row.DragAndDropRowFactory;
 import sh.komet.gui.table.version.VersionTable;
 import sh.komet.gui.util.FxGet;
-
-import java.io.*;
-import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.UUID;
 
 public class BatchNodeController {
 
@@ -96,7 +101,7 @@ public class BatchNodeController {
         if (exportFile != null) {
             try {
                 exportFile.createNewFile();
-                try (FileWriter writer = new FileWriter(exportFile)) {
+                try (FileWriter writer = new FileWriter(exportFile, Charset.forName(StandardCharsets.UTF_8.name()))) {
                     for (ObservableChronology item: versionTable.getRootNode().getItems()) {
                         writer.write(item.getPrimordialUuid().toString() + "\n");
                     }

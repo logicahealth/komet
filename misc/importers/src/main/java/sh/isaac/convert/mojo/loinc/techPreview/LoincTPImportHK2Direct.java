@@ -19,6 +19,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -235,7 +237,7 @@ public class LoincTPImportHK2Direct extends DirectConverterBaseMojo implements D
 			}
 			
 	
-			loincExpressionDebug = new BufferedWriter(new FileWriter(new File(outputDirectory, "ExpressionDebug.log")));
+			loincExpressionDebug = new BufferedWriter(new FileWriter(new File(outputDirectory, "ExpressionDebug.log"), Charset.forName(StandardCharsets.UTF_8.name())));
 			
 			SimpleDateFormat dateReader = new SimpleDateFormat("MMMMMMMMMMMMM yyyy"); //Parse things like "June 2014"
 			Date releaseDate = dateReader.parse(loincData.get().getReleaseDate());

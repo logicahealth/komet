@@ -39,6 +39,8 @@ package sh.isaac.convert.mojo.vhat;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -404,7 +406,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 				log.error(conceptsWithNoDesignations.size() + " concepts were found with no descriptions at all.  These were assigned '-MISSING-'");
 				if (outputDirectory != null)
 				{
-					FileWriter fw = new FileWriter(new File(outputDirectory, "NoDesignations.txt"));
+					FileWriter fw = new FileWriter(new File(outputDirectory, "NoDesignations.txt"), Charset.forName(StandardCharsets.UTF_8.name()));
 					for (String s : conceptsWithNoDesignations)
 					{
 						fw.write(s);

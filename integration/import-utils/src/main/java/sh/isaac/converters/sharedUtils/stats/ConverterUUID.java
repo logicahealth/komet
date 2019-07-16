@@ -41,6 +41,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -294,7 +296,8 @@ public class ConverterUUID
 		if (outputDirectory != null)
 		{
 			outputDirectory.mkdirs();
-			try (BufferedWriter br = new BufferedWriter(new FileWriter(new File(outputDirectory, prefix + "DebugMap.txt")));)
+			try (BufferedWriter br = new BufferedWriter(new FileWriter(new File(outputDirectory, prefix + "DebugMap.txt"),
+					Charset.forName(StandardCharsets.UTF_8.name())));)
 			{
 				if (disableUUIDMap)
 				{
