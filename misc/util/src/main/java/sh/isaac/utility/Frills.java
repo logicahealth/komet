@@ -2529,5 +2529,20 @@ public class Frills
       MODULE_TO_TERM_TYPE_CACHE.invalidateAll();
       EDIT_MODULE_FOR_TERMINOLOGY_CACHE.invalidateAll();
    }
+
+   /**
+    * Returns true if the passed in concept is the root solor concept {@link MetaData#SOLOR_CONCEPT____SOLOR}, 
+    * the metadata root concept {@link MetaData#METADATA____SOLOR}, or some child of the that tree (at any point in history)
+    * 
+    * Note, this method doesn't perform great, so it should be used for one-offs, not batch processing.  See the lucene description 
+    * indexer for an example of doing this in batch. 
+    * @param conceptNid a conceptNid
+    * @return true or false
+    */
+   public static boolean isMetadata(int conceptNid)
+   {
+      return (conceptNid == MetaData.SOLOR_CONCEPT____SOLOR.getNid() || conceptNid == MetaData.METADATA____SOLOR.getNid() || 
+            Get.taxonomyService().wasEverKindOf(conceptNid, MetaData.METADATA____SOLOR.getNid()));
+   }
 }
 

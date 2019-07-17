@@ -526,9 +526,7 @@ public class TaxonomyProvider
         return () -> new TreeNodeVisitDataImpl(conceptAssemblageNid);
     }
     
-    /**
-     * @see sh.isaac.api.TaxonomyService#wasEverKindOf(int, int)
-     */
+    @Override
     public boolean wasEverKindOf(int childNid, int parentNid) {
         if (wasEverChildOf(childNid, parentNid)) {
             return true;
@@ -580,9 +578,7 @@ public class TaxonomyProvider
         return false;
     }
     
-    /**
-     * @see sh.isaac.api.TaxonomyService#wasEverChildOf(int, int)
-     */
+    @Override
     public boolean wasEverChildOf(int childNid, int parentNid) {
         for (int directParentNid : getTaxonomyRecord(childNid).getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(isANidSet).toArray()) {
             if (directParentNid == parentNid) {
