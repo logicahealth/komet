@@ -57,6 +57,8 @@ import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
+import sh.isaac.convert.mojo.cvx.data.CVXCodesHelper;
+import sh.isaac.convert.mojo.cvx.data.CVXCodes.CVXInfo;
 import sh.isaac.convert.mojo.mvx.data.MVXCodes;
 import sh.isaac.convert.mojo.mvx.data.MVXCodesHelper;
 import sh.isaac.convert.mojo.mvx.data.MVXCodes.MVXInfo;
@@ -127,11 +129,44 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	@Override
 	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
 	{
-
-		// There is no global release date for mvx - but each item has its own date. This date will only be used for metadata.
-		Date date = new Date();
 		
-		//Right now, we are configured for the CPT grouping modules nid
+		final MVXReader importer = new MVXReader(inputFileLocationPath);
+		MVXCodes terminology;
+		try
+		{
+			terminology = importer.process();
+		}
+		catch (JAXBException e1)
+		{
+			throw new IOException("Error reading file", e1);
+		}
+
+		log.info("Read " + terminology.getMVXInfo().size() + " entries");
+		statusUpdates.accept("Read " + terminology.getMVXInfo().size() + " entries");
+
+		
+		// There is no global release date for mvx - but each item has its own date. This date will only be used for metadata.  
+		//Use the oldest date we can find in the content, to reduce stamp viewing issues.
+		
+		long oldest = Long.MAX_VALUE;
+		for (MVXInfo row : terminology.getMVXInfo())
+		{
+			try
+			{
+				long updateTime = MVXCodesHelper.getLastUpdatedDate(row).getTime();
+				if (updateTime < oldest)
+				{
+					oldest = updateTime;
+				}
+			}
+			catch (Exception e)
+			{
+				log.error("error while looking for earliest date", e);
+			}
+		}
+		
+		Date date = new Date(oldest);
+
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.MVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"MVX", false);
 		
@@ -147,20 +182,6 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 
 		// Every time concept created add membership to "All CPT Concepts"
 		dwh.makeRefsetTypeConcept(null, "All MVX Concepts", null, null, date.getTime());
-
-		final MVXReader importer = new MVXReader(inputFileLocationPath);
-		MVXCodes terminology;
-		try
-		{
-			terminology = importer.process();
-		}
-		catch (JAXBException e1)
-		{
-			throw new IOException("Error reading file", e1);
-		}
-
-		log.info("Read " + terminology.getMVXInfo().size() + " entries");
-		statusUpdates.accept("Read " + terminology.getMVXInfo().size() + " entries");
 
 		log.info("Metadata load stats");
 		for (String line : dwh.getLoadStats().getSummary())

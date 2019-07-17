@@ -130,10 +130,43 @@ public class CVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	@Override
 	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
 	{
-		// There is no global release date for cvx - but each item has its own date. This date will only be used for metadata.
-		Date date = new Date();
+		final CVXReader importer = new CVXReader(inputFileLocationPath);
+		CVXCodes terminology;
+		try
+		{
+			terminology = importer.process();
+		}
+		catch (JAXBException e1)
+		{
+			throw new IOException("Error reading file", e1);
+		}
+
+		log.info("Read " + terminology.getCVXInfo().size() + " entries");
+		statusUpdates.accept("Read " + terminology.getCVXInfo().size() + " entries");
+
 		
-		//Right now, we are configured for the CPT grouping modules nid
+		// There is no global release date for cvx - but each item has its own date. This date will only be used for metadata.  
+		//Use the oldest date we can find in the content, to reduce stamp viewing issues.
+		
+		long oldest = Long.MAX_VALUE;
+		for (CVXInfo row : terminology.getCVXInfo())
+		{
+			try
+			{
+				long updateTime = CVXCodesHelper.getLastUpdatedDate(row).getTime();
+				if (updateTime < oldest)
+				{
+					oldest = updateTime;
+				}
+			}
+			catch (Exception e)
+			{
+				log.error("error while looking for earliest date", e);
+			}
+		}
+		
+		Date date = new Date(oldest);
+		
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"CVX", false);
 		
@@ -154,20 +187,6 @@ public class CVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 
 		// Every time concept created add membership to "All CPT Concepts"
 		dwh.makeRefsetTypeConcept(null, "All CVX Concepts", null, null, date.getTime());
-
-		final CVXReader importer = new CVXReader(inputFileLocationPath);
-		CVXCodes terminology;
-		try
-		{
-			terminology = importer.process();
-		}
-		catch (JAXBException e1)
-		{
-			throw new IOException("Error reading file", e1);
-		}
-
-		log.info("Read " + terminology.getCVXInfo().size() + " entries");
-		statusUpdates.accept("Read " + terminology.getCVXInfo().size() + " entries");
 
 		/*
 		 * Methods from CVXCodes.CVXInfo:
