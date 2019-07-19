@@ -3,7 +3,6 @@ package sh.komet.progress.view;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.scene.Node;

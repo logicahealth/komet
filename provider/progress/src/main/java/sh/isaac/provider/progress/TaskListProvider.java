@@ -53,7 +53,7 @@ public class TaskListProvider {
 
    private void checkTitle(Task<?> task) {
       if (task.getTitle() == null || task.getTitle().isEmpty()) {
-         System.out.println("Task with no title: " + task.getClass().getSimpleName());
+         System.out.println("Task with no title: " + task.getClass().getName());
       }
    }
 

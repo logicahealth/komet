@@ -37,26 +37,16 @@
 package sh.komet.progress.view;
 
 //~--- non-JDK imports --------------------------------------------------------
-import java.util.Optional;
-import java.util.Set;
 
 import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-
 import javafx.beans.value.ObservableValue;
-import javafx.collections.SetChangeListener;
-
 import javafx.concurrent.Task;
-
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
-
-import sh.isaac.komet.iconography.Iconography;
-
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
