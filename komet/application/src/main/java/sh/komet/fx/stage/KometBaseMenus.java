@@ -134,7 +134,7 @@ public class KometBaseMenus implements MenuProvider {
                     if (!syncService.isRootLocationConfiguredForSCM()) {
                         try {
                             LOG.info("Initializing for git: " + changeSetFolder);
-                            syncService.initialize();
+                            syncService.initializeLocalRepository();
                         } catch (IOException ex) {
                             LOG.error(ex.getLocalizedMessage(), ex);
                         }

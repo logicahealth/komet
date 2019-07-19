@@ -39,19 +39,11 @@
 
 package sh.isaac.api.sync;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 import java.io.IOException;
-
 import java.util.Map;
 import java.util.Set;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * {@link SyncFiles}
@@ -64,12 +56,10 @@ import org.jvnet.hk2.annotations.Contract;
  */
  @Contract
 public interface SyncFiles {
-   /** The Constant DEFAULT_README_CONTENT. */
+
    public static final String DEFAULT_README_CONTENT =
       "ISAAC Profiles Storage \r" + "=== \r" + "This is a repository for storing ISAAC profiles and changesets.\r" +
       "It is highly recommended that you do not make changes to this repository manually - ISAAC interfaces with this.";
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Mark the specified files as files that should be synchronized.  This is a local operation only - does not push to the server.
@@ -82,7 +72,7 @@ public interface SyncFiles {
             throws IllegalArgumentException, IOException;
 
    /**
-    * Equivalent of calling {@link #addFiles(File, Set)} for each file in the localFolder which is currently unmanaged.
+    * Equivalent of calling {@link #addFiles(String...)} for each file in the localFolder which is currently unmanaged.
     *
     * @throws IllegalArgumentException - if the passed parameters are invalid
     * @throws IOException - Thrown if an error occurs accessing local or remote resources
@@ -254,8 +244,6 @@ public interface SyncFiles {
                    IOException,
                    MergeFailure;
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Get the list of files currently in a merge-conflicted state.  This should normally return an empty set.  Would typically only be called
     * if a merge sequence was abnormally aborted.  This would allow you to get the files that still need to be merged, then call resolveMergeFailures...
@@ -275,8 +263,6 @@ public interface SyncFiles {
    public int getLocallyModifiedFileCount()
             throws IOException;
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the readme file content.
     *
@@ -287,15 +273,11 @@ public interface SyncFiles {
     */
    public abstract void setReadmeFileContent(String readmeFileContent);
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Return the currently configured root location.
     * @return full path the the folder that should be synchronizable (or null, if not configured)
     */
    public abstract File getRootLocation();
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Set the base folder that should be used in this instance of Profile Sync.  Necessary for HK2 style
@@ -307,8 +289,6 @@ public interface SyncFiles {
    public abstract void setRootLocation(File localFolder)
             throws IllegalArgumentException;
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Returns true if the specified location appears to be a SCM store, false otherwise.
     *
@@ -316,4 +296,3 @@ public interface SyncFiles {
     */
    public boolean isRootLocationConfiguredForSCM();
 }
-
