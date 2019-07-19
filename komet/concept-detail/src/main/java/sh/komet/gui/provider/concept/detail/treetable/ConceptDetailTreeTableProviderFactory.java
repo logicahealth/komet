@@ -44,7 +44,7 @@ public class ConceptDetailTreeTableProviderFactory implements DetailNodeFactory 
 
    @Override
    public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      return new ConceptDetailTreeTableNode(manifold);
+      return new ConceptDetailTreeTableNode(manifold.deepClone());
    }
    @Override
    public String getMenuText() {

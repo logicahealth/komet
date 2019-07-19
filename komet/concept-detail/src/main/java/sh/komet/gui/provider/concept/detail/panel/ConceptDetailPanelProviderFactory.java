@@ -44,7 +44,7 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
 
    @Override
    public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      return new ConceptDetailPanelNode(manifold, preferencesNode);
+      return new ConceptDetailPanelNode(manifold.deepClone(), preferencesNode);
    }
 
    @Override
