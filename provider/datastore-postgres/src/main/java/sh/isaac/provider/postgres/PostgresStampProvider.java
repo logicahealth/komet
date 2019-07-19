@@ -85,6 +85,7 @@ import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.provider.commit.CancelUncommittedStamps;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -95,7 +96,7 @@ import sh.isaac.api.transaction.Transaction;
 @RunLevel(value = LookupService.SL_L2)
 
 public class PostgresStampProvider
-    implements StampService {
+    implements StampService, CancelUncommittedStamps {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG);
 
@@ -131,6 +132,10 @@ public class PostgresStampProvider
             new ConcurrentHashMap<>());
 
     //~--- fields --------------------------------------------------------------
+
+
+    boolean cancelUncommittedStamps;
+
     /**
      * The stamp lock.
      */
@@ -1161,5 +1166,10 @@ public class PostgresStampProvider
     @Override
     public UUID getTransactionIdForStamp(int stampSequence) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setCancelUncommittedStamps(boolean cancelUncommittedStamps) {
+        this.cancelUncommittedStamps = cancelUncommittedStamps;
     }
 }
