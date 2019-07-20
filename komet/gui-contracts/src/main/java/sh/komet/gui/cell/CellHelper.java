@@ -1,5 +1,6 @@
 package sh.komet.gui.cell;
 
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
 import javafx.event.ActionEvent;
@@ -108,35 +109,45 @@ public class CellHelper {
     }
 
     private void setupWidth(Region region) {
+        region.setMinWidth(cell.getWidth() - 32);
+        region.setPrefWidth(cell.getWidth());
         region.setMaxWidth(cell.getWidth());
         cell.widthProperty()
                 .addListener(
                         makeWidthListener(region));
-        cell.getPaneForText().getChildren().clear();
-        cell.getPaneForText().getChildren().add(region);
+        cell.getPaneForVersionDisplay().getChildren().clear();
+        cell.getPaneForVersionDisplay().getChildren().add(region);
         cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         cell.setGraphic(cell.getTextAndEditGrid());
     }
 
-    private WeakChangeListener<Number> makeWidthListener(Region region) {
-        return new WeakChangeListener<>(
-                (ObservableValue<? extends Number> observable,
-                 Number oldValue,
-                 Number newValue) -> {
-                    double newTextFlowWidth = newValue.doubleValue() - 32;
-                    double newTextFlowHeight = region.prefHeight(newTextFlowWidth);
+    private ChangeListener<Number> makeWidthListener(Region region) {
+        return new ChangeListener<Number>() {
+            @Override
+            public void changed (ObservableValue observable, Number oldValue, Number newValue){
+                double newTextFlowWidth = newValue.doubleValue() - 32;
+                double newTextFlowHeight = region.prefHeight(newTextFlowWidth);
 
-                    region.setPrefWidth(newTextFlowWidth);
-                    region.setMaxWidth(newTextFlowWidth);
-                    region.setPrefHeight(newTextFlowHeight);
-                    region.setMaxHeight(newTextFlowHeight);
+                region.setPrefWidth(newTextFlowWidth);
+                region.setMaxWidth(newTextFlowWidth);
+                region.setPrefHeight(newTextFlowHeight);
+                region.setMaxHeight(newTextFlowHeight);
 
-                    double newFixedSizeWidth = newTextFlowWidth + 28;
-                    double newFixedSizeHeight = newTextFlowHeight + 28;
+                double newFixedSizeWidth = newTextFlowWidth + 28;
+                double newFixedSizeHeight = newTextFlowHeight + 28;
 
-                    cell.getPaneForText().setWidth(newFixedSizeWidth);
-                    cell.getPaneForText().setHeight(newFixedSizeHeight);
-                });
+                switch (cell.getVersionType()) {
+                    case LOGIC_GRAPH:
+                        cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                        cell.getPaneForVersionDisplay().setWidth(newFixedSizeWidth);
+                        cell.getPaneForVersionDisplay().setHeight(newFixedSizeHeight);
+                        break;
+                    default:
+                        cell.getPaneForVersionDisplay().setWidth(newFixedSizeWidth);
+                        cell.getPaneForVersionDisplay().setHeight(newFixedSizeHeight);
+                }
+            }
+        };
     }
 
     public void addTextToCell(Text... text) {

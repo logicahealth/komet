@@ -175,10 +175,16 @@ public class TreeTableGeneralCell
         return textAndEditGrid;
     }
 
-    public FixedSizePane getPaneForText() {
+    public FixedSizePane getPaneForVersionDisplay() {
         return paneForText;
     }
 
+    public VersionType getVersionType() {
+        if (this.version != null) {
+            return this.version.getSemanticType();
+        }
+        return VersionType.UNKNOWN;
+    }
     @Override
     public Manifold getManifold() {
         return manifold;
@@ -251,6 +257,7 @@ public class TreeTableGeneralCell
 
     @Override
     protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion version) {
+        this.version = version;
         cellHelper.updateItem(version, this, this.getTableColumn());
     }
 }

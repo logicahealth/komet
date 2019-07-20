@@ -51,9 +51,12 @@ import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
 
 
+import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -76,7 +79,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
  * @author kec
  */
 public interface ObservableChronology
-        extends ChronologyChangeListener, Chronology {
+        extends ChronologyChangeListener, Chronology, Comparable<ObservableChronology> {
    /**
     * Commit state property.
     *
@@ -157,5 +160,47 @@ public interface ObservableChronology
     * @return an editable observable version
     */
    <T extends ObservableVersion> T createAutonomousMutableVersion(EditCoordinate ec);
+
+   /**
+    * Implement a consistent ordering of chronologies for presentation purposes.
+    * @param o
+    * @return
+    */
+   @Override
+   default int compareTo(ObservableChronology o) {
+      if (this.getVersionType() != o.getVersionType()) {
+         if (this.getVersionType() == VersionType.CONCEPT) {
+            return -1;
+         }
+         if (o.getVersionType() == VersionType.CONCEPT) {
+            return 1;
+         }
+         if (this.getVersionType() == VersionType.DESCRIPTION) {
+            return -1;
+         }
+         if (o.getVersionType() == VersionType.DESCRIPTION) {
+            return 1;
+         }
+         if (this.getVersionType() == VersionType.LOGIC_GRAPH) {
+            return -1;
+         }
+         if (o.getVersionType() == VersionType.LOGIC_GRAPH) {
+            return 1;
+         }
+         return this.getVersionType().compareTo(o.getVersionType());
+
+      }
+      if (this.getVersionType() == VersionType.LOGIC_GRAPH) {
+         if (this.getAssemblageNid() == o.getAssemblageNid()) {
+            return 0;
+         }
+         if (this.getAssemblageNid() == TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid()) {
+            return -1;
+         } else {
+            return 1;
+         }
+      }
+      return Get.conceptDescriptionText(this.getAssemblageNid()).compareTo(Get.conceptDescriptionText(o.getAssemblageNid()));
+   }
 }
 

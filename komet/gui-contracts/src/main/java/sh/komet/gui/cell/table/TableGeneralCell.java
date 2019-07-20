@@ -148,7 +148,7 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     //~--- methods -------------------------------------------------------------
 
     @Override
-    public FixedSizePane getPaneForText() {
+    public FixedSizePane getPaneForVersionDisplay() {
         return paneForText;
     }
 
@@ -228,7 +228,16 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     }
 
     @Override
+    public VersionType getVersionType() {
+        if (version != null) {
+            return version.getSemanticType();
+        }
+        return VersionType.UNKNOWN;
+    }
+
+    @Override
     protected void updateItem(TableRow<ObservableChronology> row, ObservableVersion cellValue) {
+        this.version = cellValue;
         cellHelper.updateItem(cellValue, this, this.getTableColumn());
     }
 }
