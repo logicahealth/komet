@@ -40,7 +40,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
     public StartupAfterSelection(MainApp mainApp, boolean reimportMetadata) {
         this.mainApp = mainApp;
         this.reimportMetadata = reimportMetadata;
-        this.updateTitle("Setting up interface");
+        this.updateTitle("Setting up user interface");
         Get.activeTasks().add(this);
     }
 

@@ -126,6 +126,8 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.NumericUtilsDynamic;
 import sh.isaac.utility.SimpleDisplayConcept;
+import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
+import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.ConceptNode;
 import sh.komet.gui.util.FxGet;
@@ -566,23 +568,8 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
             }
         });
 
-        //TODO integrate drag and drop?
-//		AppContext.getService(DragRegistry.class).setupDragOnly(searchResults, new SingleConceptIdProvider()
-//		{
-//			@Override
-//			public String getConceptId()
-//			{
-//				CompositeSearchResult dragItem = searchResults.getSelectionModel().getSelectedItem();
-//				if (dragItem != null)
-//				{
-//					if (dragItem.getContainingConcept().isPresent())
-//					{
-//						return dragItem.getContainingConcept().get().getNid() + "";
-//					}
-//				}
-//				return null;
-//			}
-//		});
+        this.searchResults.setOnDragDetected(new DragDetectedCellEventHandler());
+        this.searchResults.setOnDragDone(new DragDoneEventHandler());
         final ValidBooleanBinding searchTextValid = new ValidBooleanBinding() {
             {
                 bind(searchText.textProperty(), searchIn.valueProperty());

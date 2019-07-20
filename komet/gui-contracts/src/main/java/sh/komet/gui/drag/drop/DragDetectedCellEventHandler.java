@@ -38,6 +38,7 @@ package sh.komet.gui.drag.drop;
 
 import java.util.function.IntSupplier;
 
+import javafx.scene.control.ListView;
 import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,6 +54,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.query.CompositeQueryResult;
 import sh.komet.gui.interfaces.DraggableWithImage;
 
 //~--- classes ----------------------------------------------------------------
@@ -114,6 +116,24 @@ public class DragDetectedCellEventHandler
                         .getIntersectedNode();
                 eventNode = (Region) eventNode.getParent();
             }
+        } else if (event.getSource() instanceof ListView) {
+
+            ListView listView = (ListView) event.getSource();
+            Object selectedObject = listView.getSelectionModel().getSelectedItem();
+            if (selectedObject instanceof IdentifiedObject) {
+                identifiedObject = (IdentifiedObject) selectedObject;
+                eventNode = (Region) event.getPickResult()
+                        .getIntersectedNode().getParent().getParent();
+
+            } else if (selectedObject instanceof CompositeQueryResult) {
+                eventNode = (Region) event.getPickResult()
+                        .getIntersectedNode().getParent().getParent().getParent();
+                identifiedObject = ((CompositeQueryResult) selectedObject).getContainingConcept();
+            } else {
+                LOG.warn("unhandled selected object type {}" + selectedObject);
+            }
+
+
         } else {
             LOG.warn("unhandled event source {}" + event.getSource());
         }
