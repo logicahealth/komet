@@ -69,7 +69,7 @@ public class ExtendedSearchViewFactory implements ConceptSearchNodeFactory {
 
     private ExtendedSearchViewController esvc_;
     private Manifold manifold_;
-    private final Logger LOG = LogManager.getLogger(this.getClass());
+    protected static final Logger LOG = LogManager.getLogger();
 
     public ExtendedSearchViewFactory() throws IOException {
         // created by HK2

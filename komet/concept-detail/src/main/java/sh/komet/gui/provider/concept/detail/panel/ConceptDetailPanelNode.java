@@ -209,6 +209,7 @@ public class ConceptDetailPanelNode
         // commit service uses weak change listener references, so this method call is not a leak.
         Get.commitService()
                 .addChangeListener(this);
+        titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(conceptDetailManifold.focusedConceptProperty().get()));
     }
 
     @Override

@@ -144,7 +144,7 @@ import sh.komet.gui.util.ValidBooleanBinding;
  */
 public class ExtendedSearchViewController implements TaskCompleteCallback<QueryHandle>, IndexStatusListener {
 
-    private static final Logger LOG = LogManager.getLogger(ExtendedSearchViewController.class);
+    protected static final Logger LOG = LogManager.getLogger();
 
     @FXML
     private ResourceBundle resources;
