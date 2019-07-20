@@ -216,6 +216,9 @@ public class SimpleSearchService extends Service<NidSet> {
                 }
                 DescriptionVersion descriptionVersion = description.get();
                 int conceptNid = descriptionVersion.getReferencedComponentNid();
+                if (!Get.conceptActiveService().isConceptActive(conceptNid, manifold)) {
+                    return;
+                }
                 if (!getParentNids().isEmpty()) {
                     if (!allowedConceptNids.isEmpty()) {
                         if (!allowedConceptNids.contains(conceptNid)) {
