@@ -725,10 +725,14 @@ public class RelativePositionCalculator implements StaticIsaacCache {
    }
 
    /**
-    * Gets the latest stamp sequences as set.
+    * Gets the latest stamp sequences as set. The latest stamp sequences independent of
+    * allowed states of the stamp coordinate are identified. Then, if those latest stamp's status values
+    * are included in the allowed states, then the stamps are included in the result. If none of the
+    * latest stamps are of an allowed state, then an empty set is returned.
     *
     * @param stampSequences the stamp sequence stream
-    * @return the latest stamp sequences as set
+    * @return the latest stamp sequences as an array. Empty array if none of the
+    * latest stamps match the allowed states of the stamp coordinate.
     */
    public int[] getLatestStampSequencesAsSet(int[] stampSequences) {
       

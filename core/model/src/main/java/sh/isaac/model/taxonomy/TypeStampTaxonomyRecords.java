@@ -183,7 +183,8 @@ public class TypeStampTaxonomyRecords {
     }
 
     /**
-     * Contains concept nid via type.
+     * Contains concept nid via type and the status of the latest stamp is within tne
+     * allowed states of the stamp coordinate used by the relative position calculator.
      *
      * @param typeNid the type nid
      * @param flags the flags
@@ -196,6 +197,14 @@ public class TypeStampTaxonomyRecords {
         return latestStamps.length > 0;
     }
 
+    /**
+     *
+     * @param typeNid
+     * @param flags
+     * @param computer
+     * @return An EnumSet<Status>. If there is a contradiction, then more than one status is returned. If there
+     * is no contradiction, then only a single status is in the EnumSet.
+     */
     public EnumSet<Status> getConceptStates(int typeNid, int flags, RelativePositionCalculator computer) {
         final int[] latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeNid, flags));
         EnumSet<Status> statusSet = EnumSet.noneOf(Status.class);

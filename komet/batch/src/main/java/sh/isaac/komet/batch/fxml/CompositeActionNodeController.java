@@ -12,8 +12,8 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.ActionCell;
+import sh.isaac.komet.batch.action.UpdateComponentAction;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.search.flwor.LetPropertySheet;
 import sh.komet.gui.util.FxGet;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class CompositeActionNodeController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ActionNode.fxml"));
             Object root = loader.load();
             ActionNodeController actionNodeController = loader.getController();
-            actionNodeController.setManifold(manifold);
+            actionNodeController.setAction(manifold, new UpdateComponentAction());
             actionListView.getItems().add(actionNodeController);
         } catch (IOException e) {
             FxGet.dialogs().showErrorDialog(e);

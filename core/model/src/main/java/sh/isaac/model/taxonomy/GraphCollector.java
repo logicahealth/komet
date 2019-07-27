@@ -137,9 +137,8 @@ public class GraphCollector
             System.out.println("Found watch: " + isaacPrimitiveTaxonomyRecord);
          }
          final TaxonomyRecord taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.getTaxonomyRecordUnpacked();
-         final int[] destinationConceptNids =
-            taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
-                                                              this.manifoldCoordinate);
+         final int[] destinationConceptNids = taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
+                 this.manifoldCoordinate, this.taxonomyDataProvider);
 
 //         if (destinationConceptNids.length == 0) {
 //            // again for steping through with the debugger. Remove when issues resolved. 

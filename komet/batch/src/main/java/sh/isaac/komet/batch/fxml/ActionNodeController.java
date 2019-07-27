@@ -16,6 +16,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.komet.batch.ActionCell;
 import sh.isaac.komet.batch.action.Action;
+import sh.isaac.komet.batch.action.UpdateComponentAction;
 import sh.komet.gui.cell.list.ConceptCell;
 import sh.komet.gui.control.concept.ConceptSpecificationEditor;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
@@ -26,6 +27,7 @@ public class ActionNodeController {
     @FXML
     private AnchorPane anchorPane;
 
+    Action action;
     ActionCell actionCell;
 
     @FXML
@@ -80,10 +82,11 @@ public class ActionNodeController {
     }
 
     public Action getAction() {
-        throw new UnsupportedOperationException();
+        return action;
     }
 
-    public void setManifold(Manifold manifold) {
+    public void setAction(Manifold manifold, Action action) {
+        this.action = action;
         this.manifold = manifold;
         forCombo.setCellFactory(param -> new ConceptCell(this.manifold));
         forCombo.setButtonCell(new ConceptCell(this.manifold));
@@ -100,24 +103,33 @@ public class ActionNodeController {
         forCombo.setItems(options);
         forCombo.getSelectionModel().select(0);
 
-        ObservableList<Integer> fields =
-                FXCollections.observableArrayList();
-        fields.add(ObservableVersion.PROPERTY_INDEX.STATUS.getSpec().getNid());
-        fields.add(ObservableVersion.PROPERTY_INDEX.MODULE.getSpec().getNid());
-        fields.add(ObservableVersion.PROPERTY_INDEX.PATH.getSpec().getNid());
+        if (action instanceof UpdateComponentAction) {
 
-        fieldCombo.setItems(fields);
-        fieldCombo.getSelectionModel().select((Integer) ObservableVersion.PROPERTY_INDEX.PATH.getSpec().getNid());
+            UpdateComponentAction updateComponentAction = (UpdateComponentAction) action;
 
-        conceptWrapper = new PropertySheetItemConceptWrapper(this.manifold,
-                conceptProperty, TermAux.MASTER_PATH.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
-        conceptWrapper.setDefaultValue(TermAux.DEVELOPMENT_PATH);
-        ConceptSpecificationEditor conceptSpecificationEditor = new ConceptSpecificationEditor(conceptWrapper, this.manifold);
-        Node editor = conceptSpecificationEditor.getEditor();
-        AnchorPane.setTopAnchor(editor, 0.0);
-        AnchorPane.setRightAnchor(editor, 0.0);
-        AnchorPane.setBottomAnchor(editor, 0.0);
-        AnchorPane.setLeftAnchor(editor, 0.0);
-        valueAnchorPane.getChildren().add(editor);
+            ObservableList<Integer> fields =
+                    FXCollections.observableArrayList();
+            fields.add(ObservableVersion.PROPERTY_INDEX.MODULE.getSpec().getNid());
+            fields.add(ObservableVersion.PROPERTY_INDEX.PATH.getSpec().getNid());
+
+            fieldCombo.setItems(fields);
+            fieldCombo.getSelectionModel().select((Integer) ObservableVersion.PROPERTY_INDEX.PATH.getSpec().getNid());
+
+            conceptWrapper = new PropertySheetItemConceptWrapper(this.manifold,
+                    conceptProperty, TermAux.MASTER_PATH.getNid(), TermAux.DEVELOPMENT_PATH.getNid());
+            conceptWrapper.setDefaultValue(TermAux.DEVELOPMENT_PATH);
+            ConceptSpecificationEditor conceptSpecificationEditor = new ConceptSpecificationEditor(conceptWrapper, this.manifold);
+            Node editor = conceptSpecificationEditor.getEditor();
+            AnchorPane.setTopAnchor(editor, 0.0);
+            AnchorPane.setRightAnchor(editor, 0.0);
+            AnchorPane.setBottomAnchor(editor, 0.0);
+            AnchorPane.setLeftAnchor(editor, 0.0);
+            valueAnchorPane.getChildren().add(editor);
+
+            this.conceptProperty.addListener((observable, oldValue, newValue) -> {
+                updateComponentAction.setNewComponent(newValue);
+            });
+        }
+
     }
 }

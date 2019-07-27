@@ -38,7 +38,10 @@ package sh.isaac.model.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -109,7 +112,7 @@ public enum TaxonomyFlag {
    }
 
    //~--- get methods ---------------------------------------------------------
-
+   private static ConcurrentHashMap<Integer, EnumSet<TaxonomyFlag>> flagsForInt = new ConcurrentHashMap<>();
    /**
     * Gets the flags.
     *
@@ -117,6 +120,10 @@ public enum TaxonomyFlag {
     * @return the flags
     */
    private static EnumSet<TaxonomyFlag> getFlags(int justFlags) {
+      Integer justFlagsInteger = justFlags;
+      if (flagsForInt.contains(justFlagsInteger)) {
+         return flagsForInt.get(justFlagsInteger);
+      }
       final EnumSet<TaxonomyFlag> flagSet = EnumSet.noneOf(TaxonomyFlag.class);
 
       for (TaxonomyFlag flag: TaxonomyFlag.values()) {
@@ -124,6 +131,7 @@ public enum TaxonomyFlag {
                            flagSet.add(flag);
                         }
       }
+      flagsForInt.put(justFlagsInteger, flagSet);
       return flagSet;
    }
 

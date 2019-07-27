@@ -49,6 +49,7 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import static sh.isaac.api.commit.StampService.FIRST_STAMP_SEQUENCE;
@@ -193,11 +194,12 @@ public class TaxonomyRecord {
     }
 
     /**
-     * Concept satisfies stamp.
+     * Determine if the concept has a latest status within the allowed status values of the stamp coordinate.
      *
      * @param conceptNid the concept nid
      * @param stampCoordinate the stamp coordinate
-     * @return true, if successful
+     * @return true, if the latest stamp as determined by the stamp coordinate is within the allowed
+     * states of the stamp coordinate.
      */
     public boolean conceptSatisfiesStamp(int conceptNid, StampCoordinate stampCoordinate) {
         final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(stampCoordinate);
@@ -517,7 +519,7 @@ public class TaxonomyRecord {
      * @param mc used to determine if a concept is active.
      * @return active concepts identified by their sequence value.
      */
-    public int[] getConceptNidsForType(int typeSequence, ManifoldCoordinate mc) {
+    public int[] getConceptNidsForType(int typeSequence, ManifoldCoordinate mc, IntFunction<int[]> taxonomyDataProvider) {
         final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(mc);
         final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc);
         final OpenIntHashSet conceptSequencesForTypeSet = new OpenIntHashSet();
@@ -527,6 +529,8 @@ public class TaxonomyRecord {
             final OpenIntHashSet stampsForConceptIntStream = new OpenIntHashSet();
 
             stampRecords.forEach((record) -> {
+                // collect the stamps associated with a particular type of relationship, so we can
+                // later determine if the relationship is active
                 if ((record.getTaxonomyFlags() & flags) == flags) {
                     if (typeSequence == Integer.MAX_VALUE) {
                         stampsForConceptIntStream.add(record.getStampSequence());
@@ -536,11 +540,21 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (mc.getOptionalDestinationStampCoordinate().isPresent() &&computer.isLatestActive(stampsForConceptIntStream.keys().elements()) &&
-                    Get.concept(possibleParentSequence).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
-                conceptSequencesForTypeSet.add(possibleParentSequence);
+            if (computer.isLatestActive(stampsForConceptIntStream.keys().elements())) {
+                // relationship of type is active per at least one relationship,
+                // now see if the destination concept meets other criterion.
+                // if the optional destination stamp coordinate is present, we need to filter and only return
+                // the concept nids that meet the criterion of this destination stamp coordinate.
+                if (mc.getOptionalDestinationStampCoordinate().isPresent()) {
+                    // See if the relationship is active
+                    TaxonomyRecordPrimitive targetConceptRecord = new TaxonomyRecordPrimitive(taxonomyDataProvider.apply(possibleParentSequence));
+                    if (targetConceptRecord.conceptSatisfiesStamp(possibleParentSequence, mc)) {
+                        conceptSequencesForTypeSet.add(possibleParentSequence);
+                    }
+                } else {
+                    conceptSequencesForTypeSet.add(possibleParentSequence);
+                }
             }
-
             return true;
         });
         IntArrayList conceptSequencesForTypeList = conceptSequencesForTypeSet.keys();

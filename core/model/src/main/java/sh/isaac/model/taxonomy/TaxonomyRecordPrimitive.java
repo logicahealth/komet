@@ -41,6 +41,10 @@ package sh.isaac.model.taxonomy;
 
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.function.IntFunction;
+
+import org.apache.mahout.math.list.IntArrayList;
+import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
@@ -49,6 +53,7 @@ import sh.isaac.api.collections.NidSet;
 
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -115,7 +120,25 @@ public class TaxonomyRecordPrimitive {
     * @return true, if successful
     */
    public boolean conceptSatisfiesStamp(int conceptNid, StampCoordinate stampCoordinate) {
-      return getTaxonomyRecordUnpacked().conceptSatisfiesStamp(conceptNid, stampCoordinate);
+         int index = 0;
+
+         while (index < taxonomyData.length) {
+            // the destination nid
+            final int recordConceptNid = taxonomyData[index++];
+            // followed by a variable number of type, stamp, flag records
+            final int length = taxonomyData[index];
+            if (recordConceptNid == conceptNid) {
+               final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(stampCoordinate);
+               final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(taxonomyData, index);
+               return records.containsConceptNidViaType(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, computer);
+            }
+
+            index += length;
+            if (index < 0) {
+               throw new IllegalStateException("Index: " + index);
+            }
+         }
+         return false;
    }
 
    public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
@@ -412,16 +435,6 @@ public class TaxonomyRecordPrimitive {
       }
 
       return Optional.empty();
-   }
-
-   /**
-    * Gets the parent nids.
-    *
-    * @param tc the tc
-    * @return the parent nids
-    */
-   public int[] getParentNids(ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().getConceptNidsForType(TermAux.IS_A.getNid(), tc);
    }
 
    //~--- set methods ---------------------------------------------------------
