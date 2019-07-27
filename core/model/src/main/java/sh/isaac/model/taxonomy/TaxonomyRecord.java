@@ -38,6 +38,7 @@ package sh.isaac.model.taxonomy;
 
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
@@ -522,11 +523,11 @@ public class TaxonomyRecord {
     public int[] getConceptNidsForType(int typeSequence, ManifoldCoordinate mc, IntFunction<int[]> taxonomyDataProvider) {
         final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(mc);
         final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc);
-        final OpenIntHashSet conceptSequencesForTypeSet = new OpenIntHashSet();
+        final RoaringBitmap conceptSequencesForTypeSet = new RoaringBitmap();
 
         this.conceptNidRecordMap.forEachPair((int possibleParentSequence,
                 TypeStampTaxonomyRecords stampRecords) -> {
-            final OpenIntHashSet stampsForConceptIntStream = new OpenIntHashSet();
+            final RoaringBitmap stampsForConceptIntStream = new RoaringBitmap();
 
             stampRecords.forEach((record) -> {
                 // collect the stamps associated with a particular type of relationship, so we can
@@ -540,7 +541,7 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (computer.isLatestActive(stampsForConceptIntStream.keys().elements())) {
+            if (computer.isLatestActive(stampsForConceptIntStream.toArray())) {
                 // relationship of type is active per at least one relationship,
                 // now see if the destination concept meets other criterion.
                 // if the optional destination stamp coordinate is present, we need to filter and only return
@@ -557,11 +558,10 @@ public class TaxonomyRecord {
             }
             return true;
         });
-        IntArrayList conceptSequencesForTypeList = conceptSequencesForTypeSet.keys();
+        IntArrayList conceptSequencesForTypeList = new IntArrayList(conceptSequencesForTypeSet.toArray());
         if (mc.hasCustomTaxonomySort()) {
             return mc.sortConcepts(conceptSequencesForTypeList.elements());
-        }
-        else {
+        } else {
             conceptSequencesForTypeList.sort();
             return conceptSequencesForTypeList.elements();
         }

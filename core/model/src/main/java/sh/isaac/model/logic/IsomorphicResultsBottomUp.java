@@ -37,6 +37,8 @@
 package sh.isaac.model.logic;
 
 //~--- JDK imports ------------------------------------------------------------
+import org.roaringbitmap.IntConsumer;
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.logic.IsomorphicSolution;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -102,15 +104,11 @@ public class IsomorphicResultsBottomUp extends IsomorphicResultsAbstract {
         this.isomorphicExpression = new LogicalExpressionImpl(this.referenceExpression,
                 this.isomorphicSolution.getSolution());
 
-        this.referenceVisitData.getNodeIdsForDepth(3).forEachKey((nodeId) -> {
-            this.referenceRelationshipNodesMap.put(
-                    new RelationshipKey(nodeId, this.referenceExpression), nodeId);
-            return true;
-        });
-        this.comparisonVisitData.getNodeIdsForDepth(3).forEachKey((nodeId) -> {
+        this.referenceVisitData.getNodeIdsForDepth(3).forEach((IntConsumer) nodeId -> IsomorphicResultsBottomUp.this.referenceRelationshipNodesMap.put(
+                new RelationshipKey(nodeId, IsomorphicResultsBottomUp.this.referenceExpression), nodeId));
+        this.comparisonVisitData.getNodeIdsForDepth(3).forEach((IntConsumer) nodeId -> {
             this.comparisonRelationshipNodesMap.put(
                     new RelationshipKey(nodeId, this.comparisonExpression), nodeId);
-            return true;
         });
         computeAdditions();
         computeDeletions();
@@ -342,14 +340,14 @@ public class IsomorphicResultsBottomUp extends IsomorphicResultsAbstract {
         possibleSolutions.add(new IsomorphicSolution(seedSolution, this.referenceVisitData, this.comparisonVisitData));
 
         final Map<Integer, SortedSet<IsomorphicSearchBottomUpNode>> possibleMatches = new TreeMap<>();
-        OpenIntHashSet nodesToTry = this.referenceVisitData.getLeafNodes();
+        RoaringBitmap nodesToTry = this.referenceVisitData.getLeafNodes();
 
         while (!nodesToTry.isEmpty()) {
             possibleMatches.clear();
 
-            final OpenIntHashSet nextSetToTry = new OpenIntHashSet();
+            final RoaringBitmap nextSetToTry = new RoaringBitmap();
 
-            nodesToTry.forEachKey((referenceNodeId) -> {
+            nodesToTry.forEach((IntConsumer) referenceNodeId -> {
                 final OptionalInt predecessorNid = this.referenceVisitData.getPredecessorNid(
                         referenceNodeId);  // only add if the node matches. ?
 
@@ -425,7 +423,6 @@ public class IsomorphicResultsBottomUp extends IsomorphicResultsAbstract {
                 }
 
                 nodesProcessed.add(referenceNodeId);
-                return true;
             });
 
             // Introducing tempPossibleSolutions secondary to limitation with lambdas, requiring a final object...

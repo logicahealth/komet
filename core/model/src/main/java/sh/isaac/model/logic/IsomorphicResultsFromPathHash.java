@@ -16,6 +16,7 @@
  */
 package sh.isaac.model.logic;
 
+import org.roaringbitmap.IntConsumer;
 import sh.isaac.api.logic.IsomorphicSolution;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -68,16 +69,14 @@ public class IsomorphicResultsFromPathHash extends IsomorphicResultsAbstract {
         this.isomorphicExpression = new LogicalExpressionImpl(this.referenceExpression,
                 this.isomorphicSolution.getSolution());
 
-        this.referenceVisitData.getNodeIdsForDepth(3).forEachKey((nodeId) -> {
+        this.referenceVisitData.getNodeIdsForDepth(3).forEach((IntConsumer) nodeId -> {
             this.referenceRelationshipNodesMap.put(
                     new RelationshipKey(nodeId, this.referenceExpression), nodeId);
-            return true;
         });
-        this.comparisonVisitData.getNodeIdsForDepth(3).forEachKey((nodeId) -> {
+        this.comparisonVisitData.getNodeIdsForDepth(3).forEach((IntConsumer) nodeId -> {
             this.comparisonRelationshipNodesMap.put(
                     new RelationshipKey(nodeId, this.comparisonExpression), nodeId);
-            return true;
-        });
+         });
         computeAdditions();
         computeDeletions();
 

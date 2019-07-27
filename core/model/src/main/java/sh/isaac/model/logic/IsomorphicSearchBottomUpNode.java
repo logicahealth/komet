@@ -42,6 +42,7 @@ package sh.isaac.model.logic;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.collections.NidSet;
 
 import sh.isaac.api.logic.NodeSemantic;
@@ -84,16 +85,15 @@ public class IsomorphicSearchBottomUpNode
     * @param nodeId the node id
     */
    public IsomorphicSearchBottomUpNode(NodeSemantic nodeSemantic,
-         OpenIntHashSet conceptsReferencedAtNodeOrAbove,
+                                       RoaringBitmap conceptsReferencedAtNodeOrAbove,
          int childNodeId,
          int nodeId) {
       this.nodeSemantic                        = nodeSemantic;
-      this.conceptsReferencedAtNodeOrAbove     = NidSet.of(conceptsReferencedAtNodeOrAbove);
-      this.size                                = conceptsReferencedAtNodeOrAbove.size();
+      this.conceptsReferencedAtNodeOrAbove     = NidSet.of(conceptsReferencedAtNodeOrAbove.toArray());
+      this.size                                = conceptsReferencedAtNodeOrAbove.getCardinality();
       this.conceptsReferencedAtNodeOrAboveHash = 1;
 
-      for (final int element: conceptsReferencedAtNodeOrAbove.keys()
-            .elements()) {
+      for (final int element: conceptsReferencedAtNodeOrAbove.toArray()) {
          this.conceptsReferencedAtNodeOrAboveHash = 31 * this.conceptsReferencedAtNodeOrAboveHash + element;
       }
 

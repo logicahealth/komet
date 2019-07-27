@@ -41,6 +41,7 @@ package sh.isaac.model.tree;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -50,6 +51,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.roaringbitmap.IntConsumer;
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
@@ -386,7 +389,7 @@ public class HashTreeWithIntArraySets
             dfsVisit(childNid, consumer, nodeVisitData, depth + 1);
          } else {
             // second path to node. Could be multi-parent or cycle...
-            OpenIntHashSet userNodeSet = nodeVisitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
+            RoaringBitmap userNodeSet = nodeVisitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
 
             // add previous predecessor to node.
             OptionalInt previousPred = nodeVisitData.getPredecessorNid(nid); 
@@ -395,20 +398,20 @@ public class HashTreeWithIntArraySets
             }
 
             // add to extra parent set of the child...
-            boolean addParent = true;
+            AtomicBoolean addParent = new AtomicBoolean(true);
 
-            for (int otherParentNid: userNodeSet.keys()
-                  .elements()) {
+            userNodeSet.forEach((IntConsumer) otherParentNid -> {
                if (isDescendentOf(otherParentNid, nid, nodeVisitData)) {
-                  addParent = false;
+                  addParent.set(false);
                }
 
                if (isDescendentOf(nid, otherParentNid, nodeVisitData)) {
                   userNodeSet.remove(otherParentNid);
                }
-            }
+            });
 
-            if (addParent) {
+
+            if (addParent.get()) {
                userNodeSet.add(nid);
             }
          }

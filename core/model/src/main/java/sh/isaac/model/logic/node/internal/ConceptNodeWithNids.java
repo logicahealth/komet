@@ -47,6 +47,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -133,7 +134,7 @@ public final class ConceptNodeWithNids
     * @param conceptSequenceSet the concept nid set
     */
    @Override
-   public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
+   public void addConceptsReferencedByNode(RoaringBitmap conceptSequenceSet) {
       super.addConceptsReferencedByNode(conceptSequenceSet);
       conceptSequenceSet.add(this.conceptNid);
    }

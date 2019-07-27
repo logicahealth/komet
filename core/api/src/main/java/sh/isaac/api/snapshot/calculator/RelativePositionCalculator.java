@@ -43,10 +43,7 @@ package sh.isaac.api.snapshot.calculator;
 
 import java.time.Instant;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -63,11 +60,14 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 import org.jvnet.hk2.annotations.Service;
 
 
+import org.roaringbitmap.IntConsumer;
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.RoaringIntSet;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
@@ -480,7 +480,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     * @param stampsForPosition the stamps for position
     * @param stampSequence the stamp sequence
     */
-   private void handleStamp(OpenIntHashSet stampsForPosition, int stampSequence, boolean allowUncommitted) {
+   private void handleStamp(RoaringBitmap stampsForPosition, int stampSequence, boolean allowUncommitted) {
       if (!allowUncommitted) {
          if (getStampService()
                 .isUncommitted(stampSequence)) {
@@ -500,60 +500,59 @@ public class RelativePositionCalculator implements StaticIsaacCache {
       // create a list of values so we don't have any
       // concurrent modification issues with removing/adding
       // items to the stampsForPosition.
-      final OpenIntHashSet stampsToCompare = (OpenIntHashSet) stampsForPosition.clone();
+      final RoaringBitmap stampsToCompare = stampsForPosition.clone();
 
-      stampsToCompare.forEachKey((prevStamp) -> {
-             switch (fastRelativePosition(stampSequence, prevStamp, this.coordinate.getStampPrecedence())) {
-             case AFTER:
-                stampsForPosition.remove(prevStamp);
-                stampsForPosition.add(stampSequence);
-                break;
+      stampsToCompare.forEach((IntConsumer) prevStamp -> {
+         switch (fastRelativePosition(stampSequence, prevStamp, coordinate.getStampPrecedence())) {
+            case AFTER:
+               stampsForPosition.remove(prevStamp);
+               stampsForPosition.add(stampSequence);
+               break;
 
-             case BEFORE:
-                break;
+            case BEFORE:
+               break;
 
-             case CONTRADICTION:
-                stampsForPosition.add(stampSequence);
-                break;
+            case CONTRADICTION:
+               stampsForPosition.add(stampSequence);
+               break;
 
-             case EQUAL:
+            case EQUAL:
 
-                // Can only have one stampSequence per time/path
-                // combination.
-                if (prevStamp == stampSequence) {
-                   // stampSequence already added from another position.
-                   // No need to add again.
-                   break;
-                }
+               // Can only have one stampSequence per time/path
+               // combination.
+               if (prevStamp == stampSequence) {
+                  // stampSequence already added from another position.
+                  // No need to add again.
+                  break;
+               }
 
-                // Duplicate values encountered.
-                this.errorCount++;
+               // Duplicate values encountered.
+               RelativePositionCalculator.this.errorCount++;
 
-                if (this.errorCount < 20) {
-                   LOG.warn(
-                       "{} should never happen. " + "\n  Data is malformed. \n   stamp: {}  \n   Part to test: {}",
-                       new Object[] { RelativePosition.EQUAL, 
-                           Get.stampService().describeStampSequence(stampSequence), 
-                           Get.stampService().describeStampSequence(prevStamp)});
-                }
+               if (RelativePositionCalculator.this.errorCount < 20) {
+                  LOG.warn(
+                          "{} should never happen. " + "\n  Data is malformed. \n   stamp: {}  \n   Part to test: {}",
+                          new Object[] { RelativePosition.EQUAL,
+                                  Get.stampService().describeStampSequence(stampSequence),
+                                  Get.stampService().describeStampSequence(prevStamp)});
+               }
 
-                break;
+               break;
 
-             case UNREACHABLE:
+            case UNREACHABLE:
 
-                // nothing to do...
-                break;
+               // nothing to do...
+               break;
 
-             default:
-                throw new UnsupportedOperationException(
-                    "n Can't handle: " + fastRelativePosition(
-                        stampSequence,
-                        prevStamp,
-                        this.coordinate.getStampPrecedence()));
-             }
+            default:
+               throw new UnsupportedOperationException(
+                       "n Can't handle: " + fastRelativePosition(
+                               stampSequence,
+                               prevStamp,
+                               RelativePositionCalculator.this.coordinate.getStampPrecedence()));
+         }
+      });
 
-             return true;
-          });
    }
 
    /**
@@ -706,22 +705,11 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     * @return the latest stamp sequences as a sorted set in an array
     */
    public int[] getLatestCommittedStampSequencesAsSet(int[] stampSequences) {
-      OpenIntHashSet stampsForPosition = new OpenIntHashSet();
+      RoaringBitmap stampsForPosition = new RoaringBitmap();
       for (int stampToCompare: stampSequences) {
          handleStamp(stampsForPosition, stampToCompare, false);
       }
-      OpenIntHashSet resultSet = new OpenIntHashSet();
-
-      for (int stampSequence: stampsForPosition.keys().elements()) {
-         if (isAllowedState(stampSequence)) {
-            resultSet.add(stampSequence);
-         }
-      }
-
-      IntArrayList resultList = resultSet.keys();
-
-      resultList.sort();
-      return resultList.elements();
+      return getResults(stampsForPosition);
    }
 
    /**
@@ -735,24 +723,24 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     * latest stamps match the allowed states of the stamp coordinate.
     */
    public int[] getLatestStampSequencesAsSet(int[] stampSequences) {
-      
-      OpenIntHashSet stampsForPosition = new OpenIntHashSet();
+
+      RoaringBitmap stampsForPosition = new RoaringBitmap();
       for (int stampToCompare: stampSequences) {
          handleStamp(stampsForPosition, stampToCompare, true);
       }
-      
-      OpenIntHashSet resultSet = new OpenIntHashSet();
 
-      for (int stampSequence: stampsForPosition.keys().elements()) {
+      return getResults(stampsForPosition);
+   }
+
+   private int[] getResults(RoaringBitmap stampsForPosition) {
+      RoaringBitmap resultList = new RoaringBitmap();
+
+      stampsForPosition.forEach((IntConsumer) stampSequence -> {
          if (isAllowedState(stampSequence)) {
-            resultSet.add(stampSequence);
+            resultList.add(stampSequence);
          }
-      }
-
-      IntArrayList resultList = resultSet.keys();
-
-      resultList.sort();
-      return resultList.elements();
+      });
+      return resultList.toArray();
    }
 
    /**

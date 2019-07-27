@@ -22,6 +22,9 @@ public class IntIntArrayFileStore extends SpinedArrayFileStore implements IntInt
     public Optional<AtomicReferenceArray<int[]>> get(int spineIndex) {
         String spineKey = SpineFileUtil.SPINE_PREFIX + spineIndex;
         File spineFile = new File(directory, spineKey);
+        if (!spineFile.exists()) {
+            return Optional.empty();
+        }
         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(spineFile)))) {
             int arraySize = dis.readInt();
             AtomicReferenceArray<int[]> data = new AtomicReferenceArray<>(arraySize);

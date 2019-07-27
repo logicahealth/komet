@@ -50,6 +50,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -78,7 +79,7 @@ public interface LogicNode
     * concepts associated with the node itself (node semantic concept + type concept, etc).
     * @param conceptNidSet The set to add the concept nids to.
     */
-   void addConceptsReferencedByNode(OpenIntHashSet conceptNidSet);
+   void addConceptsReferencedByNode(RoaringBitmap conceptNidSet);
 
    /**
     * Fragment to string.

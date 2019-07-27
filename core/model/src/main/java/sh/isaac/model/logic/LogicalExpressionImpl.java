@@ -57,6 +57,8 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 import javafx.beans.property.SimpleObjectProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.roaringbitmap.IntConsumer;
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -1245,7 +1247,7 @@ public class LogicalExpressionImpl
 
         graphVisitData.startNodeVisit(logicNode.getNodeIndex(), depth);
 
-        final OpenIntHashSet conceptsReferencedByNode = new OpenIntHashSet();
+        final RoaringBitmap conceptsReferencedByNode = new RoaringBitmap();
 
         logicNode.addConceptsReferencedByNode(conceptsReferencedByNode);
 
@@ -1256,9 +1258,8 @@ public class LogicalExpressionImpl
         OptionalInt predecessorNid = graphVisitData.getPredecessorNid(logicNode.getNodeIndex());
         if (predecessorNid.isPresent()) {
 
-            graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorNid.getAsInt()).forEachKey((node) -> {
+            graphVisitData.getUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, predecessorNid.getAsInt()).forEach((IntConsumer) node -> {
                 conceptsReferencedByNode.add(node);
-                return true;
             });
             graphVisitData.setUserNodeSet(CONCEPT_NIDS_AT_OR_ABOVE_NODE, logicNode.getNodeIndex(), conceptsReferencedByNode);
         }

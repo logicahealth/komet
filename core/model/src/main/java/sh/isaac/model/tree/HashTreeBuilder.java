@@ -47,6 +47,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.alert.Alert;
@@ -202,7 +203,7 @@ public class HashTreeBuilder
         LOG.debug("Nodes visited: " + visitData.getNodesVisited());
 
         for (int nid : watchNids.toList()) {
-            OpenIntHashSet multiParents = visitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
+            RoaringBitmap multiParents = visitData.getUserNodeSet(MULTI_PARENT_SETS, nid);
 
             LOG.debug(Get.conceptDescriptionText(nid) + " multiParentSet: " + multiParents);
         }

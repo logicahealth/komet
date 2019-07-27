@@ -69,6 +69,8 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.mahout.math.set.OpenIntHashSet;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import org.roaringbitmap.IntConsumer;
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
@@ -200,14 +202,13 @@ public class SemanticIndexer
             incrementIndexedItemCount("Semantic Component Nid");
          } else if (sv instanceof LogicGraphVersion) {
             final LogicGraphVersion lgsv = (LogicGraphVersion) sv;
-            final OpenIntHashSet  css  = new OpenIntHashSet();
+            final RoaringBitmap css  = new RoaringBitmap();
 
             lgsv.getLogicalExpression().processDepthFirst((LogicNode logicNode,TreeNodeVisitData data) -> {
                                       logicNode.addConceptsReferencedByNode(css);
                                    });
-            css.forEachKey(sequence -> {
+            css.forEach((IntConsumer) sequence -> {
                            handleType(doc, new DynamicNidImpl(sequence), -1);
-                           return true;
                         });
          } 
          else if (sv instanceof BrittleVersion) {

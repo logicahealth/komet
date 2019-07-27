@@ -46,6 +46,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.datastore.SequenceStore;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -63,17 +64,17 @@ public class TreeNodeVisitDataImpl
    /**
     * The visit started.
     */
-   private OpenIntHashSet visitStarted = new OpenIntHashSet();
+   private RoaringBitmap visitStarted = new RoaringBitmap();
 
    /**
     * The visit ended.
     */
-   private OpenIntHashSet visitEnded = new OpenIntHashSet();
+   private RoaringBitmap visitEnded = new RoaringBitmap();
 
    /**
     * The leaf nodes.
     */
-   private OpenIntHashSet leafNodes = new OpenIntHashSet();
+   private RoaringBitmap leafNodes = new RoaringBitmap();
 
    /**
     * The max depth.
@@ -93,7 +94,7 @@ public class TreeNodeVisitDataImpl
    /**
     * The processor may use this userNodeSet for their own purposes, such as the concepts referenced at node or above.
     */
-   HashMap<String, OpenIntHashSet[]> userNodeMap = new HashMap<>();
+   HashMap<String, RoaringBitmap[]> userNodeMap = new HashMap<>();
 
    /**
     * The startNid for this traversal.
@@ -168,9 +169,9 @@ public class TreeNodeVisitDataImpl
     * where created within.  
     */
    public TreeNodeVisitDataImpl(int conceptAssemblageNid) {
-      this.visitStarted = new OpenIntHashSet();
-      this.visitEnded = new OpenIntHashSet();
-      this.leafNodes = new OpenIntHashSet();
+      this.visitStarted = new RoaringBitmap();
+      this.visitEnded = new RoaringBitmap();
+      this.leafNodes = new RoaringBitmap();
       this.distanceList = new IntArrayList();
       this.discoveryTimeList = new IntArrayList();
       this.finishTimeList = new IntArrayList();
@@ -322,7 +323,7 @@ public class TreeNodeVisitDataImpl
     * @return the leaf node nids
     */
    @Override
-   public OpenIntHashSet getLeafNodes() {
+   public RoaringBitmap getLeafNodes() {
       return this.leafNodes;
    }
 
@@ -343,8 +344,8 @@ public class TreeNodeVisitDataImpl
     * @return the node ids for depth
     */
    @Override
-   public OpenIntHashSet getNodeIdsForDepth(int depth) {
-      final OpenIntHashSet nodeIdsForDepth = new OpenIntHashSet();
+   public RoaringBitmap getNodeIdsForDepth(int depth) {
+      final RoaringBitmap nodeIdsForDepth = new RoaringBitmap();
 
       for (int i = 0; i < this.distanceList.size(); i++) {
          if (this.distanceList.get(i) == depth) {
@@ -503,18 +504,18 @@ public class TreeNodeVisitDataImpl
     * @return the concepts referenced at node or above
     */
    @Override
-   public OpenIntHashSet getUserNodeSet(String nodeSetKey, int nodeNid) {
+   public RoaringBitmap getUserNodeSet(String nodeSetKey, int nodeNid) {
         int nodeSequence = nidToSequence(nodeNid);
         // lazy creation to save memory since not all tree traversals want to
         // use this capability.
         if (!this.userNodeMap.containsKey(nodeSetKey)) {
-           this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[nodeSequence + 1]);
+           this.userNodeMap.put(nodeSetKey, new RoaringBitmap[nodeSequence + 1]);
         }
 
-        OpenIntHashSet[] userNodeSet = this.userNodeMap.get(nodeSetKey);
+      RoaringBitmap[] userNodeSet = this.userNodeMap.get(nodeSetKey);
 
         if (nodeSequence >= userNodeSet.length) {
-           OpenIntHashSet[] replacement = new OpenIntHashSet[nodeSequence + 1];
+           RoaringBitmap[] replacement = new RoaringBitmap[nodeSequence + 1];
            this.userNodeMap.put(nodeSetKey, replacement);
            for (int i = 0; i < userNodeSet.length; i++) {
               replacement[i] = userNodeSet[i];
@@ -523,7 +524,7 @@ public class TreeNodeVisitDataImpl
         }
         
        if (userNodeSet[nodeSequence] == null) {
-          userNodeSet[nodeSequence] = new OpenIntHashSet();
+          userNodeSet[nodeSequence] = new RoaringBitmap();
        }
        return userNodeSet[nodeSequence];
    }
@@ -537,11 +538,11 @@ public class TreeNodeVisitDataImpl
     * @param conceptSet the concept set
     */
    @Override
-   public void setUserNodeSet(String nodeSetKey, int nodeNid, OpenIntHashSet conceptSet) {
+   public void setUserNodeSet(String nodeSetKey, int nodeNid, RoaringBitmap conceptSet) {
       int nodeSequence = nidToSequence(nodeNid);
      // lazy creation to save memory since not all tree traversals want to use this capability.
      if (!this.userNodeMap.containsKey(nodeSetKey)) {
-        this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[nodeSequence + 1]);
+        this.userNodeMap.put(nodeSetKey, new RoaringBitmap[nodeSequence + 1]);
      }
 
      this.userNodeMap.get(nodeSetKey)[nodeSequence] = conceptSet;

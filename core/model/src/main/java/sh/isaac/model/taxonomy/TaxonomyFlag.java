@@ -113,6 +113,16 @@ public enum TaxonomyFlag {
 
    //~--- get methods ---------------------------------------------------------
    private static ConcurrentHashMap<Integer, EnumSet<TaxonomyFlag>> flagsForInt = new ConcurrentHashMap<>();
+   private static FlagKey lastFlagKey = new FlagKey(0, EnumSet.noneOf(TaxonomyFlag.class));
+   private static class FlagKey {
+      int justFlags;
+      EnumSet<TaxonomyFlag> flags;
+
+      public FlagKey(int justFlags, EnumSet<TaxonomyFlag> flags) {
+         this.justFlags = justFlags;
+         this.flags = flags;
+      }
+   }
    /**
     * Gets the flags.
     *
@@ -120,9 +130,15 @@ public enum TaxonomyFlag {
     * @return the flags
     */
    private static EnumSet<TaxonomyFlag> getFlags(int justFlags) {
+      FlagKey myLastFlagKey = lastFlagKey;
+      if (myLastFlagKey.justFlags == justFlags) {
+         return myLastFlagKey.flags;
+      }
       Integer justFlagsInteger = justFlags;
-      if (flagsForInt.contains(justFlagsInteger)) {
-         return flagsForInt.get(justFlagsInteger);
+      if (flagsForInt.containsKey(justFlagsInteger)) {
+         EnumSet<TaxonomyFlag> result = flagsForInt.get(justFlagsInteger);
+         lastFlagKey = new FlagKey(justFlags, result);
+         return result;
       }
       final EnumSet<TaxonomyFlag> flagSet = EnumSet.noneOf(TaxonomyFlag.class);
 
@@ -132,6 +148,7 @@ public enum TaxonomyFlag {
                         }
       }
       flagsForInt.put(justFlagsInteger, flagSet);
+      lastFlagKey = new FlagKey(justFlags, flagSet);
       return flagSet;
    }
 
