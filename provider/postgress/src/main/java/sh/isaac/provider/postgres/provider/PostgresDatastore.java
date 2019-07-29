@@ -18,6 +18,7 @@ package sh.isaac.provider.postgres.provider;
 
 import sh.isaac.api.IdentifierService;
 import sh.isaac.model.DataStoreSubService;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.provider.datastore.cache.CacheBootstrap;
 import sh.isaac.provider.datastore.cache.DatastoreAndIdentiferService;
@@ -307,5 +308,10 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     @Override
     public void loadAssemblageOfNid(SpinedNidIntMap nidToAssemblageNidMap) {
         this.postgresProvider.loadAssemblageOfNid(nidToAssemblageNidMap);
+    }
+
+    @Override
+    public void loadTaxonomyData(int assemblageNid, SpinedIntIntArrayMap taxonomyDataMap) {
+        this.postgresProvider.loadTaxonomyData(assemblageNid, taxonomyDataMap);
     }
 }

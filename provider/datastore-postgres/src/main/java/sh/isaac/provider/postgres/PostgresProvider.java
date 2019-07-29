@@ -56,6 +56,7 @@ import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -310,8 +311,14 @@ public class PostgresProvider
 
     String sqlReadTaxonomyData() {
         return "SELECT taxonomy_data "
-            + "FROM taxonomy_data_table "
-            + "WHERE t_nid = ? AND assemblage_nid = ?; ";
+                + "FROM taxonomy_data_table "
+                + "WHERE t_nid = ? AND assemblage_nid = ?; ";
+    }
+
+    String sqlReadAllTaxonomyData() {
+        return "SELECT t_nid, taxonomy_data "
+                + "FROM taxonomy_data_table "
+                + "WHERE assemblage_nid = ?; ";
     }
 
     String sqlReadSemanticNidsForComponent() {
@@ -1060,6 +1067,25 @@ public class PostgresProvider
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     nidToAssemblageNidMap.put(resultSet.getInt(1), resultSet.getInt(2));
+                }
+            }
+        } catch (SQLException ex) {
+            LOG.error(ex.getLocalizedMessage(), ex);
+        }
+    }
+
+    @Override
+    public void loadTaxonomyData(int assemblageNid, SpinedIntIntArrayMap taxonomyDataMap) {
+        try (Connection conn = this.ds.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sqlReadAllTaxonomyData())) {
+            stmt.setInt(1, assemblageNid);
+            logSqlStmt(stmt);
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                while (resultSet.next()) {
+                    byte[] taxonomyBytes = resultSet.getBytes(2);
+                    ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(taxonomyBytes);
+                    int[] taxonomyData = byteBuffer.getIntArray();
+                    taxonomyDataMap.put(resultSet.getInt(1), taxonomyData);
                 }
             }
         } catch (SQLException ex) {

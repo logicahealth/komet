@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
@@ -489,9 +490,26 @@ public class CacheProvider
 
         return spinedMap;
     }
+    AtomicBoolean startGetTaxonomyData = new AtomicBoolean(true);
+    private class GetTaxonomyData implements Runnable {
+
+        @Override
+        public void run() {
+            long startTime = System.currentTimeMillis();
+            CacheBootstrap cacheBootstrap = (CacheBootstrap) CacheProvider.this.datastoreService;
+            int assemblageForTaxonomyNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getAssemblageNid();
+            cacheBootstrap.loadTaxonomyData(assemblageForTaxonomyNid, getTaxonomyMap(assemblageForTaxonomyNid));
+            LOG.info("Loaded Taxonomy Data in " + DurationUtil.msTo8601(System.currentTimeMillis() - startTime));
+        }
+    }
 
     @Override
     public int[] getTaxonomyData(int assemblageNid, int conceptNid) {
+        if (startGetTaxonomyData.get()) {
+            if (startGetTaxonomyData.getAndSet(false)) {
+                Get.executor().execute(new GetTaxonomyData());
+            }
+        }
         int[] data = getTaxonomyMap(assemblageNid).get(conceptNid);
         if (data == null) {
             data = this.datastoreService.getTaxonomyData(assemblageNid, conceptNid);
