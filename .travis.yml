@@ -5,7 +5,6 @@ cache:
   directories:
   - $HOME/.m2
 install:
-  - echo $JAVA_HOME
   - cp travis-toolchains.xml $HOME/.m2/toolchains.xml
 script: mvn -B -e clean verify
 notifications:
