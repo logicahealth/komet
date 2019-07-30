@@ -1,10 +1,11 @@
 language: java
 jdk: openjdk11
-dist: trusty
+#dist: trusty
 cache:
   directories:
   - $HOME/.m2
-install: 
+install:
+  - echo $JAVA_HOME
   - cp travis-toolchains.xml $HOME/.m2/toolchains.xml
 script: mvn -B -e clean verify
 notifications:
