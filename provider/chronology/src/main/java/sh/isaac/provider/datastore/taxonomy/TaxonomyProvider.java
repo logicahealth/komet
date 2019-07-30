@@ -37,6 +37,7 @@
 package sh.isaac.provider.datastore.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import java.lang.ref.WeakReference;
@@ -441,16 +442,26 @@ public class TaxonomyProvider
 
     private class SnapshotCacheKey {
 
-        PremiseType taxPremiseType;
+        final PremiseType taxPremiseType;
         StampCoordinate stampCoordinate;
         StampCoordinate destinationCoordinate;
-        int customSortHash = 0;
+        final int customSortHash;
 
         public SnapshotCacheKey(ManifoldCoordinate mc) {
             this.taxPremiseType = mc.getTaxonomyPremiseType();
             this.stampCoordinate = mc.getStampCoordinate();
-            this.destinationCoordinate = mc.getOptionalDestinationStampCoordinate().get();
-            customSortHash = mc.getCustomTaxonomySortHashCode();
+            if (this.stampCoordinate instanceof ObservableStampCoordinate) {
+                this.stampCoordinate = ((ObservableStampCoordinate) this.stampCoordinate).getStampCoordinate();
+            }
+            if (mc.getOptionalDestinationStampCoordinate().isPresent()) {
+                this.destinationCoordinate = mc.getOptionalDestinationStampCoordinate().get();
+                if (this.destinationCoordinate instanceof ObservableStampCoordinate) {
+                    this.destinationCoordinate = ((ObservableStampCoordinate) this.destinationCoordinate).getStampCoordinate();
+                }
+            } else {
+                this.destinationCoordinate = null;
+            }
+            this.customSortHash = mc.getCustomTaxonomySortHashCode();
         }
 
         @Override
@@ -461,6 +472,16 @@ public class TaxonomyProvider
             hash = 29 * hash + this.destinationCoordinate.hashCode();
             hash = 29 * hash + customSortHash;
             return hash;
+        }
+
+        @Override
+        public String toString() {
+            return "SnapshotCacheKey{" +
+                    "taxPremiseType=" + taxPremiseType +
+                    ",\n   stampCoordinate=" + stampCoordinate +
+                    ",\n   destinationCoordinate=" + destinationCoordinate +
+                    ",\n   customSortHash=" + customSortHash +
+                    '}';
         }
 
         @Override
@@ -522,6 +543,7 @@ public class TaxonomyProvider
             return previousTask;
         }
 
+        LOG.debug("Executing: " + snapshotCacheKey + "\n cache count is: " + this.snapshotCache.size());
         Get.executor().execute(treeBuilderTask);
 
         return treeBuilderTask;

@@ -1060,7 +1060,7 @@ public class Frills
     * @param stamp - optional - defaults to system default if not provided.
     * @return the set of concept nid ids that represent the children
     */
-   public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
+      public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
       
       TaxonomySnapshot tss = Get.taxonomyService().getSnapshotNoTree(
             new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp),

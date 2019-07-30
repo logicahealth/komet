@@ -43,6 +43,8 @@ package sh.isaac.model.observable.coordinate;
 
 import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.time.Instant;
+import java.util.Objects;
+
 import javafx.beans.InvalidationListener;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -204,6 +206,19 @@ public class ObservableStampPositionImpl
    public ObservableStampPositionImpl deepClone() {
       return new ObservableStampPositionImpl(stampPosition.deepClone());
    }
-   
+
+   @Override
+   public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || !(o instanceof StampPosition)) return false;
+      StampPosition that = (StampPosition) o;
+      return this.getTime() == that.getTime() &&
+              this.getPathNid() == that.getPathNid();
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(this.getTime(), this.getPathNid());
+   }
 }
 

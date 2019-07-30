@@ -160,7 +160,7 @@ public class TreeBuilderTask
       Tree tree = graphBuilder.getSimpleDirectedGraph(this);
 
       message = "complete";
-      LOG.debug("Tree build completed for {}", this.manifoldCoordinate);
+      LOG.info("Tree build completed for {}", this.manifoldCoordinate);
       return tree;
    }
 

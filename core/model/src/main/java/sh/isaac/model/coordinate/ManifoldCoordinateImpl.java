@@ -275,8 +275,9 @@ public class ManifoldCoordinateImpl
     */
    @Override
    public String toString() {
-      return "ManifoldCoordinateImpl{" + this.taxonomyPremiseType + ",\n" + this.stampCoordinate + ", \n" + this.destinationStampCoordinate + ", \n" +
-             this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + getCoordinateUuid() + '}';
+      return "ManifoldCoordinateImpl{" + this.taxonomyPremiseType + ",\n   origin coordinate: " + this.stampCoordinate + ", \n   destin coordinate: " + this.destinationStampCoordinate +
+              ", \n   lang coordinate: " +
+             this.languageCoordinate + ", \n   logic coordinate: " + this.logicCoordinate + ", uuid=" + getCoordinateUuid() + '}';
    }
 
    /**
