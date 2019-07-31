@@ -41,5 +41,6 @@ public interface KometPreferences {
     ObservableList<TaxonomyItem> getTaxonomyItems();
     ObservableList<UserPreferenceItems> getUserPreferences();
     ObservableList<WindowPreferenceItems> getWindowPreferences();
+    ObservableList<PersonaItem> getPersonaPreferences();
 
 }

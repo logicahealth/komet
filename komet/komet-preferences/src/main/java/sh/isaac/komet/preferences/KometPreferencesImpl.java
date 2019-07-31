@@ -58,6 +58,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     private final ObservableList<TaxonomyItem> taxonomyItems = FXCollections.observableArrayList();
     private final ObservableList<UserPreferenceItems> userPreferences = FXCollections.observableArrayList();
     private final ObservableList<WindowPreferenceItems> windowPreferences = FXCollections.observableArrayList();
+    private final ObservableList<PersonaItem> personaPreferences = FXCollections.observableArrayList();
 
     private RootPreferences rootPreferences;
 
@@ -198,6 +199,8 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
             userPreferences.add((UserPreferenceItems) item);
         } else if (item instanceof WindowPreferenceItems) {
             windowPreferences.add((WindowPreferenceItems) item);
+        } else if(item instanceof PersonaItem){
+            personaPreferences.add((PersonaItem)item);
         }
 
     }
@@ -217,6 +220,8 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
             userPreferences.remove(item);
         } else if (item instanceof WindowPreferenceItems) {
             windowPreferences.remove(item);
+        } else if(item instanceof PersonaItem){
+            personaPreferences.remove(item);
         }
     }
 
@@ -269,4 +274,8 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
         return windowPreferences;
     }
 
- }
+    @Override
+    public ObservableList<PersonaItem> getPersonaPreferences() {
+        return personaPreferences;
+    }
+}
