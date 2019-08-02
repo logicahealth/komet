@@ -69,8 +69,6 @@ public class Rf2DirectConfigOptions implements ConfigOptionsDescriptor
             )};
    }
 
-   
-   
    @Override
    public String getName()
    {
