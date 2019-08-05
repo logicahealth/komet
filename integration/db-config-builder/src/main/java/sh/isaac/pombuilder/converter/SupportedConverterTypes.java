@@ -43,6 +43,7 @@ package sh.isaac.pombuilder.converter;
 
 import java.io.IOException;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -148,14 +149,7 @@ public enum SupportedConverterTypes
    }, "rxnorm-ibdf", "convert-rxnorm-to-ibdf", "RxNorm", 
          new String[] {"shared/licenses/rxnorm.xml"}, 
          new String[] {"shared/noticeAdditions/rxnorm-NOTICE-addition.txt"}),
-//   RXNORM_SOLOR("rxnorm-src-data", new String[] {}, new String[] {"rf2-ibdf-sct"}, new UploadFileInfo[] {
-//         new UploadFileInfo("", "https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html", 
-//               "RxNorm_full_06062016.zip",
-//               "The file must be a zip file, which starts with 'rxnorm_full' and ends with .zip", "rxnorm_full.*\\.zip$", true)
-//   }, "rxnorm-ibdf-solor", "convert-rxnorm-solor-to-ibdf", "RxNorm Solor", 
-//         new String[] {"shared/licenses/rxnorm.xml"}, 
-//         new String[] {"shared/noticeAdditions/rxnorm-NOTICE-addition.txt"}),
-   
+
    HL7v3("hl7v3-src-data", ".*$", 
          "A typical HL7v3 version number is '2.47.7'.  This value should come directly from the release information.  There are no enforced restrictions on the "
          + "format of this value", 
@@ -270,8 +264,91 @@ public enum SupportedConverterTypes
                ".*.ttl$", true)
    }, "bevon-ibdf", "convert-turtle-to-ibdf", "Beverage Ontology", 
          new String[] {"shared/licenses/bevon.xml"},
-         new String[] {"shared/noticeAdditions/bevon-NOTICE-addition.txt"})
+         new String[] {"shared/noticeAdditions/bevon-NOTICE-addition.txt"}),
+
+   /*
+    *  Below are enums used for Solor specific transformation + imports
+    */
+
+   SOLOR_RF2("solor-rf2-src-data",
+           "\\d{8}.*$",
+           "A typical Snomed version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
+                   + "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.",
+           new String[] {},
+           new String[] {},
+           new UploadFileInfo[] { new UploadFileInfo("",
+                   "https://www.nlm.nih.gov/healthit/snomedct/international.html",
+                   "SnomedCT_RF2Release_INT_20160131.zip",
+                   "The expected file is the RF2 release zip file.  The filename must end with .zip, and must contain the release date in the Snomed standard"
+                           + " naming convention (4 digit year, 2 digit month, 2 digit day).",
+                   "SnomedCT_.*RF2_.*_\\d{8}.*\\.zip$",
+                   true)},
+           "solor-direct-rf2-content",
+           "solor-direct-rf2-import",
+           "Snomed CT",
+           new String[] {"shared/licenses/sct.xml"},
+           new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
+
+   SOLOR_RXNORM("solor-rxnorm-src-data",
+           ".*$",
+           "A typical RxNorm version number is '2017.04.03'.  This value should come directly from the RxNorm release information, however, by convention, is"
+                   + " reformatted to yyyy.mm.dd for better sorting in the artifact storage system.  There are no enforced restrictions on the format of this value.",
+           new String[] {},
+           new String[] {SOLOR_RF2.getArtifactId()},
+           new UploadFileInfo[] { new UploadFileInfo("",
+                   "https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html",
+                   "RxNorm_full_06062016.zip",
+                   "The file must be a zip file, which starts with 'RxNorm_full' and ends with .zip",
+                   "RxNorm_full.*\\.zip$",
+                   true)},
+           "solor-direct-rxnorm-content",
+           "solor-direct-rxnorm-import",
+           "RxNorm",
+           new String[] {"shared/licenses/rxnorm.xml"},
+           new String[] {"shared/noticeAdditions/rxnorm-NOTICE-addition.txt"}),
+
+   SOLOR_LOINC("solor-loinc-src-data",
+           ".*$",
+           "A typical LOINC version number is '2.59'.  The version numbers should be used directly from LOINC.  There are no enforced restrictions on the format.",
+           new String[] {},
+           new String[] {SOLOR_RF2.getArtifactId()},
+           new UploadFileInfo[] { new UploadFileInfo("",
+                           "https://loinc.org/downloads/loinc",
+                           "LOINC_2.54_Text.zip",
+                           "The primary LOINC file is the 'LOINC Table File' in the csv format'.  This should be a zip file that contains a file named 'loinc.csv'."
+                           + "  Additionally, the zip file may (optionally) contain 'map_to.csv' and 'source_organization.csv'."
+                           + "  The zip file must contain 'text' within its name.",
+                           "Loinc.*Text.*\\.zip$",
+                           true)},
+           "solor-direct-loinc-content",
+           "solor-direct-loinc-import",
+           "LOINC",
+           new String[] {"shared/licenses/loinc.xml"},
+           new String[] {"shared/noticeAdditions/loinc-NOTICE-addition.txt"}),
+
+   SOLOR_LOINC_RF2_COLLAB("solor-loinc-rf2-collab-src-data",
+           ".*$",
+           "A typical Snomed version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
+                   + "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.",
+           new String[] {},
+           new String[] {SOLOR_RF2.getArtifactId(), SOLOR_LOINC.getArtifactId()},
+           new UploadFileInfo[] { new UploadFileInfo("",
+                   "https://loinc.org/downloads/loinc",
+                   "SnomedCT_LOINCRF2_PRODUCTION_20170831T120000Z.zip",
+                   "The expected file is a modified RF2 release zip file.  The filename must end with .zip, and must contain the release date in the Snomed standard" +
+                           " naming convention (4 digit year, 2 digit month, 2 digit day).",
+                   "SnomedCT_LOINCRF2_.*_\\d{8}.*\\.zip$",
+                   true)},
+           "solor-direct-loinc-rf2-collab-content",
+           "solor-direct-loinc-rf2-collab-import",
+           "LOINC & Snomed CT Collaboration",
+           new String[] {"shared/licenses/loincRF2Collab.xml"},
+           new String[] {"shared/noticeAdditions/loincRF2Collab-NOTICE-addition.txt"})
+
    ;
+
+
+
    private String srcArtifactId;
    private String srcVersionRegExpValidator;
    private String srcVersionDescription;
@@ -534,6 +611,11 @@ public enum SupportedConverterTypes
             }
          }
          return null;
+   }
+
+   public static SupportedConverterTypes findByPath(Path pathOfFile){
+
+      return SupportedConverterTypes.BEVON;
    }
 }
 

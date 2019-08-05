@@ -464,7 +464,8 @@ public abstract class DirectWriteHelperTimedTaskWrapper extends TimedTaskWithPro
      */
     public void configureConceptAsDynamicAssemblage(UUID concept, String dynamicUsageDescription, DynamicColumnInfo[] columns,
                                                     IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, long time) {
-        this.directWriteHelper.configureConceptAsDynamicAssemblage(concept, dynamicUsageDescription, columns, referencedComponentTypeRestriction, referencedComponentTypeSubRestriction, time);
+        this.directWriteHelper.configureConceptAsDynamicAssemblage(concept, dynamicUsageDescription, columns,
+                referencedComponentTypeRestriction, referencedComponentTypeSubRestriction, time);
     }
 
     /**
