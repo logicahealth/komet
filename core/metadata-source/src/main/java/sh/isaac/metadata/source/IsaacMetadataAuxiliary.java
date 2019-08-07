@@ -770,6 +770,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(GIT_USER_NAME);
                   createConcept(GIT_PASSWORD);
                   popParent();
+               createConcept("Personas");
+               pushParent(current());
+                  createConcept("Persona Name");
+               popParent();
                createConcept("Coordinate properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
                   createConcept(AUTHOR_NID_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);

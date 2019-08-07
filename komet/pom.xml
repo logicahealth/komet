@@ -31,5 +31,6 @@
         <module>komet-preferences</module>
     <module>changeset-view</module>
          <module>batch</module>
+         <module>livd</module>
      </modules>
 </project>

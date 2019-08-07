@@ -94,6 +94,7 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup> {
                 } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.LogicItems")) {
                     propertySheetClassName = "sh.isaac.komet.preferences.LogicItemPanels";
                 }
+
                 Class preferencesSheetClass = Class.forName(propertySheetClassName);
                 Constructor<PreferenceGroup> c = preferencesSheetClass.getConstructor(
                         IsaacPreferences.class, 
