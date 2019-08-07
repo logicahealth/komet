@@ -1,5 +1,6 @@
 package sh.isaac.komet.preferences.window;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -48,7 +49,11 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         ITEM_NAME,
         LEFT_TAB_NODES,
         CENTER_TAB_NODES,
-        RIGHT_TAB_NODES
+        RIGHT_TAB_NODES,
+        X_LOC,
+        Y_LOC,
+        HEIGHT,
+        WIDTH,
     };
     private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.WINDOW_CONFIGURATION_NAME____SOLOR.toExternalString());
@@ -56,8 +61,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     private final SimpleListProperty<ConceptSpecification> leftTabNodesProperty =
             new SimpleListProperty<>(this, MetaData.LEFT_TAB_NODES____SOLOR.toExternalString(), FXCollections.observableArrayList());
     private final PropertySheetConceptListWrapper leftTabsWrapper;
-
-
+    
     private final SimpleListProperty<ConceptSpecification> centerTabNodesProperty =
             new SimpleListProperty<>(this, MetaData.CENTER_TAB_NODES____SOLOR.toExternalString(), FXCollections.observableArrayList());
     private final PropertySheetConceptListWrapper centerTabsWrapper;
@@ -65,6 +69,18 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     private final SimpleListProperty<ConceptSpecification> rightTabNodesProperty =
             new SimpleListProperty<>(this, MetaData.RIGHT_TAB_NODES____SOLOR.toExternalString(), FXCollections.observableArrayList());
     private final PropertySheetConceptListWrapper rightTabsWrapper;
+
+    private final SimpleDoubleProperty xLocationProperty =
+            new SimpleDoubleProperty(this, MetaData.WINDOW_X_POSITION____SOLOR.toExternalString());
+
+    private final SimpleDoubleProperty yLocationProperty =
+            new SimpleDoubleProperty(this, MetaData.WINDOW_Y_POSITION____SOLOR.toExternalString());
+
+    private final SimpleDoubleProperty heightProperty =
+            new SimpleDoubleProperty(this, MetaData.WINDOW_HEIGHT____SOLOR.toExternalString());
+
+    private final SimpleDoubleProperty widthProperty =
+            new SimpleDoubleProperty(this, MetaData.WINDOW_WIDTH____SOLOR.toExternalString());
 
 
 
@@ -99,9 +115,14 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
             FxGet.removeTaxonomyConfiguration(oldItemName.get());
         }
 
+        getPreferenceNode().put(TaxonomyItemPanel.Keys.ITEM_NAME, this.nameProperty.get());
         getPreferencesNode().putConceptList(Keys.LEFT_TAB_NODES, leftTabNodesProperty);
         getPreferencesNode().putConceptList(Keys.CENTER_TAB_NODES, centerTabNodesProperty);
         getPreferencesNode().putConceptList(Keys.RIGHT_TAB_NODES, rightTabNodesProperty);
+        getPreferenceNode().putDouble(Keys.X_LOC, this.xLocationProperty.doubleValue());
+        getPreferenceNode().putDouble(Keys.Y_LOC, this.yLocationProperty.doubleValue());
+        getPreferenceNode().putDouble(Keys.HEIGHT, this.heightProperty.doubleValue());
+        getPreferenceNode().putDouble(Keys.WIDTH, this.widthProperty.doubleValue());
 
     }
 
@@ -120,6 +141,11 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
                 List.of(MetaData.ACTIVITIES_PANEL____SOLOR,
                         MetaData.SIMPLE_SEARCH_PANEL____SOLOR,
                         MetaData.EXTENDED_SEARCH_PANEL____SOLOR)));
+
+        this.xLocationProperty.setValue(getPreferencesNode().getDouble(Keys.X_LOC, 40.0));
+        this.yLocationProperty.setValue(getPreferencesNode().getDouble(Keys.Y_LOC, 40.0));
+        this.heightProperty.setValue(getPreferencesNode().getDouble(Keys.HEIGHT, 400));
+        this.widthProperty.setValue(getPreferencesNode().getDouble(Keys.WIDTH, 500));
     }
     @Override
     public boolean showDelete() {
@@ -139,5 +165,30 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     @Override
     public IsaacPreferences getPreferenceNode() {
         return getPreferencesNode();
+    }
+
+    @Override
+    public boolean showRevertAndSave() {
+        return true;
+    }
+
+    @Override
+    public SimpleDoubleProperty xLocationProperty() {
+        return xLocationProperty;
+    }
+
+    @Override
+    public SimpleDoubleProperty yLocationProperty() {
+        return yLocationProperty;
+    }
+
+    @Override
+    public SimpleDoubleProperty heightProperty() {
+        return heightProperty;
+    }
+
+    @Override
+    public SimpleDoubleProperty widthProperty() {
+        return widthProperty;
     }
 }

@@ -402,6 +402,10 @@ public interface IsaacPreferences {
      */
     double getDouble(String key, double defaultValue);
 
+    default double getDouble(Enum key, double defaultValue) {
+        return getDouble(enumToGeneralKey(key), defaultValue);
+    }
+
     default OptionalDouble getDouble(String key) {
         Optional<String> optionalValue = get(key);
         if (optionalValue.isPresent()) {

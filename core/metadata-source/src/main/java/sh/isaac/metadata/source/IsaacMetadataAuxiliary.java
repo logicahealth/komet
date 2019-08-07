@@ -700,6 +700,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("Right tab nodes").getPreferredDescriptionBuilder().setDescriptionText("Right tab").setModule(TermAux.KOMET_MODULE);
                   createConcept("Center tab nodes").getPreferredDescriptionBuilder().setDescriptionText("Center tab nodes").setModule(TermAux.KOMET_MODULE);
                   createConcept("Exploration nodes").setModule(TermAux.KOMET_MODULE);
+
+                  createConcept("Window x position").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Window y position").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Window width").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Window height").setModule(TermAux.KOMET_MODULE);
+
                   pushParent(current());
                      createConcept("Simple search panel").addStringSemantic(UUID.fromString("4d45c20c-cf25-5280-b422-fad245e12899"), "sh.komet.gui.search.simple.SimpleSearchViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                              .getPreferredDescriptionBuilder().setDescriptionText("Simple search")

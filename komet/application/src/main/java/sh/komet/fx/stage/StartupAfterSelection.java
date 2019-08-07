@@ -161,11 +161,18 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
                         BorderPane root = loader.load();
                         KometStageController controller = loader.getController();
-                        controller.setPreferencesNode(windowPreference.getPreferenceNode());
                         root.setId(stageUuid.toString());
                         Stage stage = new Stage(StageStyle.UNIFIED);
-                        stage.setTitle(FxGet.configurationName());
                         Scene scene = new Scene(mainApp.setupStageMenus(stage, root));
+
+                        stage.setX(windowPreference.xLocationProperty().doubleValue());
+                        stage.setY(windowPreference.yLocationProperty().doubleValue());
+                        stage.setWidth(windowPreference.widthProperty().doubleValue());
+                        stage.setHeight(windowPreference.heightProperty().doubleValue());
+                        stage.setTitle(FxGet.configurationName());
+                        controller.setPreferencesNode(windowPreference, stage);
+
+
                         stage.setScene(scene);
                         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
                         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));

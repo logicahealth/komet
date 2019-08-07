@@ -42,6 +42,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.prefs.BackingStoreException;
 
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
@@ -81,9 +82,6 @@ import sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
-import sh.isaac.solor.direct.LoincDirectImporter;
-import sh.isaac.solor.direct.LoincExpressionToConcept;
-import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.NodeFactory.PanelPlacement;
@@ -154,6 +152,7 @@ public class KometStageController
     private MenuButton classifierMenuButton;             // Value injected by FXMLLoader
     private WindowPreferenceItems windowPreferenceItems;
     private IsaacPreferences preferencesNode;
+    private Stage stage;
 
 
     private final ImageView vanityImage = new ImageView();
@@ -248,6 +247,7 @@ public class KometStageController
         this.leftTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         this.centerTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         this.rightTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
+
     }
 
     private List<MenuItem> getTaskMenuItems() {
@@ -433,11 +433,13 @@ public class KometStageController
     }
     /**
      *
-     * @param preferencesNode preferences of the window.
+     * @param windowPreferenceItems preferences of the window.
      */
-    public void setPreferencesNode(IsaacPreferences preferencesNode) throws BackingStoreException {
+    public void setPreferencesNode(WindowPreferenceItems windowPreferenceItems, Stage stage) throws BackingStoreException {
 
-        this.preferencesNode = preferencesNode;
+        this.windowPreferenceItems = windowPreferenceItems;
+        this.preferencesNode = windowPreferenceItems.getPreferenceNode();
+        this.stage = stage;
         if (this.preferencesNode.children().length == 0) {
             // New window, add default configuration
             IsaacPreferences treeViewPreferences = preferencesNode.node(UUID.randomUUID().toString());
@@ -515,6 +517,26 @@ public class KometStageController
                 }
             }
         }
+
+        this.stage.xProperty().addListener((observable, oldValue, newValue) -> {
+            windowPreferenceItems.xLocationProperty().setValue(newValue);
+            windowPreferenceItems.save();
+        });
+
+        this.stage.yProperty().addListener((observable, oldValue, newValue) -> {
+            windowPreferenceItems.yLocationProperty().setValue(newValue);
+            windowPreferenceItems.save();
+        });
+
+        this.stage.widthProperty().addListener((observable, oldValue, newValue) -> {
+            windowPreferenceItems.widthProperty().setValue(newValue);
+            windowPreferenceItems.save();
+        });
+
+        this.stage.heightProperty().addListener((observable, oldValue, newValue) -> {
+            windowPreferenceItems.heightProperty().setValue(newValue);
+            windowPreferenceItems.save();
+        });
     }
     public void saveSettings() throws BackingStoreException {
         preferencesNode.sync();

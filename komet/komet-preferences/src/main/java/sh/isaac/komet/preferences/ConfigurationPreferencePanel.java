@@ -56,24 +56,24 @@ public class ConfigurationPreferencePanel extends AbstractPreferences implements
                                         KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "KOMET"), manifold, 
                 kpc);
-        nameProperty.set(groupNameProperty().get());
-        this.enableEdit.setValue(preferencesNode.getBoolean(enableEdit.getName(), true));
+        this.nameProperty.set(groupNameProperty().get());
+        this.enableEdit.setValue(preferencesNode.getBoolean(this.enableEdit.getName(), true));
         revertFields();
         save();
         FxGet.setConfigurationName(nameProperty.get());
         nameProperty.addListener((observable, oldValue, newValue) -> {
             FxGet.setConfigurationName(newValue);
         });
-        getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, enableEdit));
-        getItemList().add(new PropertySheetTextWrapper(manifold, datastoreLocationProperty));
+        getItemList().add(new PropertySheetTextWrapper(manifold, this.nameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(manifold, this.enableEdit));
+        getItemList().add(new PropertySheetTextWrapper(manifold, this.datastoreLocationProperty));
     }
 
     @Override
     protected void saveFields() throws BackingStoreException {
-        getPreferencesNode().put(Keys.DATASTORE_LOCATION, datastoreLocationProperty.get());
-        getPreferencesNode().put(Keys.CONFIGURATION_NAME, nameProperty.get());
-        getPreferencesNode().putBoolean(ENABLE_EDITING, enableEdit.get());
+        getPreferencesNode().put(Keys.DATASTORE_LOCATION, this.datastoreLocationProperty.get());
+        getPreferencesNode().put(Keys.CONFIGURATION_NAME, this.nameProperty.get());
+        getPreferencesNode().putBoolean(ENABLE_EDITING, this.enableEdit.get());
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ConfigurationPreferencePanel extends AbstractPreferences implements
         Path folderPath = configurationService.getDataStoreFolderPath();
         this.datastoreLocationProperty.set(getPreferencesNode().get(Keys.DATASTORE_LOCATION, folderPath.toString()));
         this.nameProperty.set(getPreferencesNode().get(Keys.CONFIGURATION_NAME, getGroupName()));
-        enableEdit.set(getPreferencesNode().getBoolean(ENABLE_EDITING, true));
+        this.enableEdit.set(getPreferencesNode().getBoolean(ENABLE_EDITING, true));
     }
 
 
