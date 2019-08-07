@@ -42,12 +42,7 @@ package sh.isaac.api.index;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The contract interface for basic querying of individual indexes.  Note that individual index implementations
@@ -239,6 +234,22 @@ public interface IndexQueryService {
     * @param searchResult the search result
     * @return the merged results, in a collection that iterates in the same order as they were passed in.
     */
-   Collection<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult);
+   public Collection<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult);
+   
+   /**
+    * Register a class to receive index configuration change events, and full reindex operation events.
+    * 
+    * Implementations are free to use WeakReferences here, so callers need to maintain a handle to their listener.
+    *  
+    * @param statusListener
+    */
+   public void registerListener(IndexStatusListener statusListener);
+   
+   /**
+    * Unregister a class to receive events sent due to {@link #registerListener(IndexStatusListener)} events being called.
+    * 
+    * @param statusListener the listener to unregister
+    */
+   public void unregisterListener(IndexStatusListener statusListener);
 }
 

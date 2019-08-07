@@ -71,14 +71,6 @@ public interface IndexBuilderService extends DatastoreServices, IndexQueryServic
     * Call this when a batch-reindex is complete.  
     */
    void finishBatchReindex();
-   
-   /**
-    * After content is indexed, it may be up to 60 seconds until it is visible in queries, unless the user queries with a target 
-    * generation.
-    * 
-    * Alternatively, call this after indexing, to force a reopen now.
-    */
-   void refreshQueryEngine();
 
    /**
     * To maximize search performance, you can optionally call forceMerge.

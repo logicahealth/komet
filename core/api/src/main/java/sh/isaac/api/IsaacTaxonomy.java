@@ -270,18 +270,6 @@ public class IsaacTaxonomy {
                cb.addSemantic(sb);
             }
 
-            final DynamicArray<DynamicData> indexConfig
-                    = LookupService.getService(DynamicUtility.class)
-                            .configureColumnIndexInfo(dsc.getDynamicColumns());
-
-            if (indexConfig != null) {
-               sb = Get.semanticBuilderService()
-                       .getDynamicBuilder(cb,
-                               DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
-                                       .getNid(),
-                               new DynamicData[]{indexConfig});
-               cb.addSemantic(sb);
-            }
          }
          
          cb.setT5UuidNested(namespace);

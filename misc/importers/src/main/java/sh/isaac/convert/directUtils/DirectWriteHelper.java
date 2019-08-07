@@ -940,7 +940,7 @@ public class DirectWriteHelper
 	{
 		//Make this a dynamic refex - with the association column info
 		DynamicColumnInfo[] columns = new DynamicColumnInfo[] { new DynamicColumnInfo(0,
-				DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), DynamicDataType.UUID, null, false, true) };
+				DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), DynamicDataType.UUID, null, false) };
 		configureConceptAsDynamicAssemblage(concept, dynamicUsageDescription, columns, associationComponentTypeRestriction,
 				associationComponentTypeSubRestriction, time);
 
@@ -1149,7 +1149,7 @@ public class DirectWriteHelper
 		else if (dataType != null)
 		{
 			configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
-					new DynamicColumnInfo[] { new DynamicColumnInfo(0, concept, dataType, null, true, true) }, null, null, time);
+					new DynamicColumnInfo[] { new DynamicColumnInfo(0, concept, dataType, null, true) }, null, null, time);
 		}
 		
 		if (additionalParents != null)
@@ -1711,7 +1711,7 @@ public class DirectWriteHelper
 			else
 			{
 				configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
-					new DynamicColumnInfo[] { new DynamicColumnInfo(0, concept, dataType, null, true, true) }, null, null, time);
+					new DynamicColumnInfo[] { new DynamicColumnInfo(0, concept, dataType, null, true) }, null, null, time);
 			}
 		}
 		

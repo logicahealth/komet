@@ -124,33 +124,6 @@ import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 @Singleton
 public class DynamicUtilityImpl
          implements DynamicUtility {
-   /**
-    * Configure column index info.
-    *
-    * @param columns the columns
-    * @return the dynamic element array
-    */
-   @Override
-   public DynamicArray<DynamicData> configureColumnIndexInfo(DynamicColumnInfo[] columns) {
-      final ArrayList<DynamicIntegerImpl> temp = new ArrayList<>();
-
-      if (columns != null) {
-         Arrays.sort(columns);
-
-         for (final DynamicColumnInfo ci: columns) {
-            // byte arrays are not currently indexable withing lucene
-            if ((ci.getColumnDataType() != DynamicDataType.BYTEARRAY) && ci.getIndexConfig()) {
-               temp.add(new DynamicIntegerImpl(ci.getColumnOrder()));
-            }
-         }
-
-         if (temp.size() > 0) {
-            return new DynamicArrayImpl<>(temp.toArray(new DynamicData[temp.size()]));
-         }
-      }
-
-      return null;
-   }
 
    /**
     * Configure dynamic element definition data for column.
@@ -317,12 +290,6 @@ public class DynamicUtilityImpl
             Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid(), data)
                      .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
          }
-         DynamicArray<DynamicData> indexInfo = configureColumnIndexInfo(columns);
-         if (indexInfo != null) {
-            Get.semanticBuilderService()
-               .getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION.getNid(), new DynamicData[] { indexInfo })
-               .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
-         }
       }
 
       final DynamicData[] data = configureDynamicRestrictionData(referencedComponentTypeRestriction, referencedComponentTypeSubRestriction);
@@ -380,13 +347,6 @@ public class DynamicUtilityImpl
                   .add(Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid(), data)
                         .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
                         .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow());
-         }
-         DynamicArray<DynamicData> indexInfo = configureColumnIndexInfo(columns);
-         if (indexInfo != null) {
-            builtSemantics.add(Get.semanticBuilderService()
-                  .getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION.getNid(), new DynamicData[] { indexInfo })
-                  .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
-                  .build(localEditCoord, ChangeCheckerMode.ACTIVE).getNoThrow());
          }
       }
 

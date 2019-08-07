@@ -1727,7 +1727,7 @@ public class DirectImporter
 
                 //TODO I can't figure out if/where the RF2 spec specifies whether columns can be optional or required.... default to optional for now.
                 refsetColumns.add(new DynamicColumnInfo(adjustedColumnNumber, columnHeaderConcept,
-                        DynamicDataType.translateSCTIDMetadata(columns[7]), null, false, true));
+                        DynamicDataType.translateSCTIDMetadata(columns[7]), null, false));
             }
             //At this point, we should have a hash, of how every single refset should be configured.  
             //sort the column info and sanity check....

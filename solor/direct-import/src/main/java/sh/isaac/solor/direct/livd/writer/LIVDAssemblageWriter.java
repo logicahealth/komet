@@ -102,27 +102,27 @@ public class LIVDAssemblageWriter extends TimedTaskWithProgressTracker<Void> {
 
             ArrayList<DynamicColumnInfo> dynamicColumnInfos = new ArrayList<>();
             dynamicColumnInfos.add(new DynamicColumnInfo(0, MetaData.LIVD_PUBLICATION_VERSION_ID____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
             dynamicColumnInfos.add(new DynamicColumnInfo(1, MetaData.LIVD_MANUFACTURER____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
             dynamicColumnInfos.add(new DynamicColumnInfo(2, MetaData.LIVD_MODEL____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
             dynamicColumnInfos.add(new DynamicColumnInfo(3, MetaData.LIVD_EQUIPMENT_UID____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
             dynamicColumnInfos.add(new DynamicColumnInfo(4, MetaData.LIVD_EQUIPMENT_UID_TYPE____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
             dynamicColumnInfos.add(new DynamicColumnInfo(5, MetaData.LIVD_VENDOR_ANALYTE_CODE____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
             dynamicColumnInfos.add(new DynamicColumnInfo(6, MetaData.LIVD_VENDOR_ANALYTE_NAME____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
             dynamicColumnInfos.add(new DynamicColumnInfo(7, MetaData.LIVD_VENDOR_SPECIMEN_DESCRIPTION____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
             dynamicColumnInfos.add(new DynamicColumnInfo(8, MetaData.LIVD_VENDOR_RESULT_DESCRIPTION____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
             dynamicColumnInfos.add(new DynamicColumnInfo(9, MetaData.LIVD_VENDOR_REFERENCE_ID____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
             dynamicColumnInfos.add(new DynamicColumnInfo(10, MetaData.LIVD_VENDOR_COMMENT____SOLOR.getPrimordialUuid(),
-                    DynamicDataType.STRING, null, false, true));
+                    DynamicDataType.STRING, null, false));
 
 
             int[] assemblageStamps = Get.concept(MetaData.LIVD_ASSEMBLAGE____SOLOR).getVersionStampSequences();

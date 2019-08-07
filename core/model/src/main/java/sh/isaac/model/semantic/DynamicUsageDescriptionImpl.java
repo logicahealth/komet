@@ -51,6 +51,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.Get;
 import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
@@ -253,8 +254,7 @@ public class DynamicUsageDescriptionImpl
                                                defaultData,
                                                columnRequired,
                                                validators,
-                                               validatorsData,
-                                               null));
+                                               validatorsData));
                       } catch (final Exception e) {
                          throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                          " is not correctly assembled for use as an Assemblage for " +
@@ -366,6 +366,28 @@ public class DynamicUsageDescriptionImpl
     * Invent DynamicUsageDescription info for other semantic types (that aren't dynamic), otherwise, calls {@link #read(int)} 
     * if it is a dynamic semantic.
     *
+    * @param assemblageNid the nid of the concept that defines the semantic type.
+    * @return the dynamic element usage description
+    */
+   public static DynamicUsageDescription mockOrRead(int assemblageNid) {
+      if (isDynamicSemantic(assemblageNid)) {
+         return read(assemblageNid);
+      }
+      else {  //the other semantics aren't defined.  We need an instance of a semantic, to get the data
+         Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStream(assemblageNid).findFirst();
+         if (sc.isPresent()) {
+            return mockOrRead(sc.get());
+         }
+         else {
+            throw new RuntimeException("Can't mock or read a static semantic with no instances in the system");
+         }
+      }
+   }
+   
+   /**
+    * Invent DynamicUsageDescription info for other semantic types (that aren't dynamic), otherwise, calls {@link #read(int)} 
+    * if it is a dynamic semantic.
+    *
     * @param semantic the semantic in question
     * @return the dynamic element usage description
     */
@@ -400,8 +422,7 @@ public class DynamicUsageDescriptionImpl
                    null,
                    true,
                    null,
-                   null,
-                   false) };
+                   null) };
             break;
 
          case LONG:
@@ -419,8 +440,7 @@ public class DynamicUsageDescriptionImpl
                    null,
                    true,
                    null,
-                   null,
-                   false) };
+                   null) };
             break;
 
          case DESCRIPTION:
@@ -438,8 +458,7 @@ public class DynamicUsageDescriptionImpl
                   null,
                   true,
                   null,
-                  null,
-                  false),
+                  null),
                new DynamicColumnInfo(
                   Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()),
                   1,
@@ -449,8 +468,7 @@ public class DynamicUsageDescriptionImpl
                   null,
                   true,
                   null,
-                  null,
-                  false),
+                  null),
                new DynamicColumnInfo(
                   Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()),
                   2,
@@ -460,8 +478,7 @@ public class DynamicUsageDescriptionImpl
                   null,
                   true,
                   null,
-                  null,
-                  false),
+                  null),
                new DynamicColumnInfo(
                   Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()),
                   3,
@@ -471,8 +488,7 @@ public class DynamicUsageDescriptionImpl
                   null,
                   true,
                   null,
-                  null,
-                  false)};
+                  null)};
                break;
          case STRING:
          case LOGIC_GRAPH:
@@ -486,8 +502,7 @@ public class DynamicUsageDescriptionImpl
                   null,
                   true,
                   null,
-                  null,
-                  false) };
+                  null) };
             break;
    
          case MEMBER:
@@ -510,7 +525,7 @@ public class DynamicUsageDescriptionImpl
          case Str1_Str2_Nid3_Nid4:
          case Str1_Str2_Nid3_Nid4_Nid5:
          case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-            LatestVersion<BrittleVersion> version = semantic.getLatestVersion(StampCoordinates.getDevelopmentLatest());
+            LatestVersion<BrittleVersion> version = semantic.getLatestVersion(StampCoordinates.getDevelopmentLatest().makeCoordinateAnalog(Status.ANY_STATUS_SET));
                if (version.isPresent())
                {
                   ArrayList<DynamicColumnInfo> dci = new ArrayList<>();
@@ -529,35 +544,35 @@ public class DynamicUsageDescriptionImpl
                                  brittleColumnTitles.isPresent() ? Get.identifierService().getUuidPrimordialForNid(brittleColumnTitles.get()[col - 1])
                                       : DynamicConstants.get().DYNAMIC_DT_BOOLEAN.getPrimordialUuid(), 
                                  DynamicDataType.BOOLEAN, 
-                                 null, true, null, null, false));
+                                 null, true, null, null));
                            break;
                         case FLOAT:
                            dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()), col++,
                                  brittleColumnTitles.isPresent() ? Get.identifierService().getUuidPrimordialForNid(brittleColumnTitles.get()[col - 1])
                                       : DynamicConstants.get().DYNAMIC_DT_FLOAT.getPrimordialUuid(), 
                                  DynamicDataType.FLOAT, 
-                                 null, true, null, null, false));
+                                 null, true, null, null));
                            break;
                         case INTEGER:
                            dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()), col++,
                                  brittleColumnTitles.isPresent() ? Get.identifierService().getUuidPrimordialForNid(brittleColumnTitles.get()[col - 1])
                                       : DynamicConstants.get().DYNAMIC_DT_INTEGER.getPrimordialUuid(), 
                                  DynamicDataType.INTEGER, 
-                                 null, true, null, null, false));
+                                 null, true, null, null));
                            break;
                         case NID:
                            dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()), col++,
                                  brittleColumnTitles.isPresent() ? Get.identifierService().getUuidPrimordialForNid(brittleColumnTitles.get()[col - 1])
                                       : DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(), 
                                  DynamicDataType.NID, 
-                                 null, true, null, null, false));
+                                 null, true, null, null));
                            break;
                         case STRING:
                            dci.add(new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(semantic.getAssemblageNid()), col++,
                                  brittleColumnTitles.isPresent() ? Get.identifierService().getUuidPrimordialForNid(brittleColumnTitles.get()[col - 1])
                                       : DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), 
                                  DynamicDataType.STRING, 
-                                 null, true, null, null, false));
+                                 null, true, null, null));
                            break;
                         default :
                            throw new RuntimeException("Use case not yet supported");
@@ -714,7 +729,7 @@ public class DynamicUsageDescriptionImpl
       dsud.refexUsageDescriptorNid = identifierAssemblageConceptId;
       dsud.semanticUsageDescription = "-";
       dsud.refexColumnInfo = new DynamicColumnInfo[]{new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(identifierAssemblageConceptId),
-         0, DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), DynamicDataType.STRING, null, true, null, null, false)};
+         0, DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), DynamicDataType.STRING, null, true, null, null)};
       return dsud;
    }
 

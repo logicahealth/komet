@@ -131,15 +131,7 @@ public class GenerateIndexes extends TimedTask<Void> implements PersistTaskResul
       Get.activeTasks().add(this);
 
       try {
-         final List<IndexStatusListener> islList = LookupService.get().getAllServices(IndexStatusListener.class);
-
          for (final IndexBuilderService i : this.indexers) {
-            if (islList != null) {
-               for (final IndexStatusListener isl : islList) {
-                  isl.reindexBegan(i);
-               }
-            }
-
             LOG.info("Clearing index for: " + i.getIndexerName());
             i.startBatchReindex();
          }
@@ -173,12 +165,6 @@ public class GenerateIndexes extends TimedTask<Void> implements PersistTaskResul
          });
 
          for (final IndexBuilderService i : this.indexers) {
-            if (islList != null) {
-               for (final IndexStatusListener isl : islList) {
-                  isl.reindexCompleted(i);
-               }
-            }
-
             if (stopNow) {
                LOG.warn("A reindex was aborted midway!  Index is likely corrupt - a full reindex is recommended");
             }

@@ -2153,22 +2153,22 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 						int col = 0;
 						columns[col] = new DynamicColumnInfo(col++, DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(),
 								DynamicDataType.UUID, null, false, DynamicValidatorType.COMPONENT_TYPE,
-								new DynamicArrayImpl<>(new DynamicString[] { new DynamicStringImpl(IsaacObjectType.CONCEPT.name()) }), true);
+								new DynamicArrayImpl<>(new DynamicString[] { new DynamicStringImpl(IsaacObjectType.CONCEPT.name()) }));
 						columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_EQUIVALENCE_TYPE.getPrimordialUuid(),
 								DynamicDataType.UUID, null, false, DynamicValidatorType.IS_KIND_OF,
-								new DynamicUUIDImpl(IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES.getPrimordialUuid()), true);
+								new DynamicUUIDImpl(IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES.getPrimordialUuid()));
 						columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_SEQUENCE.getPrimordialUuid(),
-								DynamicDataType.INTEGER, null, false, true);
+								DynamicDataType.INTEGER, null, false);
 						columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_GROUPING.getPrimordialUuid(),
-								DynamicDataType.LONG, null, false, true);
+								DynamicDataType.LONG, null, false);
 						columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_EFFECTIVE_DATE.getPrimordialUuid(),
-								DynamicDataType.LONG, null, false, true);
+								DynamicDataType.LONG, null, false);
 						// moved to end - make it more convenient for GUI where target and qualifier are extracted, and used elsewhere - its
 						// convenient not to have the order change.
 						if (mapSetDefinitionHasGemFlag)
 						{
 							columns[col] = new DynamicColumnInfo(col++, IsaacMappingConstants.get().DYNAMIC_COLUMN_MAPPING_GEM_FLAGS.getPrimordialUuid(),
-									DynamicDataType.STRING, null, false, true);
+									DynamicDataType.STRING, null, false);
 						}
 
 						dwh.configureConceptAsDynamicAssemblage(mapSetConcept, ms.getName(), columns, IsaacObjectType.CONCEPT, 

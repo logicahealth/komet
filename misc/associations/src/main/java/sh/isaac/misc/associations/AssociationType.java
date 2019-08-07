@@ -59,7 +59,6 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
-import sh.isaac.model.index.SemanticIndexerConfiguration;
 import sh.isaac.utility.Frills;
 
 
@@ -204,21 +203,9 @@ public class AssociationType
                associationName, associationName, StringUtils.isBlank(description) ? "Defines the association type " + associationInverseName : description, 
                new DynamicColumnInfo[] {
                   new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), 
-                        DynamicDataType.UUID, null, false, true)}, 
+                        DynamicDataType.UUID, null, false)}, 
                DynamicConstants.get().DYNAMIC_ASSOCIATION.getNid(), referencedComponentRestriction, referencedComponentSubRestriction,
                editCoord);
-         
-         Get.workExecutors().getExecutor().execute(() ->
-         {
-            try
-            {
-               SemanticIndexerConfiguration.configureColumnsToIndex(rdud.getDynamicUsageDescriptorNid(), new Integer[] {0}, true);
-            }
-            catch (Exception e)
-            {
-               log.error("Unexpected error enabling the index on newly created association!", e);
-            }
-         });
          
          //Then add the inverse name, if present.
          if (!StringUtils.isBlank(associationInverseName))

@@ -39,19 +39,12 @@
 
 package sh.isaac.api.component.semantic.version.dynamic;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.Arrays;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicFloat;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * {@link DynamicColumnInfo}
@@ -63,41 +56,18 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
  */
 public class DynamicColumnInfo
          implements Comparable<DynamicColumnInfo> {
-   /** The column description concept UUID. */
-   private UUID columnDescriptionConceptUUID;
 
-   /** The column name. */
    private transient String columnName;
-
-   /** The column description. */
    private transient String columnDescription;
 
-   /** The index column. */
-   private transient Boolean indexColumn;  // This is not populated by default, nor is it stored.  Typically used to pass data from a constant, rather
-   // than run-time lookup of the index configuration.
-
-   /** The column order. */
+   private UUID columnDescriptionConceptUUID;
    private int columnOrder;
-
-   /** The assemblage concept. */
    private UUID assemblageConcept;
-
-   /** The column data type. */
    private DynamicDataType columnDataType;
-
-   /** The default data. */
    private DynamicData defaultData;
-
-   /** The column required. */
    private boolean columnRequired;
-
-   /** The validator type. */
    private DynamicValidatorType[] validatorType;
-
-   /** The validator data. */
    private DynamicData[] validatorData;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Useful for building up a new one step by step.
@@ -105,7 +75,7 @@ public class DynamicColumnInfo
    public DynamicColumnInfo() {}
 
    /**
-    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[], Boolean)}
+    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[])}
     * with a null assemblage concept, null validator info.
     *
     * @param columnOrder the (0 indexed) column order
@@ -113,19 +83,17 @@ public class DynamicColumnInfo
     * @param columnDataType the column data type
     * @param defaultData the default data
     * @param columnRequired the column required
-    * @param index the index
     */
    public DynamicColumnInfo(int columnOrder,
                                   UUID columnDescriptionConcept,
                                   DynamicDataType columnDataType,
                                   DynamicData defaultData,
-                                  Boolean columnRequired,
-                                  Boolean index) {
-      this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, null, null, index);
+                                  Boolean columnRequired) {
+      this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, null, null);
    }
 
    /**
-    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[], Boolean)}
+    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[])}
     * with a null assemblage concept, and a single array item for the validator info.
     *
     * @param columnOrder the (0 indexed) column order
@@ -135,7 +103,6 @@ public class DynamicColumnInfo
     * @param columnRequired the column required
     * @param validatorType the validator type
     * @param validatorData the validator data
-    * @param index the index
     */
    public DynamicColumnInfo(int columnOrder,
                                   UUID columnDescriptionConcept,
@@ -143,8 +110,7 @@ public class DynamicColumnInfo
                                   DynamicData defaultData,
                                   Boolean columnRequired,
                                   DynamicValidatorType validatorType,
-                                  DynamicData validatorData,
-                                  Boolean index) {
+                                  DynamicData validatorData) {
       this(null,
            columnOrder,
            columnDescriptionConcept,
@@ -154,12 +120,11 @@ public class DynamicColumnInfo
            (validatorType == null) ? null
                                    : new DynamicValidatorType[] { validatorType },
            (validatorData == null) ? null
-                                   : new DynamicData[] { validatorData },
-           index);
+                                   : new DynamicData[] { validatorData });
    }
 
    /**
-    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[], Boolean)}
+    * calls {@link #DynamicColumnInfo(UUID, int, UUID, DynamicDataType, DynamicData, Boolean, DynamicValidatorType[], DynamicData[])}
     * with a null assemblage concept.
     *
     * @param columnOrder the (0 indexed) column order
@@ -169,7 +134,6 @@ public class DynamicColumnInfo
     * @param columnRequired the column required
     * @param validatorType the validator type
     * @param validatorData the validator data
-    * @param index the index
     */
    public DynamicColumnInfo(int columnOrder,
                                   UUID columnDescriptionConcept,
@@ -177,8 +141,7 @@ public class DynamicColumnInfo
                                   DynamicData defaultData,
                                   Boolean columnRequired,
                                   DynamicValidatorType[] validatorType,
-                                  DynamicData[] validatorData,
-                                  Boolean index) {
+                                  DynamicData[] validatorData) {
       this(null,
            columnOrder,
            columnDescriptionConcept,
@@ -186,8 +149,7 @@ public class DynamicColumnInfo
            defaultData,
            columnRequired,
            validatorType,
-           validatorData,
-           index);
+           validatorData);
    }
 
    /**
@@ -208,7 +170,6 @@ public class DynamicColumnInfo
     * @param validatorType - The Validator to use when creating an instance of this Refex.  Null for no validator
     * @param validatorData - The data required to execute the validatorType specified.  The format and type of this will depend on the
     * validatorType field.  See {@link DynamicValidatorType} for details on the valid data for this field.  Should be null when validatorType is null.
-    * @param index - set to true, if this column should be indexed.
     */
    public DynamicColumnInfo(UUID assemblageConcept,
                                   int columnOrder,
@@ -217,8 +178,7 @@ public class DynamicColumnInfo
                                   DynamicData defaultData,
                                   Boolean columnRequired,
                                   DynamicValidatorType[] validatorType,
-                                  DynamicData[] validatorData,
-                                  Boolean index) {
+                                  DynamicData[] validatorData) {
       this.assemblageConcept            = assemblageConcept;
       this.columnOrder                  = columnOrder;
       this.columnDescriptionConceptUUID = columnDescriptionConcept;
@@ -228,31 +188,13 @@ public class DynamicColumnInfo
             : columnRequired);
       this.validatorType                = validatorType;
       this.validatorData                = validatorData;
-      this.indexColumn                  = index;
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Compare to.
-    *
-    * @param o the o
-    * @return the int
-    */
-
-   /*
-    * @see java.lang.Comparable#compareTo(java.lang.Object)
-    */
    @Override
    public int compareTo(DynamicColumnInfo o) {
       return Integer.compare(this.getColumnOrder(), o.getColumnOrder());
    }
 
-   /**
-    * To string.
-    *
-    * @return the string
-    */
    @Override
    public String toString() {
       return "DynamicColumnInfo [columnName_=" + this.columnName + ", columnDescription_=" +
@@ -280,8 +222,6 @@ public class DynamicColumnInfo
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the assemblage concept.
     *
@@ -292,8 +232,6 @@ public class DynamicColumnInfo
       return this.assemblageConcept;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the assemblage concept.
     *
@@ -302,8 +240,6 @@ public class DynamicColumnInfo
    public void setAssemblageConcept(UUID assemblageConcept) {
       this.assemblageConcept = assemblageConcept;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the column data type.
@@ -315,8 +251,6 @@ public class DynamicColumnInfo
    public DynamicDataType getColumnDataType() {
       return this.columnDataType;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Sets the column data type.
@@ -336,8 +270,6 @@ public class DynamicColumnInfo
    public void setColumnDefaultData(DynamicData defaultData) {
       this.defaultData = defaultData;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the column description.
@@ -362,8 +294,6 @@ public class DynamicColumnInfo
       return this.columnDescriptionConceptUUID;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the column description concept.
     *
@@ -374,8 +304,6 @@ public class DynamicColumnInfo
       this.columnName                   = null;
       this.columnDescription            = null;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the column name.
@@ -402,8 +330,6 @@ public class DynamicColumnInfo
       return this.columnOrder;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the column order.
     *
@@ -412,8 +338,6 @@ public class DynamicColumnInfo
    public void setColumnOrder(int columnOrder) {
       this.columnOrder = columnOrder;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Checks if column required.
@@ -424,8 +348,6 @@ public class DynamicColumnInfo
       return this.columnRequired;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the column required.
     *
@@ -434,8 +356,6 @@ public class DynamicColumnInfo
    public void setColumnRequired(boolean columnRequired) {
       this.columnRequired = columnRequired;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the default column value.
@@ -451,35 +371,6 @@ public class DynamicColumnInfo
       }
 
       return this.defaultData;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * This is typically used in the metadata code to pass in the initial index configuration for a column.  It has no impact on
-    * the actual config at runtime, in a running system.
-    *
-    * @param indexColumn the new default index config
-    */
-   public void setDefaultIndexConfig(boolean indexColumn) {
-      this.indexColumn = indexColumn;
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Return true, if this column is currently configured for indexing, otherwise false.  Note, this is not currently implemented runtime usage
-    * and will instead throw an UnsupportedOperationException.  This is only used in the construction of metadata concepts.
-    *
-    * @return the index config
-    */
-   public boolean getIndexConfig() {
-      if (this.indexColumn == null) {
-         throw new UnsupportedOperationException(
-             "Convenience method to read current index config from lucene indexer not yet implemented");
-      } else {
-         return this.indexColumn;
-      }
    }
 
    /**
@@ -500,8 +391,6 @@ public class DynamicColumnInfo
       return this.validatorData;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the validator data.
     *
@@ -520,4 +409,3 @@ public class DynamicColumnInfo
       this.validatorType = validatorType;
    }
 }
-
