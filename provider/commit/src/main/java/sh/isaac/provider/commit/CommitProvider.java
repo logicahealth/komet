@@ -1089,13 +1089,13 @@ public class CommitProvider
                         // Warn or fail if multiple uncommitted versions in passed chronology
                         if (uncommittedVersions.size() > 1) {
                             return new AlertObject("Data loss warning",
-                                    "Found " + uncommittedVersions.size() + " uncommitted versions in chronology " + chronology.getPrimordialUuid(), AlertType.WARNING,
+                                    "Found " + uncommittedVersions.size() + " uncommitted versions in chronology " + chronology, AlertType.WARNING,
                                     AlertCategory.ADD_UNCOMMITTED);
                         }
                         // Warn or fail if chronology sequence in uncommitted sets
                         if (uncommittedSemanticsWithChecksNidSet.contains(chronology.getNid()) || uncommittedSemanticsWithChecksNidSet.contains(chronology.getNid())
                                 || uncommittedConceptsWithChecksNidSet.contains(chronology.getNid()) || uncommittedConceptsNoChecksNidSet.contains(chronology.getNid())) {
-                            return new AlertObject("Data loss warning", "Found " + uncommittedVersions.size() + " uncommitted versions for  " + chronology.getPrimordialUuid(),
+                            return new AlertObject("Data loss warning", "Found " + uncommittedVersions.size() + " uncommitted versions for  " + chronology,
                                     AlertType.WARNING, AlertCategory.ADD_UNCOMMITTED);
                         }
                     }
