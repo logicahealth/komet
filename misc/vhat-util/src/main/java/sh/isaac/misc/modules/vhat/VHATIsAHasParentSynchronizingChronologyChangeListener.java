@@ -50,7 +50,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -146,6 +145,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
     */
    @Override
    public void disable() {
+      LOG.info("Disabling");
       enabled = false;
    }
 
@@ -156,6 +156,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
     */
    @Override
    public void enable() {
+      LOG.info("Enabling");
       enabled = true;
    }
 
@@ -163,6 +164,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
    private void startMe() {
       if (Get.configurationService().isInDBBuildMode())
       {
+         LOG.info("Disabling due to DBBuildMode - will not receive events even if enabled.");
          disable();
       }
       else
@@ -310,9 +312,8 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       
       for (int logicGraphNid : semanticNidsForUnhandledLogicGraphChanges.toArray(new Integer[semanticNidsForUnhandledLogicGraphChanges.size()])) {
          if (!commitRecord.getSemanticNidsInCommit().contains(logicGraphNid)) {
-            LOG.trace("HandleCommit NOT handling logic graph " + logicGraphNid + " which is not contained in the commit record list: "
+            LOG.trace("HandleCommit NOT handling logic graph at this time " + logicGraphNid + " which is not contained in the commit record list: "
                   + commitRecord.getSemanticNidsInCommit().toString());
-            semanticNidsForUnhandledLogicGraphChanges.remove(logicGraphNid);
             continue;
          }
          semanticNidsForUnhandledLogicGraphChanges.remove(logicGraphNid);
@@ -381,6 +382,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
 
                   if (itemsToCommit.size() > 0) {
                      try {
+                        LOG.debug("Doing commit");
                         Frills.commitCheck(Get.commitService().commit(editCoordinate, "Retiring VHAT has_parent semantics"));
                      } catch (RuntimeException e) {
                         LOG.error("FAILED commit while retiring {} VHAT has_parent semantics", itemsToCommit.size());
@@ -437,6 +439,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                            return;
                         }
                         try {
+                           LOG.debug("Doing commit");
                            Frills.commitCheck(Get.commitService()
                                  .commit(editCoordinate, "Unretiring VHAT has_parent association semantic (target UUID="
                                        + uuidOfParentAccordingToNewLogicGraphVersion + ") for concept (UUID=" + referencedConcept.getPrimordialUuid() + ")"));
@@ -472,6 +475,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
 
                if (builtObjects.size() > 0) {
                   try {
+                     LOG.debug("Doing commit");
                      Frills.commitCheck(Get.commitService().commit(editCoordinate, "Committing new has_parent association semantics."));
                   } catch (RuntimeException e) {
                      LOG.error("FAILED committing new has_parent association semantics", e);
@@ -486,9 +490,8 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       // For new, updated or retired VHAT has_parent association semantics, update existing logic graph
       for (int hasParentSemanticNid : semanticNidsForUnhandledHasParentAssociationChanges) {
          if (!commitRecord.getSemanticNidsInCommit().contains(hasParentSemanticNid)) {
-            LOG.trace("HandleCommit NOT handling hasParent association " + hasParentSemanticNid + " which is not contained in the commit record list: "
+            LOG.trace("HandleCommit NOT handling hasParent association at this time" + hasParentSemanticNid + " which is not contained in the commit record list: "
                   + commitRecord.getSemanticNidsInCommit().toString());
-            semanticNidsForUnhandledHasParentAssociationChanges.remove(hasParentSemanticNid);
             continue;
          }
          semanticNidsForUnhandledHasParentAssociationChanges.remove(hasParentSemanticNid);
@@ -560,6 +563,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                      LOG.error("FAILED calling addUncommitted() on logic graph of VHAT concept " + referencedConcept, e);
                      return;
                   }
+                  LOG.debug("Doing commit");
                   Frills.commitCheck(Get.commitService()
                         .commit(editCoordinate,
                               "Committing new version of logic graph semantic " + conceptLogicGraphSemanticChronology.get().getPrimordialUuid() + " with "
@@ -582,12 +586,12 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
     * Call to ensure that all background processing completed before continuing
     */
    public void waitForJobsToComplete() {
-      LOG.debug("Waiting for " + inProgressJobs.size());
       Future<?> f = null;
       f = inProgressJobs.peek();
       while (f != null) {
          try {
             // wait for execution of the job to complete
+            LOG.debug("Waiting for " + inProgressJobs.size());
             f.get();
          } catch (Exception e) {
             LOG.error("There was an error in a submitted job!", e);
