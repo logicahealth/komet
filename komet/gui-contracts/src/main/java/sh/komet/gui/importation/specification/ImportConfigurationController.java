@@ -5,6 +5,7 @@ import javafx.scene.control.Label;
 import org.controlsfx.control.CheckListView;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
  * 2019-05-14
@@ -14,7 +15,7 @@ public class ImportConfigurationController {
 
 
 
-    private File fileToImport;
+    private Path pathToImport;
 
     @FXML
     private CheckListView filesCeckListView;
@@ -27,11 +28,11 @@ public class ImportConfigurationController {
 
     }
 
-    public void setFileToImport(File fileToImport) {
-        this.fileToImport = fileToImport;
+    public void setFileToImport(Path pathToImport) {
+        this.pathToImport = pathToImport;
     }
 
     public String getFileName(){
-        return this.fileToImport.getName();
+        return this.pathToImport.getFileName().toString();
     }
 }

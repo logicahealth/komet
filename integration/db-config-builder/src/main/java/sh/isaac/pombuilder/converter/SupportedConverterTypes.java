@@ -44,8 +44,8 @@ package sh.isaac.pombuilder.converter;
 import java.io.IOException;
 
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import javafx.util.Pair;
@@ -270,6 +270,63 @@ public enum SupportedConverterTypes
     *  Below are enums used for Solor specific transformation + imports
     */
 
+   SOLOR_RXNORM("solor-rxnorm-src-data",
+           ".*$",
+           "A typical RxNorm version number is '2017.04.03'.  This value should come directly from the RxNorm release information, however, by convention, is"
+                   + " reformatted to yyyy.mm.dd for better sorting in the artifact storage system.  There are no enforced restrictions on the format of this value.",
+           new String[] {"solor-rf2-src-data"},
+           new String[] {},
+           new UploadFileInfo[] { new UploadFileInfo("",
+                   "https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html",
+                   "RxNorm_full_06062016.zip",
+                   "The file must be a zip file, which starts with 'RxNorm_full' and ends with .zip",
+                   "RxNorm_full.*\\.zip$",
+                   true)},
+           "solor-direct-rxnorm-content",
+           "solor-direct-rxnorm-import",
+           "RxNorm",
+           new String[] {""},
+           new String[] {""}),
+
+   SOLOR_LOINC("solor-loinc-src-data",
+           ".*$",
+           "A typical LOINC version number is '2.59'.  The version numbers should be used directly from LOINC.  There are no enforced restrictions on the format.",
+           new String[] {"solor-rf2-src-data"},
+           new String[] {},
+           new UploadFileInfo[] { new UploadFileInfo("",
+                           "https://loinc.org/downloads/loinc",
+                           "LOINC_2.54_Text.zip",
+                           "The primary LOINC file is the 'LOINC Table File' in the csv format'.  This should be a zip file that contains a file named 'loinc.csv'."
+                           + "  Additionally, the zip file may (optionally) contain 'map_to.csv' and 'source_organization.csv'."
+                           + "  The zip file must contain 'text' within its name.",
+                           "Loinc.*Text.*\\.zip$",
+                           true)},
+           "solor-direct-loinc-content",
+           "solor-direct-loinc-import",
+           "LOINC",
+           new String[] {""},
+           new String[] {""}),
+
+   SOLOR_LOINC_RF2_COLLAB("solor-loinc-rf2-collab-src-data",
+           ".*$",
+           "A typical Snomed version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
+                   + "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.",
+           new String[] {"solor-loinc-src-data","solor-rf2-src-data"},
+           new String[] {},
+           new UploadFileInfo[] { new UploadFileInfo("",
+                   "https://loinc.org/downloads/loinc",
+                   "SnomedCT_LOINCRF2_PRODUCTION_20170831T120000Z.zip",
+                   "The expected file is a modified RF2 release zip file.  The filename must end with .zip, and must contain the release date in the Snomed standard" +
+                           " naming convention (4 digit year, 2 digit month, 2 digit day).",
+                   "SnomedCT_LOINCRF2_.*_\\d{8}.*\\.zip$",
+                   true)},
+           "solor-direct-loinc-rf2-collab-content",
+           "solor-direct-loinc-rf2-collab-import",
+           "LOINC & Snomed CT Collaboration",
+           new String[] {""},
+           new String[] {""}),
+
+   //This goes at the end since it's a catch all (e.g., broader regex) than the Snomed/LOINC Collab
    SOLOR_RF2("solor-rf2-src-data",
            "\\d{8}.*$",
            "A typical Snomed version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
@@ -286,64 +343,8 @@ public enum SupportedConverterTypes
            "solor-direct-rf2-content",
            "solor-direct-rf2-import",
            "Snomed CT",
-           new String[] {"shared/licenses/sct.xml"},
-           new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
-
-   SOLOR_RXNORM("solor-rxnorm-src-data",
-           ".*$",
-           "A typical RxNorm version number is '2017.04.03'.  This value should come directly from the RxNorm release information, however, by convention, is"
-                   + " reformatted to yyyy.mm.dd for better sorting in the artifact storage system.  There are no enforced restrictions on the format of this value.",
-           new String[] {},
-           new String[] {SOLOR_RF2.getArtifactId()},
-           new UploadFileInfo[] { new UploadFileInfo("",
-                   "https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html",
-                   "RxNorm_full_06062016.zip",
-                   "The file must be a zip file, which starts with 'RxNorm_full' and ends with .zip",
-                   "RxNorm_full.*\\.zip$",
-                   true)},
-           "solor-direct-rxnorm-content",
-           "solor-direct-rxnorm-import",
-           "RxNorm",
-           new String[] {"shared/licenses/rxnorm.xml"},
-           new String[] {"shared/noticeAdditions/rxnorm-NOTICE-addition.txt"}),
-
-   SOLOR_LOINC("solor-loinc-src-data",
-           ".*$",
-           "A typical LOINC version number is '2.59'.  The version numbers should be used directly from LOINC.  There are no enforced restrictions on the format.",
-           new String[] {},
-           new String[] {SOLOR_RF2.getArtifactId()},
-           new UploadFileInfo[] { new UploadFileInfo("",
-                           "https://loinc.org/downloads/loinc",
-                           "LOINC_2.54_Text.zip",
-                           "The primary LOINC file is the 'LOINC Table File' in the csv format'.  This should be a zip file that contains a file named 'loinc.csv'."
-                           + "  Additionally, the zip file may (optionally) contain 'map_to.csv' and 'source_organization.csv'."
-                           + "  The zip file must contain 'text' within its name.",
-                           "Loinc.*Text.*\\.zip$",
-                           true)},
-           "solor-direct-loinc-content",
-           "solor-direct-loinc-import",
-           "LOINC",
-           new String[] {"shared/licenses/loinc.xml"},
-           new String[] {"shared/noticeAdditions/loinc-NOTICE-addition.txt"}),
-
-   SOLOR_LOINC_RF2_COLLAB("solor-loinc-rf2-collab-src-data",
-           ".*$",
-           "A typical Snomed version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
-                   + "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.",
-           new String[] {},
-           new String[] {SOLOR_RF2.getArtifactId(), SOLOR_LOINC.getArtifactId()},
-           new UploadFileInfo[] { new UploadFileInfo("",
-                   "https://loinc.org/downloads/loinc",
-                   "SnomedCT_LOINCRF2_PRODUCTION_20170831T120000Z.zip",
-                   "The expected file is a modified RF2 release zip file.  The filename must end with .zip, and must contain the release date in the Snomed standard" +
-                           " naming convention (4 digit year, 2 digit month, 2 digit day).",
-                   "SnomedCT_LOINCRF2_.*_\\d{8}.*\\.zip$",
-                   true)},
-           "solor-direct-loinc-rf2-collab-content",
-           "solor-direct-loinc-rf2-collab-import",
-           "LOINC & Snomed CT Collaboration",
-           new String[] {"shared/licenses/loincRF2Collab.xml"},
-           new String[] {"shared/noticeAdditions/loincRF2Collab-NOTICE-addition.txt"})
+           new String[] {""},
+           new String[] {""})
 
    ;
 
@@ -379,14 +380,13 @@ public enum SupportedConverterTypes
     * @param uploadFileInfo
     * @param converterOutputArtifactId
     * @param converterMojoName
-    * @param sourceUploadGroupId
     * @param niceName
     * @param licenseFilePaths
     * @param noticeFilePaths
     */
-   private SupportedConverterTypes(String artifactId, String srcVersionRegExpValidator, String srcVersionDescription, String[] artifactSourceDependencies,
-         String[] artifactIBDFDependencies, UploadFileInfo[] uploadFileInfo, String converterOutputArtifactId, String converterMojoName,
-         String niceName, String[] licenseFilePaths, String[] noticeFilePaths) {
+   SupportedConverterTypes(String artifactId, String srcVersionRegExpValidator, String srcVersionDescription, String[] artifactSourceDependencies,
+                           String[] artifactIBDFDependencies, UploadFileInfo[] uploadFileInfo, String converterOutputArtifactId, String converterMojoName,
+                           String niceName, String[] licenseFilePaths, String[] noticeFilePaths) {
       this.srcArtifactId = artifactId;
       this.srcVersionRegExpValidator = srcVersionRegExpValidator;
       this.srcVersionDescription = srcVersionDescription;
@@ -613,9 +613,95 @@ public enum SupportedConverterTypes
          return null;
    }
 
-   public static SupportedConverterTypes findByPath(Path pathOfFile){
+   /**
+    * Method returns the matching enum type based on the Path object of the file being imported and the regular expression
+    * from the UploadFileInfo expectedNamingPatternRegExpPattern value.
+    * @param pathOfFile Path to file being imported
+    * @return SupportedConverterType that matches against the pathOfFile name
+    */
+   public static SupportedConverterTypes findByPath(Path pathOfFile, boolean isSolorImport) {
+      for(SupportedConverterTypes supportedConverterType : SupportedConverterTypes.values()){
+         if(isSolorImport){
+            if(!supportedConverterType.getArtifactId().contains("solor")) {
+               continue;
+            }
+         }
 
-      return SupportedConverterTypes.BEVON;
+         for (UploadFileInfo uploadFileInfo : supportedConverterType.getUploadFileInfo()){
+                  if(Pattern.matches(uploadFileInfo.getExpectedNamingPatternRegExpPattern(), pathOfFile.getFileName().toString())){
+                     return supportedConverterType;
+                  }
+         }
+      }
+
+      return null;
    }
+
+   /**
+    * This method implement's Kahn's algorithm for a topology sort based on each enum's source dependencies
+    * @return A list containing the safe order in which the importers can be ran based on source dependency requirements
+    *
+    * https://en.wikipedia.org/wiki/Topological_sorting
+    *
+    * L ← Empty list that will contain the sorted elements
+    * S ← Set of all nodes with no incoming edge
+    * while S is non-empty do
+    *     remove a node n from S
+    *     add n to tail of L
+    *     for each node m with an edge e from n to m do
+    *         remove edge e from the graph
+    *         if m has no other incoming edges then
+    *             insert m into S
+    * if graph has edges then
+    *     return error   (graph has at least one cycle)
+    * else
+    *     return L   (a topologically sorted order)
+    */
+   public static List<SupportedConverterTypes> topologySortBySourceDependencies(){
+      final ArrayList<SupportedConverterTypes> topologySortedList = new ArrayList<>();
+      final ArrayList<SupportedConverterTypes> s = new ArrayList<>();
+      final HashMap<SupportedConverterTypes, ArrayList<SupportedConverterTypes>> graph = new HashMap<>();
+
+      //Make graph of SupportedConverterTypes enumerations
+      //Make a list of non-dependant SupportedConverterTypes enums
+      for(SupportedConverterTypes supportedConverterType : SupportedConverterTypes.values()){
+         ArrayList<SupportedConverterTypes> dependencies = new ArrayList<>();
+         for(String srcDependencyString : supportedConverterType.getArtifactDependencies()){
+            dependencies.add(SupportedConverterTypes.findBySrcArtifactId(srcDependencyString));
+         }
+         graph.put(supportedConverterType, dependencies);
+
+         if(supportedConverterType.getArtifactDependencies().size() == 0){
+             s.add(supportedConverterType);
+         }
+      }
+
+      //Implement Kahn's algorithm :)
+      for(int i= 0; i< s.size(); i++){
+
+         SupportedConverterTypes n = s.get(i);
+         topologySortedList.add(n);
+
+         graph.entrySet().stream()
+                 .forEach(m -> {
+                    ArrayList<SupportedConverterTypes> edgesCopy = new ArrayList<>(m.getValue());
+                    if(edgesCopy.size() != 0) {
+                       for (SupportedConverterTypes edge : m.getValue()) {
+                          if (edge == n) {
+                             edgesCopy.remove(edge);
+                          }
+                          if (edgesCopy.size() == 0) {
+                             s.add(m.getKey());
+                          }
+                          m.setValue(edgesCopy);
+                       }
+                    }
+                 });
+      }
+
+      return topologySortedList;
+   }
+
+
 }
 
