@@ -367,12 +367,15 @@ public class Frills
              editCoord);
 
       try {
-         Get.commitService()
-            .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), 
-                  "creating new dynamic assemblage (DynamicSemanticUsageDescription): NID=" +
-                newDynamicSemanticUsageDescriptionConcept.getNid() + ", FQN=" + semanticFQN + ", PT=" +
-                semanticPreferredTerm + ", DESC=" + semanticDescription)
-            .get();
+         CommitTask commitTask = Get.commitService()
+                 .commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), 
+                         "creating new dynamic assemblage (DynamicSemanticUsageDescription): NID=" +
+                       newDynamicSemanticUsageDescriptionConcept.getNid() + ", FQN=" + semanticFQN + ", PT=" +
+                       semanticPreferredTerm + ", DESC=" + semanticDescription);
+         Optional<CommitRecord> cr = commitTask.get();
+         if (!cr.isPresent()) {
+            throw new RuntimeException("Commit Failure - reasons - " + Arrays.toString(commitTask.getAlerts().toArray()));
+         }
       } catch (InterruptedException | ExecutionException e) {
          throw new RuntimeException("Commit of dynamic Failed!", e);
       }
@@ -2475,6 +2478,7 @@ public class Frills
          return cr.get();
       }
       catch (RuntimeException e) {
+         LOG.error("Commit Failure", e);
          throw e;
       }
       catch (Exception e) {
