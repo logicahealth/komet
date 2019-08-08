@@ -939,7 +939,7 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 									new DynamicColumnInfo[] {
 											new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), 
 													DynamicDataType.STRING, StringUtils.isNotBlank(scp.getDefaultValue()) ? new DynamicStringImpl(scp.getDefaultValue()) : null,
-															true, true)
+															true)
 									}, null, null, contentTime);
 							
 							supportedConceptPropertiesToSCP.put(scp.getPropertyName(), scp);
@@ -1005,63 +1005,63 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 				new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, 
 								//reuse description type name
-								dwh.getDescriptionType("name"), DynamicDataType.STRING, null, false, true),
+								dwh.getDescriptionType("name"), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(1, 
 								//Reuse description type 
-								dwh.getDescriptionType("title"), DynamicDataType.STRING, null, false, true),
+								dwh.getDescriptionType("title"), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(2, 
-								makeOrGetAttributeColumn("package kind", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("package kind", contentTime), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(3, 
-								makeOrGetAttributeColumn("definition kind", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("definition kind", contentTime), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(4, 
-								makeOrGetAttributeColumn("schema version", contentTime), DynamicDataType.STRING, null, false, true)
+								makeOrGetAttributeColumn("schema version", contentTime), DynamicDataType.STRING, null, false)
 						}, 
 				null, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, "package location", null, null, null, 
 				new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, 
-								makeOrGetAttributeColumn("combined id", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("combined id", contentTime), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(1, 
-								makeOrGetAttributeColumn("root", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("root", contentTime), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(2, 
-								makeOrGetAttributeColumn("artifact", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("artifact", contentTime), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(3, 
-								makeOrGetAttributeColumn("realm namespace", contentTime), DynamicDataType.ARRAY, null, false, true),
+								makeOrGetAttributeColumn("realm namespace", contentTime), DynamicDataType.ARRAY, null, false),
 						new DynamicColumnInfo(4, 
-								makeOrGetAttributeColumn("version", contentTime), DynamicDataType.STRING, null, false, true)
+								makeOrGetAttributeColumn("version", contentTime), DynamicDataType.STRING, null, false)
 						}, 
 				null, null, contentTime);
 				dwh.makeAttributeTypeConcept(null, "rendering information", null, null, null, 
 						new DynamicColumnInfo[] {
 								new DynamicColumnInfo(0, 
-										makeOrGetAttributeColumn("rendering time", contentTime), DynamicDataType.STRING, null, false, true),
+										makeOrGetAttributeColumn("rendering time", contentTime), DynamicDataType.STRING, null, false),
 								new DynamicColumnInfo(1, 
-										makeOrGetAttributeColumn("application", contentTime), DynamicDataType.STRING, null, false, true)
+										makeOrGetAttributeColumn("application", contentTime), DynamicDataType.STRING, null, false)
 								}, 
 				null, null, contentTime);
 				dwh.makeAttributeTypeConcept(null, "legalese", null, null, null, 
 						new DynamicColumnInfo[] {
 								new DynamicColumnInfo(0, 
-										makeOrGetAttributeColumn("copyright owner", contentTime), DynamicDataType.STRING, null, false, true),
+										makeOrGetAttributeColumn("copyright owner", contentTime), DynamicDataType.STRING, null, false),
 								new DynamicColumnInfo(1, 
-										makeOrGetAttributeColumn("copyright years", contentTime), DynamicDataType.ARRAY, null, false, true)
+										makeOrGetAttributeColumn("copyright years", contentTime), DynamicDataType.ARRAY, null, false)
 								}, 
 				null, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, "history item", null, null, null, 
 				new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, 
-								makeOrGetAttributeColumn("datetime", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("datetime", contentTime), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(1,
-								makeOrGetAttributeColumn("responsible person name", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("responsible person name", contentTime), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(2, 
-								makeOrGetAttributeColumn("id", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("id", contentTime), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(3, 
-								makeOrGetAttributeColumn("is substantive change", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn("is substantive change", contentTime), DynamicDataType.BOOLEAN, null, false),
 						new DynamicColumnInfo(4, 
-								makeOrGetAttributeColumn("is backward compatible change", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn("is backward compatible change", contentTime), DynamicDataType.BOOLEAN, null, false),
 						new DynamicColumnInfo(5, 
 								//reuse description type
-								dwh.getDescriptionType("description"), DynamicDataType.STRING, null, false, true)
+								dwh.getDescriptionType("description"), DynamicDataType.STRING, null, false)
 						}, 
 				null, null, contentTime);
 		
@@ -1075,15 +1075,15 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		dwh.makeAttributeTypeConcept(null, "released version", null, null, null, 
 				new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, 
-								makeOrGetAttributeColumn("release date", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("release date", contentTime), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(1, 
-								makeOrGetAttributeColumn("publisher version", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("publisher version", contentTime), DynamicDataType.STRING, null, false),
 						new DynamicColumnInfo(2,
-								makeOrGetAttributeColumn("hl7 maintained indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn("hl7 maintained indicator", contentTime), DynamicDataType.BOOLEAN, null, false),
 						new DynamicColumnInfo(3, 
-								makeOrGetAttributeColumn("complete codes indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn("complete codes indicator", contentTime), DynamicDataType.BOOLEAN, null, false),
 						new DynamicColumnInfo(4, 
-								makeOrGetAttributeColumn("hl7 approved indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn("hl7 approved indicator", contentTime), DynamicDataType.BOOLEAN, null, false),
 						}, 
 				null, null, contentTime);
 		
@@ -1092,15 +1092,15 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		dwh.makeAttributeTypeConcept(null, "supported concept property", null, null, null, 
 				new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, 
-								makeOrGetAttributeColumn("property name", contentTime), DynamicDataType.NID, null, false, true),
+								makeOrGetAttributeColumn("property name", contentTime), DynamicDataType.NID, null, false),
 						new DynamicColumnInfo(1, 
-								makeOrGetAttributeColumn("type", contentTime), DynamicDataType.NID, null, false, true),
+								makeOrGetAttributeColumn("type", contentTime), DynamicDataType.NID, null, false),
 						new DynamicColumnInfo(2, 
-								makeOrGetAttributeColumn("is mandatory indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn("is mandatory indicator", contentTime), DynamicDataType.BOOLEAN, null, false),
 						new DynamicColumnInfo(3, 
-								makeOrGetAttributeColumn("is apply to value sets indicator", contentTime), DynamicDataType.BOOLEAN, null, false, true),
+								makeOrGetAttributeColumn("is apply to value sets indicator", contentTime), DynamicDataType.BOOLEAN, null, false),
 						new DynamicColumnInfo(4, 
-								makeOrGetAttributeColumn("default value", contentTime), DynamicDataType.STRING, null, false, true),
+								makeOrGetAttributeColumn("default value", contentTime), DynamicDataType.STRING, null, false),
 						}, 
 				null, null, contentTime);
 		
