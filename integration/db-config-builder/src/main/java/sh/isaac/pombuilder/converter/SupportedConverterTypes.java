@@ -659,7 +659,7 @@ public enum SupportedConverterTypes
     */
    public static List<SupportedConverterTypes> topologySortBySourceDependencies(){
       final ArrayList<SupportedConverterTypes> topologySortedList = new ArrayList<>();
-      final ArrayList<SupportedConverterTypes> s = new ArrayList<>();
+      final ArrayList<SupportedConverterTypes> nonDependantNodes = new ArrayList<>();
       final HashMap<SupportedConverterTypes, ArrayList<SupportedConverterTypes>> graph = new HashMap<>();
 
       //Make graph of SupportedConverterTypes enumerations
@@ -672,28 +672,28 @@ public enum SupportedConverterTypes
          graph.put(supportedConverterType, dependencies);
 
          if(supportedConverterType.getArtifactDependencies().size() == 0){
-             s.add(supportedConverterType);
+             nonDependantNodes.add(supportedConverterType);
          }
       }
 
-      //Implement Kahn's algorithm :)
-      for(int i= 0; i< s.size(); i++){
+      //Implement Kahn'nonDependantNodes algorithm :)
+      for(int i= 0; i< nonDependantNodes.size(); i++){
 
-         SupportedConverterTypes n = s.get(i);
-         topologySortedList.add(n);
+         SupportedConverterTypes currentNode = nonDependantNodes.get(i);
+         topologySortedList.add(currentNode);
 
          graph.entrySet().stream()
-                 .forEach(m -> {
-                    ArrayList<SupportedConverterTypes> edgesCopy = new ArrayList<>(m.getValue());
+                 .forEach(node -> {
+                    ArrayList<SupportedConverterTypes> edgesCopy = new ArrayList<>(node.getValue());
                     if(edgesCopy.size() != 0) {
-                       for (SupportedConverterTypes edge : m.getValue()) {
-                          if (edge == n) {
+                       for (SupportedConverterTypes edge : node.getValue()) {
+                          if (edge == currentNode) {
                              edgesCopy.remove(edge);
                           }
                           if (edgesCopy.size() == 0) {
-                             s.add(m.getKey());
+                             nonDependantNodes.add(node.getKey());
                           }
-                          m.setValue(edgesCopy);
+                          node.setValue(edgesCopy);
                        }
                     }
                  });

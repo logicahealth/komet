@@ -29,6 +29,6 @@ public class RF2SolorDirectConfigOptions implements ConfigOptionsDescriptor {
 
     @Override
     public String getName() {
-        return "solor-direct-RF2-import";
+        return "solor-direct-rf2-import";
     }
 }

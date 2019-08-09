@@ -8,13 +8,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
+import sh.isaac.api.LookupService;
+import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -29,6 +29,7 @@ public class ImportSpecificationController {
     private final SimpleListProperty<Path> pathsSelectedForImport = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final SimpleListProperty<Path> pathsNotMatchedForImport = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final SimpleMapProperty<SupportedConverterTypes, Path> pathsToImport = new SimpleMapProperty<>(FXCollections.observableMap(new TreeMap<>()));
+
 
     @FXML
     private Button browseFiles;
@@ -67,9 +68,9 @@ public class ImportSpecificationController {
                                     this.pathsToImport.put(supportedConverterType, path);
                                 }
                             }));
-        /**
-         * Use enum in this class. Have a switch statement that says what
-         */
+
+
+
         System.out.println("break");
     }
 
