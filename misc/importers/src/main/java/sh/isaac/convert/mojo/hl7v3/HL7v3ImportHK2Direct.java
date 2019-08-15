@@ -50,10 +50,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -67,6 +67,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.poi.util.CloseIgnoringInputStream;
@@ -105,7 +106,6 @@ import mifschema.Symmetry;
 import mifschema.Transitivity;
 import mifschema.ValueSet;
 import mifschema.ValueSetVersion;
-import mifschema.VocabularyModel;
 import mifschema.VocabularyValueSetRef;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
@@ -251,7 +251,7 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 					Optional.of("http://terminology.hl7.org/CodeSystem/v3-"), contentTime);
 			
 			//Set up our metadata hierarchy
-			dwh.makeMetadataHierarchy(true, true, false, true, true, false, contentTime);
+			dwh.makeMetadataHierarchy(true, true, true, true, true, false, contentTime);
 
 			//description types
 			dwh.makeDescriptionTypeConcept(null, "name", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
@@ -999,7 +999,7 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	 */
 	private void makeAttributes(long contentTime)
 	{
-		dwh.makeAttributeTypeConcept(null, "OID", "HL7 Object Identifier", null, null, true, null, null, contentTime);
+		dwh.linkToExistingAttributeTypeConcept(MetaData.OID____SOLOR, contentTime, readbackCoordinate);
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 		dwh.makeAttributeTypeConcept(null, "vocabulary model", null, null, null, 
 				new DynamicColumnInfo[] {
@@ -1450,7 +1450,7 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 					{
 						throw new RuntimeException("Found more than one .coremif file");
 					}
-					Unmarshaller unmarshaller = JAXBContext.newInstance(VocabularyModel.class).createUnmarshaller();
+					Unmarshaller unmarshaller = JAXBContext.newInstance(GlobalVocabularyModel.class).createUnmarshaller();
 
 					// Make sure we don't silently ignore schema parse errors.
 					unmarshaller.setEventHandler(new ValidationEventHandler()
@@ -1466,8 +1466,7 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 
 					log.info("Parsing " + ze.getName() + " from " + zipFile.get().normalize());
 
-					@SuppressWarnings("unchecked")
-					JAXBElement<GlobalVocabularyModel> o = (JAXBElement<GlobalVocabularyModel>) unmarshaller.unmarshal(new CloseIgnoringInputStream(zis));
+					JAXBElement<GlobalVocabularyModel> o = unmarshaller.unmarshal(new StreamSource(new CloseIgnoringInputStream(zis)), GlobalVocabularyModel.class);
 					gvm = o.getValue();
 				}
 				ze = zis.getNextEntry();

@@ -155,6 +155,7 @@
 						<id>mif</id>
 						<configuration>
 							<generatePackage>mifschema</generatePackage>
+							<packageLevelAnnotations>false</packageLevelAnnotations>
 							<schemaDirectory>${project.basedir}/src/main/resources/hl7v3/mif</schemaDirectory>
 							<schemaIncludes>
 								<include>xhtml1-strict.xsd</include>
