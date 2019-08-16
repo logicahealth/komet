@@ -755,6 +755,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 				Optional.of("http://www.nlm.nih.gov/research/umls/rxnorm"), defaultTime);
 
 		//Set up our metadata hierarchy
+		//Currently still configured to load description types by mapping them to solor types
 		dwh.makeMetadataHierarchy(true, true, false, true, true, true, defaultTime);
 
 		loadMetaData();

@@ -828,27 +828,35 @@ public class SemanticIndexer extends LuceneIndexer implements IndexSemanticQuery
 	private Integer[] getColumnsToIndex(final SemanticChronology sc, final int assemblageConceptNid)
 	{
 		return columnsToIndexCache.computeIfAbsent(assemblageConceptNid, nidAgain -> {
-			DynamicUsageDescription dud = sc == null ? DynamicUsageDescriptionImpl.mockOrRead(assemblageConceptNid) : DynamicUsageDescriptionImpl.mockOrRead(sc);
-
-			HashSet<Integer> exclude = new HashSet<>();
-			Integer[] exclusions = store.get(assemblageConceptNid);
-			if (exclusions != null)
+			try
 			{
-				for (Integer i : exclusions)
+				DynamicUsageDescription dud = sc == null ? DynamicUsageDescriptionImpl.mockOrRead(assemblageConceptNid) : DynamicUsageDescriptionImpl.mockOrRead(sc);
+	
+				HashSet<Integer> exclude = new HashSet<>();
+				Integer[] exclusions = store.get(assemblageConceptNid);
+				if (exclusions != null)
 				{
-					exclude.add(i);
+					for (Integer i : exclusions)
+					{
+						exclude.add(i);
+					}
 				}
+	
+				ArrayList<Integer> colsToIndex = new ArrayList<>(dud.getColumnInfo().length);
+				for (DynamicColumnInfo dci : dud.getColumnInfo())
+				{
+					if (!exclude.contains(Integer.valueOf(dci.getColumnOrder())) && !getUnsupportedDataTypes().contains(dci.getColumnDataType()))
+					{
+						colsToIndex.add(dci.getColumnOrder());
+					}
+				}
+				return colsToIndex.toArray(new Integer[colsToIndex.size()]);
 			}
-
-			ArrayList<Integer> colsToIndex = new ArrayList<>(dud.getColumnInfo().length);
-			for (DynamicColumnInfo dci : dud.getColumnInfo())
+			catch (Exception e)
 			{
-				if (!exclude.contains(Integer.valueOf(dci.getColumnOrder())) && !getUnsupportedDataTypes().contains(dci.getColumnDataType()))
-				{
-					colsToIndex.add(dci.getColumnOrder());
-				}
+				LOG.error("Error determining columns to index, semantic {}, {}, will not be indexed.  Error was: {}", sc, assemblageConceptNid, e);
+				return new Integer[] {};
 			}
-			return colsToIndex.toArray(new Integer[colsToIndex.size()]);
 		});
 	}
 
