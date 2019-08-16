@@ -53,6 +53,7 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.logic.node.internal.TypedNodeWithNids;
+import sh.komet.gui.CatchThrowableEventHandler;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
 import sh.komet.gui.manifold.HistoryRecord;
@@ -147,9 +148,9 @@ public class AddEditLogicalExpressionNodeMenuItems {
     }
 
     public void addDeleteNodeAction() {
-        Action deleteAction = new Action(DELETE, (ActionEvent event) -> {
+        Action deleteAction = new Action(DELETE, new CatchThrowableEventHandler((ActionEvent event) -> {
             this.expressionUpdater.accept(expressionContiningNode.removeNode(nodeToEdit));
-        });
+        }));
         actionItems.add(deleteAction);
     }
 
@@ -161,11 +162,11 @@ public class AddEditLogicalExpressionNodeMenuItems {
         if (nodeToEdit.getNodeSemantic() != NodeSemantic.DEFINITION_ROOT) {
             throw new IllegalStateException("Node must be of type " + NodeSemantic.DEFINITION_ROOT);
         }
-        Action addNecessarySetAction = new Action("Add necessary set", (ActionEvent event) -> {
+        Action addNecessarySetAction = new Action("Add necessary set", new CatchThrowableEventHandler((ActionEvent event) -> {
             NecessarySetNode necessarySetNode = new NecessarySetNode(expressionContiningNode, new AndNode(expressionContiningNode));
             nodeToEdit.addChildren(necessarySetNode);
             this.expressionUpdater.accept(expressionContiningNode);
-        });
+        }));
         actionItems.add(addNecessarySetAction);
     }
 
@@ -173,27 +174,41 @@ public class AddEditLogicalExpressionNodeMenuItems {
         if (this.nodeToEdit.getNodeSemantic() != NodeSemantic.DEFINITION_ROOT) {
             throw new IllegalStateException("Node must be of type " + NodeSemantic.DEFINITION_ROOT);
         }
-        Action addSufficientSetAction = new Action("Add sufficient set", (ActionEvent event) -> {
+        Action addSufficientSetAction = new Action("Add sufficient set", new CatchThrowableEventHandler((ActionEvent event) -> {
             SufficientSetNode sufficientSetNode = new SufficientSetNode(this.expressionContiningNode, new AndNode(expressionContiningNode));
             this.nodeToEdit.addChildren(sufficientSetNode);
             this.expressionUpdater.accept(expressionContiningNode);
-        });
+        }));
         actionItems.add(addSufficientSetAction);
     }
 
     public void addRoleGroupAction() {
-        Action addSufficientSetAction = new Action("Add role group", (ActionEvent event) -> {
+        Action addRoleGroupAction = new Action("Add role group", new CatchThrowableEventHandler((ActionEvent event) -> {
             AndNode andNode = new AndNode(expressionContiningNode);
             RoleNodeSomeWithNids newRoleGroup = expressionContiningNode.SomeRole(MetaData.ROLE_GROUP____SOLOR.getNid(), andNode);
-            this.nodeToEdit.addChildren(newRoleGroup);
+            LogicNode nodeToAddTo = this.nodeToEdit;
+            if (nodeToAddTo.getNodeSemantic() != NodeSemantic.AND) {
+                if (nodeToAddTo.getNodeSemantic() == NodeSemantic.SUFFICIENT_SET ||
+                        nodeToAddTo.getNodeSemantic() == NodeSemantic.NECESSARY_SET) {
+                    if (nodeToAddTo.getChildren().length != 1) {
+                        throw new IllegalStateException(nodeToAddTo.getNodeSemantic() + " must have an AND node child");
+                    }
+                    nodeToAddTo = nodeToAddTo.getChildren()[0];
+                    if (nodeToAddTo.getNodeSemantic() != NodeSemantic.AND) {
+                        throw new IllegalStateException(nodeToAddTo.getNodeSemantic() + " must be an AND node: " + nodeToAddTo);
+                    }
+                }
+            }
+
+            nodeToAddTo.addChildren(newRoleGroup);
 
             RoleNodeSomeWithNids newRole = expressionContiningNode.SomeRole(MetaData.ROLE____SOLOR.getNid(), expressionContiningNode.Concept(MetaData.HEALTH_CONCEPT____SOLOR.getNid()));
 
             andNode.addChildren(newRole);
 
             this.expressionUpdater.accept(expressionContiningNode);
-        });
-        actionItems.add(addSufficientSetAction);
+        }));
+        actionItems.add(addRoleGroupAction);
     }
 
     public void addIsaNodeAction(ConceptSpecification spec) {
@@ -208,7 +223,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
             LatestVersion<SemanticVersion> latestMembership = snapshot.getLatestSemanticVersion(semanticNid);
             if (latestMembership.isPresent() && latestMembership.get().isActive()) {
                 int restrictionNid = latestMembership.get().getReferencedComponentNid();
-                Action newRoleAction = new Action(manifold.getPreferredDescriptionText(restrictionNid), (ActionEvent event) -> {
+                Action newRoleAction = new Action(manifold.getPreferredDescriptionText(restrictionNid), new CatchThrowableEventHandler((ActionEvent event) -> {
                     RoleNodeSomeWithNids newRole = expressionContiningNode.SomeRole(roleType.getNid(), expressionContiningNode.Concept(restrictionNid));
                     for (LogicNode node : nodeToEdit.getChildren()) {
                         if (node.getNodeSemantic() == NodeSemantic.AND) {
@@ -217,7 +232,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                         }
                     }
                     this.expressionUpdater.accept(expressionContiningNode);
-                });
+                }));
                 newRoleGroup.getActions().add(newRoleAction);
             }
         }
@@ -231,7 +246,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = new ActionGroup("Change restriction using " + groupName + " history", Manifold.getIconographic(groupName), actions);
                 for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                    Action addIsaAction = new Action("Change role restriction to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), (ActionEvent event) -> {
+                    Action addIsaAction = new Action("Change role restriction to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         for (LogicNode node : nodeToEdit.getChildren()) {
                             if (node.getNodeSemantic() == NodeSemantic.CONCEPT) {
                                 ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) node;
@@ -240,7 +255,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                                 break;
                             }
                         }
-                    });
+                    }));
                     actionGroup.getActions().add(addIsaAction);
                 }
                 if (!actionGroup.getActions().isEmpty()) {
@@ -259,11 +274,11 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = new ActionGroup("Change type using " + groupName + " history", Manifold.getIconographic(groupName), actions);
                 for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                    Action addAction = new Action("Change role type to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), (ActionEvent event) -> {
+                    Action addAction = new Action("Change role type to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         RoleNodeSomeWithNids roleNode = (RoleNodeSomeWithNids) this.nodeToEdit;
                         roleNode.setTypeConceptNid(historyRecord.getComponentId());
                         this.expressionUpdater.accept(expressionContiningNode);
-                    });
+                    }));
                     actionGroup.getActions().add(addAction);
                 }
                 if (!actionGroup.getActions().isEmpty()) {
@@ -282,11 +297,11 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = new ActionGroup("Change type using " + groupName + " history", Manifold.getIconographic(groupName), actions);
                 for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                    Action addAction = new Action("Change feature type to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), (ActionEvent event) -> {
+                    Action addAction = new Action("Change feature type to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         FeatureNodeWithNids featureNode = (FeatureNodeWithNids) this.nodeToEdit;
                         featureNode.setTypeConceptNid(historyRecord.getComponentId());
                         this.expressionUpdater.accept(expressionContiningNode);
-                    });
+                    }));
                     actionGroup.getActions().add(addAction);
                 }
                 if (!actionGroup.getActions().isEmpty()) {
@@ -305,11 +320,11 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = new ActionGroup("Change concept using " + groupName + " history", Manifold.getIconographic(groupName), actions);
                 for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                    Action addIsaAction = new Action("Change to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), (ActionEvent event) -> {
+                    Action addIsaAction = new Action("Change to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) this.nodeToEdit;
                         conceptNode.setConceptNid(historyRecord.getComponentId());
                         this.expressionUpdater.accept(expressionContiningNode);
-                    });
+                    }));
                     actionGroup.getActions().add(addIsaAction);
                 }
                 if (!actionGroup.getActions().isEmpty()) {
@@ -322,9 +337,9 @@ public class AddEditLogicalExpressionNodeMenuItems {
     }
 
     public void addSearchIsa() {
-        Action addIsaUsingSearch = new Action("Add is-a using new search selection...", (ActionEvent event) -> {
+        Action addIsaUsingSearch = new Action("Add is-a using new search selection...", new CatchThrowableEventHandler((ActionEvent event) -> {
             showFindIsaPopup();
-        });
+        }));
         actionItems.add(addIsaUsingSearch);
     }
 
@@ -375,7 +390,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
             List<Action> actions = new ArrayList<>();
             ActionGroup actionGroup = new ActionGroup("Add is-a using " + groupName + " history", Manifold.getIconographic(groupName), actions);
             for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                Action addIsaAction = new Action("Add is-a " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), (ActionEvent event) -> {
+                Action addIsaAction = new Action("Add is-a " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), new CatchThrowableEventHandler((ActionEvent event) -> {
                     ConceptNodeWithNids newIsa = expressionContiningNode.Concept(historyRecord.getComponentId());
                     for (LogicNode node : nodeToEdit.getChildren()) {
                         if (node.getNodeSemantic() == NodeSemantic.AND) {
@@ -384,7 +399,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                         }
                     }
                     this.expressionUpdater.accept(expressionContiningNode);
-                });
+                }));
                 actionGroup.getActions().add(addIsaAction);
             }
             if (!actionGroup.getActions().isEmpty()) {
@@ -394,7 +409,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
     }
 
     public void addIsaNodeAction(int conceptNid) {
-        Action addIsaAction = new Action("Add is-a " + manifold.getPreferredDescriptionText(conceptNid), (ActionEvent event) -> {
+        Action addIsaAction = new Action("Add is-a " + manifold.getPreferredDescriptionText(conceptNid), new CatchThrowableEventHandler((ActionEvent event) -> {
             ConceptNodeWithNids newIsa = expressionContiningNode.Concept(conceptNid);
             for (LogicNode node : nodeToEdit.getChildren()) {
                 if (node.getNodeSemantic() == NodeSemantic.AND) {
@@ -403,7 +418,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 }
             }
             this.expressionUpdater.accept(expressionContiningNode);
-        });
+        }));
         actionItems.add(addIsaAction);
     }
 
@@ -418,7 +433,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
         builder.append(")➞[");
         builder.append(manifold.getPreferredDescriptionText(restrictionNid));
         builder.append("]");
-        Action addNewRoleAction = new Action(builder.toString(), (ActionEvent event) -> {
+        Action addNewRoleAction = new Action(builder.toString(), new CatchThrowableEventHandler((ActionEvent event) -> {
             RoleNodeSomeWithNids newRole = expressionContiningNode.SomeRole(typeNid, expressionContiningNode.Concept(restrictionNid));
             for (LogicNode node : nodeToEdit.getChildren()) {
                 if (node.getNodeSemantic() == NodeSemantic.AND) {
@@ -427,7 +442,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 }
             }
             this.expressionUpdater.accept(expressionContiningNode);
-        });
+        }));
         actionItems.add(addNewRoleAction);
     }
 
@@ -443,7 +458,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
         builder.append(operator);
         builder.append(" 0.0 ");
         builder.append(manifold.getPreferredDescriptionText(measureSemanticNid));
-        Action addFeatureAction = new Action(builder.toString(), (ActionEvent event) -> {
+        Action addFeatureAction = new Action(builder.toString(), new CatchThrowableEventHandler((ActionEvent event) -> {
             FeatureNodeWithNids newRole = expressionContiningNode.Feature(typeNid,
                     measureSemanticNid, operator, expressionContiningNode.DoubleLiteral(0.0));
             for (LogicNode node : nodeToEdit.getChildren()) {
@@ -453,7 +468,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 }
             }
             this.expressionUpdater.accept(expressionContiningNode);
-        });
+        }));
         actionItems.add(addFeatureAction);
     }
 

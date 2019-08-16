@@ -1382,7 +1382,7 @@ public class LogicalExpressionImpl
                                  .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
                                  .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray());
                     if (nodes.length != 1) {
-                       throw new RuntimeException("Illegal construction");
+                       throw new RuntimeException("Illegal construction: " + nodes.length);
                     }
                     results[i] = SufficientSet((ConnectorNode) nodes[0]);
                     break;

@@ -59,7 +59,7 @@ import sh.isaac.model.logic.LogicalExpressionImpl;
 public abstract class ConnectorNode
         extends AbstractLogicNode {
    /** The child indices. */
-   private final ShortArrayList childIndices;
+   protected final ShortArrayList childIndices;
 
    //~--- constructors --------------------------------------------------------
 
