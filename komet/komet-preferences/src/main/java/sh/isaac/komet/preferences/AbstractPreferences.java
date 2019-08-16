@@ -177,7 +177,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         }
     }
 
-    protected final void addChild(String childName, Class<? extends AbstractPreferences> childPreferencesClass) {
+    protected final IsaacPreferences addChild(String childName, Class<? extends AbstractPreferences> childPreferencesClass) {
         IsaacPreferences childNode = this.preferencesNode.node(childName);
         childNode.put(PROPERTY_SHEET_CLASS, childPreferencesClass.getName());
         List<String> childPreferences = this.preferencesNode.getList(CHILDREN_NODES);
@@ -186,6 +186,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         }
 
         this.preferencesNode.putList(CHILDREN_NODES, childPreferences);
+        return childNode;
     }
 
     @Override

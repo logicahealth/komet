@@ -802,6 +802,9 @@ public class StampProvider
 
     @Override
     public int getStampSequence(Status status, long time, int authorNid, int moduleNid, int pathNid) {
+        if (authorNid == 0) throw new IllegalStateException("Author cannot be zero...");
+        if (moduleNid == 0) throw new IllegalStateException("module cannot be zero...");
+        if (pathNid == 0) throw new IllegalStateException("path cannot be zero...");
 
         if (cancelUncommittedStamps && time == Long.MAX_VALUE) {
             time = Long.MIN_VALUE;
@@ -820,6 +823,9 @@ public class StampProvider
     }
 
     public int getStampSequence(Transaction transaction, Status status, long time, int authorNid, int moduleNid, int pathNid) {
+        if (authorNid == 0) throw new IllegalStateException("Author cannot be zero...");
+        if (moduleNid == 0) throw new IllegalStateException("module cannot be zero...");
+        if (pathNid == 0) throw new IllegalStateException("path cannot be zero...");
         if (transaction != null) {
             transaction = ((TransactionImpl) transaction).getTransactionForPath(pathNid);
         }

@@ -17,15 +17,13 @@ import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.PreferenceGroup;
-import sh.isaac.provider.mvStore.MVDataStoreProvider;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.KometPreferences;
-import sh.komet.gui.contract.preferences.WindowPreferenceItems;
+import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -154,7 +152,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
 
                 kometPreferences.reloadPreferences();
                 boolean replacePrimaryStage = true;
-                for (WindowPreferenceItems windowPreference : kometPreferences.getWindowPreferences()) {
+                for (WindowPreferencesItem windowPreference : kometPreferences.getWindowPreferenceItems()) {
                     this.updateMessage("Opening " + windowPreference.getWindowName().get());
                     try {
                         UUID stageUuid = UUID.randomUUID();
@@ -163,14 +161,14 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                         KometStageController controller = loader.getController();
                         root.setId(stageUuid.toString());
                         Stage stage = new Stage(StageStyle.UNIFIED);
-                        Scene scene = new Scene(mainApp.setupStageMenus(stage, root));
+                        Scene scene = new Scene(mainApp.setupStageMenus(stage, root, windowPreference));
 
                         stage.setX(windowPreference.xLocationProperty().doubleValue());
                         stage.setY(windowPreference.yLocationProperty().doubleValue());
                         stage.setWidth(windowPreference.widthProperty().doubleValue());
                         stage.setHeight(windowPreference.heightProperty().doubleValue());
                         stage.setTitle(FxGet.configurationName());
-                        controller.setPreferencesNode(windowPreference, stage);
+                        controller.setWindowPreferenceItem(windowPreference, stage);
 
 
                         stage.setScene(scene);

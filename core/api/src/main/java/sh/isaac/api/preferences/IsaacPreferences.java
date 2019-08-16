@@ -62,6 +62,50 @@ public interface IsaacPreferences {
     }
 
     /**
+     * Associates the specified UUID value with the specified key in this preference
+     * node.
+     *
+     * @param key key with which the specified value is to be associated.
+     * @param value UUID value to be associated with the specified key.
+     * @throws NullPointerException if key or value is <tt>null</tt>.
+     * @throws IllegalArgumentException if <tt>key.length()</tt> exceeds
+     * <tt>MAX_KEY_LENGTH</tt> or if <tt>value.length</tt> exceeds
+     * <tt>MAX_VALUE_LENGTH</tt>.
+     * @throws IllegalStateException if this node (or an ancestor) has been
+     * removed with the {@link #removeNode()} method.
+     */
+    default void putUuid(Enum key, UUID value) {
+        put(enumToGeneralKey(key), value.toString());
+    }
+
+    /**
+     * Returns the UUID value associated with the specified key in this preference
+     * node. Returns the specified default if there is no value associated with
+     * the key, or the backing store is inaccessible.
+     * @param key
+     * @param defaultValue
+     * @throws NullPointerException if key or defaultValue is <tt>null</tt>.
+     * @return the value associated with <tt>key</tt>, or <tt>defaultValue</tt>
+     *  if no value is associated with <tt>key</tt>, or the backing store is
+     *  inaccessible.
+     */
+    default UUID getUuid(Enum key, UUID defaultValue) {
+        if (defaultValue != null) {
+            String uuidStr = get(key, defaultValue.toString());
+            return UUID.fromString(uuidStr);
+        }
+        throw new NullPointerException("Default value cannot be null");
+    }
+
+    default Optional<UUID> getUuid(Enum key) {
+        Optional<String> optionalString = get(key);
+        if (optionalString.isPresent()) {
+            return Optional.of(UUID.fromString(optionalString.get()));
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Returns the value associated with the specified key in this preference
      * node. Returns the specified default if there is no value associated with
      * the key, or the backing store is inaccessible.

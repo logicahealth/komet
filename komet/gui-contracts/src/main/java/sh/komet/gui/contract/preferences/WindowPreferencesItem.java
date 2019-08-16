@@ -7,10 +7,11 @@ import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 
+import java.util.Collection;
 import java.util.List;
 
 
-public interface WindowPreferenceItems {
+public interface WindowPreferencesItem {
     void save();
     void revert();
     StringProperty getWindowName();
@@ -19,5 +20,7 @@ public interface WindowPreferenceItems {
     SimpleDoubleProperty yLocationProperty();
     SimpleDoubleProperty heightProperty();
     SimpleDoubleProperty widthProperty();
+    PersonaItem getPersonaItem();
+    void setPersonaItem(PersonaItem personaItem);
 
 }

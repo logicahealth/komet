@@ -87,7 +87,7 @@ import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.NodeFactory.PanelPlacement;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.isaac.komet.gui.exporter.ExportView;
-import sh.komet.gui.contract.preferences.WindowPreferenceItems;
+import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.DetailNode;
@@ -150,7 +150,7 @@ public class KometStageController
     private GridPane topGridPane;                      // Value injected by FXMLLoader
     @FXML                                                                          // fx:id="classifierMenuButton"
     private MenuButton classifierMenuButton;             // Value injected by FXMLLoader
-    private WindowPreferenceItems windowPreferenceItems;
+    private WindowPreferencesItem windowPreferencesItem;
     private IsaacPreferences preferencesNode;
     private Stage stage;
 
@@ -433,12 +433,11 @@ public class KometStageController
     }
     /**
      *
-     * @param windowPreferenceItems preferences of the window.
+     * @param windowPreferencesItem preferences of the window.
      */
-    public void setPreferencesNode(WindowPreferenceItems windowPreferenceItems, Stage stage) throws BackingStoreException {
-
-        this.windowPreferenceItems = windowPreferenceItems;
-        this.preferencesNode = windowPreferenceItems.getPreferenceNode();
+    public void setWindowPreferenceItem(WindowPreferencesItem windowPreferencesItem, Stage stage) throws BackingStoreException {
+        this.windowPreferencesItem = windowPreferencesItem;
+        this.preferencesNode = windowPreferencesItem.getPreferenceNode();
         this.stage = stage;
         if (this.preferencesNode.children().length == 0) {
             // New window, add default configuration
@@ -519,23 +518,23 @@ public class KometStageController
         }
 
         this.stage.xProperty().addListener((observable, oldValue, newValue) -> {
-            windowPreferenceItems.xLocationProperty().setValue(newValue);
-            windowPreferenceItems.save();
+            windowPreferencesItem.xLocationProperty().setValue(newValue);
+            windowPreferencesItem.save();
         });
 
         this.stage.yProperty().addListener((observable, oldValue, newValue) -> {
-            windowPreferenceItems.yLocationProperty().setValue(newValue);
-            windowPreferenceItems.save();
+            windowPreferencesItem.yLocationProperty().setValue(newValue);
+            windowPreferencesItem.save();
         });
 
         this.stage.widthProperty().addListener((observable, oldValue, newValue) -> {
-            windowPreferenceItems.widthProperty().setValue(newValue);
-            windowPreferenceItems.save();
+            windowPreferencesItem.widthProperty().setValue(newValue);
+            windowPreferencesItem.save();
         });
 
         this.stage.heightProperty().addListener((observable, oldValue, newValue) -> {
-            windowPreferenceItems.heightProperty().setValue(newValue);
-            windowPreferenceItems.save();
+            windowPreferencesItem.heightProperty().setValue(newValue);
+            windowPreferencesItem.save();
         });
     }
     public void saveSettings() throws BackingStoreException {

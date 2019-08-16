@@ -125,6 +125,7 @@ public class PropertySheetItem implements PropertySheet.Item {
 
     public void setDefaultValue(Object defaultValue) {
         this.defaultValue = defaultValue;
+        this.setValue(defaultValue);
     }
 
     

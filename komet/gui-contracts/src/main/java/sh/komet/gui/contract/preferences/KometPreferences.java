@@ -19,7 +19,6 @@ package sh.komet.gui.contract.preferences;
 import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -39,8 +38,8 @@ public interface KometPreferences {
     ObservableList<LogicItem> getLogicItems();
     ObservableList<SynchronizationItem> getSynchronizationItems();
     ObservableList<TaxonomyItem> getTaxonomyItems();
-    ObservableList<UserPreferenceItems> getUserPreferences();
-    ObservableList<WindowPreferenceItems> getWindowPreferences();
+    ObservableList<UserPreferenceItems> getUserPreferenceItems();
+    ObservableList<WindowPreferencesItem> getWindowPreferenceItems();
+    WindowPreferences getWindowParentPreferences();
     ObservableList<PersonaItem> getPersonaPreferences();
-
 }

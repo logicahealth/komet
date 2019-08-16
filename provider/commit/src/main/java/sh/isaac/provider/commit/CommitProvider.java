@@ -957,9 +957,11 @@ public class CommitProvider
                 public Optional<AlertObject> check(Version version, Transaction transaction) {
                     // Accumulate uncommitted versions in passed chronology
                     final List<Version> uncommittedVersions = new ArrayList<>();
-                    for (Version v : version.getChronology().getVersionList()) {
-                        if (v.isUncommitted()) {
-                            uncommittedVersions.add(v);
+                    if (version.getChronology() != null) {
+                        for (Version v : version.getChronology().getVersionList()) {
+                            if (v.isUncommitted()) {
+                                uncommittedVersions.add(v);
+                            }
                         }
                     }
                     // Warn or fail if multiple uncommitted versions in passed chronology

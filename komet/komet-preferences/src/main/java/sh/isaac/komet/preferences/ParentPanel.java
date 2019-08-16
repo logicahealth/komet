@@ -29,6 +29,7 @@ import javafx.scene.control.ToolBar;
 import javafx.stage.Stage;
 import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
+
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -119,4 +120,4 @@ public abstract class ParentPanel extends AbstractPreferences {
         return false;
     }
 
-}
+ }

@@ -5,14 +5,14 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.preferences.KometPreferencesController;
 import sh.isaac.komet.preferences.ParentPanel;
-import sh.isaac.komet.preferences.TaxonomyItemPanel;
-import sh.komet.gui.contract.preferences.WindowPreferenceItems;
+import sh.komet.gui.contract.preferences.KometPreferences;
+import sh.komet.gui.contract.preferences.PersonaItem;
+import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.manifold.Manifold;
@@ -44,7 +44,7 @@ import java.util.prefs.BackingStoreException;
  *     4. The exploration and detail nodes store the factory class to construct to be used to reconstruct
  *     them.
  */
-public class WindowPreferencePanel extends ParentPanel implements WindowPreferenceItems {
+public class WindowPreferencePanel extends ParentPanel implements WindowPreferencesItem {
     public enum Keys {
         ITEM_NAME,
         LEFT_TAB_NODES,
@@ -54,6 +54,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         Y_LOC,
         HEIGHT,
         WIDTH,
+        PERSONA_UUID
     };
     private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.WINDOW_CONFIGURATION_NAME____SOLOR.toExternalString());
@@ -82,7 +83,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     private final SimpleDoubleProperty widthProperty =
             new SimpleDoubleProperty(this, MetaData.WINDOW_WIDTH____SOLOR.toExternalString());
 
-
+    private PersonaItem personaItem;
 
     public WindowPreferencePanel(IsaacPreferences preferencesNode,
                                  Manifold manifold,
@@ -115,7 +116,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
             FxGet.removeTaxonomyConfiguration(oldItemName.get());
         }
 
-        getPreferenceNode().put(TaxonomyItemPanel.Keys.ITEM_NAME, this.nameProperty.get());
+        getPreferenceNode().put(Keys.ITEM_NAME, this.nameProperty.get());
         getPreferencesNode().putConceptList(Keys.LEFT_TAB_NODES, leftTabNodesProperty);
         getPreferencesNode().putConceptList(Keys.CENTER_TAB_NODES, centerTabNodesProperty);
         getPreferencesNode().putConceptList(Keys.RIGHT_TAB_NODES, rightTabNodesProperty);
@@ -123,29 +124,34 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         getPreferenceNode().putDouble(Keys.Y_LOC, this.yLocationProperty.doubleValue());
         getPreferenceNode().putDouble(Keys.HEIGHT, this.heightProperty.doubleValue());
         getPreferenceNode().putDouble(Keys.WIDTH, this.widthProperty.doubleValue());
+        if (personaItem != null) {
+            getPreferenceNode().putUuid(Keys.PERSONA_UUID, personaItem.getPersonaUuid());
+        }
 
     }
 
     @Override
     protected void revertFields() {
-        this.nameProperty.set(getPreferencesNode().get(TaxonomyItemPanel.Keys.ITEM_NAME, "KOMET window"));
 
-        leftTabNodesProperty.setAll(getPreferencesNode().getConceptList(Keys.LEFT_TAB_NODES,
+
+        this.nameProperty.set(getPreferencesNode().get(Keys.ITEM_NAME, "KOMET window"));
+
+        this.leftTabNodesProperty.setAll(getPreferencesNode().getConceptList(Keys.LEFT_TAB_NODES,
                 List.of(MetaData.TAXONOMY_PANEL____SOLOR)));
 
-        centerTabNodesProperty.setAll(getPreferencesNode().getConceptList(Keys.CENTER_TAB_NODES,
+        this.centerTabNodesProperty.setAll(getPreferencesNode().getConceptList(Keys.CENTER_TAB_NODES,
                 List.of(MetaData.CONCEPT_DETAILS_PANEL____SOLOR,
                         MetaData.CONCEPT_DETAILS_PANEL____SOLOR)));
 
-        rightTabNodesProperty.setAll(getPreferencesNode().getConceptList(Keys.RIGHT_TAB_NODES,
+        this.rightTabNodesProperty.setAll(getPreferencesNode().getConceptList(Keys.RIGHT_TAB_NODES,
                 List.of(MetaData.ACTIVITIES_PANEL____SOLOR,
                         MetaData.SIMPLE_SEARCH_PANEL____SOLOR,
                         MetaData.EXTENDED_SEARCH_PANEL____SOLOR)));
 
         this.xLocationProperty.setValue(getPreferencesNode().getDouble(Keys.X_LOC, 40.0));
         this.yLocationProperty.setValue(getPreferencesNode().getDouble(Keys.Y_LOC, 40.0));
-        this.heightProperty.setValue(getPreferencesNode().getDouble(Keys.HEIGHT, 400));
-        this.widthProperty.setValue(getPreferencesNode().getDouble(Keys.WIDTH, 500));
+        this.heightProperty.setValue(getPreferencesNode().getDouble(Keys.HEIGHT, 495));
+        this.widthProperty.setValue(getPreferencesNode().getDouble(Keys.WIDTH, 965));
     }
     @Override
     public boolean showDelete() {
@@ -190,5 +196,35 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     @Override
     public SimpleDoubleProperty widthProperty() {
         return widthProperty;
+    }
+
+    @Override
+    public PersonaItem getPersonaItem() {
+        if (this.personaItem == null) {
+            KometPreferences kometPreferences = FxGet.kometPreferences();
+            kometPreferences.getPersonaPreferences();
+            throw new UnsupportedOperationException();
+        }
+        return this.personaItem;
+    }
+
+    @Override
+    public void setPersonaItem(PersonaItem personaItem) {
+        if (personaItem == null ||
+                (this.personaItem == null && personaItem != null) ||
+                (!this.personaItem.getPersonaUuid().equals(personaItem.getPersonaUuid()))) {
+            // things have changed.
+            this.personaItem = personaItem;
+
+            this.leftTabNodesProperty.clear();
+            this.centerTabNodesProperty.clear();
+            this.rightTabNodesProperty.clear();
+
+            if (this.personaItem != null) {
+                this.leftTabNodesProperty.addAll(this.personaItem.leftPaneDefaultsProperty().get());
+                this.centerTabNodesProperty.addAll(this.personaItem.centerPaneDefaultsProperty().get());
+                this.rightTabNodesProperty.addAll(this.personaItem.rightPaneDefaultsProperty().get());
+            }
+        }
     }
 }

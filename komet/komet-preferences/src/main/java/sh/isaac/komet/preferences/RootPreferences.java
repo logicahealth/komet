@@ -23,9 +23,8 @@ import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
 import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
 
-import sh.isaac.komet.preferences.personas.PersonasItemPanel;
 import sh.isaac.komet.preferences.personas.PersonasItems;
-import sh.isaac.komet.preferences.window.WindowPreferences;
+import sh.isaac.komet.preferences.window.WindowPreferencePanel;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -46,7 +45,7 @@ public class RootPreferences extends AbstractPreferences {
             addChild("Attachment actions", AttachmentItems.class);
             addChild("Logic actions", LogicItemPanels.class);
             addChild("Taxonomy configurations", TaxonomyItems.class);
-            addChild("Window configurations", WindowPreferences.class);
+            addChild("Window configurations", WindowPreferencePanel.class);
             addChild("Personas", PersonasItems.class);
         }
         List<String> childPreferences = this.preferencesNode.getList(CHILDREN_NODES);

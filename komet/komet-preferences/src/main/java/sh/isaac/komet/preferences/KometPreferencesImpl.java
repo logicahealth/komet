@@ -36,8 +36,10 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.IconographyHelper;
+import sh.isaac.komet.preferences.window.WindowPreferencePanel;
+import sh.isaac.komet.preferences.window.WindowsPanel;
 import sh.komet.gui.contract.preferences.*;
-import sh.komet.gui.contract.preferences.WindowPreferenceItems;
+import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -56,9 +58,10 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     private final ObservableList<LogicItem> logicItems = FXCollections.observableArrayList();
     private final ObservableList<SynchronizationItem> synchronizationItems = FXCollections.observableArrayList();
     private final ObservableList<TaxonomyItem> taxonomyItems = FXCollections.observableArrayList();
-    private final ObservableList<UserPreferenceItems> userPreferences = FXCollections.observableArrayList();
-    private final ObservableList<WindowPreferenceItems> windowPreferences = FXCollections.observableArrayList();
+    private final ObservableList<UserPreferenceItems> userPreferenceItems = FXCollections.observableArrayList();
+    private final ObservableList<WindowPreferencesItem> windowPreferenceItems = FXCollections.observableArrayList();
     private final ObservableList<PersonaItem> personaPreferences = FXCollections.observableArrayList();
+    private WindowsPanel windowsPanel;
 
     private RootPreferences rootPreferences;
 
@@ -133,8 +136,9 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
         logicItems.clear();
         synchronizationItems.clear();
         taxonomyItems.clear();
-        userPreferences.clear();
-        windowPreferences.clear();
+        userPreferenceItems.clear();
+        windowPreferenceItems.clear();
+        personaPreferences.clear();
         if (treeRoot.isPresent()) {
             PreferencesTreeItem rootTreeItem = treeRoot.get();
             this.rootPreferences = (RootPreferences) rootTreeItem.getValue();
@@ -155,6 +159,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     @Override
     public void reloadPreferences() {
         Get.preferencesService().reloadConfigurationPreferences();
+
         IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
         Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold, kpc);
         setupRoot(treeRoot);
@@ -196,11 +201,13 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
         } else if (item instanceof TaxonomyItem) {
             taxonomyItems.add((TaxonomyItem) item);
         } else if (item instanceof UserPreferenceItems) {
-            userPreferences.add((UserPreferenceItems) item);
-        } else if (item instanceof WindowPreferenceItems) {
-            windowPreferences.add((WindowPreferenceItems) item);
+            userPreferenceItems.add((UserPreferenceItems) item);
+        } else if (item instanceof WindowPreferencesItem) {
+            windowPreferenceItems.add((WindowPreferencesItem) item);
         } else if(item instanceof PersonaItem){
             personaPreferences.add((PersonaItem)item);
+        } else if (item instanceof WindowsPanel) {
+            windowsPanel = (WindowsPanel) item;
         }
 
     }
@@ -217,9 +224,9 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
         } else if (item instanceof TaxonomyItem) {
             taxonomyItems.remove(item);
         } else if (item instanceof UserPreferenceItems) {
-            userPreferences.remove(item);
-        } else if (item instanceof WindowPreferenceItems) {
-            windowPreferences.remove(item);
+            userPreferenceItems.remove(item);
+        } else if (item instanceof WindowPreferencesItem) {
+            windowPreferenceItems.remove(item);
         } else if(item instanceof PersonaItem){
             personaPreferences.remove(item);
         }
@@ -265,17 +272,22 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     }
 
     @Override
-    public ObservableList<UserPreferenceItems> getUserPreferences() {
-        return userPreferences;
+    public ObservableList<UserPreferenceItems> getUserPreferenceItems() {
+        return userPreferenceItems;
     }
 
     @Override
-    public ObservableList<WindowPreferenceItems> getWindowPreferences() {
-        return windowPreferences;
+    public ObservableList<WindowPreferencesItem> getWindowPreferenceItems() {
+        return windowPreferenceItems;
     }
 
     @Override
     public ObservableList<PersonaItem> getPersonaPreferences() {
         return personaPreferences;
+    }
+
+    @Override
+    public WindowPreferences getWindowParentPreferences() {
+        return this.windowsPanel;
     }
 }

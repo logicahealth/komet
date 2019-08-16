@@ -48,6 +48,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
@@ -248,22 +249,22 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         ObservableVersion[] versionsToCommit;
         try {
             versionsToCommit = getVersionsToCommit();
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+            CommitTask commitTask = transaction.commitObservableVersions("Lambda graph edit", versionsToCommit);
+            Get.executor().execute(() -> {
+                try {
+                    Optional<CommitRecord> commitRecord = commitTask.get();
+                    completeCommit(commitTask, commitRecord);
+                } catch (InterruptedException | ExecutionException ex) {
+                    FxGet.dialogs().showErrorDialog("Error during commit", ex);
+                }
+            });
         } catch (IllegalStateException ex) {
             // TODO alert user that content is not sufficiently formed to submit for commit. 
             FxGet.dialogs().showErrorDialog("Error during commit", ex);
             return;
         }
 
-        Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
-        CommitTask commitTask = transaction.commitObservableVersions("Lambda graph edit", versionsToCommit);
-        Get.executor().execute(() -> {
-            try {
-                Optional<CommitRecord> commitRecord = commitTask.get();
-                completeCommit(commitTask, commitRecord);
-            } catch (InterruptedException | ExecutionException ex) {
-                FxGet.dialogs().showErrorDialog("Error during commit", ex);
-            }
-        });
     }
 
 
@@ -336,6 +337,15 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
             versionsToCommit.add(this.statedDefinition);
         } else {
             throw new IllegalStateException("Logical expression is not meaningful");
+        }
+        for (ObservableVersion version: versionsToCommit) {
+            version.setAuthorNid(FxGet.currentUser().getNid());
+            if (version.getModuleNid() == 0 || version.getModuleNid() == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
+                version.setModuleNid(this.conceptVersion.getModuleNid());
+            }
+            if (version.getPathNid() == 0 || version.getPathNid() == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
+                version.setPathNid(this.conceptVersion.getPathNid());
+            }
         }
         return versionsToCommit.toArray(new ObservableVersion[versionsToCommit.size()]);
     }

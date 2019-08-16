@@ -50,6 +50,11 @@ public class SingleCommitTask extends CommitTask {
             String commitComment,
             Collection<ChangeChecker> checkers,
             ObservableVersion... versionsToCommit) {
+        for (ObservableVersion version: versionsToCommit) {
+            if (version.getAuthorNid() == 0) throw new IllegalStateException("Author cannot be zero... " + version);
+            if (version.getModuleNid() == 0) throw new IllegalStateException("module cannot be zero... " + version);
+            if (version.getPathNid() == 0) throw new IllegalStateException("path cannot be zero... " + version);
+        }
         this.versionsToCommit = versionsToCommit;
         this.transaction = transaction;
         this.commitComment = commitComment;

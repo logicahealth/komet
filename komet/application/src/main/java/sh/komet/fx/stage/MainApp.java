@@ -70,6 +70,8 @@ import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.PersonaItem;
+import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
@@ -148,7 +150,7 @@ public class MainApp
     }
 
 
-    protected Parent setupStageMenus(Stage stage, BorderPane root) throws MultiException {
+    protected Parent setupStageMenus(Stage stage, BorderPane root, WindowPreferencesItem windowPreference) throws MultiException {
         BorderPane stageRoot = root;
         // Get the toolkit
         MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
@@ -217,6 +219,7 @@ public class MainApp
 
                         Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
                         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+                            // TODO: Go away after personas completely implemented.
                             MenuItem newStatementWindowItem = new MenuItem("Statement window");
                             newStatementWindowItem.setOnAction(this::newStatement);
                             newWindowMenu.getItems().addAll(newStatementWindowItem);
@@ -229,9 +232,22 @@ public class MainApp
                                 }
                             }
                         }
+                        // Add personas here...
+                        for (PersonaItem personaItem: FxGet.kometPreferences().getPersonaPreferences()) {
+                            MenuItem newKometWindowItem = new MenuItem(personaItem.nameProperty().get());
+                            newKometWindowItem.setOnAction(event -> {
+                                FxGet.dialogs().showInformationDialog("Opening new window. ", personaItem.nameProperty().get());
+                                this.newViewer(personaItem);
+                            });
+                            newWindowMenu.getItems().addAll(newKometWindowItem);
+                        }
+
+                        // TODO: Go away after personas completely implemented.
                         MenuItem newKometWindowItem = new MenuItem("Viewer window");
-                        newKometWindowItem.setOnAction(this::newViewer);
+
                         newWindowMenu.getItems().addAll(newKometWindowItem);
+
+
                         AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
                         AppMenu.NEW_WINDOW.getMenu().getItems().sort((o1, o2) -> {
                             return o1.getText().compareTo(o2.getText());
@@ -313,13 +329,15 @@ public class MainApp
         MenuProvider.WINDOW_COUNT.incrementAndGet();
     }
 
-    private void newViewer(ActionEvent event) {
+    private void newViewer(PersonaItem personaItem) {
 
         try {
             Stage stage = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
             BorderPane root = loader.load();
             KometStageController controller = loader.getController();
+            WindowPreferencesItem personaWindowPreferences = personaItem.createNewWindowPreferences();
+            controller.setWindowPreferenceItem(personaWindowPreferences, stage);
 
             root.setId(UUID.randomUUID()
                     .toString());
@@ -348,7 +366,7 @@ public class MainApp
             if (SystemUtils.isMacOS()) {
                 scene = new Scene(root);
             } else {
-                scene = new Scene(setupStageMenus(stage, root));
+                scene = new Scene(setupStageMenus(stage, root, personaWindowPreferences));
             }
 
             stage.setScene(scene);
@@ -366,7 +384,7 @@ public class MainApp
             stage.show();
             MenuProvider.WINDOW_COUNT.incrementAndGet();
 
-        } catch (IOException ex) {
+        } catch (IOException | BackingStoreException ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
     }
