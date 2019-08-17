@@ -384,7 +384,7 @@ public class MainApp
             stage.show();
             MenuProvider.WINDOW_COUNT.incrementAndGet();
 
-        } catch (IOException | BackingStoreException ex) {
+        } catch (Exception ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
     }
