@@ -152,7 +152,7 @@ public class DynamicUsageDescriptionImpl
       }
 
       if (StringUtils.isEmpty(this.semanticUsageDescription)) {
-         logger.error(
+         throw new RuntimeException(
              "The Assemblage concept: " + assemblageConcept +
              " is not correctly assembled for use as an Assemblage for " +
              "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type " +
