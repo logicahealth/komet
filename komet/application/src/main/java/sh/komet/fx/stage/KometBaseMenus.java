@@ -56,6 +56,7 @@ import sh.komet.gui.contract.MenuProvider;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -93,15 +94,15 @@ public class KometBaseMenus implements MenuProvider {
     public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
         switch (parentMenu) {
             case FILE: {
-                MenuItem selectiveImport = new MenuItem("Selective import and transform");
+                MenuItem selectiveImport = new MenuItemWithText("Selective import and transform");
                 selectiveImport.setOnAction((ActionEvent event) -> {
                     ImportView.show(FxGet.manifold(Manifold.ManifoldGroup.TAXONOMY));
                 });
 
-                MenuItem selectiveExport = new MenuItem("Selective export");
+                MenuItem selectiveExport = new MenuItemWithText("Selective export");
                 selectiveExport.setOnAction(event -> ExportView.show(FxGet.manifold(Manifold.ManifoldGroup.UNLINKED)));
 
-                MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
+                MenuItem importTransformFull = new MenuItemWithText("Import and transform - FULL");
 
                 importTransformFull.setOnAction((ActionEvent event) -> {
                     ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.manifold(Manifold.ManifoldGroup.TAXONOMY),
@@ -110,7 +111,7 @@ public class KometBaseMenus implements MenuProvider {
 
                 });
 
-                MenuItem importSourcesFull = new MenuItem("Import terminology content - FULL");
+                MenuItem importSourcesFull = new MenuItemWithText("Import terminology content - FULL");
                 importSourcesFull.setOnAction((ActionEvent event) -> {
                     DirectImporter importerFull = new DirectImporter(ImportType.FULL);
                     Get.executor().submit(importerFull);
@@ -118,7 +119,7 @@ public class KometBaseMenus implements MenuProvider {
 
                 Menu synchronize = new Menu("Synchronize");
 
-                MenuItem initializeLocal = new MenuItem("Initialize local");
+                MenuItem initializeLocal = new MenuItemWithText("Initialize local");
                 synchronize.getItems().add(initializeLocal);
                 initializeLocal.setOnAction((ActionEvent event) -> {
                     //
@@ -144,11 +145,11 @@ public class KometBaseMenus implements MenuProvider {
 
                 });
 
-                MenuItem initializeFromRemote = new MenuItem("Initialize from remote...");
+                MenuItem initializeFromRemote = new MenuItemWithText("Initialize from remote...");
                 synchronize.getItems().add(initializeFromRemote);
                 initializeFromRemote.setOnAction(KometBaseMenus::setupGit);
 
-                MenuItem pullFromRemote = new MenuItem("Pull...");
+                MenuItem pullFromRemote = new MenuItemWithText("Pull...");
                 synchronize.getItems().add(pullFromRemote);
                 pullFromRemote.setOnAction((event) -> {
                     SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
@@ -166,7 +167,7 @@ public class KometBaseMenus implements MenuProvider {
                     });
                 });
 
-                MenuItem pushToRemote = new MenuItem("Push...");
+                MenuItem pushToRemote = new MenuItemWithText("Push...");
                 synchronize.getItems().add(pushToRemote);
                 pushToRemote.setOnAction((event) -> {
                     SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
@@ -185,16 +186,16 @@ public class KometBaseMenus implements MenuProvider {
                     });
                 });
 
-                MenuItem exportNative = new MenuItem("Native format export to file...");
+                MenuItem exportNative = new MenuItemWithText("Native format export to file...");
                 exportNative.setOnAction(this::exportNative);
 
-                MenuItem importNative = new MenuItem("Native format file to CSV...");
+                MenuItem importNative = new MenuItemWithText("Native format file to CSV...");
                 importNative.setOnAction(this::importNative);
 
-                MenuItem splitChangeSet = new MenuItem("Split change set...");
+                MenuItem splitChangeSet = new MenuItemWithText("Split change set...");
                 splitChangeSet.setOnAction(this::splitChangeSet);
 
-                MenuItem executeFlwor = new MenuItem("Execute FLWOR...");
+                MenuItem executeFlwor = new MenuItemWithText("Execute FLWOR...");
                 executeFlwor.setOnAction(this::executeFlwor);
 
                 return new MenuItem[]{selectiveImport, selectiveExport, importTransformFull,
@@ -203,19 +204,19 @@ public class KometBaseMenus implements MenuProvider {
 
             case TOOLS: {
 
-                MenuItem transformSourcesFull = new MenuItem("Transform RF2 to EL++ - FULL");
+                MenuItem transformSourcesFull = new MenuItemWithText("Transform RF2 to EL++ - FULL");
                 transformSourcesFull.setOnAction((ActionEvent event) -> {
                     Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.FULL);
                     Get.executor().submit(transformer);
                 });
 
-                MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - ACTIVE");
+                MenuItem transformSourcesActiveOnly = new MenuItemWithText("Transform RF2 to EL++ - ACTIVE");
                 transformSourcesActiveOnly.setOnAction((ActionEvent event) -> {
                     Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.ACTIVE_ONLY);
                     Get.executor().submit(transformer);
                 });
 
-                MenuItem completeClassify = new MenuItem("Complete classify");
+                MenuItem completeClassify = new MenuItemWithText("Complete classify");
                 completeClassify.setOnAction((ActionEvent event) -> {
                     //TODO change how we get the edit coordinate. 
                     EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
@@ -223,12 +224,12 @@ public class KometBaseMenus implements MenuProvider {
                     classifierService.classify();
                 });
 
-                MenuItem completeReindex = new MenuItem("Complete reindex");
+                MenuItem completeReindex = new MenuItemWithText("Complete reindex");
                 completeReindex.setOnAction((ActionEvent event) -> {
                     Get.startIndexTask();
                 });
 
-                MenuItem recomputeTaxonomy = new MenuItem("Recompute taxonomy");
+                MenuItem recomputeTaxonomy = new MenuItemWithText("Recompute taxonomy");
                 recomputeTaxonomy.setOnAction((ActionEvent event) -> {
                     Get.taxonomyService().notifyTaxonomyListenersToRefresh();
                 });

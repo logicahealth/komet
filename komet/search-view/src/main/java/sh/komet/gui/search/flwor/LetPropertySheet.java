@@ -37,6 +37,7 @@ import sh.isaac.api.query.ManifoldCoordinateForQuery;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl; 
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableStampCoordinateImpl;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -77,27 +78,27 @@ public class LetPropertySheet {
         this.manifoldForDisplay = manifold;
         this.fLWORQueryController = fLWORQueryController;
         this.items = FXCollections.observableArrayList();
-        MenuItem addStampCoordinate = new MenuItem("Add stamp coordinate");
+        MenuItem addStampCoordinate = new MenuItemWithText("Add stamp coordinate");
         addStampCoordinate.setOnAction(this::addStampCoordinate);
         this.addLetClauseButton.getItems().add(addStampCoordinate);
 
-        MenuItem addLanguageCoordinate = new MenuItem("Add language coordinate");
+        MenuItem addLanguageCoordinate = new MenuItemWithText("Add language coordinate");
         addLanguageCoordinate.setOnAction(this::addLanguageCoordinate);
         this.addLetClauseButton.getItems().add(addLanguageCoordinate);
 
-        MenuItem addLogicCoordinate = new MenuItem("Add logic coordinate");
+        MenuItem addLogicCoordinate = new MenuItemWithText("Add logic coordinate");
         addLogicCoordinate.setOnAction(this::addLogicCoordinate);
         this.addLetClauseButton.getItems().add(addLogicCoordinate);
 
-        MenuItem addManifoldCoordinate = new MenuItem("Add manifold coordinate");
+        MenuItem addManifoldCoordinate = new MenuItemWithText("Add manifold coordinate");
         addManifoldCoordinate.setOnAction(this::addManifoldCoordinate);
         this.addLetClauseButton.getItems().add(addManifoldCoordinate);
         
-        MenuItem addConceptSpecification = new MenuItem("Add concept specification");
+        MenuItem addConceptSpecification = new MenuItemWithText("Add concept specification");
         addConceptSpecification.setOnAction(this::addConceptSpecification);
         this.addLetClauseButton.getItems().add(addConceptSpecification);
                 
-        MenuItem addString = new MenuItem("Add string");
+        MenuItem addString = new MenuItemWithText("Add string");
         addString.setOnAction(this::addString);
         this.addLetClauseButton.getItems().add(addString);
                 

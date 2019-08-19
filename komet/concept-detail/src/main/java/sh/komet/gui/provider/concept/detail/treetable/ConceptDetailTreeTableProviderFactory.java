@@ -72,14 +72,6 @@ public class ConceptDetailTreeTableProviderFactory implements DetailNodeFactory 
       return new ManifoldGroup[] {ManifoldGroup.TAXONOMY};
    }
 
-   /** 
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return null;
-   }
-
    @Override
    public ConceptSpecification getPanelType() {
       return MetaData.CONCEPT_DETAILS_TREE_TABLE____SOLOR;

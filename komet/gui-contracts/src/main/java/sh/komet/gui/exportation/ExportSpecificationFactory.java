@@ -37,11 +37,6 @@ public class ExportSpecificationFactory implements ExplorationNodeFactory {
     }
 
     @Override
-    public PanelPlacement getPanelPlacement() {
-        return null;
-    }
-
-    @Override
     public ConceptSpecification getPanelType() {
         return MetaData.EXPORT_SPECIFICATION_PANEL____SOLOR;
     }

@@ -21,6 +21,9 @@ import javafx.stage.Stage;
 import org.jvnet.hk2.annotations.Contract;
 import sh.komet.gui.manifold.Manifold;
 
+import java.util.Optional;
+import java.util.UUID;
+
 /**
  *
  * @author kec
@@ -42,4 +45,12 @@ public interface KometPreferences {
     ObservableList<WindowPreferencesItem> getWindowPreferenceItems();
     WindowPreferences getWindowParentPreferences();
     ObservableList<PersonaItem> getPersonaPreferences();
+    default Optional<PersonaItem> getPersona(UUID personaUuid) {
+        for (PersonaItem personaItem: getPersonaPreferences()) {
+            if (personaItem.getPersonaUuid().equals(personaUuid)) {
+                return Optional.of(personaItem);
+            }
+        }
+        return Optional.empty();
+    }
 }

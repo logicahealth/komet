@@ -43,6 +43,7 @@ import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -56,7 +57,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
     private final Manifold manifold;
     private ReadOnlyObjectProperty<ConceptSpecification> findSelectedConceptSpecification;
     private PopOver popOver;
-    private final MenuItem findItem = new MenuItem("Find");
+    private final MenuItem findItem = new MenuItemWithText("Find");
     FixedWidthMenuSeperator fixedWidthFindSeperator = new FixedWidthMenuSeperator();
     FixedWidthMenuSeperator fixedWidthManifoldSeperator = new FixedWidthMenuSeperator();
 

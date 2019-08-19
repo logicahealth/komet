@@ -97,24 +97,8 @@ public class ExtendedSearchViewFactory implements ConceptSearchNodeFactory {
      * {@inheritDoc}
      */
     @Override
-    public boolean isEnabled() {
-        return FxGet.fxConfiguration().isShowBetaFeaturesEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public ManifoldGroup[] getDefaultManifoldGroups() {
         return new ManifoldGroup[]{ManifoldGroup.SEARCH};
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PanelPlacement getPanelPlacement() {
-        return PanelPlacement.RIGHT;
     }
 
     /**

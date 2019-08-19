@@ -64,23 +64,13 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
       // FontAwesomeIcon.NAVICON
       return Iconography.CONCEPT_DETAILS.getIconographic();
    }
-   
-   @Override
-   public boolean isEnabled() {
-      return true;
-   }
-   
+
   /** 
    * {@inheritDoc}
    */
    @Override
    public ManifoldGroup[] getDefaultManifoldGroups() {
       return new ManifoldGroup[] {ManifoldGroup.TAXONOMY, ManifoldGroup.SEARCH};
-   }
-
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return PanelPlacement.CENTER;
    }
 
     @Override

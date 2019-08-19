@@ -51,14 +51,6 @@ public class GroovyViewFactory implements ExplorationNodeFactory {
     public Node getMenuIcon() {
         return Iconography.JAVASCRIPT.getIconographic();
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PanelPlacement getPanelPlacement() {
-       return null;
-    }
 
    /** 
     * {@inheritDoc}

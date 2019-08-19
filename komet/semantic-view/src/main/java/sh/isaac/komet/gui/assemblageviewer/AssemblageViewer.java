@@ -117,14 +117,6 @@ public class AssemblageViewer implements ExplorationNodeFactory {
      * {@inheritDoc}
      */
     @Override
-    public PanelPlacement getPanelPlacement() {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public ManifoldGroup[] getDefaultManifoldGroups() {
         return new ManifoldGroup[]{ManifoldGroup.UNLINKED};
     }

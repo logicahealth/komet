@@ -78,6 +78,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.SimpleDisplayConcept;
 import sh.komet.gui.drag.drop.DragRegistry;
+import sh.komet.gui.menu.MenuItemWithText;
 
 /**
  * {@link ConceptNode}
@@ -199,7 +200,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 		
 		cm_ = new ContextMenu();
 		
-		MenuItem copyText = new MenuItem("Copy Description");
+		MenuItem copyText = new MenuItemWithText("Copy Description");
 		copyText.setGraphic(Iconography.COPY.getIconographic());
 		copyText.setOnAction(new EventHandler<ActionEvent>()
 		{

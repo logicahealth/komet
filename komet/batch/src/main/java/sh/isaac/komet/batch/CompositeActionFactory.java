@@ -37,11 +37,6 @@ public class CompositeActionFactory implements ExplorationNodeFactory<CompositeA
     }
 
     @Override
-    public PanelPlacement getPanelPlacement() {
-        return null;
-    }
-
-    @Override
     public ConceptSpecification getPanelType() {
         return null;
     }

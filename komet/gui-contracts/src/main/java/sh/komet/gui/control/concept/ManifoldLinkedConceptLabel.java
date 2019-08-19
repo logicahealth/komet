@@ -74,6 +74,7 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
 
 import sh.isaac.api.docbook.DocBook;
+import sh.komet.gui.menu.MenuItemWithText;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -127,7 +128,7 @@ public class ManifoldLinkedConceptLabel
         ContextMenu contextMenu = new ContextMenu();
 
         for (String manifoldGroupName : Manifold.getGroupNames()) {
-            MenuItem item = new MenuItem(manifoldGroupName + " history");
+            MenuItem item = new MenuItemWithText(manifoldGroupName + " history");
             contextMenu.getItems()
                     .add(item);
         }
@@ -139,7 +140,7 @@ public class ManifoldLinkedConceptLabel
     //~--- methods -------------------------------------------------------------
     private MenuItem makeCopyMenuItem() {
         Menu copyMenu = new Menu("copy");
-        MenuItem conceptUuidMenuItem = new MenuItem("Concept uuid");
+        MenuItem conceptUuidMenuItem = new MenuItemWithText("Concept uuid");
         copyMenu.getItems().add(conceptUuidMenuItem);
         conceptUuidMenuItem.setOnAction((event) -> {
             Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
@@ -152,7 +153,7 @@ public class ManifoldLinkedConceptLabel
             }
         });
 
-        MenuItem docBookInlineReferenceMenuItem = new MenuItem("Docbook inline concept reference");
+        MenuItem docBookInlineReferenceMenuItem = new MenuItemWithText("Docbook inline concept reference");
         copyMenu.getItems().add(docBookInlineReferenceMenuItem);
         docBookInlineReferenceMenuItem.setOnAction((event) -> {
             Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
@@ -165,7 +166,7 @@ public class ManifoldLinkedConceptLabel
             }
         });
 
-        MenuItem copyDocBookMenuItem = new MenuItem("Docbook glossary entry");
+        MenuItem copyDocBookMenuItem = new MenuItemWithText("Docbook glossary entry");
         copyMenu.getItems().add(copyDocBookMenuItem);
         copyDocBookMenuItem.setOnAction((event) -> {
             Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
@@ -177,7 +178,7 @@ public class ManifoldLinkedConceptLabel
                 clipboard.setContent(content);
             }
         });
-        MenuItem copyJavaShortSpecMenuItem = new MenuItem("Java concept specification");
+        MenuItem copyJavaShortSpecMenuItem = new MenuItemWithText("Java concept specification");
         copyMenu.getItems().add(copyJavaShortSpecMenuItem);
         copyJavaShortSpecMenuItem.setOnAction((event) -> {
             Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
@@ -194,7 +195,7 @@ public class ManifoldLinkedConceptLabel
                 clipboard.setContent(content);
             }
         });
-        MenuItem copyJavaSpecMenuItem = new MenuItem("Java qualified concept specification");
+        MenuItem copyJavaSpecMenuItem = new MenuItemWithText("Java qualified concept specification");
         copyMenu.getItems().add(copyJavaSpecMenuItem);
         copyJavaSpecMenuItem.setOnAction((event) -> {
             Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
@@ -212,7 +213,7 @@ public class ManifoldLinkedConceptLabel
             }
         });
         
-        MenuItem copyConceptDetailedInfoItem = new MenuItem("Copy concept detailed info");
+        MenuItem copyConceptDetailedInfoItem = new MenuItemWithText("Copy concept detailed info");
         copyMenu.getItems().add(copyConceptDetailedInfoItem);
         copyConceptDetailedInfoItem.setOnAction((event) -> {
             Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
@@ -262,7 +263,7 @@ public class ManifoldLinkedConceptLabel
 
     private void setupHistoryMenuItem(Collection<HistoryRecord> historyCollection, Menu manifoldHistoryMenu) {
         for (HistoryRecord historyRecord : historyCollection) {
-            MenuItem historyItem = new MenuItem(historyRecord.getComponentString());
+            MenuItem historyItem = new MenuItemWithText(historyRecord.getComponentString());
             historyItem.setUserData(historyRecord);
             historyItem.setOnAction((ActionEvent actionEvent) -> {
                 unlink();

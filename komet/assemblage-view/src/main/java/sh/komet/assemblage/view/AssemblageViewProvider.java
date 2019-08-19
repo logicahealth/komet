@@ -42,6 +42,8 @@ import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.menu.MenuItemWithText;
+
 import static sh.komet.gui.style.StyleClasses.ASSEMBLAGE_DETAIL;
 
 /**
@@ -142,14 +144,14 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
         LOG.debug("Assemblage nid count: " + assembalgeNids.length + "\n" + Arrays.toString(assembalgeNids));
         
         for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
-            MenuItem menu = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
+            MenuItem menu = new MenuItemWithText(manifold.getPreferredDescriptionText(assemblageNid));
             menu.setOnAction((event) -> {
                 manifold.setFocusedConceptChronology(Get.concept(assemblageNid));
             });
             assemblagesMenu.getItems().add(menu);
             String preferredDescText = manifold.getPreferredDescriptionText(assemblageNid);
             LOG.debug("Assemblage name <" + assemblageNid + ">: " + preferredDescText);
-            MenuItem menu2 = new MenuItem(preferredDescText);
+            MenuItem menu2 = new MenuItemWithText(preferredDescText);
             menu2.setOnAction((event) -> {
                 manifold.setFocusedConceptChronology(Get.concept(assemblageNid));
             });

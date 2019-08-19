@@ -4,9 +4,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.preferences.TransientPreferences;
 import sh.isaac.komet.preferences.AbstractPreferences;
 import sh.isaac.komet.preferences.KometPreferencesController;
 import sh.isaac.komet.preferences.window.WindowPreferencePanel;
@@ -18,7 +20,9 @@ import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 
@@ -118,7 +122,7 @@ public class PersonasItemPanel extends AbstractPreferences implements PersonaIte
         getPreferencesNode().putBoolean(Keys.ENABLE_RIGHT_PANE, this.enableRightPaneProperty.get());
         getPreferencesNode().putConceptList(Keys.RIGHT_PANE_OPTIONS, this.rightPaneOptionsProperty);
         getPreferencesNode().putConceptList(Keys.RIGHT_PANE_DEFAULTS, this.rightPaneDefaultsProperty);
-
+        FxGet.firePersonaChanged(this, true);
     }
 
     @Override
@@ -145,13 +149,20 @@ public class PersonasItemPanel extends AbstractPreferences implements PersonaIte
                 List.of(MetaData.ACTIVITIES_PANEL____SOLOR,
                         MetaData.SIMPLE_SEARCH_PANEL____SOLOR,
                         MetaData.EXTENDED_SEARCH_PANEL____SOLOR)));
-
+        FxGet.firePersonaChanged(this, true);
     }
 
     @Override
     public boolean showDelete() {
         return true;
     }
+
+    @Override
+    protected void deleteSelf(ActionEvent event) {
+        FxGet.firePersonaChanged(this, false);
+        super.deleteSelf(event);
+    }
+
 
     private static String getGroupName(IsaacPreferences preferencesNode) {
         return preferencesNode.get(Keys.PERSONA_NAME, "Persona");
@@ -214,19 +225,68 @@ public class PersonasItemPanel extends AbstractPreferences implements PersonaIte
     }
 
     @Override
-    public WindowPreferencesItem createNewWindowPreferences() {
-        try {
-            IsaacPreferences preferencesNode = FxGet.kometPreferences().getWindowParentPreferences().addWindow();
+    public void setPersonaUuid(UUID personaUuid) {
+        this.personaUuid = personaUuid;
+    }
 
-            WindowPreferencePanel windowPreferencePanel = new WindowPreferencePanel(preferencesNode,
-                    getManifold(),
-                    this.kpc);
-            windowPreferencePanel.setPersonaItem(this);
-            windowPreferencePanel.save();
-            preferencesNode.sync();
-            return windowPreferencePanel;
-        } catch (BackingStoreException e) {
-            throw new RuntimeException(e);
+    @Override
+    public WindowPreferencesItem createNewWindowPreferences() {
+        IsaacPreferences windowPreferencesNode = FxGet.kometPreferences().getWindowParentPreferences().addWindow();
+
+        return new WindowPreferencePanel(windowPreferencesNode,
+                getManifold(),
+                this.kpc, this);
+    }
+
+    public static WindowPreferencesItem createNewDefaultWindowPreferences(IsaacPreferences windowPreferencesNode,
+                                                                   Manifold manifold, KometPreferencesController kpc) {
+        PersonasItemPanel persona = new PersonasItemPanel(new TransientPreferences(), manifold, kpc);
+        persona.setPersonaUuid(PersonasItems.DEFAULT_PERSONA);
+        return new WindowPreferencePanel(windowPreferencesNode,
+                manifold,
+                kpc, persona);
+
+    }
+
+    @Override
+    public Set<ConceptSpecification> getAllowedOptionsForPane(int paneIndex) {
+        switch (paneIndex) {
+            case 0:
+                return new HashSet<ConceptSpecification>(leftPaneOptionsProperty);
+            case 1:
+                return new HashSet<ConceptSpecification>(centerPaneOptionsProperty);
+            case 2:
+                return new HashSet<ConceptSpecification>(rightPaneOptionsProperty);
+            default:
+                throw new ArrayIndexOutOfBoundsException("Pane index is: " + paneIndex);
+        }
+    }
+
+    @Override
+    public List<ConceptSpecification> getDefaultItemsForPane(int paneIndex) {
+        switch (paneIndex) {
+            case 0:
+                return leftPaneDefaultsProperty;
+            case 1:
+                return centerPaneDefaultsProperty;
+            case 2:
+                return rightPaneDefaultsProperty;
+            default:
+                throw new ArrayIndexOutOfBoundsException("Pane index is: " + paneIndex);
+        }
+    }
+
+    @Override
+    public boolean isPaneEnabled(int paneIndex) {
+        switch (paneIndex) {
+            case 0:
+                return enableLeftPaneProperty.get();
+            case 1:
+                return enableCenterPaneProperty.get();
+            case 2:
+                return enableRightPaneProperty.get();
+            default:
+                return false;
         }
     }
 }

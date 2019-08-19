@@ -35,6 +35,7 @@ import sh.isaac.solor.direct.TransformationGroup;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 import javax.inject.Singleton;
@@ -62,46 +63,46 @@ public class DeveloperMenus implements MenuProvider {
     public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
         if (parentMenu == AppMenu.EDIT) {
             
-            MenuItem debugConversion = new MenuItem("Debug Respiratory region of nose conversion");
+            MenuItem debugConversion = new MenuItemWithText("Debug Respiratory region of nose conversion");
             debugConversion.setOnAction(this::debugNoseConversion);
 
-            MenuItem debugEarFindingConversion = new MenuItem("Debug Ear Finding conversion");
+            MenuItem debugEarFindingConversion = new MenuItemWithText("Debug Ear Finding conversion");
             debugEarFindingConversion.setOnAction(this::debugEarFindingConversion);
 
-            MenuItem debugIsoniazidConversion = new MenuItem("Debug Isoniazid conversion");
+            MenuItem debugIsoniazidConversion = new MenuItemWithText("Debug Isoniazid conversion");
             debugIsoniazidConversion.setOnAction(this::debugIsoniazidConversion);
 
-            MenuItem debugLamivudineConversion = new MenuItem("Debug Lamivudine conversion");
+            MenuItem debugLamivudineConversion = new MenuItemWithText("Debug Lamivudine conversion");
             debugLamivudineConversion.setOnAction(this::debugLamivudineConversion);
 
-            MenuItem debugConnectiveTissueConversion = new MenuItem("Debug Connective Tissue conversion");
+            MenuItem debugConnectiveTissueConversion = new MenuItemWithText("Debug Connective Tissue conversion");
             debugConnectiveTissueConversion.setOnAction(this::debugConnectiveTissueConversion);
 
-            MenuItem debugAdductorMuscleConversion = new MenuItem("Debug Adductor Muscle conversion");
+            MenuItem debugAdductorMuscleConversion = new MenuItemWithText("Debug Adductor Muscle conversion");
             debugAdductorMuscleConversion.setOnAction(this::debugAdductorMuscleConversion);
 
-            MenuItem debugPrematureConversion = new MenuItem("Debug Premature conversion");
+            MenuItem debugPrematureConversion = new MenuItemWithText("Debug Premature conversion");
             debugPrematureConversion.setOnAction(this::debugPrematureConversion);
 
-            MenuItem debugSepsisConversion = new MenuItem("Debug Sepsis conversion");
+            MenuItem debugSepsisConversion = new MenuItemWithText("Debug Sepsis conversion");
             debugSepsisConversion.setOnAction(this::debugSepsisConversion);
 
-            MenuItem debugDizzinessConversion = new MenuItem("Debug Dizziness conversion");
+            MenuItem debugDizzinessConversion = new MenuItemWithText("Debug Dizziness conversion");
             debugDizzinessConversion.setOnAction(this::debugDizzinessConversion);
 
-            MenuItem debugNonallopathicConversion = new MenuItem("Debug Nonallopathic conversion");
+            MenuItem debugNonallopathicConversion = new MenuItemWithText("Debug Nonallopathic conversion");
             debugNonallopathicConversion.setOnAction(this::debugNonallopathicConversion);
 
-            MenuItem debugNephronophthisisConversion = new MenuItem("Debug Nephronophthisis conversion");
+            MenuItem debugNephronophthisisConversion = new MenuItemWithText("Debug Nephronophthisis conversion");
             debugNephronophthisisConversion.setOnAction(this::debugNephronophthisisConversion);
 
-            MenuItem debugTenosynovitisConversion = new MenuItem("Debug Tenosynovitis conversion");
+            MenuItem debugTenosynovitisConversion = new MenuItemWithText("Debug Tenosynovitis conversion");
             debugTenosynovitisConversion.setOnAction(this::debugTenosynovitisConversion);
 
-            MenuItem debugCprConversion = new MenuItem("Debug CPR conversion");
+            MenuItem debugCprConversion = new MenuItemWithText("Debug CPR conversion");
             debugCprConversion.setOnAction(this::debugCprConversion);
 
-            MenuItem testTaxonomyDistance = new MenuItem("Test taxonomy distance");
+            MenuItem testTaxonomyDistance = new MenuItemWithText("Test taxonomy distance");
             testTaxonomyDistance.setOnAction(this::testTaxonomyDistance);
 
 

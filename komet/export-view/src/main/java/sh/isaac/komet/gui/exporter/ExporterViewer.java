@@ -54,6 +54,7 @@ import sh.isaac.api.Get;
 import sh.isaac.misc.exporters.TableExporter;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.menu.MenuItemWithText;
 
 /**
  * {@link ExporterViewer}
@@ -128,7 +129,7 @@ public class ExporterViewer implements MenuProvider {
     public MenuItem[] getMenuItems(AppMenu appMenu, Window window) {
         if (appMenu == AppMenu.TOOLS) {
             this.window_ = window;
-            MenuItem mi = new MenuItem("Table Exporter");
+            MenuItem mi = new MenuItemWithText("Table Exporter");
             mi.setOnAction(event
                     -> {
                 showView();

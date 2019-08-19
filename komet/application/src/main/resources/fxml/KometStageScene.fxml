@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane fx:id="topBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="600" prefHeight="875.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/8.0.152" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.fx.stage.KometStageController">
+<BorderPane fx:id="topBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="600" prefHeight="875.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.fx.stage.KometStageController">
    <bottom>
       <HBox fx:id="bottomBorderBox" prefHeight="0.0" prefWidth="866.0" BorderPane.alignment="CENTER">
          <children>
@@ -24,11 +24,11 @@
       </HBox>
    </bottom>
    <center>
-      <SplitPane dividerPositions="0.2503576537911302, 0.7503576537911302" BorderPane.alignment="CENTER">
+      <SplitPane fx:id="windowSplitPane" dividerPositions="0.2503576537911302, 0.7503576537911302" BorderPane.alignment="CENTER">
          <items>
-            <HBox fx:id="leftBorderBox" prefHeight="100.0" prefWidth="200.0" />
-            <HBox fx:id="editorLeftPane" minWidth="0.0" prefHeight="706.0" prefWidth="496.0" />
-            <HBox fx:id="rightBorderBox" prefHeight="100.0" prefWidth="200.0" />
+            <HBox fx:id="leftHBox" prefHeight="100.0" prefWidth="200.0" />
+            <HBox fx:id="centerHBox" minWidth="0.0" prefHeight="706.0" prefWidth="496.0" />
+            <HBox fx:id="rightHBox" prefHeight="100.0" prefWidth="200.0" />
          </items>
       </SplitPane>
    </center>

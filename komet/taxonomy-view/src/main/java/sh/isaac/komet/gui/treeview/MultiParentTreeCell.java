@@ -81,6 +81,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -173,7 +174,7 @@ final public class MultiParentTreeCell
          Manifold menuManifold = treeView.getManifold();
          
       ContextMenu cm    = new ContextMenu();
-      MenuItem    item1 = new MenuItem("About " + menuManifold.getPreferredDescriptionText(concept));
+      MenuItem    item1 = new MenuItemWithText("About " + menuManifold.getPreferredDescriptionText(concept));
 
       item1.setOnAction(
           (ActionEvent e) -> {
@@ -182,7 +183,7 @@ final public class MultiParentTreeCell
              treeItem.getValue();
           });
 
-      MenuItem item2 = new MenuItem("Preferences");
+      MenuItem item2 = new MenuItemWithText("Preferences");
 
       item2.setOnAction(
           (ActionEvent e) -> {

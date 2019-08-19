@@ -43,6 +43,7 @@ import javafx.scene.control.TreeTableCell;
 import javafx.scene.text.Text;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.komet.gui.semanticViewer.SemanticGUI;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.CustomClipboard;
 
 /**
@@ -79,7 +80,7 @@ public class StringCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 			textHolder.wrappingWidthProperty().bind(widthProperty().subtract(10));
 			setGraphic(textHolder);
 			ContextMenu cm = new ContextMenu();
-			MenuItem mi = new MenuItem("Copy");
+			MenuItem mi = new MenuItemWithText("Copy");
 			mi.setGraphic(Images.COPY.createImageView());
 			mi.setOnAction((action) -> 
 			{

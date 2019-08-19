@@ -64,14 +64,6 @@ public class LogicDetailProviderFactory implements DetailNodeFactory {
       return new ManifoldGroup[] {ManifoldGroup.TAXONOMY};
    }
 
-   /** 
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return null;
-   }
-
    @Override
    public ConceptSpecification getPanelType() {
       return MetaData.LOGIC_DETAILS_PANEL____SOLOR;

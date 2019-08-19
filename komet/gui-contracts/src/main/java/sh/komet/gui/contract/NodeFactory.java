@@ -33,8 +33,6 @@ import sh.komet.gui.util.FxGet;
 @Contract
 public interface NodeFactory<T extends ExplorationNode> {
    
-   public enum PanelPlacement{LEFT, CENTER, RIGHT};
-   
    /**
     * Create the node
     * @param manifold the manifold that determines the current coordinates and focus. 
@@ -56,13 +54,6 @@ public interface NodeFactory<T extends ExplorationNode> {
    Node getMenuIcon();
 
    /**
-    * @return true if this view should be shown, false otherwise.  Default ties it to the betaFeatures.
-    */
-   default boolean isEnabled() {
-      return FxGet.fxConfiguration().isShowBetaFeaturesEnabled();
-   }
-   
-   /**
     * The initial manifold group(s) this view should be linked to.
     * returning more than one manifold group will be seen as a request
     * to create multiple copies of this node on system startup.
@@ -72,12 +63,6 @@ public interface NodeFactory<T extends ExplorationNode> {
     * @return the desired manifold group
     */
    ManifoldGroup[] getDefaultManifoldGroups();
-   
-   /**
-    * On system start, place this node in the specified place, or, return null, to not have this node created / setup on system start.
-    * @return the desired placement
-    */
-   PanelPlacement getPanelPlacement();
 
    /**
     *

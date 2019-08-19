@@ -54,11 +54,6 @@ public class TreeViewExplorationNodeFactory
    public Node getMenuIcon() {
       return Iconography.TAXONOMY_ICON.getIconographic();
    }
-   
-   @Override
-   public boolean isEnabled() {
-      return true;
-   }
 
    /** 
     * {@inheritDoc}
@@ -66,14 +61,6 @@ public class TreeViewExplorationNodeFactory
    @Override
    public ManifoldGroup[] getDefaultManifoldGroups() {
       return new ManifoldGroup[] {ManifoldGroup.TAXONOMY};
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return PanelPlacement.LEFT;
    }
 
    @Override

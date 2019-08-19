@@ -41,6 +41,7 @@ import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -86,7 +87,7 @@ public class AddAttachmentMenuItems {
         }
         PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion);
         propertySheetMenuItems.put(menuText, propertySheetMenuItem);
-        MenuItem menuItem = new MenuItem(menuText);
+        MenuItem menuItem = new MenuItemWithText(menuText);
         menuItem.setOnAction((event) -> {
             try {
                 ObservableVersion newVersion = makeNewVersion(assemblageSpecification);

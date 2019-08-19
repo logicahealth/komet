@@ -31,6 +31,7 @@ import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.menu.MenuItemWithText;
 
 /**
  *
@@ -55,7 +56,7 @@ public class StringAssemblageLoadMenuProvider implements MenuProvider {
     @Override
     public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
         if (parentMenu == AppMenu.FILE) {
-            MenuItem importStringAssembalge = new MenuItem("Import String Assemblage...");
+            MenuItem importStringAssembalge = new MenuItemWithText("Import String Assemblage...");
             importStringAssembalge.setOnAction((ActionEvent event) -> {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Open Tab Delimited File");

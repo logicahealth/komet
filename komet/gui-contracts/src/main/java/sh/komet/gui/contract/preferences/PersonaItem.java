@@ -5,6 +5,8 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -16,6 +18,7 @@ public interface PersonaItem {
     void revert();
 
     UUID getPersonaUuid();
+    void setPersonaUuid(UUID personaUuid);
 
     SimpleStringProperty nameProperty();
 
@@ -39,5 +42,15 @@ public interface PersonaItem {
 
     WindowPreferencesItem createNewWindowPreferences();
 
+    /**
+     * If pane is enabled, but getAllowedOptionsForPane is empty, it should
+     * be treated as a wildcard, where all options are allowed.
+     * @param paneIndex
+     * @return The set of allowed options for a pane, or empty if a wildcard (all options are allowed).
+     */
+    Set<ConceptSpecification> getAllowedOptionsForPane(int paneIndex);
 
+    List<ConceptSpecification> getDefaultItemsForPane(int paneIndex);
+
+    boolean isPaneEnabled(int paneIndex);
 }

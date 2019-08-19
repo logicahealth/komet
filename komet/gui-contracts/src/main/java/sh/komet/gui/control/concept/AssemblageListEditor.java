@@ -38,6 +38,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 
 /**
  *
@@ -174,7 +175,7 @@ public class AssemblageListEditor implements PropertyEditor<ObservableList<Conce
     }
 
     protected MenuItem makeMenuFromAssemblageNid(int assemblageNid) {
-        MenuItem menu = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
+        MenuItem menu = new MenuItemWithText(manifold.getPreferredDescriptionText(assemblageNid));
         menu.setOnAction((event) -> {
             this.conceptListView.getItems().add(Get.conceptSpecification(assemblageNid));
         });

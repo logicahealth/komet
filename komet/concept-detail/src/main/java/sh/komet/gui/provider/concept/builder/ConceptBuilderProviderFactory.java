@@ -65,14 +65,6 @@ public class ConceptBuilderProviderFactory implements DetailNodeFactory {
         return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
     }
 
-   /** 
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return PanelPlacement.CENTER;
-   }
-
     @Override
     public ConceptSpecification getPanelType() {
         return MetaData.CONCEPT_BUILDER_PANEL____SOLOR;

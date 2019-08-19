@@ -68,6 +68,7 @@ import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.mojo.LoadTermstore;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxUtils;
 
 /**
@@ -249,12 +250,12 @@ public class IbdfArtifactImportMenuOption implements MenuProvider
 		if (appMenu == AppMenu.TOOLS)
 		{
 			this.window_ = window;
-			MenuItem miImport = new MenuItem("IBDF Artifact Import");
+			MenuItem miImport = new MenuItemWithText("IBDF Artifact Import");
 			miImport.setOnAction(event -> {
 				ibdfImport(false);
 			});
 			
-			MenuItem miDeltaImport = new MenuItem("IBDF Delta Artifact Import");
+			MenuItem miDeltaImport = new MenuItemWithText("IBDF Delta Artifact Import");
 			miDeltaImport.setOnAction(event -> {
 				ibdfImport(true);
 			});

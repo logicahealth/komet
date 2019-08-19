@@ -69,14 +69,6 @@ public class FLWORQueryViewFactory implements ExplorationNodeFactory {
    public ManifoldGroup[] getDefaultManifoldGroups() {
       return new ManifoldGroup[] {ManifoldGroup.FLWOR};
    }
-   
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return null;
-   }
 
    @Override
    public ConceptSpecification getPanelType() {

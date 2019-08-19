@@ -67,12 +67,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
@@ -84,9 +84,9 @@ import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.contract.NodeFactory;
-import sh.komet.gui.contract.NodeFactory.PanelPlacement;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.isaac.komet.gui.exporter.ExportView;
+import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
@@ -94,6 +94,7 @@ import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelProviderFactory;
 import sh.komet.gui.search.extended.ExtendedSearchViewFactory;
 import sh.komet.gui.search.simple.SimpleSearchViewFactory;
@@ -116,7 +117,15 @@ public class KometStageController
     public enum Keys {
         FACTORY_CLASS,
         TAB_PANE_INDEX,
-        INDEX_IN_TAB_PANE
+        INDEX_IN_TAB_PANE,
+        ADD_DEFAULTS
+    }
+
+    private static final HashMap<ConceptSpecification, NodeFactory> NODE_FACTORY_MAP = new HashMap<>();
+    {
+        for (NodeFactory factory: Get.services(NodeFactory.class)) {
+            NODE_FACTORY_MAP.put(factory.getPanelType(), factory);
+        }
     }
 
 
@@ -128,18 +137,16 @@ public class KometStageController
     private URL location;
     @FXML                                                                          // fx:id="bottomBorderBox"
     private HBox bottomBorderBox;                  // Value injected by FXMLLoader
-    @FXML                                                                          // fx:id="verticalEditorSplitPane"
-    private SplitPane verticalEditorSplitPane;          // Value injected by FXMLLoader
     @FXML                                                                          // fx:id="editorButtonBar"
     private ButtonBar editorButtonBar;                  // Value injected by FXMLLoader
-    @FXML  // fx:id="editorCenterHorizontalSplitPane"
-    private SplitPane editorCenterHorizontalSplitPane;  // Value injected by FXMLLoader
-    @FXML                                                                          // fx:id="editorLeftPane"
-    private HBox editorLeftPane;                   // Value injected by FXMLLoader
-    @FXML                                                                          // fx:id="leftBorderBox"
-    private HBox leftBorderBox;                    // Value injected by FXMLLoader
-    @FXML                                                                          // fx:id="rightBorderBox"
-    private HBox rightBorderBox;                   // Value injected by FXMLLoader
+    @FXML                                                                          // fx:id="windowSplitPane"
+    private SplitPane windowSplitPane;       // Value injected by FXMLLoader
+    @FXML                                                                          // fx:id="leftHBox"
+    private HBox leftHBox;                    // Value injected by FXMLLoader
+    @FXML                                                                          // fx:id="centerHBox"
+    private HBox centerHBox;                   // Value injected by FXMLLoader
+    @FXML                                                                          // fx:id="rightHBox"
+    private HBox rightHBox;                   // Value injected by FXMLLoader
     @FXML                                                                          // fx:id="editToolBar"
     private ToolBar editToolBar;                      // Value injected by FXMLLoader
     @FXML                                                                          // fx:id="statusMessage"
@@ -153,6 +160,7 @@ public class KometStageController
     private WindowPreferencesItem windowPreferencesItem;
     private IsaacPreferences preferencesNode;
     private Stage stage;
+    private List<MenuButton> newTabMenuButtons = new ArrayList<>(5);
 
 
     private final ImageView vanityImage = new ImageView();
@@ -160,6 +168,19 @@ public class KometStageController
     private TabPane leftTabPane   = new TabPane();
     private TabPane centerTabPane = new TabPane();
     private TabPane rightTabPane  = new TabPane();
+
+    private TabPane getTabPaneFromIndex(int index) {
+        switch (index) {
+            case 0:
+                return leftTabPane;
+            case 1:
+                return centerTabPane;
+            case 2:
+                return rightTabPane;
+            default:
+                throw new ArrayIndexOutOfBoundsException("Tab pane index is: " + index);
+        }
+    }
 
     //~--- methods -------------------------------------------------------------
     /**
@@ -191,20 +212,16 @@ public class KometStageController
     void initialize() {
         assert bottomBorderBox != null :
                 "fx:id=\"bottomBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-        assert verticalEditorSplitPane != null :
-                "fx:id=\"verticalEditorSplitPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
         assert editorButtonBar != null :
                 "fx:id=\"editorButtonBar\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-        assert editorCenterHorizontalSplitPane != null :
-                "fx:id=\"editorCenterHorizontalSplitPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-        assert editorLeftPane != null :
-                "fx:id=\"editorLeftPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+        assert centerHBox != null :
+                "fx:id=\"centerHBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
         assert editToolBar != null :
                 "fx:id=\"editToolBar\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-        assert leftBorderBox != null :
-                "fx:id=\"leftBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-        assert rightBorderBox != null :
-                "fx:id=\"rightBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+        assert leftHBox != null :
+                "fx:id=\"leftHBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+        assert rightHBox != null :
+                "fx:id=\"rightHBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
         assert statusMessage != null :
                 "fx:id=\"statusMessage\" was not injected: check your FXML file 'KometStageScene.fxml'.";
         assert vanityBox != null : "fx:id=\"vanityBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
@@ -227,12 +244,12 @@ public class KometStageController
                     });
         }
 
-        leftBorderBox.getChildren()
-                .add(createWrappedTabPane(PanelPlacement.LEFT, this.leftTabPane));
-        editorLeftPane.getChildren()
-                .add(createWrappedTabPane(PanelPlacement.CENTER, this.centerTabPane));
-        rightBorderBox.getChildren()
-                .add(createWrappedTabPane(PanelPlacement.RIGHT, this.rightTabPane));
+        leftHBox.getChildren()
+                .add(createWrappedTabPane(this.newTabMenuButtons, this.leftTabPane));
+        centerHBox.getChildren()
+                .add(createWrappedTabPane(this.newTabMenuButtons, this.centerTabPane));
+        rightHBox.getChildren()
+                .add(createWrappedTabPane(this.newTabMenuButtons, this.rightTabPane));
         classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
         classifierMenuButton.getItems().clear();
         classifierMenuButton.getItems().addAll(getTaskMenuItems());
@@ -253,19 +270,19 @@ public class KometStageController
     private List<MenuItem> getTaskMenuItems() {
         ArrayList<MenuItem> items = new ArrayList<>();
 
-            MenuItem selectiveImport = new MenuItem("Selective import and transform");
+            MenuItem selectiveImport = new MenuItemWithText("Selective import and transform");
             selectiveImport.setOnAction((ActionEvent event) -> {
                 ImportView.show(FxGet.manifold(ManifoldGroup.TAXONOMY));
             });
             items.add(selectiveImport);
 
-            MenuItem selectiveExport = new MenuItem("Selective export");
+            MenuItem selectiveExport = new MenuItemWithText("Selective export");
             selectiveExport.setOnAction(event -> ExportView.show(FxGet.manifold(ManifoldGroup.UNLINKED)));
             items.add(selectiveExport);
             
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
 
-            MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
+            MenuItem importTransformFull = new MenuItemWithText("Import and transform - FULL");
 
             importTransformFull.setOnAction((ActionEvent event) -> {
                 ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.manifold(ManifoldGroup.TAXONOMY),
@@ -276,7 +293,7 @@ public class KometStageController
 
             items.add(importTransformFull);
             
-            MenuItem artifactImport = new MenuItem("Artifact Import");
+            MenuItem artifactImport = new MenuItemWithText("Artifact Import");
             artifactImport.setOnAction((ActionEvent event) -> {
                 ArtifactImporter.startArtifactImport(topGridPane.getScene().getWindow());
             });
@@ -285,25 +302,25 @@ public class KometStageController
 
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
 
-            MenuItem importSourcesFull = new MenuItem("Import terminology content - FULL");
+            MenuItem importSourcesFull = new MenuItemWithText("Import terminology content - FULL");
             importSourcesFull.setOnAction((ActionEvent event) -> {
                 DirectImporter importerFull = new DirectImporter(ImportType.FULL);
                 Get.executor().submit(importerFull);
             });
             items.add(importSourcesFull);
-            MenuItem importSourcesSnapshot = new MenuItem("Import terminology content - ACTIVE");
+            MenuItem importSourcesSnapshot = new MenuItemWithText("Import terminology content - ACTIVE");
             importSourcesSnapshot.setOnAction((ActionEvent event) -> {
                 DirectImporter importerSnapshot = new DirectImporter(ImportType.ACTIVE_ONLY);
                 Get.executor().submit(importerSnapshot);
             });
             items.add(importSourcesSnapshot);
-            MenuItem transformSourcesFull = new MenuItem("Transform RF2 to EL++ - FULL");
+            MenuItem transformSourcesFull = new MenuItemWithText("Transform RF2 to EL++ - FULL");
             transformSourcesFull.setOnAction((ActionEvent event) -> {
                 Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.FULL);
                 Get.executor().submit(transformer);
             });
             items.add(transformSourcesFull);
-            MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - ACTIVE");
+            MenuItem transformSourcesActiveOnly = new MenuItemWithText("Transform RF2 to EL++ - ACTIVE");
             transformSourcesActiveOnly.setOnAction((ActionEvent event) -> {
                 Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.ACTIVE_ONLY);
                 Get.executor().submit(transformer);
@@ -329,7 +346,7 @@ public class KometStageController
 //      
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
 
-            MenuItem completeClassify = new MenuItem("Complete classify");
+            MenuItem completeClassify = new MenuItemWithText("Complete classify");
             completeClassify.setOnAction((ActionEvent event) -> {
                 //TODO change how we get the edit coordinate. 
                 EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
@@ -338,13 +355,13 @@ public class KometStageController
             });
             items.add(completeClassify);
 
-            MenuItem completeReindex = new MenuItem("Complete reindex");
+            MenuItem completeReindex = new MenuItemWithText("Complete reindex");
             completeReindex.setOnAction((ActionEvent event) -> {
                 Get.startIndexTask();
             });
             items.add(completeReindex);
 
-            MenuItem recomputeTaxonomy = new MenuItem("Recompute taxonomy");
+            MenuItem recomputeTaxonomy = new MenuItemWithText("Recompute taxonomy");
             recomputeTaxonomy.setOnAction((ActionEvent event) -> {
                 Get.taxonomyService().notifyTaxonomyListenersToRefresh();
             });
@@ -353,7 +370,7 @@ public class KometStageController
             File beer = new File("../../integration/tests/src/test/resources/turtle/bevontology-0.8.ttl");
             if (beer.isFile()) {
                 // This should only appear if you are running from eclipse / netbeans....
-                MenuItem convertBeer = new MenuItem("Beer me!");
+                MenuItem convertBeer = new MenuItemWithText("Beer me!");
                 convertBeer.setOnAction((ActionEvent event) -> {
                     Get.executor().execute(() -> {
                         try {
@@ -384,53 +401,58 @@ public class KometStageController
     }
 
     private void addTabFactory(NodeFactory<? extends ExplorationNode> factory, TabPane tabPane, ArrayList<MenuItem> menuItems) {
-        MenuItem tabFactoryMenuItem = new MenuItem(factory.getMenuText(), factory.getMenuIcon());
+        MenuItem tabFactoryMenuItem = new MenuItemWithText(factory.getMenuText(), factory.getMenuIcon());
         tabFactoryMenuItem.setOnAction(
                 (event) -> {
-                    Tab tab = new Tab(factory.getMenuText());
-                    tab.setTooltip(new Tooltip(""));
-
-                    IsaacPreferences newPreferences = this.preferencesNode.node(UUID.randomUUID().toString());
-                    ExplorationNode node = factory.createNode(FxGet.manifold(factory.getDefaultManifoldGroups()[0]), newPreferences);
-                    tab.setOnCloseRequest(event1 -> {
-                        if (!node.canClose()) {
-                            event1.consume();
-                        }
-                    });
-                    tab.setOnClosed(event1 -> {
-                        node.close();
-                    });
-                    Node menuIcon = node.getMenuIcon();
-                    menuIcon.parentProperty().addListener((observable, oldValue, newValue) -> {
-                        System.out.println("Parent changed: " + newValue);
-                    });
-                    tab.setGraphic(menuIcon);
-                    tab.graphicProperty().addListener((observable, oldValue, newValue) -> {
-                        System.out.println("Graphic changed: " + newValue);
-                    });
-
-                    BorderPane borderPaneForTab = new BorderPane(node.getNode());
-                    tab.textProperty()
-                            .bind(node.getTitle());
-                    tab.getTooltip()
-                            .textProperty()
-                            .bind(node.getToolTip());
-                    tab.setContent(borderPaneForTab);
-                    tabPane.getTabs()
-                            .add(tab);
-                    tabPane.getSelectionModel().select(tab);
-                    if (node instanceof DetailNode) {
-                        node.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
-                            if (((DetailNode) node).selectInTabOnChange()) {
-                                tabPane.getSelectionModel().select(tab);
-                            }
-                        });
-                    }
-                    // Modify skin to look for drag handling methods... 
+                    addTabFromFactory(factory, tabPane);
                 });
         menuItems.add(tabFactoryMenuItem);
 
     }
+
+    private void addTabFromFactory(NodeFactory<? extends ExplorationNode> factory, TabPane tabPane) {
+        Tab tab = new Tab(factory.getMenuText());
+        tab.setTooltip(new Tooltip(""));
+
+        IsaacPreferences newPreferences = this.preferencesNode.node(UUID.randomUUID().toString());
+        ExplorationNode node = factory.createNode(FxGet.manifold(factory.getDefaultManifoldGroups()[0]), newPreferences);
+        tab.setOnCloseRequest(event1 -> {
+            if (!node.canClose()) {
+                event1.consume();
+            }
+        });
+        tab.setOnClosed(event1 -> {
+            node.close();
+        });
+        Node menuIcon = node.getMenuIcon();
+        menuIcon.parentProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("Parent changed: " + newValue);
+        });
+        tab.setGraphic(menuIcon);
+        tab.graphicProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("Graphic changed: " + newValue);
+        });
+
+        BorderPane borderPaneForTab = new BorderPane(node.getNode());
+        tab.textProperty()
+                .bind(node.getTitle());
+        tab.getTooltip()
+                .textProperty()
+                .bind(node.getToolTip());
+        tab.setContent(borderPaneForTab);
+        tabPane.getTabs()
+                .add(tab);
+        tabPane.getSelectionModel().select(tab);
+        if (node instanceof DetailNode) {
+            node.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
+                if (((DetailNode) node).selectInTabOnChange()) {
+                    tabPane.getSelectionModel().select(tab);
+                }
+            });
+        }
+        // TODO Modify skin to look for drag handling methods...
+    }
+
     /**
      *
      * @param windowPreferencesItem preferences of the window.
@@ -439,80 +461,104 @@ public class KometStageController
         this.windowPreferencesItem = windowPreferencesItem;
         this.preferencesNode = windowPreferencesItem.getPreferenceNode();
         this.stage = stage;
-        if (this.preferencesNode.children().length == 0) {
-            // New window, add default configuration
-            IsaacPreferences treeViewPreferences = preferencesNode.node(UUID.randomUUID().toString());
-            treeViewPreferences.put(Keys.FACTORY_CLASS, TreeViewExplorationNodeFactory.class.getName());
-            treeViewPreferences.putInt(Keys.TAB_PANE_INDEX, 0);
-            treeViewPreferences.putInt(Keys.INDEX_IN_TAB_PANE, 0);
-
-            IsaacPreferences conceptViewOnePreferences = preferencesNode.node(UUID.randomUUID().toString());
-            conceptViewOnePreferences.put(Keys.FACTORY_CLASS, ConceptDetailPanelProviderFactory.class.getName());
-            conceptViewOnePreferences.putInt(Keys.TAB_PANE_INDEX, 1);
-            conceptViewOnePreferences.putInt(Keys.INDEX_IN_TAB_PANE, 0);
-            conceptViewOnePreferences.put(MANIFOLD_GROUP_NAME, ManifoldGroup.TAXONOMY.getGroupName());
-
-            IsaacPreferences conceptViewTwoPreferences = preferencesNode.node(UUID.randomUUID().toString());
-            conceptViewTwoPreferences.put(Keys.FACTORY_CLASS, ConceptDetailPanelProviderFactory.class.getName());
-            conceptViewTwoPreferences.putInt(Keys.TAB_PANE_INDEX, 1);
-            conceptViewTwoPreferences.putInt(Keys.INDEX_IN_TAB_PANE, 1);
-            conceptViewTwoPreferences.put(MANIFOLD_GROUP_NAME, ManifoldGroup.SEARCH.getGroupName());
-
-            IsaacPreferences progressViewPreferences = preferencesNode.node(UUID.randomUUID().toString());
-            progressViewPreferences.put(Keys.FACTORY_CLASS, TaskProgressNodeFactory.class.getName());
-            progressViewPreferences.putInt(Keys.TAB_PANE_INDEX, 2);
-            progressViewPreferences.putInt(Keys.INDEX_IN_TAB_PANE, 0);
-
-            IsaacPreferences simpleSearchViewPreferences = preferencesNode.node(UUID.randomUUID().toString());
-            simpleSearchViewPreferences.put(Keys.FACTORY_CLASS, SimpleSearchViewFactory.class.getName());
-            simpleSearchViewPreferences.putInt(Keys.TAB_PANE_INDEX, 2);
-            simpleSearchViewPreferences.putInt(Keys.INDEX_IN_TAB_PANE, 1);
-
-            IsaacPreferences extendedSearchViewPreferences = preferencesNode.node(UUID.randomUUID().toString());
-            extendedSearchViewPreferences.put(Keys.FACTORY_CLASS, ExtendedSearchViewFactory.class.getName());
-            extendedSearchViewPreferences.putInt(Keys.TAB_PANE_INDEX, 2);
-            extendedSearchViewPreferences.putInt(Keys.INDEX_IN_TAB_PANE, 2);
-
-        }
-        IsaacPreferences[] children = this.preferencesNode.children();
-        Arrays.sort(children, (o1, o2) -> {
-            if (o1.getInt(Keys.TAB_PANE_INDEX, 0) != o2.getInt(Keys.TAB_PANE_INDEX, 0)) {
-                return Integer.compare(o1.getInt(Keys.TAB_PANE_INDEX, 0), o2.getInt(Keys.TAB_PANE_INDEX, 0));
-            }
-            return Integer.compare(o1.getInt(Keys.INDEX_IN_TAB_PANE, 0), o2.getInt(Keys.INDEX_IN_TAB_PANE, 0));
-        });
-        for (IsaacPreferences childNode: children) {
-            Optional<String> optionalFactoryClass = childNode.get(Keys.FACTORY_CLASS);
-            if (optionalFactoryClass.isPresent()) {
-                try {
-                    String factoryClassName = optionalFactoryClass.get();
-                    Class factoryClass = Class.forName(factoryClassName);
-                    NodeFactory factory = (NodeFactory) factoryClass.getDeclaredConstructor().newInstance();
-                    ExplorationNode en = factory.createNode(FxGet.manifold(factory.getDefaultManifoldGroups()[0]), childNode);
-                    Tab tab = new Tab();
-                    tab.setGraphic(en.getMenuIcon());
-                    tab.setContent(new BorderPane(en.getNode()));
-                    tab.textProperty().bind(en.getTitle());
-                    tab.setTooltip(new Tooltip(""));
-                    tab.getTooltip().textProperty().bind(en.getToolTip());
-
-                    if (en instanceof DetailNode) {
-                        DetailNode dt = (DetailNode) en;
-                        //TODO this is broken by design, if more than one tab requests focus on change...
-                        dt.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
-                            if (dt.selectInTabOnChange()) {
-                                leftTabPane.getSelectionModel().select(tab);
-                            }
-                        });
+        boolean addDefaults = this.preferencesNode.getBoolean(Keys.ADD_DEFAULTS, true);
+        if (windowPreferencesItem.getPersonaItem() != null) {
+            PersonaItem personaItem = windowPreferencesItem.getPersonaItem();
+            for (int paneIndex = 0; paneIndex < newTabMenuButtons.size(); paneIndex++) {
+                newTabMenuButtons.get(paneIndex).getItems().clear();
+                if (personaItem.isPaneEnabled(paneIndex)) {
+                    Set<ConceptSpecification> allowedOptions = personaItem.getAllowedOptionsForPane(paneIndex);
+                    if (allowedOptions.isEmpty()) {
+                        allowedOptions.addAll(NODE_FACTORY_MAP.keySet());
                     }
+                    ArrayList<MenuItem> menuItems = new ArrayList<>();
+                    for (ConceptSpecification allowedOption: allowedOptions) {
+                        if (NODE_FACTORY_MAP.containsKey(allowedOption)) {
+                            NodeFactory factory = NODE_FACTORY_MAP.get(allowedOption);
+                            addTabFactory(factory, getTabPaneFromIndex(paneIndex), menuItems);
+                        } else {
+                            FxGet.dialogs().showErrorDialog("Persona Creation Error",
+                                    "Can't create menu item for: " + Get.conceptDescriptionText(allowedOption),
+                                    "Available factories:  " + NODE_FACTORY_MAP.keySet());
+                        }
+                    }
+                    menuItems.sort(Comparator.comparing(MenuItem::getText));
+                    newTabMenuButtons.get(paneIndex).getItems().addAll(menuItems);
 
-                    int tabIndex = childNode.getInt(Keys.TAB_PANE_INDEX, 0);
-                    int indexInTab = childNode.getInt(Keys.INDEX_IN_TAB_PANE, 0);
+                    if (addDefaults) {
+                        this.preferencesNode.putBoolean(Keys.ADD_DEFAULTS, false);
+                        for (ConceptSpecification defaultItem: personaItem.getDefaultItemsForPane(paneIndex)) {
+                            if (NODE_FACTORY_MAP.containsKey(defaultItem)) {
+                                NodeFactory factory = NODE_FACTORY_MAP.get(defaultItem);
+                                addTabFromFactory(factory, getTabPaneFromIndex(paneIndex));
+                            } else {
+                                FxGet.dialogs().showErrorDialog("Persona Creation Error",
+                                        "Can't create default item for: " + Get.conceptDescriptionText(defaultItem),
+                                        "Persona: " + personaItem.nameProperty().get() + "\nAvailable factories:  \n" + NODE_FACTORY_MAP.keySet());
+                            }
+                        }
+                        saveSettings();
+                    }
+                } else {
+                    switch (paneIndex) {
+                        case 0:
+                            this.windowSplitPane.getItems().remove(this.leftHBox);
+                            break;
+                        case 1:
+                            this.windowSplitPane.getItems().remove(this.centerHBox);
+                            break;
+                        case 2:
+                            this.windowSplitPane.getItems().remove(this.rightHBox);
+                            break;
+                        default:
+                            FxGet.dialogs().showErrorDialog("Pane index error",
+                                    "Pane index is out of bounds.",
+                                    "paneIndex: " + paneIndex);
+                    }
+                }
+            }
+        }
+        if (!addDefaults) {
+            IsaacPreferences[] children = this.preferencesNode.children();
+            Arrays.sort(children, (o1, o2) -> {
+                if (o1.getInt(Keys.TAB_PANE_INDEX, 0) != o2.getInt(Keys.TAB_PANE_INDEX, 0)) {
+                    return Integer.compare(o1.getInt(Keys.TAB_PANE_INDEX, 0), o2.getInt(Keys.TAB_PANE_INDEX, 0));
+                }
+                return Integer.compare(o1.getInt(Keys.INDEX_IN_TAB_PANE, 0), o2.getInt(Keys.INDEX_IN_TAB_PANE, 0));
+            });
+            for (IsaacPreferences childNode: children) {
+                Optional<String> optionalFactoryClass = childNode.get(Keys.FACTORY_CLASS);
+                if (optionalFactoryClass.isPresent()) {
+                    try {
+                        String factoryClassName = optionalFactoryClass.get();
+                        Class factoryClass = Class.forName(factoryClassName);
+                        NodeFactory factory = (NodeFactory) factoryClass.getDeclaredConstructor().newInstance();
+                        ExplorationNode en = factory.createNode(FxGet.manifold(factory.getDefaultManifoldGroups()[0]), childNode);
+                        Tab tab = new Tab();
+                        tab.setGraphic(en.getMenuIcon());
+                        tab.setContent(new BorderPane(en.getNode()));
+                        tab.textProperty().bind(en.getTitle());
+                        tab.setTooltip(new Tooltip(""));
+                        tab.getTooltip().textProperty().bind(en.getToolTip());
 
-                    tabPanes.get(tabIndex).getTabs().add(indexInTab, tab);
+                        if (en instanceof DetailNode) {
+                            DetailNode dt = (DetailNode) en;
+                            //TODO this is broken by design, if more than one tab requests focus on change...
+                            dt.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
+                                if (dt.selectInTabOnChange()) {
+                                    leftTabPane.getSelectionModel().select(tab);
+                                }
+                            });
+                        }
 
-                } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    LOG.error(ex.getLocalizedMessage(), ex);
+                        int tabIndex = childNode.getInt(Keys.TAB_PANE_INDEX, 0);
+                        int indexInTab = childNode.getInt(Keys.INDEX_IN_TAB_PANE, 0);
+
+                        tabPanes.get(tabIndex).getTabs().add(indexInTab, tab);
+
+                    } catch (Exception ex) {
+                        FxGet.dialogs().showErrorDialog(ex.getLocalizedMessage(), ex);
+                    }
                 }
             }
         }
@@ -541,49 +587,8 @@ public class KometStageController
         preferencesNode.sync();
     }
 
-//
-//    private void addTabFromSpecification(WindowPreferenceItems windowPreferenceItems, TabPane tabPane, List<ConceptSpecification> tabSpecs) {
-//        for (ConceptSpecification tabSpec: tabSpecs) {
-//            //Todo create a KOMET coordinate for the gui...
-//            Optional<NodeFactory<ExplorationNode>> optionalFactory = FxGet.nodeFactory(tabSpec);
-//            if (optionalFactory.isPresent()) {
-//                long start = System.currentTimeMillis();
-//                NodeFactory<ExplorationNode> factory = optionalFactory.get();
-//
-//                ExplorationNode en = factory.createNode(FxGet.getManifold(factory.getDefaultManifoldGroups()[0]).deepClone());
-//                Tab tab = new Tab();
-//                tab.setGraphic(en.getMenuIcon());
-//                tab.setContent(new BorderPane(en.getNode()));
-//                tab.textProperty().bind(en.getTitle());
-//                tab.setTooltip(new Tooltip(""));
-//                tab.getTooltip().textProperty().bind(en.getToolTip());
-//
-//                if (en instanceof DetailNode) {
-//                    DetailNode dt = (DetailNode) en;
-//                    if (!(en instanceof ConceptBuilderNode)) {
-//                        //TabDragAndDropHandler.setupTab(tab, dt);
-//                    }
-//
-//                    //TODO this is broken by design, if more than one tab requests focus on change...
-//                    dt.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
-//                        if (dt.selectInTabOnChange()) {
-//                            tabPane.getSelectionModel().select(tab);
-//                        }
-//                    });
-//                }
-//
-//                tabPane.getTabs().add(tab);
-//
-//                if ((System.currentTimeMillis() - start) > 250) {
-//                    LOG.warn("NodeFactory {} is slow!  Needs to background thread its work.  Took {}ms",
-//                            factory.getClass().getName(), System.currentTimeMillis() - start);
-//                }
-//            }
-//        }
-//    }
-
     @SuppressWarnings("unchecked")
-    private Pane createWrappedTabPane(PanelPlacement panelPlacement, TabPane tabPane) {
+    private TabWrapper createWrappedTabPane(List<MenuButton> newTabMenuButtons, TabPane tabPane) {
         tabPanes.add(tabPane);
 
         ArrayList<MenuItem> menuItems = new ArrayList<>();
@@ -591,18 +596,12 @@ public class KometStageController
         Get.services(NodeFactory.class)
                 .forEach(
                         (factory) -> {
-                            if (factory.isEnabled()) {
-                                addTabFactory(factory, tabPane, menuItems);
-                            }
+                            addTabFactory(factory, tabPane, menuItems);
                         });
-        menuItems.sort(
-                (o1, o2) -> {
-                    return o1.getText()
-                            .compareTo(o2.getText());
-                });
+        menuItems.sort(Comparator.comparing(MenuItem::getText));
 
-        Pane wrapped = TabWrapper.wrap(tabPane, menuItems.toArray(new MenuItem[menuItems.size()]));
-
+        TabWrapper wrapped = TabWrapper.wrap(tabPane, menuItems.toArray(new MenuItem[menuItems.size()]));
+        newTabMenuButtons.add(wrapped.getAddTabMenuButton());
         HBox.setHgrow(wrapped, Priority.ALWAYS);
         return wrapped;
     }

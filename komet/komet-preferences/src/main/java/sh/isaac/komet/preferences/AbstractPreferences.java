@@ -129,7 +129,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         }
     }
 
-    private void deleteSelf(ActionEvent event) {
+    protected void deleteSelf(ActionEvent event) {
         try {
             PreferencesTreeItem parentTreeItem = (PreferencesTreeItem) this.treeItem.getParent();
             ParentPanel parentPanel = (ParentPanel) parentTreeItem.getValue();

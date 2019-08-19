@@ -20,6 +20,7 @@ import sh.komet.gui.util.FxGet;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 
 /**
@@ -54,7 +55,8 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         Y_LOC,
         HEIGHT,
         WIDTH,
-        PERSONA_UUID
+        PERSONA_UUID,
+        MANIFOLD
     };
     private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.WINDOW_CONFIGURATION_NAME____SOLOR.toExternalString());
@@ -105,6 +107,41 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         getItemList().add(rightTabsWrapper);
     }
 
+
+    public WindowPreferencePanel(IsaacPreferences preferencesNode,
+                                 Manifold manifold,
+                                 KometPreferencesController kpc,
+                                 PersonaItem personaItem) {
+        super(preferencesNode, getGroupName(preferencesNode),
+                manifold, kpc);
+        this.personaItem = personaItem;
+        nameProperty.set(groupNameProperty().get());
+        nameProperty.addListener((observable, oldValue, newValue) -> {
+            groupNameProperty().set(newValue);
+        });
+        for (ConceptSpecification defaultItem: personaItem.leftPaneDefaultsProperty()) {
+            this.leftTabNodesProperty.add(defaultItem);
+        }
+
+        for (ConceptSpecification defaultItem: personaItem.centerPaneDefaultsProperty()) {
+            this.centerTabNodesProperty.add(defaultItem);
+        }
+
+        for (ConceptSpecification defaultItem: personaItem.rightPaneDefaultsProperty()) {
+            this.rightTabNodesProperty.add(defaultItem);
+        }
+
+        this.leftTabsWrapper = new PropertySheetConceptListWrapper(manifold, leftTabNodesProperty);
+        this.centerTabsWrapper = new PropertySheetConceptListWrapper(manifold, centerTabNodesProperty);
+        this.rightTabsWrapper = new PropertySheetConceptListWrapper(manifold, rightTabNodesProperty);
+        setDefaultLocationAndSize();
+        save();
+        getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
+        getItemList().add(leftTabsWrapper);
+        getItemList().add(centerTabsWrapper);
+        getItemList().add(rightTabsWrapper);
+    }
+
     private static String getGroupName(IsaacPreferences preferencesNode) {
         return preferencesNode.get(Keys.ITEM_NAME, "Window configurations");
     }
@@ -133,6 +170,19 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     @Override
     protected void revertFields() {
 
+        Optional<UUID> optionalPersonaUuid = getPreferenceNode().getUuid(Keys.PERSONA_UUID);
+        if (optionalPersonaUuid.isPresent()) {
+           this.personaItem = null;
+           UUID personaUuid = optionalPersonaUuid.get();
+           for (PersonaItem personaItem: FxGet.kometPreferences().getPersonaPreferences()) {
+                if (personaItem.getPersonaUuid().equals(personaUuid)) {
+                    this.personaItem = personaItem;
+                    break;
+                }
+           }
+        } else {
+            this.personaItem = null;
+        }
 
         this.nameProperty.set(getPreferencesNode().get(Keys.ITEM_NAME, "KOMET window"));
 
@@ -148,11 +198,16 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
                         MetaData.SIMPLE_SEARCH_PANEL____SOLOR,
                         MetaData.EXTENDED_SEARCH_PANEL____SOLOR)));
 
+        setDefaultLocationAndSize();
+    }
+
+    private void setDefaultLocationAndSize() {
         this.xLocationProperty.setValue(getPreferencesNode().getDouble(Keys.X_LOC, 40.0));
         this.yLocationProperty.setValue(getPreferencesNode().getDouble(Keys.Y_LOC, 40.0));
-        this.heightProperty.setValue(getPreferencesNode().getDouble(Keys.HEIGHT, 495));
-        this.widthProperty.setValue(getPreferencesNode().getDouble(Keys.WIDTH, 965));
+        this.heightProperty.setValue(getPreferencesNode().getDouble(Keys.HEIGHT, 897));
+        this.widthProperty.setValue(getPreferencesNode().getDouble(Keys.WIDTH, 1400));
     }
+
     @Override
     public boolean showDelete() {
         return true;
@@ -200,11 +255,6 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
 
     @Override
     public PersonaItem getPersonaItem() {
-        if (this.personaItem == null) {
-            KometPreferences kometPreferences = FxGet.kometPreferences();
-            kometPreferences.getPersonaPreferences();
-            throw new UnsupportedOperationException();
-        }
         return this.personaItem;
     }
 

@@ -16,6 +16,7 @@
 package sh.komet.gui.contract;
 
 import javafx.scene.control.Menu;
+import sh.komet.gui.menu.MenuWithText;
 
 /**
  * A enum of the menus provided at the top level of the app. Used in the {@link MenuProvider} interface.
@@ -44,7 +45,7 @@ public enum AppMenu
 	{
 		if (menu == null)
 		{
-			menu = new Menu(menuName);
+			menu = new MenuWithText(menuName);
 			menu.setMnemonicParsing(true);
 		}
 		return menu;

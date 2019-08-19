@@ -31,6 +31,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
 
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -89,9 +90,9 @@ public abstract class ParentPanel extends AbstractPreferences {
         Button addButton = new Button("Add");
         addButton.setOnAction(this::newChild);
         ToolBar toolbar = new ToolBar(addButton);
-        MenuItem resetUserItems = new MenuItem("Clear user items");
+        MenuItem resetUserItems = new MenuItemWithText("Clear user items");
         resetUserItems.setOnAction(this::resetUserItems);
-        MenuItem resetConfigurationAndUserItems = new MenuItem("Clear user and child items");
+        MenuItem resetConfigurationAndUserItems = new MenuItemWithText("Clear user and child items");
         resetConfigurationAndUserItems.setOnAction(this::resetConfigurationAndUserItems);
         toolbar.setContextMenu(new ContextMenu(resetUserItems, resetConfigurationAndUserItems));
         return toolbar;

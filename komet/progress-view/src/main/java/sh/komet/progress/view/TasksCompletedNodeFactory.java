@@ -59,14 +59,6 @@ public class TasksCompletedNodeFactory
    public String getMenuText() {
       return TITLE_BASE;
    }
-   
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return null;
-   }
 
   /** 
    * {@inheritDoc}

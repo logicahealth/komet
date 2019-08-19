@@ -52,14 +52,6 @@ public class DashboardNodeFactory
     public Node getMenuIcon() {
         return Iconography.DASHBOARD.getIconographic();
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PanelPlacement getPanelPlacement() {
-       return null;
-    }
 
    /** 
     * {@inheritDoc}

@@ -93,6 +93,7 @@ import sh.isaac.pombuilder.converter.UploadFileInfo;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 import sh.isaac.pombuilder.diff.DiffExecutionCreator;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.ErrorMarkerUtils;
 import sh.komet.gui.util.FxUtils;
 import sh.komet.gui.util.UpdateableBooleanBinding;
@@ -695,7 +696,7 @@ public class ContentManagerController
 				else
 				{
 					setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
-					MenuItem mi = new MenuItem("Remove");
+					MenuItem mi = new MenuItemWithText("Remove");
 					mi.setOnAction(action -> 
 					{
 						sourceConversionContent.getItems().remove(item);
@@ -861,7 +862,7 @@ public class ContentManagerController
 				else
 				{
 					setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
-					MenuItem mi = new MenuItem("Remove");
+					MenuItem mi = new MenuItemWithText("Remove");
 					mi.setOnAction(action -> 
 					{
 						sourceConversionIBDF.getItems().remove(item);

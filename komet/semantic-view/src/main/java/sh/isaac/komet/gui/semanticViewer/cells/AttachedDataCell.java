@@ -58,6 +58,7 @@ import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.komet.gui.semanticViewer.SemanticGUI;
 import sh.isaac.komet.gui.semanticViewer.SemanticGUIColumnType;
 import sh.komet.gui.drag.drop.DragRegistry;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.CustomClipboard;
 
 /**
@@ -131,7 +132,7 @@ public class AttachedDataCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 									textHolder.wrappingWidthProperty().bind(widthProperty().subtract(10));
 									setGraphic(textHolder);
 									ContextMenu cm = new ContextMenu();
-									MenuItem mi = new MenuItem("Copy");
+									MenuItem mi = new MenuItemWithText("Copy");
 									mi.setGraphic(Images.COPY.createImageView());
 									mi.setOnAction((action) -> 
 									{

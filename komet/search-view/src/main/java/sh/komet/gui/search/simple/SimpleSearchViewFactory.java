@@ -62,11 +62,7 @@ public class SimpleSearchViewFactory implements ExplorationNodeFactory {
    public Node getMenuIcon() {
       return Iconography.SIMPLE_SEARCH.getIconographic();
    }
-   @Override
-   public boolean isEnabled() {
-      return true;
-   }
-   
+
    /** 
     * {@inheritDoc}
     */
@@ -75,13 +71,6 @@ public class SimpleSearchViewFactory implements ExplorationNodeFactory {
       return new ManifoldGroup[] {ManifoldGroup.SEARCH};
    }
    
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return PanelPlacement.RIGHT;
-   }
 
    @Override
    public ConceptSpecification getPanelType() {

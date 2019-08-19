@@ -28,13 +28,10 @@ import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.WeakChangeListener;
-import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
+import javafx.collections.*;
+
 import javax.inject.Singleton;
 
-import javafx.collections.transformation.SortedList;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
@@ -57,6 +54,8 @@ import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.tree.TaxonomyAmalgam;
 import sh.komet.gui.contract.*;
 import sh.komet.gui.contract.preferences.KometPreferences;
+import sh.komet.gui.contract.preferences.PersonaChangeListener;
+import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.PropertySheetItem;
@@ -92,6 +91,8 @@ public class FxGet implements StaticIsaacCache {
     private static final SimpleStringProperty CONFIGURATION_NAME_PROPERTY = new SimpleStringProperty(null, MetaData.CONFIGURATION_NAME____SOLOR.toExternalString(), "viewer");
     private static final ObservableMap<String, TaxonomyAmalgam> TAXONOMY_CONFIGURATIONS = FXCollections.observableHashMap();
     private static final ObservableList<String> TAXONOMY_CONFIGURATION_KEY_LIST = FXCollections.observableArrayList();
+    private static ObservableSet<PersonaChangeListener> PERSONA_CHANGE_LISTENERS = FXCollections.observableSet(new HashSet<>());
+
     private static final String DEFAULT_TAXONOMY_CONFIGURATION = "Defining";
     static {
         TAXONOMY_CONFIGURATIONS.addListener((MapChangeListener.Change<? extends String, ? extends TaxonomySnapshot> change) -> {
@@ -169,6 +170,7 @@ public class FxGet implements StaticIsaacCache {
         Platform.runLater(() -> {
             TAXONOMY_CONFIGURATIONS.clear();
             TAXONOMY_CONFIGURATION_KEY_LIST.clear();
+            PERSONA_CHANGE_LISTENERS.clear();
         });
         
     }
@@ -371,6 +373,18 @@ public class FxGet implements StaticIsaacCache {
                 (o1, o2) -> {
                     return o1.compareTo(o2);
                 });
+    }
+
+    public static void addPersonaChangeListener(PersonaChangeListener listener) {
+        PERSONA_CHANGE_LISTENERS.add(listener);
+    }
+    public static void removePersonaChangeListener(PersonaChangeListener listener) {
+        PERSONA_CHANGE_LISTENERS.remove(listener);
+    }
+    public static void firePersonaChanged(PersonaItem personaItem, boolean active) {
+        for (PersonaChangeListener personaChangeListener: PERSONA_CHANGE_LISTENERS) {
+            personaChangeListener.personaChanged(personaItem, active);
+        }
     }
 
     public static class ComponentListKey implements Comparable<ComponentListKey> {

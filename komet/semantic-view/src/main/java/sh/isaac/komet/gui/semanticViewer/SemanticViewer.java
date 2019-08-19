@@ -1587,14 +1587,6 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
      * {@inheritDoc}
      */
     @Override
-    public boolean isEnabled() {
-        return FxGet.fxConfiguration().isShowBetaFeaturesEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
         manifoldConcept_ = manifold;
         titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
@@ -1682,12 +1674,6 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
     @Override
     public ManifoldGroup[] getDefaultManifoldGroups() {
         return new ManifoldGroup[]{ManifoldGroup.TAXONOMY};
-    }
-
-    @Override
-    public PanelPlacement getPanelPlacement() {
-        return (FxGet.fxConfiguration().isShowBetaFeaturesEnabled() &&
-                !FxGet.fxConfiguration().showKometFeaturesOnly()) ? PanelPlacement.CENTER : null;
     }
 
     @Override

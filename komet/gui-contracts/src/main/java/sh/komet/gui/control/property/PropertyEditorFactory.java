@@ -73,6 +73,7 @@ import sh.komet.gui.control.result.ResultEditor;
 import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.time.KometDateTimePicker;
 
 /**
@@ -287,7 +288,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                     labelMenu.add(manifoldHistory);
                     Collection<HistoryRecord> groupHistory = Manifold.getGroupHistory(manifoldGroup);
                     for (HistoryRecord record : groupHistory) {
-                        MenuItem conceptItem = new MenuItem(
+                        MenuItem conceptItem = new MenuItemWithText(
                                 manifoldForDisplay.getPreferredDescriptionText(record.getComponentId())
                         );
                         conceptItem.setOnAction((ActionEvent event) -> {

@@ -76,6 +76,7 @@ import sh.isaac.komet.gui.semanticViewer.SemanticViewer;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.SimpleDisplayConcept;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.ConceptNode;
 import sh.komet.gui.util.FxGet;
 
@@ -194,7 +195,7 @@ public class AssemblageViewerController
 		semanticDefinitionsContextMenu_ = new ContextMenu();
 		semanticDefinitionsContextMenu_.setAutoHide(true);
 		
-		MenuItem mi = new MenuItem("View Usage");
+		MenuItem mi = new MenuItemWithText("View Usage");
 		mi.setOnAction((action) ->
 		{
 			SimpleDisplayConcept sdc = semanticList.getSelectionModel().getSelectedItem();

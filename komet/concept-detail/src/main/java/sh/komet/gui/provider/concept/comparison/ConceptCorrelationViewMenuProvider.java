@@ -28,6 +28,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -47,7 +48,7 @@ public class ConceptCorrelationViewMenuProvider implements MenuProvider {
     @Override
     public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
         if (parentMenu == AppMenu.NEW_WINDOW) {
-            MenuItem newComparisonWindowMenuItem = new MenuItem("Correlation window");
+            MenuItem newComparisonWindowMenuItem = new MenuItemWithText("Correlation window");
             newComparisonWindowMenuItem.setOnAction(this::newCorelationView);
             return new MenuItem[] {newComparisonWindowMenuItem};
         }

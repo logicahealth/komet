@@ -52,25 +52,12 @@ public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
       return Iconography.PAPERCLIP.getIconographic();
    }
 
-   @Override
-   public boolean isEnabled() {
-      return true;
-   }
-
    /**
     * {@inheritDoc}
     */
    @Override
    public ManifoldGroup[] getDefaultManifoldGroups() {
       return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return null;
    }
 
    @Override

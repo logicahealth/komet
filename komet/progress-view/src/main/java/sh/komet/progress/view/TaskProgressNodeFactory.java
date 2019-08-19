@@ -84,19 +84,6 @@ public class TaskProgressNodeFactory
    public String getMenuText() {
       return TITLE_BASE;
    }
-   
-   @Override
-   public boolean isEnabled() {
-      return true;
-   }
-   
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return PanelPlacement.RIGHT;
-   }
 
   /** 
    * {@inheritDoc}

@@ -38,11 +38,6 @@ public class ListViewFactory implements ExplorationNodeFactory<ListViewNode> {
     }
 
     @Override
-    public PanelPlacement getPanelPlacement() {
-        return null;
-    }
-
-    @Override
     public ConceptSpecification getPanelType() {
         return null;
     }

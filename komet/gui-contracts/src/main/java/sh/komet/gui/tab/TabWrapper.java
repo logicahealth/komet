@@ -17,6 +17,7 @@
 package sh.komet.gui.tab;
 
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TabPane;
@@ -31,18 +32,26 @@ import static sh.komet.gui.style.StyleClasses.ADD_TAB_MENU_BUTTON;
  * control. 
  * @author kec
  */
-public class TabWrapper {
-   public static Pane wrap(TabPane dragAndDropTabPane, MenuItem... items) {
-      StackPane stackPane = new StackPane();
-      MenuButton addTabMenuButton = new MenuButton("", 
+public class TabWrapper extends StackPane {
+   final MenuButton addTabMenuButton;
+   private TabWrapper(MenuButton addTabMenuButton) {
+      super();
+      this.addTabMenuButton = addTabMenuButton;
+   }
+
+   public static TabWrapper wrap(TabPane dragAndDropTabPane, MenuItem... items) {
+      MenuButton addTabMenuButton = new MenuButton("",
               Iconography.PLUS.getIconographic(), items);
+      TabWrapper tabWrapper = new TabWrapper(addTabMenuButton);
       addTabMenuButton.getStyleClass().add(ADD_TAB_MENU_BUTTON.toString());
       StackPane.setAlignment(addTabMenuButton, Pos.TOP_LEFT);
       StackPane.setAlignment(dragAndDropTabPane, Pos.TOP_LEFT);
+      tabWrapper.getChildren().addAll(dragAndDropTabPane, addTabMenuButton);
       
-      
-      stackPane.getChildren().addAll(dragAndDropTabPane, addTabMenuButton);
-      
-      return stackPane;
+      return tabWrapper;
+   }
+
+   public MenuButton getAddTabMenuButton() {
+      return addTabMenuButton;
    }
 }

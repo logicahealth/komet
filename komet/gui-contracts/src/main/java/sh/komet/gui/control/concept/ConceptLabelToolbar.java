@@ -48,6 +48,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.toggle.OnOffToggleSwitch;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -129,7 +130,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
           } 
           return !groupString.toLowerCase().startsWith("flwor");
       }).map((m) -> {
-         MenuItem manifoldItem = new MenuItem(m, getNodeForManifold(m));
+         MenuItem manifoldItem = new MenuItemWithText(m, getNodeForManifold(m));
          manifoldItem.setUserData(m);
          manifoldItem.addEventHandler(ActionEvent.ACTION, this::manifoldEventHandler);
          return manifoldItem;

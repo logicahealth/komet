@@ -140,7 +140,9 @@ public class ConceptDetailPanelNode
     private static final int TRANSITION_ON_TIME = 750;
 
     public enum Keys {
-        MANIFOLD_GROUP_NAME
+        MANIFOLD_GROUP_NAME,
+        FOCUSED_CONCEPT
+
     }
     //~--- fields --------------------------------------------------------------
     private final HashMap<String, AtomicBoolean> disclosureStateMap = new HashMap<>();
@@ -210,6 +212,7 @@ public class ConceptDetailPanelNode
         Get.commitService()
                 .addChangeListener(this);
         titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(conceptDetailManifold.focusedConceptProperty().get()));
+
     }
 
     @Override

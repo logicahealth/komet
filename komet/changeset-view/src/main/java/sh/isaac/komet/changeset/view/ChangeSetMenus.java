@@ -40,6 +40,7 @@ import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.menu.MenuItemWithText;
 
 /**
  * @author kec
@@ -56,12 +57,12 @@ public class ChangeSetMenus implements MenuProvider {
     @Override
     public MenuItem[] getMenuItems(AppMenu parentMenu, final Window window) {
         if (parentMenu == AppMenu.FILE) {
-            MenuItem openChangeSetMenuItem = new MenuItem("Open change sets...");
+            MenuItem openChangeSetMenuItem = new MenuItemWithText("Open change sets...");
             openChangeSetMenuItem.setOnAction((action) -> {
                 openChangeSetAction(window);
             });
 
-            MenuItem importChangeSetMenuItem = new MenuItem("Import change set...");
+            MenuItem importChangeSetMenuItem = new MenuItemWithText("Import change set...");
             importChangeSetMenuItem.setOnAction((action) -> {
                 importChangeSetAction(window);
             });

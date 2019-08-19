@@ -70,22 +70,24 @@ import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.PersonaChangeListener;
 import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.UUID;
+import java.util.*;
 import java.util.prefs.BackingStoreException;
 
 //~--- classes ----------------------------------------------------------------
 public class MainApp
-        extends Application {
+        extends Application implements PersonaChangeListener {
 // TODO add TaskProgressView
 // http://dlsc.com/2014/10/13/new-custom-control-taskprogressview/
 // http://fxexperience.com/controlsfx/features/   
@@ -138,6 +140,7 @@ public class MainApp
                 .getStylesheets()
                 .add(MainApp.class.getResource("/user.css").toString());
         stage.show();
+        FxGet.addPersonaChangeListener(this);
     }
 
     public void replacePrimaryStage(Stage primaryStage) {
@@ -197,66 +200,33 @@ public class MainApp
                 switch (ap) {
                     case APP:
                         if (tk != null) {
-                            MenuItem aboutItem = new MenuItem("About KOMET...");
+                            MenuItem aboutItem = new MenuItemWithText("About KOMET...");
                             aboutItem.setOnAction(this::handleAbout);
                             ap.getMenu().getItems().add(aboutItem);
                             ap.getMenu().getItems().add(new SeparatorMenuItem());
                         }
                         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-                            MenuItem prefsItem = new MenuItem("KOMET Preferences...");
+                            MenuItem prefsItem = new MenuItemWithText("KOMET Preferences...");
                             //TODO TEMP to do  something. Need to make it do something better.
                             prefsItem.setOnAction(this::handlePrefs);
                             ap.getMenu().getItems().add(prefsItem);
                             ap.getMenu().getItems().add(new SeparatorMenuItem());
                         }
                         if (tk == null) {
-                            MenuItem quitItem = new MenuItem("Quit");
+                            MenuItem quitItem = new MenuItemWithText("Quit");
                             quitItem.setOnAction(this::close);
                             ap.getMenu().getItems().add(quitItem);
                         }
                         break;
                     case WINDOW:
-
                         Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
-                        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-                            // TODO: Go away after personas completely implemented.
-                            MenuItem newStatementWindowItem = new MenuItem("Statement window");
-                            newStatementWindowItem.setOnAction(this::newStatement);
-                            newWindowMenu.getItems().addAll(newStatementWindowItem);
-                            for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
-                                if (mp.getParentMenus().contains(AppMenu.NEW_WINDOW)) {
-                                    for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner())) {
-                                        menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.configurationNode(RootPreferences.class));
-                                        newWindowMenu.getItems().add(menuItem);
-                                    }
-                                }
-                            }
-                        }
-                        // Add personas here...
-                        for (PersonaItem personaItem: FxGet.kometPreferences().getPersonaPreferences()) {
-                            MenuItem newKometWindowItem = new MenuItem(personaItem.nameProperty().get());
-                            newKometWindowItem.setOnAction(event -> {
-                                FxGet.dialogs().showInformationDialog("Opening new window. ", personaItem.nameProperty().get());
-                                this.newViewer(personaItem);
-                            });
-                            newWindowMenu.getItems().addAll(newKometWindowItem);
-                        }
-
-                        // TODO: Go away after personas completely implemented.
-                        MenuItem newKometWindowItem = new MenuItem("Viewer window");
-
-                        newWindowMenu.getItems().addAll(newKometWindowItem);
-
-
                         AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
-                        AppMenu.NEW_WINDOW.getMenu().getItems().sort((o1, o2) -> {
-                            return o1.getText().compareTo(o2.getText());
-                        });
+                        updateNewWindowMenu();
 
                         break;
                     case HELP:
                         if (tk == null) {
-                            MenuItem aboutItem = new MenuItem("About...");
+                            MenuItem aboutItem = new MenuItemWithText("About...");
                             aboutItem.setOnAction(this::handleAbout);
                             ap.getMenu().getItems().add(aboutItem);
                         }
@@ -314,6 +284,91 @@ public class MainApp
          return stageRoot;
     }
 
+    Set<UUID> personaUuids = new HashSet<>();
+
+
+    @Override
+    public void personaChanged(PersonaItem item, boolean active) {
+        List<MenuItem> menuItems = new ArrayList<>(AppMenu.NEW_WINDOW.getMenu().getItems());
+        AppMenu.NEW_WINDOW.getMenu().getItems().clear();
+        String personaUuidStr = item.getPersonaUuid().toString();
+
+        if (active) {
+            if (!personaUuids.contains(item.getPersonaUuid())) {
+                personaUuids.add(item.getPersonaUuid());
+                MenuItem newKometWindowItem = new MenuItemWithText(item.nameProperty().get());
+                newKometWindowItem.setId(personaUuidStr);
+                menuItems.add(newKometWindowItem);
+                newKometWindowItem.setOnAction(event -> {
+                    FxGet.dialogs().showInformationDialog("Opening new window. ", item.nameProperty().get());
+                    this.newViewer(item);
+                });
+            } else {
+                for (MenuItem menuItem: menuItems) {
+                    if (menuItem.getId() != null && menuItem.getId().equals(personaUuidStr)) {
+                        menuItem.setText(item.nameProperty().get());
+                        break;
+                    }
+                }
+            }
+        } else {
+            int indexToDelete = -1;
+            for (int i = 0; i < menuItems.size(); i++) {
+                MenuItem menuItem = menuItems.get(i);
+                if (menuItem.getId() != null && menuItem.getId().equals(personaUuidStr)) {
+                    indexToDelete = i;
+                    break;
+                }
+            }
+            menuItems.remove(indexToDelete);
+        }
+
+        menuItems.sort((o1, o2) -> {
+            return o1.getText().compareTo(o2.getText());
+        });
+        AppMenu.NEW_WINDOW.getMenu().getItems().addAll(menuItems);
+    }
+
+    private void updateNewWindowMenu() {
+        Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
+        newWindowMenu.getItems().clear();
+        List<MenuItem> itemsToAdd = new ArrayList<>();
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+            // TODO: Go away after personas completely implemented.
+            MenuItem newStatementWindowItem = new MenuItemWithText("Statement window");
+            newStatementWindowItem.setOnAction(this::newStatement);
+            itemsToAdd.add(newStatementWindowItem);
+            for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
+                if (mp.getParentMenus().contains(AppMenu.NEW_WINDOW)) {
+                    for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner())) {
+                        menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.configurationNode(RootPreferences.class));
+                        newWindowMenu.getItems().add(menuItem);
+                    }
+                }
+            }
+        }
+        // Add personas here...
+        for (PersonaItem personaItem: FxGet.kometPreferences().getPersonaPreferences()) {
+            MenuItem newKometWindowItem = new MenuItemWithText(personaItem.nameProperty().get());
+            newKometWindowItem.setOnAction(event -> {
+                this.newViewer(personaItem);
+            });
+            itemsToAdd.add(newKometWindowItem);
+        }
+
+        // TODO: Go away after personas completely implemented.
+        MenuItem newKometWindowItem = new MenuItemWithText("Viewer window");
+
+        itemsToAdd.add(newKometWindowItem);
+
+
+        itemsToAdd.sort((o1, o2) -> {
+                    return o1.getText().compareTo(o2.getText());
+                });
+        newWindowMenu.getItems().addAll(itemsToAdd);
+
+    }
+
     private void close(ActionEvent event) {
         event.consume();
         shutdown();
@@ -339,8 +394,7 @@ public class MainApp
             WindowPreferencesItem personaWindowPreferences = personaItem.createNewWindowPreferences();
             controller.setWindowPreferenceItem(personaWindowPreferences, stage);
 
-            root.setId(UUID.randomUUID()
-                    .toString());
+            root.setId(UUID.randomUUID().toString());
 
             if (MenuProvider.WINDOW_SEQUENCE.get() >= 1) {
                 stage.getProperties().put(WindowProperties.NAME_PREFIX, "");

@@ -30,6 +30,7 @@ import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.komet.gui.control.property.PropertySheetPurpose;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -82,7 +83,7 @@ public class AddEditVersionMenuItems {
         }
         PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion);
         propertySheetMenuItems.put(menuText, propertySheetMenuItem);
-        MenuItem menuItem = new MenuItem(menuText);
+        MenuItem menuItem = new MenuItemWithText(menuText);
         menuItem.setOnAction((event) -> {
             // create version to edit here
             ObservableVersion uncommittedVersion = categorizedVersion.makeAutonomousAnalog(FxGet.editCoordinate());

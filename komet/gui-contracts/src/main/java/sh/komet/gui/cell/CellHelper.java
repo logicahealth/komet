@@ -26,6 +26,7 @@ import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.contract.GuiSearcher;
 import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
@@ -50,9 +51,9 @@ public class CellHelper {
 
     public ContextMenu makeContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem item1 = new MenuItem("Search for contents");
+        MenuItem item1 = new MenuItemWithText("Search for contents");
         item1.setOnAction((ActionEvent e) -> cell.search());
-        MenuItem item2 = new MenuItem("Initialize concept builder");
+        MenuItem item2 = new MenuItemWithText("Initialize concept builder");
         item2.setOnAction((ActionEvent e) ->  cell.initializeConceptBuilder());
         contextMenu.getItems().addAll(item1, item2);
         return contextMenu;

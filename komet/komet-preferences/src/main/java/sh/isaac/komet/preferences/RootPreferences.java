@@ -46,8 +46,8 @@ public class RootPreferences extends AbstractPreferences {
             addChild("Attachment actions", AttachmentItems.class);
             addChild("Logic actions", LogicItemPanels.class);
             addChild("Taxonomy configurations", TaxonomyItems.class);
-            addChild("Window configurations", WindowsPanel.class);
             addChild("Personas", PersonasItems.class);
+            addChild("Window configurations", WindowsPanel.class);
         }
         List<String> childPreferences = this.preferencesNode.getList(CHILDREN_NODES);
         if (childPreferences.contains("Change sets")) {

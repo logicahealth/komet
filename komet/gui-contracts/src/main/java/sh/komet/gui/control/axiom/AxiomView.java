@@ -95,6 +95,7 @@ import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
@@ -801,7 +802,7 @@ public class AxiomView {
 
         protected final void handleEditClick(MouseEvent mouseEvent) {
             ContextMenu contextMenu = new ContextMenu();
-            MenuItem doNothing = new MenuItem("");
+            MenuItem doNothing = new MenuItemWithText("");
             contextMenu.getItems().addAll(doNothing);
 
             List<Action> actionItems
@@ -1137,15 +1138,15 @@ public class AxiomView {
         }
 
         private ContextMenu getContextMenu() {
-            MenuItem svgItem = new MenuItem("Make concept svg");
+            MenuItem svgItem = new MenuItemWithText("Make concept svg");
             svgItem.setOnAction(this::makeSvg);
-            MenuItem inlineSvgItem = new MenuItem("Make inline svg");
+            MenuItem inlineSvgItem = new MenuItemWithText("Make inline svg");
             inlineSvgItem.setOnAction(this::makeInlineSvg);
-            MenuItem mediaObjectSvgItem = new MenuItem("Make media object svg");
+            MenuItem mediaObjectSvgItem = new MenuItemWithText("Make media object svg");
             mediaObjectSvgItem.setOnAction(this::makeMediaObjectSvg);
-            MenuItem glossaryEntryItem = new MenuItem("Make glossary entry");
+            MenuItem glossaryEntryItem = new MenuItemWithText("Make glossary entry");
             glossaryEntryItem.setOnAction(this::makeGlossaryEntry);
-            MenuItem javaExpressionItem = new MenuItem("Make java expression");
+            MenuItem javaExpressionItem = new MenuItemWithText("Make java expression");
             javaExpressionItem.setOnAction(this::makeJavaExpression);
             return new ContextMenu(svgItem, inlineSvgItem, mediaObjectSvgItem,
                     glossaryEntryItem, javaExpressionItem);
