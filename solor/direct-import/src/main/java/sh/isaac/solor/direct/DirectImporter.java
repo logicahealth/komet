@@ -469,6 +469,7 @@ public class DirectImporter
                 }
             } catch (Exception e) {
                 LOG.error("Unexpected error", e);
+                throw new RuntimeException("Bad:", e);
             }
             completedUnitOfWork();
         }
@@ -1738,6 +1739,7 @@ public class DirectImporter
                         throw new RuntimeException("Misconfiguration for refset " + dci.getKey() + " no info for column " + i);
                     }
                 }
+                LOG.info("Refset sctid: '" + dci.getKey() + "' has " + dci.getValue().size() + " columns");
             }
             br.reset();  //back the stream up, and actually process the refset now.
         }
