@@ -234,7 +234,7 @@ public class DeveloperMenus implements MenuProvider {
         transformationRecords.add(transformationGroup);
         Semaphore writeSemaphore = new Semaphore(1);
         LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(transformationRecords,
-                writeSemaphore, ImportType.FULL, Instant.now());
+                writeSemaphore, ImportType.FULL);
         Get.executor().execute(transformer);
         transformer.get();
     }

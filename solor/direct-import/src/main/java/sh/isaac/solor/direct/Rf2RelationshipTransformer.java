@@ -68,13 +68,13 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
                statedTransformList.add(new TransformationGroup(conceptNid, relNids.asArray(), PremiseType.STATED));
                if (statedTransformList.size() == transformSize) {
                   List<TransformationGroup> listForTask = new ArrayList<>(statedTransformList);
-                  LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore, this.importType, getStartTime());
+                  LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore, this.importType);
                   Get.executor().submit(transformer);
                   statedTransformList.clear();
                }
          });
          // pickup any items remaining in the list. 
-         LogicGraphTransformerAndWriter remainingStatedtransformer = new LogicGraphTransformerAndWriter(statedTransformList, writeSemaphore, this.importType, getStartTime());
+         LogicGraphTransformerAndWriter remainingStatedtransformer = new LogicGraphTransformerAndWriter(statedTransformList, writeSemaphore, this.importType);
          Get.executor().submit(remainingStatedtransformer);
          
          
@@ -91,13 +91,13 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
                inferredTransformList.add(new TransformationGroup(conceptNid, relNids.asArray(), PremiseType.INFERRED));
                if (inferredTransformList.size() == transformSize) {
                   List<TransformationGroup> listForTask = new ArrayList<>(inferredTransformList);
-                  LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore, this.importType, getStartTime());
+                  LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore, this.importType);
                   Get.executor().submit(transformer);
                   inferredTransformList.clear();
                }
          });
          // pickup any items remaining in the list. 
-         LogicGraphTransformerAndWriter remainingInferredTransformer = new LogicGraphTransformerAndWriter(inferredTransformList, writeSemaphore, this.importType, getStartTime());
+         LogicGraphTransformerAndWriter remainingInferredTransformer = new LogicGraphTransformerAndWriter(inferredTransformList, writeSemaphore, this.importType);
          Get.executor().submit(remainingInferredTransformer);
          
          writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
