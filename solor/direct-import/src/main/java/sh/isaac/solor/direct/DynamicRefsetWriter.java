@@ -209,7 +209,8 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 								ArrayList<DynamicColumnInfo> dci = dynamicColumnInfo.get(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
 								if (dci == null)
 								{
-									LOG.warn("Refset may be misconfigured, no construction information available from the der2_ccirefset_refsetdescriptor file." 
+									LOG.warn("Refset may be misconfigured, no construction information available from the der2_ccirefset_refsetdescriptor file for"
+											+ " sctid " + refsetRecord[ASSEMBLAGE_SCT_ID_INDEX] + "." 
 											+ "  This may be ok, if this is an extension that appends to an existing refset");
 									//We can't do any futher config here.  If it wasn't configured, it should fail when the data validator checks the columns
 									//against the spec.
@@ -242,6 +243,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 										index(c);
 										assemblageService.writeSemanticChronology((SemanticChronology)c);
 									}
+									assemblageService.sync().get();  //make sure it is readable for future calls
 								}
 								configuredDynamicSemantics.put(assemblageNid, true);
 							}
