@@ -1843,7 +1843,7 @@ public class DirectImporter
                         .submit(conceptWriter);
             }
         }
-        LOG.warn("Concept linecount: " + lineCount + " in: " + importSpecification.contentProvider.getStreamSourceName());
+        LOG.info("Concept linecount: " + lineCount + " in: " + importSpecification.contentProvider.getStreamSourceName());
         if (empty) {
             LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
