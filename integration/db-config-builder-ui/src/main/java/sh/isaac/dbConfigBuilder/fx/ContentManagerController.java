@@ -315,6 +315,8 @@ public class ContentManagerController
 			File f = fc.showDialog(cm_.getPrimaryStage().getScene().getWindow());
 			if (f != null)
 			{
+				f = new File(f, "contentManager");
+				f.mkdirs();
 				workingFolder.setText(f.getAbsolutePath());
 			}
 		});
