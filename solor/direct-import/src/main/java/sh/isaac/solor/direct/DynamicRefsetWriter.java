@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
@@ -42,6 +43,7 @@ import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UuidT3Generator;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.types.DynamicBooleanImpl;
 import sh.isaac.model.semantic.types.DynamicDoubleImpl;
@@ -52,6 +54,7 @@ import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.model.semantic.version.DynamicImpl;
+import sh.isaac.utility.Frills;
 
 /**
  * An importer component that processes RF2 refsets into dynamic semantic refsets.
@@ -209,11 +212,21 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 								ArrayList<DynamicColumnInfo> dci = dynamicColumnInfo.get(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
 								if (dci == null)
 								{
-									LOG.warn("Refset may be misconfigured, no construction information available from the der2_ccirefset_refsetdescriptor file for"
-											+ " sctid " + refsetRecord[ASSEMBLAGE_SCT_ID_INDEX] + "." 
-											+ "  This may be ok, if this is an extension that appends to an existing refset");
-									//We can't do any futher config here.  If it wasn't configured, it should fail when the data validator checks the columns
-									//against the spec.
+									
+									//See if we already know the SCTID / refset config due to a dependency preload (we should)
+									Optional<Integer> nid = Frills.getNidForSCTID(Long.parseLong(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]));
+									if (nid.isPresent() && DynamicUsageDescriptionImpl.isDynamicSemantic(nid.get()))
+									{
+										//Should be all configured in the preload / dependencies
+									}
+									else
+									{
+										LOG.error("Refset is misconfigured, no construction information available from the der2_ccirefset_refsetdescriptor file for"
+												+ " sctid " + refsetRecord[ASSEMBLAGE_SCT_ID_INDEX] + "." 
+												+ "  This will probably lead to a failure later in the transform / load.");
+										//We can't do any futher config here.  If it wasn't configured, it should fail when the data validator checks the columns
+										//against the spec.
+									}
 								}
 								else
 								{

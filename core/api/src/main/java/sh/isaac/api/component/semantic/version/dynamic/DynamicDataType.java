@@ -409,7 +409,8 @@ public enum DynamicDataType {
             || sctid == 900000000000469006l  // Uniform resource locator (foundation metadata concept)
             || sctid == 762678002l  // OWL 2 language syntax (foundation metadata concept)
             || sctid == 707000009l  // SNOMED CT parsable string (foundation metadata concept)
-            || sctid == 900000000000475002l) {  //Time (foundation metadata concept)  TODO should look and see what this actually is, if parseable, we could put in a long...
+            || sctid == 900000000000475002l  //Time (foundation metadata concept)  TODO should look and see what this actually is, if parseable, we could put in a long...
+            || sctid == 900000000000466004l) {  //Text (foundation metadata concept)
          return STRING;
       }
       else if (sctid == 900000000000476001l   //Integer (foundation metadata concept) 42d9f81e-27e9-3b73-9c19-9de4e2346b44
