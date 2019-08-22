@@ -102,7 +102,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 		Get.activeTasks().add(this);
 
 		// TODO move these to an import preference...
-		refsetsToIgnore.add("6011000124106"); // 6011000124106 | ICD-10-CM complex map reference set (foundation metadata concept)
+//		refsetsToIgnore.add("6011000124106"); // 6011000124106 | ICD-10-CM complex map reference set (foundation metadata concept)
 		refsetsToIgnore.add("447563008"); // 447563008 | ICD-9-CM equivalence complex map reference set (foundation metadata concept)
 		refsetsToIgnore.add("447569007"); // 447569007 | International Classification of Diseases, Ninth Revision, Clinical Modification reimbursement
 											 // complex map reference set (foundation metadata concept)
@@ -114,10 +114,10 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 		refsetsToIgnore.add("711112009"); // 711112009 | ICNP diagnoses simple map reference set (foundation metadata concept)
 		refsetsToIgnore.add("712505008"); // 712505008 | ICNP interventions simple map reference set (foundation metadata concept)
 		refsetsToIgnore.add("900000000000498005"); // 900000000000498005 | SNOMED RT identifier simple map (foundation metadata concept)
-		refsetsToIgnore.add("733900009"); // 733900009 | UCUM simple map reference set (foundation metadata concept)
+//		refsetsToIgnore.add("733900009"); // 733900009 | UCUM simple map reference set (foundation metadata concept)
 		refsetsToIgnore.add("900000000000490003");  // 900000000000490003 | Description inactivation indicator attribute value reference set (foundation metadata concept) |
 		refsetsToIgnore.add("900000000000489007");  // 900000000000489007 | Concept inactivation indicator attribute value reference set (foundation metadata concept)
-		refsetsToIgnore.add("900000000000527005");  // 900000000000527005 | SAME AS association reference set (foundation metadata concept)
+//		refsetsToIgnore.add("900000000000527005");  // 900000000000527005 | SAME AS association reference set (foundation metadata concept)
 	}
 
 	private void index(Chronology chronicle)
@@ -245,6 +245,8 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 									Arrays.sort(assemblageStamps);
 									int stampSequence = assemblageStamps[assemblageStamps.length - 1];  //use the largest (newest) stamp on the concept, 
 									//since we probably just loaded the concept....
+									
+									//TODO we need special handling for mapset conversion into our native mapset type
 									
 									List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(assemblageNid,
 											"DynamicDefinition for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()),
