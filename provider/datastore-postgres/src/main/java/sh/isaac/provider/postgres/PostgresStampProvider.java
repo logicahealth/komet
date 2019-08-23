@@ -761,26 +761,33 @@ public class PostgresStampProvider
      *
      * @param status the status
      * @param time the time
-     * @param authorSequence the author nid
-     * @param moduleSequence the module nid
-     * @param pathSequence the path nid
+     * @param authorNid the author nid
+     * @param moduleNid the module nid
+     * @param pathNid the path nid
      * @return the stamp sequence
      */
     @Override
-    public int getStampSequence(Status status, long time, int authorSequence, int moduleSequence, int pathSequence) {
-        if (time == Long.MAX_VALUE) {
-            throw new IllegalStateException("Uncommitted stamps must be accompanied by a transaction");
-        }
-        if (time == Long.MIN_VALUE) {
-            throw new IllegalStateException("Canceled stamps cannot be created directly. They must be created using a transaction");
+    public int getStampSequence(Status status, long time, int authorNid, int moduleNid, int pathNid) {
+        if (cancelUncommittedStamps && time == Long.MAX_VALUE) {
+            time = Long.MIN_VALUE;
+            LOG.warn("Canceling uncommitted stamp: " + Get.conceptDescriptionText(authorNid) + " " +
+                    Get.conceptDescriptionText(moduleNid) + " " +
+                    Get.conceptDescriptionText(pathNid));
+        } else {
+            if (time == Long.MAX_VALUE) {
+                throw new IllegalStateException("Uncommitted stamps must be accompanied by a transaction");
+            }
+            if (time == Long.MIN_VALUE) {
+                throw new IllegalStateException("Canceled stamps cannot be created directly. They must be created using a transaction");
+            }
         }
         if (status == Status.PRIMORDIAL) {
             throw new UnsupportedOperationException(status + " is not an assignable value.");
         }
-        final Stamp stampKey = new Stamp(status, time, authorSequence, moduleSequence, pathSequence);
+        final Stamp stampKey = new Stamp(status, time, authorNid, moduleNid, pathNid);
 
         if (time == Long.MAX_VALUE) {
-            final UncommittedStamp uncommittedStamp = new UncommittedStamp(status, authorSequence, moduleSequence, pathSequence);
+            final UncommittedStamp uncommittedStamp = new UncommittedStamp(status, authorNid, moduleNid, pathNid);
             final Integer temp = cacheUncommittedStampToStampSequenceMap.get()
                 .get(uncommittedStamp);
 

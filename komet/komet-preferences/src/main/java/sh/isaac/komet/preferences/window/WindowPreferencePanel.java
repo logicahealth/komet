@@ -10,7 +10,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.preferences.KometPreferencesController;
 import sh.isaac.komet.preferences.ParentPanel;
-import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.control.PropertySheetTextWrapper;

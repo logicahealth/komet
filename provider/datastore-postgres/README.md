@@ -256,6 +256,8 @@ PostgreSQL v9.6 does not support the ANSI/ISO SQL Standard expression `AS data_t
 
 Obtaining the next value is done using the `nextval()` function instead of the standard's `NEXT VALUE FOR` expression.
 
+## Backup
+/Applications/pgAdmin 4.app/Contents/SharedSupport/pg_dump --file "/Users/kec/isaac_db.sql" --host "localhost" --port "5432" --username "postgres" --no-password --verbose --role "postgres" --format=c --blobs --create --clean --section=pre-data --section=data --section=post-data --oids --encoding "UTF8" "isaac_db"
 ## Resources <a id="Resources">[▴](#toc)</a>
 
 * [Apache Maven ⇗](https://maven.apache.org/download.cgi)
