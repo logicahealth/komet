@@ -44,6 +44,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
@@ -168,5 +169,10 @@ public class ConceptDetailTreeTableNode
     @Override
     public boolean selectInTabOnChange() {
         return this.conceptLabelToolbar.getFocusTabOnConceptChange().get();
+    }
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
     }
 }

@@ -1822,7 +1822,13 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		
 		return new DetailNode()
 		{
-	/** 
+
+			@Override
+			public SimpleBooleanProperty closeExplorationNodeProperty() {
+				return null;
+			}
+
+			/**
 	 * {@inheritDoc}
 	 */
 	@Override

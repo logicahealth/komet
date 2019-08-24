@@ -47,6 +47,7 @@ import java.util.concurrent.CountDownLatch;
 import javafx.application.Platform;
 
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -247,6 +248,11 @@ public class MultiParentTreeView
     @Override
     public Node getMenuIcon() {
         return Iconography.TAXONOMY_ICON.getIconographic();
+    }
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
     }
 
     private void dragDropped(DragEvent event) {

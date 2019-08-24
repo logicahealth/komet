@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
@@ -255,6 +256,11 @@ Root[0]➞[41]
             this.titleProperty.set("");
         }
         return Optional.of(titleLabel);
+    }
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
     }
 
     @Override

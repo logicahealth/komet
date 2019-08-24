@@ -1,6 +1,7 @@
 package sh.komet.gui.exportation;
 
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -59,5 +60,10 @@ public class ExportSpecificationNode implements ExplorationNode {
     @Override
     public Node getMenuIcon() {
         return Iconography.ICON_EXPORT.getIconographic();
+    }
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
     }
 }

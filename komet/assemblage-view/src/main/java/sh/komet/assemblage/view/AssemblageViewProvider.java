@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
@@ -91,8 +92,13 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
       int count = (int) Get.identifierService().getNidsForAssemblage(newValue.getNid()).count();
       this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " elements");
    }
-   
-   @Override
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
+    }
+
+    @Override
    public Node getMenuIcon() {
       return Iconography.PAPERCLIP.getIconographic();
    }

@@ -41,6 +41,7 @@ import java.util.Optional;
 import javafx.application.Platform;
 
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -197,4 +198,9 @@ public class TaskProgressNode
    public Node getMenuIcon() {
       return Iconography.SPINNER.getIconographic();
    }
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
+    }
 }

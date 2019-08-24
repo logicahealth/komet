@@ -1,22 +1,19 @@
 package sh.komet.gui.importation.specification;
 
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleMapProperty;
-import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
-import sh.isaac.api.LookupService;
-import sh.isaac.convert.directUtils.DirectConverter;
+import javafx.util.Pair;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+import sh.komet.gui.control.wizard.EmbeddedWizard;
+import sh.komet.gui.control.wizard.WizardType;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
@@ -26,61 +23,68 @@ import java.util.stream.Collectors;
 public class ImportSpecificationController {
 
     private Manifold manifold;
-    private final SimpleListProperty<Path> pathsSelectedForImport = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final SimpleListProperty<Path> pathsNotMatchedForImport = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final SimpleMapProperty<SupportedConverterTypes, Path> pathsToImport = new SimpleMapProperty<>(FXCollections.observableMap(new TreeMap<>()));
-
-
-    @FXML
-    private Button browseFiles;
+    private SimpleBooleanProperty closeExplorationNode;
+    private EmbeddedWizard embeddedWizard;
 
     @FXML
     private BorderPane importSpecificationBorderPane;
 
-
     @FXML
     private void initialize() {
+        final FileChooser chooser = new FileChooser();
+        final ArrayList<Path> userSelectedPaths = new ArrayList<>();
+        ArrayList<Pair<SupportedConverterTypes, Path>> pathsToImport;
 
-    }
-
-    @FXML
-    private void browseForFiles(ActionEvent actionEvent){
-        FileChooser chooser = new FileChooser();
         chooser.setTitle("Specify file(s) for import...");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Zip Files", "*.zip"));
+        pathsToImport = determinePathsToImport(chooser.showOpenMultipleDialog(null).stream()
+                .map(File::toPath).collect(Collectors.toList()));
 
-        List<Path> paths = chooser.showOpenMultipleDialog(importSpecificationBorderPane.getScene().getWindow()).stream()
-                .map(File::toPath)
-                .collect(Collectors.toList());
+        if(pathsToImport.size() > 0) {
+            EmbeddedWizard.Builder wizardBuilder = EmbeddedWizard.Builder.newInstance();
 
-        if(paths.size() > 0) {
-            this.pathsSelectedForImport.get().addAll(paths);
-            matchSelectedPathsForImport();
+            pathsToImport.stream()
+                    .forEach(converterTypeAndPathPair ->
+                            wizardBuilder.createWizardView(
+                                    WizardType.IMPORT_SPECIFICATION_CONFIGURATION,
+                                    converterTypeAndPathPair));
+
+            this.embeddedWizard = wizardBuilder.build();
+
+            this.importSpecificationBorderPane.centerProperty().setValue(this.embeddedWizard);
+            this.embeddedWizard.cancelSelectedProperty().addListener((observableValue, aBoolean, t1) -> {
+                this.closeExplorationNode.set(true);
+            });
+            this.embeddedWizard.finishSelectedProperty().addListener((observableValue, aBoolean, t1) -> {
+
+
+            });
+
+        } else{
+            this.closeExplorationNode.set(true);
         }
     }
 
-    private void matchSelectedPathsForImport(){
+    private ArrayList<Pair<SupportedConverterTypes, Path>> determinePathsToImport(List<Path> userSelectedPaths){
+        final ArrayList<Pair<SupportedConverterTypes, Path>> pathsToImport = new ArrayList<>();
         SupportedConverterTypes.topologySortBySourceDependencies().stream()
                 .forEach(importer ->
-                    this.pathsSelectedForImport.get().stream()
+                    userSelectedPaths.stream()
                             .forEach(path -> {
-                                SupportedConverterTypes supportedConverterType = SupportedConverterTypes.findByPath(path, true);
-                                if( supportedConverterType != null){
-                                    this.pathsToImport.put(supportedConverterType, path);
+                                SupportedConverterTypes pathImportType = SupportedConverterTypes.findByPath(path, true);
+                                if( pathImportType != null && pathImportType == importer){
+                                    pathsToImport.add(new Pair<>(pathImportType, path));
                                 }
-                            }));
-
-
-
-        System.out.println("break");
-    }
-
-    @FXML
-    private void runImportSpecification(ActionEvent actionEvent){
-
+                            })
+                );
+        return pathsToImport;
     }
 
     public void setManifold(Manifold manifold){
         this.manifold = manifold;
     }
 
+    public void setCloseExplorationNodeProperty(SimpleBooleanProperty closeExplorationNode) {
+        this.closeExplorationNode = closeExplorationNode;
+    }
 }

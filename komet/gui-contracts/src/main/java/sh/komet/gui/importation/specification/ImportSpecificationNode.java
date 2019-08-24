@@ -1,6 +1,7 @@
 package sh.komet.gui.importation.specification;
 
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -19,9 +20,9 @@ import java.util.Optional;
 public class ImportSpecificationNode implements ExplorationNode {
 
     private final Manifold manifold;
-
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("Import Specification Builder");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Import Specification Builder");
+    private final SimpleBooleanProperty closeExplorationNodeProperty = new SimpleBooleanProperty(false);
 
     private final BorderPane borderPane;
 
@@ -32,6 +33,7 @@ public class ImportSpecificationNode implements ExplorationNode {
             this.borderPane = loader.load();
             ImportSpecificationController importSpecificationController = loader.getController();
             importSpecificationController.setManifold(manifold);
+            importSpecificationController.setCloseExplorationNodeProperty(this.closeExplorationNodeProperty);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -65,5 +67,10 @@ public class ImportSpecificationNode implements ExplorationNode {
     @Override
     public Node getMenuIcon() {
         return Iconography.ICON_IMPORT.getIconographic();
+    }
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return this.closeExplorationNodeProperty;
     }
 }

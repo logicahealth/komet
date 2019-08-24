@@ -38,6 +38,8 @@ package sh.isaac.komet.gui.assemblageviewer;
 
 import java.io.IOException;
 import java.util.Optional;
+
+import javafx.beans.property.SimpleBooleanProperty;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -151,7 +153,12 @@ public class AssemblageViewer implements ExplorationNodeFactory
 		return new ExplorationNode()
 		{
 
-	/**
+			@Override
+			public SimpleBooleanProperty closeExplorationNodeProperty() {
+				return null;
+			}
+
+			/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -196,4 +203,6 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	public ConceptSpecification getPanelType() {
 		return MetaData.ASSEMBLAGE_PANEL____SOLOR;
 	}
+
+
 }

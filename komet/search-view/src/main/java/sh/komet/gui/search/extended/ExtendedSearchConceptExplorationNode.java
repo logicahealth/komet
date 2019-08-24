@@ -17,10 +17,8 @@
 package sh.komet.gui.search.extended;
 
 import java.util.Optional;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -102,7 +100,10 @@ public class ExtendedSearchConceptExplorationNode implements ConceptExplorationN
         controller.getSearchResults().requestFocus();
         controller.getSearchResults().getSelectionModel().selectFirst();
     }
-    
-    
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
+    }
 }
 

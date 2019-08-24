@@ -17,6 +17,8 @@
 package sh.komet.gui.interfaces;
 
 import java.util.Optional;
+
+import javafx.beans.property.SimpleBooleanProperty;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.scene.Node;
@@ -70,4 +72,11 @@ public interface ExplorationNode {
    
    
    Node getMenuIcon();
+
+   /**
+    * Some use cases for tabs involving a wizard and other things may require the ability to close the tab from a different
+    * means other than the traditional user clicking "X"
+    * @return
+    */
+   SimpleBooleanProperty closeExplorationNodeProperty();
 }

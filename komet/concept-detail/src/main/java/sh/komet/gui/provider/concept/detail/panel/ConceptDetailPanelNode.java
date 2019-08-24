@@ -51,6 +51,7 @@ import javafx.animation.ParallelTransition;
 import javafx.application.Platform;
 
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
@@ -748,4 +749,8 @@ public class ConceptDetailPanelNode
         return this.conceptLabelToolbar.getFocusTabOnConceptChange().get();
     }
 
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
+    }
 }

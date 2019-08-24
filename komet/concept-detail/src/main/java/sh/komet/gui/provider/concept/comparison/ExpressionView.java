@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Orientation;
@@ -125,6 +126,11 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
         List<MenuItem> assemblageMenuList = new ArrayList<>();
         // No extra menu items added yet. 
         return assemblageMenuList;
+    }
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
     }
 
     @Override

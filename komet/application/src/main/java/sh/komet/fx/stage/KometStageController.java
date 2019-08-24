@@ -47,6 +47,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.prefs.BackingStoreException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
@@ -438,6 +439,9 @@ public class KometStageController
                             }
                         });
                     }
+
+                    node.closeExplorationNodeProperty().addListener((observableValue, aBoolean, t1) -> tabPane.getTabs().remove(tab));
+
                     // Modify skin to look for drag handling methods... 
                 });
         menuItems.add(tabFactoryMenuItem);

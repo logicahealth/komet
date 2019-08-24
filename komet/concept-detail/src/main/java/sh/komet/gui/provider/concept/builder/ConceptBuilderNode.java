@@ -27,6 +27,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -334,6 +335,11 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
             throw new IllegalStateException("Logical expression is not meaningful");
         }
         return versionsToCommit.toArray(new ObservableVersion[versionsToCommit.size()]);
+    }
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
     }
 
     @Override

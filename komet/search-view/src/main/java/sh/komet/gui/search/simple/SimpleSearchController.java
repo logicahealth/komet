@@ -39,10 +39,7 @@
 
 package sh.komet.gui.search.simple;
 
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -332,5 +329,10 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     @Override
     public ReadOnlyProperty<String> getToolTip() {
         return toolTipText;
+    }
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
     }
 }

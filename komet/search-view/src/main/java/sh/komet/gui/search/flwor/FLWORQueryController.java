@@ -54,6 +54,7 @@ package sh.komet.gui.search.flwor;
 * See the License for the specific language governing permissions and
 * limitations under the License.
  */
+import javafx.beans.property.*;
 import sh.isaac.api.query.JoinProperty;
 import sh.isaac.api.query.AttributeFunction;
 import sh.isaac.api.query.LetItemKey;
@@ -69,12 +70,8 @@ import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 
 //~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 
@@ -1055,6 +1052,11 @@ public class FLWORQueryController
     @Override
     public ReadOnlyProperty<String> getToolTip() {
         return toolTipProperty;
+    }
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
     }
 
     void setLetItemsController(LetItemsController letItemsController) {

@@ -19,6 +19,7 @@ package sh.komet.scripting.groovy;
 import java.io.IOException;
 import java.util.Optional;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -84,5 +85,9 @@ public class GroovyViewProvider implements ExplorationNode {
     public Optional<Node> getTitleNode() {
         return Optional.of(titleNode);
     }
-    
+
+    @Override
+    public SimpleBooleanProperty closeExplorationNodeProperty() {
+        return null;
+    }
 }
