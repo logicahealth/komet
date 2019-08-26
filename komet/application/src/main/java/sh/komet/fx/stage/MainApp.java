@@ -392,28 +392,10 @@ public class MainApp
             BorderPane root = loader.load();
             KometStageController controller = loader.getController();
             WindowPreferencesItem personaWindowPreferences = personaItem.createNewWindowPreferences();
-            controller.setWindowPreferenceItem(personaWindowPreferences, stage);
 
             root.setId(UUID.randomUUID().toString());
 
-            if (MenuProvider.WINDOW_SEQUENCE.get() >= 1) {
-                stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
-                stage.getProperties().put(WindowProperties.NAME_SUFFIX, " " + Integer.toString(MenuProvider.WINDOW_SEQUENCE.incrementAndGet()));
-                stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
-                        FxGet.configurationName() +
-                        stage.getProperties().get(WindowProperties.NAME_SUFFIX)
-                );
-            } else {
-                stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
-                stage.getProperties().put(WindowProperties.NAME_SUFFIX, "");
-                stage.setTitle(FxGet.configurationName());
-                MenuProvider.WINDOW_SEQUENCE.incrementAndGet();
-            }
-            FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
-                stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
-                        newValue +
-                        stage.getProperties().get(WindowProperties.NAME_SUFFIX));
-            });
+            stage.setTitle(personaWindowPreferences.getWindowName().getValue());
 
             //Menu hackery
             Scene scene;
@@ -424,6 +406,7 @@ public class MainApp
             }
 
             stage.setScene(scene);
+            controller.setWindowPreferenceItem(personaWindowPreferences, stage);
             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
 

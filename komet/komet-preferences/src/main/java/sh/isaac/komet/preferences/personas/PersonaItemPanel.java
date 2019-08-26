@@ -11,6 +11,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.TransientPreferences;
 import sh.isaac.komet.preferences.AbstractPreferences;
 import sh.isaac.komet.preferences.KometPreferencesController;
+import sh.isaac.komet.preferences.PreferenceGroup;
 import sh.isaac.komet.preferences.window.WindowPreferencePanel;
 import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
@@ -26,14 +27,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 
+import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+import static sh.isaac.komet.preferences.personas.PersonasPanel.DEFAULT_PERSONA_NAME;
+
 /**
  * 2019-07-22
  * aks8m - https://github.com/aks8m
  */
-public class PersonasItemPanel extends AbstractPreferences implements PersonaItem {
+public class PersonaItemPanel extends AbstractPreferences implements PersonaItem {
 
     public enum Keys {
-        PERSONA_NAME,
         PERSONA_UUID,
         ENABLE_LEFT_PANE,
         ENABLE_CENTER_PANE,
@@ -46,7 +49,21 @@ public class PersonasItemPanel extends AbstractPreferences implements PersonaIte
         RIGHT_PANE_OPTIONS,
     };
 
-    private UUID personaUuid = UUID.randomUUID();
+    private static final ConceptSpecification[] standardTabFactoryList = new ConceptSpecification[] {
+            MetaData.ACTIVITIES_PANEL____SOLOR,
+            MetaData.ASSEMBLAGE_PANEL____SOLOR,
+            MetaData.COMPLETION_PANEL____SOLOR,
+            MetaData.COMPONENT_LIST_PANEL____SOLOR,
+            MetaData.CONCEPT_BUILDER_PANEL____SOLOR,
+            MetaData.CONCEPT_DETAILS_PANEL____SOLOR,
+            MetaData.CONCEPT_DETAILS_TREE_TABLE____SOLOR,
+            MetaData.SIMPLE_SEARCH_PANEL____SOLOR,
+            MetaData.EXTENDED_SEARCH_PANEL____SOLOR,
+            MetaData.FLWOR_QUERY_PANEL____SOLOR,
+            MetaData.TAXONOMY_PANEL____SOLOR,
+    };
+
+    private UUID personaUuid;
 
     private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.PERSONA_NAME____SOLOR.toExternalString());
@@ -79,8 +96,12 @@ public class PersonasItemPanel extends AbstractPreferences implements PersonaIte
             new SimpleListProperty<>(this, MetaData.RIGHT_PANE_OPTIONS____SOLOR.toExternalString(), FXCollections.observableArrayList());
     private final PropertySheetConceptListWrapper rightPaneOptionsWrapper;
 
-    public PersonasItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
+    public PersonaItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, getGroupName(preferencesNode), manifold, kpc);
+        // The GROUP_NAME is the name of this window that will show up in the preferences panel,
+        // We want the name of the group to be the same as name of the window, and will link the
+        // properties here.
+        this.setPersonaUuid(UUID.fromString(preferencesNode.name()));
         nameProperty.set(groupNameProperty().get());
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
@@ -105,14 +126,12 @@ public class PersonasItemPanel extends AbstractPreferences implements PersonaIte
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableRightPaneProperty));
         getItemList().add(rightPaneDefaultsWrapper);
         getItemList().add(rightPaneOptionsWrapper);
-
-
     }
 
     @Override
     protected void saveFields() throws BackingStoreException {
         getPreferencesNode().put(Keys.PERSONA_UUID, this.personaUuid.toString());
-        getPreferencesNode().put(Keys.PERSONA_NAME, this.nameProperty.get());
+        getPreferencesNode().put(PreferenceGroup.Keys.GROUP_NAME, this.nameProperty.get());
         getPreferencesNode().putBoolean(Keys.ENABLE_LEFT_PANE, this.enableLeftPaneProperty.get());
         getPreferencesNode().putConceptList(Keys.LEFT_PANE_DEFAULTS, this.leftPaneDefaultsProperty);
         getPreferencesNode().putConceptList(Keys.LEFT_PANE_OPTIONS, this.leftPaneOptionsProperty);
@@ -124,31 +143,28 @@ public class PersonasItemPanel extends AbstractPreferences implements PersonaIte
         getPreferencesNode().putConceptList(Keys.RIGHT_PANE_DEFAULTS, this.rightPaneDefaultsProperty);
         FxGet.firePersonaChanged(this, true);
     }
-
     @Override
     protected void revertFields(){
         this.personaUuid = UUID.fromString(getPreferencesNode().get(Keys.PERSONA_UUID, this.personaUuid.toString()));
-        this.nameProperty.set(getPreferencesNode().get(Keys.PERSONA_NAME, getGroupName()));
+        this.nameProperty.set(getPreferencesNode().get(PreferenceGroup.Keys.GROUP_NAME, getGroupName()));
         this.enableLeftPaneProperty.set(getPreferencesNode().getBoolean(Keys.ENABLE_LEFT_PANE, true));
         this.leftPaneDefaultsProperty.setAll(getPreferencesNode().getConceptList(Keys.LEFT_PANE_DEFAULTS,
                 List.of(MetaData.TAXONOMY_PANEL____SOLOR)));
         this.leftPaneOptionsProperty.setAll(getPreferencesNode().getConceptList(Keys.LEFT_PANE_OPTIONS,
-                List.of(MetaData.TAXONOMY_PANEL____SOLOR)));
+                List.of(standardTabFactoryList)));
 
         this.enableCenterPaneProperty.set(getPreferencesNode().getBoolean(Keys.ENABLE_CENTER_PANE, true));
         this.centerPaneDefaultsProperty.setAll(getPreferencesNode().getConceptList(Keys.CENTER_PANE_DEFAULTS,
-                List.of(MetaData.CONCEPT_DETAILS_PANEL____SOLOR)));
+                List.of(MetaData.CONCEPT_DETAILS_PANEL____SOLOR, MetaData.CONCEPT_DETAILS_PANEL____SOLOR)));
         this.centerPaneOptionsProperty.setAll(getPreferencesNode().getConceptList(Keys.CENTER_PANE_OPTIONS,
-                List.of(MetaData.CONCEPT_DETAILS_PANEL____SOLOR)));
+                List.of(standardTabFactoryList)));
 
         this.enableRightPaneProperty.set(getPreferencesNode().getBoolean(Keys.ENABLE_RIGHT_PANE, true));
         this.rightPaneDefaultsProperty.setAll(getPreferencesNode().getConceptList(Keys.RIGHT_PANE_DEFAULTS,
                 List.of(MetaData.ACTIVITIES_PANEL____SOLOR,
                         MetaData.SIMPLE_SEARCH_PANEL____SOLOR)));
         this.rightPaneOptionsProperty.setAll(getPreferencesNode().getConceptList(Keys.RIGHT_PANE_OPTIONS,
-                List.of(MetaData.ACTIVITIES_PANEL____SOLOR,
-                        MetaData.SIMPLE_SEARCH_PANEL____SOLOR,
-                        MetaData.EXTENDED_SEARCH_PANEL____SOLOR)));
+                List.of(standardTabFactoryList)));
         FxGet.firePersonaChanged(this, true);
     }
 
@@ -165,7 +181,7 @@ public class PersonasItemPanel extends AbstractPreferences implements PersonaIte
 
 
     private static String getGroupName(IsaacPreferences preferencesNode) {
-        return preferencesNode.get(Keys.PERSONA_NAME, "Persona");
+        return preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME, "Persona");
     }
 
     @Override
@@ -231,7 +247,10 @@ public class PersonasItemPanel extends AbstractPreferences implements PersonaIte
 
     @Override
     public WindowPreferencesItem createNewWindowPreferences() {
-        IsaacPreferences windowPreferencesNode = FxGet.kometPreferences().getWindowParentPreferences().addWindow();
+        UUID windowUuid = UUID.randomUUID();
+        String windowName = WindowPreferencePanel.getWindowName(nameProperty.get(), windowUuid.toString());
+        IsaacPreferences windowPreferencesNode = FxGet.kometPreferences().getWindowParentPreferences().addWindow(windowName, windowUuid);
+
 
         return new WindowPreferencePanel(windowPreferencesNode,
                 getManifold(),
@@ -240,8 +259,13 @@ public class PersonasItemPanel extends AbstractPreferences implements PersonaIte
 
     public static WindowPreferencesItem createNewDefaultWindowPreferences(IsaacPreferences windowPreferencesNode,
                                                                    Manifold manifold, KometPreferencesController kpc) {
-        PersonasItemPanel persona = new PersonasItemPanel(new TransientPreferences(), manifold, kpc);
-        persona.setPersonaUuid(PersonasItems.DEFAULT_PERSONA);
+
+        TransientPreferences transientPersonaPreferences = new TransientPreferences(PersonasPanel.DEFAULT_PERSONA);
+        transientPersonaPreferences.put(GROUP_NAME, DEFAULT_PERSONA_NAME);
+        PersonaItemPanel persona = new PersonaItemPanel(transientPersonaPreferences, manifold, kpc);
+
+        String windowName = WindowPreferencePanel.getWindowName(persona.getGroupName(), windowPreferencesNode.name());
+        windowPreferencesNode.put(GROUP_NAME, windowName);
         return new WindowPreferencePanel(windowPreferencesNode,
                 manifold,
                 kpc, persona);

@@ -43,7 +43,7 @@ public interface KometPreferences {
     ObservableList<TaxonomyItem> getTaxonomyItems();
     ObservableList<UserPreferenceItems> getUserPreferenceItems();
     ObservableList<WindowPreferencesItem> getWindowPreferenceItems();
-    WindowPreferences getWindowParentPreferences();
+    WindowsParentPreferences getWindowParentPreferences();
     ObservableList<PersonaItem> getPersonaPreferences();
     default Optional<PersonaItem> getPersona(UUID personaUuid) {
         for (PersonaItem personaItem: getPersonaPreferences()) {
@@ -53,4 +53,7 @@ public interface KometPreferences {
         }
         return Optional.empty();
     }
+
+    void updatePreferencesTitle(UUID preference, String title);
+
 }

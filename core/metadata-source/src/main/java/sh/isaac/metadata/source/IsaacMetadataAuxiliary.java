@@ -742,7 +742,13 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                      createConcept("Export specification panel").addStringSemantic(UUID.fromString("088cabd6-47d2-57aa-8726-2ec91f287ce4"), "sh.komet.gui.exportation.ExportSpecificationFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                         .getPreferredDescriptionBuilder().setDescriptionText("Export specification").setModule(TermAux.KOMET_MODULE);
 
-                     popParent();
+       createConcept("Component list panel").addStringSemantic(UUID.fromString("6b8fa23c-358e-5335-ac17-9239ea821842"), "sh.isaac.komet.batch.ListViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Component list").setModule(TermAux.KOMET_MODULE);
+
+       createConcept("Composite action panel").addStringSemantic(UUID.fromString("1123d55e-75f6-502f-80a1-d9f0fe86eb7a"), "sh.isaac.komet.batch.CompositeActionFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Composite action").setModule(TermAux.KOMET_MODULE);
+
+       popParent();
                   createConcept("Detail nodes").getPreferredDescriptionBuilder().setModule(TermAux.KOMET_MODULE);
                   pushParent(current());
                      createConcept("Concept details panel").addStringSemantic(UUID.fromString("de7b7946-d001-56de-919b-0dba9459a28a"), "sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)

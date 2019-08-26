@@ -36,7 +36,6 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.IconographyHelper;
-import sh.isaac.komet.preferences.window.WindowPreferencePanel;
 import sh.isaac.komet.preferences.window.WindowsPanel;
 import sh.komet.gui.contract.preferences.*;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
@@ -71,6 +70,22 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
 
     public KometPreferencesImpl() {
 
+    }
+
+    @Override
+    public void updatePreferencesTitle(UUID preference, String title) {
+        TreeItem<PreferenceGroup> root = kpc.getPreferenceTree().getRoot();
+        recursiveUpdate(root, preference, title);
+    }
+
+    private void recursiveUpdate(TreeItem<PreferenceGroup> treeItem, UUID preference, String title) {
+        if (treeItem.getValue().getTreeItem().preferences.name().equals(preference.toString())) {
+            treeItem.getValue().groupNameProperty().set(title);
+        } else {
+            for (TreeItem<PreferenceGroup> child: treeItem.getChildren()) {
+                recursiveUpdate(child, preference, title);
+            }
+        }
     }
 
     @Override
@@ -287,7 +302,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     }
 
     @Override
-    public WindowPreferences getWindowParentPreferences() {
+    public WindowsParentPreferences getWindowParentPreferences() {
         return this.windowsPanel;
     }
 }

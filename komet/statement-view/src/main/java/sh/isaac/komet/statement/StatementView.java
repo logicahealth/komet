@@ -77,7 +77,7 @@ public class StatementView {
         StatementView statementView = new StatementView(manifold, "temp");
         Stage stage = statementView.stage;
         stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
-        stage.getProperties().put(WindowProperties.NAME_SUFFIX, " statement " +  Integer.toString(MenuProvider.WINDOW_SEQUENCE.incrementAndGet()));
+        stage.getProperties().put(WindowProperties.NAME_SUFFIX, " statement");
         stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
                         FxGet.configurationName() +
                         stage.getProperties().get(WindowProperties.NAME_SUFFIX));

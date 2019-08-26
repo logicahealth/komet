@@ -2,6 +2,7 @@ package sh.isaac.api.preferences;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.BackingStoreException;
 import java.util.Base64;
@@ -10,6 +11,12 @@ import java.util.prefs.PreferenceChangeListener;
 
 public class TransientPreferences implements IsaacPreferences {
     ConcurrentHashMap<String, String> preferenceMap = new ConcurrentHashMap<>();
+    private final String name;
+
+    public TransientPreferences(UUID nodeUuid) {
+        this.name = nodeUuid.toString();
+    }
+
     @Override
     public void put(String key, String value) {
         preferenceMap.put(key, value);
@@ -112,7 +119,7 @@ public class TransientPreferences implements IsaacPreferences {
 
     @Override
     public String name() {
-        throw new UnsupportedOperationException();
+        return this.name;
     }
 
     @Override

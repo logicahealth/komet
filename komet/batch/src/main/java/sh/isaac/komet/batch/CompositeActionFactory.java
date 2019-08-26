@@ -2,6 +2,7 @@ package sh.isaac.komet.batch;
 
 import javafx.scene.Node;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
@@ -38,6 +39,6 @@ public class CompositeActionFactory implements ExplorationNodeFactory<CompositeA
 
     @Override
     public ConceptSpecification getPanelType() {
-        return null;
+        return MetaData.COMPOSITE_ACTION_PANEL____SOLOR;
     }
 }

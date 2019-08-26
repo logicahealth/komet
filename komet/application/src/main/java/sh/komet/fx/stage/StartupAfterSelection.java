@@ -163,6 +163,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                         Stage stage = new Stage(StageStyle.UNIFIED);
                         Scene scene = new Scene(mainApp.setupStageMenus(stage, root, windowPreference));
 
+                        stage.setScene(scene);
                         stage.setX(windowPreference.xLocationProperty().doubleValue());
                         stage.setY(windowPreference.yLocationProperty().doubleValue());
                         stage.setWidth(windowPreference.widthProperty().doubleValue());
@@ -171,13 +172,9 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                         controller.setWindowPreferenceItem(windowPreference, stage);
 
 
-                        stage.setScene(scene);
                         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
                         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
 
-                        windowPreference.getWindowName().addListener((observable, oldValue, newValue) -> {
-                            stage.setTitle(newValue);
-                        });
                         stage.setTitle(windowPreference.getWindowName().getValue());
                         // GraphController.setSceneForControllers(scene);
                         scene.getStylesheets()
@@ -192,6 +189,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                             mainApp.replacePrimaryStage(stage);
                         }
                         stage.show();
+                        MenuProvider.WINDOW_COUNT.incrementAndGet();
                         mainApp.configurationPreferences.sync();
                         //            ScenicView.show(scene);
                     } catch (Exception e) {

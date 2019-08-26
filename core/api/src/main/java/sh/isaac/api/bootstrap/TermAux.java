@@ -521,8 +521,6 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy BOOLEAN_REFERENCE = new ConceptProxy("Boolean reference", "Boolean reference", UUID.fromString("de49d207-a26e-5f8a-b905-953a4dd13c21"));
 
     /*
-    public static ConceptProxy SPEC96 = new ConceptProxy("", "", UUID.fromString("6b8fa23c-358e-5335-ac17-9239ea821842"));
-    public static ConceptProxy SPEC97 = new ConceptProxy("", "", UUID.fromString("1123d55e-75f6-502f-80a1-d9f0fe86eb7a"));
     public static ConceptProxy SPEC98 = new ConceptProxy("", "", UUID.fromString("2e2c07eb-ecdb-5e90-812d-488b1c743272"));
     public static ConceptProxy SPEC99 = new ConceptProxy("", "", UUID.fromString("3d2c2f1f-a14f-5004-9467-7dd347e1d61a"));
     */

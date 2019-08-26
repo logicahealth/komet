@@ -28,6 +28,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
 import javafx.stage.Stage;
 import sh.isaac.api.preferences.IsaacPreferences;
+
+import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
 
 import sh.komet.gui.manifold.Manifold;
@@ -62,11 +64,14 @@ public abstract class ParentPanel extends AbstractPreferences {
 
     protected final void newChild(ActionEvent action) {
         UUID newUuid = UUID.randomUUID();
-        addChildPanel(newUuid);
+        addChildPanel(newUuid, Optional.empty());
     }
     
-    final void addChildPanel(UUID childUuid) {
+    final protected IsaacPreferences addChildPanel(UUID childUuid, Optional<String> groupName) {
         IsaacPreferences preferencesNode = getPreferencesNode().node(childUuid.toString());
+        if (groupName.isPresent()) {
+            preferencesNode.put(GROUP_NAME, groupName.get());
+        }
         addChild(childUuid.toString(), getChildClass());
         Optional<PreferencesTreeItem> optionalActionItem = PreferencesTreeItem.from(preferencesNode,
                 getManifold(), kpc);
@@ -81,12 +86,13 @@ public abstract class ParentPanel extends AbstractPreferences {
             }
         }
         save();
+        return preferencesNode;
     }
     
     abstract protected Class getChildClass();
     
     @Override
-    public final Node getTopPanel(Manifold manifold) {
+    public Node getTopPanel(Manifold manifold) {
         Button addButton = new Button("Add");
         addButton.setOnAction(this::newChild);
         ToolBar toolbar = new ToolBar(addButton);

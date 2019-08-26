@@ -35,8 +35,7 @@ import sh.isaac.api.LookupService;
 @Contract
 public interface MenuProvider {
     public static final String PARENT_PREFERENCES = MenuProvider.class.getName() + ".PARENT_PREFERENCES";
-    AtomicInteger WINDOW_COUNT = new AtomicInteger(1);
-    AtomicInteger WINDOW_SEQUENCE = new AtomicInteger(1);
+    AtomicInteger WINDOW_COUNT = new AtomicInteger(0);
 
     /**
      * @return the parent menus this provider creates items for

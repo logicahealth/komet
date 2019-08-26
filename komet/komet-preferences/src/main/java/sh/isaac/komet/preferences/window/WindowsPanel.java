@@ -1,15 +1,15 @@
 package sh.isaac.komet.preferences.window;
 
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.ToolBar;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.preferences.KometPreferencesController;
 import sh.isaac.komet.preferences.ParentPanel;
-import sh.isaac.komet.preferences.personas.PersonasItemPanel;
-import sh.isaac.komet.preferences.personas.PersonasItems;
-import sh.komet.gui.contract.preferences.PersonaItem;
-import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.isaac.komet.preferences.personas.PersonaItemPanel;
+import sh.komet.gui.contract.preferences.WindowsParentPreferences;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.util.FxGet;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -17,15 +17,17 @@ import java.util.prefs.BackingStoreException;
 
 import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
-public class WindowsPanel extends ParentPanel implements WindowPreferences {
+public class WindowsPanel extends ParentPanel implements WindowsParentPreferences {
 
     public WindowsPanel(IsaacPreferences preferencesNode,
                         Manifold manifold,
                         KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "Window configurations"), manifold, kpc);
         if (!initialized()) {
-            IsaacPreferences windowPreferences = addChild("KOMET window", WindowPreferencePanel.class);
-            WindowPreferencesItem windowPreferencesItem = PersonasItemPanel.createNewDefaultWindowPreferences(windowPreferences, manifold, kpc);
+            IsaacPreferences windowPreferences = addChild(UUID.randomUUID().toString(), WindowPreferencePanel.class);
+
+
+            WindowPreferencesItem windowPreferencesItem = PersonaItemPanel.createNewDefaultWindowPreferences(windowPreferences, manifold, kpc);
             windowPreferencesItem.save();
         }
         revert();
@@ -42,8 +44,15 @@ public class WindowsPanel extends ParentPanel implements WindowPreferences {
 
     }
 
-    public IsaacPreferences addWindow() {
-        return addChild(UUID.randomUUID().toString(), WindowPreferencePanel.class);
+    public Node getTopPanel(Manifold manifold) {
+        return new ToolBar(new Label("Window preferences"));
+    }
+
+    @Override
+    public IsaacPreferences addWindow(String windowName, UUID windowUuid) {
+        IsaacPreferences windowPreferences = addChildPanel(windowUuid, Optional.of(windowName));
+        windowPreferences.put(GROUP_NAME, windowName);
+        return windowPreferences;
     }
 
     @Override

@@ -93,6 +93,10 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup> {
                     propertySheetClassName = "sh.isaac.komet.preferences.LogicItemPanels";
                 } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.window.WindowPreferences")) {
                     propertySheetClassName = "sh.isaac.komet.preferences.window.WindowPreferencePanel";
+                } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.personas.PersonasItemPanel")) {
+                    propertySheetClassName = "sh.isaac.komet.preferences.personas.PersonaItemPanel";
+                } else if (propertySheetClassName.equals("sh.isaac.komet.preferences.personas.PersonasItems")) {
+                    propertySheetClassName = "sh.isaac.komet.preferences.personas.PersonasPanel";
                 }
 
                 Class preferencesSheetClass = Class.forName(propertySheetClassName);

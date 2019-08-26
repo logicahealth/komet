@@ -42,6 +42,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.prefs.BackingStoreException;
 
+import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,6 +81,7 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
 import sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.preferences.window.WindowPreferencePanel;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
@@ -118,7 +120,7 @@ public class KometStageController
         FACTORY_CLASS,
         TAB_PANE_INDEX,
         INDEX_IN_TAB_PANE,
-        ADD_DEFAULTS
+        ADD_DEFAULTS,
     }
 
     private static final HashMap<ConceptSpecification, NodeFactory> NODE_FACTORY_MAP = new HashMap<>();
@@ -461,45 +463,60 @@ public class KometStageController
         this.windowPreferencesItem = windowPreferencesItem;
         this.preferencesNode = windowPreferencesItem.getPreferenceNode();
         this.stage = stage;
+        this.stage.getScene().getProperties().put(WindowPreferencePanel.Keys.WINDOW_UUID_STR, windowPreferencesItem.getPreferenceNode().name());
         boolean addDefaults = this.preferencesNode.getBoolean(Keys.ADD_DEFAULTS, true);
         if (windowPreferencesItem.getPersonaItem() != null) {
             PersonaItem personaItem = windowPreferencesItem.getPersonaItem();
             for (int paneIndex = 0; paneIndex < newTabMenuButtons.size(); paneIndex++) {
                 newTabMenuButtons.get(paneIndex).getItems().clear();
-                if (personaItem.isPaneEnabled(paneIndex)) {
-                    Set<ConceptSpecification> allowedOptions = personaItem.getAllowedOptionsForPane(paneIndex);
-                    if (allowedOptions.isEmpty()) {
-                        allowedOptions.addAll(NODE_FACTORY_MAP.keySet());
+                ObservableList<ConceptSpecification> nodeListForPaneIndex = windowPreferencesItem.getNodesList(paneIndex);
+                Set<ConceptSpecification> allowedOptions = personaItem.getAllowedOptionsForPane(paneIndex);
+                if (allowedOptions.isEmpty()) {
+                    allowedOptions.addAll(NODE_FACTORY_MAP.keySet());
+                }
+                ArrayList<MenuItem> menuItems = new ArrayList<>();
+                for (ConceptSpecification allowedOption: allowedOptions) {
+                    if (NODE_FACTORY_MAP.containsKey(allowedOption)) {
+                        NodeFactory factory = NODE_FACTORY_MAP.get(allowedOption);
+                        addTabFactory(factory, getTabPaneFromIndex(paneIndex), menuItems);
+                    } else {
+                        FxGet.dialogs().showErrorDialog("Creation from Persona Error",
+                                "Can't create menu item for: " + Get.conceptDescriptionText(allowedOption),
+                                "Available factories:  " + NODE_FACTORY_MAP.keySet());
                     }
-                    ArrayList<MenuItem> menuItems = new ArrayList<>();
-                    for (ConceptSpecification allowedOption: allowedOptions) {
-                        if (NODE_FACTORY_MAP.containsKey(allowedOption)) {
-                            NodeFactory factory = NODE_FACTORY_MAP.get(allowedOption);
-                            addTabFactory(factory, getTabPaneFromIndex(paneIndex), menuItems);
-                        } else {
-                            FxGet.dialogs().showErrorDialog("Persona Creation Error",
-                                    "Can't create menu item for: " + Get.conceptDescriptionText(allowedOption),
-                                    "Available factories:  " + NODE_FACTORY_MAP.keySet());
-                        }
-                    }
-                    menuItems.sort(Comparator.comparing(MenuItem::getText));
-                    newTabMenuButtons.get(paneIndex).getItems().addAll(menuItems);
-
-                    if (addDefaults) {
-                        this.preferencesNode.putBoolean(Keys.ADD_DEFAULTS, false);
-                        for (ConceptSpecification defaultItem: personaItem.getDefaultItemsForPane(paneIndex)) {
-                            if (NODE_FACTORY_MAP.containsKey(defaultItem)) {
-                                NodeFactory factory = NODE_FACTORY_MAP.get(defaultItem);
+                }
+                menuItems.sort(Comparator.comparing(MenuItem::getText));
+                newTabMenuButtons.get(paneIndex).getItems().addAll(menuItems);
+                if (addDefaults) {
+                    this.preferencesNode.putBoolean(Keys.ADD_DEFAULTS, false);
+                    if (personaItem.isPaneEnabled(paneIndex)) {
+                        for (ConceptSpecification paneItem: personaItem.getDefaultItemsForPane(paneIndex)) {
+                            if (NODE_FACTORY_MAP.containsKey(paneItem)) {
+                                NodeFactory factory = NODE_FACTORY_MAP.get(paneItem);
                                 addTabFromFactory(factory, getTabPaneFromIndex(paneIndex));
                             } else {
-                                FxGet.dialogs().showErrorDialog("Persona Creation Error",
-                                        "Can't create default item for: " + Get.conceptDescriptionText(defaultItem),
-                                        "Persona: " + personaItem.nameProperty().get() + "\nAvailable factories:  \n" + NODE_FACTORY_MAP.keySet());
+                                FxGet.dialogs().showErrorDialog("Preference Restoration Error",
+                                        "Can't restore item for: " + Get.conceptDescriptionText(paneItem),
+                                        "Item: " + personaItem.nameProperty().get() + "\nAvailable factories:  \n" + NODE_FACTORY_MAP.keySet());
                             }
                         }
-                        saveSettings();
                     }
+
+                    saveSettings();
                 } else {
+                    // add the actual pane items...
+                    for (ConceptSpecification paneItem: nodeListForPaneIndex) {
+                        if (NODE_FACTORY_MAP.containsKey(paneItem)) {
+                            NodeFactory factory = NODE_FACTORY_MAP.get(paneItem);
+                            addTabFromFactory(factory, getTabPaneFromIndex(paneIndex));
+                        } else {
+                            FxGet.dialogs().showErrorDialog("Restore pane error",
+                                    "Can't create item for: " + Get.conceptDescriptionText(paneItem),
+                                    "Available factories:  \n" + NODE_FACTORY_MAP.keySet());
+                        }
+                    }
+                }
+                 if (!windowPreferencesItem.isPaneEnabled(paneIndex)) {
                     switch (paneIndex) {
                         case 0:
                             this.windowSplitPane.getItems().remove(this.leftHBox);

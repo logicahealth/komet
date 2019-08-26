@@ -74,7 +74,7 @@ public class ConceptCorrelationView {
         ConceptCorrelationView correlationView = new ConceptCorrelationView(manifold, "temp");
         Stage stage = correlationView.stage;
         stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
-        stage.getProperties().put(WindowProperties.NAME_SUFFIX, " correlation "  +  Integer.toString(MenuProvider.WINDOW_SEQUENCE.incrementAndGet()));
+        stage.getProperties().put(WindowProperties.NAME_SUFFIX, " correlation");
         stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
                         FxGet.configurationName() +
                         stage.getProperties().get(WindowProperties.NAME_SUFFIX));
