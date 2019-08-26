@@ -155,7 +155,7 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
 
         this.enableCenterPaneProperty.set(getPreferencesNode().getBoolean(Keys.ENABLE_CENTER_PANE, true));
         this.centerPaneDefaultsProperty.setAll(getPreferencesNode().getConceptList(Keys.CENTER_PANE_DEFAULTS,
-                List.of(MetaData.CONCEPT_DETAILS_PANEL____SOLOR, MetaData.CONCEPT_DETAILS_PANEL____SOLOR)));
+                List.of(MetaData.CONCEPT_DETAILS_PANEL____SOLOR, MetaData.CONCEPT_DETAILS_PANEL____SOLOR, MetaData.CONCEPT_DETAILS_PANEL____SOLOR)));
         this.centerPaneOptionsProperty.setAll(getPreferencesNode().getConceptList(Keys.CENTER_PANE_OPTIONS,
                 List.of(standardTabFactoryList)));
 

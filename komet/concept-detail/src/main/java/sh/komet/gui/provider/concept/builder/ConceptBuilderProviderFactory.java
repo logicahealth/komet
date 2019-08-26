@@ -49,7 +49,7 @@ public class ConceptBuilderProviderFactory implements DetailNodeFactory {
 
     @Override
     public String getMenuText() {
-        return "Concept builder";
+        return "Concept Builder";
     }
 
     @Override

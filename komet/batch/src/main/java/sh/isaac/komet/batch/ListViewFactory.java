@@ -16,7 +16,7 @@ import javax.inject.Singleton;
 @Singleton
 public class ListViewFactory implements ExplorationNodeFactory<ListViewNode> {
 
-    public static final String LIST_VIEW = "List view";
+    public static final String LIST_VIEW = "List View";
 
     @Override
     public ListViewNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {

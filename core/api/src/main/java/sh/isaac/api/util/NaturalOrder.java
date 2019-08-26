@@ -39,7 +39,10 @@
 
 package sh.isaac.api.util;
 
+import java.io.Serializable;
 import java.util.Comparator;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Looking for more efficient implementation than AplphanumComparator which allocates memory,
@@ -49,8 +52,7 @@ import java.util.Comparator;
  * @author kec
  */
 public class NaturalOrder implements Comparator<String> {
-   
-   
+
    /**
     * From stack overflow...
     * The implementation I propose here is simple and efficient. 

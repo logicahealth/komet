@@ -78,6 +78,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
 import sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory;
 import sh.isaac.komet.iconography.Iconography;
@@ -485,7 +486,7 @@ public class KometStageController
                                 "Available factories:  " + NODE_FACTORY_MAP.keySet());
                     }
                 }
-                menuItems.sort(Comparator.comparing(MenuItem::getText));
+                menuItems.sort((o1, o2) -> NaturalOrder.compareStrings(o1.getText(), o2.getText()));
                 newTabMenuButtons.get(paneIndex).getItems().addAll(menuItems);
                 if (addDefaults) {
                     this.preferencesNode.putBoolean(Keys.ADD_DEFAULTS, false);
@@ -615,7 +616,7 @@ public class KometStageController
                         (factory) -> {
                             addTabFactory(factory, tabPane, menuItems);
                         });
-        menuItems.sort(Comparator.comparing(MenuItem::getText));
+        menuItems.sort((o1, o2) -> NaturalOrder.compareStrings(o1.getText(), o2.getText()));
 
         TabWrapper wrapped = TabWrapper.wrap(tabPane, menuItems.toArray(new MenuItem[menuItems.size()]));
         newTabMenuButtons.add(wrapped.getAddTabMenuButton());
