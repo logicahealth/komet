@@ -747,7 +747,6 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 		this.mapToIsa.add("tradename_of");
 		this.mapToIsa.add("has_tradename");
 
-		//Right now, we are configured for the CPT grouping modules nid
 		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.RXNORM_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(),
 				converterUUID, RXNORM_TERMINOLOGY_NAME, false);
 
@@ -755,8 +754,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 				Optional.of("http://www.nlm.nih.gov/research/umls/rxnorm"), defaultTime);
 
 		//Set up our metadata hierarchy
-		//Currently still configured to load description types by mapping them to solor types
-		dwh.makeMetadataHierarchy(true, true, false, true, true, true, defaultTime);
+		dwh.makeMetadataHierarchy(true, true, true, true, true, true, defaultTime);
 
 		loadMetaData();
 
@@ -1851,6 +1849,12 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 
 		UUID cuiConcept;
 		boolean isSCT = false;
+		
+		if (conceptTime == Long.MAX_VALUE)
+		{
+			conceptTime = defaultTime;
+		}
+		
 
 		if ((uniqueSABs.size() == 1) && uniqueSABs.iterator().next().equals(this.sctSab))
 		{
@@ -1945,7 +1949,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 
 				if (descriptionTime == null)
 				{
-					descriptionTime = conceptTime < defaultTime ? conceptTime : defaultTime;
+					descriptionTime = conceptTime;
 				}
 				
 				UUID desc = dwh.makeDescription(converterUUID.createNamespaceUUIDFromStrings(cuiConcept.toString(), atom.rxaui),
