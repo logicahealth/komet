@@ -52,6 +52,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.Get;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.Status;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
@@ -152,11 +153,21 @@ public class DynamicUsageDescriptionImpl
       }
 
       if (StringUtils.isEmpty(this.semanticUsageDescription)) {
-         throw new RuntimeException(
-             "The Assemblage concept: " + assemblageConcept +
-             " is not correctly assembled for use as an Assemblage for " +
-             "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type " +
-             "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION");
+         if (Get.configurationService().getDBBuildMode().get() == BuildMode.IBDF) {
+            //Non-fatal in this case - we may be building a DB such that the semantic is defined, but the descriptions haven't been loaded.  
+            //Happens in optimized IBDF preload situations.
+            logger.warn(
+                     "The Assemblage concept: " + assemblageConcept +
+                     " is not correctly assembled for use as an Assemblage for " +
+                     "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type " +
+                     "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION");
+         } else {
+            throw new RuntimeException(
+                "The Assemblage concept: " + assemblageConcept +
+                " is not correctly assembled for use as an Assemblage for " +
+                "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type " +
+                "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION");
+         }
       }
 
       Get.assemblageService()
