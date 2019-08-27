@@ -701,7 +701,7 @@ public class DirectWriteHelper
 
 	/**
 	 * Properly update the taxonomy service for graph changes made. Ensure to call this at some point after calling
-	 * {@link #makeParentGraph(UUID, List, Status, long)}
+	 * {@link #makeParentGraph(UUID, Collection, Status, long)}
 	 */
 	public void processTaxonomyUpdates()
 	{
@@ -744,7 +744,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * Set up a hierarchy under {@link MetaData#SOLOR_CONTENT_METADATA____SOLOR} for various assemblage types for a specific terminology import.
+	 * Set up a hierarchy under {@link MetaData#CONTENT_METADATA____SOLOR} for various assemblage types for a specific terminology import.
 	 * 
 	 * @param makeAttributeTypes - create the {terminologyName} Attribute Types node. This is used for arbitrary property types.
 	 * @param makeDescriptionTypes - create the {terminologyName} Description Types node. The is used for extended (native) description types.
@@ -753,7 +753,8 @@ public class DirectWriteHelper
 	 *            NOT make this description type node a child of {@link MetaData#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR}, rather, just
 	 *            placing it in the terminology metadata hierarchy. In this case, individual terminology types should be created with two parents - one being
 	 *            {@link MetaData#DESCRIPTION_TYPE____SOLOR}, and the other being the concept created here. The description should also be annotated
-	 *            with {@link MetaData#DYNAMIC_DESCRIPTION_CORE_TYPE}
+	 *            with {@link DynamicConstants#DYNAMIC_DESCRIPTION_CORE_TYPE}.  See {@link #makeDescriptionTypeConcept(UUID, String, String, String, UUID, List, long)}
+	 *            for a method that does this.
 	 * @param makeAssociationTypes - create the {terminologyName} Association Types node. This is used for associations/relationships that don't go
 	 *            into the logic graph.
 	 * @param makeRefsets - create the {terminologyName} Refsets node. This is for all member refset types
@@ -1445,7 +1446,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * @return The UUID of the association types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)},
+	 * @return The UUID of the association types node from {@link #makeMetadataHierarchy(boolean, boolean, boolean, boolean, boolean, boolean, long)},
 	 *         if it has been created.
 	 */
 	public Optional<UUID> getAssociationTypesNode()
@@ -1454,7 +1455,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * @return The UUID of the attribute types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)},
+	 * @return The UUID of the attribute types node from {@link #makeMetadataHierarchy(boolean, boolean, boolean, boolean, boolean, boolean, long)},
 	 *         if it has been created.
 	 */
 	public Optional<UUID> getAttributeTypesNode()
@@ -1463,7 +1464,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * @return The UUID of the description types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)},
+	 * @return The UUID of the description types node from {@link #makeMetadataHierarchy(boolean, boolean, boolean, boolean, boolean, boolean, long)},
 	 *         if it has been created.
 	 */
 	public Optional<UUID> getDescriptionTypesNode()
@@ -1472,7 +1473,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * @return The UUID of the refset types node from {@link #makeMetadataHierarchy(String, boolean, boolean, boolean, boolean, boolean, long)},
+	 * @return The UUID of the refset types node from {@link #makeMetadataHierarchy(boolean, boolean, boolean, boolean, boolean, boolean, long)},
 	 *         if it has been created.
 	 */
 	public Optional<UUID> getRefsetTypesNode()
@@ -1500,7 +1501,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * Return the UUID of the concept that matches the description created by {@link #makeDescriptionTypeConcept(String, String, String, UUID, long)}
+	 * Return the UUID of the concept that matches the description created by {@link #makeDescriptionTypeConcept(UUID, String, String, String, UUID, List, long)}
 	 * 
 	 * @param descriptionName the name or altName of the description
 	 * @return the UUID of the concept that represents it
@@ -1511,7 +1512,7 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * @return all description names fed into {@link #makeDescriptionTypeConcept(String, String, String, UUID, long)}
+	 * @return all description names fed into {@link #makeDescriptionTypeConcept(UUID, String, String, String, UUID, List, long)}
 	 */
 	public Set<String> getDescriptionTypes()
 	{
@@ -1520,7 +1521,7 @@ public class DirectWriteHelper
 	
 	/**
 	 * Return the UUID of the concept that matches the description created by 
-	 * {@link #makeAssociationTypeConcept(UUID, String, String, String, String, String, IsaacObjectType, VersionType, List, long)
+	 * {@link #makeAssociationTypeConcept(UUID, String, String, String, String, String, IsaacObjectType, VersionType, List, long)}
 	 * 
 	 * @param associationName the name or altName of the association
 	 * @return the UUID of the concept that represents it
@@ -1532,7 +1533,7 @@ public class DirectWriteHelper
 	
 	/**
 	 * Return the UUID of the concept that matches the description created by 
-	 * {@link #makeAssociationTypeConcept(UUID, String, String, String, String, String, IsaacObjectType, VersionType, List, long)
+	 * {@link #makeAssociationTypeConcept(UUID, String, String, String, String, String, IsaacObjectType, VersionType, List, long)}
 	 * 
 	 * where the List parameter for the additional parents contained the concept {@link #getRelationTypesNode()}
 	 * @param relationshipName the name relationship
@@ -1544,7 +1545,7 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * Return the UUID of the concept that matches the description created by {@link #makeAttributeTypeConcept(String, String, boolean, DynamicDataType, List, long)}
+	 * Return the UUID of the concept that matches the description created by {@link #makeAttributeTypeConcept(UUID, String, String, String, boolean, DynamicDataType, List, long)}
 	 * 
 	 * @param attributeName the name or altName of the attribute
 	 * @return the UUID of the concept that represents it
@@ -1564,7 +1565,7 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * Return the UUID of the concept that matches the description created by {@link #makeRefsetTypeConcept(String, String, long)}
+	 * Return the UUID of the concept that matches the description created by {@link #makeRefsetTypeConcept(UUID, String, String, String, long)}
 	 * 
 	 * @param refsetName the name or altName of the description
 	 * @return the UUID of the concept that represents it
@@ -1606,7 +1607,7 @@ public class DirectWriteHelper
 	/**
 	 * A convenience method that calls {@link #getOtherType(UUID, String)} with {@link #getOtherMetadataRootType(String)} as the first 
 	 * parameter
-	 * @param otherMetadataGroup The string name that was passed into {@link #makeOtherMetadataRootNode(String, long);}
+	 * @param otherMetadataGroup The string name that was passed into {@link #makeOtherMetadataRootNode(String, long)}
 	 * @param otherName The string type that was passed into {@link #makeOtherTypeConcept(UUID, UUID, String, String, String, String, DynamicDataType, List, long)}
 	 * @return The UUID of the concept that represents the type.
 	 */
