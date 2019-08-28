@@ -6,22 +6,28 @@ import javafx.scene.control.TextArea;
 import javafx.util.Pair;
 import org.controlsfx.control.CheckListView;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+import sh.komet.gui.control.wizard.WizardController;
+import sh.komet.gui.control.wizard.WizardDataTypes;
 import sh.komet.gui.control.wizard.WizardType;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipFile;
 
 /**
  * 8/21/19
  * aks8m - https://github.com/aks8m
  */
-public class ImportConfigWizardControllerView implements WizardModel<Pair<SupportedConverterTypes, Path>, List<String>> {
+public class ImportConfigWizardControllerView implements WizardController {
 
-    private Pair<SupportedConverterTypes, Path> initializationModel;
+    private SupportedConverterTypes supportedConverterTypes;
+    private Path pathToImport;
     private final List<String> pathsNotSelectedForImport = new ArrayList<>();
+    private Map<WizardDataTypes, Object> wizardDatamap;
+    private WizardType wizardType;
 
     @FXML
     TextArea sourceDescriptionTextArea;
@@ -34,24 +40,35 @@ public class ImportConfigWizardControllerView implements WizardModel<Pair<Suppor
     }
 
     @Override
-    public List<String> getModel() {
-        return this.pathsNotSelectedForImport;
+    public void setWizardData(Map<WizardDataTypes, Object> wizardDataMap) {
+        this.wizardDatamap = wizardDataMap;
+        this.supportedConverterTypes = (SupportedConverterTypes) wizardDataMap.get(WizardDataTypes.SUPPORTED_IMPORTER_TYPE);
+        this.pathToImport = (Path) wizardDataMap.get(WizardDataTypes.PATH_TO_IMPORT);
+        initializeWizardView();
+    }
+
+    @Override
+    public Map<WizardDataTypes, Object> getWizardData() {
+        return this.wizardDatamap;
+    }
+
+    @Override
+    public void setWizardType(WizardType wizardType) {
+        this.wizardType = wizardType;
     }
 
     @Override
     public WizardType getWizardType() {
-        return WizardType.IMPORT_SPECIFICATION_CONFIGURATION;
+        return this.wizardType;
     }
 
-    @Override
-    public void initializeWizardModel(Pair<SupportedConverterTypes, Path> initialWizardModel) {
-        this.initializationModel = initialWizardModel;
-        this.sourceDescriptionTextArea.setText(initialWizardModel.getKey().getSourceVersionDescription());
+    public void initializeWizardView() {
+        this.sourceDescriptionTextArea.setText(this.supportedConverterTypes.getSourceVersionDescription());
 
-        try(ZipFile zipFile = new ZipFile(initialWizardModel.getValue().toFile())) {
+        try(ZipFile zipFile = new ZipFile(this.pathToImport.toFile())) {
             zipFile.stream()
                     .forEach(zipEntry -> {
-                String displayString = zipEntry.toString().replace(initialWizardModel.getValue().getFileName().toString()
+                String displayString = zipEntry.toString().replace(this.pathToImport.getFileName().toString()
                         .replace(".zip", "/"), "");
                 if(!zipEntry.isDirectory() && !displayString.equals("")){
                     this.fileCheckListView.getItems().add(displayString);

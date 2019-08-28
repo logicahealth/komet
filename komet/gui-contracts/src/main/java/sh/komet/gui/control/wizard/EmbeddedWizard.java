@@ -9,16 +9,12 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Pair;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
-import sh.isaac.pombuilder.converter.SupportedConverterTypes;
-import sh.komet.gui.control.wizard.controller.WizardModel;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -31,10 +27,10 @@ public class EmbeddedWizard extends AnchorPane {
     private final BooleanProperty cancelSelected = new SimpleBooleanProperty(false);
     private final BooleanProperty finishSelected = new SimpleBooleanProperty(false);
     private final HashSet<String> previousButtonFilteredViews = new HashSet<>();
-    private final LinkedHashMap<UUID, WizardModel> mvcMap;
+    private final List<WizardController> wizardControllerList;
 
     private EmbeddedWizard(Builder builder){
-        this.mvcMap = builder.mvcMap;
+        this.wizardControllerList = builder.wizardControllerList;
         this.wizard.setFlow(new Wizard.LinearFlow(builder.wizardPanes));
 
         try {
@@ -91,34 +87,14 @@ public class EmbeddedWizard extends AnchorPane {
         return finishSelected;
     }
 
-    public WizardModel getModel(int wizardViewIndex){
-
-
-        return this.mvcMap.entrySet().stream().skip(wizardViewIndex - 1).findFirst().get().getValue();
-    }
-
-    public WizardModel getModel(UUID wizardViewUUID){
-        return this.mvcMap.get(wizardViewUUID);
-    }
-
-    public List<WizardModel> getModels(){
-        return new ArrayList<>(this.mvcMap.values());
-    }
-
-    public List<WizardModel> getModels(WizardType wizardType){
-        return null;
-    }
-
-    public List<WizardModel> getModels(UUID... wizardViewUUID){
-        List<UUID> uuids = Arrays.asList(wizardViewUUID);
-
-        return null;
+    public List<WizardController> getAllWizardControllers(){
+        return this.wizardControllerList;
     }
 
     public static class Builder{
 
         private final ArrayList<WizardPane> wizardPanes = new ArrayList<>();
-        private final LinkedHashMap<UUID, WizardModel> mvcMap = new LinkedHashMap<>();
+        private final List<WizardController> wizardControllerList = new ArrayList<>();
 
         private Builder(){}
 
@@ -126,31 +102,22 @@ public class EmbeddedWizard extends AnchorPane {
             return new Builder();
         }
 
-        public Builder createWizardView(WizardType wizardType, Object wizardViewData){
-            try{
-                WizardPane newWizardPane = new WizardPane();
-                UUID newWizardPaneUUID = UUID.randomUUID();
+        public void addNewWizardView(WizardType wizardType, Map<WizardDataTypes, Object> wizardData){
+            WizardPane newWizardPane = new WizardPane();
+            UUID newWizardPaneUUID = UUID.randomUUID();
 
+            try{
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(wizardType.getFxmlPath()));
                 newWizardPane.setId(newWizardPaneUUID.toString());
                 newWizardPane.setContent(loader.load());
-
-                switch (wizardType){
-                    case IMPORT_SPECIFICATION_CONFIGURATION:
-                        WizardModel<Pair<SupportedConverterTypes, Path>, List<String>> wizardModel = loader.getController();
-                        wizardModel.initializeWizardModel((Pair<SupportedConverterTypes, Path>) wizardViewData);
-                        this.mvcMap.put(newWizardPaneUUID, wizardModel);
-                        newWizardPane.setHeaderText("Configure " +
-                                ((Pair<SupportedConverterTypes, Path>) wizardViewData).getKey().getNiceName() + " " +
-                                "Import");
-                }
-
+                WizardController wizardController = loader.getController();
+                wizardController.setWizardData(wizardData);
+                wizardController.setWizardType(wizardType);
+                this.wizardControllerList.add(wizardController);
                 this.wizardPanes.add(newWizardPane);
             }catch (IOException exception){
                 throw new RuntimeException(exception);
             }
-
-            return this;
         }
 
         public EmbeddedWizard build(){

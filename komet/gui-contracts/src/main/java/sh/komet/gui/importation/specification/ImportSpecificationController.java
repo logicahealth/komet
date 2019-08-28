@@ -7,13 +7,13 @@ import javafx.stage.FileChooser;
 import javafx.util.Pair;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.komet.gui.control.wizard.EmbeddedWizard;
+import sh.komet.gui.control.wizard.WizardDataTypes;
 import sh.komet.gui.control.wizard.WizardType;
 import sh.komet.gui.manifold.Manifold;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -44,10 +44,15 @@ public class ImportSpecificationController {
             EmbeddedWizard.Builder wizardBuilder = EmbeddedWizard.Builder.newInstance();
 
             pathsToImport.stream()
-                    .forEach(converterTypeAndPathPair ->
-                            wizardBuilder.createWizardView(
-                                    WizardType.IMPORT_SPECIFICATION_CONFIGURATION,
-                                    converterTypeAndPathPair));
+                    .forEach(converterTypeAndPathPair ->{
+                        Map<WizardDataTypes, Object> wizardData = new HashMap<>();
+
+                        wizardData.put(WizardDataTypes.PATH_TO_IMPORT, converterTypeAndPathPair.getValue());
+                        wizardData.put(WizardDataTypes.SUPPORTED_IMPORTER_TYPE, converterTypeAndPathPair.getKey());
+                        wizardData.put(WizardDataTypes.WIZARD_HEADER_TEXT, "Configure " +
+                                converterTypeAndPathPair.getKey().getNiceName() + " Importer");
+                        wizardBuilder.addNewWizardView(WizardType.IMPORT_SPECIFICATION_CONFIGURATION, wizardData);
+                    });
 
             this.embeddedWizard = wizardBuilder.build();
 
@@ -56,8 +61,7 @@ public class ImportSpecificationController {
                 this.closeExplorationNode.set(true);
             });
             this.embeddedWizard.finishSelectedProperty().addListener((observableValue, aBoolean, t1) -> {
-
-
+                //TODO pass in the path, support convertery type (order), and list of files to ignore to the Direct Importer Manager
             });
 
         } else{
