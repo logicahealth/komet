@@ -384,10 +384,10 @@ public class TaxonomyRecord {
     public int length() {
         int length = 0;
 
-        length = this.conceptNidRecordMap.values()
-                .stream()
-                .map((record) -> record.length())
-                .reduce(length, Integer::sum);
+        for (TypeStampTaxonomyRecords value : this.conceptNidRecordMap.values())
+        {
+            length += value.length();
+        }
         return length + this.conceptNidRecordMap.size();
     }
 
