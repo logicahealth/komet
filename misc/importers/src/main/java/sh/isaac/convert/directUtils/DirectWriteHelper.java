@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
@@ -708,9 +709,28 @@ public class DirectWriteHelper
 		HashSet<Integer> temp = deferredTaxonomyUpdates;
 		deferredTaxonomyUpdates = new HashSet<>();
 		log.debug("Processing deferred taxonomy updates for {} graphs", temp.size());
+		ArrayList<Future<?>> futures = new ArrayList<>(temp.size());
 		for (int nid : temp)
 		{
-			taxonomyService.updateTaxonomy(assemblageService.getSemanticChronology(nid));
+			futures.add(Get.workExecutors().getExecutor().submit(() -> taxonomyService.updateTaxonomy(assemblageService.getSemanticChronology(nid))));
+		}
+		int i = 0;
+		//wait for all completions
+		for (Future<?> f : futures)
+		{
+			try
+			{
+				f.get();
+				i++;
+				if (i % 10000 == 0)
+				{
+					log.info("Processed {} out of {}", i, temp.size());
+				}
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException("Unexected", e);
+			}
 		}
 	}
 	
@@ -722,8 +742,28 @@ public class DirectWriteHelper
 		List<BooleanSupplier> temp = delayedValidations;
 		delayedValidations = new ArrayList<>();
 		log.debug("Processing delayed validations for {} items", temp.size());
-		for (BooleanSupplier bs : temp) {
-			bs.getAsBoolean();
+		ArrayList<Future<?>> futures = new ArrayList<>(temp.size());
+		for (BooleanSupplier bs : temp) 
+		{
+			futures.add(Get.workExecutors().getExecutor().submit(() -> bs.getAsBoolean()));
+		}
+		int i = 0;
+		//wait for all completions
+		for (Future<?> f : futures)
+		{
+			try
+			{
+				f.get();
+				i++;
+				if (i % 10000 == 0)
+				{
+					log.info("Processed {} out of {}", i, temp.size());
+				}
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException("Unexected", e);
+			}
 		}
 	}
 
