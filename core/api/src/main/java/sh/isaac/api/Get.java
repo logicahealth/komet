@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
@@ -206,17 +205,11 @@ public class Get
    private static PreferencesService preferencesService;
    
    private static final IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = new IntObjectHashMap<>();
-   private static CountDownLatch termAuxCacheLatch = new CountDownLatch(1);
-
-   
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new Get.
     */
    public Get() {}
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Active tasks.
@@ -515,27 +508,23 @@ public class Get
     * @return A concept specification for the corresponding identifier
     */
    public static ConceptSpecification conceptSpecification(int nid) {
-       try {
-           if (nid >= 0) {
-               throw new IllegalStateException("Nids must be < 0: " + nid);
-           }
-           if (TERM_AUX_CACHE.isEmpty()) {
-               for (ConceptSpecification conceptSpecification: TermAux.getAllSpecs()) {
-                   TERM_AUX_CACHE.put(conceptSpecification.getNid(), conceptSpecification);
-               }
-               termAuxCacheLatch.countDown();
-           }
-           termAuxCacheLatch.await();
-           if (TERM_AUX_CACHE.containsKey(nid)) {
-               return TERM_AUX_CACHE.get(nid);
-           }
-           return new ConceptProxy(nid);
-       } catch (InterruptedException ex) {
-           throw new RuntimeException();
+       if (nid >= 0) {
+           throw new IllegalStateException("Nids must be < 0: " + nid);
        }
-   }
-   
-   
+       if (TERM_AUX_CACHE.isEmpty()) {
+          synchronized (TERM_AUX_CACHE) {
+             if (TERM_AUX_CACHE.isEmpty()) {
+                for (ConceptSpecification conceptSpecification: TermAux.getAllSpecs()) {
+                      TERM_AUX_CACHE.put(conceptSpecification.getNid(), conceptSpecification);
+                  }
+             }
+          }
+       }
+       if (TERM_AUX_CACHE.containsKey(nid)) {
+           return TERM_AUX_CACHE.get(nid);
+       }
+       return new ConceptProxy(nid);
+   } 
 
    /**
     * Note, this method may fail during bootstrap, if concept being requested is not already loaded
@@ -846,7 +835,6 @@ public class Get
       dataStore                       = null;
       preferencesService              = null;
       TERM_AUX_CACHE.clear();
-      termAuxCacheLatch = new CountDownLatch(1);
    }
 
    public static ScheduledExecutorService scheduledExecutor() {
