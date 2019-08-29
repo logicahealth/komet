@@ -188,9 +188,11 @@ public class LoincCsvFileReader extends LOINCReader
 					new SimpleDateFormat("MMMyyyy"), new SimpleDateFormat("MM/dd/yy") };
 			try (final BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(relNotes.get(), StandardOpenOption.READ))))
 			{
+				int lineNo = 1;
 				String line = br.readLine();
 				boolean first = true;
 				String versionCache = null;
+				boolean betaVersion = false;
 
 				while (line != null)
 				{
@@ -199,11 +201,17 @@ public class LoincCsvFileReader extends LOINCReader
 						final String temp = line.substring(line.indexOf("Version") + "Version ".length());
 
 						versionCache = temp.replace('|', ' ').trim();
+						//Our regex doesn't match beta lines
+						betaVersion = false;
 
 						if (first)
 						{
 							this.version = versionCache;
 						}
+					}
+					else if (line.contains("Beta"))
+					{
+						betaVersion = true;
 					}
 
 					if (line.matches("\\s*\\|\\s*Released [\\w\\s/,]*\\|"))
@@ -245,7 +253,14 @@ public class LoincCsvFileReader extends LOINCReader
 
 						if (versionCache == null)
 						{
-							log.error("No version for line " + line);
+							if (betaVersion)
+							{
+								log.info("Ignoring Beta release for line " + lineNo + ": " + line);
+							}
+							else
+							{
+								log.error("No version for line " + lineNo + ": " + line);
+							}
 						}
 						else
 						{
@@ -256,6 +271,7 @@ public class LoincCsvFileReader extends LOINCReader
 					}
 
 					line = br.readLine();
+					lineNo++;
 				}
 
 				br.close();

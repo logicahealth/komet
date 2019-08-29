@@ -188,21 +188,21 @@ public abstract class LOINCReader
 				supportedVersion = 7;
 				mapFileName = "classMappings-2.56.txt";
 			}
-			else if (version.contains("2.59"))
+			else if (version.contains("2.59") || version.contains("2.63"))
 			{
 				supportedVersion = 8;
 				mapFileName = "classMappings-2.59.txt";
 			}
-			else if (version.contains("2.63"))
+			else if (version.contains("2.65") || version.contains("2.66"))
 			{
 				supportedVersion = 9;
-				mapFileName = "classMappings-2.59.txt";  //TODO, need to update this
+				mapFileName = "classMappings-2.66.txt";
 			}
 			else
 			{
 				log.error("ERROR: UNTESTED VERSION - NO TESTED PROPERTY MAPPING EXISTS!");
 				supportedVersion = 9;
-				mapFileName = "classMappings-2.59.txt";
+				mapFileName = "classMappings-2.66.txt";
 			}
 		}
 		return supportedVersion;

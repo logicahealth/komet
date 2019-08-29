@@ -112,11 +112,10 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	}
 
 	/**
-	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
+	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent(Consumer, BiConsumer)}
 	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
 	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String,
-	 *      sh.isaac.api.coordinate.StampCoordinate)
+	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(File, Path, String, StampCoordinate)
 	 */
 	@Override
 	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
@@ -135,8 +134,8 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer) 
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer)
 	 */
 	@Override
 	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
@@ -165,17 +164,20 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 						loincData.set(new LoincCsvFileReader(path, true));
 						this.versionTimeMap = ((LoincCsvFileReader) loincData.get()).getTimeVersionMap();
 					}
-					else if (path.toString().toLowerCase().endsWith("map_to.csv"))
+					else if (path.toString().toLowerCase().endsWith("map_to.csv") ||
+							path.toString().toLowerCase().endsWith("mapto.csv"))
 					{
 						log.info("Reading map_to.csv");
 						mapTo.set(new LoincCsvFileReader(path, false));
 					}
-					else if (path.toString().toLowerCase().endsWith("source_organization.csv"))
+					else if (path.toString().toLowerCase().endsWith("source_organization.csv") ||
+							path.toString().toLowerCase().endsWith("sourceorganization.csv"))
 					{
 						log.info("Reading source_organization.csv");
 						sourceOrg.set(new LoincCsvFileReader(path, false));
 					}
-					else if (path.toString().toLowerCase().endsWith("multi-axial_hierarchy.csv"))
+					else if (path.toString().toLowerCase().endsWith("multiaxialhierarchy.csv") 
+							|| path.toString().toLowerCase().endsWith("multi-axial_hierarchy.csv"))
 					{
 						log.info("Reading multi-axial_hierarchy.csv");
 						loincMultiData.set(new LoincCsvFileReader(path, false));
@@ -199,20 +201,23 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 										((LoincCsvFileReader) loincData.get()).readReleaseNotes(path.getParent(), true);
 										this.versionTimeMap = ((LoincCsvFileReader) loincData.get()).getTimeVersionMap();
 									}
-									else if (ze.getName().toLowerCase().endsWith("map_to.csv"))
+									else if (ze.getName().toLowerCase().endsWith("map_to.csv") || ze.getName().toLowerCase().endsWith("mapto.csv"))
 									{
 										log.info("Using the data file " + path + " - " + ze.getName());
 										mapTo.set(new LoincCsvFileReader(zis));
 									}
-									else if (ze.getName().toLowerCase().endsWith("source_organization.csv"))
+									else if (ze.getName().toLowerCase().endsWith("source_organization.csv") || 
+											ze.getName().toLowerCase().endsWith("sourceorganization.csv"))
 									{
 										log.info("Using the data file " + path + " - " + ze.getName());
 										sourceOrg.set(new LoincCsvFileReader(zis));
 									}
 								}
-								else if (path.toString().toLowerCase().contains("multi-axial_hierarchy"))
+								else if (path.toString().toLowerCase().contains("multi-axial_hierarchy") ||
+										path.toString().toLowerCase().contains("multiaxialhierarchy"))
 								{
-									if (ze.getName().toLowerCase().contains("multi-axial") && ze.getName().toLowerCase().endsWith(".csv"))
+									if ((ze.getName().toLowerCase().contains("multiaxial") || ze.getName().toLowerCase().contains("multi-axial")) 
+											&& ze.getName().toLowerCase().endsWith(".csv"))
 									{
 										log.info("Using the data file " + path + " - " + ze.getName());
 										loincMultiData.set(new LoincCsvFileReader(zis));
@@ -313,11 +318,9 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 					// ﻿"COPYRIGHT_ID","NAME","COPYRIGHT","TERMS_OF_USE","URL"
 					if (line.length > 0)
 					{
-						UUID lineConcept = dwh.makeConceptEnNoDialect(null, line[0], MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+						UUID lineConcept = dwh.makeConceptEnNoDialect(null, line[1], dwh.getDescriptionType("NAME"),
 								new UUID[] { sourceOrgUuid }, Status.ACTIVE, releaseDate.getTime());
-
-						dwh.makeDescriptionEnNoDialect(lineConcept, line[1], dwh.getDescriptionType("NAME"), Status.ACTIVE, releaseDate.getTime());
-
+						dwh.makeStringAnnotation(dwh.getAttributeType("COPYRIGHT_ID"), lineConcept, line[0], releaseDate.getTime());
 						dwh.makeStringAnnotation(dwh.getAttributeType("COPYRIGHT"), lineConcept, line[2], releaseDate.getTime());
 						dwh.makeStringAnnotation(dwh.getAttributeType("TERMS_OF_USE"), lineConcept, line[3], releaseDate.getTime());
 						dwh.makeStringAnnotation(dwh.getAttributeType("URL"), lineConcept, line[4], releaseDate.getTime());
@@ -666,11 +669,11 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			dwh.makeAttributeTypeConcept(null, "ValidHL7AttachmentRequest", "Valid HL7 Attachment Request", null, false, DynamicDataType.STRING, null, time);
 		}
 		
-//		if (sourceVersion <= 8)
-//		{
-			//the release notes claim this was deleted in 2.63, but doesn't seem to have been
+		if (sourceVersion <= 8)
+		{
+			//the release notes claim this was deleted in 2.63, but doesn't seem to have been - looks like, now, it was removed in 2.65
 			dwh.makeAttributeTypeConcept(null, "DOCUMENT_SECTION", "Document Section", null, false, DynamicDataType.STRING, null, time);
-//		}
+		}
 		
 		dwh.makeAttributeTypeConcept(null, "CHNG_TYPE", "Change Type", null, false, DynamicDataType.STRING, null, time);
 		dwh.makeAttributeTypeConcept(null, "CLASSTYPE", "Class Type", null, false, DynamicDataType.STRING, null, time);
@@ -702,6 +705,7 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, time, readbackCoordinate);
 
 		// From Source_Organization
+		dwh.makeAttributeTypeConcept(null, "COPYRIGHT_ID", "Copyright ID", null, true, null, null, time);
 		dwh.makeAttributeTypeConcept(null, "COPYRIGHT", "Copyright", null, false, DynamicDataType.STRING, null, time);
 		dwh.makeAttributeTypeConcept(null, "TERMS_OF_USE", "Terms of Use", null, false, DynamicDataType.STRING, null, time);
 		dwh.makeAttributeTypeConcept(null, "URL", "Url", null, false, DynamicDataType.STRING, null, time);
@@ -773,15 +777,16 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	private void checkPath(UUID concept, String[] pathToRoot)
 	{
 		// The passed in concept should have a relation to the item at the end of the root list.
+		UUID conceptToLookAt = concept;
 		for (int i = (pathToRoot.length - 1); i >= 0; i--)
 		{
 			final UUID target = buildUUID(pathToRoot[i]);
-			HashSet<UUID> parents = this.multiaxialPathsToRoot.get(concept);
+			HashSet<UUID> parents = this.multiaxialPathsToRoot.get(conceptToLookAt);
 
 			if (parents == null)
 			{
 				parents = new HashSet<>();
-				this.multiaxialPathsToRoot.put(concept, parents);
+				this.multiaxialPathsToRoot.put(conceptToLookAt, parents);
 			}
 
 			parents.add(target);
@@ -791,6 +796,7 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 				log.error("Missing concept! " + pathToRoot[i]);
 				break;
 			}
+			conceptToLookAt = target;
 		}
 	}
 
