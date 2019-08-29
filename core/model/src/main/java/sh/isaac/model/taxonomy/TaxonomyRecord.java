@@ -625,7 +625,7 @@ public class TaxonomyRecord {
         this.conceptNidRecordMap.forEachPair((int destinationSequence,
                 TypeStampTaxonomyRecords stampRecords) -> {
             stampRecords.forEach((typeStampFlag) -> {
-                if (typeSet.contains(typeStampFlag.typeNid)) {
+                if (typeSet.contains(typeStampFlag.getTypeNid())) {
                     conceptSequenceIntStream.accept(destinationSequence);
                 }
             });
@@ -733,7 +733,7 @@ public class TaxonomyRecord {
         this.conceptNidRecordMap.forEachPair((int possibleParentNid,
                 TypeStampTaxonomyRecords stampRecords) -> {
             stampRecords.forEach((typeStampFlag) -> {
-                if (typeStampFlag.typeNid == isaNid) {
+                if (typeStampFlag.getTypeNid() == isaNid) {
                     conceptNidIntStream.accept(possibleParentNid);
                 }
             });
@@ -766,11 +766,11 @@ public class TaxonomyRecord {
                 stampRecords.forEach((record) -> {
                     if ((record.getTaxonomyFlags() & flags) == flags) {
                         if (computer.onRoute(record.getStampSequence())) {
-                            if (!typeStampStreamMap.containsKey(record.typeNid)) {
-                                typeStampStreamMap.put(record.typeNid, new OpenIntHashSet());
+                            if (!typeStampStreamMap.containsKey(record.getTypeNid())) {
+                                typeStampStreamMap.put(record.getTypeNid(), new OpenIntHashSet());
                             }
 
-                            typeStampStreamMap.get((record.typeNid))
+                            typeStampStreamMap.get((record.getTypeNid()))
                                     .add(record.getStampSequence());
                         }
                     }
