@@ -255,7 +255,7 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			setupModule("LOINC", MetaData.LOINC_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://loinc.org"), releaseDate.getTime());
 
 			//Set up our metadata hierarchy
-			dwh.makeMetadataHierarchy(true, true, true, true, true, true, releaseDate.getTime());
+			dwh.makeMetadataHierarchy(true, true, true, true, true, false, releaseDate.getTime());
 
 			this.fieldMap = loincData.get().getFieldMap();
 			this.fieldMapInverse = loincData.get().getFieldMapInverse();
@@ -320,7 +320,7 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 					{
 						UUID lineConcept = dwh.makeConceptEnNoDialect(null, line[1], dwh.getDescriptionType("NAME"),
 								new UUID[] { sourceOrgUuid }, Status.ACTIVE, releaseDate.getTime());
-						dwh.makeStringAnnotation(dwh.getAttributeType("COPYRIGHT_ID"), lineConcept, line[0], releaseDate.getTime());
+						dwh.makeBrittleStringAnnotation(dwh.getAttributeType("COPYRIGHT_ID"), lineConcept, line[0], releaseDate.getTime());
 						dwh.makeStringAnnotation(dwh.getAttributeType("COPYRIGHT"), lineConcept, line[2], releaseDate.getTime());
 						dwh.makeStringAnnotation(dwh.getAttributeType("TERMS_OF_USE"), lineConcept, line[3], releaseDate.getTime());
 						dwh.makeStringAnnotation(dwh.getAttributeType("URL"), lineConcept, line[4], releaseDate.getTime());
@@ -713,7 +713,7 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		// From MAP_TO
 		dwh.makeAttributeTypeConcept(null, "COMMENT", "Comment", null, false, DynamicDataType.STRING, null, time);
 
-		dwh.makeAttributeTypeConcept(null, "LOINC_NUM", "LOINC Identifier", null, "Carries the LOINC_NUM native identifier", false, DynamicDataType.STRING,
+		dwh.makeAttributeTypeConcept(null, "LOINC_NUM", "LOINC Identifier", null, "Carries the LOINC_NUM native identifier", true, null,
 				null, time);
 
 		dwh.makeAttributeTypeConcept(null, "ABBREVIATION", "Abbreviation", null, false, DynamicDataType.STRING, null, time);
@@ -1041,7 +1041,7 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 				dwh.makeStringAnnotation(dwh.getAttributeType("PATH_TO_ROOT"), concept, pathString, time);
 			}
 
-			dwh.makeStringAnnotation(dwh.getAttributeType("LOINC_NUM"), concept, code, time);
+			dwh.makeBrittleStringAnnotation(dwh.getAttributeType("LOINC_NUM"), concept, code, time);
 			dwh.makeBrittleStringAnnotation(MetaData.CODE____SOLOR.getPrimordialUuid(), concept, code, time);
 			this.concepts.add(concept);
 		}
