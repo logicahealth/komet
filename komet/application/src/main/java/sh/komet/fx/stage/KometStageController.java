@@ -194,16 +194,8 @@ public class KometStageController
     void initialize() {
         assert bottomBorderBox != null :
                 "fx:id=\"bottomBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-        assert verticalEditorSplitPane != null :
-                "fx:id=\"verticalEditorSplitPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-        assert editorButtonBar != null :
-                "fx:id=\"editorButtonBar\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-        assert editorCenterHorizontalSplitPane != null :
-                "fx:id=\"editorCenterHorizontalSplitPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
         assert editorLeftPane != null :
                 "fx:id=\"editorLeftPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-        assert editToolBar != null :
-                "fx:id=\"editToolBar\" was not injected: check your FXML file 'KometStageScene.fxml'.";
         assert leftBorderBox != null :
                 "fx:id=\"leftBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
         assert rightBorderBox != null :
@@ -406,6 +398,7 @@ public class KometStageController
 
     private void addTabFactory(NodeFactory<? extends ExplorationNode> factory, TabPane tabPane, ArrayList<MenuItem> menuItems) {
         MenuItem tabFactoryMenuItem = new MenuItem(factory.getMenuText(), factory.getMenuIcon());
+        tabFactoryMenuItem.setId("");
         tabFactoryMenuItem.setOnAction(
                 (event) -> {
                     Tab tab = new Tab(factory.getMenuText());

@@ -147,7 +147,7 @@ public class MainApp
     }
 
 
-    protected Parent setupStageMenus(Stage stage, BorderPane root) throws MultiException {
+    public Parent setupStageMenus(Stage stage, BorderPane root) throws MultiException {
         BorderPane stageRoot = root;
         // Get the toolkit
         MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
