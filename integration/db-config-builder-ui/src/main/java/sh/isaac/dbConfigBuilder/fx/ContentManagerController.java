@@ -1907,6 +1907,7 @@ public class ContentManagerController
 					options.add("-s");
 					options.add(sp_.getMavenSettingsFile());
 					options.add("-e");
+					options.add("-llr");  //Don't validate files with the path where they came from (legacy mode)
 					options.add("clean");
 					if (opInstall.isSelected() && !opDeploy.isSelected())
 					{
