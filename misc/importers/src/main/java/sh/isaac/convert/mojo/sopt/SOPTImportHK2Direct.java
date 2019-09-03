@@ -184,12 +184,15 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		dwh.makeDescriptionTypeConcept(null, SOPTValueSetColumnsV1.ValueSetDefinition.name(), null, null,
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		//dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
+		//This appears in both the concept and valueset tabs, one is likely an error, just make it once.  It doesn't appear to be used yet anyway.
+		dwh.makeDescriptionTypeConcept(null, SOPTDataColumnsV1.ValueSetConceptDefinitionText.name(), null, null,
+				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
+		
 		
 		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.CodeSystemOID.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.CodeSystemVersion.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.CodeSystemCode.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.ConceptCode.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.ConceptCode.name(), null, null, true, null, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.HL7Table0396Code.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.PreferredAlternateCode.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetCode.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
@@ -248,6 +251,7 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 						dwh.makeBrittleStringAnnotation(dwh.getAttributeType(md.getKey().name()), valueSetConcept, md.getValue(), contentTime);
 						break;
 					case ValueSetDefinition:
+					case ValueSetConceptDefinitionText:
 						dwh.makeDescriptionEnNoDialect(valueSetConcept, md.getValue(), dwh.getDescriptionType(md.getKey().name()), 
 								Status.ACTIVE, contentTime);
 						break;
@@ -286,6 +290,7 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			String codeSystemCode = dataFetchers.get(SOPTDataColumnsV1.CodeSystemCode).apply(row);
 			String codeSystemVersion = dataFetchers.get(SOPTDataColumnsV1.CodeSystemVersion).apply(row);
 			String hl7TableCode = dataFetchers.get(SOPTDataColumnsV1.HL7Table0396Code).apply(row);
+			String valueSetConceptDefinitionText= dataFetchers.get(SOPTDataColumnsV1.ValueSetConceptDefinitionText).apply(row);
 			
 			String key = codeSystemOid + codeSystemName + codeSystemCode + codeSystemVersion + hl7TableCode;
 			
@@ -318,8 +323,14 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 				dwh.makeDescriptionEnNoDialect(concept, preferredConceptName, dwh.getDescriptionType(SOPTDataColumnsV1.PreferredConceptName.name()), 
 						Status.ACTIVE, contentTime);
 			}
+			
+			if (StringUtils.isNotBlank(valueSetConceptDefinitionText))
+			{
+				dwh.makeDescriptionEnNoDialect(concept, valueSetConceptDefinitionText, dwh.getDescriptionType(SOPTDataColumnsV1.ValueSetConceptDefinitionText.name()), 
+						Status.ACTIVE, contentTime);
+			}
 
-			dwh.makeStringAnnotation(dwh.getAttributeType(SOPTDataColumnsV1.ConceptCode.name()), concept, conceptCode, contentTime);
+			dwh.makeBrittleStringAnnotation(dwh.getAttributeType(SOPTDataColumnsV1.ConceptCode.name()), concept, conceptCode, contentTime);
 			
 			if (StringUtils.isNotBlank(preferredAltCode))
 			{
