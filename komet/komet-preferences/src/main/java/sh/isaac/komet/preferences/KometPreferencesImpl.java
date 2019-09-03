@@ -79,7 +79,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     }
 
     private void recursiveUpdate(TreeItem<PreferenceGroup> treeItem, UUID preference, String title) {
-        if (treeItem.getValue().getTreeItem().preferences.name().equals(preference.toString())) {
+        if (treeItem.getValue().getTreeItem().getPreferences().name().equals(preference.toString())) {
             treeItem.getValue().groupNameProperty().set(title);
         } else {
             for (TreeItem<PreferenceGroup> child: treeItem.getChildren()) {

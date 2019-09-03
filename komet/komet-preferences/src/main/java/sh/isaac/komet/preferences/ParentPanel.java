@@ -29,9 +29,11 @@ import javafx.scene.control.ToolBar;
 import javafx.stage.Stage;
 import sh.isaac.api.preferences.IsaacPreferences;
 
-import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
-import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.CHILDREN_NODES;
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
+import sh.komet.gui.contract.preferences.KometPreferencesController;
+import sh.komet.gui.contract.preferences.PreferencesTreeItem;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
@@ -106,7 +108,7 @@ public abstract class ParentPanel extends AbstractPreferences {
     
     private void resetUserItems(ActionEvent actionEvent) {
         FxGet.kometPreferences().resetUserPreferences();
-        Stage stage = (Stage) this.getTreeItem().controller.getPreferenceTree().getScene().getWindow();
+        Stage stage = (Stage) this.getTreeItem().getController().getPreferenceTree().getScene().getWindow();
         stage.close();
     } 
 

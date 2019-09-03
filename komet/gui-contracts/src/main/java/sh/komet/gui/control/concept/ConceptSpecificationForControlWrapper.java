@@ -19,6 +19,8 @@ package sh.komet.gui.control.concept;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.komet.gui.manifold.Manifold;
 
@@ -35,7 +37,7 @@ public class ConceptSpecificationForControlWrapper
     //~--- constructors --------------------------------------------------------
     public ConceptSpecificationForControlWrapper(ConceptSpecification spec, Manifold manifold) {
         if (spec == null) {
-            throw new NullPointerException("Spec cannot be null");
+            spec = MetaData.UNINITIALIZED_COMPONENT____SOLOR;
         }
         this.manifold = manifold;
         this.spec = spec;

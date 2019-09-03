@@ -17,10 +17,8 @@
 package sh.komet.gui.search.extended;
 
 import java.util.Optional;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -38,19 +36,25 @@ public class ExtendedSearchConceptExplorationNode implements ConceptExplorationN
     private final ExtendedSearchViewController controller;
     private final Manifold manifold;
     private final SimpleObjectProperty<ConceptSpecification> conceptSpecification = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.TARGET.getIconographic());
 
     public ExtendedSearchConceptExplorationNode(ExtendedSearchViewController controller, Manifold manifold) {
         this.controller = controller;
         this.manifold = manifold;
         controller.getSearchResults().getSelectionModel().selectedItemProperty().addListener(this::selectedSearchResultChanged);
     }
+    @Override
+    public void savePreferences() {
+
+    }
 
     /**
      * {@inheritDoc}
+     * @return
      */
     @Override
-    public Node getMenuIcon() {
-        return Iconography.TARGET.getIconographic();
+    public ObjectProperty<Node> getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     @Override

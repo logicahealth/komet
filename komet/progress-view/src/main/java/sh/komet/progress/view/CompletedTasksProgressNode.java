@@ -1,6 +1,6 @@
 package sh.komet.progress.view;
 
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
@@ -10,10 +10,10 @@ import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.manifold.Manifold;
 
-import javax.swing.*;
 import java.util.Optional;
 
 public class CompletedTasksProgressNode extends TaskProgressNode {
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.CHECKERED_FLAG.getIconographic());
 
     public CompletedTasksProgressNode(Manifold manifold) {
         super(manifold);
@@ -23,6 +23,11 @@ public class CompletedTasksProgressNode extends TaskProgressNode {
                 .addAll(completedTasks.get());
         this.title.setValue(TasksCompletedNodeFactory.TITLE_BASE);
         this.titledNodeTitle.setValue(TasksCompletedNodeFactory.TITLE_BASE);
+    }
+
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -45,8 +50,8 @@ public class CompletedTasksProgressNode extends TaskProgressNode {
     }
 
     @Override
-    public Node getMenuIcon() {
-        return Iconography.CHECKERED_FLAG.getIconographic();
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     @Override

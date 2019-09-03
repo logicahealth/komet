@@ -12,11 +12,13 @@ import sh.isaac.api.preferences.IsaacPreferences;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 
 public interface WindowPreferencesItem {
     void save();
     void revert();
+    UUID getWindowUuid();
     StringProperty getWindowName();
     IsaacPreferences getPreferenceNode();
     SimpleDoubleProperty xLocationProperty();
@@ -25,7 +27,7 @@ public interface WindowPreferencesItem {
     SimpleDoubleProperty widthProperty();
     PersonaItem getPersonaItem();
     void setPersonaItem(PersonaItem personaItem);
-    ObservableList<ConceptSpecification> getNodesList(int paneIndex);
+    ObservableList<TabSpecification> getNodesList(int paneIndex);
     SimpleBooleanProperty enableLeftPaneProperty();
     SimpleBooleanProperty enableCenterPaneProperty();
     SimpleBooleanProperty enableRightPaneProperty();

@@ -18,7 +18,6 @@ package sh.isaac.komet.preferences;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -44,11 +43,12 @@ import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_LOCAL
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_PASSWORD;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_URL;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_USER_NAME;
-import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.ITEM_ACTIVE;
 import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
+import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.SynchronizationItem;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetItemStringListWrapper;

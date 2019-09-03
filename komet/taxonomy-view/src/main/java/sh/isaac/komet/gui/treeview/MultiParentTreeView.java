@@ -79,7 +79,6 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
-import org.controlsfx.control.ToggleSwitch;
 import sh.isaac.api.Get;
 import sh.isaac.api.RefreshListener;
 import sh.isaac.api.Status;
@@ -243,10 +242,14 @@ public class MultiParentTreeView
 
         LOG.debug("Tree View construct time: {}", System.currentTimeMillis() - startTime);
     }
+    @Override
+    public void savePreferences() {
+
+    }
 
     @Override
-    public Node getMenuIcon() {
-        return Iconography.TAXONOMY_ICON.getIconographic();
+    public SimpleObjectProperty<Node> getMenuIconProperty() {
+        return iconProperty;
     }
 
     private void dragDropped(DragEvent event) {

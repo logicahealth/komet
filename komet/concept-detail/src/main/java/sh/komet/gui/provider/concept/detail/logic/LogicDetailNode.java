@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
@@ -70,6 +71,7 @@ public class LogicDetailNode
     private final BorderPane conceptDetailPane = new BorderPane();
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.LAMBDA.getIconographic());
     private final Manifold conceptDetailManifold;
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final ConceptLabelToolbar conceptLabelToolbar;
@@ -87,6 +89,11 @@ public class LogicDetailNode
         getLogicDetail();
     }
 
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
+    }
+
     private void setConceptListener(ObservableValue<? extends ConceptSpecification> observable,
             ConceptSpecification oldSpec,
             ConceptSpecification newSpec) {
@@ -95,8 +102,8 @@ public class LogicDetailNode
     }
 
     @Override
-    public Node getMenuIcon() {
-       return Iconography.LAMBDA.getIconographic();
+    public SimpleObjectProperty getMenuIconProperty() {
+       return menuIconProperty;
     }
 
     private void setConcept(ConceptSpecification newSpec) {

@@ -17,7 +17,10 @@ package sh.komet.gui.contract;
 
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.prefs.BackingStoreException;
+
 import javafx.application.Platform;
+import javafx.stage.Stage;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
@@ -25,6 +28,9 @@ import javafx.stage.WindowEvent;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.preferences.IsaacPreferences;
+import sh.komet.gui.contract.preferences.PreferenceGroup;
+import sh.komet.gui.util.FxGet;
 
 /**
  * An interface various modules can implement to provide menus that will be
@@ -34,6 +40,9 @@ import sh.isaac.api.LookupService;
  */
 @Contract
 public interface MenuProvider {
+    enum Keys {
+        WINDOW_PREFERENCE_ABSOLUTE_PATH
+    }
     public static final String PARENT_PREFERENCES = MenuProvider.class.getName() + ".PARENT_PREFERENCES";
     AtomicInteger WINDOW_COUNT = new AtomicInteger(0);
 
@@ -70,7 +79,20 @@ public interface MenuProvider {
             shutdownThread.setDaemon(true);
             shutdownThread.start();
         }
-
+        String absolutePath = (String) ((Stage) e.getTarget()).getScene().getProperties().get(Keys.WINDOW_PREFERENCE_ABSOLUTE_PATH);
+        try {
+            IsaacPreferences windowPreferencesNode =
+                        Get.preferencesService().getConfigurationPreferences().node(absolutePath);
+            IsaacPreferences windowParentNode = windowPreferencesNode.parent();
+            windowPreferencesNode.clear();
+            windowPreferencesNode.flush();
+            windowPreferencesNode.removeNode();
+            windowPreferencesNode.flush();
+            PreferenceGroup.removeChild(windowParentNode, windowPreferencesNode.name());
+            windowParentNode.flush();
+        } catch (BackingStoreException ex) {
+            FxGet.dialogs().showErrorDialog(ex);
+        }
         MenuProvider.WINDOW_COUNT.decrementAndGet();
 
     }

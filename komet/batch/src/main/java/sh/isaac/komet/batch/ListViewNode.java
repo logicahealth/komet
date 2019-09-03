@@ -1,6 +1,7 @@
 package sh.isaac.komet.batch;
 
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -22,6 +23,7 @@ public class ListViewNode implements ExplorationNode {
     final SimpleStringProperty toolTip = new SimpleStringProperty("List view to create batches of content for processing, export, or similar uses.");
     final AnchorPane root;
     final ListViewNodeController controller;
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(PluginIcons.SCRIPT_ICON.getStyledIconographic());
 
     public ListViewNode(Manifold manifold) {
         try {
@@ -35,6 +37,11 @@ public class ListViewNode implements ExplorationNode {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -63,8 +70,8 @@ public class ListViewNode implements ExplorationNode {
     }
 
     @Override
-    public Node getMenuIcon() {
-        return PluginIcons.SCRIPT_ICON.getStyledIconographic();
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     @Override

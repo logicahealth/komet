@@ -70,7 +70,7 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
    */
    @Override
    public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.TAXONOMY, ManifoldGroup.SEARCH};
+      return new ManifoldGroup[] {ManifoldGroup.UNLINKED, ManifoldGroup.TAXONOMY, ManifoldGroup.SEARCH};
    }
 
     @Override

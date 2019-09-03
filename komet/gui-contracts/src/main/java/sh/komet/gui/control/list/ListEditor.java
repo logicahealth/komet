@@ -49,11 +49,17 @@ public class ListEditor<T extends Object>
     private final Manifold manifold;
     
     public ListEditor(Manifold manifold, Supplier<T> newObjectSupplier, Function<Manifold,PropertyEditor<T>> newEditorSupplier) {
-        this.editorPane.setTop(editorToolbar);
         this.editorPane.setCenter(listView);
-        this.newItem.setOnAction(this::newItem);
+
         this.newObjectSupplier = newObjectSupplier;
         this.newEditorSupplier = newEditorSupplier;
+        if (newObjectSupplier == null || newEditorSupplier == null) {
+            this.editorToolbar.setVisible(false);
+            this.newItem.setVisible(false);
+        } else {
+            this.editorPane.setTop(editorToolbar);
+            this.newItem.setOnAction(this::newItem);
+        }
         this.manifold = manifold;
         editorPane.getStylesheets()
                 .remove(FxGet.fxConfiguration().getUserCSSURL().toString());

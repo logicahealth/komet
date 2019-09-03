@@ -22,6 +22,8 @@ public interface PersonaItem {
 
     SimpleStringProperty nameProperty();
 
+    SimpleStringProperty instanceNameProperty();
+
     SimpleBooleanProperty enableLeftPaneProperty();
 
     SimpleBooleanProperty enableCenterPaneProperty();

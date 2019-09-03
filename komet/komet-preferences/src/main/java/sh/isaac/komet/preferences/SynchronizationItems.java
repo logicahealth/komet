@@ -24,13 +24,12 @@ import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferenceNodeType;
-import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
-import static sh.isaac.komet.preferences.PreferenceGroup.Keys.INITIALIZED;
-import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
-import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.PROPERTY_SHEET_CLASS;
 
+import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
+
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.*;
 
 /**
  *

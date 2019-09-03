@@ -1,12 +1,12 @@
 package sh.isaac.komet.batch;
 
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import sh.isaac.komet.batch.fxml.CompositeActionNodeController;
-import sh.isaac.komet.batch.iconography.PluginIcons;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
@@ -24,6 +24,7 @@ public class CompositeActionNode implements ExplorationNode {
     final SimpleStringProperty toolTip = new SimpleStringProperty("Action view to create composite actions");
     final AnchorPane root;
     final CompositeActionNodeController controller;
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.EDIT_PENCIL.getStyledIconographic());
 
     public CompositeActionNode(Manifold manifold) {
         try {
@@ -37,6 +38,11 @@ public class CompositeActionNode implements ExplorationNode {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -65,8 +71,8 @@ public class CompositeActionNode implements ExplorationNode {
     }
 
     @Override
-    public Node getMenuIcon() {
-        return Iconography.EDIT_PENCIL.getStyledIconographic();
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     @Override

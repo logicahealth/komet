@@ -18,6 +18,7 @@ package sh.komet.gui.control.property;
 
 import java.time.LocalDateTime;
 
+import sh.isaac.api.ComponentProxy;
 import sh.komet.gui.control.*;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import sh.komet.gui.control.concept.ConceptLabel;
@@ -71,7 +72,6 @@ import sh.komet.gui.control.measure.MeasureEditor;
 import sh.komet.gui.control.result.PropertySheetResultWrapper;
 import sh.komet.gui.control.result.ResultEditor;
 import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
-import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.time.KometDateTimePicker;
@@ -286,13 +286,13 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                 for (String manifoldGroup : Manifold.getGroupNames()) {
                     Menu manifoldHistory = new Menu(manifoldGroup);
                     labelMenu.add(manifoldHistory);
-                    Collection<HistoryRecord> groupHistory = Manifold.getGroupHistory(manifoldGroup);
-                    for (HistoryRecord record : groupHistory) {
+                    Collection<ComponentProxy> groupHistory = Manifold.getGroupHistory(manifoldGroup);
+                    for (ComponentProxy record : groupHistory) {
                         MenuItem conceptItem = new MenuItemWithText(
-                                manifoldForDisplay.getPreferredDescriptionText(record.getComponentId())
+                                manifoldForDisplay.getPreferredDescriptionText(record.getNid())
                         );
                         conceptItem.setOnAction((ActionEvent event) -> {
-                            label.setValue(record.getComponentId());
+                            label.setValue(record.getNid());
                         });
                         manifoldHistory.getItems().add(conceptItem);
                     }

@@ -53,6 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import javafx.beans.property.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
@@ -62,13 +63,6 @@ import com.sun.javafx.tk.Toolkit;
 import com.sun.javafx.tk.FontLoader;
 import javafx.application.Platform;
 import javafx.beans.binding.FloatBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
@@ -1611,12 +1605,14 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
         });
 
         return new DetailNode() {
+            private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
             /**
              * {@inheritDoc}
+             * @return
              */
             @Override
-            public Node getMenuIcon() {
-                return Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic();
+            public SimpleObjectProperty getMenuIconProperty() {
+                return menuIconProperty;
             }
 
             @Override
@@ -1657,6 +1653,11 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
             @Override
             public boolean canClose() {
                 return true;
+            }
+
+            @Override
+            public void savePreferences() {
+                throw new UnsupportedOperationException();
             }
         };
     }

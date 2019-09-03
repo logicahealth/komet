@@ -1,6 +1,7 @@
 package sh.komet.gui.exportation;
 
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -16,6 +17,7 @@ public class ExportSpecificationNode implements ExplorationNode {
     private final Manifold manifold;
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("Export specification builder");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Export specification builder");
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.ICON_EXPORT.getIconographic());
 
     private final BorderPane borderPane;
 
@@ -29,6 +31,11 @@ public class ExportSpecificationNode implements ExplorationNode {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void savePreferences() {
+
     }
 
     @Override
@@ -57,8 +64,8 @@ public class ExportSpecificationNode implements ExplorationNode {
     }
 
     @Override
-    public Node getMenuIcon() {
-        return Iconography.ICON_EXPORT.getIconographic();
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     @Override

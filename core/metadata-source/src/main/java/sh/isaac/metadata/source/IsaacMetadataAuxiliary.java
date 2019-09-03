@@ -753,6 +753,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   pushParent(current());
                      createConcept("Concept details panel").addStringSemantic(UUID.fromString("de7b7946-d001-56de-919b-0dba9459a28a"), "sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                              .getPreferredDescriptionBuilder().setDescriptionText("Concept details").setModule(TermAux.KOMET_MODULE);
+       createConcept("Concept details search-linked panel").addStringSemantic(UUID.fromString("99a62de4-b0d7-5781-87a5-02580aa6ed87"), "sh.komet.gui.provider.concept.detail.panel.ConceptDetailSearchLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Concept details - search").setModule(TermAux.KOMET_MODULE);
+       createConcept("Concept details taxonomy-linked panel").addStringSemantic(UUID.fromString("4155e905-57fb-5805-b9cd-55cfcf538e33"), "sh.komet.gui.provider.concept.detail.panel.ConceptDetailTaxonomyLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Concept details - taxonomy").setModule(TermAux.KOMET_MODULE);
                      createConcept("Concept details tree table").addStringSemantic(UUID.fromString("394e925e-3928-52f6-a0a6-b6b22813f1b5"), "sh.komet.gui.provider.concept.detail.treetable.ConceptDetailTreeTableProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                              .getPreferredDescriptionBuilder().setDescriptionText("Concept details tree table").setModule(TermAux.KOMET_MODULE);
                      createConcept("Semantic tree table panel").addStringSemantic(UUID.fromString("bbf42dbe-050c-53c5-847b-03d704f2aef9"), "sh.isaac.komet.gui.semanticViewer.SemanticViewer", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
@@ -776,9 +780,16 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(GIT_USER_NAME);
                   createConcept(GIT_PASSWORD);
                   popParent();
+               createConcept("Manifold properties").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                  createConcept("Manifold name").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Manifold focus").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Manifold history").setModule(TermAux.KOMET_MODULE);
+                  popParent();
                createConcept("Persona properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
                   createConcept("Persona name").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Persona instance name").addDescription("Instance name", TermAux.REGULAR_NAME_DESCRIPTION_TYPE).setModule(TermAux.KOMET_MODULE);
                   createConcept("Enable left pane").setModule(TermAux.KOMET_MODULE);
                   createConcept("Enable center pane").setModule(TermAux.KOMET_MODULE);
                   createConcept("Enable right pane").setModule(TermAux.KOMET_MODULE);

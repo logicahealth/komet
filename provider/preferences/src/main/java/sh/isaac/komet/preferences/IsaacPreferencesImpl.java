@@ -224,7 +224,7 @@ public class IsaacPreferencesImpl
 
       File[] extras = directory.listFiles();
 
-      if (extras.length != 0) {
+      if (extras != null && extras.length != 0) {
          LOG.warn("Found extraneous files when removing node: " + Arrays.asList(extras));
 
          for (File extra: extras) {

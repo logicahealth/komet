@@ -44,6 +44,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
@@ -70,6 +71,7 @@ public class ConceptDetailTreeTableNode
     private final BorderPane conceptDetailPane = new BorderPane();
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.CONCEPT_TABLE.getIconographic());
     private final Manifold conceptDetailManifold;
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final ConceptLabelToolbar conceptLabelToolbar;
@@ -103,6 +105,11 @@ public class ConceptDetailTreeTableNode
         }
     }
 
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
+    }
+
     private void updateTitle(ObservableValue<? extends ConceptSpecification> observable,
             ConceptSpecification oldValue,
             ConceptSpecification newValue) {
@@ -129,8 +136,8 @@ public class ConceptDetailTreeTableNode
     }
 
     @Override
-    public Node getMenuIcon() {
-        return Iconography.CONCEPT_TABLE.getIconographic();
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     @Override

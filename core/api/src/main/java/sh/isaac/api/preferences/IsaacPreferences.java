@@ -19,19 +19,12 @@ package sh.isaac.api.preferences;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
-import java.util.UUID;
+import java.util.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeListener;
+
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.util.PasswordHasher;
@@ -983,7 +976,33 @@ public interface IsaacPreferences {
         }
         put(key, builder.toString());
     }
+    default void putComponentList(Enum key, Collection<? extends ComponentProxy> list) {
+        putComponentList(enumToGeneralKey(key), list);
+    }
+    default void putComponentList(String key, Collection<? extends ComponentProxy> list) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<? extends ComponentProxy> itr = list.iterator();
+        while (itr.hasNext()) {
+            ComponentProxy componentProxy = itr.next();
+            builder.append(componentProxy.toExternalString());
+            if (itr.hasNext()) {
+                builder.append("|!%|");
+            }
+        }
+        put(key, builder.toString());
+    }
 
+    default List<ComponentProxy> getComponentList(Enum key) {
+        return getComponentList(enumToGeneralKey(key));
+    }
+    default List<ComponentProxy> getComponentList(String key) {
+        List<String> list = getList(key);
+        List<ComponentProxy> proxyList = new ArrayList<>(list.size());
+        for (String proxyString: list) {
+            proxyList.add(new ComponentProxy(proxyString));
+        }
+        return proxyList;
+    }
     default List<String> getList(Enum key) {
         return getList(enumToGeneralKey(key));
     }

@@ -20,7 +20,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
-import sh.isaac.komet.preferences.PreferenceGroup;
+import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
@@ -155,7 +155,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                 for (WindowPreferencesItem windowPreference : kometPreferences.getWindowPreferenceItems()) {
                     this.updateMessage("Opening " + windowPreference.getWindowName().get());
                     try {
-                        UUID stageUuid = UUID.randomUUID();
+                        UUID stageUuid = windowPreference.getWindowUuid();
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
                         BorderPane root = loader.load();
                         KometStageController controller = loader.getController();

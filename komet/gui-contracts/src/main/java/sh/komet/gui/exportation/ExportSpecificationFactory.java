@@ -23,7 +23,7 @@ public class ExportSpecificationFactory implements ExplorationNodeFactory {
 
     @Override
     public String getMenuText() {
-        return "Create export specification";
+        return "Create Export Specification";
     }
 
     @Override

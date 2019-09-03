@@ -8,21 +8,18 @@ import javafx.stage.Window;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.komet.preferences.KometPreferencesController;
+import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.isaac.komet.preferences.ParentPanel;
-import sh.isaac.komet.preferences.PreferenceGroup;
+import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.preferences.PersonaItem;
+import sh.komet.gui.contract.preferences.TabSpecification;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
-import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * The window preferences must be able to reconstruct, and save state for an arbitrary number of
@@ -58,12 +55,15 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         WIDTH,
         PERSONA_UUID,
         MANIFOLD,
+        /**
+         * The window uuid str is the name of the preference node associated with this window...
+         */
         WINDOW_UUID_STR,
         ENABLE_LEFT_PANE,
         ENABLE_CENTER_PANE,
         ENABLE_RIGHT_PANE,
-
     };
+
     private final SimpleBooleanProperty enableLeftPaneProperty = new SimpleBooleanProperty(this, MetaData.ENABLE_LEFT_PANE____SOLOR.toExternalString(), false);
     private final SimpleBooleanProperty enableCenterPaneProperty = new SimpleBooleanProperty(this, MetaData.ENABLE_CENTER_PANE____SOLOR.toExternalString(), false);
     private final SimpleBooleanProperty enableRightPaneProperty = new SimpleBooleanProperty(this, MetaData.ENABLE_RIGHT_PANE____SOLOR.toExternalString(), false);
@@ -71,17 +71,14 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     private final SimpleStringProperty windowNameProperty
             = new SimpleStringProperty(this, MetaData.WINDOW_CONFIGURATION_NAME____SOLOR.toExternalString());
 
-    private final SimpleListProperty<ConceptSpecification> leftTabNodesProperty =
+    private final SimpleListProperty<TabSpecification> leftTabNodesProperty =
             new SimpleListProperty<>(this, MetaData.LEFT_TAB_NODES____SOLOR.toExternalString(), FXCollections.observableArrayList());
-    private final PropertySheetConceptListWrapper leftTabsWrapper;
-    
-    private final SimpleListProperty<ConceptSpecification> centerTabNodesProperty =
-            new SimpleListProperty<>(this, MetaData.CENTER_TAB_NODES____SOLOR.toExternalString(), FXCollections.observableArrayList());
-    private final PropertySheetConceptListWrapper centerTabsWrapper;
 
-    private final SimpleListProperty<ConceptSpecification> rightTabNodesProperty =
+    private final SimpleListProperty<TabSpecification> centerTabNodesProperty =
+            new SimpleListProperty<>(this, MetaData.CENTER_TAB_NODES____SOLOR.toExternalString(), FXCollections.observableArrayList());
+
+    private final SimpleListProperty<TabSpecification> rightTabNodesProperty =
             new SimpleListProperty<>(this, MetaData.RIGHT_TAB_NODES____SOLOR.toExternalString(), FXCollections.observableArrayList());
-    private final PropertySheetConceptListWrapper rightTabsWrapper;
 
     private final SimpleDoubleProperty xLocationProperty =
             new SimpleDoubleProperty(this, MetaData.WINDOW_X_POSITION____SOLOR.toExternalString());
@@ -129,23 +126,21 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
             }
             FxGet.kometPreferences().updatePreferencesTitle(UUID.fromString(preferencesNode.name()), newValue);
         });
-        this.leftTabsWrapper = new PropertySheetConceptListWrapper(manifold, leftTabNodesProperty);
-        this.centerTabsWrapper = new PropertySheetConceptListWrapper(manifold, centerTabNodesProperty);
-        this.rightTabsWrapper = new PropertySheetConceptListWrapper(manifold, rightTabNodesProperty);
         revertFields();
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, windowNameProperty));
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableLeftPaneProperty));
-        getItemList().add(leftTabsWrapper);
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableCenterPaneProperty));
-        getItemList().add(centerTabsWrapper);
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableRightPaneProperty));
-        getItemList().add(rightTabsWrapper);
+    }
+
+    @Override
+    public UUID getWindowUuid() {
+        return UUID.fromString(getPreferenceNode().name());
     }
 
     public static String getWindowName(String prefix, String nodeName) {
         windowIds.add(nodeName);
-        String startingName;
         if (windowIds.size() > 1){
             return prefix + " " + windowIds.size();
         }
@@ -164,11 +159,11 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
                                  Manifold manifold,
                                  KometPreferencesController kpc,
                                  PersonaItem personaItem) {
-        super(preferencesNode, getGroupName(preferencesNode),
+        super(preferencesNode, getRequiredGroupName(preferencesNode),
                 manifold, kpc);
         this.personaItem = personaItem;
         windowIds.add(preferencesNode.name());
-        String startingName = getWindowName(personaItem.nameProperty().get(), preferencesNode.name());
+        String startingName = getWindowName(personaItem.instanceNameProperty().get(), preferencesNode.name());
 
         windowNameProperty.set(preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME, startingName));
         windowNameProperty.addListener((observable, oldValue, newValue) -> {
@@ -176,33 +171,26 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         });
         this.enableLeftPaneProperty.set(personaItem.enableLeftPaneProperty().getValue());
         for (ConceptSpecification defaultItem: personaItem.leftPaneDefaultsProperty()) {
-            this.leftTabNodesProperty.add(defaultItem);
+            this.leftTabNodesProperty.add(new TabSpecification(defaultItem, UUID.randomUUID()));
         }
         this.enableCenterPaneProperty.set(personaItem.enableCenterPaneProperty().getValue());
         for (ConceptSpecification defaultItem: personaItem.centerPaneDefaultsProperty()) {
-            this.centerTabNodesProperty.add(defaultItem);
+            this.centerTabNodesProperty.add(new TabSpecification(defaultItem, UUID.randomUUID()));
         }
         this.enableRightPaneProperty.set(personaItem.enableRightPaneProperty().getValue());
         for (ConceptSpecification defaultItem: personaItem.rightPaneDefaultsProperty()) {
-            this.rightTabNodesProperty.add(defaultItem);
+            this.rightTabNodesProperty.add(new TabSpecification(defaultItem, UUID.randomUUID()));
         }
-
-        this.leftTabsWrapper = new PropertySheetConceptListWrapper(manifold, leftTabNodesProperty);
-        this.centerTabsWrapper = new PropertySheetConceptListWrapper(manifold, centerTabNodesProperty);
-        this.rightTabsWrapper = new PropertySheetConceptListWrapper(manifold, rightTabNodesProperty);
         setDefaultLocationAndSize();
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, windowNameProperty));
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableLeftPaneProperty));
-        getItemList().add(leftTabsWrapper);
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableCenterPaneProperty));
-        getItemList().add(centerTabsWrapper);
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableRightPaneProperty));
-        getItemList().add(rightTabsWrapper);
     }
 
     @Override
-    public ObservableList<ConceptSpecification> getNodesList(int paneIndex) {
+    public ObservableList<TabSpecification> getNodesList(int paneIndex) {
         switch (paneIndex) {
             case 0:
                 return this.leftTabNodesProperty;
@@ -215,7 +203,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         }
     }
 
-    private static String getGroupName(IsaacPreferences preferencesNode) {
+    private static String getRequiredGroupName(IsaacPreferences preferencesNode) {
         Optional<String> name = preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME);
         if (name.isPresent()) {
             return name.get();
@@ -226,9 +214,9 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     @Override
     protected void saveFields() {
         getPreferenceNode().put(PreferenceGroup.Keys.GROUP_NAME, this.windowNameProperty.get());
-        getPreferencesNode().putConceptList(Keys.LEFT_TAB_NODES, leftTabNodesProperty);
-        getPreferencesNode().putConceptList(Keys.CENTER_TAB_NODES, centerTabNodesProperty);
-        getPreferencesNode().putConceptList(Keys.RIGHT_TAB_NODES, rightTabNodesProperty);
+        getPreferencesNode().putList(Keys.LEFT_TAB_NODES, TabSpecification.toStringList(leftTabNodesProperty));
+        getPreferencesNode().putList(Keys.CENTER_TAB_NODES, TabSpecification.toStringList(centerTabNodesProperty));
+        getPreferencesNode().putList(Keys.RIGHT_TAB_NODES, TabSpecification.toStringList(rightTabNodesProperty));
         getPreferenceNode().putDouble(Keys.X_LOC, this.xLocationProperty.doubleValue());
         getPreferenceNode().putDouble(Keys.Y_LOC, this.yLocationProperty.doubleValue());
         getPreferenceNode().putDouble(Keys.HEIGHT, this.heightProperty.doubleValue());
@@ -264,17 +252,12 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         this.enableCenterPaneProperty.set(getPreferencesNode().getBoolean(Keys.ENABLE_CENTER_PANE, true));
         this.enableRightPaneProperty.set(getPreferencesNode().getBoolean(Keys.ENABLE_RIGHT_PANE, true));
 
-        this.leftTabNodesProperty.setAll(getPreferencesNode().getConceptList(Keys.LEFT_TAB_NODES,
-                List.of(MetaData.TAXONOMY_PANEL____SOLOR)));
+        this.leftTabNodesProperty.setAll(TabSpecification.fromStringList(getPreferencesNode().getList(Keys.LEFT_TAB_NODES, new ArrayList<>())));
 
-        this.centerTabNodesProperty.setAll(getPreferencesNode().getConceptList(Keys.CENTER_TAB_NODES,
-                List.of(MetaData.CONCEPT_DETAILS_PANEL____SOLOR,
-                        MetaData.CONCEPT_DETAILS_PANEL____SOLOR)));
+        this.centerTabNodesProperty.setAll(TabSpecification.fromStringList(getPreferencesNode().getList(Keys.CENTER_TAB_NODES,new ArrayList<>())));
 
-        this.rightTabNodesProperty.setAll(getPreferencesNode().getConceptList(Keys.RIGHT_TAB_NODES,
-                List.of(MetaData.ACTIVITIES_PANEL____SOLOR,
-                        MetaData.SIMPLE_SEARCH_PANEL____SOLOR,
-                        MetaData.EXTENDED_SEARCH_PANEL____SOLOR)));
+        this.rightTabNodesProperty.setAll(TabSpecification.fromStringList(getPreferencesNode().getList(Keys.RIGHT_TAB_NODES,new ArrayList<>())));
+
         setDefaultLocationAndSize();
     }
 
@@ -284,6 +267,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         this.heightProperty.setValue(getPreferencesNode().getDouble(Keys.HEIGHT, 897));
         this.widthProperty.setValue(getPreferencesNode().getDouble(Keys.WIDTH, 1400));
     }
+
 
     @Override
     public boolean showDelete() {
@@ -363,9 +347,15 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
             this.rightTabNodesProperty.clear();
 
             if (this.personaItem != null) {
-                this.leftTabNodesProperty.addAll(this.personaItem.leftPaneDefaultsProperty().get());
-                this.centerTabNodesProperty.addAll(this.personaItem.centerPaneDefaultsProperty().get());
-                this.rightTabNodesProperty.addAll(this.personaItem.rightPaneDefaultsProperty().get());
+                for (ConceptSpecification defaultItem: personaItem.leftPaneDefaultsProperty()) {
+                    this.leftTabNodesProperty.add(new TabSpecification(defaultItem, UUID.randomUUID()));
+                }
+                for (ConceptSpecification defaultItem: personaItem.centerPaneDefaultsProperty()) {
+                    this.centerTabNodesProperty.add(new TabSpecification(defaultItem, UUID.randomUUID()));
+                }
+                for (ConceptSpecification defaultItem: personaItem.rightPaneDefaultsProperty()) {
+                    this.rightTabNodesProperty.add(new TabSpecification(defaultItem, UUID.randomUUID()));
+                }
             }
         }
     }

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
@@ -58,6 +59,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
    private final Manifold manifold;
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("listing of assemblage members");
    private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty assemblage view");
+   private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.PAPERCLIP.getIconographic());
    private final ConceptLabelToolbar conceptLabelToolbar;
 
    public AssemblageViewProvider(Manifold manifold) {
@@ -80,8 +82,13 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
       }
 
    }
-   
-   private void focusConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
+
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
+    }
+
+    private void focusConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
            ConceptSpecification oldValue,
            ConceptSpecification newValue) {
       if (newValue == null) {
@@ -95,8 +102,8 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
    }
    
    @Override
-   public Node getMenuIcon() {
-      return Iconography.PAPERCLIP.getIconographic();
+   public SimpleObjectProperty getMenuIconProperty() {
+      return menuIconProperty;
    }
    
    @Override

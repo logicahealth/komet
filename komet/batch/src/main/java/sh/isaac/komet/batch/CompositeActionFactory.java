@@ -15,7 +15,7 @@ import javax.inject.Singleton;
 @Singleton
 public class CompositeActionFactory implements ExplorationNodeFactory<CompositeActionNode> {
 
-    public static final String ACTION_VIEW = "Composite action";
+    public static final String ACTION_VIEW = "Composite Action";
 
     @Override
     public CompositeActionNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {

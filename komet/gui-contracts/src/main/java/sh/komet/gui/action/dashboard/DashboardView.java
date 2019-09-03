@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -98,6 +99,7 @@ public class DashboardView
     private final TableView<AssemblageDashboardRow> assemblageTableView;
     private AssemblageDashboardStats assemblageStats;
     private Future<?> statsFuture;
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.DASHBOARD.getIconographic());
 
     public DashboardView(Manifold manifold) {
         this.manifold = manifold;
@@ -174,11 +176,15 @@ public class DashboardView
         assemblageTableView.getSelectionModel().selectedItemProperty().addListener(this::selectionListener);
         updateSystemTiles();
     }
+    @Override
+    public void savePreferences() {
+
+    }
 
 
     @Override
-    public Node getMenuIcon() {
-        return Iconography.DASHBOARD.getIconographic();
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     private void setCellAlignment(Cell<Integer> cell) {

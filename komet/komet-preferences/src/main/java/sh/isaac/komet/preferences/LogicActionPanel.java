@@ -30,6 +30,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.model.observable.ObservableFields;
+import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.LogicItem;
 import sh.komet.gui.control.PropertyEditorType;
 import sh.komet.gui.control.PropertySheetTextWrapper;

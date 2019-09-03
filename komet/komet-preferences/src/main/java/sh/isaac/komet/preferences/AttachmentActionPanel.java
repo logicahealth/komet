@@ -36,6 +36,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.model.observable.ObservableFields;
 import sh.komet.gui.contract.preferences.AttachmentItem;
+import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.control.PropertyEditorType;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
@@ -92,7 +93,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
     public AttachmentActionPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(preferencesNode,
-                getGroupName(preferencesNode),
+                getGroupNameForAction(preferencesNode),
                 manifold, kpc);
         nameProperty.set(groupNameProperty().get());
         nameProperty.addListener((observable, oldValue, newValue) -> {
@@ -115,7 +116,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         assemblageForActionProperty.addListener(this::handleAssemblageChange);
     }
 
-    private static String getGroupName(IsaacPreferences preferencesNode) {
+    private static String getGroupNameForAction(IsaacPreferences preferencesNode) {
         if (preferencesNode.hasKey("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME")) {
             String actionName = preferencesNode.get("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME", "");
             preferencesNode.remove("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME");

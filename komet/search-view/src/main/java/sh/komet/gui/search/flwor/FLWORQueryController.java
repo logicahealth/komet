@@ -132,7 +132,6 @@ import sh.isaac.api.query.Query;
 import sh.isaac.api.query.SortSpecification;
 import sh.isaac.api.query.clauses.*;
 import sh.isaac.api.util.NaturalOrder;
-import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.xml.Jaxb;
@@ -267,6 +266,7 @@ public class FLWORQueryController
 
     @FXML
     private ContextMenu resultTableContextMenu;
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.FLWOR_SEARCH.getIconographic());
 
     private ClauseTreeItem root;
     private Manifold manifold;
@@ -288,9 +288,14 @@ public class FLWORQueryController
     double resultTableMouseY = 0;
 
     //~--- methods -------------------------------------------------------------
+
     @Override
-    public Node getMenuIcon() {
-        return Iconography.FLWOR_SEARCH.getIconographic();
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
+    }
+    @Override
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     public Query getQuery() {

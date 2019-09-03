@@ -41,29 +41,26 @@ package sh.komet.gui.manifold;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.function.Supplier;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 
+import sh.isaac.MetaData;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
@@ -83,6 +80,7 @@ import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.interfaces.EditInFlight;
 
@@ -108,21 +106,37 @@ public class Manifold
     private static final WeakHashMap<Manifold, Object>              MANIFOLD_CHANGE_LISTENERS = new WeakHashMap<>();
 
    private static final HashMap<String, Supplier<Node>>            ICONOGRAPHIC_SUPPLIER     = new HashMap<>();
-   private static final HashMap<String, ArrayDeque<HistoryRecord>> GROUP_HISTORY_MAP         = new HashMap<>();
+   private static final HashMap<String, SimpleListProperty<ComponentProxy>> GROUP_HISTORY_MAP         = new HashMap<>();
+   private static final HashMap<String, SimpleObjectProperty<ConceptSpecification>> FOCUS_CONCEPT_MAP         = new HashMap<>();
+
    private static final ObservableSet<EditInFlight>                EDITS_IN_PROCESS = FXCollections.observableSet();
 
    public enum ManifoldGroup {UNLINKED("unlinked"), SEARCH("search"), 
    TAXONOMY("taxonomy"), FLWOR("flwor"), CLINICAL_STATEMENT("statement"),
    CORRELATION("correlation"), KOMET("KOMET");
       private String groupName;
-      private ManifoldGroup(String name) {
-         this.groupName = name;
+      private UUID groupUuid;
+      private ManifoldGroup(String groupName) {
+         this.groupName = groupName;
+         this.groupUuid = UuidT5Generator.get(UUID.fromString("2e2c07eb-ecdb-5e90-812d-488b1c743272"), this.name());
       }
-      
+
+      public UUID getGroupUuid() {
+          return groupUuid;
+      }
+
       public String getGroupName() {
          return groupName;
       }
-      
+
+      public static Optional<ManifoldGroup> getFromGroupUuid(UUID groupUuid) {
+            for (ManifoldGroup manifoldGroup: ManifoldGroup.values()) {
+                if (manifoldGroup.groupUuid.equals(groupUuid)) {
+                    return Optional.of(manifoldGroup);
+                }
+            }
+            return Optional.empty();
+      }
    }
    
    //~--- static initializers -------------------------------------------------
@@ -139,7 +153,7 @@ public class Manifold
    //~--- fields --------------------------------------------------------------
 
    private final SimpleObjectProperty<ConceptSnapshotService> conceptSnapshotProperty = new SimpleObjectProperty<>();
-   final ArrayDeque<HistoryRecord>                            manifoldHistory         = new ArrayDeque<>();
+   final SimpleListProperty<ComponentProxy> manifoldHistory         = new SimpleListProperty<>(this, MetaData.MANIFOLD_HISTORY____SOLOR.toExternalString(), FXCollections.observableList(new LinkedList<>()));
    final SimpleStringProperty                                 groupNameProperty;
    final SimpleObjectProperty<UUID>                           manifoldUuidProperty;
    final ObservableManifoldCoordinate                         observableManifoldCoordinate;
@@ -148,24 +162,33 @@ public class Manifold
 
    //~--- constructors --------------------------------------------------------
 
-   private Manifold(String name,
-                    UUID manifoldUuid,
-                    ObservableManifoldCoordinate observableManifoldCoordinate,
-                    ObservableEditCoordinate editCoordinate) {
-      this(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, null);
-   }
 
    private Manifold(String group,
                     UUID manifoldUuid,
                     ObservableManifoldCoordinate observableManifoldCoordinate,
-                    ObservableEditCoordinate editCoordinate,
-                    ConceptSpecification focusedObject) {
+                    ObservableEditCoordinate editCoordinate) {
       this.groupNameProperty                = new SimpleStringProperty(group);
       this.manifoldUuidProperty             = new SimpleObjectProperty<>(manifoldUuid);
       this.observableManifoldCoordinate     = observableManifoldCoordinate;
       this.observableEditCoordinate         = editCoordinate;
-      this.focusedConceptSpecificationProperty = new SimpleObjectProperty<>(focusedObject);
+      this.focusedConceptSpecificationProperty = new SimpleObjectProperty<>();
       this.focusedConceptSpecificationProperty.addListener(new WeakChangeListener<>(this));
+      SimpleListProperty<ComponentProxy> groupHistory = getGroupHistory(group);
+      if (groupHistory != null) {
+           this.manifoldHistory.set(groupHistory);
+      }
+       this.groupNameProperty.addListener((observable, oldValue, newValue) -> {
+            SimpleListProperty<ComponentProxy> historyForGroup = getGroupHistory(newValue);
+            this.manifoldHistory.set(historyForGroup);
+           if (!ManifoldGroup.UNLINKED.groupName.equals(oldValue)) {
+               this.focusedConceptSpecificationProperty.unbindBidirectional(getGroupFocusProperty(oldValue));
+           }
+           if (!ManifoldGroup.UNLINKED.groupName.equals(newValue)) {
+               SimpleObjectProperty<ConceptSpecification> focusToBind = getGroupFocusProperty(newValue);
+               this.focusedConceptSpecificationProperty.set(focusToBind.getValue());
+               this.focusedConceptSpecificationProperty.bindBidirectional(getGroupFocusProperty(newValue));
+           }
+       });
 
       // MANIFOLD_CHANGE_LISTENERS is a map with weak reference keys, so the following line is not a leak...
       MANIFOLD_CHANGE_LISTENERS.put(this, null);
@@ -180,12 +203,11 @@ public class Manifold
       if (newValue != null) {
          MANIFOLD_CHANGE_LISTENERS.forEach(
              (manifold, u) -> {
-                HistoryRecord historyRecord = new HistoryRecord(
+                 ComponentProxy historyRecord = new ComponentProxy(
                                                   newValue.getNid(),
                                                         manifold.getFullySpecifiedDescriptionText(newValue));
-                ArrayDeque<HistoryRecord> groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
-                                                            ManifoldGroup.UNLINKED.getGroupName(),
-                                                                   k -> new ArrayDeque<>());
+                ObservableList<ComponentProxy> groupHistory = getGroupHistory(
+                                                            ManifoldGroup.UNLINKED.getGroupName());
 
                 addHistory(historyRecord, groupHistory);
 
@@ -195,7 +217,7 @@ public class Manifold
                    manifold.focusedConceptProperty()
                            .set(newValue);
                    addHistory(historyRecord, manifold.manifoldHistory);
-                   groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(manifold.getGroupName(), k -> new ArrayDeque<>());
+                   groupHistory = getGroupHistory(manifold.getGroupName());
                    addHistory(historyRecord, groupHistory);
                 }
              });
@@ -208,8 +230,7 @@ public class Manifold
           groupNameProperty.get(),
           UUID.randomUUID(),
           observableManifoldCoordinate.deepClone(),
-          observableEditCoordinate.deepClone(),
-          focusedConceptSpecificationProperty.get());
+          observableEditCoordinate.deepClone());
    }
 
    public SimpleObjectProperty<ConceptSpecification> focusedConceptProperty() {
@@ -253,15 +274,7 @@ public class Manifold
                                       UUID manifoldUuid,
                                       ObservableManifoldCoordinate observableManifoldCoordinate,
                                       ObservableEditCoordinate editCoordinate) {
-      return new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, null);
-   }
-
-   public static Manifold newManifold(String name,
-                                      UUID manifoldUuid,
-                                      ObservableManifoldCoordinate observableManifoldCoordinate,
-                                      ObservableEditCoordinate editCoordinate,
-                                      ConceptChronology focusedObject) {
-      return new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, focusedObject);
+      return new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate);
    }
 
    public LatestVersion<String> getDescriptionText(int conceptNid) {
@@ -284,14 +297,17 @@ public class Manifold
              focusedConceptSpecificationProperty + '}';
    }
 
-   private static void addHistory(HistoryRecord history, ArrayDeque<HistoryRecord> historyDequeue) {
-      if (historyDequeue.isEmpty() ||!historyDequeue.peekFirst().equals(history)) {
-         historyDequeue.push(history);
+   private static void addHistory(ComponentProxy history, ObservableList<ComponentProxy> historyDequeue) {
+       if (history.getNid() == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
+            return;
+       }
+       if (historyDequeue.isEmpty() ||!historyDequeue.get(0).equals(history)) {
+         historyDequeue.add(0, history);
 
          while (historyDequeue.size() > 50) {
-            historyDequeue.removeLast();
+            historyDequeue.remove(51, historyDequeue.size());
          }
-      }
+       }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -340,7 +356,7 @@ public class Manifold
 
    public void setFocusedConceptChronology(ConceptChronology newFocusedObject) {
       if (newFocusedObject != null) {
-         HistoryRecord history = new HistoryRecord(
+          ComponentProxy history = new ComponentProxy(
                                      newFocusedObject.getNid(),
                                      getFullySpecifiedDescriptionText(newFocusedObject));
 
@@ -352,11 +368,18 @@ public class Manifold
 
    //~--- get methods ---------------------------------------------------------
 
-   public static Collection<HistoryRecord> getGroupHistory(String groupName) {
-      return GROUP_HISTORY_MAP.computeIfAbsent(groupName, k -> new ArrayDeque<>());
-   }
+    public static SimpleListProperty<ComponentProxy> getGroupHistory(String groupName) {
+        return GROUP_HISTORY_MAP.computeIfAbsent(groupName, k -> new SimpleListProperty<>(null, MetaData.MANIFOLD_HISTORY____SOLOR.toExternalString(), FXCollections.observableList(new LinkedList<>())));
+    }
 
-   public String getGroupName() {
+    public static SimpleObjectProperty<ConceptSpecification> getGroupFocusProperty(String groupName) {
+       if (ManifoldGroup.UNLINKED.groupName.equals(groupName)) {
+           return new SimpleObjectProperty<>();
+       }
+       return FOCUS_CONCEPT_MAP.computeIfAbsent(groupName, k -> new SimpleObjectProperty<>());
+    }
+
+    public String getGroupName() {
       return groupNameProperty.get();
    }
 
@@ -372,7 +395,7 @@ public class Manifold
       return ICONOGRAPHIC_SUPPLIER.keySet();
    }
 
-   public Collection<HistoryRecord> getHistoryRecords() {
+   public SimpleListProperty<ComponentProxy> getHistoryRecords() {
       return manifoldHistory;
    }
 

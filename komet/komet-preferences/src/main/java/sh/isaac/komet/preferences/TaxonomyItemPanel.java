@@ -16,8 +16,6 @@
  */
 package sh.isaac.komet.preferences;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -25,7 +23,6 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import sh.isaac.MetaData;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.TaxonomySnapshot;
@@ -39,6 +36,7 @@ import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.INVERSE_TREES;
 import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.ROOTS;
 import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.TREES;
 
+import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.TaxonomyItem;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
@@ -75,7 +73,7 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
     public TaxonomyItemPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(preferencesNode,
-                getGroupName(preferencesNode),
+                getGroupName(preferencesNode, "Taxonomy configuration"),
                 manifold, kpc);
         nameProperty.set(groupNameProperty().get());
         nameProperty.addListener((observable, oldValue, newValue) -> {
@@ -89,10 +87,6 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
         getItemList().add(new PropertySheetConceptListWrapper(manifold, treeListProperty));
         getItemList().add(new PropertySheetConceptListWrapper(manifold, inverseTreeListProperty));
 
-    }
-    
-    private static String getGroupName(IsaacPreferences preferencesNode) {
-        return preferencesNode.get(Keys.ITEM_NAME, "Taxonomy configuration");
     }
 
     @Override

@@ -50,6 +50,7 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
     private final SimpleObjectProperty<LogicalExpression> expressionProperty = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.LAMBDA.getIconographic());
 
     private final Manifold conceptDetailManifold;
     private ManifoldLinkedConceptLabel titleLabel = null;
@@ -66,7 +67,12 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
             getLogicDetail();
         });
     }
-    
+
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
+    }
+
     public final SimpleObjectProperty<LogicalExpression> expressionProperty() {
         return expressionProperty;
     }
@@ -82,8 +88,8 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
     
 
     @Override
-    public Node getMenuIcon() {
-       return Iconography.LAMBDA.getIconographic();
+    public SimpleObjectProperty getMenuIconProperty() {
+       return menuIconProperty;
     }
 
 

@@ -4,6 +4,11 @@
 
 package sh.komet.fx.stage;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +19,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import sh.isaac.api.Get;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.util.NaturalOrder;
@@ -60,11 +66,17 @@ public class SelectDataSourceController {
 
     @FXML
     void cancelButtonPressed(ActionEvent event) {
-        System.exit(0);
+        Platform.exit();
     }
 
     @FXML
     void okButtonPressed(ActionEvent event) {
+
+        FadeTransition ft = new FadeTransition(Duration.millis(2000), rootBorderPane.getScene().getRoot());
+        ft.setFromValue(1.0);
+        ft.setToValue(0.01);
+        ft.play();
+
         switch (dataSourceChoiceBox.getValue()) {
             case Database:
                 System.setProperty("ISAAC_PSQL_URL", databaseLoginController.getDatabaseUrl());
@@ -97,8 +109,6 @@ public class SelectDataSourceController {
                     } else {
                         FxGet.dialogs().showInformationDialog("No folder selected", "Please select a folder or select cancel to quit KOMET");
                     }
-
-
                 }
                 break;
             case Environment:
@@ -172,6 +182,11 @@ public class SelectDataSourceController {
         }
         fileListView.getItems().sort(new NaturalOrder());
         fileListView.getSelectionModel().selectFirst();
+        fileListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                okButtonPressed(null);
+            }
+        });
 
     }
 

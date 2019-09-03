@@ -14,11 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.preferences;
+package sh.komet.gui.contract.preferences;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.manifold.Manifold;
+
+import java.util.List;
 
 /**
  *
@@ -27,7 +30,9 @@ import sh.komet.gui.manifold.Manifold;
 public interface PreferenceGroup {
     enum Keys {
         INITIALIZED, 
-        GROUP_NAME;
+        GROUP_NAME,
+        PROPERTY_SHEET_CLASS,
+        CHILDREN_NODES
     }
 
     /**
@@ -92,4 +97,12 @@ public interface PreferenceGroup {
     PreferencesTreeItem getTreeItem();
     
     void setTreeItem(PreferencesTreeItem item);
+
+
+    public static void removeChild(IsaacPreferences preferences, String uuidStr) {
+        List<String> propertySheetChildren = preferences.getList(Keys.CHILDREN_NODES);
+        propertySheetChildren.remove(uuidStr);
+        preferences.putList(Keys.CHILDREN_NODES, propertySheetChildren);
+    }
+
 }

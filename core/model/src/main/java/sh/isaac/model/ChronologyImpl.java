@@ -63,6 +63,7 @@ import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
@@ -221,24 +222,28 @@ public abstract class ChronologyImpl
             return true;
         }
 
-        if ((o == null) || (!Objects.equals(getClass(), o.getClass()))) {
+        if ((o == null) || (! (o instanceof IdentifiedObject))) {
             return false;
         }
 
-        final ChronologyImpl that = (ChronologyImpl) o;
+        final IdentifiedObject that = (IdentifiedObject) o;
 
-        if (this.nid != that.nid) {
+        if (this.nid != that.getNid()) {
             return false;
         }
 
-        final List<Version> versionList = (List<Version>) getVersionList();
+        if (o instanceof ChronologyImpl) {
+            final ChronologyImpl thatChronology = (ChronologyImpl) o;
+            final List<Version> versionList = (List<Version>) getVersionList();
 
-        if (versionList.size() != that.getVersionList().size()) {
-            return false;
+            if (versionList.size() != thatChronology.getVersionList().size()) {
+                return false;
+            }
+
+            return StampSequenceSet.of(getVersionStampSequences())
+                    .equals(StampSequenceSet.of(thatChronology.getVersionStampSequences()));
         }
-
-        return StampSequenceSet.of(getVersionStampSequences())
-                .equals(StampSequenceSet.of(that.getVersionStampSequences()));
+        return true;
     }
 
     /**

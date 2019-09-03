@@ -88,6 +88,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     private final SimpleListProperty<Integer> draggedTaxonomyConceptsForFilteringListProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList());
     private Manifold                                          manifold;
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.SIMPLE_SEARCH.getIconographic());
 
     @FXML
     AnchorPane                                                mainAnchorPane;
@@ -104,10 +105,14 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     @FXML
     private Label searchTextFieldLabel;
 
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
+    }
 
    @Override
-   public Node getMenuIcon() {
-      return Iconography.SIMPLE_SEARCH.getIconographic();
+   public SimpleObjectProperty getMenuIconProperty() {
+      return menuIconProperty;
    }
 
     @Override

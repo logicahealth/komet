@@ -19,6 +19,7 @@ package sh.komet.scripting.groovy;
 import java.io.IOException;
 import java.util.Optional;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -37,7 +38,8 @@ public class GroovyViewProvider implements ExplorationNode {
    private final SimpleStringProperty titleProperty = new SimpleStringProperty("Groovy");
    private final ScriptingController scriptingController;
    private final Node titleNode = Iconography.JAVASCRIPT.getIconographic();
-   
+   private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.JAVASCRIPT.getIconographic());
+
     public GroovyViewProvider(Manifold manifold) {
        try {
            this.manifold = manifold;
@@ -53,11 +55,16 @@ public class GroovyViewProvider implements ExplorationNode {
            throw new RuntimeException(ex);
        }
     }
-    
 
     @Override
-    public Node getMenuIcon() {
-        return Iconography.JAVASCRIPT.getIconographic();
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
+    }
+
+
+    @Override
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     @Override

@@ -4,7 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.komet.preferences.KometPreferencesController;
+import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.isaac.komet.preferences.ParentPanel;
 import sh.isaac.komet.preferences.personas.PersonaItemPanel;
 import sh.komet.gui.contract.preferences.WindowsParentPreferences;
@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 
-import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
 public class WindowsPanel extends ParentPanel implements WindowsParentPreferences {
 

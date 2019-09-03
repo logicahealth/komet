@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.preferences;
+package sh.komet.gui.contract.preferences;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -25,6 +25,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
+import sh.komet.gui.contract.preferences.PreferenceGroup;
+import sh.komet.gui.contract.preferences.PreferencesTreeItem;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -91,7 +93,7 @@ public class KometPreferencesController implements Initializable {
         }
     }
 
-    protected void updateDetail() {
+    public void updateDetail() {
         ObservableList<TreeItem<PreferenceGroup>> selectedItems = preferenceTree.getSelectionModel().getSelectedItems();
         if (selectedItems.isEmpty()) {
             detailBorderPane.setCenter(null);
@@ -113,7 +115,7 @@ public class KometPreferencesController implements Initializable {
         return preferenceTree;
     }
 
-    void setManifold(Manifold manifold) {
+    public void setManifold(Manifold manifold) {
         this.manifold = manifold;
     }
 }

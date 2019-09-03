@@ -27,6 +27,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -80,6 +81,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     private final Manifold manifold;
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("Concept builder");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Concept builder");
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.NEW_CONCEPT.getIconographic());
     private final VBox componentPanelBox = new VBox(8);
     private final BorderPane builderBorderPane = new BorderPane(componentPanelBox);
     private final ScrollPane scrollPane = new ScrollPane(builderBorderPane);
@@ -120,6 +122,11 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         FxGet.builders().add(this);
+    }
+
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -376,8 +383,8 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     }
 
     @Override
-    public Node getMenuIcon() {
-        return Iconography.NEW_CONCEPT.getIconographic();
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     /**

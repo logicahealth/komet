@@ -300,7 +300,7 @@ public class MainApp
                 newKometWindowItem.setId(personaUuidStr);
                 menuItems.add(newKometWindowItem);
                 newKometWindowItem.setOnAction(event -> {
-                    FxGet.dialogs().showInformationDialog("Opening new window. ", item.nameProperty().get());
+                    //FxGet.dialogs().showInformationDialog("Opening new window. ", item.nameProperty().get());
                     this.newViewer(item);
                 });
             } else {

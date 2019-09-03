@@ -3,6 +3,7 @@ package sh.komet.progress.view;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
@@ -17,9 +18,9 @@ import sh.komet.gui.manifold.Manifold;
 import java.util.Optional;
 
 public class ActiveTasksProgressNode extends TaskProgressNode {
-    int currentIcon = 0;
-
     final Node progressIcon = Iconography.SPINNER0.getIconographic();
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(progressIcon);
+
     final RotateTransition rotation;
     public ActiveTasksProgressNode(Manifold manifold) {
         super(manifold);
@@ -39,6 +40,11 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
             rotation.play();
         }
      }
+
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public Optional<Node> getTitleNode() {
@@ -87,8 +93,8 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
         }
     }
     @Override
-    public Node getMenuIcon() {
-        return progressIcon;
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     @Override

@@ -34,14 +34,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
-import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
@@ -109,12 +108,12 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         if (wrapper.allowHistory()) {
             this.menuButton.getItems().add(fixedWidthManifoldSeperator);
             for (String manifoldGroup : Manifold.getGroupNames()) {
-                Collection<HistoryRecord> groupHistory = Manifold.getGroupHistory(manifoldGroup);
+                Collection<ComponentProxy> groupHistory = Manifold.getGroupHistory(manifoldGroup);
                 if (!groupHistory.isEmpty()) {
                     Menu manifoldHistory = new Menu(manifoldGroup);
                     this.menuButton.getItems().add(manifoldHistory);
-                    for (HistoryRecord record : groupHistory) {
-                        ConceptMenuItem conceptItem = new ConceptMenuItem(Get.conceptSpecification(record.getComponentId()),
+                    for (ComponentProxy record : groupHistory) {
+                        ConceptMenuItem conceptItem = new ConceptMenuItem(Get.conceptSpecification(record.getNid()),
                                 this.manifold);
                         conceptItem.setOnAction(this::handleAction);
                         manifoldHistory.getItems().add(conceptItem);

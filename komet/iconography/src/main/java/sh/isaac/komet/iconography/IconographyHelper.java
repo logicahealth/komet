@@ -87,6 +87,14 @@ public class IconographyHelper {
         }
         return hbox;
     }
+    public static Node combine(Node... icons) {
+        HBox hbox = new HBox(1);
+        hbox.getStyleClass().add("hbox");
+        for (Node icon: icons) {
+            hbox.getChildren().add(icon);
+        }
+        return hbox;
+    }
 
 
 }

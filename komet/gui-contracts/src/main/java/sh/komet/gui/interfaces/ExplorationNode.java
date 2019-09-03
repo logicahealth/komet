@@ -17,6 +17,8 @@
 package sh.komet.gui.interfaces;
 
 import java.util.Optional;
+
+import javafx.beans.property.ObjectProperty;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.scene.Node;
@@ -69,7 +71,7 @@ public interface ExplorationNode {
    Node getNode();
    
    
-   Node getMenuIcon();
+   ObjectProperty<Node> getMenuIconProperty();
 
    /**
     * When called, the node should release all resources, as it is closed.
@@ -80,4 +82,9 @@ public interface ExplorationNode {
     * Indicate if a node should not close for any reason (uncommitted work, etc).
     */
    boolean canClose();
+
+   /**
+    * Save preferences for this node to the preferences provider.
+    */
+   void savePreferences();
 }

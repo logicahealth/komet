@@ -33,6 +33,7 @@ import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
 import sh.isaac.MetaData;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
@@ -42,7 +43,6 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.logic.ConcreteDomainOperators;
 import sh.isaac.model.logic.LogicalExpressionImpl;
@@ -56,7 +56,6 @@ import sh.isaac.model.logic.node.internal.TypedNodeWithNids;
 import sh.komet.gui.CatchThrowableEventHandler;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
-import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -245,12 +244,12 @@ public class AddEditLogicalExpressionNodeMenuItems {
             for (String groupName : Manifold.getGroupNames()) {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = new ActionGroup("Change restriction using " + groupName + " history", Manifold.getIconographic(groupName), actions);
-                for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                    Action addIsaAction = new Action("Change role restriction to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), new CatchThrowableEventHandler((ActionEvent event) -> {
+                for (ComponentProxy historyRecord : Manifold.getGroupHistory(groupName)) {
+                    Action addIsaAction = new Action("Change role restriction to " + manifold.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         for (LogicNode node : nodeToEdit.getChildren()) {
                             if (node.getNodeSemantic() == NodeSemantic.CONCEPT) {
                                 ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) node;
-                                conceptNode.setConceptNid(historyRecord.getComponentId());
+                                conceptNode.setConceptNid(historyRecord.getNid());
                                 this.expressionUpdater.accept(expressionContiningNode);
                                 break;
                             }
@@ -273,10 +272,10 @@ public class AddEditLogicalExpressionNodeMenuItems {
             for (String groupName : Manifold.getGroupNames()) {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = new ActionGroup("Change type using " + groupName + " history", Manifold.getIconographic(groupName), actions);
-                for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                    Action addAction = new Action("Change role type to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), new CatchThrowableEventHandler((ActionEvent event) -> {
+                for (ComponentProxy historyRecord : Manifold.getGroupHistory(groupName)) {
+                    Action addAction = new Action("Change role type to " + manifold.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         RoleNodeSomeWithNids roleNode = (RoleNodeSomeWithNids) this.nodeToEdit;
-                        roleNode.setTypeConceptNid(historyRecord.getComponentId());
+                        roleNode.setTypeConceptNid(historyRecord.getNid());
                         this.expressionUpdater.accept(expressionContiningNode);
                     }));
                     actionGroup.getActions().add(addAction);
@@ -296,10 +295,10 @@ public class AddEditLogicalExpressionNodeMenuItems {
             for (String groupName : Manifold.getGroupNames()) {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = new ActionGroup("Change type using " + groupName + " history", Manifold.getIconographic(groupName), actions);
-                for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                    Action addAction = new Action("Change feature type to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), new CatchThrowableEventHandler((ActionEvent event) -> {
+                for (ComponentProxy historyRecord : Manifold.getGroupHistory(groupName)) {
+                    Action addAction = new Action("Change feature type to " + manifold.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         FeatureNodeWithNids featureNode = (FeatureNodeWithNids) this.nodeToEdit;
-                        featureNode.setTypeConceptNid(historyRecord.getComponentId());
+                        featureNode.setTypeConceptNid(historyRecord.getNid());
                         this.expressionUpdater.accept(expressionContiningNode);
                     }));
                     actionGroup.getActions().add(addAction);
@@ -319,10 +318,10 @@ public class AddEditLogicalExpressionNodeMenuItems {
             for (String groupName : Manifold.getGroupNames()) {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = new ActionGroup("Change concept using " + groupName + " history", Manifold.getIconographic(groupName), actions);
-                for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                    Action addIsaAction = new Action("Change to " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), new CatchThrowableEventHandler((ActionEvent event) -> {
+                for (ComponentProxy historyRecord : Manifold.getGroupHistory(groupName)) {
+                    Action addIsaAction = new Action("Change to " + manifold.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) this.nodeToEdit;
-                        conceptNode.setConceptNid(historyRecord.getComponentId());
+                        conceptNode.setConceptNid(historyRecord.getNid());
                         this.expressionUpdater.accept(expressionContiningNode);
                     }));
                     actionGroup.getActions().add(addIsaAction);
@@ -389,9 +388,9 @@ public class AddEditLogicalExpressionNodeMenuItems {
         for (String groupName : Manifold.getGroupNames()) {
             List<Action> actions = new ArrayList<>();
             ActionGroup actionGroup = new ActionGroup("Add is-a using " + groupName + " history", Manifold.getIconographic(groupName), actions);
-            for (HistoryRecord historyRecord : Manifold.getGroupHistory(groupName)) {
-                Action addIsaAction = new Action("Add is-a " + manifold.getPreferredDescriptionText(historyRecord.getComponentId()), new CatchThrowableEventHandler((ActionEvent event) -> {
-                    ConceptNodeWithNids newIsa = expressionContiningNode.Concept(historyRecord.getComponentId());
+            for (ComponentProxy historyRecord : Manifold.getGroupHistory(groupName)) {
+                Action addIsaAction = new Action("Add is-a " + manifold.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
+                    ConceptNodeWithNids newIsa = expressionContiningNode.Concept(historyRecord.getNid());
                     for (LogicNode node : nodeToEdit.getChildren()) {
                         if (node.getNodeSemantic() == NodeSemantic.AND) {
                             node.addChildren(newIsa);

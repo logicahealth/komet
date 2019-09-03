@@ -62,13 +62,13 @@ import javafx.scene.layout.Background;
 import javafx.stage.WindowEvent;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.MetaData;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 import sh.komet.gui.drag.drop.DragAndDropHelper;
-import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
@@ -250,7 +250,7 @@ public class ManifoldLinkedConceptLabel
 
         Menu manifoldHistoryMenu = new Menu("history");
         contextMenu.getItems().add(manifoldHistoryMenu);
-        Collection<HistoryRecord> historyCollection = this.manifold.getHistoryRecords();
+        Collection<ComponentProxy> historyCollection = this.manifold.getHistoryRecords();
 
         setupHistoryMenuItem(historyCollection, manifoldHistoryMenu);
 
@@ -261,15 +261,15 @@ public class ManifoldLinkedConceptLabel
         }
     }
 
-    private void setupHistoryMenuItem(Collection<HistoryRecord> historyCollection, Menu manifoldHistoryMenu) {
-        for (HistoryRecord historyRecord : historyCollection) {
+    private void setupHistoryMenuItem(Collection<ComponentProxy> historyCollection, Menu manifoldHistoryMenu) {
+        for (ComponentProxy historyRecord : historyCollection) {
             MenuItem historyItem = new MenuItemWithText(historyRecord.getComponentString());
             historyItem.setUserData(historyRecord);
             historyItem.setOnAction((ActionEvent actionEvent) -> {
                 unlink();
                 MenuItem historyMenuItem = (MenuItem) actionEvent.getSource();
-                HistoryRecord itemHistoryRecord = (HistoryRecord) historyItem.getUserData();
-                this.manifold.setFocusedConceptChronology(Get.concept(itemHistoryRecord.getComponentId()));
+                ComponentProxy itemHistoryRecord = (ComponentProxy) historyItem.getUserData();
+                this.manifold.setFocusedConceptChronology(Get.concept(itemHistoryRecord.getNid()));
             });
             manifoldHistoryMenu.getItems().add(historyItem);
         }

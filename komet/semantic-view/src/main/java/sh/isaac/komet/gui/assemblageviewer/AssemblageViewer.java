@@ -39,6 +39,7 @@ package sh.isaac.komet.gui.assemblageviewer;
 import java.io.IOException;
 import java.util.Optional;
 
+import javafx.beans.property.SimpleObjectProperty;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -49,7 +50,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import sh.isaac.MetaData;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
@@ -129,13 +129,15 @@ public class AssemblageViewer implements ExplorationNodeFactory {
         manifold_ = manifold;
 
         return new ExplorationNode() {
+            private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.PAPERCLIP.getIconographic());
 
             /**
              * {@inheritDoc}
+             * @return
              */
             @Override
-            public Node getMenuIcon() {
-                return Iconography.PAPERCLIP.getIconographic();
+            public SimpleObjectProperty getMenuIconProperty() {
+                return menuIconProperty;
             }
 
             @Override
@@ -171,6 +173,11 @@ public class AssemblageViewer implements ExplorationNodeFactory {
             @Override
             public boolean canClose() {
                 return true;
+            }
+
+            @Override
+            public void savePreferences() {
+                throw new UnsupportedOperationException();
             }
         };
     }

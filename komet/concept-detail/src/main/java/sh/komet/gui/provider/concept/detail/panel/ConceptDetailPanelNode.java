@@ -42,6 +42,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import java.util.prefs.BackingStoreException;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.animation.Animation;
@@ -50,9 +51,10 @@ import javafx.animation.ParallelTransition;
 
 import javafx.application.Platform;
 
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -85,7 +87,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
-import org.controlsfx.control.ToggleSwitch;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -105,6 +106,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.iconography.Iconography;
 
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.control.badged.ComponentPaneModel;
 import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
@@ -150,6 +152,7 @@ public class ConceptDetailPanelNode
     private final BorderPane conceptDetailPane = new BorderPane();
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.CONCEPT_DETAILS.getIconographic());
     private final VBox componentPanelBox = new VBox(8);
     private final GridPane versionBrancheGrid = new GridPane();
     private final GridPane toolGrid = new GridPane();
@@ -178,7 +181,24 @@ public class ConceptDetailPanelNode
     public ConceptDetailPanelNode(Manifold conceptDetailManifold, IsaacPreferences preferences) {
         this.conceptDetailManifold = conceptDetailManifold;
         this.preferences = preferences;
-        this.conceptDetailManifold.setGroupName(preferences.get(Keys.MANIFOLD_GROUP_NAME, Manifold.ManifoldGroup.TAXONOMY.getGroupName()));
+        this.conceptDetailManifold.groupNameProperty().addListener((observable, oldValue, newValue) ->
+        {
+            try {
+                this.preferences.put(Keys.MANIFOLD_GROUP_NAME, newValue);
+                this.preferences.sync();
+            } catch (BackingStoreException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        this.conceptDetailManifold.setGroupName(preferences.get(Keys.MANIFOLD_GROUP_NAME, Manifold.ManifoldGroup.UNLINKED.getGroupName()));
+        updateMenuGraphic(this.conceptDetailManifold.getGroupName());
+        this.conceptDetailManifold.groupNameProperty().addListener((observable, oldValue, newValue) -> {
+            updateMenuGraphic(newValue);
+        });
+
+
+
         this.historySwitch.setSelected(false); // add to pref...
         updateManifoldHistoryStates();
         conceptDetailManifold.focusedConceptProperty()
@@ -213,11 +233,32 @@ public class ConceptDetailPanelNode
                 .addChangeListener(this);
         titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(conceptDetailManifold.focusedConceptProperty().get()));
 
+        this.savePreferences();
+    }
+
+    /**
+     * TODO: make other tabs reuse this icon update capability...
+     * @param newValue
+     */
+    private void updateMenuGraphic(String newValue) {
+        if (newValue.equals(Manifold.ManifoldGroup.UNLINKED.getGroupName())) {
+            menuIconProperty.set(IconographyHelper.combine(Iconography.CONCEPT_DETAILS.getIconographic(), Iconography.LINK_BROKEN.getIconographic()));
+        } else {
+            menuIconProperty.set(IconographyHelper.combine(Iconography.CONCEPT_DETAILS.getIconographic(), this.conceptDetailManifold.getIconographic()));
+        }
     }
 
     @Override
-    public Node getMenuIcon() {
-        return Iconography.CONCEPT_DETAILS.getIconographic();
+    public void savePreferences() {
+        if (this.conceptDetailManifold.getFocusedConcept().isPresent()) {
+            this.preferences.putConceptSpecification(Keys.FOCUSED_CONCEPT, this.conceptDetailManifold.getFocusedConcept().get());
+        }
+       this.preferences.put(Keys.MANIFOLD_GROUP_NAME, this.conceptDetailManifold.getGroupName());
+    }
+
+    @Override
+    public ObjectProperty<Node> getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     //~--- methods -------------------------------------------------------------

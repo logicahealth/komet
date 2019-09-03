@@ -18,6 +18,7 @@ package sh.isaac.komet.preferences;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
@@ -41,14 +42,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.preferences.IsaacPreferences;
-import static sh.isaac.komet.preferences.PreferenceGroup.Keys.INITIALIZED;
-import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
-import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.PROPERTY_SHEET_CLASS;
+
+import sh.komet.gui.contract.preferences.KometPreferencesController;
+import sh.komet.gui.contract.preferences.PreferenceGroup;
+import sh.komet.gui.contract.preferences.PreferencesTreeItem;
 import sh.komet.gui.control.concept.PreferenceChanged;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.PropertySheetPurpose;
 import sh.komet.gui.manifold.Manifold;
+
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.*;
 
 /**
  *
@@ -69,6 +73,17 @@ public abstract class AbstractPreferences implements PreferenceGroup {
             makePropertySheet();
         });
     }
+
+
+    protected static final String getGroupName(IsaacPreferences preferencesNode) {
+        return preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME, UUID.randomUUID().toString());
+    }
+
+
+    protected static final String getGroupName(IsaacPreferences preferencesNode, String defaultValue) {
+        return preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME, defaultValue);
+    }
+
     private final Manifold manifold;
     protected final KometPreferencesController kpc;
     protected PreferencesTreeItem treeItem;
@@ -152,7 +167,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     @Override
     public void setTreeItem(PreferencesTreeItem treeItem) {
         this.treeItem = treeItem;
-        this.treeItem.preferences = this.preferencesNode;
+        this.treeItem.setPreferences(this.preferencesNode);
         addChildren();
     }
 
