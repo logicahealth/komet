@@ -234,6 +234,10 @@ public class ConceptDetailPanelNode
         titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(conceptDetailManifold.focusedConceptProperty().get()));
 
         this.savePreferences();
+        Platform.runLater(() -> setConcept(this.conceptDetailManifold.focusedConceptProperty(),
+                null,
+                this.conceptDetailManifold.focusedConceptProperty().get()));
+
     }
 
     /**
