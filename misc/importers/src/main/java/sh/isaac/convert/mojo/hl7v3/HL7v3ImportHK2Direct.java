@@ -1316,7 +1316,8 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			String codeSystemOid = cd.getCodeSystem();
 			if (codeUUIDPointers.get(codeSystemOid) == null)
 			{
-				throw new RuntimeException("Can't find codes for code system '" + codeSystemOid + "'");
+				log.warn("No codes in file for code system {}, must be an external code system - not yet supported with refset resolve", codeSystemOid);
+				return false;
 			}
 			for (UUID conceptUUID : codeUUIDPointers.get(codeSystemOid))
 			{

@@ -18,8 +18,8 @@ public class HL7v3MojoRunner extends HL7v3ImportMojoDirect
 	public static void main(String[] args) throws MojoExecutionException
 	{
 		HL7v3MojoRunner i = new HL7v3MojoRunner();
-		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/converter-executor/target/");
-		i.inputFileLocationPath = new File("../../integration/db-config-builder-ui/target/converter-executor/target/generated-resources/src").toPath();
+		i.outputDirectory = new File("../../integration/db-config-builder-ui/target/contentManager/converter-executor/target/");
+		i.inputFileLocationPath = new File("../../integration/db-config-builder-ui/target/contentManager/converter-executor/target/generated-resources/src").toPath();
 		i.converterOutputArtifactVersion = "2.47.1-1.0-SNAPSHOT";
 		i.converterVersion = "1.0-SNAPSHOT";
 		i.converterSourceArtifactVersion = "2.47.1";
