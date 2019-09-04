@@ -331,7 +331,7 @@ public class DynamicConstants implements ModuleProvidedConstants, IsaacCache {
    };
 
    // This is the extended description type that must be attached to a description within a concept to make the concept valid for use as an
-   // assemblage concept for Dynamicrefexes. The description annotated with this type describes the intent of
+   // assemblage concept for Dynamic semantic. The description annotated with this type describes the intent of
    // using the concept containing the description as an assemblage concept.
    public final MetadataDynamicConstant DYNAMIC_DEFINITION_DESCRIPTION = new MetadataDynamicConstant("Dynamic definition description",
          UUID.fromString("b0372953-4f20-58b8-ad04-20c2239c7d4e"),
