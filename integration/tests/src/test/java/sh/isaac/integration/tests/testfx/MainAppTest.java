@@ -3,17 +3,26 @@ package sh.isaac.integration.tests.testfx;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import org.apache.jena.base.Sys;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.formula.functions.T;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.testfx.api.FxAssert;
+import org.testfx.api.FxRobot;
+import org.testfx.api.FxRobotInterface;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
 import sh.isaac.api.Get;
@@ -37,21 +46,27 @@ import sh.komet.gui.contract.preferences.WindowPreferenceItems;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
+import javax.swing.plaf.synth.SynthTextAreaUI;
+import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Ignore
 public class MainAppTest extends ApplicationTest {
 
-    private final String DATABASE_PATH_STRING = "/Users/aks8m/Solor/testfx_db/data";
+    private final String DATABASE_PATH_STRING = "target/data";
     private MainApp app = new MainApp();
     private KometPreferences kometPreferences;
     public IsaacPreferences configurationPreferences;
     protected static final Logger LOG = LogManager.getLogger();
+    private KometStageController controller;
 
 
     @Override
@@ -103,12 +118,14 @@ public class MainAppTest extends ApplicationTest {
                 UUID stageUuid = UUID.randomUUID();
                 FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/fxml/KometStageScene.fxml"));
                 BorderPane root = loader.load();
-                KometStageController controller = loader.getController();
+//                KometStageController controller = loader.getController();
+                this.controller = loader.getController();
                 controller.setPreferencesNode(windowPreference.getPreferenceNode());
                 root.setId(stageUuid.toString());
                 stage.setTitle(FxGet.getConfigurationName());
                 Scene scene = new Scene(this.app.setupStageMenus(stage, root));
                 stage.setScene(scene);
+                stage.initStyle(StageStyle.DECORATED);
                 stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
                 stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
 
@@ -135,9 +152,26 @@ public class MainAppTest extends ApplicationTest {
 
     @Test
     public void testImport() {
+        MenuButton classifierMenu = lookup("#classifierMenuButton").query();
+        List<MenuItem> classifierMenuItemsDisplayed = classifierMenu.getItems();
+        List<MenuItem> classifierMenuItemsFromController = controller.getClassifierMenuItems();
+        assert classifierMenuItemsDisplayed.size() == classifierMenuItemsFromController.size();
+        clickMenuItems("#classifierMenuButton", classifierMenuItemsFromController, classifierMenuItemsDisplayed);
+        sleep(100000);
+    }
 
-
-
-        sleep(1000000);
+    public boolean clickMenuItems(String menuId, List<MenuItem> itemsProvided, List<MenuItem> itemsDisplayed) {
+        if (itemsProvided.size() == itemsDisplayed.size()) {
+            for (int i=0; i<itemsProvided.size(); i++) {
+                System.out.println(itemsProvided.get(i).getText());
+                clickOn(menuId).clickOn(itemsProvided.get(i).getText());
+                sleep(1000);
+            }
+            return true;
+        }
+        else {
+            System.out.println("ERROR: Number of items Provided and Displayed are not the same.");
+            return false;
+        }
     }
 }

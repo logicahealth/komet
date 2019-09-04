@@ -616,4 +616,8 @@ public class KometStageController
         });
     }
 
+
+    public List<MenuItem> getClassifierMenuItems() {
+        return this.classifierMenuButton.getItems();
+    }
 }

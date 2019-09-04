@@ -130,6 +130,12 @@
          <scope>test</scope>
       </dependency>
       <dependency>
+         <groupId>org.testfx</groupId>
+         <artifactId>testfx-core</artifactId>
+         <version>4.0.15-alpha</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>application</artifactId>
          <version>5.1.1-livd-SNAPSHOT</version>
