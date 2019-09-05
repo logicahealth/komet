@@ -45,6 +45,24 @@
          <artifactId>fontawesomefx-commons</artifactId>
          <version>${fontawesome.commons.version}</version>
          <type>pom</type>
+         <exclusions>
+            <exclusion>
+               <groupId>org.openjfx</groupId>
+               <artifactId>javafx-base</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.openjfx</groupId>
+               <artifactId>javafx-controls</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.openjfx</groupId>
+               <artifactId>javafx-graphics</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.openjfx</groupId>
+               <artifactId>javafx-fxml</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>de.jensd</groupId>
