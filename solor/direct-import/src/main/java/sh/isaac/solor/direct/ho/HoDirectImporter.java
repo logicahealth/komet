@@ -229,6 +229,8 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             buildConcept(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE.getPrimordialUuid(), 
                     HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());  
             
+            //TODO this defines a semantic used as a membership semantic, it should be annotated with a 
+            //.addComponentSemantic(TermAux.MEMBERSHIP_SEMANTIC, TermAux.SEMANTIC_TYPE) call
             buildConcept(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE.getPrimordialUuid(), 
                     HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());  
             

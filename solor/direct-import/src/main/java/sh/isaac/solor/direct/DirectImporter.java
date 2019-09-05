@@ -364,6 +364,10 @@ public class DirectImporter
                             readStatedRelationships(br, importSpecification);
                             break;
 
+                        //TODO Dan notes, none of these refset importer patterns is properly annotating the created refset assemblage concept
+                        //with the metadata that should be placed on the refset definition concept.  That said, I'm not going to fix it, because
+                        //all of this code should simply be thrown away, as the 'Dynamic' import mode already handles this properly.
+                        // set the variable 'importDynamic' to true, and all of your problems with this missing metadata go away :)
                         case INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET:
                             readINT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET(br, importSpecification);
                             break;
