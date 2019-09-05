@@ -195,7 +195,7 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.ConceptCode.name(), null, null, true, null, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.HL7Table0396Code.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.PreferredAlternateCode.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetCode.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetCode.name(), null, null, true, null, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetOID.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetReleaseComments.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetStatus.name(), null, null, false, DynamicDataType.STRING, null, contentTime);

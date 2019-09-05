@@ -50,6 +50,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.MutableComponentNidVersion;
 import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableStringVersion;
@@ -1021,6 +1022,17 @@ public class DirectWriteHelper
 	public void configureConceptAsIdentifier(UUID concept, long time)
 	{
 		makeBrittleRefsetMember(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid(), concept, time);
+		
+		//Make the static semantic annotation
+		UUID uuidForStaticMarker = UuidFactory.getUuidForComponentNidSemantic(converterUUID.getNamespace(), MetaData.SEMANTIC_TYPE____SOLOR.getPrimordialUuid(), 
+				concept, MetaData.STRING_SEMANTIC____SOLOR.getPrimordialUuid(), ((input, uuid) -> converterUUID.addMapping(input, uuid)));
+		SemanticChronologyImpl staticMarkerToWrite = new SemanticChronologyImpl(VersionType.COMPONENT_NID, uuidForStaticMarker,
+				MetaData.SEMANTIC_TYPE____SOLOR.getNid(), identifierService.getNidForUuids(concept));
+		MutableComponentNidVersion cnv = staticMarkerToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
+		cnv.setComponentNid(MetaData.STRING_SEMANTIC____SOLOR.getNid());
+		indexAndWrite(staticMarkerToWrite);
+		loadStats.addAnnotation("Concept", "String Semantic");
+		
 		identifierTypes.add(concept);
 	}
 	
@@ -1184,8 +1196,7 @@ public class DirectWriteHelper
 		if (isIdentifier)
 		{
 			parents.add(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid());
-			makeBrittleRefsetMember(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid(), concept, time);
-			identifierTypes.add(concept);
+			configureConceptAsIdentifier(concept, time);
 		}
 		else if (dataType != null)
 		{
@@ -1747,7 +1758,7 @@ public class DirectWriteHelper
 			if (dataType == DynamicDataType.UNKNOWN)
 			{
 				parents.add(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid());
-				makeBrittleRefsetMember(MetaData.IDENTIFIER_SOURCE____SOLOR.getPrimordialUuid(), concept, time);
+				configureConceptAsIdentifier(concept, time);
 			}
 			else
 			{
