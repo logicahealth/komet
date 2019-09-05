@@ -431,12 +431,28 @@ public class Frills
    /**
     * Returns true if a concept has a {@link MetaData#IDENTIFIER_SOURCE____SOLOR} semantic attached to it (at any coordinate)
     * @param assemblageNid
-    * @return true, if it is a semantic definition
+    * @return true, if it is a semantic definition that defines a string semantic identifier
     */
    public static boolean definesIdentifierSemantic(int assemblageNid) {
       if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) {
          Optional<SemanticChronology> semantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
                assemblageNid, MetaData.IDENTIFIER_SOURCE____SOLOR.getNid()).findAny();
+         if (semantic.isPresent()) {
+            return true;
+         }
+      }
+      return false;
+   }
+   
+   /**
+    * Returns true if a concept has a {@link MetaData#MEMBERSHIP_SEMANTIC____SOLOR} semantic attached to it (at any coordinate)
+    * @param assemblageNid
+    * @return true, if it is a static semantic annotated as a membership semantic
+    */
+   public static boolean definesStaticRefsetSemantic(int assemblageNid) {
+      if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) {
+         Optional<SemanticChronology> semantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
+               assemblageNid, MetaData.MEMBERSHIP_SEMANTIC____SOLOR.getNid()).findAny();
          if (semantic.isPresent()) {
             return true;
          }

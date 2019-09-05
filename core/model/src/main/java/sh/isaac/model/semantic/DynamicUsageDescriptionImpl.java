@@ -58,8 +58,10 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
 import sh.isaac.api.component.semantic.version.brittle.BrittleVersion.BrittleDataTypes;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
@@ -88,7 +90,7 @@ public class DynamicUsageDescriptionImpl
    protected static final Logger logger = LogManager.getLogger(DynamicUsageDescription.class.getName());
 
    private static Cache<Integer, DynamicUsageDescriptionImpl> cache =
-         Caffeine.newBuilder().maximumSize(25).build();
+         Caffeine.newBuilder().maximumSize(500).build();
 
    int refexUsageDescriptorNid;
 
@@ -380,20 +382,99 @@ public class DynamicUsageDescriptionImpl
     * @param assemblageNid the nid of the concept that defines the semantic type.
     * @return the dynamic element usage description
     */
-   public static DynamicUsageDescription mockOrRead(int assemblageNid) {
-      if (isDynamicSemantic(assemblageNid)) {
-         return read(assemblageNid);
-      }
-      else {  //the other semantics aren't defined.  We need an instance of a semantic, to get the data
-         Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStream(assemblageNid).findFirst();
-         if (sc.isPresent()) {
-            return mockOrRead(sc.get());
-         }
-         else {
-            throw new RuntimeException("Can't mock or read a static semantic with no instances in the system");
-         }
-      }
-   }
+	public static DynamicUsageDescription mockOrRead(int assemblageNid)
+	{
+		if (isDynamicSemantic(assemblageNid))
+		{
+			return read(assemblageNid);
+		}
+		else
+		{
+			//the other semantics aren't consistently defined.  
+			//We need an instance of a semantic, to get the data, or an instance of Keiths latest (inconsistently applied) pattern
+			//Try to read from metadata first.
+			Optional<SemanticChronology> metadata = Get.assemblageService()
+					.getSemanticChronologyStreamForComponentFromAssemblage(assemblageNid, TermAux.SEMANTIC_TYPE.getNid()).findFirst();
+			if (metadata.isPresent())
+			{
+				//Read this semantic, to find out the type info
+				LatestVersion<SemanticVersion> latest = metadata.get().getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
+				if (latest.isPresent())
+				{
+					if (latest.get().getSemanticType() == VersionType.COMPONENT_NID)
+					{
+						DynamicUsageDescriptionImpl dsud = new DynamicUsageDescriptionImpl();
+						dsud.name = Get.conceptDescriptionText(assemblageNid);
+						dsud.referencedComponentTypeRestriction = null;
+						dsud.referencedComponentTypeSubRestriction = null;
+						dsud.refexUsageDescriptorNid = assemblageNid;
+						dsud.semanticUsageDescription = "-";
+
+						if (((ComponentNidVersion) latest.get()).getComponentNid() == TermAux.MEMBERSHIP_SEMANTIC.getNid())
+						{
+							dsud.refexColumnInfo = new DynamicColumnInfo[0];
+						}
+						else //something with columns
+						{
+							if (((ComponentNidVersion) latest.get()).getComponentNid() == TermAux.STRING_SEMANTIC.getNid())
+							{
+								dsud.refexColumnInfo = mockDynamicColumnFromStatic(assemblageNid,
+										new UUID[] { DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid() },
+										new DynamicDataType[] { DynamicDataType.STRING });
+							}
+							else if (((ComponentNidVersion) latest.get()).getComponentNid() == TermAux.INTEGER_SEMANTIC.getNid())
+							{
+								dsud.refexColumnInfo = mockDynamicColumnFromStatic(assemblageNid,
+										new UUID[] { DynamicConstants.get().DYNAMIC_DT_INTEGER.getPrimordialUuid() },
+										new DynamicDataType[] { DynamicDataType.INTEGER });
+							}
+							else if (((ComponentNidVersion) latest.get()).getComponentNid() == TermAux.COMPONENT_SEMANTIC.getNid() ||
+								((ComponentNidVersion) latest.get()).getComponentNid() == TermAux.CONCEPT_SEMANTIC.getNid())
+							{
+								dsud.refexColumnInfo = mockDynamicColumnFromStatic(assemblageNid,
+										new UUID[] { DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid() },
+										new DynamicDataType[] { DynamicDataType.NID });
+							}
+							else if (((ComponentNidVersion) latest.get()).getComponentNid() == TermAux.DESCRIPTION_SEMANTIC.getNid())
+							{
+								dsud.refexColumnInfo = mockDynamicColumnFromStatic(assemblageNid, new UUID[] {
+										DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(),
+										DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid(), DynamicConstants.get().DYNAMIC_DT_NID.getPrimordialUuid() },
+										new DynamicDataType[] { DynamicDataType.STRING, DynamicDataType.NID, DynamicDataType.NID, DynamicDataType.NID });
+							}
+							else if (((ComponentNidVersion) latest.get()).getComponentNid() == TermAux.LOGICAL_EXPRESSION_SEMANTIC.getNid() ||
+									((ComponentNidVersion) latest.get()).getComponentNid() == TermAux.IMAGE_SEMANTIC.getNid())
+							{
+								dsud.refexColumnInfo = mockDynamicColumnFromStatic(assemblageNid, new UUID[] {
+										DynamicConstants.get().DYNAMIC_DT_BYTE_ARRAY.getPrimordialUuid()},
+										new DynamicDataType[] { DynamicDataType.BYTEARRAY});
+							}
+							else
+							{
+								throw new RuntimeException("Unsupported type for mock on " + assemblageNid + " with type " 
+										+ Get.conceptDescriptionText(((ComponentNidVersion) latest.get()).getComponentNid()));
+							}
+						}
+						return dsud;
+					}
+					else
+					{
+						throw new RuntimeException("Invalidly constructed static metadata on " + assemblageNid);
+					}
+				}
+			}
+			//Try to figure out from an actual usage
+			Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStream(assemblageNid).findFirst();
+			if (sc.isPresent())
+			{
+				return mockOrRead(sc.get());
+			}
+			else
+			{
+				throw new RuntimeException("Can't mock or read a static semantic with no instances in the system, and no valid metadata");
+			}
+		}
+	}
    
    /**
     * Invent DynamicUsageDescription info for other semantic types (that aren't dynamic), otherwise, calls {@link #read(int)} 
@@ -602,6 +683,7 @@ public class DynamicUsageDescriptionImpl
    }
 
    /**
+    * Method to read the column descriptor info that is on (some) of the static semantics in the system
     * @param assemblageNid
     * @return
     */
@@ -632,6 +714,44 @@ public class DynamicUsageDescriptionImpl
       }
       return Optional.empty();
    }
+   
+   /**
+    * Helper to mock dynamic info for static columns with or without column label metadata
+    * @param assemblageNid
+    * @param defaultLabels
+    * @param dataTypes
+    * @return
+    */
+	private static DynamicColumnInfo[] mockDynamicColumnFromStatic(int assemblageNid, UUID[] defaultLabels, DynamicDataType[] dataTypes)
+	{
+		Optional<int[]> columnLabelConcepts = readStaticSemanticInfo(assemblageNid);
+		DynamicColumnInfo[] result = new DynamicColumnInfo[defaultLabels.length];
+		if (columnLabelConcepts.isPresent())
+		{
+			if (columnLabelConcepts.get().length != defaultLabels.length)
+			{
+				throw new RuntimeException("Invalidly constructed static metadata on " + assemblageNid + " bad column labels");
+			}
+			else
+			{
+				for (int col = 0; col < defaultLabels.length; col++)
+				{
+					result[col] = new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(assemblageNid),
+							col, Get.identifierService().getUuidPrimordialForNid(columnLabelConcepts.get()[col]), 
+							dataTypes[col], null, true, null, null);
+				}
+			}
+		}
+		else
+		{
+			for (int col = 0; col < defaultLabels.length; col++)
+			{
+				result[col] = new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(assemblageNid),
+						col, defaultLabels[col], dataTypes[col], null, true, null, null);
+			}
+		}
+		return result;
+	}
 
    /**
     * Read.
@@ -725,23 +845,6 @@ public class DynamicUsageDescriptionImpl
    @Override
    public VersionType getReferencedComponentTypeSubRestriction() {
       return this.referencedComponentTypeSubRestriction;
-   }
-   
-   /**
-    * Invent DynamicSemanticUsageDescription info for static semantics that are marked as type {@link TermAux#IDENTIFIER_SOURCE}
-    * @param identifierAssemblageConceptId 
-    * @return 
-    */
-   public static DynamicUsageDescription mockIdentifierType(int identifierAssemblageConceptId) {
-      DynamicUsageDescriptionImpl dsud = new DynamicUsageDescriptionImpl();
-      dsud.name = Get.conceptDescriptionText(identifierAssemblageConceptId);
-      dsud.referencedComponentTypeRestriction = null;
-      dsud.referencedComponentTypeSubRestriction = null;
-      dsud.refexUsageDescriptorNid = identifierAssemblageConceptId;
-      dsud.semanticUsageDescription = "-";
-      dsud.refexColumnInfo = new DynamicColumnInfo[]{new DynamicColumnInfo(Get.identifierService().getUuidPrimordialForNid(identifierAssemblageConceptId),
-         0, DynamicConstants.get().DYNAMIC_DT_STRING.getPrimordialUuid(), DynamicDataType.STRING, null, true, null, null)};
-      return dsud;
    }
 
    /** 
