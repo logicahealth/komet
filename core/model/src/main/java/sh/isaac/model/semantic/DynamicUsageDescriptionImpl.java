@@ -471,7 +471,8 @@ public class DynamicUsageDescriptionImpl
 			}
 			else
 			{
-				throw new RuntimeException("Can't mock or read a static semantic with no instances in the system, and no valid metadata");
+				throw new RuntimeException("Can't mock or read a static semantic with no instances in the system, and no valid metadata, "
+						+ assemblageNid + " " + Get.conceptDescriptionText(assemblageNid));
 			}
 		}
 	}
