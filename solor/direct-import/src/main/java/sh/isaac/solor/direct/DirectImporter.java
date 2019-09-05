@@ -36,20 +36,6 @@
  */
 package sh.isaac.solor.direct;
 
-//~--- JDK imports ------------------------------------------------------------
-import com.opencsv.CSVReader;
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.api.progress.PersistTaskResult;
-import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.api.util.UuidT3Generator;
-import sh.isaac.solor.ContentProvider;
-import sh.isaac.solor.ContentStreamProvider;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -58,9 +44,17 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
@@ -68,14 +62,31 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.IOUtils;
+import com.opencsv.CSVReader;
+import sh.isaac.api.AssemblageService;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.progress.PersistTaskResult;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.UuidT3Generator;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
+import sh.isaac.solor.ContentProvider;
+import sh.isaac.solor.ContentStreamProvider;
 import sh.isaac.solor.direct.clinvar.ClinvarImporter;
 import sh.isaac.solor.direct.cvx.CVXImporter;
 import sh.isaac.solor.direct.livd.LIVDImporter;
 import sh.isaac.solor.direct.srf.SRFImporter;
+import sh.isaac.utility.Frills;
 
-//~--- non-JDK imports --------------------------------------------------------
-//~--- classes ----------------------------------------------------------------
 /**
  * Loader code to convert RF2 format fileCount into the ISAAC format.
  */
@@ -88,7 +99,7 @@ public class DirectImporter
 
     public static HashSet<String> watchTokens = new HashSet<>();
 
-    public static Boolean importDynamic = false;
+    public static Boolean importDynamic = true;
 
     /**
      * The date format parser.
@@ -321,7 +332,6 @@ public class DirectImporter
         }
 
         HashMap<String, UUID> createdColumnConcepts = new HashMap<>();
-        ConcurrentHashMap<Integer, Boolean> configuredDynamicSemantics = new ConcurrentHashMap<>();
 
         LOG.info(builder.toString());
 
@@ -417,7 +427,7 @@ public class DirectImporter
                             readSTR1_STR2_NID3_NID4_NID5_REFSET(br, importSpecification);
                             break;
                         case DYNAMIC:
-                            read_DYNAMIC_REFSET(br, importSpecification, createdColumnConcepts, configuredDynamicSemantics);
+                            read_DYNAMIC_REFSET(br, importSpecification, createdColumnConcepts);
                             break;
 
                         case RXNORM_CONSO:
@@ -1657,7 +1667,7 @@ public class DirectImporter
     }
 
     private void read_DYNAMIC_REFSET(BufferedReader br,
-            ImportSpecification importSpecification, HashMap<String, UUID> createdColumnConcepts, ConcurrentHashMap<Integer, Boolean> configuredDynamicSemantics)
+            ImportSpecification importSpecification, HashMap<String, UUID> createdColumnConcepts)
             throws IOException {
         AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
@@ -1719,6 +1729,11 @@ public class DirectImporter
                 String refsetId = columns[5].trim();  //we actually want the referencedComponentId, not the refsetId, because this is the refset that is being described.
                 int adjustedColumnNumber = Integer.parseInt(columns[8]) - 1;
                 UUID columnHeaderConcept = UuidT3Generator.fromSNOMED(columns[6]);
+                Status refsetState = Status.fromZeroOneToken(columns[2]);
+                
+                if (importType == ImportType.ACTIVE_ONLY && refsetState != Status.ACTIVE) {
+                    continue;
+                }
 
                 ArrayList<DynamicColumnInfo> refsetColumns = refsetColumnInfo.get(refsetId);
                 if (refsetColumns == null) {
@@ -1746,9 +1761,64 @@ public class DirectImporter
                 LOG.info("Refset sctid: '" + dci.getKey() + "' has " + dci.getValue().size() + " columns");
             }
             br.reset();  //back the stream up, and actually process the refset now.
+
+            //Use the metadata we just read, and properly annotate the concepts as dynamic semantics in our system.
+            for (Entry<String, ArrayList<DynamicColumnInfo>> refsetDescriptors : refsetColumnInfo.entrySet())
+            {
+                //refset descriptors are SCTID to colInfo
+                // TODO would like to add a second parent to this concept into the metadata tree, but I don't think it knows how to
+                // merge logic graphs well yet....
+                //TODO this should be done with an edit coordinate the same as the refset concept, I suppose... I don't know how to find 
+                //the coords of the refset concept that was specified during _this_ import, however...
+
+                //See if we already know the SCTID / refset config due to a dependency preload (we should)
+                int nid;
+                try {
+                    nid = Get.identifierService().getNidForUuids(UuidT3Generator.fromSNOMED(refsetDescriptors.getKey()));
+                }
+                catch (NoSuchElementException e1) {
+                    //we have no knowledge of the concept this refset is defining... log error, continue.
+                    LOG.error("Cannot determine nid for refset descriptor {}, probably an inactive concept that wasn't loaded?  Skipping", refsetDescriptors.getKey());
+                    continue;
+                }
+                if (DynamicUsageDescriptionImpl.isDynamicSemantic(nid))
+                {
+                    //Should be all configured in the preload / dependencies
+                }
+                else
+                {
+                    int[] assemblageStamps = Get.concept(nid).getVersionStampSequences();
+                    Arrays.sort(assemblageStamps);
+                    int stampSequence = assemblageStamps[assemblageStamps.length - 1];  //use the largest (newest) stamp on the concept, 
+                    //since we probably just loaded the concept....
+
+                    //TODO we need special handling for mapset conversion into our native mapset type
+                    List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(nid,
+                        "DynamicDefinition for refset " + Get.conceptDescriptionText(nid),
+                        refsetDescriptors.getValue().toArray(new DynamicColumnInfo[refsetDescriptors.getValue().size()]), null, null, stampSequence);
+
+                    for (Chronology c : items)
+                    {
+                        assemblageService.writeSemanticChronology((SemanticChronology)c);
+                        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class))
+                        {
+                            indexer.indexNow(c);
+                        }
+                    }
+                }
+            }
+            try
+            {
+                //make sure it is readable for future calls
+                assemblageService.sync().get();
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException("unexpected", e);
+            }
         }
 
-        //Process the refset file
+        //Process the refset file itself...
         int dataCount = 0;
         String rowString;
         ArrayList<DynamicRefsetWriter> writers = new ArrayList<>();
@@ -1769,8 +1839,7 @@ public class DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 DynamicRefsetWriter writer = new DynamicRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing dynamic semantics from: " + trimZipName(
-                                importSpecification.contentProvider.getStreamSourceName()),
-                        importSpecification, importType, refsetColumnInfo, configuredDynamicSemantics);
+                                importSpecification.contentProvider.getStreamSourceName()), importSpecification, importType);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1783,8 +1852,7 @@ public class DirectImporter
         if (!columnsToWrite.isEmpty()) {
             DynamicRefsetWriter writer = new DynamicRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing dynamic semantics from: " + trimZipName(
-                            importSpecification.contentProvider.getStreamSourceName()),
-                    importSpecification, importType, refsetColumnInfo, configuredDynamicSemantics);
+                            importSpecification.contentProvider.getStreamSourceName()), importSpecification, importType);
             Get.executor()
                     .submit(writer);
             writers.add(writer);
