@@ -157,6 +157,8 @@ public class TermAux implements StaticIsaacCache {
    public static ConceptProxy RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY = new ConceptProxy("Relationship type in source terminology",
          UUID.fromString("46bc0e6b-0e64-5aa6-af27-a823e9156dfc"));
 
+   public static ConceptProxy DIALECT_ASSEMBLAGE = new ConceptProxy("Dialect assemblage", UUID.fromString("b9c34574-c9ac-503b-aa24-456a0ec949a2"));
+   
    public static ConceptProxy ENGLISH_DIALECT_ASSEMBLAGE =
       new ConceptProxy("English dialect assemblage",
                        UUID.fromString("c0836284-f631-3c86-8cfc-56a67814efab"));

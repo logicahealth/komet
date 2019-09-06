@@ -362,25 +362,32 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("SOLOR issue assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   popParent();
                createConcept(TermAux.DESCRIPTION_ASSEMBLAGE);
-               createConcept("Dialect assemblage");
+               //Dialect assemblage is marked as a membership only semantic type, so that we can add valid dialects to it 
+               //(dialects that should be shown to a user in a picklist, rather than dialect concepts that are for organization only)
+               createConcept(TermAux.DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.MEMBERSHIP_SEMANTIC, TermAux.SEMANTIC_TYPE);
                pushParent(current());
                   createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   pushParent(current());
-                     createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
-                     createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                     createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE)
+                         .addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE).addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE);
+                     createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE)
+                         .addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE).addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE);
                      pushParent(current());
                         createConcept("US Nursing dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE)
-                            .setPrimordialUuid("6e447636-1085-32ff-bc36-6748a45255de");
+                            .addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE).setPrimordialUuid("6e447636-1085-32ff-bc36-6748a45255de");
                         popParent();
                      popParent();
-                  createConcept(TermAux.SPANISH_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept(TermAux.SPANISH_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                      .addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE);
                   pushParent(current());
-                     createConcept(TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                     createConcept(TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                         .addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE);
                      popParent();
                   createConcept("French dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   createConcept("Korean dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   pushParent(current());
-                     createConcept("Standard Korean dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                     createConcept("Standard Korean dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                         .addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE);
                      popParent();
                   createConcept("Polish dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   createConcept("Irish dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
