@@ -859,19 +859,17 @@ public class Frills
 
             if (descriptionVersion.isPresent()) {
                final DescriptionVersion d = descriptionVersion.get();
+               final int descriptionType = getDescriptionType(d, null); 
 
-               if (d.getDescriptionTypeConceptNid() ==
-                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
+               if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                   fqn = d.getText();
-               } else if (d.getDescriptionTypeConceptNid() ==
-                          TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
+               } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
                   if (Frills.isDescriptionPreferred(d.getNid(), null)) {
                      columnName = d.getText();
                   } else {
                      acceptableSynonym = d.getText();
                   }
-               } else if (d.getDescriptionTypeConceptNid() ==
-                          TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+               } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                   if (Frills.isDescriptionPreferred(d.getNid(), null)) {
                      columnDescription = d.getText();
                   } else {
@@ -885,25 +883,22 @@ public class Frills
       }
 
       if (columnName == null) {
-         LOG.warn(
-             "No preferred synonym found on '" + columnDescriptionConcept + "' to use " +
-             "for the column name - using FQN");
-         columnName = ((fqn == null) ? "ERROR - see log"
-                                     : fqn);
+         if (StringUtils.isNotBlank(acceptableSynonym)) {
+            columnName = acceptableSynonym;
+         }
+         else {
+            LOG.warn("No preferred or acceptible synonym found on '" + columnDescriptionConcept + "' to use " + "for the column name - using FQN");
+            columnName = ((fqn == null) ? "ERROR - see log" : fqn);
+         }
       }
 
-      if ((columnDescription == null) && (acceptableDefinition != null)) {
+      if ((columnDescription == null) && StringUtils.isNotBlank(acceptableDefinition)) {
          columnDescription = acceptableDefinition;
       }
 
-      if ((columnDescription == null) && (acceptableSynonym != null)) {
-         columnDescription = acceptableSynonym;
-      }
-
       if (columnDescription == null) {
-         LOG.debug(
-             "No preferred or acceptable definition or acceptable synonym found on '" + columnDescriptionConcept +
-             "' to use for the column description- re-using the the columnName, instead.");
+         LOG.debug("No preferred or acceptable definition found on '" + columnDescriptionConcept 
+               + "' to use for the column description - re-using the the columnName, instead.");
          columnDescription = columnName;
       }
 
@@ -1616,9 +1611,9 @@ public class Frills
     *
     * @param conceptNid The concept to read descriptions for
     * @param descriptionType expected to be one of
-    * {@link MetaData#REGULAR_NAME____SOLOR} or
-    * {@link MetaData#FULLY_QUALIFIED_NAME____SOLOR} or
-    * {@link MetaData#DEFINITION____SOLOR}
+    * {@link MetaData#REGULAR_NAME_DESCRIPTION_TYPE____SOLOR} or
+    * {@link MetaData#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR} or
+    * {@link MetaData#DEFINITION_DESCRIPTION_TYPE____SOLOR}
     * @param stamp - optional - if not provided gets the default from the config service
     * @return the descriptions - may be empty, will not be null
     */
