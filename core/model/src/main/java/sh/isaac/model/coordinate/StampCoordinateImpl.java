@@ -300,7 +300,9 @@ public class StampCoordinateImpl
     @Override
     public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
         HashSet<ConceptSpecification> newNids = new HashSet<>();
-        newNids.addAll(modules);
+        if (modules != null) {
+            newNids.addAll(modules);
+        }
         if (add) {
             newNids.addAll(this.moduleSpecifications);
         }
