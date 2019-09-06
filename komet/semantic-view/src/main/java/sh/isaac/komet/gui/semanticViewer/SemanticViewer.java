@@ -140,7 +140,7 @@ import sh.komet.gui.util.UpdateableBooleanBinding;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 
-@SuppressWarnings({ "unused", "restriction" })
+@SuppressWarnings({ "unused"})
 @Service
 @PerLookup
 public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem>> 
@@ -423,7 +423,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 						//Need to find out if this component has a the dynamic semantic definition annotation on it.
 						try
 						{
-							LookupService.getService(DynamicUtility.class).readDynamicUsageDescription(viewFocusNid_);
+							DynamicUsageDescriptionImpl.mockOrRead(viewFocusNid_);
 							show = true;
 						}
 						catch (Exception e)
