@@ -403,6 +403,11 @@ public class LogicalExpressionImpl
         return commitStateProperty.get();
     }
 
+    @Override
+    public void setUncommitted() {
+        this.setCommitState(CommitStates.UNCOMMITTED);
+    }
+
     public void setCommitState(CommitStates commitState) {
         commitStateProperty.set(commitState);
     }

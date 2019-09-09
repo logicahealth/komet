@@ -38,6 +38,8 @@ package sh.komet.gui.search.extended;
 
 import java.io.IOException;
 import java.util.Optional;
+
+import javafx.scene.Parent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
@@ -63,7 +65,7 @@ import sh.komet.gui.interfaces.ConceptExplorationNode;
  *
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
-@Service
+@Service(name = "Extended Search Provider")
 @PerLookup
 public class ExtendedSearchViewFactory implements ConceptSearchNodeFactory {
 
@@ -108,7 +110,8 @@ public class ExtendedSearchViewFactory implements ConceptSearchNodeFactory {
     public ConceptExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
         manifold_ = manifold;
         esvc_ = ExtendedSearchViewController.init(manifold_);
-        return new ExtendedSearchConceptExplorationNode(esvc_, manifold_);
+        ExtendedSearchConceptExplorationNode conceptExplorationNode = new ExtendedSearchConceptExplorationNode(esvc_, manifold_);
+        return conceptExplorationNode;
     }
 
     @Override

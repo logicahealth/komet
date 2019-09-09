@@ -428,7 +428,6 @@ public class MainApp
 
     private void handlePrefs(ActionEvent event) {
         Stage prefStage = FxGet.kometPreferences().showPreferences(FxGet.manifold(ManifoldGroup.TAXONOMY));
-        //ScenicView.show(prefStage.getScene());
     }
 
     private void handleAbout(ActionEvent event) {

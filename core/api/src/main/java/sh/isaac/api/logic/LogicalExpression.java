@@ -47,6 +47,7 @@ import java.util.function.BiConsumer;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableObject;
 import sh.isaac.api.tree.TreeNodeVisitData;
 
@@ -200,5 +201,10 @@ public interface LogicalExpression extends CommittableObject {
     * @param conceptNid 
     */
    void setConceptBeingDefinedNid(int conceptNid);
+
+   /**
+    * Set the commit state to uncommitted, when changing existing values for example.
+    */
+   void setUncommitted();
 }
 

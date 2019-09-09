@@ -570,6 +570,14 @@ public class KometStageController
             windowPreferencesItem.heightProperty().setValue(newValue);
             windowPreferencesItem.save();
         });
+
+        this.leftTabPane.getSelectionModel().select(this.windowPreferencesItem.leftTabSelectionProperty().get());
+        this.centerTabPane.getSelectionModel().select(this.windowPreferencesItem.centerTabSelectionProperty().get());
+        this.rightTabPane.getSelectionModel().select(this.windowPreferencesItem.rightTabSelectionProperty().get());
+        this.windowPreferencesItem.leftTabSelectionProperty().bind(this.leftTabPane.getSelectionModel().selectedIndexProperty());
+        this.windowPreferencesItem.centerTabSelectionProperty().bind(this.centerTabPane.getSelectionModel().selectedIndexProperty());
+        this.windowPreferencesItem.rightTabSelectionProperty().bind(this.rightTabPane.getSelectionModel().selectedIndexProperty());
+
     }
 
     public void saveSettings() throws BackingStoreException {

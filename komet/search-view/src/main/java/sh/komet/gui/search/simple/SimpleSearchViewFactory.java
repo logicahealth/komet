@@ -25,8 +25,8 @@ import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.interfaces.ExplorationNode;
+import sh.komet.gui.contract.ConceptSearchNodeFactory;
+import sh.komet.gui.interfaces.ConceptExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
@@ -37,11 +37,11 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 @Service(name = "Simple Search Provider")
 @Singleton
-public class SimpleSearchViewFactory implements ExplorationNodeFactory {
+public class SimpleSearchViewFactory implements ConceptSearchNodeFactory {
    public static final String MENU_TEXT  = "Search";
 
    @Override
-   public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
+   public ConceptExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
       try {
          FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/SimpleSearch.fxml"));
          loader.load();

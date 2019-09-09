@@ -62,6 +62,9 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         ENABLE_LEFT_PANE,
         ENABLE_CENTER_PANE,
         ENABLE_RIGHT_PANE,
+        LEFT_TAB_SELECTION,
+        CENTER_TAB_SELECTION,
+        RIGHT_TAB_SELECTION,
     };
 
     private final SimpleBooleanProperty enableLeftPaneProperty = new SimpleBooleanProperty(this, MetaData.ENABLE_LEFT_PANE____SOLOR.toExternalString(), false);
@@ -91,6 +94,11 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
 
     private final SimpleDoubleProperty widthProperty =
             new SimpleDoubleProperty(this, MetaData.WINDOW_WIDTH____SOLOR.toExternalString());
+
+    private final SimpleIntegerProperty leftTabSelectionProperty = new SimpleIntegerProperty(this, "left tab selection", 0);
+    private final SimpleIntegerProperty centerTabSelectionProperty = new SimpleIntegerProperty(this, "center tab selection", 0);
+    private final SimpleIntegerProperty rightTabSelectionProperty = new SimpleIntegerProperty(this, "right tab selection", 0);
+
 
     private PersonaItem personaItem;
 
@@ -132,6 +140,15 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableLeftPaneProperty));
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableCenterPaneProperty));
         getItemList().add(new PropertySheetBooleanWrapper(manifold, enableRightPaneProperty));
+        this.leftTabSelectionProperty.addListener((observable, oldValue, newValue) -> {
+            save();
+        });
+        this.centerTabSelectionProperty.addListener((observable, oldValue, newValue) -> {
+            save();
+        });
+        this.rightTabSelectionProperty.addListener((observable, oldValue, newValue) -> {
+            save();
+        });
     }
 
     @Override
@@ -227,6 +244,9 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         if (personaItem != null) {
             getPreferenceNode().putUuid(Keys.PERSONA_UUID, personaItem.getPersonaUuid());
         }
+        getPreferenceNode().putInt(Keys.LEFT_TAB_SELECTION, leftTabSelectionProperty.get());
+        getPreferenceNode().putInt(Keys.CENTER_TAB_SELECTION, centerTabSelectionProperty.get());
+        getPreferenceNode().putInt(Keys.RIGHT_TAB_SELECTION, rightTabSelectionProperty.get());
 
     }
 
@@ -257,6 +277,10 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         this.centerTabNodesProperty.setAll(TabSpecification.fromStringList(getPreferencesNode().getList(Keys.CENTER_TAB_NODES,new ArrayList<>())));
 
         this.rightTabNodesProperty.setAll(TabSpecification.fromStringList(getPreferencesNode().getList(Keys.RIGHT_TAB_NODES,new ArrayList<>())));
+
+        this.leftTabSelectionProperty.set(getPreferenceNode().getInt(Keys.LEFT_TAB_SELECTION, 0));
+        this.centerTabSelectionProperty.set(getPreferenceNode().getInt(Keys.CENTER_TAB_SELECTION, 0));
+        this.rightTabSelectionProperty.set(getPreferenceNode().getInt(Keys.RIGHT_TAB_SELECTION, 0));
 
         setDefaultLocationAndSize();
     }
@@ -332,6 +356,21 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     @Override
     public SimpleBooleanProperty enableRightPaneProperty() {
         return this.enableRightPaneProperty;
+    }
+
+    @Override
+    public SimpleIntegerProperty leftTabSelectionProperty() {
+        return this.leftTabSelectionProperty;
+    }
+
+    @Override
+    public SimpleIntegerProperty centerTabSelectionProperty() {
+        return this.centerTabSelectionProperty;
+    }
+
+    @Override
+    public SimpleIntegerProperty rightTabSelectionProperty() {
+        return this.rightTabSelectionProperty;
     }
 
     @Override

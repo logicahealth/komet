@@ -79,11 +79,14 @@ when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.NECESSARY_SET);
 then
    $addEditLogicalNode.addSearchIsa();
+   $addEditLogicalNode.addRoleOfType();
    $addEditLogicalNode.addRecentSelectionIsa();
-   $addEditLogicalNode.addIsaNodeAction(MetaData.PROCEDURE____SOLOR);
-   $addEditLogicalNode.addGenericRoleAction();
+   //$addEditLogicalNode.addGenericRoleAction();
+   $addEditLogicalNode.addRoleTypeFromRecentHistory();
    $addEditLogicalNode.addRoleGroupAction();
-   $addEditLogicalNode.addFloatFeatureAction(MetaData.INGREDIENT_STRENGTH____SOLOR, MetaData.MILLIGRAM____SOLOR, ConcreteDomainOperators.EQUALS);
+   $addEditLogicalNode.addFloatFeatureAction();
+   $addEditLogicalNode.addFeatureTypeFromRecentHistory();
+   //$addEditLogicalNode.addFloatFeatureAction(MetaData.INGREDIENT_STRENGTH____SOLOR, MetaData.MILLIGRAM____SOLOR, ConcreteDomainOperators.EQUALS);
 end
 
 /**
@@ -98,11 +101,14 @@ when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.SUFFICIENT_SET);
 then
    $addEditLogicalNode.addSearchIsa();
+   $addEditLogicalNode.addRoleOfType();
    $addEditLogicalNode.addRecentSelectionIsa();
-   $addEditLogicalNode.addIsaNodeAction(MetaData.PROCEDURE____SOLOR);
-   $addEditLogicalNode.addGenericRoleAction();
+   //$addEditLogicalNode.addGenericRoleAction();
+   $addEditLogicalNode.addRoleTypeFromRecentHistory();
    $addEditLogicalNode.addRoleGroupAction();
-   $addEditLogicalNode.addFloatFeatureAction(MetaData.INGREDIENT_STRENGTH____SOLOR, MetaData.MILLIGRAM____SOLOR, ConcreteDomainOperators.EQUALS);
+   $addEditLogicalNode.addFloatFeatureAction();
+   $addEditLogicalNode.addFeatureTypeFromRecentHistory();
+   //$addEditLogicalNode.addFloatFeatureAction(MetaData.INGREDIENT_STRENGTH____SOLOR, MetaData.MILLIGRAM____SOLOR, ConcreteDomainOperators.EQUALS);
 end
 
 rule "AND items"
@@ -165,14 +171,18 @@ when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.ROLE_SOME,
                          getNodeToEditTypeConceptNid() != TermAux.ROLE_GROUP.getNid());
 then
+   $addEditLogicalNode.changeRoleRestrictionToSearchSelection();
+   $addEditLogicalNode.changeRoleTypeToSearchSelection();
    $addEditLogicalNode.changeRoleRestrictionToRecentSelection();
    $addEditLogicalNode.changeRoleTypeToRecentSelection();
 end
+
 rule "CONCEPT items"
    lock-on-active true
 when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.CONCEPT);
 then
+   $addEditLogicalNode.changeConceptToNewSearchSelection();
    $addEditLogicalNode.changeConceptToRecentSelection();
 end
 
@@ -181,7 +191,12 @@ rule "FEATURE items"
 when
    $addEditLogicalNode : AddEditLogicalExpressionNodeMenuItems(getNodeSemantic() == NodeSemantic.FEATURE);
 then
+   $addEditLogicalNode.changeFeatureTypeToNewSearchSelection();
    $addEditLogicalNode.changeFeatureTypeToRecentSelection();
+   $addEditLogicalNode.changeFeatureUnitsToNewSearchSelection();
+   $addEditLogicalNode.changeFeatureUnitsToRecentSelection();
+   $addEditLogicalNode.changeFeatureValue();
+   $addEditLogicalNode.changeFeatureRelationalOperator();
 end
 
 rule "LITERAL_BOOLEAN items"

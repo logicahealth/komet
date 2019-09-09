@@ -32,6 +32,7 @@ import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import sh.isaac.api.Get;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
 /**
  *
@@ -115,15 +116,19 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
                     final int componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
                             .numericValue()
                             .intValue();
-                     try {
-                        filterPass = filter.test(componentNid);
-                     } catch (NoSuchElementException | IllegalStateException e) {
-                        StringBuilder b = new StringBuilder();
-                        b.append(e.getLocalizedMessage()).append("\n");
-                        b.append("Filtering document: ").append(document).append("\n");
-                        b.append("Evaluating: ").append(componentNid).append(" uuids: ")
-                                .append(Arrays.toString(Get.identifierService().getUuidArrayForNid(componentNid)));
-                        LOG.error(b.toString());
+                     if (Get.identifierService().getObjectTypeForComponent(componentNid) == IsaacObjectType.SEMANTIC) {
+                        try {
+                           filterPass = filter.test(componentNid);
+                        } catch (NoSuchElementException | IllegalStateException e) {
+                           StringBuilder b = new StringBuilder();
+                           b.append(e.getLocalizedMessage()).append("\n");
+                           b.append("Filtering document: ").append(document).append("\n");
+                           b.append("Evaluating: ").append(componentNid).append(" uuids: ")
+                                   .append(Arrays.toString(Get.identifierService().getUuidArrayForNid(componentNid)));
+                           LOG.error(b.toString());
+                        }
+                     } else {
+                        LOG.warn("Concept nid in search results: " + componentNid + " " + document);
                      }
                   }
                   else

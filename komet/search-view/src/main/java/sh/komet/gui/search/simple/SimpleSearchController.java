@@ -39,10 +39,7 @@
 
 package sh.komet.gui.search.simple;
 
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -58,12 +55,14 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.gui.treeview.MultiParentTreeCell;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
+import sh.komet.gui.interfaces.ConceptExplorationNode;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.table.DescriptionTableCell;
@@ -75,7 +74,7 @@ import sh.komet.gui.contract.GuiSearcher;
 /**
  * @author kec
  */
-public class SimpleSearchController implements ExplorationNode, GuiSearcher {
+public class SimpleSearchController implements ExplorationNode, GuiSearcher, ConceptExplorationNode {
     private static final Logger              LOG               = LogManager.getLogger();
     private final SimpleStringProperty       titleProperty     =
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
@@ -89,6 +88,8 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
             new SimpleListProperty<>(FXCollections.observableArrayList());
     private Manifold                                          manifold;
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.SIMPLE_SEARCH.getIconographic());
+
+    private final SimpleObjectProperty<ConceptSpecification> selectedConceptSpecificationProperty = new SimpleObjectProperty<>();
 
     @FXML
     AnchorPane                                                mainAnchorPane;
@@ -183,6 +184,9 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
             searchTextField.setText("+tetra* +fallot");
         }
         FxGet.searchers().add(this);
+        resultTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            this.selectedConceptSpecificationProperty.set(Get.concept(newValue.getReferencedComponentNid()));
+        });
     }
 
     private void initializeControls() {
@@ -347,5 +351,20 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     @Override
     public boolean canClose() {
         return true;
+    }
+
+    @Override
+    public ReadOnlyObjectProperty<ConceptSpecification> selectedConceptSpecification() {
+        return selectedConceptSpecificationProperty;
+    }
+
+    @Override
+    public void focusOnInput() {
+        this.searchTextField.requestFocus();
+    }
+
+    @Override
+    public void focusOnResults() {
+        this.resultTable.requestFocus();
     }
 }

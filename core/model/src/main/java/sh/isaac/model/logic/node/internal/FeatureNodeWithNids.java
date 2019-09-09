@@ -278,6 +278,14 @@ public final class FeatureNodeWithNids
 
    //~--- get methods ---------------------------------------------------------
 
+   public void setOperator(ConcreteDomainOperators operator) {
+      this.operator = operator;
+   }
+
+   public void setMeasureSemanticNid(int measureSemanticNid) {
+      this.measureSemanticNid = measureSemanticNid;
+   }
+
    /**
     * Gets the node semantic.
     *
