@@ -12,11 +12,11 @@
    <name>ISAAC provider: Drools</name>
 
    <dependencies>
-              <dependency>
-              <groupId>sh.isaac</groupId>
-              <artifactId>scenic-view</artifactId>
-              <version>11.0</version>
-              </dependency>
+<!--              <dependency>-->
+<!--              <groupId>sh.isaac</groupId>-->
+<!--              <artifactId>scenic-view</artifactId>-->
+<!--              <version>11.0</version>-->
+<!--              </dependency>-->
       <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>gui-contracts</artifactId>
