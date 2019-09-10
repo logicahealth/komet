@@ -129,7 +129,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
       for (final SemanticChronology descriptionSemantic : assemblageConcept.getConceptDescriptionList()) {
          @SuppressWarnings("rawtypes")
          final LatestVersion descriptionVersion =
-            ((SemanticChronology) descriptionSemantic).getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
+            ((SemanticChronology) descriptionSemantic).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
          if (descriptionVersion.isPresent()) {
             final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();
@@ -176,7 +176,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
             if (semantic.getVersionType() == VersionType.DYNAMIC) {
                 @SuppressWarnings("rawtypes")
                 final LatestVersion<? extends DynamicVersion> semanticVersion =
-                   ((SemanticChronology) semantic).getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
+                   ((SemanticChronology) semantic).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
                 if (semanticVersion.isPresent()) {
                    @SuppressWarnings("rawtypes")
@@ -403,7 +403,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
             if (metadata.isPresent())
             {
                //Read this semantic, to find out the type info
-               LatestVersion<SemanticVersion> latest = metadata.get().getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
+               LatestVersion<SemanticVersion> latest = metadata.get().getLatestVersion(StampCoordinates.getDevelopmentLatest());
                if (latest.isPresent())
                {
                   if (latest.get().getSemanticType() == VersionType.COMPONENT_NID)
@@ -625,7 +625,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
          case Str1_Str2_Nid3_Nid4:
          case Str1_Str2_Nid3_Nid4_Nid5:
          case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-            LatestVersion<BrittleVersion> version = semantic.getLatestVersion(StampCoordinates.getDevelopmentLatest().makeCoordinateAnalog(Status.ANY_STATUS_SET));
+            LatestVersion<BrittleVersion> version = semantic.getLatestVersion(StampCoordinates.getDevelopmentLatest());
                if (version.isPresent())
                {
                   ArrayList<DynamicColumnInfo> dci = new ArrayList<>();
