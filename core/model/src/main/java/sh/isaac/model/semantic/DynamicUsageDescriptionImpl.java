@@ -856,4 +856,9 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
       dynamicCache.invalidateAll();
       staticCache.invalidateAll();
    }
+
+   @Override
+   public String toString() {
+      return getDynamicName() + "has " + getColumnInfo().length + " columns";
+   }
 }

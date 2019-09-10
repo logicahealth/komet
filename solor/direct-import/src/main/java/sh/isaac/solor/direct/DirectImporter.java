@@ -1758,7 +1758,6 @@ public class DirectImporter
                         throw new RuntimeException("Misconfiguration for refset " + dci.getKey() + " no info for column " + i);
                     }
                 }
-                LOG.info("Refset sctid: '" + dci.getKey() + "' has " + dci.getValue().size() + " columns");
             }
             br.reset();  //back the stream up, and actually process the refset now.
 
@@ -1781,36 +1780,31 @@ public class DirectImporter
                     LOG.error("Cannot determine nid for refset descriptor {}, probably an inactive concept that wasn't loaded?  Skipping", refsetDescriptors.getKey());
                     continue;
                 }
-                if (DynamicUsageDescriptionImpl.isDynamicSemantic(nid))
-                {
-                    //Should be all configured in the preload / dependencies
-                }
-                else
-                {
-                    int[] assemblageStamps = Get.concept(nid).getVersionStampSequences();
-                    Arrays.sort(assemblageStamps);
-                    int stampSequence = assemblageStamps[assemblageStamps.length - 1];  //use the largest (newest) stamp on the concept, 
-                    //since we probably just loaded the concept....
+                int[] assemblageStamps = Get.concept(nid).getVersionStampSequences();
+                Arrays.sort(assemblageStamps);
+                int stampSequence = assemblageStamps[assemblageStamps.length - 1];  //use the largest (newest) stamp on the concept, 
+                //since we probably just loaded the concept....
 
-                    //TODO we need special handling for mapset conversion into our native mapset type
-                    List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(nid,
-                        "DynamicDefinition for refset " + Get.conceptDescriptionText(nid),
-                        refsetDescriptors.getValue().toArray(new DynamicColumnInfo[refsetDescriptors.getValue().size()]), null, null, stampSequence);
+                //TODO we need special handling for mapset conversion into our native mapset type
+                List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(nid,
+                    "DynamicDefinition for refset " + Get.conceptDescriptionText(nid),
+                    refsetDescriptors.getValue().toArray(new DynamicColumnInfo[refsetDescriptors.getValue().size()]), null, null, stampSequence);
 
-                    for (Chronology c : items)
+                for (Chronology c : items)
+                {
+                    assemblageService.writeSemanticChronology((SemanticChronology)c);
+                    for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class))
                     {
-                        assemblageService.writeSemanticChronology((SemanticChronology)c);
-                        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class))
-                        {
-                            indexer.indexNow(c);
-                        }
+                        indexer.indexNow(c);
                     }
                 }
+                LOG.info("Refset Config for sctid {}: {}", refsetDescriptors.getKey(), DynamicUsageDescriptionImpl.read(nid).toString());
             }
             try
             {
                 //make sure it is readable for future calls
                 assemblageService.sync().get();
+                Get.conceptService().sync().get();
             }
             catch (Exception e)
             {
