@@ -170,6 +170,7 @@ public class Frills
 
    private static final Cache<Integer, Boolean> IS_ASSOCIATION_CLASS = Caffeine.newBuilder().maximumSize(50).build();
    private static final Cache<Integer, Boolean> IS_MAPPING_CLASS = Caffeine.newBuilder().maximumSize(50).build();
+   private static final Cache<Integer, Boolean> IS_SEMANTIC_ASSEMBLAGE = Caffeine.newBuilder().maximumSize(50).build();
    private static final Cache<Integer, Integer> MODULE_TO_TERM_TYPE_CACHE = Caffeine.newBuilder().maximumSize(50).build();
    private static final Cache<Integer, Integer> EDIT_MODULE_FOR_TERMINOLOGY_CACHE = Caffeine.newBuilder().maximumSize(50).build();
 
@@ -409,6 +410,8 @@ public class Frills
     *
     * @param conceptNid the concept nid
     * @return true, if the concept is properly defined as a semantic which represents an association.  See {@link DynamicConstants#DYNAMIC_ASSOCIATION}
+    * 
+    * Returns cached answers (true or false)
     */
    public static boolean definesAssociation(int conceptNid) {
       return IS_ASSOCIATION_CLASS.get(conceptNid, nid -> {
@@ -444,55 +447,30 @@ public class Frills
       return false;
    }
    
-   /**
-    * Returns true if a concept has a {@link MetaData#MEMBERSHIP_SEMANTIC____SOLOR} semantic attached to it (at any coordinate)
-    * @param assemblageNid
-    * @return true, if it is a static semantic annotated as a membership semantic
-    */
-   public static boolean definesStaticRefsetSemantic(int assemblageNid) {
-      if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) {
-         Optional<SemanticChronology> semantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
-               assemblageNid, MetaData.MEMBERSHIP_SEMANTIC____SOLOR.getNid()).findAny();
-         if (semantic.isPresent()) {
-            return true;
-         }
-      }
-      return false;
-   }
-   
-   /**
-    * Returns the child of {@link MetaData#SEMANTIC_TYPE____SOLOR} if a concept has a {@link MetaData#SEMANTIC_TYPE____SOLOR} semantic attached to it 
-    * on the development latest coordinate. 
-    * @param assemblageNid
-    * @return the nid that specifies the type, if found, or empty, if it doesn't have a semanticType annotation.
-    */
-   public static Optional<Integer> getStaticSemanticType(int assemblageNid) {
-      if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) {
-         Optional<SemanticChronology> semantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
-               assemblageNid, MetaData.SEMANTIC_TYPE____SOLOR.getNid()).findAny();
-         if (semantic.isPresent())
-         {
-            LatestVersion<ComponentNidVersion> v = semantic.get().getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
-            if (v.isPresent()) {
-                return Optional.of(v.get().getComponentNid());
-            }
-         }
-      }
-      return Optional.empty();
-   }
 
    /**
-    * Defines dynamic element.  See {@link DynamicUsageDescriptionImpl#isDynamicSemantic(int)}
+    * Checks if the concept is specified in such a way that it defines a semantic - static or dynamic.  Returns cached answers.
+    * (true or false)
     *
     * @param conceptNid the concept nid
     * @return true, if successful
     */
-   public static boolean definesDynamicSemantic(int conceptNid) {
-      return DynamicUsageDescriptionImpl.isDynamicSemantic(conceptNid);
+   public static boolean definesSemantic(int conceptNid) {
+
+      return IS_SEMANTIC_ASSEMBLAGE.get(conceptNid, nid -> {
+         try {
+            DynamicUsageDescriptionImpl.mockOrRead(conceptNid);
+            return true;
+         }
+         catch (Exception e) {
+            return false;
+         }
+      });
    }
 
    /**
     * Checks if the concept is specified in such a way that it defines a mapping assemblage.  See {@link IsaacMappingConstants#DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE}
+    * Returns cached answers (true or false)
     *
     * @param conceptNid the concept nid
     * @return true, if successful
@@ -2541,6 +2519,7 @@ public class Frills
    {
       IS_ASSOCIATION_CLASS.invalidateAll();
       IS_MAPPING_CLASS.invalidateAll();
+      IS_SEMANTIC_ASSEMBLAGE.invalidateAll();
       MODULE_TO_TERM_TYPE_CACHE.invalidateAll();
       EDIT_MODULE_FOR_TERMINOLOGY_CACHE.invalidateAll();
    }

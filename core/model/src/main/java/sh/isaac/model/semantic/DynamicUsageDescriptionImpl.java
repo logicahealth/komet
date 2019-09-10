@@ -785,7 +785,10 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
    }
 
    /**
-    * Test if dyn semantic.
+    * Test if dyn semantic.  Note, this only returns true if it is truely a dynamic semantics.
+    * Mocked static semantics will not return true.
+    * 
+    * True responses are cached, but false responses are not
     *
     * @param assemblageNid the assemblage nid 
     * @return true, if dynamic element
