@@ -405,6 +405,9 @@ public enum DynamicValidatorType {
             if ((expectedCT == IsaacObjectType.SEMANTIC) && (valData.length == 2)) {
                // they specified a specific type.  Verify.
                final VersionType st = VersionType.parse(valData[1].getDataString(), false);
+               if (st == VersionType.UNKNOWN) {
+                  throw new RuntimeException("Validator data is invalid for VersionType: " + valData[1].getDataString());
+               }
                final SemanticChronology semanticChronology = Get.assemblageService()
                                                                               .getSemanticChronology(nid);
 

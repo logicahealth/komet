@@ -44,18 +44,12 @@
  */
 package sh.isaac.api.externalizable;
 
-//~--- JDK imports ------------------------------------------------------------
 
 import java.io.DataInput;
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.Locale;
-
 import org.apache.commons.lang3.StringUtils;
-
 import sh.isaac.api.DataSource;
-
-//~--- enums ------------------------------------------------------------------
 
 /**
  * The Enum IsaacObjectType. All enums must have a token > 0 and a version > 0;
@@ -73,37 +67,16 @@ public enum IsaacObjectType {
     * A semantic unit of meaning, associated with a concept or another SEMANTIC.
     */
    SEMANTIC((byte) 2, (byte) 1, "Semantic"),
-   
    //3 was a commit record, deprecated, should not be reused
-
-   /**
-    * A stamp comment.
-    */
    STAMP_COMMENT((byte) 4, (byte) 1, "Stamp Comment"),
-
-   /**
-    * A stamp alias.
-    */
    STAMP_ALIAS((byte) 5, (byte) 1, "Stamp Alias"),
-
-   /**
-    * A stamp.
-    */
    STAMP((byte) 6, (byte) 1, "Stamp"),
-
    //7 was logical expression, deprecated, should not be reused
-
-   /**
-    * A logical expression.
-    */
    UNKNOWN((byte) 128, (byte) 0, "Unknown");
 
-   /** The token. */
    private final byte token;
    private final byte dataFormatVersion;
    private final String niceName;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new object type.
@@ -115,8 +88,6 @@ public enum IsaacObjectType {
       this.dataFormatVersion = dataFormatVersion;
       this.niceName = niceName;
    }
-
-   //~--- methods -------------------------------------------------------------
 
    public static IsaacObjectType fromByteArrayDataBuffer(ByteArrayDataBuffer input) {
       final byte token = input.getByte();
@@ -232,27 +203,29 @@ public enum IsaacObjectType {
    }
    
    /**
-    * Parses the.
+    * Parses the provided string into a {@link IsaacObjectType} if possible.
     *
     * @param nameOrEnumId the name or enum id
-    * @param exceptionOnParseFail the exception on parse fail
-    * @return the object chronology type
+    * @param exceptionOnParseFail if true, throw an exception if empty, null, or an invalid string 
+    * is passed in.  If false, will return {@link IsaacObjectType#UNKNOWN} for any invalid case.
+    * @return the object chronology type, or, if exceptionOnParseFail is false, the value {@link IsaacObjectType#UNKNOWN}
+    * @throws IllegalArgumentException if exceptionOnParseFail is true 
     */
-   public static IsaacObjectType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
+   public static IsaacObjectType parse(String nameOrEnumId, boolean exceptionOnParseFail) throws IllegalArgumentException {
       if (nameOrEnumId == null) {
-      	if (exceptionOnParseFail) {
-            throw new InvalidParameterException("Could not determine ObjectChronologyType from 'null'");
+         if (exceptionOnParseFail) {
+            throw new IllegalArgumentException("Could not determine IsaacObjectType from 'null'");
          }
-         return null;
+         return UNKNOWN;
       }
 
       final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH).trim();
 
       if (StringUtils.isBlank(clean)) {
-      	if (exceptionOnParseFail) {
-            throw new InvalidParameterException("Could not determine ObjectChronologyType from 'null'");
+         if (exceptionOnParseFail) {
+            throw new IllegalArgumentException("Could not determine IsaacObjectType from 'null'");
          }
-         return null;
+         return UNKNOWN;
       }
 
       for (final IsaacObjectType ct: values()) {
@@ -264,13 +237,11 @@ public enum IsaacObjectType {
       }
 
       if (exceptionOnParseFail) {
-         throw new InvalidParameterException("Could not determine ObjectChronologyType from " + nameOrEnumId);
+         throw new IllegalArgumentException("Could not determine IsaacObjectType from " + nameOrEnumId);
       }
 
       return UNKNOWN;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    public byte getDataFormatVersion() {
       return dataFormatVersion;
@@ -290,4 +261,3 @@ public enum IsaacObjectType {
       return this.niceName;
    }
 }
-
