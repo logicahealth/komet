@@ -53,7 +53,7 @@ public class PropertySheetItemVersionTypeWrapper implements PropertySheet.Item {
 
     @Override
     public String getDescription() {
-        return "version type for action";
+        return "Version type to attach actions to";
     }
 
     @Override

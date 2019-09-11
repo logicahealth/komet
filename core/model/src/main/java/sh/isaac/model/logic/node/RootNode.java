@@ -47,6 +47,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
@@ -109,7 +110,8 @@ public class RootNode
     */
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Root[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
+      return "Root[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix)
+              + " " + Get.defaultCoordinate().getPreferredDescriptionText(getNidForConceptBeingDefined());
    }
    @Override
    public String toSimpleString() {

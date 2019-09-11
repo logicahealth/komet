@@ -90,11 +90,6 @@ public abstract class BadgedVersionPaneModel {
     protected final MenuButton editControl = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
     protected final Menu editMenu = new Menu("Edit");
     protected final Menu attachMenu = new Menu("Attach");
-
-    {
-        editControl.getItems().add(editMenu);
-        editControl.getItems().add(attachMenu);
-    }
     protected final ExpandControl expandControl = new ExpandControl();
     protected final ArrayList<Node> badges = new ArrayList<>();
     protected final ObservableList<ComponentPaneModel> extensionPaneModels = FXCollections.observableArrayList();
@@ -187,9 +182,19 @@ public abstract class BadgedVersionPaneModel {
                     -1);
         }
         this.badges.add(this.stampControl);
+        this.editControl.getItems().clear();
         this.attachMenu.getItems().addAll(getAttachmentMenuItems());
         this.editMenu.getItems().addAll(getEditMenuItems());
-        this.editControl.setVisible(!(editMenu.getItems().isEmpty() && attachMenu.getItems().isEmpty()));
+
+        if (!this.editMenu.getItems().isEmpty()) {
+            this.editControl.getItems().add(this.editMenu);
+        }
+        if (!this.attachMenu.getItems().isEmpty()) {
+            this.editControl.getItems().add(this.attachMenu);
+        }
+        if (this.editControl.getItems().isEmpty()) {
+            this.editControl.setVisible(false);
+        }
 
 
         ObservableVersion observableVersion = categorizedVersion.getObservableVersion();
@@ -568,8 +573,7 @@ public abstract class BadgedVersionPaneModel {
 
     private void setupEditControls() {
         this.editControlTiles.getChildren().clear();
-
-        if (!(editMenu.getItems().isEmpty() && attachMenu.getItems().isEmpty())) {
+        if (!this.editControl.getItems().isEmpty()) {
             this.editControlTiles.getChildren().add(this.editControl);
         }
     }
@@ -619,9 +623,17 @@ public abstract class BadgedVersionPaneModel {
             this.optionalPropertySheetMenuItem = Optional.empty();
             this.editBorderPane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
             this.editToolBar.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
-            this.editControl.setVisible(false);
+
+            this.editControl.getItems().clear();
+            this.attachMenu.getItems().setAll(getAttachmentMenuItems());
+            if (!this.attachMenu.getItems().isEmpty()) {
+                this.editControl.getItems().add(this.attachMenu);
+            }
             this.editMenu.getItems().setAll(getEditMenuItems());
-            this.editControl.setVisible(!(editMenu.getItems().isEmpty() && attachMenu.getItems().isEmpty()));
+            if (!this.editMenu.getItems().isEmpty()) {
+                this.editControl.getItems().add(this.editMenu);
+            }
+            this.editControl.setVisible(!this.editControl.getItems().isEmpty());
             if (this instanceof VersionPaneModel) {
                 this.redoButton.setVisible(true);
             }

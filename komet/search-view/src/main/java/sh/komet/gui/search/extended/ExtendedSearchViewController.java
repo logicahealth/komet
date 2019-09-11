@@ -246,12 +246,6 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
         assert stampCriteriaTooltip != null : "fx:id=\"stampCriteriaTooltip\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
         assert adjustStampButton != null : "fx:id=\"adjustStampButton\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
 
-        borderPane.getStyleClass().addListener((ListChangeListener) c -> {
-            System.out.println("Search style class changed: " + c.getList());
-        });
-        borderPane.getStyleClass().add("tab-content-area");
-        borderPane.getStyleClass().add("tab-pane");
-
         searchResults.getSelectionModel().getSelectedItems().addListener(this::selectionChanged);
 
         borderPane.getStylesheets().add(ExtendedSearchViewController.class.getResource("/styles/extendedSearch.css").toString());

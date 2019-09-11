@@ -278,9 +278,9 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
 
         this.rightTabNodesProperty.setAll(TabSpecification.fromStringList(getPreferencesNode().getList(Keys.RIGHT_TAB_NODES,new ArrayList<>())));
 
-        this.leftTabSelectionProperty.set(getPreferenceNode().getInt(Keys.LEFT_TAB_SELECTION, 0));
-        this.centerTabSelectionProperty.set(getPreferenceNode().getInt(Keys.CENTER_TAB_SELECTION, 0));
-        this.rightTabSelectionProperty.set(getPreferenceNode().getInt(Keys.RIGHT_TAB_SELECTION, 0));
+        this.leftTabSelectionProperty.set(getPreferenceNode().getInt(Keys.LEFT_TAB_SELECTION, leftTabSelectionProperty.get()));
+        this.centerTabSelectionProperty.set(getPreferenceNode().getInt(Keys.CENTER_TAB_SELECTION, centerTabSelectionProperty.get()));
+        this.rightTabSelectionProperty.set(getPreferenceNode().getInt(Keys.RIGHT_TAB_SELECTION, rightTabSelectionProperty.get()));
 
         setDefaultLocationAndSize();
     }
