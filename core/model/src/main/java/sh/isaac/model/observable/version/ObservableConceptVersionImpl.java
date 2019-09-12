@@ -99,6 +99,7 @@ public class ObservableConceptVersionImpl
         analog.setModuleNid(ec.getModuleNid());
         analog.setAuthorNid(ec.getAuthorNid());
         analog.setPathNid(ec.getPathNid());
+        analog.setStatus(this.getStatus());
         return (V) analog;
     }
 

@@ -88,8 +88,8 @@ public abstract class BadgedVersionPaneModel {
     private final VBox outerPane = new VBox(primaryPane);
     protected final Text componentType = new Text();
     protected final MenuButton editControl = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
-    protected final Menu editMenu = new Menu("Edit");
-    protected final Menu attachMenu = new Menu("Attach");
+    protected final Menu editMenu = new Menu("Edit", Iconography.REDO.getIconographic());
+    protected final Menu attachMenu = new Menu("Attach", Iconography.PAPERCLIP.getIconographic());
     protected final ExpandControl expandControl = new ExpandControl();
     protected final ArrayList<Node> badges = new ArrayList<>();
     protected final ObservableList<ComponentPaneModel> extensionPaneModels = FXCollections.observableArrayList();
@@ -186,11 +186,11 @@ public abstract class BadgedVersionPaneModel {
         this.attachMenu.getItems().addAll(getAttachmentMenuItems());
         this.editMenu.getItems().addAll(getEditMenuItems());
 
-        if (!this.editMenu.getItems().isEmpty()) {
-            this.editControl.getItems().add(this.editMenu);
-        }
         if (!this.attachMenu.getItems().isEmpty()) {
             this.editControl.getItems().add(this.attachMenu);
+        }
+        if (!this.editMenu.getItems().isEmpty()) {
+            this.editControl.getItems().add(this.editMenu);
         }
         if (this.editControl.getItems().isEmpty()) {
             this.editControl.setVisible(false);
