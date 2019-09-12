@@ -185,7 +185,15 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
         }
         FxGet.searchers().add(this);
         resultTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            this.selectedConceptSpecificationProperty.set(Get.concept(newValue.getReferencedComponentNid()));
+            try {
+                if (newValue != null) {
+                    this.selectedConceptSpecificationProperty.set(Get.concept(newValue.getReferencedComponentNid()));
+                } else {
+                    this.selectedConceptSpecificationProperty.set(null);
+                }
+            } catch (Exception e) {
+                FxGet.dialogs().showErrorDialog(e);
+            }
         });
     }
 

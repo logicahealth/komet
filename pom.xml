@@ -149,7 +149,7 @@
       <tilesfx.version>1.5.2</tilesfx.version>
       <wagon-provider-api.version>3.0.0</wagon-provider-api.version>
       <jackson-databind.version>2.9.8</jackson-databind.version>
-      <javafx.version>11.0.2</javafx.version>
+      <javafx.version>13</javafx.version>
       <java.version>11</java.version>
       <java.vendor>openjdk</java.vendor>
       <jaxb-api.version>2.3.1</jaxb-api.version>
