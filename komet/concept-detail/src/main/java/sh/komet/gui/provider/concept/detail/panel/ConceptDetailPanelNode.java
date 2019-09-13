@@ -59,6 +59,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 
@@ -595,8 +596,10 @@ public class ConceptDetailPanelNode
         if (versionGraphToggle.isSelected()) {
             for (int stampOrder = 0; stampOrder < sortedStampSequences.size(); stampOrder++) {
                 StampControl stampControl = new StampControl();
+                int stampSequence = sortedStampSequences.get(stampOrder);
+                stampControl.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !Get.stampService().isStampActive(stampSequence));
 
-                stampControl.setStampedVersion(sortedStampSequences.get(stampOrder), conceptDetailManifold, stampOrder + 1);
+                stampControl.setStampedVersion(stampSequence, conceptDetailManifold, stampOrder + 1);
                 versionBrancheGrid.add(stampControl, 0, stampOrder + 2);
             }
         }
@@ -684,14 +687,7 @@ public class ConceptDetailPanelNode
             return;
         }
         for (int stampSequence : chronology.getVersionStampSequences()) {
-            if (historySwitch.isSelected()) {
-                stampOrderHashMap.put(stampSequence, 0);
-            } else {
-                if (Get.stampService()
-                        .getStatusForStamp(stampSequence) == Status.ACTIVE) {
-                    stampOrderHashMap.put(stampSequence, 0);
-                }
-            }
+            stampOrderHashMap.put(stampSequence, 0);
         }
 
         chronology.getSemanticChronologyList()
@@ -726,14 +722,7 @@ public class ConceptDetailPanelNode
         final AtomicInteger stampOrder = new AtomicInteger();
 
         sortedStampSequences.forEach((stampSequence) -> {
-            if (historySwitch.isSelected()) {
-                stampOrderHashMap.put(stampSequence, stampOrder.incrementAndGet());
-            } else {
-                if (Get.stampService()
-                        .getStatusForStamp(stampSequence) == Status.ACTIVE) {
-                    stampOrderHashMap.put(stampSequence, stampOrder.incrementAndGet());
-                }
-            }
+            stampOrderHashMap.put(stampSequence, stampOrder.incrementAndGet());
         });
         populateVersionBranchGrid();
         updateManifoldHistoryStates();

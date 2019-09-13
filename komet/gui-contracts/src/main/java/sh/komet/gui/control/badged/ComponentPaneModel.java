@@ -13,6 +13,7 @@ import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -148,7 +149,10 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
                 if (!versionPanes.isEmpty()) {
                     addVersionPane(versionHeaderPanel);
                 }
-                versionPanes.forEach(this::addVersionPane);
+                // Add most recent first, and add oldest last... Reverse of the sort.
+                for (int i = versionPanes.size() - 1; i > -1; i--) {
+                    this.addVersionPane(versionPanes.get(i));
+                 }
                 if (!extensionPaneModels.isEmpty()) {
                     addAttachmentPane(extensionHeaderPanel);
                 }

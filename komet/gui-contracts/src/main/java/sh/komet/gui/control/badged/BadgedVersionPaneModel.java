@@ -181,6 +181,9 @@ public abstract class BadgedVersionPaneModel {
                     manifold,
                     -1);
         }
+        if (this.isInactive.get()) {
+            this.stampControl.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, true);
+        }
         this.badges.add(this.stampControl);
         this.editControl.getItems().clear();
         this.attachMenu.getItems().addAll(getAttachmentMenuItems());
