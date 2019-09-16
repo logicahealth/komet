@@ -43,7 +43,9 @@ package sh.isaac.api.util;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -167,6 +169,34 @@ public class NumericUtils {
          return OptionalInt.empty();
       }
    }
+   
+   /**
+    * Gets the double.
+    *
+    * @param string the string
+    * @return the int
+    */
+   public static OptionalDouble getDouble(String string) {
+      try {
+         return OptionalDouble.of(Double.parseDouble(string.trim()));
+      } catch (final Exception e) {
+         return OptionalDouble.empty();
+      }
+   }
+   
+   /**
+    * Gets the float.
+    *
+    * @param string the string
+    * @return the int
+    */
+   public static Optional<Float> getFloat(String string) {
+      try {
+         return Optional.of(Float.parseFloat(string.trim()));
+      } catch (final Exception e) {
+         return Optional.empty();
+      }
+   }
 
    /**
     * Checks if int.
@@ -177,6 +207,26 @@ public class NumericUtils {
    public static boolean isInt(String string) {
       return (getInt(string).isPresent());
    }
+   
+   /**
+    * Checks if float.
+    *
+    * @param string the string
+    * @return true, if int
+    */
+   public static boolean isFloat(String string) {
+      return (getFloat(string).isPresent());
+   }
+   
+   /**
+    * Checks if double.
+    *
+    * @param string the string
+    * @return true, if int
+    */
+   public static boolean isDouble(String string) {
+      return (getDouble(string).isPresent());
+   }
 
    /**
     * Gets the long.
@@ -184,11 +234,11 @@ public class NumericUtils {
     * @param string the string
     * @return the long
     */
-   public static Optional<Long> getLong(String string) {
+   public static OptionalLong getLong(String string) {
       try {
-         return Optional.of(Long.parseLong(string.trim()));
+         return OptionalLong.of(Long.parseLong(string.trim()));
       } catch (final Exception e) {
-         return Optional.empty();
+         return OptionalLong.empty();
       }
    }
 
