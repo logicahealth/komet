@@ -39,6 +39,7 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
+import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.concurrent.Task;
@@ -62,7 +63,10 @@ public class AggregateClassifyTask
         extends SequentialAggregateTask<ClassifierResults> implements PersistTaskResult {
 
    private CycleCheck cc = null;
-   private Logger log = LogManager.getLogger();
+   private static Logger log = LogManager.getLogger();
+   
+   //Classification takes a tremendous amound of memory.  Don't allow it to run in parallel.
+   private static Semaphore concurrentRunPrevent = new Semaphore(1);
    
    /**
     * Instantiates a new aggregate classify task.
@@ -88,6 +92,7 @@ public class AggregateClassifyTask
       }
       try {
          if (cc != null) {
+            log.debug("Running cycle check");
             ClassifierResults cr = cc.call();
             if (cr != null) {
                // had a cycle.  Abort.
@@ -103,6 +108,8 @@ public class AggregateClassifyTask
          log.info("Classification task finished - summary: {}", cr.toString());
          return cr;
       } finally {
+         concurrentRunPrevent.release();
+         log.debug("Released classifier lock");
          if (LookupService.hasService(MemoryManagementService.class)) {
             LookupService.getService(MemoryManagementService.class)
                     .removeState(ApplicationStates.CLASSIFYING);
@@ -112,7 +119,8 @@ public class AggregateClassifyTask
    }
 
     /**
-     * When this method returns, the task is already executing.
+     * When this method returns, the task is already executing, or will be shortly, if another classifier execution is already running.  
+     * You do not need to execute the task.
      *
      * @param stampCoordinate the stamp coordinate
      * @param logicCoordinate the logic coordinate
@@ -121,10 +129,33 @@ public class AggregateClassifyTask
      */
     public static AggregateClassifyTask get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, boolean cycleCheckFirst) {
         final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate, cycleCheckFirst);
-        Get.workExecutors()
-                .getExecutor()
-                .execute(classifyTask);
-        Get.service(LogicProvider.class).getPendingLogicTasks().add(classifyTask);
+        //The execution of this classify operation may block, if another classification is already running.
+        //Don't want to (potentially) lose all of the work executor slots to blocked classifications - so spawn a new thread here, if necessary, 
+        //to wait.
+        Runnable r = (()-> {
+            //If the classifier is currently running, this may block.  
+            try {
+                log.debug("Acquiring classifier execution slot");
+                concurrentRunPrevent.acquire();
+                log.debug("Acquired slot, executing classifier");
+                Get.workExecutors().getExecutor().execute(classifyTask);
+                Get.service(LogicProvider.class).getPendingLogicTasks().add(classifyTask);
+            }
+            catch (InterruptedException e) {
+                log.error("Unexpected interrupt waiting for classify slot.  Not executing");
+            }
+        });
+        
+        if (concurrentRunPrevent.availablePermits() > 0) {
+            //Since we just checked, its highly unlikely this will block.  Run the task submit directly on this thread.
+            r.run();
+        }
+        else {
+            log.debug("Spawning a thread to wait for classification slot");
+            Thread t = new Thread(r, "classification run queue");
+            t.setDaemon(true);
+            t.start();
+        }
         return classifyTask;
     }
 }
