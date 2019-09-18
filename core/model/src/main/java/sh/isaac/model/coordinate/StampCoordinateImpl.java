@@ -39,12 +39,12 @@ package sh.isaac.model.coordinate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -107,7 +107,7 @@ public class StampCoordinateImpl
 
     List<ConceptSpecification> modulePriorityList;
     
-    private transient HashMap<Integer, StampCoordinate> statusAnalogCache = new HashMap<>();
+    private transient ConcurrentHashMap<Integer, StampCoordinate> statusAnalogCache = new ConcurrentHashMap<>();
 
     /**
      * No arg constructor for JAXB.
