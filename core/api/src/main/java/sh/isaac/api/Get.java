@@ -834,7 +834,9 @@ public class Get
       semanticIndexer                 = null;
       dataStore                       = null;
       preferencesService              = null;
-      TERM_AUX_CACHE.clear();
+      synchronized (TERM_AUX_CACHE) {
+          TERM_AUX_CACHE.clear();
+      }
    }
 
    public static ScheduledExecutorService scheduledExecutor() {
