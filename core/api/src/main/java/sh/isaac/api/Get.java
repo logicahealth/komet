@@ -380,34 +380,26 @@ public class Get
     * 
     * Note that this implementation does rely on the configuration of the 
     * {@link #defaultConceptSnapshotService()} - if that configuration is changed, 
-    * the behavor of this method will follow.
+    * the behavior of this method will follow.
     *
     * @param conceptNid nid of the concept to get the description for
-    * @return a description for this concept. If no description can be found,
-    * {@code "No desc for: " + conceptNid;} will be returned.
+    * @return a description for this concept. If no description can be found, {@code "No desc for: " + UUID;} will be returned.
+    * @see ConceptSnapshotService#conceptDescriptionText(int)
     */
    public static String conceptDescriptionText(int conceptNid) {
-     if (conceptNid >= 0) {
+      if (conceptNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
-     if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
+      if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
          if (sc.getVersionType() == VersionType.DESCRIPTION) {
-             LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate());
-             if (latestDescription.isPresent()) {
-                 return "Desc: " + latestDescription.get().getText();
-             }
+            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate());
+            if (latestDescription.isPresent()) {
+               return "Desc: " + latestDescription.get().getText();
+            }
          }
-     }
-      final LatestVersion<DescriptionVersion> descriptionOptional =
-         defaultConceptSnapshotService().getDescriptionOptional(conceptNid);
-
-      if (descriptionOptional.isPresent()) {
-         return descriptionOptional.get()
-                                   .getText();
       }
-
-      return "No desc for: " + conceptNid + " " + Get.identifierService.getUuidPrimordialStringForNid(conceptNid);
+      return defaultConceptSnapshotService().conceptDescriptionText(conceptNid);
    }
    
    public static String conceptDescriptionText(ConceptSpecification conceptSpec) {
