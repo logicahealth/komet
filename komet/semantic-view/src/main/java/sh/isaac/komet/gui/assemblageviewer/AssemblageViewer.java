@@ -38,17 +38,16 @@ package sh.isaac.komet.gui.assemblageviewer;
 
 import java.io.IOException;
 import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import sh.isaac.MetaData;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
@@ -67,7 +66,7 @@ import sh.komet.gui.util.FxGet;
 @PerLookup
 public class AssemblageViewer implements ExplorationNodeFactory
 {
-	private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+	private final Logger LOG = LogManager.getLogger(this.getClass());
 
 	private AssemblageViewerController drlvc_;
 	private Manifold manifold_;
@@ -88,7 +87,7 @@ public class AssemblageViewer implements ExplorationNodeFactory
 			}
 			catch (IOException e)
 			{
-				LoggerFactory.getLogger(this.getClass()).error("Unexpected error initing AssemblageViewer", e);
+				LOG.error("Unexpected error initing AssemblageViewer", e);
 				FxGet.dialogs().showErrorDialog("Unexpected error creating AssemblageViewer", e);
 				return new Label("Unexpected error initializing view, see log file");
 			}

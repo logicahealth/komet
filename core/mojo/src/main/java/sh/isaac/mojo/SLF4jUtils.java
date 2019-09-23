@@ -45,7 +45,7 @@ public class SLF4jUtils
 		}
 		catch (Exception e)
 		{
-			log.info("Failed to reset the log level of " + loggerName + ", it will continue being noisy.");
+			log.trace("Failed to reset the log level of " + loggerName + ", it will continue being noisy.");
 		}
 	}
 	
