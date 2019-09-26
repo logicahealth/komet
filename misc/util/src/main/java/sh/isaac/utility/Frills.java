@@ -173,6 +173,7 @@ public class Frills
    private static final Cache<Integer, Boolean> IS_SEMANTIC_ASSEMBLAGE = Caffeine.newBuilder().maximumSize(50).build();
    private static final Cache<Integer, Integer> MODULE_TO_TERM_TYPE_CACHE = Caffeine.newBuilder().maximumSize(50).build();
    private static final Cache<Integer, Integer> EDIT_MODULE_FOR_TERMINOLOGY_CACHE = Caffeine.newBuilder().maximumSize(50).build();
+   private static final Cache<Integer, Integer> DESC_CORE_TYPE_CACHE = Caffeine.newBuilder().maximumSize(50).build();
 
 
    /**
@@ -837,7 +838,7 @@ public class Frills
 
             if (descriptionVersion.isPresent()) {
                final DescriptionVersion d = descriptionVersion.get();
-               final int descriptionType = getDescriptionType(d, null); 
+               final int descriptionType = getDescriptionType(d.getDescriptionTypeConceptNid(), null); 
 
                if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                   fqn = d.getText();
@@ -1536,50 +1537,52 @@ public class Frills
     * Determine the "core" description type for a given description type.  If the given description type is already a core type, this 
     * method is essentially a no-op.  Otherwise, reads the annotations to determine the core type linked to the external description type.
     * 
-    * @param descriptionVersion the description to check the type on.
+    * @param descriptionType the description type to check the core type on.
     * @param stamp optional - used system defaults if not provided.
     * @return the nid of the core description type, one of {@link MetaData#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, 
     *     {@link MetaData#REGULAR_NAME_DESCRIPTION_TYPE____SOLOR}, or {@link MetaData#DEFINITION_DESCRIPTION_TYPE____SOLOR}.
     *     In the case of a data error, and the core type is missing, a runtime exception is thrown.
     */
-   public static int getDescriptionType(DescriptionVersion descriptionVersion, StampCoordinate stamp) {
-      if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
-         return MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid();
+   public static int getDescriptionType(int descriptionType, StampCoordinate stamp) {
+      if (descriptionType == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return descriptionType;
       }
-      else if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
-         return MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid();
+      else if (descriptionType == MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return descriptionType;
       }
-      else if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()) {
-         return MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid();
+      else if (descriptionType == MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return descriptionType;
       }
       else {
-         //This must be an external description type.  External description types should have an annotation on them that links them to a core
-         //type description.
-         StampCoordinate stampToUse = (stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
-         AtomicReference<UUID> type = new AtomicReference<>();
-         Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionVersion.getDescriptionTypeConceptNid(),
-               DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(semanticChronlogy ->
-               {
-                  //This semantic is defined as a dynamic semantic with a single column of UUID data, which MUST be one of the three
-                  //core description types.  There should only be one active core type ref on a description type.
-                  LatestVersion<DynamicVersion<? extends DynamicVersion<?>>> lv =  semanticChronlogy.getLatestVersion(stampToUse);
-                  if (lv.isPresent()) {
-                     DynamicUUID uuid = (DynamicUUID)lv.get().getData(0);
-                     if (type.get() != null) {
-                        LOG.error("Description {} has multiple active core type annotations!  Result will be arbitrary", descriptionVersion);
+         return DESC_CORE_TYPE_CACHE.get(descriptionType, typeAgain -> {
+            //This must be an external description type.  External description types should have an annotation on them that links them to a core
+            //type description.
+            StampCoordinate stampToUse = (stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
+            AtomicReference<UUID> type = new AtomicReference<>();
+            Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionType,
+                  DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(semanticChronlogy ->
+                  {
+                     //This semantic is defined as a dynamic semantic with a single column of UUID data, which MUST be one of the three
+                     //core description types.  There should only be one active core type ref on a description type.
+                     LatestVersion<DynamicVersion<? extends DynamicVersion<?>>> lv =  semanticChronlogy.getLatestVersion(stampToUse);
+                     if (lv.isPresent()) {
+                        DynamicUUID uuid = (DynamicUUID)lv.get().getData(0);
+                        if (type.get() != null) {
+                           LOG.error("Description type {} has multiple active core type annotations!  Result will be arbitrary", descriptionType);
+                        }
+                        else {
+                           type.set(uuid.getDataUUID());
+                        }
                      }
-                     else {
-                        type.set(uuid.getDataUUID());
-                     }
-                  }
-               });
-         if (type.get() == null) {
-            LOG.error("External typed description {} has no active core type annotation on the specified stamp: {}", descriptionVersion, stampToUse);
-            throw new RuntimeException("Core description type is unknown due to a data error");
-         }
-         else {
-            return Get.identifierService().getNidForUuids(type.get());
-         }
+                  });
+            if (type.get() == null) {
+               LOG.error("External description type {} has no active core type annotation on the specified stamp: {}", descriptionType, stampToUse);
+               throw new RuntimeException("Core description type is unknown due to a data error");
+            }
+            else {
+               return Get.identifierService().getNidForUuids(type.get());
+            }
+         });
       }
    }
 
@@ -2522,6 +2525,7 @@ public class Frills
       IS_SEMANTIC_ASSEMBLAGE.invalidateAll();
       MODULE_TO_TERM_TYPE_CACHE.invalidateAll();
       EDIT_MODULE_FOR_TERMINOLOGY_CACHE.invalidateAll();
+      DESC_CORE_TYPE_CACHE.invalidateAll();
    }
 
    /**
