@@ -425,7 +425,7 @@ public class ConceptBuilderImpl
    @Override
    public DescriptionBuilder<?, ?> getPreferredDescriptionBuilder() {
       synchronized (this) {
-         if (this.preferredDescriptionBuilder == null) {
+         if (this.preferredDescriptionBuilder == null && StringUtils.isNotBlank(this.conceptName)) {
             if ((this.defaultLanguageForDescriptions == null)
                     || (this.defaultDialectAssemblageForDescriptions == null)) {
                throw new IllegalStateException("language and dialect are required if a concept name is provided");
@@ -434,7 +434,7 @@ public class ConceptBuilderImpl
             String prefName = null;
 
             if (StringUtils.isNotBlank(this.semanticTag)) {
-               prefName = this.conceptName;  //We have allready stripped semantic tags from this
+               prefName = this.conceptName;  //We have all ready stripped semantic tags from this
             } else {
                // they didn't provide a stand-alone semantic tag.  don't create a preferred term, as it would just be identical to the FSN.
             }
