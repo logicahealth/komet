@@ -5,18 +5,17 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.apache.jena.base.Sys;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.ss.formula.functions.T;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -46,17 +45,13 @@ import sh.komet.gui.contract.preferences.WindowPreferenceItems;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
-import javax.swing.plaf.synth.SynthTextAreaUI;
-import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
+import javafx.scene.layout.HBox;
 
 @Ignore
 public class MainAppTest extends ApplicationTest {
@@ -152,26 +147,27 @@ public class MainAppTest extends ApplicationTest {
 
     @Test
     public void testImport() {
-        MenuButton classifierMenu = lookup("#classifierMenuButton").query();
-        List<MenuItem> classifierMenuItemsDisplayed = classifierMenu.getItems();
-        List<MenuItem> classifierMenuItemsFromController = controller.getClassifierMenuItems();
-        assert classifierMenuItemsDisplayed.size() == classifierMenuItemsFromController.size();
-        clickMenuItems("#classifierMenuButton", classifierMenuItemsFromController, classifierMenuItemsDisplayed);
-        sleep(100000);
-    }
+        //Click Plus Button in Center Pane
+        HBox editorPane = lookup("#editorLeftPane").query();
+        StackPane editorPaneSections = (StackPane) editorPane.getChildren().get(0);
+        Node plusButton = editorPaneSections.getChildren().get(1);
+        clickOn(plusButton);
+        sleep(1000);
 
-    public boolean clickMenuItems(String menuId, List<MenuItem> itemsProvided, List<MenuItem> itemsDisplayed) {
-        if (itemsProvided.size() == itemsDisplayed.size()) {
-            for (int i=0; i<itemsProvided.size(); i++) {
-                System.out.println(itemsProvided.get(i).getText());
-                clickOn(menuId).clickOn(itemsProvided.get(i).getText());
-                sleep(1000);
-            }
-            return true;
-        }
-        else {
-            System.out.println("ERROR: Number of items Provided and Displayed are not the same.");
-            return false;
-        }
+//        ObservableList<Node> editorLeftPaneSet = controller.editorLeftPane.getChildren();
+//        Pane editorLeftPaneSet1 = (Pane) editorLeftPaneSet.get(0);
+//        clickOn(editorLeftPaneSet1.getChildren().get(1));
+
+
+        //Open Import window
+        MenuButton FxInterface_classifierMenu = lookup("#classifierMenuButton").query();
+        clickOn(FxInterface_classifierMenu).clickOn("Selective import and transform");
+        sleep(1000);
+
+        //Add Item to Import
+        Button FxInterface_addButton = lookup("#addButton").queryButton();
+        clickOn(FxInterface_addButton);
+
+        sleep(10000);
     }
 }
