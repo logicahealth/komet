@@ -1276,7 +1276,7 @@ public class DirectWriteHelper
 			throw new RuntimeException("Unexpected number of stated logic graphs");
 		}
 
-		Set<Integer> existingParents = Frills.getParentConceptNidsFromLogicGraph(lgs.get(0).get());
+		Set<Integer> existingParents = Frills.getParentConceptNidsFromLogicGraph(lgs.get(0).get().getLogicalExpression());
 
 		LogicalExpressionImpl lei = new LogicalExpressionImpl();
 		ArrayList<ConceptNodeWithNids> parentConceptNodes = new ArrayList<>(existingParents.size() + 1);

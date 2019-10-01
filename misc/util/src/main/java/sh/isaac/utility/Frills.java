@@ -1955,17 +1955,18 @@ public class Frills
    /**
     * Retrieve the set of integer parent concept nids stored in the logic graph necessary sets
     * 
-    * @param logicGraph
+    * @param logicalExpression
     * @return the parents
     */
-   public static Set<Integer> getParentConceptNidsFromLogicGraph(LogicGraphVersion logicGraph) {
+   public static Set<Integer> getParentConceptNidsFromLogicGraph(LogicalExpression logicalExpression) {
       Set<Integer> parentConceptSequences = new HashSet<>();
-      List<LogicNode> necessarySets = logicGraph.getLogicalExpression().getNodesOfType(NodeSemantic.NECESSARY_SET);
+      List<LogicNode> necessarySets = logicalExpression.getNodesOfType(NodeSemantic.NECESSARY_SET);
       for (LogicNode necessarySetNode: necessarySets) {
          for (LogicNode childOfNecessarySetNode : necessarySetNode.getChildren()) {
             if (null == childOfNecessarySetNode.getNodeSemantic()) {
-                String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of NecessarySet logic graph node of unexpected type \""
-                        + childOfNecessarySetNode.getNodeSemantic() + "\". Expected AndNode or ConceptNode in " + logicGraph;
+                String msg = "Logic graph for concept NID=" + logicalExpression.getConceptBeingDefinedNid() 
+                   + " has child of NecessarySet logic graph node of unexpected type \""
+                        + childOfNecessarySetNode.getNodeSemantic() + "\". Expected AndNode or ConceptNode in " + logicalExpression;
                 LOG.error(msg);
                 throw new RuntimeException(msg);
             } else switch (childOfNecessarySetNode.getNodeSemantic()) {
@@ -1981,8 +1982,9 @@ public class Frills
                                  parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
                              } else {
                                  // Should never happen
-                                 String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of AndNode logic graph node of unexpected type \""
-                                         + childOfAndNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicGraph;
+                                 String msg = "Logic graph for concept NID=" + logicalExpression.getConceptBeingDefinedNid() 
+                                    + " has child of AndNode logic graph node of unexpected type \""
+                                         + childOfAndNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicalExpression;
                                  LOG.error(msg);
                                  throw new RuntimeException(msg);
                              }
@@ -1997,14 +1999,16 @@ public class Frills
                          parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
                      } else {
                          // Should never happen
-                         String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of NecessarySet logic graph node of unexpected type \""
-                                 + childOfNecessarySetNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicGraph;
+                         String msg = "Logic graph for concept NID=" + logicalExpression.getConceptBeingDefinedNid() 
+                            + " has child of NecessarySet logic graph node of unexpected type \""
+                                 + childOfNecessarySetNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicalExpression;
                          LOG.error(msg);
                          throw new RuntimeException(msg);
                      }     break;
                  default:
-                     String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of NecessarySet logic graph node of unexpected type \""
-                             + childOfNecessarySetNode.getNodeSemantic() + "\". Expected AndNode or ConceptNode in " + logicGraph;
+                     String msg = "Logic graph for concept NID=" + logicalExpression.getConceptBeingDefinedNid() 
+                        + " has child of NecessarySet logic graph node of unexpected type \""
+                             + childOfNecessarySetNode.getNodeSemantic() + "\". Expected AndNode or ConceptNode in " + logicalExpression;
                      LOG.error(msg);
                      throw new RuntimeException(msg);
              }

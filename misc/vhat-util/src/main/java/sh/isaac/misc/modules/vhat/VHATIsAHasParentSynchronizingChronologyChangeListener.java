@@ -231,7 +231,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
          StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
          
          VHAT_STAMP_COORDINATE = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, getVHATModules(StampCoordinates.getDevelopmentLatest()),
-               new ArrayList(), Status.ANY_STATUS_SET);
+               new ArrayList<>(), Status.ANY_STATUS_SET);
       }
 
       return VHAT_STAMP_COORDINATE;
@@ -337,7 +337,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
          if (logicGraph.get().getStatus() == Status.INACTIVE) {
             // Retire all has_parent association semantics
          } else {
-            parentsAccordingToNewLogicGraphVersion.addAll(Frills.getParentConceptNidsFromLogicGraph((LogicGraphVersion) logicGraph.get()));
+            parentsAccordingToNewLogicGraphVersion.addAll(Frills.getParentConceptNidsFromLogicGraph(((LogicGraphVersion) logicGraph.get()).getLogicalExpression()));
             if (parentsAccordingToNewLogicGraphVersion.isEmpty()) {
                String msg = "Encountered logic graph for concept NID=" + referencedConcept.getNid() + ", UUID=" + referencedConcept.getPrimordialUuid()
                      + " with no specified parents (concept nodes in necessary set nodes)";
