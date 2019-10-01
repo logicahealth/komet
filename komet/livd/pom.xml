@@ -11,13 +11,71 @@
 
     <groupId>sh.isaac.komet</groupId>
     <artifactId>livd</artifactId>
+    <packaging>jar</packaging>
     <name>ISAAC’s KOMET: LIVD view</name>
     <description>
         A LIVD view for ISAAC's KOMET.
     </description>
+<!--    <dependencies>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.glassfish.hk2</groupId>-->
+<!--            <artifactId>hk2-api</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.openjfx</groupId>-->
+<!--            <artifactId>javafx-graphics</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>sh.isaac.core</groupId>-->
+<!--            <artifactId>metadata</artifactId>-->
+<!--            <version>${project.parent.version}</version>-->
+<!--            <type>jar</type>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>sh.isaac.komet</groupId>-->
+<!--            <artifactId>iconography</artifactId>-->
+<!--            <version>${project.parent.version}</version>-->
+<!--            <type>jar</type>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>sh.isaac.komet</groupId>-->
+<!--            <artifactId>gui-contracts</artifactId>-->
+<!--            <version>${project.parent.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>sh.isaac.core</groupId>-->
+<!--            <artifactId>api</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--            <type>jar</type>-->
+<!--        </dependency>-->
+
+<!--    </dependencies>-->
+
+
     <dependencies>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>metadata</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
 
+        <!-- ISAAC App Utils. -->
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>iconography</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>gui-contracts</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+        </dependency>
     </dependencies>
-
-
 </project>
