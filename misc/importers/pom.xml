@@ -163,6 +163,21 @@
 							</schemaIncludes>
 						</configuration>
 					</execution>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<id>fhir</id>
+						<configuration>
+							<generatePackage>fhir</generatePackage>
+							<generateDirectory>${project.build.directory}/generated-sources/fhir</generateDirectory>
+							<bindingDirectory>${project.basedir}/src/main/resources/fhir/bindings/</bindingDirectory>
+							<schemaDirectory>${project.basedir}/src/main/resources/fhir/</schemaDirectory>
+							<schemaIncludes>
+								<include>fhir-single.xsd</include>
+							</schemaIncludes>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>

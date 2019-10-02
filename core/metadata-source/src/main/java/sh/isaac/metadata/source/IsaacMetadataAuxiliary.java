@@ -217,6 +217,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("NUCC modules", "NUCC").addDescription("National Uniform Claim Committee", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("CVX modules", "CVX").addDescription("Vaccines Administered", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("MVX modules", "MVX").addDescription("Manufacturers of Vaccines", TermAux.DEFINITION_DESCRIPTION_TYPE);
+               createConcept("FHIR modules", "FHIR").addDescription("FHIR formatted terminology", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("CPT® modules", "CPT").addDescription("Current Procedural Terminology", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("SOPT modules", "SOPT").addDescription("Source of Payment Typology", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("ICD10 modules", "ICD10").addDescription("Procedure Coding System Tenth Revision", TermAux.DEFINITION_DESCRIPTION_TYPE);

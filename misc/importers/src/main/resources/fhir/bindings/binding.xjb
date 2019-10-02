@@ -1,0 +1,27 @@
+<jaxb:bindings xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" version="2.1">
+
+	<!-- Raise theEnumMemberSizeCap limit -->
+	<jaxb:bindings>
+		<jaxb:globalBindings typesafeEnumMaxMembers="2000" />
+	</jaxb:bindings>
+	
+	<!-- Deal with bugs / collisions in the imported schemas -->
+	<jaxb:bindings schemaLocation="../fhir-xhtml.xsd" node="/xs:schema">
+		<jaxb:bindings node="//xs:attributeGroup[@name='i18n']/xs:attribute[@ref='xml:lang']">
+			<jaxb:property name="xmlLang"/>
+		</jaxb:bindings>
+	
+		<jaxb:bindings node="//xs:element[@name='bdo']/xs:complexType/xs:complexContent/xs:extension/xs:attribute[@ref='xml:lang']">
+			<jaxb:property name="xmlLang"/>
+		</jaxb:bindings>
+		
+		<jaxb:bindings node="//xs:element[@name='code']">
+			<jaxb:class name="ProgramCode"/>
+		</jaxb:bindings>
+		
+		<jaxb:bindings node="//xs:element[@name='address']">
+			<jaxb:class name="AuthorAddress"/>
+		</jaxb:bindings>
+	</jaxb:bindings>
+
+</jaxb:bindings>
