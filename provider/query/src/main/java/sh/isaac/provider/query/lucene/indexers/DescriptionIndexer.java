@@ -239,6 +239,7 @@ public class DescriptionIndexer extends LuceneIndexer
    /**
     * {@inheritDoc}
     */
+   @Override
    public List<SearchResult> query(String query,
          boolean prefixSearch,
          int[] assemblageConcepts,
