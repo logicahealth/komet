@@ -52,7 +52,6 @@ import java.util.function.BiConsumer;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
-import org.apache.mahout.math.set.OpenIntHashSet;
 
 import javafx.beans.property.SimpleObjectProperty;
 import org.apache.logging.log4j.LogManager;
@@ -65,46 +64,16 @@ import sh.isaac.api.Get;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.logic.IsomorphicResults;
-import sh.isaac.api.logic.LogicNode;
-import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.api.logic.assertions.connectors.And;
+import sh.isaac.api.logic.*;
 import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import sh.isaac.api.tree.TreeNodeVisitData;
-import sh.isaac.model.logic.node.AbstractLogicNode;
-import sh.isaac.model.logic.node.AndNode;
-import sh.isaac.model.logic.node.ConnectorNode;
-import sh.isaac.model.logic.node.DisjointWithNode;
-import sh.isaac.model.logic.node.LiteralNode;
-import sh.isaac.model.logic.node.LiteralNodeBoolean;
-import sh.isaac.model.logic.node.LiteralNodeDouble;
-import sh.isaac.model.logic.node.LiteralNodeInstant;
-import sh.isaac.model.logic.node.LiteralNodeInteger;
-import sh.isaac.model.logic.node.LiteralNodeString;
-import sh.isaac.model.logic.node.NecessarySetNode;
-import sh.isaac.model.logic.node.OrNode;
-import sh.isaac.model.logic.node.RootNode;
-import sh.isaac.model.logic.node.SubstitutionNode;
-import sh.isaac.model.logic.node.SubstitutionNodeBoolean;
-import sh.isaac.model.logic.node.SubstitutionNodeConcept;
-import sh.isaac.model.logic.node.SubstitutionNodeFloat;
-import sh.isaac.model.logic.node.SubstitutionNodeInstant;
-import sh.isaac.model.logic.node.SubstitutionNodeInteger;
-import sh.isaac.model.logic.node.SubstitutionNodeLiteral;
-import sh.isaac.model.logic.node.SubstitutionNodeString;
-import sh.isaac.model.logic.node.SufficientSetNode;
+import sh.isaac.model.logic.node.*;
 import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
 import sh.isaac.model.logic.node.external.FeatureNodeWithUuids;
 import sh.isaac.model.logic.node.external.RoleNodeAllWithUuids;
 import sh.isaac.model.logic.node.external.RoleNodeSomeWithUuids;
 import sh.isaac.model.logic.node.external.TemplateNodeWithUuids;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
-import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
-import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
-import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
-import sh.isaac.model.logic.node.internal.TemplateNodeWithNids;
-import sh.isaac.model.logic.node.internal.TypedNodeWithNids;
+import sh.isaac.model.logic.node.internal.*;
 import sh.isaac.model.tree.TreeNodeVisitDataImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -195,6 +164,10 @@ public class LogicalExpressionImpl
                 switch (nodeSemantic) {
                     case DEFINITION_ROOT:
                         Root(dataInputStream);
+                        break;
+
+                    case PROPERTY_SET:
+                        PropertySet(dataInputStream);
                         break;
 
                     case NECESSARY_SET:
@@ -339,6 +312,10 @@ public class LogicalExpressionImpl
 
                     case SUBSTITUTION_STRING:
                         StringSubstitution(dataInputStream);
+                        break;
+
+                    case PROPERTY_PATTERN_IMPLICATION:
+                        PropertyPatternImplication(dataInputStream);
                         break;
 
                     default:
@@ -520,6 +497,14 @@ public class LogicalExpressionImpl
      */
     public final ConceptNodeWithNids Concept(ByteArrayDataBuffer dataInputStream) {
         return new ConceptNodeWithNids(this, dataInputStream);
+    }
+
+    public final PropertyPatternImplicationWithNids PropertyPatternImplication(ByteArrayDataBuffer dataInputStream) {
+        return new PropertyPatternImplicationWithNids(this, dataInputStream);
+    }
+
+    public final PropertyPatternImplicationWithNids PropertyPatternImplication(int[] propertyPattern, int propertyImplication) {
+        return new PropertyPatternImplicationWithNids(this, propertyPattern, propertyImplication);
     }
 
     /**
@@ -779,6 +764,27 @@ public class LogicalExpressionImpl
      */
     public final NecessarySetNode NecessarySet(ByteArrayDataBuffer dataInputStream) {
         return new NecessarySetNode(this, dataInputStream);
+    }
+
+    /**
+     * Property set.
+     *
+     * @param child the {@link AndNode} or {@link OrNode} node
+     * @return the property set node
+     */
+    public final PropertySetNode PropertySet(ConnectorNode child) {
+        commitStateProperty.set(CommitStates.UNCOMMITTED);
+        return new PropertySetNode(this, child);
+    }
+
+    /**
+     * Property set.
+     *
+     * @param dataInputStream the data input stream
+     * @return the property set node
+     */
+    public final PropertySetNode PropertySet(ByteArrayDataBuffer dataInputStream) {
+        return new PropertySetNode(this, dataInputStream);
     }
 
     /**
@@ -1285,6 +1291,7 @@ public class LogicalExpressionImpl
                 case NECESSARY_SET:
                 case DISJOINT_WITH:
                 case DEFINITION_ROOT:
+                case PROPERTY_SET:
                     siblingGroupSequence = logicNode.getNodeIndex();
                     break;
 
@@ -1364,18 +1371,32 @@ public class LogicalExpressionImpl
                     this.rootNodeIndex = results[i].getNodeIndex();
                     break;
 
-                case NECESSARY_SET:
-                {   
-                   LogicNode[] nodes = addNodesWithMap(another,
-                        solution,
-                        anotherToThisNodeIdMap,
-                        oldLogicNode.getChildStream()
-                                .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                                .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray());
+                case PROPERTY_SET:
+                {
+                    LogicNode[] nodes = addNodesWithMap(another,
+                            solution,
+                            anotherToThisNodeIdMap,
+                            oldLogicNode.getChildStream()
+                                    .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                                    .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray());
                     if (nodes.length != 1) {
-                       throw new RuntimeException("Illegal construction");
+                        throw new RuntimeException("Illegal construction");
                     }
-                    results[i] = NecessarySet((ConnectorNode) nodes[0]); 
+                    results[i] = PropertySet((ConnectorNode) nodes[0]);
+                    break;
+                }
+                case NECESSARY_SET:
+                {
+                    LogicNode[] nodes = addNodesWithMap(another,
+                            solution,
+                            anotherToThisNodeIdMap,
+                            oldLogicNode.getChildStream()
+                                    .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                                    .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray());
+                    if (nodes.length != 1) {
+                        throw new RuntimeException("Illegal construction");
+                    }
+                    results[i] = NecessarySet((ConnectorNode) nodes[0]);
                     break;
                 }
                 case SUFFICIENT_SET:
@@ -1523,6 +1544,10 @@ public class LogicalExpressionImpl
                     results[i] = StringSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
                     break;
 
+                case PROPERTY_PATTERN_IMPLICATION:
+                    results[i] = PropertyPatternImplication(((PropertyPatternImplicationWithNids) oldLogicNode).getPropertyPattern(),
+                            ((PropertyPatternImplicationWithNids) oldLogicNode).getPropertyImplication());
+                    break;
                 default:
                     throw new UnsupportedOperationException("ab Can't handle: " + oldLogicNode.getNodeSemantic());
             }

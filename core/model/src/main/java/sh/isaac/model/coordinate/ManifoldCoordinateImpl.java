@@ -305,10 +305,10 @@ public class ManifoldCoordinateImpl
    }
 
    /**
-    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getOptionalDestinationStampCoordinate()
+    * @see sh.isaac.api.coordinate.ManifoldCoordinate#optionalDestinationStampCoordinate()
     */
    @Override
-   public Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate() {
+   public Optional<? extends StampCoordinate> optionalDestinationStampCoordinate() {
       return Optional.of(destinationStampCoordinate);
    }
 

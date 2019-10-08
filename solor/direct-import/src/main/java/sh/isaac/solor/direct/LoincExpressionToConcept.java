@@ -88,7 +88,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             if (!Get.identifierService().hasUuid(expressionRefset.getPrimordialUuid())) {
                 return null;
             }
-            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).forEach((semanticChronology) -> {
+            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).parallel().forEach((semanticChronology) -> {
                 for (Version version : semanticChronology.getVersionList()) {
                     Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
                     

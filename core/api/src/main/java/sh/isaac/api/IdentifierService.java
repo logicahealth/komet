@@ -46,19 +46,22 @@ package sh.isaac.api;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.OptionalInt;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.ConfigurationService.BuildMode;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- interfaces -------------------------------------------------------------
@@ -252,5 +255,22 @@ public interface IdentifierService
      * other cases where we need to enable it at runtime.
      */
     void optimizeForOutOfOrderLoading();
+
+    default Optional<String> getIdentifierFromAuthority(int componentId, ConceptSpecification assemblageForAuthority, StampCoordinate stampCoordinate) {
+        List<SemanticChronology> chronologies = Get.assemblageService()
+                .getSemanticChronologiesForComponentFromAssemblage(componentId, assemblageForAuthority.getNid());
+
+        for (SemanticChronology semanticChronology: chronologies) {
+            LatestVersion<Version> version = semanticChronology.getLatestVersion(stampCoordinate);
+            if (version.isPresent()) {
+                Version v = version.get();
+                if (v instanceof StringVersion) {
+                    StringVersion identifierSemantic = (StringVersion) v;
+                    return Optional.of(identifierSemantic.getString());
+                }
+           }
+        }
+        return Optional.empty();
+    }
 }
 

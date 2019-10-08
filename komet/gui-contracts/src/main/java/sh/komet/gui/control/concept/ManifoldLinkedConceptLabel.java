@@ -40,6 +40,7 @@ package sh.komet.gui.control.concept;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -140,7 +141,59 @@ public class ManifoldLinkedConceptLabel
     //~--- methods -------------------------------------------------------------
     private MenuItem makeCopyMenuItem() {
         Menu copyMenu = new Menu("copy");
-        MenuItem conceptUuidMenuItem = new MenuItemWithText("Concept uuid");
+
+        MenuItem conceptLoincCodeMenuItem = new MenuItemWithText("Concept LOINC code");
+        copyMenu.getItems().add(conceptLoincCodeMenuItem);
+        conceptLoincCodeMenuItem.setOnAction((event) -> {
+            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            if (concept.isPresent()) {
+                Optional<String> optionalLoincCode = Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(), MetaData.LOINC_ID_ASSEMBLAGE____SOLOR, manifold);
+
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                if (optionalLoincCode.isPresent()) {
+                    content.putString(optionalLoincCode.get());
+                } else {
+                    content.putString("Not found");
+                }
+                clipboard.setContent(content);
+            }
+        });
+
+        MenuItem conceptSnomedCodeItem = new MenuItemWithText("Concept SNOMED code");
+        copyMenu.getItems().add(conceptSnomedCodeItem);
+        conceptSnomedCodeItem.setOnAction((event) -> {
+            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            if (concept.isPresent()) {
+                Optional<String> optionalSnomedCode = Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(), MetaData.SCTID____SOLOR, manifold);
+
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                if (optionalSnomedCode.isPresent()) {
+                    content.putString(optionalSnomedCode.get());
+                } else {
+                    content.putString("Not found");
+                }
+                clipboard.setContent(content);
+            }
+        });
+
+
+        MenuItem conceptFQNMenuItem = new MenuItemWithText("Concept Fully Qualified Name");
+        copyMenu.getItems().add(conceptFQNMenuItem);
+        conceptFQNMenuItem.setOnAction((event) -> {
+            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            if (concept.isPresent()) {
+                String fqnString = concept.get().getFullyQualifiedName();
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(fqnString);
+                clipboard.setContent(content);
+            }
+        });
+
+
+        MenuItem conceptUuidMenuItem = new MenuItemWithText("Concept UUID");
         copyMenu.getItems().add(conceptUuidMenuItem);
         conceptUuidMenuItem.setOnAction((event) -> {
             Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
@@ -152,6 +205,7 @@ public class ManifoldLinkedConceptLabel
                 clipboard.setContent(content);
             }
         });
+
 
         MenuItem docBookInlineReferenceMenuItem = new MenuItemWithText("Docbook inline concept reference");
         copyMenu.getItems().add(docBookInlineReferenceMenuItem);
@@ -186,8 +240,10 @@ public class ManifoldLinkedConceptLabel
                 ConceptSpecification conceptSpec = (ConceptSpecification) concept.get();
                 StringBuilder builder = new StringBuilder();
                 builder.append("new ConceptProxy(\"");
-                builder.append(conceptSpec.toExternalString());
-                builder.append("\")");
+                builder.append(conceptSpec.getFullyQualifiedName());
+                builder.append("\", UUID.fromString(\"");
+                builder.append(conceptSpec.getPrimordialUuid().toString());
+                builder.append("\"))");
                 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();

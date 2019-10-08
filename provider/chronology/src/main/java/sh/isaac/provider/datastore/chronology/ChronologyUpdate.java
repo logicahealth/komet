@@ -139,11 +139,10 @@ public class ChronologyUpdate implements StaticIsaacCache {
                 record,
                 ChronologyUpdate::merge);
     }
-
     public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
         initCheck();
         int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
-        
+
         OptionalInt optionalConceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(referencedComponentNid);
         int conceptAssemblageNid;
         if (optionalConceptAssemblageNid.isPresent()) {
@@ -285,6 +284,10 @@ public class ChronologyUpdate implements StaticIsaacCache {
             case FEATURE:
 
                 // Features do not have taxonomy implications...
+                break;
+
+            case PROPERTY_PATTERN_IMPLICATION:
+                // PROPERTY_PATTERN_IMPLICATION do not have direct taxonomy implications...
                 break;
 
             default:

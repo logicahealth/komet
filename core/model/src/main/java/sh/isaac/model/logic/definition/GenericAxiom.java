@@ -43,13 +43,7 @@ package sh.isaac.model.logic.definition;
 
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.api.logic.assertions.AllRole;
-import sh.isaac.api.logic.assertions.ConceptAssertion;
-import sh.isaac.api.logic.assertions.Feature;
-import sh.isaac.api.logic.assertions.NecessarySet;
-import sh.isaac.api.logic.assertions.SomeRole;
-import sh.isaac.api.logic.assertions.SufficientSet;
-import sh.isaac.api.logic.assertions.Template;
+import sh.isaac.api.logic.assertions.*;
 import sh.isaac.api.logic.assertions.connectors.And;
 import sh.isaac.api.logic.assertions.connectors.DisjointWith;
 import sh.isaac.api.logic.assertions.connectors.Or;
@@ -73,10 +67,10 @@ import sh.isaac.api.logic.assertions.substitution.DoubleSubstitution;
  * @author kec
  */
 public class GenericAxiom
-         implements NecessarySet, SufficientSet, And, DisjointWith, ConceptAssertion, AllRole, Feature, SomeRole,
+         implements NecessarySet, SufficientSet, PropertySet, And, DisjointWith, ConceptAssertion, AllRole, Feature, SomeRole,
                     Template, Or, BooleanLiteral, DoubleLiteral, InstantLiteral, IntegerLiteral, StringLiteral,
                     BooleanSubstitution, ConceptSubstitution, DoubleSubstitution, InstantSubstitution,
-                    IntegerSubstitution, StringSubstitution {
+                    IntegerSubstitution, StringSubstitution, PropertyPatternImplication {
    /** The builder. */
    private final LogicalExpressionBuilder builder;
 

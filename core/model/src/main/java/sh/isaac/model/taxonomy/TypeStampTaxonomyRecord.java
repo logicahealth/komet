@@ -29,7 +29,7 @@ public class TypeStampTaxonomyRecord {
    /** The stamp sequence. */
    int stamp;
    /** The taxonomy flags. */
-    EnumSet<TaxonomyFlag> taxonomyFlags;
+   int taxonomyFlagBits;
 
    //~--- constructors -----------------------------------------------------
 
@@ -46,7 +46,7 @@ public class TypeStampTaxonomyRecord {
       }
       this.typeNid = typeNid;
       this.stamp = stampSequence;
-      this.taxonomyFlags = TaxonomyFlag.getTaxonomyFlags(taxonomyFlags);
+      this.taxonomyFlagBits = taxonomyFlags;
    }
    
    public long getTypeStampKey() {
@@ -75,7 +75,7 @@ public class TypeStampTaxonomyRecord {
       if (this.typeNid != other.typeNid) {
          return false;
       }
-      return this.taxonomyFlags.equals(other.taxonomyFlags);
+      return this.taxonomyFlagBits == other.taxonomyFlagBits;
    }
 
    @Override
@@ -125,7 +125,7 @@ public class TypeStampTaxonomyRecord {
     * @return the taxonomy flags
     */
    public int getTaxonomyFlags() {
-      return TaxonomyFlag.getTaxonomyFlagsAsInt(taxonomyFlags);
+      return this.taxonomyFlagBits;
    }
 
    /**
@@ -134,7 +134,7 @@ public class TypeStampTaxonomyRecord {
     * @return the taxonomy flags as enum
     */
    public EnumSet<TaxonomyFlag> getTaxonomyFlagsAsEnum() {
-      return this.taxonomyFlags;
+      return TaxonomyFlag.getTaxonomyFlags(this.taxonomyFlagBits);
    }
 
    /**
@@ -149,7 +149,7 @@ public class TypeStampTaxonomyRecord {
    public boolean merge(TypeStampTaxonomyRecord another) {
        if (this.typeNid == another.typeNid &&
                this.stamp ==  another.stamp) {
-           this.taxonomyFlags.addAll(another.taxonomyFlags);
+           this.taxonomyFlagBits = this.taxonomyFlagBits | another.taxonomyFlagBits;
            return true;
        }
        return false;

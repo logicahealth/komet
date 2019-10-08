@@ -80,19 +80,22 @@ public interface MenuProvider {
             shutdownThread.start();
         }
         String absolutePath = (String) ((Stage) e.getTarget()).getScene().getProperties().get(Keys.WINDOW_PREFERENCE_ABSOLUTE_PATH);
-        try {
-            IsaacPreferences windowPreferencesNode =
+        if (absolutePath != null) {
+            try {
+                IsaacPreferences windowPreferencesNode =
                         Get.preferencesService().getConfigurationPreferences().node(absolutePath);
-            IsaacPreferences windowParentNode = windowPreferencesNode.parent();
-            windowPreferencesNode.clear();
-            windowPreferencesNode.flush();
-            windowPreferencesNode.removeNode();
-            windowPreferencesNode.flush();
-            PreferenceGroup.removeChild(windowParentNode, windowPreferencesNode.name());
-            windowParentNode.flush();
-        } catch (BackingStoreException ex) {
-            FxGet.dialogs().showErrorDialog(ex);
+                IsaacPreferences windowParentNode = windowPreferencesNode.parent();
+                windowPreferencesNode.clear();
+                windowPreferencesNode.flush();
+                windowPreferencesNode.removeNode();
+                windowPreferencesNode.flush();
+                PreferenceGroup.removeChild(windowParentNode, windowPreferencesNode.name());
+                windowParentNode.flush();
+            } catch (BackingStoreException ex) {
+                FxGet.dialogs().showErrorDialog(ex);
+            }
         }
+
         MenuProvider.WINDOW_COUNT.decrementAndGet();
 
     }

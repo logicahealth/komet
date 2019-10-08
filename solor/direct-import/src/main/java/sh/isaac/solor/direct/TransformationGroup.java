@@ -26,12 +26,12 @@ import sh.isaac.api.coordinate.PremiseType;
  */
 public class TransformationGroup {
    final int conceptNid;
-   final int[] relationshipNids;
+   final int[] semanticNids;
    final PremiseType premiseType;
 
-   public TransformationGroup(int conceptNid, int[] relationshipNids, PremiseType premiseType) {
+   public TransformationGroup(int conceptNid, int[] semanticNids, PremiseType premiseType) {
       this.conceptNid = conceptNid;
-      this.relationshipNids = relationshipNids;
+      this.semanticNids = semanticNids;
       this.premiseType = premiseType;
    }
 
@@ -39,8 +39,8 @@ public class TransformationGroup {
       return conceptNid;
    }
 
-   public int[] getRelationshipNids() {
-      return relationshipNids;
+   public int[] getSemanticNids() {
+      return semanticNids;
    }
 
    public PremiseType getPremiseType() {
@@ -52,7 +52,7 @@ public class TransformationGroup {
       StringBuilder builder = new StringBuilder("TransformationGroup{");
       builder.append(conceptNid);
       builder.append(", ");
-      builder.append(Arrays.toString(relationshipNids));
+      builder.append(Arrays.toString(semanticNids));
       builder.append(" ");
       builder.append(premiseType);
       builder.append('}');
@@ -82,7 +82,7 @@ public class TransformationGroup {
       if (this.conceptNid != other.conceptNid) {
          return false;
       }
-      if (!Arrays.equals(this.relationshipNids, other.relationshipNids)) {
+      if (!Arrays.equals(this.semanticNids, other.semanticNids)) {
          return false;
       }
       return this.premiseType == other.premiseType;

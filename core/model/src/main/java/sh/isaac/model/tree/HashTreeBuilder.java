@@ -47,12 +47,14 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
+import org.checkerframework.checker.units.qual.s;
 import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertType;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.collections.MergeIntArray;
@@ -77,7 +79,12 @@ public class HashTreeBuilder
     /**
      * The concept nids.
      */
-    String[] watchUuids = new String[]{};
+    {
+        System.setProperty(SystemPropertyConstants.ISAAC_DEBUG, "true");
+
+    }
+
+    String[] watchUuids = new String[]{ };
     IntArrayList watchNids = new IntArrayList();
 
     /**
@@ -98,8 +105,10 @@ public class HashTreeBuilder
         this.builderId = BUILDER_COUNT.getAndIncrement();
 
         for (String uuidStr : watchUuids) {
-            watchNids.add(Get.identifierService()
-                    .getNidForUuids(UUID.fromString(uuidStr)));
+            if (Get.identifierService().hasUuid(UUID.fromString(uuidStr))) {
+                watchNids.add(Get.identifierService()
+                        .getNidForUuids(UUID.fromString(uuidStr)));
+            }
         }
     }
 
@@ -163,9 +172,9 @@ public class HashTreeBuilder
     public HashTreeWithIntArraySets getSimpleDirectedGraph(ProgressTracker tracker) {
 
         if (Get.configurationService().isVerboseDebugEnabled()) {
-            LOG.debug("SOLOR root sequence: " + TermAux.SOLOR_ROOT.getNid());
-            LOG.debug("SOLOR root in concepts: " + conceptNids.contains(TermAux.SOLOR_ROOT.getNid()));
-            LOG.debug(
+            LOG.info("SOLOR root sequence: " + TermAux.SOLOR_ROOT.getNid());
+            LOG.info("SOLOR root in concepts: " + conceptNids.contains(TermAux.SOLOR_ROOT.getNid()));
+            LOG.info(
                     "SOLOR root in concepts with parents: " + conceptNidsWithParents.contains(TermAux.SOLOR_ROOT.getNid()));
         }
 

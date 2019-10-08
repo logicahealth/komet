@@ -37,21 +37,15 @@
 package sh.isaac.provider.datastore.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
+import sh.isaac.api.*;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import java.lang.ref.WeakReference;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
@@ -82,14 +76,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.ConceptActiveService;
-import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.RefreshListener;
-import sh.isaac.api.Status;
-import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
@@ -111,7 +97,6 @@ import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
-import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.tree.TaxonomyLinkage;
 
@@ -431,7 +416,7 @@ public class TaxonomyProvider
     public int[] getTaxonomyData(int assemblageNid, int conceptNid) {
        return store.getTaxonomyData(assemblageNid, conceptNid);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -453,8 +438,8 @@ public class TaxonomyProvider
             if (this.stampCoordinate instanceof ObservableStampCoordinate) {
                 this.stampCoordinate = ((ObservableStampCoordinate) this.stampCoordinate).getStampCoordinate();
             }
-            if (mc.getOptionalDestinationStampCoordinate().isPresent()) {
-                this.destinationCoordinate = mc.getOptionalDestinationStampCoordinate().get();
+            if (mc.optionalDestinationStampCoordinate().isPresent()) {
+                this.destinationCoordinate = mc.optionalDestinationStampCoordinate().get();
                 if (this.destinationCoordinate instanceof ObservableStampCoordinate) {
                     this.destinationCoordinate = ((ObservableStampCoordinate) this.destinationCoordinate).getStampCoordinate();
                 }
@@ -674,7 +659,7 @@ public class TaxonomyProvider
             }
             
             //filter out destinations that don't match the coordinate
-            if (Get.conceptService().getConceptChronology(childId).getLatestVersion(manifoldCoordinate.getOptionalDestinationStampCoordinate().get()).isAbsent()) {
+            if (Get.conceptService().getConceptChronology(childId).getLatestVersion(manifoldCoordinate.optionalDestinationStampCoordinate().get()).isAbsent()) {
                 return false;
             }
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);

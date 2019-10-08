@@ -45,7 +45,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.komet.iconography.IconographyHelper;
-import sh.isaac.model.logic.ConcreteDomainOperators;
+import sh.isaac.api.logic.ConcreteDomainOperators;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.LiteralNodeDouble;

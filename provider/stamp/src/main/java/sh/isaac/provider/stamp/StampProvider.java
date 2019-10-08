@@ -233,7 +233,7 @@ public class StampProvider
     @Override
     public synchronized Task<Void> commit(Transaction transaction, long commitTime) {
         CommitTask task = new CommitTask(transaction, commitTime);
-        Get.workExecutors().getExecutor().execute(task);
+        Get.workExecutors().getForkJoinPoolExecutor().execute(task);
         return task;
     }
 
@@ -241,9 +241,9 @@ public class StampProvider
         final Transaction transaction;
 
         public CancelTask(Transaction transaction) {
+            updateTitle(getTitleString() + transaction.getTransactionId());
             this.transaction = transaction;
             Get.activeTasks().add(this);
-            updateTitle(getTitleString() + transaction.getTransactionId());
             addToTotalWork(uncommittedStampIntegerConcurrentHashMap.size());
         }
 
@@ -260,9 +260,17 @@ public class StampProvider
             try {
                 uncommittedStampIntegerConcurrentHashMap.forEach(
                         (uncommittedStamp, stampSequence) -> {
-                            processTransaction(uncommittedStamp, stampSequence, (TransactionImpl) transaction);
+                            try {
+                                processTransaction(uncommittedStamp, stampSequence, (TransactionImpl) transaction);
+                            } catch (Exception e) {
+                                LOG.error(e.getLocalizedMessage(), e);
+                                throw e;
+                            }
                         });
                 return null;
+            } catch (Throwable t) {
+                LOG.error(t.getLocalizedMessage(), t);
+                throw t;
             } finally {
                 Get.activeTasks().remove(this);
             }

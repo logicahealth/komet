@@ -178,7 +178,7 @@ public class TypeStampTaxonomyRecords {
         for (TypeStampTaxonomyRecord record : this.typeStamp_flag_map.values()) {
             destinationArray[destinationPosition++] = record.typeNid;
             destinationArray[destinationPosition++] = record.stamp;
-            destinationArray[destinationPosition++] = TaxonomyFlag.getTaxonomyFlagsAsInt(record.taxonomyFlags);
+            destinationArray[destinationPosition++] = record.taxonomyFlagBits;
         }
     }
 
@@ -272,14 +272,14 @@ public class TypeStampTaxonomyRecords {
             if (typeNid == Integer.MAX_VALUE) {  // wildcard
                 if (flags == 0) {                 // taxonomy flag wildcard--inferred, stated, non-defining, ...
                     return true;                   // finish search
-                } else if (record.taxonomyFlags.containsAll(TaxonomyFlag.getTaxonomyFlags(flags))) {
-               return true;                   // finish search.
+                } else if (flags == (flags & record.taxonomyFlagBits)) {
+                    return true;                   // finish search.
                 }
             } else if (record.typeNid == typeNid) {
                 if (flags == 0) {                 // taxonomy flag wildcard--inferred, stated, non-defining, ...
                     return true;                   // finish search
-                } else if (record.taxonomyFlags.containsAll(TaxonomyFlag.getTaxonomyFlags(flags))) {
-               return true;                   // finish search.
+                } else if (flags == (flags & record.taxonomyFlagBits)) {
+                    return true;                   // finish search.
                 }
             }
         }
@@ -297,11 +297,11 @@ public class TypeStampTaxonomyRecords {
     public boolean containsStampOfTypeWithFlags(NidSet typeNidSet, int flags) {
         for (TypeStampTaxonomyRecord record : this.typeStamp_flag_map.values()) {
             if (typeNidSet.isEmpty()) {  // wildcard
-                if (record.taxonomyFlags.containsAll(TaxonomyFlag.getTaxonomyFlags(flags))) {
+                if (flags == (flags & record.taxonomyFlagBits)) {
                return true;
                 }
             } else if (typeNidSet.contains(record.typeNid)) {
-                if (record.taxonomyFlags.containsAll(TaxonomyFlag.getTaxonomyFlags(flags))) {
+                if (flags == (flags & record.taxonomyFlagBits)) {
                return true;
                 }
             }
@@ -344,16 +344,20 @@ public class TypeStampTaxonomyRecords {
      * @param newRecords the new records
      */
     public void merge(TypeStampTaxonomyRecords newRecords) {
-        for (TypeStampTaxonomyRecord newRecord : newRecords.typeStamp_flag_map.values()) {
-            long typeStampKey = newRecord.getTypeStampKey();
-            if (typeStamp_flag_map.containsKey(typeStampKey)) {
-                if (!typeStamp_flag_map.get(typeStampKey).merge(newRecord)) {
-                    throw new IllegalStateException("Merge failed for: \n    "
-                            + this + "\n    " + newRecord);
+        try {
+            for (TypeStampTaxonomyRecord newRecord : newRecords.typeStamp_flag_map.values()) {
+                long typeStampKey = newRecord.getTypeStampKey();
+                if (typeStamp_flag_map.containsKey(typeStampKey)) {
+                    if (!typeStamp_flag_map.get(typeStampKey).merge(newRecord)) {
+                        throw new IllegalStateException("Merge failed for: \n    "
+                                + this + "\n    " + newRecord);
+                    }
+                } else {
+                    typeStamp_flag_map.put(typeStampKey, newRecord);
                 }
-            } else {
-                typeStamp_flag_map.put(typeStampKey, newRecord);
             }
+        } catch (Exception e) {
+            throw e;
         }
     }
 
@@ -395,11 +399,11 @@ public class TypeStampTaxonomyRecords {
         final IntArrayList stampList = new IntArrayList();
         for (TypeStampTaxonomyRecord record : typeStamp_flag_map.values()) {
             if (typeNid == Integer.MAX_VALUE) {  // wildcard
-                if (record.taxonomyFlags.containsAll(TaxonomyFlag.getTaxonomyFlags(flags))) {
+                if (flags == (flags & record.taxonomyFlagBits)) {
                     stampList.add(record.stamp);
                 }
             } else if (record.typeNid == typeNid) {
-                if (record.taxonomyFlags.containsAll(TaxonomyFlag.getTaxonomyFlags(flags))) {
+                if (flags == (flags & record.taxonomyFlagBits)) {
                     stampList.add(record.stamp);
                 }
             }
@@ -423,7 +427,7 @@ public class TypeStampTaxonomyRecords {
                     stampList.add(record.getTypeNid());
                 }
             } else if (typeNidSet.contains(record.typeNid)) {
-                if (record.taxonomyFlags.containsAll(TaxonomyFlag.getTaxonomyFlags(flags))) {
+                if (flags == (flags & record.taxonomyFlagBits)) {
                     stampList.add(record.getTypeNid());
                 }
             }

@@ -66,9 +66,12 @@ import org.controlsfx.control.action.ActionUtils;
 import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitTask;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.docbook.DocBook;
@@ -78,17 +81,10 @@ import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.model.logic.node.AbstractLogicNode;
-import sh.isaac.model.logic.node.LiteralNodeBoolean;
-import sh.isaac.model.logic.node.LiteralNodeDouble;
-import sh.isaac.model.logic.node.LiteralNodeInstant;
-import sh.isaac.model.logic.node.LiteralNodeInteger;
-import sh.isaac.model.logic.node.LiteralNodeString;
-import sh.isaac.model.logic.node.NecessarySetNode;
-import sh.isaac.model.logic.node.RootNode;
-import sh.isaac.model.logic.node.SufficientSetNode;
+import sh.isaac.model.logic.node.*;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
+import sh.isaac.model.logic.node.internal.PropertyPatternImplicationWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
@@ -99,6 +95,8 @@ import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
+
+import static sh.komet.gui.style.PseudoClasses.INACTIVE_PSEUDO_CLASS;
 
 /**
  *
@@ -185,11 +183,14 @@ public class AxiomView {
         return parents.length > 1;
     }
 
-    public static final Node computeGraphic(int conceptNid, boolean expanded, Manifold manifold, PremiseType premiseType) {
+    public static final Node computeGraphic(int conceptNid, boolean expanded, Status status, Manifold manifold, PremiseType premiseType) {
 
         if (conceptNid == -1
                 || conceptNid == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             return Iconography.ALERT_CONFIRM2.getIconographic();
+        }
+        if (status != Status.ACTIVE) {
+            return Iconography.DELETE_TRASHCAN.getIconographic();
         }
         int[] parents = new int[]{};
         try {
@@ -357,6 +358,10 @@ public class AxiomView {
         updateExpression();
     }
 
+    /**
+     * Each clause in an axiom is presented with the ClauseView.
+     *
+     */
     protected class ClauseView {
 
         protected final AbstractLogicNode logicNode;
@@ -389,6 +394,7 @@ public class AxiomView {
             });
             editButton.setOnMousePressed(this::handleEditClick);
 
+            titleLabel.getStyleClass().add("komet-version-general-cell");
             titleLabel.setOnDragOver(this::handleDragOver);
             titleLabel.setOnDragEntered(this::handleDragEntered);
             titleLabel.setOnDragDetected(this::handleDragDetected);
@@ -404,7 +410,21 @@ public class AxiomView {
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_CONCEPT.toString());
                     titleLabel.setText(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
-                    titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false, manifold, premiseType));
+
+
+                    LatestVersion<Version> latest = Get.concept(conceptNode.getConceptNid()).getLatestVersion(manifold);
+                    if (latest.isPresent()) {
+                        Status latestStatus = latest.get().getStatus();
+                        titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
+                                latestStatus, manifold, premiseType));
+                        if (latestStatus != Status.ACTIVE) {
+                            titleLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, true);
+                        }
+                    } else {
+                        titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
+                                Status.PRIMORDIAL, manifold, premiseType));
+                    }
+
                     openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
                     openConceptButton.setOnMouseClicked(this::handleShowConceptNodeClick);
 
@@ -577,7 +597,18 @@ public class AxiomView {
                             .add(StyleClasses.DEF_ROOT.toString());
                     rootPane.setBorder(ROOT_BORDER);
                     titleLabel.setText(getConceptBeingDefinedText(null));
-                    titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false, manifold, premiseType));
+
+                    ConceptChronology cc = Get.concept(expression.getConceptBeingDefinedNid());
+
+                    LatestVersion<Version> latest = cc.getLatestVersion(manifold);
+                    if (latest.isPresent()) {
+                        titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
+                                latest.get().getStatus(), manifold, premiseType));
+                    } else {
+                        titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
+                                Status.PRIMORDIAL, manifold, premiseType));
+                    }
+
                     titleLabel.setContextMenu(getContextMenu());
                     int column = 0;
                     addToToolbarNoGrow(rootToolBar, expandButton, column++);
@@ -670,8 +701,58 @@ public class AxiomView {
                     }
                     break;
                 }
+
+                case PROPERTY_SET: {
+                    // TODO get CSS and related gui setup.
+                    PropertySetNode propertySetNode = (PropertySetNode) logicNode;
+                    // TODO get style class for property set
+                    rootPane.getStyleClass()
+                            .add(StyleClasses.DEF_SUFFICIENT_SET.toString());
+                    titleLabel.setText("Property axioms");
+                    titleLabel.setGraphic(Iconography.ALERT_WARN2.getIconographic());
+                    int column = 0;
+                    addToToolbarNoGrow(rootToolBar, expandButton, column++);
+                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                    }
+                    break;
+                    /*
+                         SufficientSetNode sufficientSet = (SufficientSetNode) logicNode;
+                    rootPane.getStyleClass()
+                            .add(StyleClasses.DEF_SUFFICIENT_SET.toString());
+                    titleLabel.setText(getConceptBeingDefinedText(
+                            manifold.getPreferredDescriptionText(sufficientSet.getNodeSemantic().getConceptNid())));
+                    titleLabel.setGraphic(Iconography.TAXONOMY_DEFINED_SINGLE_PARENT.getIconographic());
+                    int column = 0;
+                    addToToolbarNoGrow(rootToolBar, expandButton, column++);
+                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                    }
+
+                     */
+                }
+
+                case PROPERTY_PATTERN_IMPLICATION: {
+                    // TODO get CSS and related gui setup.
+                    PropertyPatternImplicationWithNids propertyPatternImplication = (PropertyPatternImplicationWithNids) logicNode;
+                    // TODO get style class for property set
+                    //rootPane.getStyleClass().add(StyleClasses.DEF_SUFFICIENT_SET.toString());
+
+                    titleLabel.setText(propertyPatternImplication.toSimpleString());
+                    titleLabel.setGraphic(Iconography.LAMBDA.getIconographic());
+                    int column = 0;
+                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                    }
+                    break;
+
+                }
                 default:
-                    throw new UnsupportedOperationException("Can't handle: " + logicNode);
+                    throw new UnsupportedOperationException("Can't handle: " + logicNode +
+                            " within: " + logicNode.getLogicalExpression());
             }
 
             rootPane.setPadding(new Insets(2, 0, 0, 0));
@@ -1154,7 +1235,6 @@ public class AxiomView {
 
         private void makeJavaExpression(Event event) {
             putOnClipboard(AxiomView.this.expression.toBuilder());
-
         }
 
         private void makeMediaObjectSvg(Event event) {

@@ -1126,7 +1126,7 @@ public class HashTreeWithIntArraySets
          int count = 0;
          for (int nid : roots.keys().elements()) {
             count++;
-            if (count > 4) {
+            if (count > 15) {
                break;
             }
             builder.append(nid).append(": ").append(Get.conceptDescriptionText(nid)).append("\n");
@@ -1159,10 +1159,14 @@ public class HashTreeWithIntArraySets
              if (Arrays.stream(parentArray)
                        .anyMatch((value) -> value == conceptNid)) {
 
+                if (inNid > 0) {
+                   inNid = ModelGet.sequenceStore().getNidForElementSequence(assemblageNid, inNid);
+                }
                 System.out.println(
-                    prefix + Get.conceptDescriptionText(
-                          conceptNid) + " found in parent set of: " + inNid + " " + Get.conceptDescriptionText(
-                            inNid));
+                        prefix + Get.conceptDescriptionText(
+                                conceptNid) + " found in parent set of: " + inNid + " " + Get.conceptDescriptionText(
+                                inNid));
+
              }
           });
       parentNid_ChildNidSetArray_Map.forEach(
@@ -1170,7 +1174,9 @@ public class HashTreeWithIntArraySets
            int[] childArray) -> {
              if (Arrays.stream(childArray)
                        .anyMatch((value) -> value == conceptNid)) {
-
+                if (inNid > 0) {
+                   inNid = ModelGet.sequenceStore().getNidForElementSequence(assemblageNid, inNid);
+                }
                 System.out.println(
                     prefix + Get.conceptDescriptionText(
                           conceptNid) + " found in child set of: " + inNid + " " + Get.conceptDescriptionText(

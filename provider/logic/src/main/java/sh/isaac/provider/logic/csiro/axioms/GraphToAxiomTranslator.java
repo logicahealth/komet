@@ -56,13 +56,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 //TODO move to CSIRO specific module
 import au.csiro.ontology.Factory;
-import au.csiro.ontology.model.Axiom;
-import au.csiro.ontology.model.Concept;
-import au.csiro.ontology.model.ConceptInclusion;
-import au.csiro.ontology.model.Feature;
-import au.csiro.ontology.model.Literal;
-import au.csiro.ontology.model.Operator;
-import au.csiro.ontology.model.Role;
+import au.csiro.ontology.model.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicNode;
@@ -71,17 +67,10 @@ import sh.isaac.model.collections.IntObjectMap;
 import sh.isaac.model.collections.IntObjectMapImpl;
 import sh.isaac.model.collections.SpinedIntObjectMap;
 import sh.isaac.model.logic.LogicalExpressionImpl;
-import sh.isaac.model.logic.node.AndNode;
-import sh.isaac.model.logic.node.LiteralNodeBoolean;
-import sh.isaac.model.logic.node.LiteralNodeDouble;
-import sh.isaac.model.logic.node.LiteralNodeInstant;
-import sh.isaac.model.logic.node.LiteralNodeInteger;
-import sh.isaac.model.logic.node.LiteralNodeString;
-import sh.isaac.model.logic.node.NecessarySetNode;
-import sh.isaac.model.logic.node.RootNode;
-import sh.isaac.model.logic.node.SufficientSetNode;
+import sh.isaac.model.logic.node.*;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
+import sh.isaac.model.logic.node.internal.PropertyPatternImplicationWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 
 //~--- classes ----------------------------------------------------------------
@@ -92,6 +81,7 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
  * @author kec
  */
 public class GraphToAxiomTranslator {
+   private static final Logger LOG = LogManager.getLogger();
    /** The axioms. */
    Set<Axiom> axioms = new ConcurrentSkipListSet<>();
 
@@ -188,7 +178,11 @@ public class GraphToAxiomTranslator {
          processNecessarySet((NecessarySetNode) logicNode, conceptNid, logicGraph);
          break;
 
-      case OR:
+      case PROPERTY_SET:
+          processPropertySet((PropertySetNode) logicNode, conceptNid, logicGraph);
+          break;
+
+         case OR:
          throw new UnsupportedOperationException("Not supported by SnoRocket/EL++.");
 
       case ROLE_ALL:
@@ -377,6 +371,42 @@ public class GraphToAxiomTranslator {
       } else {
          throw new IllegalStateException("Child node must return a conjunction concept. Concept: " + conceptNid +
                                          " graph: " + logicGraph);
+      }
+   }
+   private void processPropertySet(PropertySetNode propertySetNode,
+                                   int conceptNid,
+                                   LogicalExpressionImpl logicGraph) {
+      final LogicNode[] children = propertySetNode.getChildren();
+
+      if (children.length != 1) {
+         throw new IllegalStateException("PropertySetNode can only have one child. Concept: " + conceptNid +
+                 " graph: " + logicGraph);
+      }
+
+      if (!(children[0] instanceof AndNode)) {
+         throw new IllegalStateException("PropertySetNode can only have AND for a child. Concept: " + conceptNid +
+                 " graph: " + logicGraph);
+      }
+
+
+      for (LogicNode node: children[0].getChildren()) {
+         switch (node.getNodeSemantic()) {
+            case CONCEPT:
+               final ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) node;
+
+               this.axioms.add(new RoleInclusion(
+                       getRole(conceptNid),
+                       getRole(conceptNode.getConceptNid())));
+               break;
+
+            case PROPERTY_PATTERN_IMPLICATION:
+               final PropertyPatternImplicationWithNids propertyPatternImplicationNode = (PropertyPatternImplicationWithNids) node;
+               LOG.warn("Can't currently handle: " + propertyPatternImplicationNode + " in: " + logicGraph);
+               break;
+
+            default:
+               throw new UnsupportedOperationException("Can't handle: " + node + " in: " + logicGraph);
+         }
       }
    }
 

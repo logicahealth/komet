@@ -147,31 +147,33 @@ public class ProcessClassificationResults
             final Node node = classifiedResult.getNode(Integer.toString(conceptNid));
 
             if (node == null) {
-                throw new RuntimeException("Null node for: " + conceptNid);
-            }
-
-            final Set<String> equivalentConcepts = node.getEquivalentConcepts();
-
-            if (equivalentConcepts.size() > 1) {
-                IntArrayList equivalentNids = new IntArrayList(equivalentConcepts.size());
-                for (String equivalentConcept : equivalentConcepts) {
-                    int equivalentNid = Integer.parseInt(equivalentConcept);
-                    equivalentNids.add(equivalentNid);
-                    affectedConcepts.add(equivalentNid);
-                }
-                equivalentNids.sort();
-                equivalentSets.add(equivalentNids);
+                LOG.error("Null node for: " + conceptNid + " " + Get.conceptDescriptionText(conceptNid)
+                        + " " + Get.identifierService().getUuidPrimordialStringForNid(conceptNid));
+                // TODO possibly propagate error in gui...
             } else {
-                for (String equivalentConceptCsiroId : equivalentConcepts) {
-                    try {
-                        int equivalentNid = Integer.parseInt(equivalentConceptCsiroId);
+                final Set<String> equivalentConcepts = node.getEquivalentConcepts();
+
+                if (equivalentConcepts.size() > 1) {
+                    IntArrayList equivalentNids = new IntArrayList(equivalentConcepts.size());
+                    for (String equivalentConcept : equivalentConcepts) {
+                        int equivalentNid = Integer.parseInt(equivalentConcept);
+                        equivalentNids.add(equivalentNid);
                         affectedConcepts.add(equivalentNid);
-                    } catch (final NumberFormatException numberFormatException) {
-                        if (equivalentConceptCsiroId.equals("_BOTTOM_")
-                                || equivalentConceptCsiroId.equals("_TOP_")) {
-                            // do nothing.
-                        } else {
-                            throw numberFormatException;
+                    }
+                    equivalentNids.sort();
+                    equivalentSets.add(equivalentNids);
+                } else {
+                    for (String equivalentConceptCsiroId : equivalentConcepts) {
+                        try {
+                            int equivalentNid = Integer.parseInt(equivalentConceptCsiroId);
+                            affectedConcepts.add(equivalentNid);
+                        } catch (final NumberFormatException numberFormatException) {
+                            if (equivalentConceptCsiroId.equals("_BOTTOM_")
+                                    || equivalentConceptCsiroId.equals("_TOP_")) {
+                                // do nothing.
+                            } else {
+                                throw numberFormatException;
+                            }
                         }
                     }
                 }
@@ -298,23 +300,24 @@ public class ProcessClassificationResults
                         final Node inferredNode
                                 = inferredAxioms.getNode(Integer.toString(conceptNid));
                         final List<ConceptAssertion> parentList = new ArrayList<>();
+                        if (inferredNode != null) {
+                            inferredNode.getParents().forEach((parent) -> {
+                                parent.getEquivalentConcepts().forEach((parentString) -> {
+                                    try {
+                                        int parentNid = Integer.parseInt(parentString);
 
-                        inferredNode.getParents().forEach((parent) -> {
-                            parent.getEquivalentConcepts().forEach((parentString) -> {
-                                try {
-                                    int parentNid = Integer.parseInt(parentString);
-
-                                    parentList.add(
-                                            inferredBuilder.conceptAssertion(parentNid));
-                                } catch (final NumberFormatException numberFormatException) {
-                                    if (parentString.equals("_BOTTOM_") || parentString.equals("_TOP_")) {
-                                        // do nothing.
-                                    } else {
-                                        throw numberFormatException;
+                                        parentList.add(
+                                                inferredBuilder.conceptAssertion(parentNid));
+                                    } catch (final NumberFormatException numberFormatException) {
+                                        if (parentString.equals("_BOTTOM_") || parentString.equals("_TOP_")) {
+                                            // do nothing.
+                                        } else {
+                                            throw numberFormatException;
+                                        }
                                     }
-                                }
+                                });
                             });
-                        });
+                        }
 
                         if (!parentList.isEmpty()) {
                             NecessarySet(

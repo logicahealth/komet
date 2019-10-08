@@ -189,8 +189,12 @@ limitations under the License.
    -fx-border-width: 0 0 0 5;
 }
 
+.komet-version-what-cell:inactive {
+    -fx-text-fill: -komet-inactive-color;
+}
+
 .komet-version-general-cell:inactive {
-   -fx-text-fill: -komet-inactive-color;
+    -fx-text-fill: -komet-inactive-color;
 }
 .komet-version-author-time-cell {
    -fx-text-alignment: center;

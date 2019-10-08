@@ -41,7 +41,11 @@ package sh.isaac.provider.datastore.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.model.taxonomy.GraphCollector;
+
+import java.util.UUID;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
@@ -75,7 +79,7 @@ public class TreeBuilderTask
    private static final String             stopMessage = "Stop requested during compute";
 
    private static final Logger LOG = LogManager.getLogger();
-   
+
    //~--- constructors --------------------------------------------------------
 
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
@@ -132,7 +136,6 @@ public class TreeBuilderTask
       GraphCollector  collector = new GraphCollector(this.taxonomyDataProvider, this.manifoldCoordinate);
       IntStream       conceptNidStream = Get.identifierService()
                                             .getNidsForAssemblage(conceptAssemblageNid);
-      
       long count = conceptNidStream.count();
       if (count == 0) {
          LOG.info("Empty concept stream in TreeBuilderTask");
@@ -145,6 +148,10 @@ public class TreeBuilderTask
                                             .getNidsForAssemblage(conceptAssemblageNid);
       HashTreeBuilder graphBuilder     = conceptNidStream.filter(
                                              (conceptNid) -> {
+                                                if (conceptNid == TermAux.SOLOR_METADATA.getNid()) {
+                                                   System.out.println("Found 1: " + TermAux.SOLOR_METADATA.getFullyQualifiedName());
+                                                }
+
                completedUnitOfWork();
                return true;
             })

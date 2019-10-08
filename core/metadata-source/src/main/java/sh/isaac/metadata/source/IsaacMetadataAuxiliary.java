@@ -279,6 +279,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                createConcept("Sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
                createConcept("Necessary set").setPrimordialUuid(NodeSemantic.NECESSARY_SET.getSemanticUuid());
+               createConcept("Property set").setPrimordialUuid(NodeSemantic.PROPERTY_SET.getSemanticUuid()).setModule(TermAux.KOMET_MODULE);
                popParent();
             createConcept(TermAux.IDENTIFIER_SOURCE)
                .addDescription("A parent concept and membership assemblage used to group identifiers", TermAux.DEFINITION_DESCRIPTION_TYPE);
@@ -614,6 +615,16 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Universal restriction").setPrimordialUuid(NodeSemantic.ROLE_ALL.getSemanticUuid());
                createConcept("Existential restriction").setPrimordialUuid(NodeSemantic.ROLE_SOME.getSemanticUuid());
                popParent();
+            createConcept("Logical feature").addDescription("A property is a characteristic of a class - a directed binary relation that specifies some attribute which is true for instances of that class. Properties sometimes act as data values, or links to other instances. Properties may exhibit logical features, for example, by being transitive, symmetric, inverse and functional. Properties may also have domains and ranges.",
+                DEFINITION_DESCRIPTION_TYPE
+            ).setModule(TermAux.KOMET_MODULE);
+            pushParent(current());
+                createConcept("Transitive feature").setModule(TermAux.KOMET_MODULE);
+                createConcept("Symmetric feature").setModule(TermAux.KOMET_MODULE);
+                createConcept("Inverse feature").setModule(TermAux.KOMET_MODULE);
+                createConcept("Functional feature").setModule(TermAux.KOMET_MODULE);
+                createConcept("Reflexive feature").setModule(TermAux.KOMET_MODULE);
+                popParent();
             createConcept("Status value");
             pushParent(current());
                createConcept(TermAux.INACTIVE_STATUS);
@@ -654,6 +665,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("SnoRocket classifier").mergeFromSpec(TermAux.SNOROCKET_CLASSIFIER);
                createConcept("ConDOR classifier");
                popParent();
+            createConcept("Property pattern implication").setPrimordialUuid(NodeSemantic.PROPERTY_PATTERN_IMPLICATION.getSemanticUuid()).setModule(TermAux.KOMET_MODULE);
             createConcept("Feature").setPrimordialUuid(NodeSemantic.FEATURE.getSemanticUuid());
             pushParent(current());
                createConcept("Ingredient strength");

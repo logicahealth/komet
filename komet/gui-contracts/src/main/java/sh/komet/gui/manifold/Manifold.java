@@ -111,6 +111,8 @@ public class Manifold
 
    private static final ObservableSet<EditInFlight>                EDITS_IN_PROCESS = FXCollections.observableSet();
 
+   private static int historySize = 50;
+
    public enum ManifoldGroup {UNLINKED("unlinked"), SEARCH("search"), 
    TAXONOMY("taxonomy"), FLWOR("flwor"), CLINICAL_STATEMENT("statement"),
    CORRELATION("correlation"), KOMET("KOMET");
@@ -297,6 +299,7 @@ public class Manifold
              focusedConceptSpecificationProperty + '}';
    }
 
+
    private static void addHistory(ComponentProxy history, ObservableList<ComponentProxy> historyDequeue) {
        if (history.getNid() == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             return;
@@ -304,8 +307,8 @@ public class Manifold
        if (historyDequeue.isEmpty() ||!historyDequeue.get(0).equals(history)) {
          historyDequeue.add(0, history);
 
-         while (historyDequeue.size() > 50) {
-            historyDequeue.remove(51, historyDequeue.size());
+         while (historyDequeue.size() > historySize) {
+            historyDequeue.remove(historySize, historyDequeue.size());
          }
        }
    }
@@ -442,8 +445,8 @@ public class Manifold
    }
    
    @Override
-   public Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate() {
-      return this.observableManifoldCoordinate.getOptionalDestinationStampCoordinate();
+   public Optional<? extends StampCoordinate> optionalDestinationStampCoordinate() {
+      return this.observableManifoldCoordinate.optionalDestinationStampCoordinate();
    }
 
     public void addEditInFlight(EditInFlight editInFlight) {

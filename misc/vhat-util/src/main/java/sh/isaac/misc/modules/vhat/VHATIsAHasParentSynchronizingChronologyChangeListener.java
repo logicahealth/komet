@@ -281,8 +281,6 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
    @Override
    public void handleChange(SemanticChronology sc) {
       if (!enabled) {
-         LOG.debug("Ignoring, while listener disabled, change to semantic " + sc.getVersionType() + " " + sc.getNid() + " " + sc.getNid());
-
          return;
       }
 

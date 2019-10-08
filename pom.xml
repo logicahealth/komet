@@ -666,7 +666,7 @@
          <dependency>
             <groupId>au.csiro</groupId>
             <artifactId>snorocket-core</artifactId>
-            <version>3.0.0</version>
+            <version>4.0.1</version>
          </dependency>
          <dependency>
             <groupId>se.liu.imt.mi.snomedct</groupId>

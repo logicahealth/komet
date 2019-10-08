@@ -118,7 +118,11 @@ public enum NodeSemantic {
    SUBSTITUTION_INTEGER(),
 
    /** The substitution string. */
-   SUBSTITUTION_STRING()
+   SUBSTITUTION_STRING(),
+
+   PROPERTY_SET(),
+
+   PROPERTY_PATTERN_IMPLICATION()
    ;
 
    /** The concept nid. */
@@ -172,6 +176,12 @@ public enum NodeSemantic {
     */
    public UUID getSemanticUuid() {
       return this.semanticUuid;
+   }
+
+   public static void main(String[] args) {
+      for (NodeSemantic semantic: NodeSemantic.values()) {
+         System.out.println("Semantic: " + semantic.name() + " uuid: " + semantic.getSemanticUuid().toString());
+      }
    }
 }
 

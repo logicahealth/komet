@@ -33,8 +33,8 @@ public class DateTimeUtil {
     public static final long MS_IN_HOUR =   1000L * 60 * 60;
     public static final long MS_IN_MINUTE = 1000L * 60;
     public static final long MS_IN_SEC =    1000L;
-    
-    
+
+
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final DateTimeFormatter SEC_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter MIN_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -59,6 +59,22 @@ public class DateTimeUtil {
         }
        return FORMATTER.format(Instant.ofEpochMilli(epochMilliSecond).atZone(ZoneOffset.UTC));
     }
+
+    /**
+     *
+     * @param dateTime
+     * @return Epoch millisecond of the date time...
+     */
+    public static long parseWithZone(String dateTime) {
+        if (dateTime.equalsIgnoreCase("Latest")) {
+            return Long.MAX_VALUE;
+        }
+        if (dateTime.equalsIgnoreCase("Canceled")) {
+            return Long.MIN_VALUE;
+        }
+        return ZonedDateTime.parse(dateTime, ZONE_FORMATTER).toInstant().toEpochMilli();
+    }
+
     public static long parse(String dateTime) {
         if (dateTime.equalsIgnoreCase("Latest")) {
             return Long.MAX_VALUE;

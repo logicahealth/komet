@@ -388,7 +388,7 @@ public class ChronologyProvider
 
     @Override
     public Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids) {
-        return conceptNids.stream()
+        return conceptNids.parallelStream()
                 .mapToObj(
                         (nid) -> {
                             return getConceptChronology(nid);
@@ -591,7 +591,7 @@ public class ChronologyProvider
 
     @Override
     public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid) {
-        return getSemanticNidsForComponent(componentNid).stream()
+        return getSemanticNidsForComponent(componentNid).parallelStream()
                 .mapToObj((int semanticNid) -> { 
                 try {
                   return (C) getSemanticChronology(semanticNid);
@@ -611,7 +611,7 @@ public class ChronologyProvider
           Set<Integer> assemblageConceptNids) {
        final NidSet semanticSequences = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
 
-       return semanticSequences.stream().mapToObj((int semanticNid) -> {
+       return semanticSequences.parallelStream().mapToObj((int semanticNid) -> {
            try {
              return (C) getSemanticChronology(semanticNid);
           } catch (NoSuchElementException e) {
@@ -626,7 +626,7 @@ public class ChronologyProvider
             case SEMANTIC:
                 final NidSet semanticSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
 
-                return semanticSequences.stream()
+                return semanticSequences.parallelStream()
                         .mapToObj((int semanticNid) -> 
                         {
                              try {
@@ -639,7 +639,7 @@ public class ChronologyProvider
             case UNKNOWN:
                 // perhaps not initialized...
                 final NidSet elementSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
-                return (Stream<C>) elementSequences.stream().mapToObj((nid) -> getChronology(nid))
+                return (Stream<C>) elementSequences.parallelStream().mapToObj((nid) -> getChronology(nid))
                         .filter((optionalObject) -> optionalObject.isPresent())
                         .map((optionalObject) -> optionalObject.get());
         }
@@ -658,7 +658,7 @@ public class ChronologyProvider
             case UNKNOWN:
                 // perhaps not initialized...
                 final NidSet elementSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
-                return (Stream<C>) elementSequences.stream().mapToObj((nid) -> getChronology(nid))
+                return (Stream<C>) elementSequences.parallelStream().mapToObj((nid) -> getChronology(nid))
                         .filter((optionalObject) -> optionalObject.isPresent())
                         .map((optionalObject) -> optionalObject.get());
 

@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.model.logic;
+package sh.isaac.api.logic;
 
 /**
  * Created by kec on 12/9/14.

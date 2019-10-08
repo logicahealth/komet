@@ -16,7 +16,6 @@
  */
 package sh.isaac.solor.direct;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,6 +63,7 @@ import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
@@ -141,17 +141,24 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
             int count = 0;
             for (TransformationGroup transformationGroup : transformationRecords) {
-                transformRelationships(transaction, transformationGroup.conceptNid, transformationGroup.relationshipNids, transformationGroup.getPremiseType());
+                transformRelationships(transaction, transformationGroup.conceptNid, transformationGroup.semanticNids, transformationGroup.getPremiseType());
                 if (count % 1000 == 0) {
                     updateMessage("Processing concept: " + Get.conceptDescriptionText(transformationGroup.conceptNid));
                 }
                 count++;
                 completedUnitOfWork();
             }
+            //LOG.info("Precommit: " + transaction.getTransactionId());
             transaction.commit("Logic graph transformer");
+            //LOG.info("Postcommit: " + transaction.getTransactionId());
             return null;
+        } catch (Throwable t) {
+            LOG.error(t.getLocalizedMessage(), t);
+            throw t;
         } finally {
+            //LOG.info("Releasing semaphore. Permits available: " + this.writeSemaphore.availablePermits());
             this.writeSemaphore.release();
+            //LOG.info("Released semaphore. Permits available: " + this.writeSemaphore.availablePermits());
             Get.activeTasks().remove(this);
         }
     }
@@ -294,7 +301,13 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             relationshipChronologiesForConcept.add(relationshipChronology);
         }
         for (StampPosition stampPosition : stampPositionsToProcess) {
-            transformAtTimePath(transaction, stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
+            // SNOMED released OWL format on "2019-07-31T00:00:00Z", and retired all but is-a relationships
+            // in stated and inferred tables... So only use stated and inferred relationships prior to that date. Use the
+            // OWL definitions after that date.
+
+            if (stampPosition.getTime() < DateTimeUtil.parseWithZone("2019-07-31T00:00:00Z")) {
+                transformAtTimePath(transaction, stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
+            }
         }
 
     }
