@@ -90,7 +90,7 @@ public class HoMojo extends AbstractMojo {
             LookupService.syncAll();  //This should be unnecessary....
             LookupService.shutdownIsaac();
         } catch (Throwable throwable) {
-            throw new MojoFailureException("solor-import failed", throwable);
+            throw new MojoFailureException("ho-import failed", throwable);
         }
     }
 }
