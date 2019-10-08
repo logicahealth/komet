@@ -231,7 +231,7 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 				log.info("adding loader metadata to {}", Get.conceptDescriptionText(moduleNid));
 				
 				// loadTerminologyMetadataAttributes on each module that came out of the RF2 content
-				dwh.makeTerminologyMetadataAnnotations(module, converterSourceArtifactVersion, Optional.empty(), 
+				dwh.makeTerminologyMetadataAnnotations(module, converterSourceArtifactVersion, converterSourceArtifactVersion, Optional.empty(), 
 						Optional.of(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), 
 						Optional.of("http://snomed.info/sct"), importTime);
 			}

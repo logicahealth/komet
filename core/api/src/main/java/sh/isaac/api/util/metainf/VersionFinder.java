@@ -56,6 +56,7 @@ import org.w3c.dom.Node;
  */
 public class VersionFinder {
    private static final Logger LOG = LogManager.getLogger();
+   private static String version = null;
 
    /**
     * This finds the project version from either the metadata embedded in the jar that contains this, 
@@ -64,6 +65,9 @@ public class VersionFinder {
     * @return the string version
     */
    public static String findProjectVersion() {
+      if (version != null) {
+         return version;
+      }
       try (InputStream is = VersionFinder.class.getResourceAsStream("/META-INF/maven/sh.isaac.uts-core.core/api/pom.xml");) {
          final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 
@@ -92,6 +96,7 @@ public class VersionFinder {
          }
          LOG.debug("VersionFinder finds {} from {}", temp, (fromParent ? "parent pom" : "project pom"));
 
+         version = temp;
          return temp;
       } catch (final Exception e) {
          throw new RuntimeException(e);

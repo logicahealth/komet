@@ -325,8 +325,24 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 	 */
 	protected UUID setupModule(String name, UUID parentModule, Optional<String> fhirURI, long releaseTime)
 	{
+		return setupModule(name, Optional.empty(), Optional.empty(), parentModule, fhirURI, releaseTime);
+	}
+	
+	/**
+	 * Create the version specific module concept, and add the loader metadata to it.
+	 * @param name - a name to use for constructing the FQN, which will be unique, when this method combines it with the version info
+	 * @param altName - an additional name to attach as a description
+	 * @param moduleVersionString if provided, uses this in the name, and content version annotations, rather than the 
+	 *     converterSourceArtifactVersion - useful for source artifacts that contain multiple versions of content.
+	 * @param parentModule
+	 * @param releaseTime
+	 * @param fhirURI
+	 * @return
+	 */
+	protected UUID setupModule(String name, Optional<String> altName, Optional<String> moduleVersionString, UUID parentModule, Optional<String> fhirURI, long releaseTime)
+	{
 		//Create a module for this version.
-		String fullName = name + " " + converterSourceArtifactVersion + " module";
+		String fullName = name + " " + moduleVersionString.orElse(converterSourceArtifactVersion) + " module";
 		UUID versionModule = converterUUID.createNamespaceUUIDFromString(fullName);
 		int moduleNid = Get.identifierService().assignNid(versionModule);
 		dwh.changeModule(moduleNid);  //change to the version specific module for all future work.
@@ -339,10 +355,17 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 		dwh.makeDescriptionEnNoDialect(versionModule, fullName, 
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 				Status.ACTIVE, releaseTime);
+		if (altName.isPresent())
+		{
+			dwh.makeDescriptionEnNoDialect(versionModule, altName.get(), 
+					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+					Status.ACTIVE, releaseTime);
+		}
 		dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 		
-		dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, Optional.of(new Date(releaseTime).toString()), 
-				Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), fhirURI, releaseTime);
+		dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, moduleVersionString.orElse(converterSourceArtifactVersion), 
+				Optional.of(new Date(releaseTime).toString()),Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), 
+				fhirURI, releaseTime);
 		
 		return versionModule;
 	}

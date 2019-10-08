@@ -1456,19 +1456,24 @@ public class DirectWriteHelper
 
 	/**
 	 * Create the standard terminology metadata entries, that detail what was loaded.
-	 * @param terminologyModuleVersionConcept
-	 * @param converterSourceArtifactVersion
-	 * @param converterSourceReleaseDate
-	 * @param converterOutputArtifactVersion
-	 * @param converterOutputArtifactClassifier
-	 * @param fhirURI 
-	 * @param time
+	 * @param terminologyModuleVersionConcept - all of the metadata entries are added here
+	 * @param converterSourceArtifactVersion - the version number of the maven source artifact 
+	 * @param sourceContentVersion  - the version number of the content being converted (often the same as the converterSourceArtifactVersion, but 
+	 *     different in cases where a single maven artifact carries multiple terminologies, like the fhir core files.
+	 * @param converterSourceReleaseDate - the date/time of the release of the content being processed.
+	 * @param converterOutputArtifactVersion - the version of the IBDF artifact being created by the conversion
+	 * @param converterOutputArtifactClassifier - the classifier, if any, of the IBDF artifact being created by the conversion
+	 * @param fhirURI  - the fhirURI of the content, if available.
+	 * @param time - the time used to make these annotations
 	 */
 	public void makeTerminologyMetadataAnnotations(UUID terminologyModuleVersionConcept, String converterSourceArtifactVersion,
-			Optional<String> converterSourceReleaseDate, Optional<String> converterOutputArtifactVersion, Optional<String> converterOutputArtifactClassifier,
+			String sourceContentVersion, Optional<String> converterSourceReleaseDate, 
+			Optional<String> converterOutputArtifactVersion, Optional<String> converterOutputArtifactClassifier,
 			Optional<String> fhirURI, long time)
 	{
 		makeBrittleStringAnnotation(MetaData.SOURCE_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
+				converterSourceArtifactVersion, time);
+		makeBrittleStringAnnotation(MetaData.SOURCE_CONTENT_VERSION____SOLOR.getPrimordialUuid(), terminologyModuleVersionConcept,
 				converterSourceArtifactVersion, time);
 		if (converterOutputArtifactVersion.isPresent() && StringUtils.isNotBlank(converterOutputArtifactVersion.get()))
 		{

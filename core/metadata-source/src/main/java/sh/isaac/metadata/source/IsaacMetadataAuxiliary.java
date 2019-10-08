@@ -452,7 +452,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept("Content Metadata");
             pushParent(current());
                createConcept(TermAux.DATABASE_UUID);
+               //This is used for the version of the maven artifact that contains the source
                createConcept("Source Artifact Version").addAssemblageMembership(TermAux.STRING_SEMANTIC);
+               //This is used for the version of the source content itself - often times teh same as Source Artifact Version, except in cases
+               //where the source content contains multiple versioned things in a single release, like a fhir xml bundle 
+               createConcept("Source Content Version").addAssemblageMembership(TermAux.STRING_SEMANTIC);
                createConcept("Source Release Date").addAssemblageMembership(TermAux.STRING_SEMANTIC);
                createConcept("Converter Version").addAssemblageMembership(TermAux.STRING_SEMANTIC);
                createConcept("Converted IBDF Artifact Version").addAssemblageMembership(TermAux.STRING_SEMANTIC);

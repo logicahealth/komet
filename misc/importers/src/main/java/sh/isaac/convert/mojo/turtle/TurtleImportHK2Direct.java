@@ -409,7 +409,8 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 						Status.ACTIVE, releaseTime, preferred);
 				dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 				
-				dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, Optional.of(new Date(releaseTime).toString()), 
+				dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, converterSourceArtifactVersion, 
+						Optional.of(new Date(releaseTime).toString()), 
 						Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), 
 						Optional.of(preferredNamespaceUri), releaseTime);
 	

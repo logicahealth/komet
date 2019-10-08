@@ -1,0 +1,14 @@
+==========================================================================
+
+Copyright © 2011+ HL7. 
+
+HL7®, HEALTH LEVEL SEVEN®, FHIR® and the FHIR ® are trademarks owned by 
+Health Level Seven International, registered with the United States Patent 
+and Trademark Office. 
+
+The HL7 FHIR specification contains and references intellectual property 
+owned by third parties ("Third Party IP"). Acceptance of these License Terms 
+does not grant any rights with respect to Third Party IP. The licensee alone 
+is responsible for identifying and obtaining any necessary licenses or 
+authorizations to utilize Third Party IP in connection with the specification 
+or otherwise. 
