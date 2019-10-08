@@ -68,8 +68,6 @@ public class Rf2DirectConfigOptions implements ConfigOptionsDescriptor
                   new ConverterOptionParamSuggestedValue("Snapshot-Active-Only", "Process the Snapshot portion of the RF2 content, and only maintain the active components")
             )};
    }
-
-   
    
    @Override
    public String getName()

@@ -1366,7 +1366,7 @@ public class ContentManagerController
 					}
 					if (!found)
 					{
-						sourceConverterContentIBDFInvalidReason.append("The conversion of " + convert.getArtifactId() + " requires an  ibdf dependency of " + s + "\n");
+						sourceConverterContentIBDFInvalidReason.append("The conversion of " + convert.getArtifactId() + " requires an ibdf dependency of " + s + "\n");
 					}
 				}
 			}
