@@ -1,19 +1,18 @@
 package sh.isaac.integration.tests.testfx;
 
+import com.sun.javafx.scene.control.VirtualScrollBar;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.scene.layout.*;
+import javafx.stage.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
@@ -23,6 +22,7 @@ import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.api.FxRobotInterface;
 import org.testfx.api.FxToolkit;
+import org.testfx.robot.ClickRobot;
 import org.testfx.framework.junit.ApplicationTest;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -35,6 +35,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.komet.gui.treeview.MultiParentTreeCell;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.komet.fx.stage.KometStageController;
@@ -51,7 +52,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.UUID;
-import javafx.scene.layout.HBox;
 
 @Ignore
 public class MainAppTest extends ApplicationTest {
@@ -149,25 +149,74 @@ public class MainAppTest extends ApplicationTest {
     public void testImport() {
         //Click Plus Button in Center Pane
         HBox editorPane = lookup("#editorLeftPane").query();
-        StackPane editorPaneSections = (StackPane) editorPane.getChildren().get(0);
-        Node plusButton = editorPaneSections.getChildren().get(1);
+        StackPane FxInterface_CenterStackPane = (StackPane) editorPane.getChildren().get(0);
+        Node plusButton = FxInterface_CenterStackPane.getChildren().get(1);
         clickOn(plusButton);
-        sleep(1000);
+        sleep(500);
+        clickOn(plusButton);
+        sleep(500);
 
-//        ObservableList<Node> editorLeftPaneSet = controller.editorLeftPane.getChildren();
-//        Pane editorLeftPaneSet1 = (Pane) editorLeftPaneSet.get(0);
-//        clickOn(editorLeftPaneSet1.getChildren().get(1));
+        //Digging through Panes to find the taxonomy button for the Center Pane
+        TabPane FxInterface_CenterTabPane = (TabPane) FxInterface_CenterStackPane.getChildren().get(0);
+        BorderPane brdrpn = (BorderPane) FxInterface_CenterTabPane.getTabs().get(0).getContent();
+        GridPane grdpn = (GridPane) ((BorderPane) brdrpn.getChildren().get(0)).getChildren().get(0);
+        MenuButton linkAndSearchButton = (MenuButton) grdpn.getChildren().get(0);
 
+        //Clicking the link and search button and then the taxonomy button
+        clickOn(linkAndSearchButton);
+        sleep(500);
+        Node taxonomyButton = lookup("taxonomy").query();
+        clickOn(taxonomyButton);
+        sleep(500);
 
-        //Open Import window
-        MenuButton FxInterface_classifierMenu = lookup("#classifierMenuButton").query();
-        clickOn(FxInterface_classifierMenu).clickOn("Selective import and transform");
-        sleep(1000);
+        //Locating root of tree structure and scroll bar
+        MultiParentTreeCell originNode = lookup("SOLOR concept").query();
+        VirtualScrollBar treeViewScrollBar = (VirtualScrollBar) originNode.getParent().getParent().getParent().getChildrenUnmodifiable().get(2);
+        clickOn(originNode.getChildrenUnmodifiable().get(0));
+        sleep(500);
 
-        //Add Item to Import
-        Button FxInterface_addButton = lookup("#addButton").queryButton();
-        clickOn(FxInterface_addButton);
+        //Expanding tree items
+        clickTreeItem("Metadata", treeViewScrollBar);
+        clickTreeItem("Node operator", treeViewScrollBar);
+        clickTreeItem("Role", treeViewScrollBar);
+        clickTreeItem("This item does not exist and will print an error message to console", treeViewScrollBar);
 
-        sleep(10000);
+//        //Open Import window
+//        MenuButton FxInterface_classifierMenu = lookup("#classifierMenuButton").query();
+//        clickOn(FxInterface_classifierMenu).clickOn("Selective import and transform");
+//        sleep(1000);
+//
+//        //Add Item to Import
+//        Button FxInterface_addButton = lookup("#addButton").queryButton();
+//        clickOn(FxInterface_addButton);
+
+        sleep(5000);
     }
+
+    private void clickTreeItem(String nodeText, VirtualScrollBar treeViewScrollBar) {
+        MultiParentTreeCell nodeFromTextQuery = (isFoundInScrollPane(nodeText, treeViewScrollBar) ? lookup(nodeText).query() : null);
+        if (nodeFromTextQuery == null) {
+            System.out.println("ERROR: No node of name \"" + nodeText + "\" found.");
+            return;
+        }
+        Node nodeToClick = nodeFromTextQuery.getChildrenUnmodifiable().get(0);
+        clickOn(nodeToClick);
+        sleep(500);
+    }
+
+    private boolean isFoundInScrollPane (String node, VirtualScrollBar scrollBar) {
+        scrollBar.setValue(0);
+        while (lookup(node).tryQuery().isEmpty() && scrollBar.getValue() != 1) {
+            scroll(5, VerticalDirection.UP);
+        }
+        scroll(5, VerticalDirection.UP);
+        if (lookup(node).tryQuery().isEmpty()) {
+            scrollBar.setValue(0);
+            return false;
+        } else {
+            System.out.println("NODE: " + node);
+            return true;
+        }
+    }
+
 }
