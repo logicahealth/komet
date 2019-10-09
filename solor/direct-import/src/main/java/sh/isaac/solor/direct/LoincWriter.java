@@ -194,6 +194,8 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             AxiomsFromLoincRecord loincAxiomMaker = new AxiomsFromLoincRecord();
 
             List<String[]> noSuchElementList = new ArrayList<>();
+            
+            int count = 0;
 
             for (String[] loincRecord : loincRecords) {
                 try {
@@ -256,6 +258,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         recordVersion.setSystem(loincRecord[SYSTEM]);
                         recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
                         assemblageService.writeSemanticChronology(recordToWrite);
+                        count++;
 
                     }
                 } catch (NoSuchElementException ex) {
@@ -263,6 +266,8 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                 }
                 completedUnitOfWork();
             }
+            
+            LOG.info("Created " + count + " concepts for loinc");
             if (!noSuchElementList.isEmpty()) {
                 LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size());
             }
