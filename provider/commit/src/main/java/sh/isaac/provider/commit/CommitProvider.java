@@ -527,9 +527,8 @@ public class CommitProvider
                 if (!semanticChronology.getVersionList().isEmpty()) {
                     Get.assemblageService()
                             .writeSemanticChronology(semanticChronology);
+                    deferNidAction(semanticChronology.getNid());
                 }
-
-                deferNidAction(semanticChronology.getNid());
                 break;
 
             case STAMP_ALIAS:
@@ -570,8 +569,6 @@ public class CommitProvider
                         Get.conceptService()
                                 .writeConcept(conceptChronology);
                     }
-
-
                 }
             }
                 break;
@@ -585,15 +582,16 @@ public class CommitProvider
                 if (optionalExistingSemantic.isEmpty()) {
                     Get.assemblageService()
                             .writeSemanticChronology(semanticChronology);
+                    deferNidAction(semanticChronology.getNid());
                 } else {
                     removeDuplicates(optionalExistingSemantic, semanticChronology);
                     if (!semanticChronology.getVersionList().isEmpty()) {
                         Get.assemblageService()
                                 .writeSemanticChronology(semanticChronology);
+                        deferNidAction(semanticChronology.getNid());
                     }
                 }
 
-                deferNidAction(semanticChronology.getNid());
                 break;
 
             case STAMP_ALIAS:

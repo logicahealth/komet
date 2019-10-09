@@ -553,8 +553,8 @@ public class TaxonomyProvider
      * @return
      */
     private boolean wasEverKindOf(int childNid, int parentNid, int depth) {
-        if (depth > 40) {
-            LOG.warn("Taxonomy depth > 40: " + depth + "; \n" + Get.conceptDescriptionText(childNid) + " <? \n" + Get.conceptDescriptionText(parentNid));
+        if (depth == 40) {
+            LOG.warn("Taxonomy depth at 40: " + depth + "; \n" + Get.conceptDescriptionText(childNid) + " <? \n" + Get.conceptDescriptionText(parentNid));
         }
         if (depth > 60) {
             LOG.error("Taxonomy depth > 60" + Get.conceptDescriptionText(childNid) + " <? " + Get.conceptDescriptionText(parentNid));
