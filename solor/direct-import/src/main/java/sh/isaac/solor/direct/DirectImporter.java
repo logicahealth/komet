@@ -1706,7 +1706,8 @@ public class DirectImporter
              * So, we only care about 06 on, which is the {@link DynamicRefsetWriter#VARIABLE_FIELD_START} constant, which will match up
              * with the '1' in the attribute order column....
              */
-            if (!importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
+            if (!(importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_") && 
+                     importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refsetdescriptor"))) {
                 throw new RuntimeException("der2_ccirefset_refsetdescriptor is missing or not sorted to the top of the refsets!");
             }
 

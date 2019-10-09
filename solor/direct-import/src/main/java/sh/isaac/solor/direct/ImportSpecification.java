@@ -125,10 +125,12 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
       //because this refset tells me what the columns / orders / etc are for every other refset.
       //This comes from Refset/Metadata/der2_cciRefset_RefsetDescriptor.....
 
-       if (this.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
+       if (this.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_") && 
+             this.contentProvider.getStreamSourceName().toLowerCase().contains("refsetdescriptor")) {
            return -1;
        }
-       else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
+       else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_") && 
+             o.contentProvider.getStreamSourceName().toLowerCase().contains("refsetdescriptor")) {
            return 1;
        }
       
