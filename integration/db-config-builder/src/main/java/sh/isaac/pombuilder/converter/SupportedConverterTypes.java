@@ -77,6 +77,7 @@ public enum SupportedConverterTypes
 			new String[] {"shared/licenses/loinc.xml"}, 
 			new String[] {"shared/noticeAdditions/loinc-NOTICE-addition.txt"}),
 	
+	//This one is deprecated, it was still the old form of the data.
 	LOINC_TECH_PREVIEW("loinc-src-data-tech-preview", ".*$", 
 			"A typical LOINC tech preview version number is '2015.08.01'.  The version numbers should be used directly from LOINC.  There are no enforced restrictions "
 			+ "on the format.", 
@@ -104,7 +105,8 @@ public enum SupportedConverterTypes
 	
 	SCT_EXTENSION("rf2-src-data-*-extension", "\\d{8}.*$", 
 			"A typical Snomed extension version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
-			+ "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.",
+			+ "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.  This can also be used for the "
+					+ "LOINC snomed collaboration RF2 release.",
 			new String[] {}, new String[] {"rf2-ibdf-sct"}, new UploadFileInfo[] {
 			new UploadFileInfo("Snomed Extensions come from a variety of sources.  Note that the NLM has choosen to stop advertising the download links to the "
 					+ " US Extension, but still publishes it.  The current download pattern is now: "

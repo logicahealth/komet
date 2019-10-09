@@ -54,6 +54,7 @@ import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
@@ -66,13 +67,17 @@ import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
+import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.pombuilder.converter.ContentConverterCreator;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
+import sh.isaac.solor.direct.LoincExpressionToConcept;
+import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 
 /**
@@ -100,6 +105,13 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	{
 		return new Rf2DirectConfigOptions().getConfigOptions();
 	}
+	
+	/**
+	 * enable loinc coop transform
+	 */
+	@Parameter(required = false, defaultValue = "false")
+	protected String loincCoop;  //Align name with Rf2DirectConfigOptions.PROCESS_LOINC_COOP
+	
 
 	@Override
 	public void setConverterOption(String internalName, String... values)
@@ -111,6 +123,17 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 				throw new RuntimeException("One and only one option may be set for direct conversion");
 			}
 			this.converterOutputArtifactClassifier = values[0];
+		}
+		else if (internalName.contentEquals(Rf2DirectConfigOptions.PROCESS_LOINC_COOP))
+		{
+			if (values != null && values.length != 1)
+			{
+				throw new RuntimeException("One and only one option may be set for direct conversion");
+			}
+			if (values != null  && values.length > 0)
+			{
+				loincCoop = internalName;
+			}
 		}
 		else
 		{
@@ -139,6 +162,7 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	{
 		try
 		{
+			boolean processLoincCoop = Boolean.parseBoolean(loincCoop);
 			ImportType it = ImportType.parseFromString(converterOutputArtifactClassifier);
 			
 			if (it == ImportType.DELTA)
@@ -162,7 +186,6 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 				}
 			});
 			
-			
 			DirectImporter importer = new DirectImporter(it, items);
 			
 			log.info("Importing");
@@ -173,6 +196,24 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 			Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(it);
 			Future<?> transformTask = Get.executor().submit(transformer);
 			transformTask.get();
+			
+			if (processLoincCoop)
+			{
+				log.info("Convert LOINC expressions...");
+				LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
+				Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
+				convertLoincTask.get();
+	
+				log.info("Adding navigation concepts...");
+				LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(
+						new ManifoldCoordinateImpl(readbackCoordinate, LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()));
+				Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
+				addNavigationConceptsTask.get();
+			}
+			else
+			{
+				log.info("Loinc Coop transform not requested");
+			}
 			
 			if (this.runningInMaven)
 			{

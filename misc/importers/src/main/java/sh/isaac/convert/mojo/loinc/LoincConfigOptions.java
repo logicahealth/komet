@@ -34,30 +34,42 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+package sh.isaac.convert.mojo.loinc;
 
-package sh.isaac.convert.mojo.loinc.standard;
-
-import java.io.File;
-import java.nio.file.Path;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import sh.isaac.api.coordinate.StampCoordinate;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.converters.sharedUtils.config.ConfigOptionsDescriptor;
+import sh.isaac.pombuilder.converter.ContentConverterCreator;
+import sh.isaac.pombuilder.converter.ConverterOptionParam;
+import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
 
 /**
+ * 
+ * {@link LoincConfigOptions}
  *
- * Loader code to convert Loinc into isaac.
- *
- * See {@link LoincMojoRunner} for a way to run this via a main for testing / debug
+ * Descriptions of the conversion options that this converter expects, in a form that can be automatically
+ * converted to a json file to be published with the mojo, for easy consumption and eventual inclusion into the
+ * GUI.
+ * 
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@Mojo(name = "convert-loinc-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
-public class LoincImportMojoDirect extends LoincImportHK2Direct
+@Service
+public class LoincConfigOptions implements ConfigOptionsDescriptor
 {
-	/**
-	 * This constructor is for maven and should not be used at runtime. You should
-	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
-	 */
-	public LoincImportMojoDirect()
+	@Override
+	public ConverterOptionParam[] getConfigOptions()
 	{
+		return new ConverterOptionParam[] { 
+				new ConverterOptionParam("Conversion Style", ContentConverterCreator.CLASSIFIERS_OPTION,
+				"The converter to use.  Defaults to 'native', if not specified.", 
+				true, false, false, 
+				new String[] { "native" },
+				new ConverterOptionParamSuggestedValue("native", "Load Loinc using the native, full standalone conversion process"),
+				new ConverterOptionParamSuggestedValue("solor", "Load Loinc using the solor load / conversion process")) };
+	}
 
+	@Override
+	public String getName()
+	{
+		return "convert-loinc-to-ibdf";
 	}
 }

@@ -18,7 +18,7 @@ package sh.isaac.convert.mojo.loinc;
 import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import javafx.application.Platform;
-import sh.isaac.convert.mojo.loinc.standard.LoincImportMojoDirect;
+import sh.isaac.convert.mojo.loinc.LoincImportMojoDirect;
 
 /**
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
@@ -39,6 +39,7 @@ public class LoincMojoRunner extends LoincImportMojoDirect
 		i.converterOutputArtifactVersion = "2016.01.07.foo";
 		i.converterVersion = "SNAPSHOT";
 		i.converterSourceArtifactVersion = "2017";
+		i.converterOutputArtifactClassifier = "native";
 		i.execute();
 		Platform.exit();
 	}

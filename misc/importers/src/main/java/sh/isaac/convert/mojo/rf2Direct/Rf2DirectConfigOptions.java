@@ -55,23 +55,34 @@ import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
 @Service
 public class Rf2DirectConfigOptions implements ConfigOptionsDescriptor
 {
-   public ConverterOptionParam[] getConfigOptions() {
-      return new ConverterOptionParam[] { 
-            new ConverterOptionParam("Classifiers to process", ContentConverterCreator.CLASSIFIERS_OPTION,
-                  "The classifiers to process.  Defaults to 'Snapshot, Full' in pom mode.  Defaults to 'Snapshot' in direct mode", 
-                  true, 
-                  true,
-                  false,
-                  new String[] {"Snapshot"},
-                  new ConverterOptionParamSuggestedValue("Snapshot", "Process the Snapshot portion of the RF2 content"),
-                  new ConverterOptionParamSuggestedValue("Full", "Process the Full portion of the RF2 content"),
-                  new ConverterOptionParamSuggestedValue("Snapshot-Active-Only", "Process the Snapshot portion of the RF2 content, and only maintain the active components")
-            )};
-   }
-   
-   @Override
-   public String getName()
-   {
-      return "convert-RF2-direct-to-ibdf";
-   }
+	public static final String PROCESS_LOINC_COOP = "loincCoop";
+
+	@Override
+	public ConverterOptionParam[] getConfigOptions() {
+		return new ConverterOptionParam[] { 
+				new ConverterOptionParam("Classifiers to process", ContentConverterCreator.CLASSIFIERS_OPTION,
+						"The classifiers to process.  Defaults to 'Snapshot, Full' in pom mode.  Defaults to 'Snapshot' in direct mode", 
+						true, 
+						true,
+						false,
+						new String[] {"Snapshot"},
+						new ConverterOptionParamSuggestedValue("Snapshot", "Process the Snapshot portion of the RF2 content"),
+						new ConverterOptionParamSuggestedValue("Full", "Process the Full portion of the RF2 content"),
+						new ConverterOptionParamSuggestedValue("Snapshot-Active-Only", "Process the Snapshot portion of the RF2 content, and only maintain the active components")
+				), 
+				new ConverterOptionParam("Process LOINC Coop", PROCESS_LOINC_COOP,
+					 "Specify 'true' to enable the LOINC processing - should only be enabled if loading the LOINC Coop extension.",
+					 true, false, false, 
+					 new String[] {"false"}, 
+					 new ConverterOptionParamSuggestedValue("true", "Enable LOINC processing"),
+					 new ConverterOptionParamSuggestedValue("false", "Skip LOINC processing"))};
+	}
+
+	
+	
+	@Override
+	public String getName()
+	{
+		return "convert-RF2-direct-to-ibdf";
+	}
 }

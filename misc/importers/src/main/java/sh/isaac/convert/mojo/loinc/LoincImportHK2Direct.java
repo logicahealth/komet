@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.convert.mojo.loinc.standard;
+package sh.isaac.convert.mojo.loinc;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.Map.Entry;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -52,14 +55,13 @@ import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
-import sh.isaac.convert.mojo.loinc.LOINCReader;
-import sh.isaac.convert.mojo.loinc.LoincCsvFileReader;
-import sh.isaac.convert.mojo.loinc.NameMap;
-import sh.isaac.convert.mojo.loinc.TxtFileReader;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.pombuilder.converter.ContentConverterCreator;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+import sh.isaac.solor.ContentProvider;
+import sh.isaac.solor.direct.LoincDirectImporter;
 
 /**
  * {@link LoincImportHK2Direct}
@@ -89,7 +91,7 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	private TreeMap<String, Long> versionTimeMap;
 	
 	HashSet<String> skippable = new HashSet<>();
-
+	
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime. You should
 	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
@@ -102,13 +104,24 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	@Override
 	public ConverterOptionParam[] getConverterOptions()
 	{
-		return new ConverterOptionParam[] {};
+		return new LoincConfigOptions().getConfigOptions();
 	}
 
 	@Override
 	public void setConverterOption(String internalName, String... values)
 	{
-		//noop, we don't require any.
+		if (internalName.equals(ContentConverterCreator.CLASSIFIERS_OPTION))
+		{
+			if (values == null || values.length != 1)
+			{
+				throw new RuntimeException("One and only one option may be set for direct conversion");
+			}
+			this.converterOutputArtifactClassifier = values[0];  //This is our native / solor flag
+		}
+		else
+		{
+			throw new RuntimeException("Unsupported converter option: " + internalName);
+		}
 	}
 
 	/**
@@ -140,7 +153,60 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	@Override
 	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
-		log.info("LOINC Processing Begins " + new Date().toString());
+		if ("solor".equals(this.converterOutputArtifactClassifier))
+		{
+			//We call Keith's converter code, and ignore everything else in this package...
+			try
+			{
+				ArrayList<ContentProvider> items = new ArrayList<>();
+				Files.walk(this.inputFileLocationPath, new FileVisitOption[] {}).forEach(path -> 
+				{
+					if (Files.isRegularFile(path, new LinkOption[] {}))
+					{
+						items.add(new ContentProvider(path));
+					}
+				});
+				
+				
+				LoincDirectImporter loincImporter = new LoincDirectImporter(items);
+				log.info("Importing LOINC files.");
+				Future<?> f = Get.executor().submit(loincImporter);
+				f.get();
+
+				if (this.runningInMaven)
+				{
+					addModuleMetadata();
+				}
+			}
+			catch (Exception e)
+			{
+				throw new IOException("Convert failed", e);
+			}
+
+		}
+		else if ("native".equals(this.converterOutputArtifactClassifier))
+		{
+			nativeConversion(statusUpdates, progressUpdate);
+		}
+		else
+		{
+			throw new IOException("The configuration option 'classifiers' must be set to either 'native' or 'solor'");
+		}
+	}
+	
+	private void addModuleMetadata()
+	{
+		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.LOINC_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(),
+				converterUUID, "LOINC", false);
+		
+		//TODO need to fix all of the timestamp handling
+		this.setupModule("LOINC Solor", MetaData.LOINC_MODULES____SOLOR.getPrimordialUuid(), Optional.empty(), System.currentTimeMillis());
+	}
+	
+
+	private void nativeConversion(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	{
+		log.info("LOINC Native Processing Begins " + new Date().toString());
 
 		AtomicReference<LOINCReader> loincData = new AtomicReference<>();
 		AtomicReference<LOINCReader> mapTo = new AtomicReference<>();
@@ -1049,5 +1115,6 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		// Make sure everything in pathToRoot is linked.
 		checkPath(concept, pathToRoot);
 	}
+
 }
 
