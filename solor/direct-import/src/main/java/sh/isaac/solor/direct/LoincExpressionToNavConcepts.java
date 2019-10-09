@@ -36,7 +36,9 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.  logic.LogicalExpressionBuilder;
@@ -100,10 +102,18 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
             }
             Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).forEach((semanticChronology) -> {
                 for (Version version : semanticChronology.getVersionList()) {
-                    Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
-
-                    String loincCode = loincVersion.getStr1(); // "48023-6"
-                    String sctExpression = loincVersion.getStr2();
+                    String loincCode;
+                    String sctExpression;
+                    if (version instanceof Str1_Str2_Nid3_Nid4_Nid5_Version) {
+                        Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
+                        loincCode = loincVersion.getStr1(); // "48023-6"
+                        sctExpression = loincVersion.getStr2();
+                    }
+                    else {
+                        DynamicVersion<?> loincVersion = (DynamicVersion<?>) version;
+                        loincCode = ((DynamicString)loincVersion.getData()[0]).getDataString();
+                        sctExpression = ((DynamicString)loincVersion.getData()[1]).getDataString();
+                    }
 
                     //  "363787002:246093002=720113009,370134009=123029007,246501002=702675006,704327008=122592007,370132008=117363000,704319004=50863008,704318007=705057003"
                     StringTokenizer tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);

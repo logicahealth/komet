@@ -37,7 +37,10 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
@@ -87,10 +90,21 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             }
             Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).forEach((semanticChronology) -> {
                 for (Version version : semanticChronology.getVersionList()) {
-                    Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
-                    
-                    String loincCode = loincVersion.getStr1(); // "48023-6"
-                    String sctExpression = loincVersion.getStr2();
+                    String loincCode;
+                    String sctExpression;
+                    int nid3;
+                    if (version instanceof Str1_Str2_Nid3_Nid4_Nid5_Version) {
+                        Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
+                        loincCode = loincVersion.getStr1(); // "48023-6"
+                        sctExpression = loincVersion.getStr2();
+                        nid3 = loincVersion.getNid3();
+                    }
+                    else {
+                        DynamicVersion<?> loincVersion = (DynamicVersion<?>) version;
+                        loincCode = ((DynamicString)loincVersion.getData()[0]).getDataString();
+                        sctExpression = ((DynamicString)loincVersion.getData()[1]).getDataString();
+                        nid3 = ((DynamicNid)loincVersion.getData()[2]).getDataNid();
+                    }
 
                     //  "363787002:246093002=720113009,370134009=123029007,246501002=702675006,704327008=122592007,370132008=117363000,704319004=50863008,704318007=705057003"
                     LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
@@ -98,7 +112,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     StringTokenizer tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
 
                     // get necessary or sufficient from Nid2 e.g. "Sufficient concept definition (SOLOR)"
-                    if (TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid() == loincVersion.getNid3()) {
+                    if (TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid() == nid3) {
                         builder.sufficientSet(builder.and(getStandardAssertions(tokenizer, builder)));
                         tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
                         builder.sufficientSet(builder.and(getProcedureAssertions(tokenizer, builder)));
