@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -32,6 +34,7 @@ import sh.isaac.api.logic.assertions.Assertion;
  */
 public class AxiomsFromLoincRecord {
 
+    private Logger log = LogManager.getLogger();
     private final Set<String> methods = new HashSet<>();
     private final ConceptProxy methodProxy = new ConceptProxy("Method (attribute)",
             UUID.fromString("d0f9e3b1-29e4-399f-b129-36693ba4acbc"));
@@ -4869,10 +4872,10 @@ public class AxiomsFromLoincRecord {
                         builder.and(builder.someRole(methodProxy.getNid(), builder.conceptAssertion(ultrasoundProxy)))));
                 break;            
             default:
-                System.out.println("Unknown loinc method: " + loincField);
+                log.warn("Unknown loinc method: " + loincField);
         }
     }
     public void listMethods() {
-        System.out.println("Methods: " + methods);
+        log.debug("Methods: " + methods);
     }
 }
