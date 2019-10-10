@@ -29,12 +29,10 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -44,6 +42,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -185,12 +184,10 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     @Override
     protected Void call() throws Exception {
         try {
-            ConceptService conceptService = Get.conceptService();
             StampService stampService = Get.stampService();
             int authorNid = TermAux.USER.getNid();
             int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
             int moduleNid = MetaData.LOINC_MODULES____SOLOR.getNid();
-            int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
             AxiomsFromLoincRecord loincAxiomMaker = new AxiomsFromLoincRecord();
 
             List<String[]> noSuchElementList = new ArrayList<>();
@@ -237,7 +234,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                             shortName = longCommonName + " with no sn";
                         }
 
-                        addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, false);
+                        if (!shortName.equals(longCommonName)){
+                            addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, false);
+                        }
 
                         // make a LOINC semantic
                         UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
@@ -291,9 +290,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     private void addDescription(String[] loincRecord, String description, ConceptSpecification descriptionType,
             UUID conceptUuid, int recordStamp, boolean preferredInDialect) {
 
-        UUID descriptionUuid
-                = UuidT5Generator.get(MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(),
-                        descriptionType.toString() + conceptUuid.toString() + description);
+        UUID descriptionUuid = UuidFactory.getUuidForDescriptionSemantic(MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(),
+                conceptUuid, MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), descriptionType.getPrimordialUuid(),
+                MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(), description, null);
 
         int descriptionTypeNid = descriptionType.getNid();
         int conceptNid = identifierService.getNidForUuids(conceptUuid);
@@ -311,8 +310,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         index(descriptionToWrite);
         assemblageService.writeSemanticChronology(descriptionToWrite);
 
-        UUID acceptabilityUuid = UuidT5Generator.get(TermAux.US_DIALECT_ASSEMBLAGE.getPrimordialUuid(),
-                loincRecord[LOINC_NUM] + description);
+        UUID acceptabilityUuid = UuidFactory.getUuidForComponentNidSemantic(TermAux.US_DIALECT_ASSEMBLAGE.getPrimordialUuid(), TermAux.US_DIALECT_ASSEMBLAGE.getPrimordialUuid(), 
+                descriptionUuid, preferredInDialect ? TermAux.PREFERRED.getPrimordialUuid() : TermAux.ACCEPTABLE.getPrimordialUuid(), null); 
+
         SemanticChronologyImpl dialectToWrite = new SemanticChronologyImpl(
                 VersionType.COMPONENT_NID,
                 acceptabilityUuid,
@@ -354,8 +354,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             index(conceptToWrite);
 
             // add to loinc identifier assemblage
-            UUID loincIdentifierUuid = UuidT5Generator.get(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getPrimordialUuid(),
-                    loincCode);
+            UUID loincIdentifierUuid = UuidFactory.getUuidForStringSemantic(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getPrimordialUuid(), 
+                    MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getPrimordialUuid(), conceptUuid, loincCode, null); 
+
             SemanticChronologyImpl loincIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                     loincIdentifierUuid,
                     MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
@@ -376,8 +377,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         UUID nameSpace = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid();
 
         // Create UUID from seed and assign SemanticBuilder the value
-        final UUID generatedGraphPrimordialUuid
-                = UuidT5Generator.get(nameSpace, conceptUuid.toString());
+        //Dan is leaving this one as it, rather than using the UuidFactory, in case some other code is trying to align logic graph creation for 
+        //loinc.  
+        final UUID generatedGraphPrimordialUuid = UuidT5Generator.get(nameSpace, conceptUuid.toString());
 
         sb.setPrimordialUuid(generatedGraphPrimordialUuid);
 
