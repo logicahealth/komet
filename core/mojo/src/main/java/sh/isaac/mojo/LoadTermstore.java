@@ -618,7 +618,7 @@ public class LoadTermstore extends AbstractMojo
 									}
 									catch (Exception e)
 									{
-										getLog().error("Write Error - ", e);
+										getLog().error("Write Error - while processing: " + sc.toUserString(), e);
 										throw e;
 									}
 								}
