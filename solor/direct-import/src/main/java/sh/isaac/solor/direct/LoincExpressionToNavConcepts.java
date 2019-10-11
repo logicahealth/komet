@@ -17,6 +17,7 @@
 package sh.isaac.solor.direct;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -68,6 +69,8 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     ConceptProxy methodProxy = new ConceptProxy("Method (attribute)",
             UUID.fromString("d0f9e3b1-29e4-399f-b129-36693ba4acbc"));
+    
+    private HashSet<Integer> processedObservedBy = new HashSet<>();
 
  ;
 
@@ -221,7 +224,6 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(new ConceptProxy("Anaerobic culture technique (qualifier value)", UUID.fromString("5a352b7f-b86f-3129-b2e3-e2d5f77b1957")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Anesthetics (qualifier value)", UUID.fromString("5c98fbba-4b1a-341a-9820-18795f4a8031")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Diagnostic angiography", UUID.fromString("e5eb5f33-9371-3881-88ea-14b343d01693")).getNid(), builderService, stamp);
-                addObservedByMethod(new ConceptProxy("Diagnostic angiography", UUID.fromString("e5eb5f33-9371-3881-88ea-14b343d01693")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Endoscopy of anus", UUID.fromString("d3407043-8aae-3fdc-aadd-90b36d79f631")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Argentaffin stain method (procedure)", UUID.fromString("6eadecb2-b415-39d2-8105-c1b146110dff")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Arthroscopy (procedure)", UUID.fromString("4bf05b37-076a-3a6a-ad53-b10bbf83cfc5")).getNid(), builderService, stamp);
@@ -291,7 +293,6 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(new ConceptProxy("Dynamometer (physical object)", UUID.fromString("5ac91e59-ed3f-364f-85da-8313ed3599a9")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Electroencephalography", UUID.fromString("e26b0d15-2577-37ef-b4c7-7a394c1f5f2d")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Upper gastrointestinal endoscopy", UUID.fromString("8c5b5a90-5b23-3b42-9fbc-5444e4d4b80b")).getNid(), builderService, stamp);
-                addObservedByMethod(new ConceptProxy("Electrocardiographic procedure (procedure)", UUID.fromString("2dc7d2f4-1fc1-30d9-9d84-ac2202d98fb4")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Edinburgh postnatal depression scale (assessment scale)", UUID.fromString("a1d4af9d-b266-388a-bae7-235c4c96e418")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Endoscopic retrograde choledochopancreatography", UUID.fromString("cad657a0-25dd-3450-b484-886bfbac8450")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Emergency Severity Index (assessment scale)", UUID.fromString("16e8e73f-a775-3b2c-aca6-e0acdcd3c466")).getNid(), builderService, stamp);
@@ -309,7 +310,6 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(new ConceptProxy("Epileptic disorder", UUID.fromString("74ea5091-2131-343c-bb7c-c0238815f48f")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Oesophagoscopy", UUID.fromString("e7fad093-503f-39cf-a9c5-5e84377cc66a")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Nonspecific esterase stain method (procedure)", UUID.fromString("06bafe98-cbbf-35d2-994d-9f8bd86d82cb")).getNid(), builderService, stamp);
-                addObservedByMethod(new ConceptProxy("Estimated (qualifier value)", UUID.fromString("f0b32009-b800-33eb-95ef-5617d1bafbc9")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Estimated (qualifier value)", UUID.fromString("f0b32009-b800-33eb-95ef-5617d1bafbc9")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Estimated from glycated hemoglobin technique (qualifier value)", UUID.fromString("a41a55c8-d474-3f85-a9dc-1ec1c941b3f2")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Evoked potential, function (observable entity)", UUID.fromString("31bff468-c19c-3a43-af94-61d053ca467b")).getNid(), builderService, stamp);
@@ -471,7 +471,6 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(new ConceptProxy("Movat pentachrome stain method (procedure)", UUID.fromString("42bee416-4bf4-3760-a694-a2155a49a66a")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Perimetry (procedure)", UUID.fromString("51d68c7d-7c7f-393b-98bd-bdc7758a10a5")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Periodic acid Schiff stain method (procedure)", UUID.fromString("8431464d-8f7e-3b70-9bba-26e44603bd89")).getNid(), builderService, stamp);
-                addObservedByMethod(new ConceptProxy("Peritoneoscopy", UUID.fromString("2a9c218b-2883-3af0-8a08-f6580fab9bb1")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Peroxidase stain method, blood or bone marrow (procedure)", UUID.fromString("58b8b2ca-a46d-3165-9e65-8f9fb0915879")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Pharmacist (occupation)", UUID.fromString("3bae419a-1707-357f-aa09-13caa7709bab")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Phenotype determination (procedure)", UUID.fromString("3315e2df-a2bb-39d1-aabc-436da2ffc5f6")).getNid(), builderService, stamp);
@@ -485,7 +484,6 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(new ConceptProxy("Platelet aggregation test (procedure)", UUID.fromString("c063cf79-3099-3429-ba33-9ce2cf2290c0")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Podiatry (qualifier value)", UUID.fromString("78f84195-2cbf-3bf5-904e-d93de19fe8e9")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Polysomnography (procedure)", UUID.fromString("b06b7729-cbd5-3380-b0e1-0db1ddfc1651")).getNid(), builderService, stamp);
-                addObservedByMethod(new ConceptProxy("Potassium ferrocyanide stain method", UUID.fromString("518afa3b-56be-35ff-a329-5da562b6d860")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Preventive medicine (qualifier value)", UUID.fromString("803685fc-e0a9-378b-8670-d3be7f4e883a")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Primary care physician (occupation)", UUID.fromString("485a0709-0876-307d-b376-85171a497f9c")).getNid(), builderService, stamp);
                 addObservedByMethod(new ConceptProxy("Probe, device (physical object)", UUID.fromString("134bfb4e-86a8-3bab-a463-b680dd280a99")).getNid(), builderService, stamp);
@@ -620,6 +618,10 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
         conceptNameBuilder.append("Phenomenon observed by ");
         conceptNameBuilder.append(manifold.getPreferredDescriptionText(methodNid));
         buildConcept(builderService, conceptNameBuilder, eb, stamp);
+        if (processedObservedBy.contains(methodNid)) {
+            throw new RuntimeException("Concept already created: " + methodNid + " " + conceptNameBuilder.toString() + " " + Get.identifierService().getUuidPrimordialStringForNid(methodNid));
+        }
+        processedObservedBy.add(methodNid);
     }
 
     private void addObservesComponent(int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
