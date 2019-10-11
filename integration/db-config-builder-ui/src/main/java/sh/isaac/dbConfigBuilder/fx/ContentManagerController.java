@@ -1419,7 +1419,7 @@ public class ContentManagerController
 			{
 				try
 				{
-					if (converter != null)
+					if (converter != null && sourceConversionConverterVersion.getSelectionModel().getSelectedItem() != null)
 					{
 						ConverterOptionParam[] options = ConverterOptionParam.fromArtifact(new File(sp_.getLocalM2FolderPath()), converter,
 							sourceConversionConverterVersion.getSelectionModel().getSelectedItem(), sp_.getArtifactReadURL(), sp_.getArtifactUsername(),
