@@ -197,7 +197,7 @@ public class DescriptionIndexer extends LuceneIndexer
       Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(semanticChronology.getNid(), getDescriptionExtendedTypeNid()).forEach(nestedSemantic -> {
          for (Version nestedVersions : nestedSemantic.getVersionList()) {
             // this is a UUID, but we want to treat it as a string anyway
-            uniqueExtensionTypes.add(((DynamicVersion<?>) nestedVersions).getData()[0].getDataObject().toString());
+            uniqueExtensionTypes.add(((DynamicVersion) nestedVersions).getData()[0].getDataObject().toString());
          }
       });
 

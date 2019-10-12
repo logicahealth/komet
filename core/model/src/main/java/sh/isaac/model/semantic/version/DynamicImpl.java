@@ -72,7 +72,7 @@ import sh.isaac.api.constants.DynamicConstants;
  */
 public class DynamicImpl
         extends AbstractVersionImpl
-         implements MutableDynamicVersion<DynamicImpl> {
+         implements MutableDynamicVersion {
 
    private DynamicData[] data = null;
    private VersionType referencedComponentVersionType = null;
@@ -318,6 +318,7 @@ public class DynamicImpl
    /**
     * {@inheritDoc}
     */
+   @Override
    public VersionType getSemanticType() {
       return VersionType.DYNAMIC;
    }

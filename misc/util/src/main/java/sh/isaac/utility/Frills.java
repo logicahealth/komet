@@ -684,7 +684,7 @@ public class Frills
             return Optional.empty();   
          }
          
-         DynamicData[] dataColumns = ((DynamicVersion<?>)lsv.get()).getData();
+         DynamicData[] dataColumns = ((DynamicVersion)lsv.get()).getData();
          if (dataColumns.length != 1)
          {
             throw new RuntimeException("Invalidly specified DYNAMIC_SEMANTIC_EXTENDED_DESCRIPTION_TYPE.  Should always have a column size of 1");
@@ -1564,7 +1564,7 @@ public class Frills
                   {
                      //This semantic is defined as a dynamic semantic with a single column of UUID data, which MUST be one of the three
                      //core description types.  There should only be one active core type ref on a description type.
-                     LatestVersion<DynamicVersion<? extends DynamicVersion<?>>> lv =  semanticChronlogy.getLatestVersion(stampToUse);
+                     LatestVersion<DynamicVersion> lv =  semanticChronlogy.getLatestVersion(stampToUse);
                      if (lv.isPresent()) {
                         DynamicUUID uuid = (DynamicUUID)lv.get().getData(0);
                         if (type.get() != null) {

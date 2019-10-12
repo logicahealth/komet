@@ -355,7 +355,7 @@ public class DirectWriteHelper
 		int referencedComponentNid = identifierService.getNidForUuids(referencedComponent);
 		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, uuidForCreatedMember,
 				identifierService.getNidForUuids(assemblageConcept), referencedComponentNid);
-		MutableDynamicVersion<?> dv = refsetMemberToWrite
+		MutableDynamicVersion dv = refsetMemberToWrite
 				.createMutableVersion(stampService.getStampSequence(status == null ? Status.ACTIVE : status, time, authorNid, moduleNid, pathNid));
 		delayedValidations.addAll(dv.setData(data, delayValidations));
 		indexAndWrite(refsetMemberToWrite);

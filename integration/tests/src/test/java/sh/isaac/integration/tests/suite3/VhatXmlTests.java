@@ -5232,7 +5232,7 @@ public class VhatXmlTests
 			}
 			else if (sc.get().getVersionType() == VersionType.DYNAMIC)  // this path will become dead code, after the data is fixed.
 			{
-				LatestVersion<DynamicVersion<?>> sv = sc.get().getLatestVersion(stamp);
+				LatestVersion<DynamicVersion> sv = sc.get().getLatestVersion(stamp);
 				if (sv.isPresent())
 				{
 					if (sv.get().getData() != null && sv.get().getData().length == 1)
@@ -5378,9 +5378,9 @@ public class VhatXmlTests
 			}
 
 			// Get the old target value
-			List<DynamicVersion<?>> coll = ((SemanticChronology) sc).getVisibleOrderedVersionList(defStamp);
+			List<DynamicVersion> coll = ((SemanticChronology) sc).getVisibleOrderedVersionList(defStamp);
 			Collections.reverse(coll);
-			for (DynamicVersion<?> s : coll)
+			for (DynamicVersion s : coll)
 			{
 				AssociationInstance assocInst = AssociationInstance.read(s, null);
 				oldTargetCode = getCodeFromNid(Get.identifierService().getNidForUuids(assocInst.getTargetComponent().get().getPrimordialUuid()), defStamp);

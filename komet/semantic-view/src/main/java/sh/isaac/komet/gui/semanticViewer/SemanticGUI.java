@@ -493,10 +493,10 @@ public class SemanticGUI
 						break;
 				}
 			}
-			else if (oc.get() instanceof DynamicVersion<?>)
+			else if (oc.get() instanceof DynamicVersion)
 			{
 				//TODO I don't think this is necessary / in use?
-				DynamicVersion<?> nds = (DynamicVersion<?>) oc.get();
+				DynamicVersion nds = (DynamicVersion) oc.get();
 				text = "Nested Semantic Dynamic: using assemblage " + Frills.getDescription(nds.getAssemblageNid(), null);
 			}
 			else
@@ -636,7 +636,7 @@ public class SemanticGUI
 						new DynamicNidImpl(((DescriptionVersion)semantic).getDescriptionTypeConceptNid()),
 						new DynamicNidImpl(((DescriptionVersion)semantic).getCaseSignificanceConceptNid())};
 			case DYNAMIC:
-				return ((DynamicVersion<?>)semantic).getData();
+				return ((DynamicVersion)semantic).getData();
 			case LONG:
 				return new DynamicData[] {new DynamicLongImpl(((LongVersion)semantic).getLongValue())};
 			case MEMBER:

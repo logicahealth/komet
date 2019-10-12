@@ -311,7 +311,7 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 						data.add(((LongVersion)semanticVersion).getLongValue());
 						break;
 					case DYNAMIC:
-						for (DynamicData dd : ((DynamicVersion<?>)semanticVersion).getData())
+						for (DynamicData dd : ((DynamicVersion)semanticVersion).getData())
 						{
 							if (dd == null)
 							{

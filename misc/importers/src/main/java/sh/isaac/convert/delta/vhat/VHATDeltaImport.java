@@ -1297,7 +1297,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 				}
 				else if (sc.getVersionType() == VersionType.DYNAMIC)
 				{
-					MutableDynamicVersion<?> mds = sc.createMutableVersion(isActive ? Status.ACTIVE : Status.INACTIVE, this.editCoordinate);
+					MutableDynamicVersion mds = sc.createMutableVersion(isActive ? Status.ACTIVE : Status.INACTIVE, this.editCoordinate);
 					if (mds.getDynamicUsageDescription().getColumnInfo().length != 1
 							|| mds.getDynamicUsageDescription().getColumnInfo()[0].getColumnDataType() != DynamicDataType.STRING)
 					{
@@ -1569,10 +1569,10 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 //								// IF latest version of this annotation semantic is inactive then reactivate it
 //								if (!existingDescriptionExtendedTypeSemanticChronology.isLatestVersionActive(this.readbackCoordinate))
 //								{
-//									LatestVersion<DynamicVersion<?>> latestInactiveVersionOptional = existingDescriptionExtendedTypeSemanticChronology
+//									LatestVersion<DynamicVersion> latestInactiveVersionOptional = existingDescriptionExtendedTypeSemanticChronology
 //											.getLatestVersion(this.readbackCoordinate.makeCoordinateAnalog(Status.ANY_STATUS_SET));
 //									// TODO handle contradictions
-//									DynamicVersion<?> latestInactiveVersion = latestInactiveVersionOptional.get();
+//									DynamicVersion latestInactiveVersion = latestInactiveVersionOptional.get();
 //									DynamicImpl newDescriptionActiveExtendedTypeSemanticVersion = existingDescriptionExtendedTypeSemanticChronology
 //											.createMutableVersion(Status.ACTIVE, this.editCoordinate);
 //									newDescriptionActiveExtendedTypeSemanticVersion.setData(latestInactiveVersion.getData());
@@ -1656,7 +1656,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 										copyOfExistingNestedSemantic = dwh.makeDynamicSemantic(
 												Get.identifierService().getUuidPrimordialForNid(existingNestedSemantic.getAssemblageNid()),
 												finalDescRef, 
-												((DynamicVersion<?>) latestVersionOfExistingNestedSemantic.get()).getData(), time); 
+												((DynamicVersion) latestVersionOfExistingNestedSemantic.get()).getData(), time); 
 										break;
 									case MEMBER:
 										SemanticVersion memberSemantic = (SemanticVersion) latestVersionOfExistingNestedSemantic.get();
@@ -1783,7 +1783,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 				switch (latestVersionOfExistingNestedSemantic.get().getChronology().getVersionType())
 				{
 					case DYNAMIC:
-						DynamicVersion<?> dynamicSemantic = (DynamicVersion<?>) latestVersionOfExistingNestedSemantic.get();
+						DynamicVersion dynamicSemantic = (DynamicVersion) latestVersionOfExistingNestedSemantic.get();
 						copyOfExistingNestedSemantic = dwh.makeDynamicSemantic(
 								Get.identifierService().getUuidPrimordialForNid(existingNestedSemantic.getAssemblageNid()), 
 								copyOfParentComponent.getPrimordialUuid(), dynamicSemantic.getData(), time);
@@ -1923,7 +1923,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 						Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.nidForUuids(description), Get.identifierService()
 								// There really shouldn't be more than one of these, but if there is, no harm in changing state on all of them.
 								.getNidForUuids(this.vuidToSubsetMap.get(sm.getVUID()))).forEach(sc -> {
-									LatestVersion<DynamicVersion<?>> ds = sc.getLatestVersion(this.readbackCoordinate);
+									LatestVersion<DynamicVersion> ds = sc.getLatestVersion(this.readbackCoordinate);
 									if (ds.isPresent())
 									{
 										sc.createMutableVersion(sm.isActive() ? Status.ACTIVE : Status.INACTIVE, this.editCoordinate);
@@ -1989,7 +1989,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 						LatestVersion<Version> ds = sc.getLatestVersion(this.readbackCoordinate);
 						if (ds.isPresent())
 						{
-							MutableDynamicVersion<?> mds = sc.createMutableVersion(r.isActive() ? Status.ACTIVE : Status.INACTIVE, this.editCoordinate);
+							MutableDynamicVersion mds = sc.createMutableVersion(r.isActive() ? Status.ACTIVE : Status.INACTIVE, this.editCoordinate);
 							mds.setData(new DynamicData[] { new DynamicUUIDImpl(newTarget.isPresent() ? newTarget.get() : oldTarget.get()) });
 							dwh.indexAndWrite(sc);
 						}
@@ -2298,7 +2298,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 							SemanticChronology sc = Get.assemblageService().getSemanticChronology(
 									Get.identifierService().getNidForUuids(createNewMapItemUUID(mapSetConcept, me.getVUID().toString())));
 
-							MutableDynamicVersion<?> mds = sc.createMutableVersion(me.isActive() ? Status.ACTIVE : Status.INACTIVE, this.editCoordinate);
+							MutableDynamicVersion mds = sc.createMutableVersion(me.isActive() ? Status.ACTIVE : Status.INACTIVE, this.editCoordinate);
 							mds.setData(columnData);
 							dwh.indexAndWrite(sc);
 						}

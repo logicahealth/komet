@@ -464,8 +464,7 @@ public class LanguageCoordinates {
       //Collect the mappings from core types -> non core types
       Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(sc -> 
       {
-         @SuppressWarnings("unchecked")
-         DynamicVersion<? extends Version> dv = (DynamicVersion<? extends Version>)sc.getLatestVersion(stamp).get();
+         DynamicVersion dv = (DynamicVersion)sc.getLatestVersion(stamp).get();
          ConceptProxy coreType = new ConceptProxy(Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID()));
          HashSet<ConceptSpecification> mapped = equivalentTypes.get(coreType);
          if (mapped == null) {

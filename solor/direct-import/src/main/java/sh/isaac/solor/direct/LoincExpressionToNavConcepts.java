@@ -113,7 +113,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                         sctExpression = loincVersion.getStr2();
                     }
                     else {
-                        DynamicVersion<?> loincVersion = (DynamicVersion<?>) version;
+                        DynamicVersion loincVersion = (DynamicVersion) version;
                         loincCode = ((DynamicString)loincVersion.getData()[0]).getDataString();
                         sctExpression = ((DynamicString)loincVersion.getData()[1]).getDataString();
                     }

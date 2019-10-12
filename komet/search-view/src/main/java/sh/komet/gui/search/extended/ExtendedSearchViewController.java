@@ -505,7 +505,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                             box.getChildren().add(attachedData);
 
                                             if (versions.get(i).getSemanticType() == VersionType.DYNAMIC) {
-                                                DynamicVersion<?> dv = ((DynamicVersion<?>) versions.get(i));
+                                                DynamicVersion dv = ((DynamicVersion) versions.get(i));
                                                 DynamicUsageDescription dud = dv.getDynamicUsageDescription();
                                                 for (DynamicColumnInfo dci : dud.getColumnInfo()) {
                                                     DynamicData dd = dv.getData(dci.getColumnOrder());

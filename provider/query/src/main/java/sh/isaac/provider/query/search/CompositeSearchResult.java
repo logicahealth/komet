@@ -287,7 +287,7 @@ public class CompositeSearchResult implements CompositeQueryResult {
                     strings.add(((DescriptionVersion) version).getText());
                     break;
                 case DYNAMIC:
-                    strings.add(((DynamicVersion<?>) version).dataToString());
+                    strings.add(((DynamicVersion) version).dataToString());
                     break;
                 case LOGIC_GRAPH:
                     strings.add(((LogicGraphVersion) version).getLogicalExpression().toSimpleString());

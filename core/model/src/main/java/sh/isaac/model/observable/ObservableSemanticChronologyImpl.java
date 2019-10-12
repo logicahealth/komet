@@ -36,42 +36,40 @@
  */
 package sh.isaac.model.observable;
 
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.IntegerProperty;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+//~--- non-JDK imports --------------------------------------------------------
+import javafx.beans.property.IntegerProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
-import sh.isaac.model.observable.version.ObservableImageVersionImpl;
-import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.ImageVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
+import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
+import sh.isaac.model.observable.version.ObservableDynamicVersionImpl;
+import sh.isaac.model.observable.version.ObservableImageVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.isaac.model.observable.version.ObservableLongVersionImpl;
-import sh.isaac.model.observable.version.ObservableStringVersionImpl;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
-import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableLoincVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableRf2RelationshipImpl;
@@ -87,8 +85,8 @@ import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Nid3_Nid4_
 import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Nid3_Nid4_VersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
@@ -205,11 +203,7 @@ public class ObservableSemanticChronologyImpl
             return (OV) new ObservableImageVersionImpl((ImageVersion) semanticVersion, this);
          
          case DYNAMIC:
-            LOG.warn("Incomplete implementation of dynamic semantic: " + 
-                    semanticVersion.getClass().getSimpleName() + " " + semanticVersion);
-            return (OV) new ObservableSemanticVersionImpl(semanticVersion, this);
-            
-            
+            return (OV) new ObservableDynamicVersionImpl((DynamicVersion)semanticVersion, this);
          case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
             return (OV) new Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl) semanticVersion, this);
          case Nid1_Int2:

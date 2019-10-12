@@ -58,7 +58,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * @param <T> the generic type
  */
-public interface DynamicVersion<T extends DynamicVersion<T>>
+public interface DynamicVersion
         extends SemanticVersion {
    /**
     * Return a string representation of the data fields.
