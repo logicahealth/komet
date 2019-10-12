@@ -72,6 +72,7 @@ import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.isaac.model.observable.version.ObservableLongVersionImpl;
 import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableLoincVersionImpl;
+import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableRf2RelationshipImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;

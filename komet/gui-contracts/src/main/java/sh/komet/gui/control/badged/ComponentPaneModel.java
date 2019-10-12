@@ -108,6 +108,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
             case Nid1_Int2:
             case LOINC_RECORD:
             case IMAGE:
+            case DYNAMIC:
                 return true;
 
             case RF2_RELATIONSHIP:
