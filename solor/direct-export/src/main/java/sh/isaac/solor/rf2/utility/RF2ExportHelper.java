@@ -18,6 +18,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
@@ -26,7 +27,7 @@ import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.util.UuidT5Generator;
-
+import sh.isaac.solor.rf2.config.RF2Configuration;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
@@ -34,8 +35,8 @@ import java.util.Optional;
 public class RF2ExportHelper {
 
     protected static final Logger LOG = LogManager.getLogger();
-    private static ManifoldCoordinate manifoldCoordinate;
-    private static ObservableSnapshotService observableSnapshotService;
+    private ManifoldCoordinate manifoldCoordinate;
+    private ObservableSnapshotService observableSnapshotService;
 
     private final static int[] identifierNidPriority = new int[]{ //order of priority
             TermAux.SNOMED_IDENTIFIER.getNid(),
@@ -46,6 +47,10 @@ public class RF2ExportHelper {
     public RF2ExportHelper(ManifoldCoordinate manifold) {
         manifoldCoordinate = manifold;
         observableSnapshotService = Get.observableSnapshotService(manifoldCoordinate.getStampCoordinate());
+    }
+    
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return manifoldCoordinate;
     }
 
     public Version getObservableSnapshotVersion(int nid){
@@ -64,6 +69,8 @@ public class RF2ExportHelper {
         return getIdString(getObservableSnapshotVersion(nid));
     }
 
+    //TODO Dan notes, I'm not really sure what purpose this method is safe for, since you have no idea if it will return a nid, loinc id, cui, or 
+    //and invented solorid.  You would have no way to properly parse this back in, without having a hint of some sort of what on earth it returned.
     public String getIdString(Version version){
 
         for(int identifierAssemblageNid : identifierNidPriority){
@@ -89,6 +96,17 @@ public class RF2ExportHelper {
                 }
 
             }
+        }
+        
+        //Better handling for some cases where brittle types are mapped to stupid, default values.
+        if (version.getNid() == DynamicConstants.get().DYNAMIC_DT_NID.getNid() || version.getNid() == DynamicConstants.get().DYNAMIC_DT_UUID.getNid()) {
+            return RF2Configuration.REFERENCED_COMPONENT;
+        }
+        else if (version.getNid() == DynamicConstants.get().DYNAMIC_DT_STRING.getNid()) {
+            return RF2Configuration.PARSABLE_STRING;
+        }
+        else if (version.getNid() == DynamicConstants.get().DYNAMIC_DT_INTEGER.getNid()) {
+            return RF2Configuration.SIGNED_INTEGER;
         }
 
         return UuidT5Generator.makeSolorIdFromUuid(version.getPrimordialUuid());
