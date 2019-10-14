@@ -467,7 +467,6 @@ public class SemanticGUI
 						break;
 
 					case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-					case LOINC_RECORD:
 					case MEASURE_CONSTRAINTS:
 					case Nid1_Int2:
 					case Nid1_Int2_Str3_Str4_Nid5_Nid6:
@@ -658,7 +657,6 @@ public class SemanticGUI
 			case Str1_Str2_Nid3_Nid4_Nid5:
 			case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
 			case RF2_RELATIONSHIP:
-			case LOINC_RECORD:
 			case MEASURE_CONSTRAINTS:
 				//Handle all brittle types
 				if (semantic instanceof BrittleVersion)

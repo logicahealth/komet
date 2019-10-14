@@ -276,7 +276,6 @@ public class FXMLController {
                     }
                     case DYNAMIC:
                     case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-                    case LOINC_RECORD:
                     case LONG:
                     case MEASURE_CONSTRAINTS:
                     case MEMBER:

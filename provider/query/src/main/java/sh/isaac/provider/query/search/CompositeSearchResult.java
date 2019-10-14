@@ -304,7 +304,6 @@ public class CompositeSearchResult implements CompositeQueryResult {
                 case MEASURE_CONSTRAINTS:
                     strings.add("Measure Constraint with nid of " + version.getNid());
                     break;
-                case LOINC_RECORD:
                 case Nid1_Int2:
                 case Nid1_Int2_Str3_Str4_Nid5_Nid6:
                 case Nid1_Nid2:

@@ -358,6 +358,7 @@ public class TermAux implements StaticIsaacCache {
 
    public static ConceptProxy INFERRED_PREMISE_TYPE = new ConceptProxy("Inferred premise type", "Inferred", UUID.fromString("1290e6ba-48d0-31d2-8d62-e133373c63f5"));
   
+   public static ConceptProxy EXTERNAL_DATA_ASSEMBLAGE = new ConceptProxy("External data assemblage (SOLOR)", UUID.fromString("0fba52dd-0727-5e87-a41d-e30ec88b7f87"));
    public static ConceptProxy CONCEPT_ASSEMBLAGE = new ConceptProxy("Concept assemblage", "Concept assemblage",
          UUID.fromString("e8060eec-b9b9-11e7-abc4-cec278b6b50a"));
    public static ConceptProxy SOLOR_CONCEPT_ASSEMBLAGE = new ConceptProxy("SOLOR concept assemblage", "SOLOR concepts",
@@ -372,8 +373,6 @@ public class TermAux implements StaticIsaacCache {
          UUID.fromString("e3436c74-2491-50fa-b43c-13d83238648c"));
    public static ConceptProxy RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE = new ConceptProxy("RF2 legacy relationship implication assemblage",
          "RF2 legacy relationship implication", UUID.fromString("b7c0f2ee-5481-5122-8910-6d89543ff278"));
-   public static ConceptProxy LOINC_RECORD_ASSEMBLAGE = new ConceptProxy("LOINC record assemblage", "LOINC record assemblage", 
-         UUID.fromString("282b86b7-8ae4-5e6a-9dbd-849aabc67922"));
 
    public static ConceptProxy CONTENT_LICENSE = new ConceptProxy("Content license", "Content license", UUID.fromString("b3305461-6954-574e-9124-285a02d4ecae"));
    public static ConceptProxy SCT_AFFILIATES_LICENSE = new ConceptProxy("SNOMED® affiliates license", "SNOMED® affiliates license",

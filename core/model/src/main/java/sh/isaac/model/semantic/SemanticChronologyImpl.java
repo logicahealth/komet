@@ -69,7 +69,6 @@ import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
@@ -236,9 +235,6 @@ public class SemanticChronologyImpl
 
       case Str1_Str2_Nid3_Nid4_Nid5:
          return new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(chronology, stampSequence, bb);
-          
-      case LOINC_RECORD:
-         return new LoincVersionImpl(chronology, stampSequence, bb);
 
       default:
          throw new UnsupportedOperationException("ae Can't handle: " + chronology.versionType);
@@ -424,9 +420,6 @@ public class SemanticChronologyImpl
 
       case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
          return (M) new Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl((SemanticChronology) this, stampSequence);
-
-      case LOINC_RECORD:
-         return (M) new LoincVersionImpl((SemanticChronology) this, stampSequence);
          
       case Str1_Nid2_Nid3_Nid4:
           return (M) new Str1_Nid2_Nid3_Nid4_VersionImpl((SemanticChronology) this, stampSequence);

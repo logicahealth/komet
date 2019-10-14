@@ -36,6 +36,8 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
@@ -44,12 +46,13 @@ import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.metadata.source.DirectImportDynamicConstants;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 
 /**
  *
@@ -239,23 +242,23 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         }
 
                         // make a LOINC semantic
-                        UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
-                                loincRecord[LOINC_NUM]);
+                        UUID loincRecordUuid = UuidT5Generator.get(DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(), loincRecord[LOINC_NUM]);
 
-                        SemanticChronologyImpl recordToWrite
-                                = new SemanticChronologyImpl(VersionType.LOINC_RECORD, loincRecordUuid,
-                                        TermAux.LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
-                        LoincVersionImpl recordVersion = recordToWrite.createMutableVersion(recordStamp);
-                        recordVersion.setComponent(loincRecord[COMPONENT]);
-                        recordVersion.setLoincNum(loincRecord[LOINC_NUM]);
-                        recordVersion.setLoincStatus(loincRecord[STATUS]);
-                        recordVersion.setLongCommonName(loincRecord[LONG_COMMON_NAME]);
-                        recordVersion.setMethodType(loincRecord[METHOD_TYP]);
-                        recordVersion.setProperty(loincRecord[PROPERTY]);
-                        recordVersion.setScaleType(loincRecord[SCALE_TYP]);
-                        recordVersion.setShortName(loincRecord[SHORTNAME]);
-                        recordVersion.setSystem(loincRecord[SYSTEM]);
-                        recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
+                        SemanticChronologyImpl recordToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, loincRecordUuid,
+                                DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
+                        MutableDynamicVersion recordVersion = recordToWrite.createMutableVersion(recordStamp);
+                        DynamicData[] data = new DynamicData[] {
+                                new DynamicStringImpl(loincRecord[COMPONENT]),
+                                new DynamicStringImpl(loincRecord[LOINC_NUM]),
+                                new DynamicStringImpl(loincRecord[STATUS]),
+                                new DynamicStringImpl(loincRecord[LONG_COMMON_NAME]),
+                                new DynamicStringImpl(loincRecord[METHOD_TYP]),
+                                new DynamicStringImpl(loincRecord[PROPERTY]),
+                                new DynamicStringImpl(loincRecord[SCALE_TYP]),
+                                new DynamicStringImpl(loincRecord[SHORTNAME]),
+                                new DynamicStringImpl(loincRecord[SYSTEM]),
+                                new DynamicStringImpl(loincRecord[TIME_ASPCT])};
+                        recordVersion.setData(data);
                         assemblageService.writeSemanticChronology(recordToWrite);
                         count++;
 
@@ -385,8 +388,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
         final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
 
-        final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
-                builtObjects);
+        final SemanticChronology sci = (SemanticChronology) sb.build(stamp, builtObjects);
         // There should be no other build objects, so ignore the builtObjects list...
 
         if (builtObjects.size() != 1) {
@@ -396,7 +398,5 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         Get.assemblageService().writeSemanticChronology(sci);
 
         return sci;
-
     }
-    
 }

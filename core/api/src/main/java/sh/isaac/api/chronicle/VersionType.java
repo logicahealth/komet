@@ -71,7 +71,8 @@ public enum VersionType {
    //RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
    CONCEPT((byte) 9, "Concept", "CON"),
    RF2_RELATIONSHIP((byte) 10, "RF2 Relationship", "REL"),
-   LOINC_RECORD((byte) 11, "LOINC Record", "LOINC"),
+   /* deprecated/removed. */
+   //LOINC_RECORD((byte) 11, "LOINC Record", "LOINC"),
    IMAGE((byte) 12, "Image", "IMG"),
    // Ideally, all of the below would be represented as dynamic semantics, 
    // but quick, removable implementation for now. 
@@ -198,9 +199,6 @@ public enum VersionType {
 
       case 10:
          return RF2_RELATIONSHIP;
-
-      case 11:
-          return LOINC_RECORD;
 
       case 12:
           return IMAGE;

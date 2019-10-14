@@ -242,11 +242,7 @@ public class CellHelper {
                     break;
 
                 case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-                    processInt1_Int2_Str3_Str4_Str5_Nid6_Nid7(assemblageNameText, referencedComponentText, (Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version) version);
-                    break;
-
-                case LOINC_RECORD:
-                    processLOINC_RECORD(assemblageNameText, referencedComponentText, (LoincVersion) semanticVersion);
+                    processInt1_Int2_Str3_Str4_Str5_Nid6_Nid7(assemblageNameText, referencedComponentText, (Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version) semanticVersion);
                     break;
 
                 case Nid1_Int2:

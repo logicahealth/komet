@@ -544,7 +544,6 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                 case Str1_Str2_Nid3_Nid4_Nid5:
                 case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
                 case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-                case LOINC_RECORD:
                 case MEASURE_CONSTRAINTS:
                 case Nid1_Int2_Str3_Str4_Nid5_Nid6:
                 case Nid1_Nid2:

@@ -411,13 +411,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.LOINC_CONCEPT_ASSEMBLAGE);
                   createConcept(TermAux.RXNORM_CONCEPT_ASSEMBLAGE);
                   popParent();
-               createConcept("External data assemblage");
+               createConcept(TermAux.EXTERNAL_DATA_ASSEMBLAGE);
                pushParent(current());
                   createConcept(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.SRF_STATED_RELATIONSHIP_ASSEMBLAGE);
-                  createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
                   createConcept("Clinvar Variant to Gene Non-Defining Taxonomy");
                   createConcept("Clinvar Gene to Phenotype Non-Defining Taxonomy");
                   createConcept("UMLS equivalency assemblage");
