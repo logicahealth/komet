@@ -61,6 +61,7 @@ import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -118,7 +119,7 @@ public class LogicalExpressionImpl
     /**
      * The concept nid.
      */
-    transient int conceptBeingDefinedNid = -1;
+    transient int conceptBeingDefinedNid = TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
 
     /**
      * The logic nodes.

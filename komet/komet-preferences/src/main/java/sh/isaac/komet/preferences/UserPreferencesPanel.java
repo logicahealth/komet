@@ -23,6 +23,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import org.apache.commons.lang.Validate;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.config.Ini;
@@ -67,13 +68,8 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         PATH_CONCEPT_OPTIONS,
         SHIRO_INI
     }
+    private static String iniConfig = "Shiro INI";
     private static SecurityManager securityManager = null;
-    
-    private static final EditCoordinateImpl EDIT_COORDINATE = new EditCoordinateImpl(TermAux.UNINITIALIZED_COMPONENT_ID.getNid(), 
-                    TermAux.UNINITIALIZED_COMPONENT_ID.getNid(), 
-                    TermAux.UNINITIALIZED_COMPONENT_ID.getNid());
-    
-    private static final ObservableEditCoordinate OBSERVABLE_EDIT_COORDINATE = new ObservableEditCoordinateImpl(EDIT_COORDINATE);
 
 
     final SimpleObjectProperty<ConceptSpecification> userConceptProperty = new SimpleObjectProperty<>(this, ObservableFields.KOMET_USER.toExternalString(), MetaData.KOMET_USER____SOLOR);
@@ -117,18 +113,23 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         getItemList().add(new PropertySheetItemConceptConstraintWrapper(moduleConceptWrapper, manifold, "Module"));
         getItemList().add(new PropertySheetItemConceptConstraintWrapper(pathConceptWrapper, manifold, "Path"));
 
+        login();
+    }
+
+    public static void login() {
         if (securityManager == null) {
             Ini ini = new Ini();
-            ini.load(shiroIniProperty.get());
+            ini.load(makeShiroIni());
             Factory<SecurityManager> factory = new IniSecurityManagerFactory(ini);
             securityManager = factory.getInstance();
             SecurityUtils.setSecurityManager(securityManager);
             Subject currentUser = SecurityUtils.getSubject();
             UsernamePasswordToken token = new UsernamePasswordToken("admin", "mtn.dog");
             currentUser.login(token);
+            currentUser.getSession().setAttribute(SessionProperty.EDIT_COORDINATE, FxGet.editCoordinate());
+
             LOG.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
-            currentUser.getSession().setAttribute(SessionProperty.EDIT_COORDINATE, OBSERVABLE_EDIT_COORDINATE);
-            
+
         }
     }
 
@@ -164,9 +165,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         
         // For modules and paths, read/write constraints 
         FxGet.rulesDrivenKometService().addResourcesAndUpdate(getBusinessRulesResources());
-        OBSERVABLE_EDIT_COORDINATE.authorNidProperty().set(userConceptProperty.get().getNid());
-        OBSERVABLE_EDIT_COORDINATE.moduleNidProperty().set(moduleConceptProperty.get().getNid());
-        OBSERVABLE_EDIT_COORDINATE.pathNidProperty().set(pathConceptProperty.get().getNid());
+        FxGet.editCoordinate().authorNidProperty().set(userConceptProperty.get().getNid());
+        FxGet.editCoordinate().moduleNidProperty().set(moduleConceptProperty.get().getNid());
+        FxGet.editCoordinate().pathNidProperty().set(pathConceptProperty.get().getNid());
     }
 
     @Override
@@ -216,7 +217,7 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         
     }
     
-    String makeShiroIni() {
+    static String makeShiroIni() {
         
         StringBuilder b = new StringBuilder();
         b.append("[main]\n");

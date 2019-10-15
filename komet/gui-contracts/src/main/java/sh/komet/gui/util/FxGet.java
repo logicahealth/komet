@@ -32,6 +32,7 @@ import javafx.collections.*;
 
 import javax.inject.Singleton;
 
+import org.apache.commons.lang.Validate;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
@@ -52,6 +53,8 @@ import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.tree.TaxonomyAmalgam;
+import sh.isaac.model.coordinate.EditCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.komet.gui.contract.*;
 import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
@@ -295,7 +298,7 @@ public class FxGet implements StaticIsaacCache {
     }
     
     public static ObservableEditCoordinate editCoordinate() {
-        return (ObservableEditCoordinate) SecurityUtils.getSubject().getSession().getAttribute(SessionProperty.EDIT_COORDINATE);
+        return EditCoordinate.get();
     }
     
     public static ObservableList<String> taxonomyConfigurationNames() {

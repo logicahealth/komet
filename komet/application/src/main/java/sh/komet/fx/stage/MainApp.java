@@ -65,6 +65,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.SystemUtils;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.RootPreferences;
+import sh.isaac.komet.preferences.UserPreferencesPanel;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
@@ -127,6 +128,7 @@ public class MainApp
                 + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
 
         SvgImageLoaderFactory.install();
+
 
         FXMLLoader sourceLoader = new FXMLLoader(getClass().getResource("/fxml/SelectDataSource.fxml"));
         BorderPane sourceRoot = sourceLoader.load();

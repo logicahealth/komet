@@ -21,6 +21,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
+import sh.isaac.komet.preferences.UserPreferencesPanel;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.KometPreferences;
@@ -82,6 +83,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
             Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
             this.updateMessage("Starting Solor services");
             LookupService.startupIsaac();
+            UserPreferencesPanel.login();
 
             if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                 System.out.println("Beta features enabled");

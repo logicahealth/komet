@@ -37,6 +37,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.solor.direct.*;
+import sh.isaac.solor.direct.rxnorm.RxNormDirectImporter;
 
 /**
  *
@@ -95,6 +96,11 @@ public class SolorMojo extends AbstractMojo {
             DirectImporter rf2Importer = new DirectImporter(ImportType.valueOf(importType));
             getLog().info("  Importing RF2 files.");
             rf2Importer.run();
+            LookupService.syncAll();
+
+            RxNormDirectImporter rxNormDirectImporter = new RxNormDirectImporter(transaction);
+            getLog().info("  Importing RxNorm files.");
+            rxNormDirectImporter.run();
             LookupService.syncAll();
 
             LoincDirectImporter loincImporter = new LoincDirectImporter(transaction);

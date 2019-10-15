@@ -333,6 +333,21 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.REFLECTION_CLASS_ASSEMBLAGE);
                createConcept(TermAux.PROVIDER_CLASS_ASSEMBLAGE);
                createConcept(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
+               createConcept("RxNorm Assemblages").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                    createConcept("Active ingredient is different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Dose form is different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Veterinary medicine only").setModule(TermAux.KOMET_MODULE);
+                    createConcept("NDC codes available").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Substance does not exist").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Vaccine").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Boss substances are different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Allergen").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Values different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("RxNorm Asserted").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Prescribable").setModule(TermAux.KOMET_MODULE);
+
+                    popParent();
                createConcept("Issue management assemblage").addComponentSemantic(UUID.fromString("6b0a4de8-e2db-54a1-9c87-fb365df15662"), STRING_SEMANTIC, SEMANTIC_TYPE);
                pushParent(current());
                   createConcept("Content issue assemblage").addComponentSemantic(UUID.fromString("0b50bab6-8b0a-51d6-ad03-caf478ab5040"), STRING_SEMANTIC, SEMANTIC_TYPE);
