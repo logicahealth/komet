@@ -240,7 +240,7 @@ public class DescriptionIndexer extends LuceneIndexer
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<SearchResult> query(String query,
+	public List<SearchResult> query(final String query,
 			boolean prefixSearch,
 			int[] assemblageConcepts,
 			Predicate<Integer> filter,
@@ -252,21 +252,23 @@ public class DescriptionIndexer extends LuceneIndexer
 			Integer sizeLimit,
 			Long targetGeneration) {
 		
-		if (!prefixSearch && SemanticTags.containsSemanticTag(query))
-		{
-			//If they include a semantic tag, adjust their query so that the tag is not treated like a lucene grouping rule.
-			//Note, grouping rules are still allowed, so long as they aren't at the very end of the query (so they don't look like a semantic tag)
-			query = SemanticTags.stripSemanticTagIfPresent(query) + " \\(" + SemanticTags.findSemanticTagIfPresent(query).get() + "\\)";
+		String queryLocal = query.trim();
+		if (!queryLocal.startsWith("/") && !queryLocal.endsWith("/")) {
+			//don't activate this block, if it is a regexp.
+			if (!prefixSearch && SemanticTags.containsSemanticTag(query)) {
+				//If they include a semantic tag, adjust their query so that the tag is not treated like a lucene grouping rule.
+				//Note, grouping rules are still allowed, so long as they aren't at the very end of the query (so they don't look like a semantic tag)
+				queryLocal = SemanticTags.stripSemanticTagIfPresent(queryLocal) + " \\(" + SemanticTags.findSemanticTagIfPresent(queryLocal).get() + "\\)";
+			}
+			
+			if (!prefixSearch) {
+				//If they include a [ or ], we want to auto escape them, unless they are a valid range query, which would be 
+				// [xx TO yy] 
+				queryLocal = handleBrackets(queryLocal);
+			}
 		}
 		
-		if (!prefixSearch)
-		{
-			//If they include a [ or ], we want to auto escape them, unless they are a valid range query, which would be 
-			// [xx TO yy] 
-			query = handleBrackets(query);
-		}
-		
-		Query q = buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch, metadataOnly);
+		Query q = buildTokenizedStringQuery(queryLocal, FIELD_INDEXED_STRING_VALUE, prefixSearch, metadataOnly);
 
 		q = restrictToSemantic(q, assemblageConcepts);
 
@@ -335,7 +337,7 @@ public class DescriptionIndexer extends LuceneIndexer
 						if (dv.isPresent()) {
 							float adjustValue = 0f;
 							String matchingString = dv.get().getText().toLowerCase(Locale.ENGLISH);
-							String localQuery = query.trim().toLowerCase(Locale.ENGLISH);
+							String localQuery = queryLocal.toLowerCase(Locale.ENGLISH);
 
 							if (matchingString.equals(localQuery)) {
 								// "exact match, bump by 2"
