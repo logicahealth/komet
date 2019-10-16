@@ -51,11 +51,20 @@ public class DescriptionIndexerTest
 	@Test
 	public void adjustBrackets() throws Exception
 	{
-		Assert.assertEquals("A long \\[test\\] string", DescriptionIndexer.handleBrackets("A long [test] string"));
-		Assert.assertEquals("A long \\]test\\[ string", DescriptionIndexer.handleBrackets("A long ]test[ string"));
-		Assert.assertEquals("Another [5 TO 6] string \\[ with random \\[stuff\\]", DescriptionIndexer.handleBrackets("Another [5 TO 6] string [ with random [stuff]"));
-		Assert.assertEquals("\\[\\[\\[\\[", DescriptionIndexer.handleBrackets("[[[["));
-		Assert.assertEquals("\\]\\[\\]\\[", DescriptionIndexer.handleBrackets("][]["));
-		Assert.assertEquals("\\[query\\] [a to b] for a bunch of \\[stuff\\]", DescriptionIndexer.handleBrackets("[query] [a to b] for a bunch of [stuff]"));
+		Assert.assertEquals("A long \\[test\\] string", DescriptionIndexer.handleBrackets("A long [test] string", '[', ']'));
+		Assert.assertEquals("A long \\]test\\[ string", DescriptionIndexer.handleBrackets("A long ]test[ string", '[', ']'));
+		Assert.assertEquals("Another [5 TO 6] string \\[ with random \\[stuff\\]", DescriptionIndexer.handleBrackets("Another [5 TO 6] string [ with random [stuff]", '[', ']'));
+		Assert.assertEquals("\\[\\[\\[\\[", DescriptionIndexer.handleBrackets("[[[[", '[', ']'));
+		Assert.assertEquals("\\]\\[\\]\\[", DescriptionIndexer.handleBrackets("][][", '[', ']'));
+		Assert.assertEquals("\\[query\\] [a to b] for a bunch of \\[stuff\\]", DescriptionIndexer.handleBrackets("[query] [a to b] for a bunch of [stuff]", '[', ']'));
+		Assert.assertEquals("A long \\{test\\} string", DescriptionIndexer.handleBrackets("A long {test} string", '{', '}'));
+	}
+	
+	@Test
+	public void adjustOthers() throws Exception
+	{
+		Assert.assertEquals("http\\://foo.com", DescriptionIndexer.handleUnsupportedEscapeChars("http://foo.com"));
+		Assert.assertEquals("http\\://foo.com", DescriptionIndexer.handleUnsupportedEscapeChars("http\\://foo.com"));
+		Assert.assertEquals("fred\\^jane", DescriptionIndexer.handleUnsupportedEscapeChars("fred^jane"));
 	}
 }

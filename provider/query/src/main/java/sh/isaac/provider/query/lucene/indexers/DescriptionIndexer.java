@@ -95,6 +95,9 @@ public class DescriptionIndexer extends LuceneIndexer
 	private int descExtendedTypeNid= 0;
 	
 	private HashSet<Integer> metadataConcepts = new HashSet<>();
+	
+	//Chars that are generally not useful for our lucene searches, that the query parser has special handling for
+	private final static char[] ESCAPE_CHARS = new char[] {':', '^'};
 
 	private DescriptionIndexer() throws IOException {
 		super(INDEX_NAME);
@@ -264,7 +267,10 @@ public class DescriptionIndexer extends LuceneIndexer
 			if (!prefixSearch) {
 				//If they include a [ or ], we want to auto escape them, unless they are a valid range query, which would be 
 				// [xx TO yy] 
-				queryLocal = handleBrackets(queryLocal);
+				//Also applies to {}
+				queryLocal = handleBrackets(queryLocal, '[', ']');
+				queryLocal = handleBrackets(queryLocal, '{', '}');
+				queryLocal = handleUnsupportedEscapeChars(queryLocal);
 			}
 		}
 		
@@ -377,15 +383,15 @@ public class DescriptionIndexer extends LuceneIndexer
 	 * @param query
 	 * @return
 	 */
-	protected static String handleBrackets(String query)
+	protected static String handleBrackets(String query, char left, char right)
 	{
-		// TODO Auto-generated method stub
+		// TODO this should be made smarter so it doesn't mess with things that are already escaped...
 		int pos = 0;
 		final int length = query.length();
 		StringBuilder result = new StringBuilder(length + 4);
 		while (pos < length) {
-			final int posL = query.substring(pos, length).indexOf('[');
-			final int posR = query.substring(pos, length).indexOf(']');
+			final int posL = query.substring(pos, length).indexOf(left);
+			final int posR = query.substring(pos, length).indexOf(right);
 			if (posL >= 0 && posR >= 0 && posL < posR) {
 				//We have a [ ... ] pattern
 				if (query.substring(pos + posL, pos + posR).toLowerCase().contains("to")) {
@@ -395,17 +401,17 @@ public class DescriptionIndexer extends LuceneIndexer
 				} else {
 					//Just brackets... escape them for lucene.  
 					result.append(query.substring(pos, pos + posL));
-					result.append("\\[");
+					result.append("\\" + left);
 					//Need to handle a case where we are processing [[[fred]
-					result.append(query.substring((pos + posL + 1), pos + posR).replaceAll("\\[", "\\\\["));
-					result.append("\\]");
+					result.append(query.substring((pos + posL + 1), pos + posR).replaceAll("\\" + left, "\\\\" + left));
+					result.append("\\" + right);
 					pos = pos + posR + 1;
 				}
 			}
 			else if (posL >=0 || posR >= 0) {
 				//rogue brackets
 				final int endOfRange = (posR > posL ? posR : posL);
-				result.append(query.substring(pos, pos + endOfRange + 1).replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]"));
+				result.append(query.substring(pos, pos + endOfRange + 1).replaceAll("\\" + left, "\\\\" + left).replaceAll("\\" + right, "\\\\" + right));
 				pos = pos + endOfRange + 1;
 			}
 			else {
@@ -416,6 +422,28 @@ public class DescriptionIndexer extends LuceneIndexer
 		}
 		return result.toString();
 	}
+	
+
+	protected static String handleUnsupportedEscapeChars(String queryLocal)
+	{
+		StringBuilder result = new StringBuilder(queryLocal.length() + 2);
+		char[] chars = queryLocal.toCharArray();
+		for (int i = 0; i < chars.length; i++)
+		{
+			for (char match : ESCAPE_CHARS) 
+			{
+				if (chars[i] == match && (i > 0 && chars[i - 1] != '\\'))
+				{
+					//needs escaping
+					result.append('\\');
+					break;
+				}
+			}
+			result.append(chars[i]);
+		}
+		return result.toString();
+	}
+	
 
 	/**
 	 * {@inheritDoc}
