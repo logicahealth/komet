@@ -16,7 +16,7 @@ import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
  */
 public class PersonasPanel extends ParentPanel {
     public static UUID DEFAULT_PERSONA = UUID.fromString("5b8bfe7f-aad2-4895-ae01-d4b8b0e67861");
-    public static final String DEFAULT_PERSONA_NAME = "Default persona";
+    public static final String DEFAULT_PERSONA_NAME = "Komet Window";
 
     public PersonasPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "Personas"), manifold, kpc);

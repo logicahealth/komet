@@ -173,7 +173,7 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     }
     
     @Override
-    public Optional<StampCoordinate> getOptionalDestinationStampCoordinate() {
+    public Optional<StampCoordinate> optionalDestinationStampCoordinate() {
         return Optional.empty();
     }
 

@@ -111,6 +111,15 @@ public abstract class TimedTask<T>
      */
     private Instant endTime;
 
+    private boolean suppressCompletionLogIfLessThanSpecifiedDuration = true;
+
+    private long suppressionTimeDurationInSeconds = 5;
+
+    private static int suppressionCount = 0;
+
+    private static final int suppressionStartCount = 11;
+
+
     /**
      * The complete message generator.
      */
@@ -137,6 +146,22 @@ public abstract class TimedTask<T>
         this.progressUpdateDuration = progressUpdateDuration;
     }
 
+    public boolean getSuppressCompletionLogIfLessThanSpecifiedDuration() {
+        return suppressCompletionLogIfLessThanSpecifiedDuration;
+    }
+
+    public void setSuppressCompletionLogIfLessThanSpecifiedDuration(boolean suppressCompletionLogIfLessThanSpecifiedDuration) {
+        this.suppressCompletionLogIfLessThanSpecifiedDuration = suppressCompletionLogIfLessThanSpecifiedDuration;
+    }
+
+    public long getSuppressionTimeDurationInSeconds() {
+        return suppressionTimeDurationInSeconds;
+    }
+
+    public void setSuppressionTimeDurationInSeconds(long suppressionTimeDurationInSeconds) {
+        this.suppressionTimeDurationInSeconds = suppressionTimeDurationInSeconds;
+    }
+
     /**
      * Done.
      */
@@ -151,7 +176,21 @@ public abstract class TimedTask<T>
                 updateMessage(getSimpleName() + " completed in " + DurationUtil.format(getDuration()));
             });
         }
-        LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
+        if (suppressCompletionLogIfLessThanSpecifiedDuration) {
+            if (getDuration().getSeconds() > suppressionTimeDurationInSeconds) {
+                LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
+            } else {
+                if (suppressionCount < suppressionStartCount) {
+                    suppressionCount++;
+                    LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
+                    LOG.info("Suppression of task completion logging for tasks shorter than " + suppressionTimeDurationInSeconds +
+                            " seconds will occur after "+ (suppressionStartCount - suppressionCount) + " more completions.");
+                }
+            }
+        } else {
+            LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
+        }
+
 
         Platform.runLater(() -> {
             if (exceptionProperty().get() != null) {
@@ -176,7 +215,7 @@ public abstract class TimedTask<T>
      */
     @Override
     protected void failed() {
-        LOG.warn("Timed task failed!", this.getException());
+        LOG.warn("Timed task " + taskSequenceId + " failed!", this.getException());
     }
 
     protected void generateProgressMessage() {

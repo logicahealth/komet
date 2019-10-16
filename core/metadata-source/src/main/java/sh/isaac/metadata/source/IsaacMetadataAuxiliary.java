@@ -279,6 +279,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                createConcept("Sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
                createConcept("Necessary set").setPrimordialUuid(NodeSemantic.NECESSARY_SET.getSemanticUuid());
+               createConcept("Property set").setPrimordialUuid(NodeSemantic.PROPERTY_SET.getSemanticUuid()).setModule(TermAux.KOMET_MODULE);
                popParent();
             createConcept(TermAux.IDENTIFIER_SOURCE)
                .addDescription("A parent concept and membership assemblage used to group identifiers", TermAux.DEFINITION_DESCRIPTION_TYPE);
@@ -332,6 +333,21 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.REFLECTION_CLASS_ASSEMBLAGE);
                createConcept(TermAux.PROVIDER_CLASS_ASSEMBLAGE);
                createConcept(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
+               createConcept("RxNorm Assemblages").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                    createConcept("Active ingredient is different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Dose form is different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Veterinary medicine only").setModule(TermAux.KOMET_MODULE);
+                    createConcept("NDC codes available").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Substance does not exist").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Vaccine").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Boss substances are different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Allergen").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Values different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("RxNorm Asserted").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Prescribable").setModule(TermAux.KOMET_MODULE);
+
+                    popParent();
                createConcept("Issue management assemblage").addComponentSemantic(UUID.fromString("6b0a4de8-e2db-54a1-9c87-fb365df15662"), STRING_SEMANTIC, SEMANTIC_TYPE);
                pushParent(current());
                   createConcept("Content issue assemblage").addComponentSemantic(UUID.fromString("0b50bab6-8b0a-51d6-ad03-caf478ab5040"), STRING_SEMANTIC, SEMANTIC_TYPE);
@@ -614,6 +630,16 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Universal restriction").setPrimordialUuid(NodeSemantic.ROLE_ALL.getSemanticUuid());
                createConcept("Existential restriction").setPrimordialUuid(NodeSemantic.ROLE_SOME.getSemanticUuid());
                popParent();
+            createConcept("Logical feature").addDescription("A property is a characteristic of a class - a directed binary relation that specifies some attribute which is true for instances of that class. Properties sometimes act as data values, or links to other instances. Properties may exhibit logical features, for example, by being transitive, symmetric, inverse and functional. Properties may also have domains and ranges.",
+                DEFINITION_DESCRIPTION_TYPE
+            ).setModule(TermAux.KOMET_MODULE);
+            pushParent(current());
+                createConcept("Transitive feature").setModule(TermAux.KOMET_MODULE);
+                createConcept("Symmetric feature").setModule(TermAux.KOMET_MODULE);
+                createConcept("Inverse feature").setModule(TermAux.KOMET_MODULE);
+                createConcept("Functional feature").setModule(TermAux.KOMET_MODULE);
+                createConcept("Reflexive feature").setModule(TermAux.KOMET_MODULE);
+                popParent();
             createConcept("Status value");
             pushParent(current());
                createConcept(TermAux.INACTIVE_STATUS);
@@ -654,6 +680,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("SnoRocket classifier").mergeFromSpec(TermAux.SNOROCKET_CLASSIFIER);
                createConcept("ConDOR classifier");
                popParent();
+            createConcept("Property pattern implication").setPrimordialUuid(NodeSemantic.PROPERTY_PATTERN_IMPLICATION.getSemanticUuid()).setModule(TermAux.KOMET_MODULE);
             createConcept("Feature").setPrimordialUuid(NodeSemantic.FEATURE.getSemanticUuid());
             pushParent(current());
                createConcept("Ingredient strength");

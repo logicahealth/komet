@@ -259,8 +259,8 @@ public class TaxonomyRecord {
             NidSet typeSequenceSet,
             ManifoldCoordinate mc) {
 
-        if (mc.getOptionalDestinationStampCoordinate().isPresent() && this.conceptNidRecordMap.containsKey(conceptNid) &&
-                Get.concept(conceptNid).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+        if (mc.optionalDestinationStampCoordinate().isPresent() && this.conceptNidRecordMap.containsKey(conceptNid) &&
+                Get.concept(conceptNid).getLatestVersion(mc.optionalDestinationStampCoordinate().get()).isPresent()) {
             return this.conceptNidRecordMap.get(conceptNid)
                     .containsConceptNidViaType(typeSequenceSet, mc, RelativePositionCalculator.getCalculator(mc.getStampCoordinate()));
         }
@@ -278,8 +278,8 @@ public class TaxonomyRecord {
      */
     public boolean containsConceptNidViaType(int conceptNid, int typeSequence, ManifoldCoordinate mc) {
 
-        if (mc.getOptionalDestinationStampCoordinate().isPresent() && this.conceptNidRecordMap.containsKey(conceptNid) &&
-                Get.concept(conceptNid).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+        if (mc.optionalDestinationStampCoordinate().isPresent() && this.conceptNidRecordMap.containsKey(conceptNid) &&
+                Get.concept(conceptNid).getLatestVersion(mc.optionalDestinationStampCoordinate().get()).isPresent()) {
             return this.conceptNidRecordMap.get(conceptNid)
                     .containsConceptNidViaType(typeSequence, mc, RelativePositionCalculator.getCalculator(mc.getStampCoordinate()));
         }
@@ -301,8 +301,8 @@ public class TaxonomyRecord {
             ManifoldCoordinate mc,
             int flags) {
 
-        if (mc.getOptionalDestinationStampCoordinate().isPresent() && this.conceptNidRecordMap.containsKey(conceptNid) &&
-                Get.concept(conceptNid).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+        if (mc.optionalDestinationStampCoordinate().isPresent() && this.conceptNidRecordMap.containsKey(conceptNid) &&
+                Get.concept(conceptNid).getLatestVersion(mc.optionalDestinationStampCoordinate().get()).isPresent()) {
             return this.conceptNidRecordMap.get(conceptNid)
                     .containsConceptNidViaType(typeSequenceSet, flags, RelativePositionCalculator.getCalculator(mc.getStampCoordinate()));
         }
@@ -525,7 +525,7 @@ public class TaxonomyRecord {
         final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc);
         final RoaringBitmap conceptSequencesForTypeSet = new RoaringBitmap();
 
-        this.conceptNidRecordMap.forEachPair((int possibleParentSequence,
+        this.conceptNidRecordMap.forEachPair((int possibleParentNid,
                 TypeStampTaxonomyRecords stampRecords) -> {
             final RoaringBitmap stampsForConceptIntStream = new RoaringBitmap();
 
@@ -533,9 +533,7 @@ public class TaxonomyRecord {
                 // collect the stamps associated with a particular type of relationship, so we can
                 // later determine if the relationship is active
                 if ((record.getTaxonomyFlags() & flags) == flags) {
-                    if (typeSequence == Integer.MAX_VALUE) {
-                        stampsForConceptIntStream.add(record.getStampSequence());
-                    } else if (typeSequence == record.getTypeNid()) {
+                    if (typeSequence == Integer.MAX_VALUE || typeSequence == record.getTypeNid()) {
                         stampsForConceptIntStream.add(record.getStampSequence());
                     }
                 }
@@ -546,14 +544,14 @@ public class TaxonomyRecord {
                 // now see if the destination concept meets other criterion.
                 // if the optional destination stamp coordinate is present, we need to filter and only return
                 // the concept nids that meet the criterion of this destination stamp coordinate.
-                if (mc.getOptionalDestinationStampCoordinate().isPresent()) {
+                if (mc.optionalDestinationStampCoordinate().isPresent()) {
                     // See if the relationship is active
-                    TaxonomyRecordPrimitive targetConceptRecord = new TaxonomyRecordPrimitive(taxonomyDataProvider.apply(possibleParentSequence));
-                    if (targetConceptRecord.conceptSatisfiesStamp(possibleParentSequence, mc)) {
-                        conceptSequencesForTypeSet.add(possibleParentSequence);
+                    TaxonomyRecordPrimitive targetConceptRecord = new TaxonomyRecordPrimitive(taxonomyDataProvider.apply(possibleParentNid));
+                    if (targetConceptRecord.conceptSatisfiesStamp(possibleParentNid, mc.optionalDestinationStampCoordinate().get())) {
+                        conceptSequencesForTypeSet.add(possibleParentNid);
                     }
                 } else {
-                    conceptSequencesForTypeSet.add(possibleParentSequence);
+                    conceptSequencesForTypeSet.add(possibleParentNid);
                 }
             }
             return true;
@@ -611,8 +609,8 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (mc.getOptionalDestinationStampCoordinate().isPresent() &&computer.isLatestActive(stampsForConceptIntStream.keys().elements()) &&
-                    Get.concept(destinationConceptNid).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+            if (mc.optionalDestinationStampCoordinate().isPresent() && computer.isLatestActive(stampsForConceptIntStream.keys().elements()) &&
+                    Get.concept(destinationConceptNid).getLatestVersion(mc.optionalDestinationStampCoordinate().get()).isPresent()) {
                 conceptNidIntSet.add(destinationConceptNid);
             }
 
@@ -678,9 +676,9 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (mc.getOptionalDestinationStampCoordinate().isPresent() && computer.isLatestActive(stampsForConceptIntSet.keys().elements()) &&
+            if (mc.optionalDestinationStampCoordinate().isPresent() && computer.isLatestActive(stampsForConceptIntSet.keys().elements()) &&
                     Get.conceptService().getConceptChronology(destinationConceptNid).getLatestVersion(
-                            mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+                            mc.optionalDestinationStampCoordinate().get()).isPresent()) {
                 conceptNidIntSet.add(destinationConceptNid);
             }
 
@@ -725,9 +723,9 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (mc.getOptionalDestinationStampCoordinate().isPresent() && computer.isLatestActive(stampsForConceptIntSet.keys().elements()) &&
+            if (mc.optionalDestinationStampCoordinate().isPresent() && computer.isLatestActive(stampsForConceptIntSet.keys().elements()) &&
                     Get.conceptService().getConceptChronology(destinationConceptNid).getLatestVersion(
-                            mc.getOptionalDestinationStampCoordinate().get()).isPresent()) {
+                            mc.optionalDestinationStampCoordinate().get()).isPresent()) {
                 found.set(true);
                 return false;  //this value is ignored, stupid hack to break out of forEach
             }
@@ -770,7 +768,7 @@ public class TaxonomyRecord {
         final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc.getStampCoordinate());
         final OpenIntHashSet typeSequenceIntSet = new OpenIntHashSet();
 
-        if (mc.getOptionalDestinationStampCoordinate().isPresent() && Get.concept(destinationId).getLatestVersion(mc.getOptionalDestinationStampCoordinate().get()).isAbsent()) {
+        if (mc.optionalDestinationStampCoordinate().isPresent() && Get.concept(destinationId).getLatestVersion(mc.optionalDestinationStampCoordinate().get()).isAbsent()) {
            //destinations that aren't available can't have a rel
            return new int[0];
         }

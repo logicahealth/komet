@@ -27,6 +27,9 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import org.controlsfx.control.PopOver;
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
@@ -51,7 +54,17 @@ public class ConceptNode extends Label {
         this.conceptNid = conceptNid;
         this.manifold = manifold;
         this.setText(manifold.getPreferredDescriptionText(conceptNid));
-        HBox controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false, manifold, premiseType));
+
+        HBox controlBox;
+        LatestVersion<Version> latest = Get.concept(conceptNid).getLatestVersion(manifold);
+        if (latest.isPresent()) {
+            controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
+                    latest.get().getStatus(), manifold, premiseType));
+        } else {
+            controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
+                    Status.PRIMORDIAL, manifold, premiseType));
+        }
+
         this.setGraphic(controlBox);
         setOnDragDetected(this::handleDragDetected);
         setOnDragDone(this::handleDragDone);

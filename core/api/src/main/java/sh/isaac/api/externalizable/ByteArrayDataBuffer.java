@@ -1082,6 +1082,42 @@ public class ByteArrayDataBuffer {
       return array;
    }
 
+   public void putUuidArray(UUID[] array) {
+      putInt(array.length);
+      for (UUID uuid: array) {
+         putUuid(uuid);
+      }
+   }
+
+   public UUID[] getUuidArray() {
+      int length = getInt();
+      if (length < 0) {
+         throw new IllegalStateException("Negative array size: " + length);
+      }
+      final UUID[] array            = new UUID[length];
+      final int   startingPosition = this.position;
+      long        lockStamp        = this.sl.tryOptimisticRead();
+
+      for (int i = 0; i < array.length; i++) {
+         array[i] = getUuid();
+      }
+
+      if (!this.sl.validate(lockStamp)) {
+         lockStamp     = this.sl.readLock();
+         this.position = startingPosition;
+
+         try {
+            for (int i = 0; i < array.length; i++) {
+               array[i] = getUuid();
+            }
+         } finally {
+            this.sl.unlockRead(lockStamp);
+         }
+      }
+
+      return array;
+   }
+
    /**
     * The limit is the index of the first element that should not be read or written, relative to the position start.
     * It represents the end of valid data, and is never negative and is never greater than its capacity.
@@ -1163,6 +1199,36 @@ public class ByteArrayDataBuffer {
       }
 
       return getInt();
+   }
+
+   public int[] getNidArray() {
+      if (this.externalData) {
+         int length = this.getInt();
+         int[] nids = new int[length];
+         for (int i = 0; i < length; i++) {
+            UUID uuid = new UUID(getLong(), getLong());
+            if (this.identifierService.hasUuid(uuid)) {
+               nids[i] = this.identifierService.getNidForUuids(uuid);
+            } else {
+               nids[i] = this.identifierService.assignNid(uuid);
+            }
+         }
+         return nids;
+      }
+      return getIntArray();
+   }
+
+   public void putNidArray(int[] nids) {
+
+      if (this.externalData) {
+         putInt(nids.length);
+         for (int i = 0; i < nids.length; i++) {
+            putUuid(Get.identifierService().getUuidPrimordialForNid(nids[i]));
+         }
+      } else {
+         putIntArray(nids);
+      }
+
    }
 
    /**

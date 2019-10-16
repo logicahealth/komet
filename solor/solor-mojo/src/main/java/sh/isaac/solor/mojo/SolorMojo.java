@@ -36,12 +36,8 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.solor.direct.ImportType;
-import sh.isaac.solor.direct.LoincDirectImporter;
-import sh.isaac.solor.direct.DirectImporter;
-import sh.isaac.solor.direct.LoincExpressionToConcept;
-import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
-import sh.isaac.solor.direct.Rf2RelationshipTransformer;
+import sh.isaac.solor.direct.*;
+import sh.isaac.solor.direct.rxnorm.RxNormDirectImporter;
 
 /**
  *
@@ -82,8 +78,8 @@ public class SolorMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         Get.configurationService().setDBBuildMode(BuildMode.DB);
 
+
         try {
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
             Get.configurationService().setIBDFImportPathFolderPath(new File(importFolderLocation).toPath());
 
             if (this.dataStoreLocation != null) {
@@ -92,6 +88,7 @@ public class SolorMojo extends AbstractMojo {
 
             getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
             LookupService.startupIsaac();
+            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
             //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
             //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
             //be configured at the assemblage level.
@@ -99,6 +96,11 @@ public class SolorMojo extends AbstractMojo {
             DirectImporter rf2Importer = new DirectImporter(ImportType.valueOf(importType));
             getLog().info("  Importing RF2 files.");
             rf2Importer.run();
+            LookupService.syncAll();
+
+            RxNormDirectImporter rxNormDirectImporter = new RxNormDirectImporter(transaction);
+            getLog().info("  Importing RxNorm files.");
+            rxNormDirectImporter.run();
             LookupService.syncAll();
 
             LoincDirectImporter loincImporter = new LoincDirectImporter(transaction);
@@ -114,6 +116,12 @@ public class SolorMojo extends AbstractMojo {
                 Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.valueOf(importType));
                 Future<?> transformTask = Get.executor().submit(transformer);
                 transformTask.get();
+
+                getLog().info(" Converting SNOMED OWL expressions...");
+                Rf2OwlTransformer rf2OwlTransformer = new  Rf2OwlTransformer(ImportType.parseFromString(importType));
+                Future<?> rf2OwlTransformTask = Get.executor().submit(rf2OwlTransformer);
+                rf2OwlTransformTask.get();
+
 
                 if (loincImporter.foundLoinc()) {
                     getLog().info("Convert LOINC expressions...");

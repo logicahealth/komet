@@ -72,8 +72,8 @@ public interface ManifoldCoordinate
         uuidList.add(coordinate.getStampCoordinateUuid());
         uuidList.add(coordinate.getLanguageCoordinateUuid());
         uuidList.add(coordinate.getLogicCoordinateUuid());
-        if (coordinate.getOptionalDestinationStampCoordinate().isPresent()) {
-            uuidList.add(coordinate.getOptionalDestinationStampCoordinate().get().getStampCoordinateUuid());
+        if (coordinate.optionalDestinationStampCoordinate().isPresent()) {
+            uuidList.add(coordinate.optionalDestinationStampCoordinate().get().getStampCoordinateUuid());
         }
         return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
     }
@@ -115,7 +115,7 @@ public interface ManifoldCoordinate
     * This coordinate is used on the destination concepts in taxonomy operations, while {@link #getStampCoordinate()} is used 
     * on the relationships themselves.
     */
-   Optional<? extends StampCoordinate> getOptionalDestinationStampCoordinate();
+   Optional<? extends StampCoordinate> optionalDestinationStampCoordinate();
 
    /**
     * Gets the uuid.

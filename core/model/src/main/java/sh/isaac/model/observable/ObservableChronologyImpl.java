@@ -447,8 +447,10 @@ public abstract class ObservableChronologyImpl
                   finalAlignmentMap.putAll(alignmentMap);
                   Iterator<ScoredNewOldVersion> alignmentIterator = sortedAlignments.descendingIterator();
                   for (int i = 0; i < toFind.get(); i++) {
-                     ScoredNewOldVersion scoredNewOldVersion = alignmentIterator.next();
-                     cancelSet.add(scoredNewOldVersion.oldVersion);
+                     if (alignmentIterator.hasNext()) {
+                        ScoredNewOldVersion scoredNewOldVersion = alignmentIterator.next();
+                        cancelSet.add(scoredNewOldVersion.oldVersion);
+                     }
                   }
                } else {
                   // additions

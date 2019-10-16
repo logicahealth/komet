@@ -22,11 +22,7 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.solor.direct.ImportType;
-import sh.isaac.solor.direct.DirectImporter;
-import sh.isaac.solor.direct.LoincExpressionToConcept;
-import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
-import sh.isaac.solor.direct.Rf2RelationshipTransformer;
+import sh.isaac.solor.direct.*;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -58,12 +54,18 @@ public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> i
          importTask.get();
          completedUnitOfWork();
          
-         updateMessage("Transforming to SOLOR...");
+         updateMessage("Transforming legacy rels to SOLOR...");
          Rf2RelationshipTransformer transformToSolor = new Rf2RelationshipTransformer(importType);
          Future<?> transformTask = Get.executor().submit(transformToSolor);
          transformTask.get();
          completedUnitOfWork();
-         
+
+         updateMessage("Transforming OWL to SOLOR...");
+         Rf2OwlTransformer owlTransformToSolor = new Rf2OwlTransformer(importType);
+         Future<?> owlTransformTask = Get.executor().submit(owlTransformToSolor);
+         owlTransformTask.get();
+         completedUnitOfWork();
+
          updateMessage("Convert LOINC expressions...");
          LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept(transaction);
          Future<?> convertLoincTask = Get.executor().submit(convertLoinc);

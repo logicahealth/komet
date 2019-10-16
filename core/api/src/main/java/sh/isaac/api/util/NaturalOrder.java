@@ -79,6 +79,14 @@ public class NaturalOrder implements Comparator<String> {
 
       for (i = 0, c1 = 0, c2 = 0; (i < len1) && (i < len2) && ((c1 = s1.charAt(i)) == (c2 = s2.charAt(i)) || Character.toLowerCase(s1.charAt(i)) == Character.toLowerCase(s2.charAt(i))); i++) {}
 
+      if (c1 == '.' && c2 == ' ') {
+         return -1;
+      }
+      if (c1 == ' ' && c2 == '.') {
+         return 1;
+      }
+
+
       // Check end of string
       if (Character.toLowerCase(c1) == Character.toLowerCase(c2)) {
          return (len1 - len2);

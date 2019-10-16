@@ -147,7 +147,6 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
 
     @Override
     public CommitTask commit(String comment, ConcurrentSkipListSet<AlertObject> alertCollection) {
-        LOG.info("Committing transaction: " + this.getTransactionId());
         return Get.commitService().commit(this, comment, alertCollection);
     }
 

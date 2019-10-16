@@ -16,13 +16,18 @@
  */
 package sh.komet.gui.cell.treetable;
 
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableRow;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+
+import static sh.komet.gui.style.PseudoClasses.INACTIVE_PSEUDO_CLASS;
 
 /**
  *
@@ -61,8 +66,12 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
               } else {
                  setText(semanticVersion.getChronology().getVersionType().getWhatName());
               }
-           
         }
+        pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, semanticVersion.getStatus() != Status.ACTIVE);
+        String toolTipText = Get.stampService().describeStampSequenceForTooltip(semanticVersion.getStampSequence(), manifold);
+        Tooltip stampTip = new Tooltip(toolTipText);
+        this.setTooltip(stampTip);
+
    }
    
 }

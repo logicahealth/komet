@@ -53,7 +53,7 @@ public class TransactionCommitTask extends CommitTask {
         addToTotalWork(transaction.getCheckCountForTransaction());
         updateTitle("Commit");
         updateMessage(commitComment);
-        LOG.info("Spawning CommitTask " + taskSequenceId);
+        //LOG.info("Spawning CommitTask " + taskSequenceId);
         Get.activeTasks().add(this);
     }
 
@@ -67,8 +67,6 @@ public class TransactionCommitTask extends CommitTask {
     protected Optional<CommitRecord> call()
             throws Exception {
         try {
-            LOG.debug("performing commit for '{}'", this.commitComment);
-
             // need to track
             if (!this.transaction.readyToCommit(this.checkers, this.alertCollection, this)) {
                 return Optional.empty();
@@ -103,7 +101,7 @@ public class TransactionCommitTask extends CommitTask {
             CommitProvider.getPendingTransactions().remove(transaction);
             Get.activeTasks().remove(this);
             this.commitProvider.getPendingCommitTasks().remove(this);
-            LOG.info("Finished CommitTask " + taskSequenceId);
+            //LOG.info("Finished CommitTask " + taskSequenceId);
         }
     }
 

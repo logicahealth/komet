@@ -1,9 +1,6 @@
 package sh.komet.gui.contract.preferences;
 
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import sh.isaac.MetaData;
@@ -32,4 +29,8 @@ public interface WindowPreferencesItem {
     SimpleBooleanProperty enableCenterPaneProperty();
     SimpleBooleanProperty enableRightPaneProperty();
     boolean isPaneEnabled(int paneIndex);
+    SimpleIntegerProperty leftTabSelectionProperty();
+    SimpleIntegerProperty centerTabSelectionProperty();
+    SimpleIntegerProperty rightTabSelectionProperty();
+
 }

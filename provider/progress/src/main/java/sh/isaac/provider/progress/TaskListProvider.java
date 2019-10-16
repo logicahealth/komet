@@ -23,12 +23,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author kec
  */
 public class TaskListProvider {
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The task set. */
    ObservableSet<Task<?>> taskSet = FXCollections.observableSet(ConcurrentHashMap.newKeySet());
@@ -53,7 +56,12 @@ public class TaskListProvider {
 
    private void checkTitle(Task<?> task) {
       if (task.getTitle() == null || task.getTitle().isEmpty()) {
-         System.out.println("Task with no title: " + task.getClass().getName());
+         Platform.runLater(() -> {
+            // one more try to see if there is a background update already pending...
+            if (task.getTitle() == null || task.getTitle().isEmpty()) {
+               LOG.warn("Task with no title: " + task.getClass().getName());
+            }
+         });
       }
    }
 

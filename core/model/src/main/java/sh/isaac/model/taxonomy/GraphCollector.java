@@ -48,6 +48,7 @@ import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
@@ -125,6 +126,14 @@ public class GraphCollector
     */
    @Override
    public void accept(HashTreeBuilder graphBuilder, int originNid) {
+      if (originNid == TermAux.SOLOR_ROOT.getNid()) {
+         System.out.println("Found 2a: " + TermAux.SOLOR_ROOT.getFullyQualifiedName());
+      }
+
+      if (originNid == TermAux.SOLOR_METADATA.getNid()) {
+         System.out.println("Found 2b: " + TermAux.SOLOR_METADATA.getFullyQualifiedName());
+      }
+
       final int[] taxonomyData = this.taxonomyDataProvider.apply(originNid);
       
       if (taxonomyData == null) {

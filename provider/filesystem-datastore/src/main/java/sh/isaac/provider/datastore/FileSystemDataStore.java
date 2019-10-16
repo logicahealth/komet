@@ -78,6 +78,7 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.DatabaseImplementation;
@@ -614,6 +615,9 @@ public class FileSystemDataStore
    @Override
    public int[] accumulateAndGetTaxonomyData(int assemblageId, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction)
    {
+       if (conceptNid == TermAux.SOLOR_ROOT.getNid()) {
+           System.out.println(" root update watch... ");
+       }
       return getTaxonomyMap(assemblageId).accumulateAndGet(conceptNid, newData, accumulatorFunction);
    }
 

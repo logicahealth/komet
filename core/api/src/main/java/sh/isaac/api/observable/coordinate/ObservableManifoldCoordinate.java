@@ -96,13 +96,13 @@ public interface ObservableManifoldCoordinate
    public ObservableStampCoordinate getStampCoordinate();
    
    /**
-    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getOptionalDestinationStampCoordinate()
+    * @see sh.isaac.api.coordinate.ManifoldCoordinate#optionalDestinationStampCoordinate()
     */
    @Override
-   public Optional<? extends ObservableStampCoordinate> getOptionalDestinationStampCoordinate();
+   public Optional<? extends ObservableStampCoordinate> optionalDestinationStampCoordinate();
    
    /**
-    * @return An observable version of {@link #getOptionalDestinationStampCoordinate()}
+    * @return An observable version of {@link #optionalDestinationStampCoordinate()}
     */
    public ObjectProperty<ObservableStampCoordinate> destinationStampCoordinateProperty();
 

@@ -18,6 +18,7 @@ package sh.komet.fx.stage;
 import javafx.event.ActionEvent;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
+import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -26,12 +27,16 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LogicGraphTransformerAndWriter;
 import sh.isaac.solor.direct.TransformationGroup;
+import sh.isaac.solor.direct.rxnorm.RxNormDomImporter;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.manifold.Manifold;
@@ -105,7 +110,6 @@ public class DeveloperMenus implements MenuProvider {
             MenuItem testTaxonomyDistance = new MenuItemWithText("Test taxonomy distance");
             testTaxonomyDistance.setOnAction(this::testTaxonomyDistance);
 
-
             return new MenuItem[]{debugConversion, debugEarFindingConversion, debugIsoniazidConversion,
             debugLamivudineConversion, debugConnectiveTissueConversion, debugAdductorMuscleConversion,
             debugPrematureConversion, debugSepsisConversion, debugDizzinessConversion,
@@ -114,7 +118,7 @@ public class DeveloperMenus implements MenuProvider {
         }
         return new MenuItem[]{};
     }
-    
+
     private void debugNoseConversion(ActionEvent event) {
         try {
             ConceptProxy debugProxy = new ConceptProxy("Structure of respiratory region of nose (body structure)", UUID.fromString("aebff175-243b-38b3-9b02-5910f7388d0d"));

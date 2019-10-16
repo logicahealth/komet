@@ -8,6 +8,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+//import org.scenicview.ScenicView;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.classifier.ClassifierResults;
@@ -20,6 +21,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
+import sh.isaac.komet.preferences.UserPreferencesPanel;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.KometPreferences;
@@ -81,6 +83,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
             Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
             this.updateMessage("Starting Solor services");
             LookupService.startupIsaac();
+            UserPreferencesPanel.login();
 
             if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                 System.out.println("Beta features enabled");
@@ -189,6 +192,8 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                             mainApp.replacePrimaryStage(stage);
                         }
                         stage.show();
+                        //ScenicView.show(stage.getScene());
+
                         MenuProvider.WINDOW_COUNT.incrementAndGet();
                         mainApp.configurationPreferences.sync();
                         //            ScenicView.show(scene);

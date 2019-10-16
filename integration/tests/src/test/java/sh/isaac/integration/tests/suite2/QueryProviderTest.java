@@ -231,7 +231,7 @@ public class QueryProviderTest {
 		
 		Assert.assertEquals(di.query("bevon", new int[] {MetaData.ENGLISH_LANGUAGE____SOLOR.getNid()}, null, 1, 125, null).size(), 125);
 		Assert.assertEquals(di.query("bevon", new int[] {MetaData.SPANISH_LANGUAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 0);
-		Assert.assertEquals(di.query("fu*", new int[] {}, null, 1, 375, null).size(), 6);
+		Assert.assertEquals(di.query("fu*", new int[] {}, null, 1, 375, null).size(), 9);
 		Assert.assertEquals(di.query("fu*", new int[] {MetaData.IRISH_LANGUAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 1);
 		Assert.assertEquals(di.query("fuisce", new int[] {MetaData.IRISH_LANGUAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 1);
 		

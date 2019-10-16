@@ -15,14 +15,15 @@
  */
 package sh.komet.fx.stage;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
 import javafx.event.ActionEvent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -38,19 +39,13 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.RemoteServiceInfo;
 import sh.isaac.api.classifier.ClassifierService;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
-import sh.isaac.solor.direct.DirectImporter;
-import sh.isaac.solor.direct.ImportType;
-import sh.isaac.solor.direct.LoincDirectImporter;
-import sh.isaac.solor.direct.LoincExpressionToConcept;
-import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
-import sh.isaac.solor.direct.Rf2RelationshipTransformer;
+import sh.isaac.solor.direct.*;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.isaac.komet.gui.exporter.ExportView;
@@ -198,8 +193,16 @@ public class KometBaseMenus implements MenuProvider {
                 MenuItem executeFlwor = new MenuItemWithText("Execute FLWOR...");
                 executeFlwor.setOnAction(this::executeFlwor);
 
+                MenuItem executeSctOwl = new MenuItemWithText("Test SNOMED OWL");
+                executeSctOwl.setOnAction(this::executeSctOwl);
+
+                MenuItem executeRxNormOwl = new MenuItemWithText("Test RxNorm OWL");
+                executeRxNormOwl.setOnAction(this::executeRxNormOwl);
+
                 return new MenuItem[]{selectiveImport, selectiveExport, importTransformFull,
-                    importSourcesFull, synchronize, exportNative, importNative, splitChangeSet, executeFlwor};
+                    importSourcesFull, synchronize, exportNative, importNative, splitChangeSet, executeFlwor,
+                        executeSctOwl, executeRxNormOwl
+                };
             }
 
             case TOOLS: {
@@ -237,12 +240,76 @@ public class KometBaseMenus implements MenuProvider {
 
                 return new MenuItem[]{
                     completeClassify, completeReindex, recomputeTaxonomy,
-                    transformSourcesFull, transformSourcesActiveOnly
+                    transformSourcesFull, transformSourcesActiveOnly,
                 };
             }
         }
 
         return new MenuItem[]{};
+    }
+
+    private void executeSctOwl(ActionEvent actionEvent) {
+        // refset id = 733073007
+        // 9a119252-b2da-3e62-8767-706558be8e4b
+        try {
+            File sctOwlFile = new File("/Users/kec/solor-source-artifact-transformer/solor-terminology-sources/", "SnomedCT_InternationalRF2_PRODUCTION_20190731T120000Z.zip");
+            try (ZipFile zipFile = new ZipFile(sctOwlFile, Charset.forName("UTF-8"))) {
+                zipFile.stream()
+                        .filter(entry -> !entry.getName().contains("__MACOSX") && !entry.getName().contains("._") && !entry.getName().contains(".DS_Store"))
+                        .forEach((ZipEntry zipEntry) -> {
+                            if (zipEntry.getName().equals("SnomedCT_InternationalRF2_PRODUCTION_20190731T120000Z/Full/Terminology/sct2_sRefset_OWLExpressionFull_INT_20190731.txt")) {
+                                System.out.println("SCT Entry: " + zipEntry.getName());
+                                try (BufferedReader br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntry)))) {
+
+                                    final int ID = 0;
+                                    final int EFFECTIVE_TIME = 1;
+                                    final int ACTIVE = 2;
+                                    final int MODULE_ID = 3;
+                                    final int REFSET_ID = 4;
+                                    final int REFERENCED_COMPONENT_ID = 5;
+                                    final int OWL_EXPRESSION = 6;
+                                    String line = br.readLine();
+                                    // First line is header
+                                    // id	effectiveTime	active	moduleId	refsetId	referencedComponentId	owlExpression
+                                    while((line = br.readLine()) != null) {
+                                        String[] fields = line.split("\t");
+                                        System.out.println(fields[OWL_EXPRESSION]);
+                                        //LogicalExpression expression = SctOwlUtilities.sctToLogicalExpression(fields[REFERENCED_COMPONENT_ID], new BufferedReader(new StringReader(fields[OWL_EXPRESSION])));
+                                        //System.out.println(expression);
+                                        System.out.println();
+                                    }
+
+                                } catch (IOException ex) {
+                                    FxGet.dialogs().showErrorDialog(ex);
+                                }
+                            }
+                        });
+            }
+        } catch (IOException e) {
+            FxGet.dialogs().showErrorDialog(e);
+        }
+    }
+    private void executeRxNormOwl(ActionEvent actionEvent) {
+        try {
+            File rxNormOwlFile = new File("/Users/kec/solor-source-artifact-transformer/solor-terminology-sources/", "RxNorm-defined-with-SNCT-classes-20190719.zip");
+            try (ZipFile zipFile = new ZipFile(rxNormOwlFile, Charset.forName("UTF-8"))) {
+                zipFile.stream()
+                        .filter(entry -> !entry.getName().contains("__MACOSX") && !entry.getName().contains("._") && !entry.getName().contains(".DS_Store"))
+                        .forEach((ZipEntry zipEntry) -> {
+                            if (zipEntry.getName().equals("RxNorm-defined-with-SNCT-classes-20190719.owl")) {
+                                System.out.println("RxNorm Entry: " + zipEntry.getName());
+                                try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
+
+                                } catch (IOException ex) {
+                                    FxGet.dialogs().showErrorDialog(ex);
+                                }
+
+                            }
+                        });
+            }
+        } catch (IOException e) {
+            FxGet.dialogs().showErrorDialog(e);
+        }
     }
 
     private void exportNative(ActionEvent event) {

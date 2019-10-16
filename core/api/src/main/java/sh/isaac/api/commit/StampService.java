@@ -291,6 +291,10 @@ public interface StampService
     */
    Status getStatusForStamp(int stampSequence);
 
+   default boolean isStampActive(int stampSequence) {
+      return getStatusForStamp(stampSequence) == Status.ACTIVE;
+   }
+
    /**
     * Gets the time for stamp.
     *

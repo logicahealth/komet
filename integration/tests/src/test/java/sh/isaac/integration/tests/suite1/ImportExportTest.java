@@ -75,6 +75,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.logic.ConcreteDomainOperators;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
@@ -166,7 +167,7 @@ public class ImportExportTest {
       final LogicalExpressionBuilder defBuilder = this.builderProvider.getLogicalExpressionBuilder();
 
       SufficientSet(And(SomeRole(MetaData.ROLE_GROUP____SOLOR,
-                                 And(Feature(MetaData.INGREDIENT_STRENGTH____SOLOR, DoubleLiteral(1.2345F, defBuilder)),
+                                 And(Feature(MetaData.INGREDIENT_STRENGTH____SOLOR, MetaData.MILLIGRAM____SOLOR, ConcreteDomainOperators.EQUALS, DoubleLiteral(1.2345F, defBuilder)),
                                      ConceptAssertion(MetaData.MASTER_PATH____SOLOR, defBuilder)))));
 
       final LogicalExpression              logicGraphDef    = defBuilder.build();

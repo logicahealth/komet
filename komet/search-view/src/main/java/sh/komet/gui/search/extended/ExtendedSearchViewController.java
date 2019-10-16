@@ -245,7 +245,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
         assert stampCriteriaLabel != null : "fx:id=\"stampCriteriaLabel\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
         assert stampCriteriaTooltip != null : "fx:id=\"stampCriteriaTooltip\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
         assert adjustStampButton != null : "fx:id=\"adjustStampButton\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";
-        
+
         searchResults.getSelectionModel().getSelectedItems().addListener(this::selectionChanged);
 
         borderPane.getStylesheets().add(ExtendedSearchViewController.class.getResource("/styles/extendedSearch.css").toString());

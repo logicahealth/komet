@@ -113,6 +113,7 @@ import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.ConceptSearchResult;
@@ -298,9 +299,27 @@ public abstract class LuceneIndexer
     */
    @Override
    public final CompletableFuture<Long> index(Chronology chronicle) {
+      if (chronicle.getIsaacObjectType() != IsaacObjectType.SEMANTIC) {
+         logStackTrace("Indexing concept, not semantic: " + chronicle);
+      }
       return index((() -> new AddDocument(chronicle)), (() -> indexChronicle(chronicle)), chronicle.getNid());
    }
-   
+
+   private void logStackTrace(String prefix) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(prefix + ": \n");
+      for (StackTraceElement element: Thread.currentThread().getStackTrace()) {
+         if (element.toString().startsWith("java.base/java.lang.Thread.getStackTrace")) {
+            continue;
+         }
+         if (element.toString().startsWith("org.testng")) {
+            break;
+         }
+         sb.append("   ").append(element).append("\n");
+      }
+      LOG.warn(sb);
+   }
+
    /**
     * {@inheritDoc}
     */

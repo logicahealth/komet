@@ -406,6 +406,10 @@ public class Get
 
       return "No desc for: " + conceptNid + " " + Get.identifierService.getUuidPrimordialStringForNid(conceptNid);
    }
+
+   public static String conceptDescriptionText(UUID conceptUuid) {
+      return conceptDescriptionText(Get.nidForUuids(conceptUuid));
+   }
    
    public static String conceptDescriptionText(ConceptSpecification conceptSpec) {
        if (conceptSpec == null) {

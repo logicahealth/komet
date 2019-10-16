@@ -41,12 +41,9 @@ package sh.isaac.api;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -205,6 +202,14 @@ public interface AssemblageService
     */
    <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid);
 
+   default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponent(int componentNid) {
+       NidSet ids = getSemanticNidsForComponent(componentNid);
+       List<C> results = new ArrayList<>(ids.size());
+       for (int nid: ids.asArray()) {
+           results.add((C) getSemanticChronology(nid));
+       }
+       return results;
+   }
    /**
     * Gets the SemanticChronology for component from assemblage.
     *
@@ -215,8 +220,21 @@ public interface AssemblageService
     */
    <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
          Set<Integer> assemblageConceptNids);
-   
-   /**
+
+    default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponentFromAssemblages(int componentNid,
+                                                                                                      Set<Integer> assemblageConceptNids) {
+        NidSet ids = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
+        List<C> results = new ArrayList<>(ids.size());
+        for (int nid: ids.asArray()) {
+            results.add((C) getSemanticChronology(nid));
+        }
+        return results;
+    }
+    default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponentFromAssemblage(int componentNid, int assemblageConceptNid) {
+        return getSemanticChronologiesForComponentFromAssemblages(componentNid,
+                Collections.singleton(assemblageConceptNid));
+    }
+    /**
     * Gets the SemanticChronology for component from assemblage.
     *
     * @param <C>
