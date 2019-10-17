@@ -136,24 +136,28 @@ public class LogicProvider
       pendingLogicTasks.clear();
    }
 
-   //~--- get methods ---------------------------------------------------------
+
    /**
-    * Gets the classifier service.
-    *
-    * @param stampCoordinate the stamp coordinate
-    * @param logicCoordinate the logic coordinate
-    * @param editCoordinate the edit coordinate
-    * @return the classifier service
+    * See {@ LogicService#getClassifierService(StampCoordinate, LogicCoordinate, EditCoordinate)}
+    * This implementation overrides the provided StampCoordinate time with NOW, if it is passed in with latest.
     */
    @Override
-   public ClassifierService getClassifierService(StampCoordinate stampCoordinate,
-           LogicCoordinate logicCoordinate,
-           EditCoordinate editCoordinate) {
-      final ClassifierServiceKey key = new ClassifierServiceKey(stampCoordinate, logicCoordinate, editCoordinate);
+   public ClassifierService getClassifierService(final StampCoordinate stampCoordinate,
+           final LogicCoordinate logicCoordinate,
+           final EditCoordinate editCoordinate) {
+      StampCoordinate sc;
+      if (stampCoordinate.getStampPosition().getTime() == Long.MAX_VALUE) {
+         LOG.info("changing classify coordinate time to now, rather that latest");
+         sc = stampCoordinate.makeCoordinateAnalog(System.currentTimeMillis());
+      }
+      else {
+         sc = stampCoordinate;
+      }
+      final ClassifierServiceKey key = new ClassifierServiceKey(sc, logicCoordinate, editCoordinate);
 
       if (!classifierServiceMap.containsKey(key)) {
          classifierServiceMap.putIfAbsent(key,
-                 new ClassifierProvider(stampCoordinate, logicCoordinate, editCoordinate));
+                 new ClassifierProvider(sc, logicCoordinate, editCoordinate));
       }
 
       return classifierServiceMap.get(key);
