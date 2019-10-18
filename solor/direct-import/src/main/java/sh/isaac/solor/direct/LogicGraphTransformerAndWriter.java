@@ -161,8 +161,6 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                 new HashSet<>(), new ArrayList<>(),
                 Status.makeActiveOnlySet());
         
-        long newestTime = 0;
-
         // only process active concepts... TODO... Process all
         if (Get.conceptActiveService().isConceptActive(conceptNid, stampCoordinate)) {
 
@@ -202,9 +200,6 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                                     ConceptAssertion(relationship.getDestinationNid(),
                                             logicalExpressionBuilder)));
                         }
-                        if (latestRel.get().getTime() > newestTime) {
-                            newestTime = latestRel.get().getTime();
-                        }
                     }
                 }
             }
@@ -223,9 +218,6 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                     SemanticChronology implicationChronology = implicationList.get(0);
                     LatestVersion<ComponentNidVersion> latestImplication = implicationChronology.getLatestVersion(stampCoordinate);
                     if (latestImplication.isPresent()) {
-                        if (newestTime < latestImplication.get().getTime()) {
-                            newestTime = latestImplication.get().getTime();
-                        }
                         ComponentNidVersion definitionStatus = latestImplication.get();
                         if (definitionStatus.getComponentNid() == sufficientDefinition) {
                             defined = true;
@@ -257,7 +249,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                         addLogicGraph(conceptNid,
                                 le,
                                 premiseType,
-                                newestTime,
+                                stampPosition.getTime(),
                                 solorOverlayModuleNid, stampCoordinate);
                     } else {
                         LOG.error("expression not meaningful?");
