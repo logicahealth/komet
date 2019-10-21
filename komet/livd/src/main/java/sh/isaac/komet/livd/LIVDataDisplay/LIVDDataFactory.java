@@ -1,4 +1,4 @@
-package sh.komet.gui.livd;
+package sh.isaac.komet.livd.LIVDataDisplay;
 
 import javafx.scene.Node;
 import org.jvnet.hk2.annotations.Service;

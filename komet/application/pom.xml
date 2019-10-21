@@ -212,6 +212,12 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>livd</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>sh.isaac.provider</groupId>
             <artifactId>preferences</artifactId>
             <version>${project.parent.version}</version>

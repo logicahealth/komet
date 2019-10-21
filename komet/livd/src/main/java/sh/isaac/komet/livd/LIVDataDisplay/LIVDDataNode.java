@@ -1,4 +1,4 @@
-package sh.komet.gui.livd;
+package sh.isaac.komet.livd.LIVDataDisplay;
 
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
