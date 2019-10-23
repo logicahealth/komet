@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.coordinate.StampCoordinate;
 
 /**
  * The contract interface for basic querying of individual indexes.  Note that individual index implementations
@@ -232,9 +233,22 @@ public interface IndexQueryService {
     * This is a convenience method.
     *
     * @param searchResult the search result
+    * @param stampForMerge - an optional stamp that will be used to break ties in the scores of the merged search result
+    *    nids, preferring active over inactive. 
     * @return the merged results, in a collection that iterates in the same order as they were passed in.
     */
-   public Collection<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult);
+   public List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult, StampCoordinate stampForMerge);
+   
+   /**
+    * Locate the concept most closely tied to a search result, and merge them together, maintaining the best score.
+    * This is a convenience method.
+    *
+    * @param searchResult the search result
+    * @return the merged results, in a collection that iterates in the same order as they were passed in.
+    */
+   public default List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult) {
+      return mergeResultsOnConcept(searchResult, null);
+   }
    
    /**
     * Register a class to receive index configuration change events, and full reindex operation events.

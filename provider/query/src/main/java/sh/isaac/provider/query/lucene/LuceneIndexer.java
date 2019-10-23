@@ -52,7 +52,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
-import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -114,6 +113,7 @@ import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.ConceptSearchResult;
@@ -321,7 +321,7 @@ public abstract class LuceneIndexer implements IndexBuilderService
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult)
+	public List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult, StampCoordinate stampForMerge)
 	{
 		final HashMap<Integer, ConceptSearchResult> merged = new HashMap<>();
 		final List<ConceptSearchResult> result = new ArrayList<>();
@@ -339,7 +339,7 @@ public abstract class LuceneIndexer implements IndexBuilderService
 			}
 			else
 			{
-				final ConceptSearchResult csr = new ConceptSearchResult(conNid.getAsInt(), sr.getNid(), sr.getScore());
+				final ConceptSearchResult csr = new ConceptSearchResult(conNid.getAsInt(), sr.getNid(), sr.getScore(), stampForMerge);
 
 				merged.put(conNid.getAsInt(), csr);
 				result.add(csr);
