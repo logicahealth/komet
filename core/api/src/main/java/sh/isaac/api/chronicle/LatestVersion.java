@@ -245,7 +245,7 @@ public final class LatestVersion<V> {
     */
    public Set<V> contradictions() {
       if (this.contradictions == null) {
-         return Collections.EMPTY_SET;
+         return Collections.emptySet();
       }
       return this.contradictions;
    }
@@ -323,7 +323,7 @@ public final class LatestVersion<V> {
    
    public List<V> versionList() {
       if (this.value == null) {
-         return Collections.EMPTY_LIST;
+         return Collections.emptyList();
       }
       if (this.contradictions == null) {
          return Arrays.asList(this.value);

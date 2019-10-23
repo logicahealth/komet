@@ -1339,7 +1339,6 @@ public class Frills
     * service
     * @return the codes, if found, or empty (will not return null)
     */
-   @SuppressWarnings("rawtypes")
    public static List<String> getCodes(int componentNid, StampCoordinate stamp) {
       try 
       {
@@ -1610,12 +1609,8 @@ public class Frills
                    final LatestVersion<DescriptionVersion> latest = ((SemanticChronology) descriptionC).getLatestVersion((stamp == null)? 
                          Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
 
-                   if (latest.isPresent()) {
-                      final DescriptionVersion ds = latest.get();
-
-                      if (ds.getDescriptionTypeConceptNid() == descriptionType.getNid()) {
-                         results.add(ds);
-                      }
+                   if (latest.isPresentAnd(dv -> dv.getDescriptionTypeConceptNid() == descriptionType.getNid())) {
+                         results.add(latest.get());
                    }
                 }
              });
@@ -1681,13 +1676,13 @@ public class Frills
    /**
     * 
     * @param id String identifier may parse to int NID, or UUID
-    * @param sc The stamp coordinate to use, when looking up descriptions - uses dev latest if not passed
+    * @param stampCoordinate The stamp coordinate to use, when looking up descriptions - uses dev latest if not passed
     * @param lc the language coordinate to use, when looking up descriptions.  Uses us english, if not provided.
     * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
     * 
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
     */
-   private static IdInfo getIdInfo(String id, StampCoordinate sc, LanguageCoordinate lc) {
+   private static IdInfo getIdInfo(String id, final StampCoordinate stampCoordinate, final LanguageCoordinate languageCoordinate) {
       Map<String, Object> idInfo = new HashMap<>();
 
       Long sctId = null;
@@ -1695,15 +1690,9 @@ public class Frills
       UUID[] uuids = null;
       IsaacObjectType typeOfPassedId = null;
       
-      if (sc == null)
-      {
-         sc = StampCoordinates.getDevelopmentLatest();
-      }
+      StampCoordinate sc = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate; 
       
-      if (lc == null)
-      {
-         lc = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
-      }
+      LanguageCoordinate lc = languageCoordinate == null ? LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate() : languageCoordinate; 
 
       try {
          OptionalInt intId = NumericUtils.getInt(id);
@@ -2105,26 +2094,16 @@ public class Frills
     * @param editCoordinate - ensure that the returned stamp coordinate includes the module and path from this edit coordinate.
     * @return a new stamp coordinate
     */
-   public static StampCoordinate getStampCoordinateFromEditCoordinate(StampCoordinate stampCoordinate,
+   public static StampCoordinate getStampCoordinateFromEditCoordinate(final StampCoordinate stampCoordinate,
          EditCoordinate editCoordinate) {
-      if (stampCoordinate == null) {
-         stampCoordinate = Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate();
-      }
+      StampCoordinate scLocal = stampCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stampCoordinate;
 
-      final StampPosition stampPosition = new StampPositionImpl(
-                                              stampCoordinate.getStampPosition().getTime(),
-                                                    editCoordinate.getPathNid());
-      final StampCoordinateImpl temp = new StampCoordinateImpl(
-                                           stampCoordinate.getStampPrecedence(),
-                                                 stampPosition,
-                                                 stampCoordinate.getModuleSpecifications(),
-                                                 new ArrayList<>(),
-                                                 stampCoordinate.getAllowedStates());
+      final StampPosition stampPosition = new StampPositionImpl(scLocal.getStampPosition().getTime(), editCoordinate.getPathNid());
+      final StampCoordinateImpl temp = new StampCoordinateImpl(scLocal.getStampPrecedence(), stampPosition, scLocal.getModuleSpecifications(), 
+            new ArrayList<>(), scLocal.getAllowedStates());
 
-      if (temp.getModuleNids()
-              .size() > 0) {
-         temp.getModuleNids()
-             .add(editCoordinate.getModuleNid());
+      if (temp.getModuleNids().size() > 0) {
+         temp.getModuleNids().add(editCoordinate.getModuleNid());
       }
 
       return temp;

@@ -622,7 +622,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       while (it.hasNext()) {
          SemanticChronology hasParentAssociationDynamicSemantic = (SemanticChronology) it.next();
          // Ensure only working with ACTIVE hasParentAssociationDynamicSemantic version
-         if (hasParentAssociationDynamicSemantic.isLatestVersionActive(getVHATDevelopmentLatestStampCoordinate().makeCoordinateAnalog(Status.ACTIVE_ONLY_SET))) {
+         if (hasParentAssociationDynamicSemantic.isLatestVersionActive(getVHATDevelopmentLatestStampCoordinate())) {
             LatestVersion<Version> optionalLatestVersion = hasParentAssociationDynamicSemantic.getLatestVersion(getVHATDevelopmentLatestStampCoordinate());
             if (optionalLatestVersion.isPresent()) {
                if (!optionalLatestVersion.contradictions().isEmpty()) {
