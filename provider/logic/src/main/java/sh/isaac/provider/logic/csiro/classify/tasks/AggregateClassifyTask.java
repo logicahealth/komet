@@ -65,7 +65,7 @@ public class AggregateClassifyTask
    private CycleCheck cc = null;
    private static Logger log = LogManager.getLogger();
    
-   //Classification takes a tremendous amound of memory.  Don't allow it to run in parallel.
+   //Classification takes a tremendous amount of memory.  Don't allow it to run in parallel.
    private static Semaphore concurrentRunPrevent = new Semaphore(1);
    
    /**

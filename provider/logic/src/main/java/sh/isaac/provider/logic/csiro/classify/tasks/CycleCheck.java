@@ -150,7 +150,9 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 				
 			}
 		}
-		if (parents.length == 0 && nid != TermAux.SOLOR_ROOT.getNid())
+		if (parents.length == 0 && nid != TermAux.SOLOR_ROOT.getNid() 
+				//Only mark as an orphan if the concept is active, as most inactive rels aren't currently loaded.
+				&& Get.concept(nid).getLatestVersion(ts.getManifoldCoordinate().getStampCoordinate()).isPresentAnd(v -> v.isActive()))
 		{
 			//orphan
 			orphans.add(nid);
