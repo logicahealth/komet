@@ -85,7 +85,7 @@ public class DescriptionIndexer extends LuceneIndexer
 	private static final String FIELD_INDEXED_STRING_VALUE = "_string_content_";
 	
 	private static final String FIELD_INDEXED_DESCRIPTION_TYPE_NID = "_desc_type_nid_";
-	
+
 	private static final String FIELD_INDEXED_EXTENDED_DESCRIPTION_TYPE_UUID = "_extended_desc_type_uuid_";
 	
 	/** The Constant INDEX_NAME. */
@@ -120,13 +120,13 @@ public class DescriptionIndexer extends LuceneIndexer
 	}
 	
 	private void populateMetadataCache(int nid) {
-	  if (!metadataConcepts.add(nid)) {
-		  // some of the metadata is linked in multiple locations, we don't need to reprocess it.
-		  return;
-	  }
-	  for (int child : Get.taxonomyService().getAllTaxonomyChildren(nid)) {
+		if (!metadataConcepts.add(nid)) {
+			// some of the metadata is linked in multiple locations, we don't need to reprocess it.
+			return;
+		}
+		for (int child : Get.taxonomyService().getAllTaxonomyChildren(nid)) {
 			populateMetadataCache(child);
-	  }
+		}
 	}
 	
 	@Override
@@ -136,7 +136,7 @@ public class DescriptionIndexer extends LuceneIndexer
 		metadataConcepts.clear();
 	}
 
-/**
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -385,7 +385,11 @@ public class DescriptionIndexer extends LuceneIndexer
 	 */
 	protected static String handleBrackets(String query, char left, char right)
 	{
-		// TODO this should be made smarter so it doesn't mess with things that are already escaped...
+		//regexp test
+		if (query.startsWith("/") && query.endsWith("/"))
+		{
+			return query;
+		}
 		int pos = 0;
 		final int length = query.length();
 		StringBuilder result = new StringBuilder(length + 4);
@@ -399,18 +403,36 @@ public class DescriptionIndexer extends LuceneIndexer
 					result.append(query.substring(pos, pos + posR + 1));
 					pos = pos + posR + 1;
 				} else {
-					//Just brackets... escape them for lucene.  
+					//Just brackets... escape them for lucene, if they are not already escaped.
 					result.append(query.substring(pos, pos + posL));
-					result.append("\\" + left);
+					if ((pos + posL) > 0 && query.charAt(pos + posL - 1) == '\\' )  //see if its already escaped
+					{
+						//already escaped.
+						result.append(left);
+					}
+					else
+					{
+						result.append("\\" + left);
+					}
 					//Need to handle a case where we are processing [[[fred]
+					// TODO this should be made smarter so it doesn't mess with things that are already escaped...
 					result.append(query.substring((pos + posL + 1), pos + posR).replaceAll("\\" + left, "\\\\" + left));
-					result.append("\\" + right);
+					if (query.charAt(pos + posR - 1) == '\\' )  //see if its already escaped
+					{
+						//already escaped
+						result.append(right);
+					}
+					else
+					{
+						result.append("\\" + right);
+					}
 					pos = pos + posR + 1;
 				}
 			}
 			else if (posL >=0 || posR >= 0) {
 				//rogue brackets
 				final int endOfRange = (posR > posL ? posR : posL);
+				// TODO this should be made smarter so it doesn't mess with things that are already escaped...
 				result.append(query.substring(pos, pos + endOfRange + 1).replaceAll("\\" + left, "\\\\" + left).replaceAll("\\" + right, "\\\\" + right));
 				pos = pos + endOfRange + 1;
 			}
@@ -424,15 +446,34 @@ public class DescriptionIndexer extends LuceneIndexer
 	}
 	
 
-	protected static String handleUnsupportedEscapeChars(String queryLocal)
+	protected static String handleUnsupportedEscapeChars(final String query)
 	{
+		//regexp test
+		if (query.startsWith("/") && query.endsWith("/"))
+		{
+			return query;
+		}
+		
+		//The lucene query parser seems to get annoyed with a single, unmatched '/', but its fine with more than one... escape those.
+		int pos1 = query.indexOf('/');
+		int pos2 = query.lastIndexOf('/');
+		String queryLocal;
+		if (pos1 > 0 && pos2 == pos1)
+		{
+			queryLocal = query.replace("/", "\\/");
+		}
+		else
+		{
+			queryLocal = query;
+		}
+		
 		StringBuilder result = new StringBuilder(queryLocal.length() + 2);
 		char[] chars = queryLocal.toCharArray();
 		for (int i = 0; i < chars.length; i++)
 		{
 			for (char match : ESCAPE_CHARS) 
 			{
-				if (chars[i] == match && (i > 0 && chars[i - 1] != '\\'))
+				if (chars[i] == match && (i > 0 && chars[i - 1] != '\\') && (i + 1 < chars.length))
 				{
 					//needs escaping
 					result.append('\\');

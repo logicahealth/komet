@@ -205,6 +205,12 @@ public class QueryProviderTest {
 		Assert.assertEquals(di.query("mash", null).size(), 4);
 
 		Assert.assertEquals(di.query("mash AND cereal", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal [some junk in brackets]", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal \\[more junk in brackets\\]", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal rogue \\ backslash", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal rogue \\ backslash \\ another", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal rogue \\ backslash \\ another yet \\ another", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal rogue / foreslash", null).size(), 1);
 		Assert.assertEquals(di.query("dynamic AND assemblages AND (SOLOR)", null).size(), 1);
 		Assert.assertEquals(di.query("dynamic AND assemblages AND \\(SOLOR\\)", null).size(), 1);
 		Assert.assertEquals(di.query("\"Beverage Ontology\"", null).size(), 5);

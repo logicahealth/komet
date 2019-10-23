@@ -58,6 +58,9 @@ public class DescriptionIndexerTest
 		Assert.assertEquals("\\]\\[\\]\\[", DescriptionIndexer.handleBrackets("][][", '[', ']'));
 		Assert.assertEquals("\\[query\\] [a to b] for a bunch of \\[stuff\\]", DescriptionIndexer.handleBrackets("[query] [a to b] for a bunch of [stuff]", '[', ']'));
 		Assert.assertEquals("A long \\{test\\} string", DescriptionIndexer.handleBrackets("A long {test} string", '{', '}'));
+		Assert.assertEquals("A long \\[test\\] string", DescriptionIndexer.handleBrackets("A long \\[test\\] string", '[', ']'));
+		//Ignore regexp
+		Assert.assertEquals("/A long [test] string/", DescriptionIndexer.handleBrackets("/A long [test] string/", '[', ']'));
 	}
 	
 	@Test
@@ -66,5 +69,8 @@ public class DescriptionIndexerTest
 		Assert.assertEquals("http\\://foo.com", DescriptionIndexer.handleUnsupportedEscapeChars("http://foo.com"));
 		Assert.assertEquals("http\\://foo.com", DescriptionIndexer.handleUnsupportedEscapeChars("http\\://foo.com"));
 		Assert.assertEquals("fred\\^jane", DescriptionIndexer.handleUnsupportedEscapeChars("fred^jane"));
+		Assert.assertEquals("/fred^jane/", DescriptionIndexer.handleUnsupportedEscapeChars("/fred^jane/"));
+		Assert.assertEquals("foo\\/bar", DescriptionIndexer.handleUnsupportedEscapeChars("foo/bar"));
+		Assert.assertEquals("foo/bar with another foo/bar", DescriptionIndexer.handleUnsupportedEscapeChars("foo/bar with another foo/bar"));
 	}
 }
