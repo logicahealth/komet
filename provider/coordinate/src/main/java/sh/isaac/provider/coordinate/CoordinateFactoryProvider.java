@@ -483,11 +483,13 @@ public class CoordinateFactoryProvider
                                 preferredForModule.addLatest(alternateVersion);
                             }
                         }
+                        preferredForModule.sortByState();
                         return preferredForModule;
                     }
                 }
             }
         }
+        preferredForDialect.sortByState();
         return preferredForDialect;
     }
 

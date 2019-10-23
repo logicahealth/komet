@@ -55,6 +55,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import sh.isaac.api.Status;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.identity.StampedVersion;
 
@@ -327,12 +328,16 @@ public final class LatestVersion<V> {
       if (this.contradictions == null) {
          return Arrays.asList(this.value);
       }
-      ArrayList<V> versions = new ArrayList(this.contradictions.size() + 1);
+      ArrayList<V> versions = new ArrayList<>(this.contradictions.size() + 1);
       versions.add(value);
       versions.addAll(this.contradictions);
       return versions;
    }
    
+   /**
+    * Note, this method assumes that the type extends {@link StampedVersion} - it returns an empty set, if they dont.
+    * @return
+    */
    public StampSequenceSet getStamps() {
       StampSequenceSet stampSequences = new StampSequenceSet();
       versionStream().forEach((v) -> {
@@ -341,6 +346,23 @@ public final class LatestVersion<V> {
          }
       });
       return stampSequences;
+   }
+   
+   /**
+    * Note, this method assumes that the type extends {@link StampedVersion} - Its a noop if it doesn't.
+    */
+   public void sortByState() {
+      if (value != null && value instanceof StampedVersion && ((StampedVersion)value).getStatus() != Status.ACTIVE && contradictions != null) {
+         //See if we have an active one to swap it with.
+         for (V c : contradictions) {
+            if (((StampedVersion)c).getStatus() == Status.ACTIVE) {
+               contradictions.remove(c);
+               contradictions.add(value);
+               value = c;
+               break;
+            }
+         }
+      }
    }
 
    public boolean isContradicted() {

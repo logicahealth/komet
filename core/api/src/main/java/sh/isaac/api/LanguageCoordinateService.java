@@ -133,6 +133,9 @@ public interface LanguageCoordinateService {
     * with each subsequent item in {@link LanguageCoordinate#getDescriptionTypePreferenceList()}, walking 
     * through the array one by one.
     * 
+    * For any given step, if multiple descriptions match the criteria, an ACTIVE description should have priority over 
+    * an inactive one.
+    * 
     * To be returned, a description MUST match one of the description types, and the specified language.
     * 
     * If the specified language {@link LanguageCoordinate#getLanguageConceptNid()} is {@link TermAux#LANGUAGE}, 
