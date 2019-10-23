@@ -275,7 +275,7 @@ public class ImportViewController {
                     ImportItemZipEntry treeItemValue = (ImportItemZipEntry) treeItem.getValue();
 
                     if (treeItemValue.importType == null || treeItemValue.importType == type
-                            || (type == SelectedImportType.ACTIVE_ONLY && treeItemValue.importType == SelectedImportType.SNAPSHOT)) {
+                            || (type == SelectedImportType.SNAPSHOT_ACTIVE_ONLY && treeItemValue.importType == SelectedImportType.SNAPSHOT)) {
                         if (treeItemValue.getParentKey().equals(FILE_PARENT_KEY)) {
                             if (!fileTreeTable.getRoot().getChildren().contains(fileItem)) {
                                 fileTreeTable.getRoot().getChildren().add(fileItem);
@@ -337,8 +337,8 @@ public class ImportViewController {
 
         ImportType directImportType = null;
         switch (importType.getValue()) {
-            case ACTIVE_ONLY:
-                directImportType = ImportType.ACTIVE_ONLY;
+            case SNAPSHOT_ACTIVE_ONLY:
+                directImportType = ImportType.SNAPSHOT_ACTIVE_ONLY;
                 break;
             case FULL:
                 directImportType = ImportType.FULL;
@@ -400,13 +400,13 @@ public class ImportViewController {
         this.fileTreeTable.treeColumnProperty().set(treeColumn);
 
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-            this.importType.getItems().addAll(SelectedImportType.ACTIVE_ONLY, SelectedImportType.SNAPSHOT, SelectedImportType.FULL);
+            this.importType.getItems().addAll(SelectedImportType.SNAPSHOT_ACTIVE_ONLY, SelectedImportType.SNAPSHOT, SelectedImportType.FULL);
         } else {
-            this.importType.getItems().addAll(SelectedImportType.ACTIVE_ONLY);
+            this.importType.getItems().addAll(SelectedImportType.SNAPSHOT_ACTIVE_ONLY);
             this.addArtifactButton.setVisible(false);
         }
 
-        this.importType.getSelectionModel().select(SelectedImportType.ACTIVE_ONLY);
+        this.importType.getSelectionModel().select(SelectedImportType.SNAPSHOT_ACTIVE_ONLY);
         this.importType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.importTypeChanged(newValue);
         });

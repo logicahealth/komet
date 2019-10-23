@@ -52,7 +52,6 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
-import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
@@ -277,19 +276,19 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             SemanticChronology relationshipChronology = Get.assemblageService().getSemanticChronology(relNid);
             for (int stamp : relationshipChronology.getVersionStampSequences()) {
                 StampService stampService = Get.stampService();
-                if (this.importType == ImportType.ACTIVE_ONLY) {
-                    stampPositionsToProcess.add(new StampPositionImpl(Long.MAX_VALUE, stampService.getPathNidForStamp(stamp)));
-                } else {
-                    stampPositionsToProcess.add(new StampPositionImpl(stampService.getTimeForStamp(stamp), stampService.getPathNidForStamp(stamp)));
-                }
-
+                stampPositionsToProcess.add(new StampPositionImpl(stampService.getTimeForStamp(stamp), stampService.getPathNidForStamp(stamp)));
             }
             relationshipChronologiesForConcept.add(relationshipChronology);
         }
-        for (StampPosition stampPosition : stampPositionsToProcess) {
-            transformAtTimePath(stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
+        //Only process the newest stamp in this case
+        if (this.importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
+            transformAtTimePath(stampPositionsToProcess.last(), conceptNid, relationshipChronologiesForConcept, premiseType);
         }
-
+        else {
+            for (StampPosition stampPosition : stampPositionsToProcess) {
+                transformAtTimePath(stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
+            }
+        }
     }
 
     /**
@@ -313,7 +312,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             graphAssemblageNid = inferredAssemblageNid;
         }
 
-        final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
+        final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
                 conceptNid,
                 graphAssemblageNid);
 
@@ -354,10 +353,9 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
 
             sb.setPrimordialUuid(generatedGraphPrimordialUuid);
 
-            final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+            final ArrayList<Chronology> builtObjects = new ArrayList<>();
             int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
-            final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
-                    builtObjects);
+            final SemanticChronology sci = sb.build(stamp, builtObjects);
             // There should be no other build objects, so ignore the builtObjects list...
 
             if (builtObjects.size() != 1) {

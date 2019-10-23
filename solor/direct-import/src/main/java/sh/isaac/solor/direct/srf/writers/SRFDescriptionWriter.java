@@ -76,13 +76,13 @@ public class SRFDescriptionWriter extends TimedTaskWithProgressTracker<Void> {
             for (String[] descriptionRecord : descriptionRecords) {
 
                 final Status state = Status.fromZeroOneToken(descriptionRecord[SRF_STATUS_INDEX]);
-                if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                if (state == Status.INACTIVE && importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                     continue;
                 }
 
                 UUID referencedConceptUuid = UUID.fromString(descriptionRecord[SRF_REFERENCED_CONCEPT_ID_INDEX]);
 
-                if (importType == ImportType.ACTIVE_ONLY) {
+                if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                     if (!identifierService.hasUuid(referencedConceptUuid)) {
                         // if concept was not imported because inactive, then skip
                         continue;

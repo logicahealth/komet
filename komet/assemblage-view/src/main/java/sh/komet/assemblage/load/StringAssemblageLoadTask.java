@@ -108,7 +108,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
                 if (columnsToWrite.size() == writeSize) {
                     BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, writeSemaphore,
                             "Processing s semantics from: " + fileToImport.getName(),
-                            importSpecification, ImportType.ACTIVE_ONLY);
+                            importSpecification, ImportType.SNAPSHOT_ACTIVE_ONLY);
                     columnsToWrite = new ArrayList<>(writeSize);
                     Get.executor()
                             .submit(writer);
@@ -117,7 +117,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
             if (!columnsToWrite.isEmpty()) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, writeSemaphore,
                         "Processing s semantics from: " + fileToImport.getName(),
-                        importSpecification, ImportType.ACTIVE_ONLY);
+                        importSpecification, ImportType.SNAPSHOT_ACTIVE_ONLY);
                 Get.executor()
                         .submit(writer);
             }

@@ -103,11 +103,11 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
          for (String[] relationshipRecord : relationshipRecords) {
              try {
                  final Status state = Status.fromZeroOneToken(relationshipRecord[RF2_ACTIVE_INDEX]);
-                 if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                 if (state == Status.INACTIVE && importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                      continue;
                  }
                  UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
-                 if (importType == ImportType.ACTIVE_ONLY) {
+                 if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                      if (!identifierService.hasUuid(referencedConceptUuid)) {
                          // if concept was not imported because inactive then skip
                          continue;

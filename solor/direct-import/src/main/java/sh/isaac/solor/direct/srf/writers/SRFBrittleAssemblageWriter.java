@@ -97,7 +97,7 @@ public class SRFBrittleAssemblageWriter extends TimedTaskWithProgressTracker<Voi
 
                     UUID referencedComponentUuid = UUID.fromString(refsetRecord[SRF_REFERENCED_COMPONENT_ID_INDEX]);
                     final Status state = Status.fromZeroOneToken(refsetRecord[SRF_STATUS_INDEX]);
-                    if (importType == ImportType.ACTIVE_ONLY) {
+                    if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                         if (state == Status.INACTIVE) {
                             continue;
                         }

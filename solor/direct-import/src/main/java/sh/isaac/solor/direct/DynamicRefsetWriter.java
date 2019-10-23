@@ -149,7 +149,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 				{
 					UUID referencedComponentUuid = UuidT3Generator.fromSNOMED(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
 					final Status state = Status.fromZeroOneToken(refsetRecord[ACTIVE_INDEX]);
-					if (importType == ImportType.ACTIVE_ONLY)
+					if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY)
 					{
 						if (state == Status.INACTIVE)
 						{

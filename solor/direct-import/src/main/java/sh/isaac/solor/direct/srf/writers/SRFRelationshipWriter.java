@@ -83,11 +83,11 @@ public class SRFRelationshipWriter extends TimedTaskWithProgressTracker<Void> {
                 try {
 
                     final Status state = Status.fromZeroOneToken(relationshipRecord[SRF_STATUS_INDEX]);
-                    if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                    if (state == Status.INACTIVE && importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                         continue;
                     }
                     UUID referencedConceptUuid = UUID.fromString(relationshipRecord[SRF_SOURCE_ID_INDEX]);
-                    if (importType == ImportType.ACTIVE_ONLY) {
+                    if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                         if (!identifierService.hasUuid(referencedConceptUuid)) {
                             // if concept was not imported because inactive then skip
                             continue;

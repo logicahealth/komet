@@ -209,9 +209,9 @@ public class KometBaseMenus implements MenuProvider {
                     Get.executor().submit(transformer);
                 });
 
-                MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - ACTIVE");
+                MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - SNAPSHOT ACTIVE ONLY");
                 transformSourcesActiveOnly.setOnAction((ActionEvent event) -> {
-                    Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.ACTIVE_ONLY);
+                    Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.SNAPSHOT_ACTIVE_ONLY);
                     Get.executor().submit(transformer);
                 });
 

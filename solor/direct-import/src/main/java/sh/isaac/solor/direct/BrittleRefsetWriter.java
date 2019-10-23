@@ -127,7 +127,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
              try {
                  UUID referencedComponentUuid = UuidT3Generator.fromSNOMED(refsetRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
                  final Status state = Status.fromZeroOneToken(refsetRecord[RF2_ACTIVE_INDEX]);
-                 if (importType == ImportType.ACTIVE_ONLY) {
+                 if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                     if (state == Status.INACTIVE) {
                         continue;
                     }

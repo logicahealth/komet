@@ -82,7 +82,7 @@ public class SRFConceptWriter extends TimedTaskWithProgressTracker<Void> {
             for (String[] conceptRecord : conceptRecords) {
                 final Status state = Status.fromZeroOneToken(conceptRecord[SRF_STATUS_INDEX]);
 
-                if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+                if (state == Status.INACTIVE && importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                     continue;
                 }
 

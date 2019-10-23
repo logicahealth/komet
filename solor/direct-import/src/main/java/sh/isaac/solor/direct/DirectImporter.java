@@ -217,7 +217,7 @@ public class DirectImporter
                             importPrefixRegex.append("(full/)"); //prefixes to match
                             break;
                         case SNAPSHOT:
-                        case ACTIVE_ONLY:
+                        case SNAPSHOT_ACTIVE_ONLY:
                             importPrefixRegex.append("(snapshot/)"); //prefixes to match
                             break;
                         default:
@@ -298,7 +298,7 @@ public class DirectImporter
                 importPrefixRegex.append("(full/)"); //prefixes to match
                 break;
             case SNAPSHOT:
-            case ACTIVE_ONLY:
+            case SNAPSHOT_ACTIVE_ONLY:
                 importPrefixRegex.append("(snapshot/)"); //prefixes to match
                 break;
             default:
@@ -1732,7 +1732,7 @@ public class DirectImporter
                 UUID columnHeaderConcept = UuidT3Generator.fromSNOMED(columns[6]);
                 Status refsetState = Status.fromZeroOneToken(columns[2]);
                 
-                if (importType == ImportType.ACTIVE_ONLY && refsetState != Status.ACTIVE) {
+                if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY && refsetState != Status.ACTIVE) {
                     continue;
                 }
 

@@ -23,7 +23,7 @@ package sh.komet.gui.importation;
 public enum SelectedImportType {
     FULL("Full import"), 
     SNAPSHOT("Snapshot import"), 
-    ACTIVE_ONLY("Active-only import"),
+    SNAPSHOT_ACTIVE_ONLY("Active-only snapshot import"),
     DELTA("Delta import"),
     IGNORE("Ignore for import");
     

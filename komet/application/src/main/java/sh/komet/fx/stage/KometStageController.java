@@ -292,9 +292,9 @@ public class KometStageController
                 Get.executor().submit(importerFull);
             });
             items.add(importSourcesFull);
-            MenuItem importSourcesSnapshot = new MenuItem("Import terminology content - ACTIVE");
+            MenuItem importSourcesSnapshot = new MenuItem("Import terminology content - SNAPSHOT ACTIVE ONLY");
             importSourcesSnapshot.setOnAction((ActionEvent event) -> {
-                DirectImporter importerSnapshot = new DirectImporter(ImportType.ACTIVE_ONLY);
+                DirectImporter importerSnapshot = new DirectImporter(ImportType.SNAPSHOT_ACTIVE_ONLY);
                 Get.executor().submit(importerSnapshot);
             });
             items.add(importSourcesSnapshot);
@@ -304,9 +304,9 @@ public class KometStageController
                 Get.executor().submit(transformer);
             });
             items.add(transformSourcesFull);
-            MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - ACTIVE");
+            MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - SNAPSHOT ACTIVE ONLY");
             transformSourcesActiveOnly.setOnAction((ActionEvent event) -> {
-                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.ACTIVE_ONLY);
+                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.SNAPSHOT_ACTIVE_ONLY);
                 Get.executor().submit(transformer);
             });
             items.add(transformSourcesActiveOnly);

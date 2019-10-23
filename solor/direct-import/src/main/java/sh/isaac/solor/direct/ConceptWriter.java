@@ -183,7 +183,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
          for (String[] conceptRecord : conceptRecords) {
             final Status state = Status.fromZeroOneToken(conceptRecord[RF2_ACTIVE_INDEX]);
 
-            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+            if (state == Status.INACTIVE && importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                 if (!CONCEPT_STRING_WHITELIST.contains(conceptRecord[RF2_CONCEPT_SCT_ID_INDEX])) {
                     continue;
                 }

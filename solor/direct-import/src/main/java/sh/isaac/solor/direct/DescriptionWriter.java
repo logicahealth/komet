@@ -99,11 +99,11 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
 
          for (String[] descriptionRecord : descriptionRecords) {
             final Status state = Status.fromZeroOneToken(descriptionRecord[RF2_ACTIVE_INDEX]);
-            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+            if (state == Status.INACTIVE && importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                 continue;
             }
             UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(descriptionRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
-            if (importType == ImportType.ACTIVE_ONLY) {
+            if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                 if (!identifierService.hasUuid(referencedConceptUuid)) {
                     // if concept was not imported because inactive, then skip
                     continue;
