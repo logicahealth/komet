@@ -281,7 +281,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             relationshipChronologiesForConcept.add(relationshipChronology);
         }
         //Only process the newest stamp in this case
-        if (this.importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
+        if (this.importType == ImportType.SNAPSHOT_ACTIVE_ONLY && stampPositionsToProcess.size() > 0) {
             transformAtTimePath(stampPositionsToProcess.last(), conceptNid, relationshipChronologiesForConcept, premiseType);
         }
         else {
