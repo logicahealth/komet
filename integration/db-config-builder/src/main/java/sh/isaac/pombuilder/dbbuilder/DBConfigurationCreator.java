@@ -282,9 +282,10 @@ public class DBConfigurationCreator
 
 			// count
 			pe = new PluginExecution();
-			pe.setId("count-after-load");
+			pe.setId("count-and-check-after-load");
 			goals = new Goals();
 			goals.getGoal().add("count-concepts");
+			goals.getGoal().add("scan-refs");
 			pe.setGoals(goals);
 			executions.getExecution().add(pe);
 
