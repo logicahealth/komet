@@ -103,9 +103,8 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
          for (String[] relationshipRecord : relationshipRecords) {
              try {
                  final Status state = Status.fromZeroOneToken(relationshipRecord[RF2_ACTIVE_INDEX]);
-                 if (state == Status.INACTIVE && importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
-                     continue;
-                 }
+                 //We cannot skip inactive records when importing snapshot_active_only, because we will end up with the wrong date
+                 //on the logic graph, since it combines all of these records into a single graph.
                  UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
                  if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                      if (!identifierService.hasUuid(referencedConceptUuid)) {
