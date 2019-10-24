@@ -16,12 +16,15 @@
  */
 package sh.isaac.solor.direct;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
@@ -164,6 +167,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     private final long commitTime;
     private final IdentifierService identifierService = Get.identifierService();
     private final AssemblageService assemblageService = Get.assemblageService();
+    private final Logger LOG = LogManager.getLogger();
 
     public LoincWriter(List<String[]> loincRecordsRecords,
             Semaphore writeSemaphore, String message, long commitTime) {
@@ -199,8 +203,10 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
             for (String[] loincRecord : loincRecords) {
                 try {
+                
+                    Status status = mapStatus(loincRecord[STATUS]);
 
-                    if (loincRecord[STATUS].equals("ACTIVE")) {
+                    if (status.isActive()) {
 
                         int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
                         // See if the concept is created (from the SNOMED/LOINC expressions. 
@@ -398,5 +404,21 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         Get.assemblageService().writeSemanticChronology(sci);
 
         return sci;
+    }
+    
+    private Status mapStatus(String status) throws IOException {
+        switch (status) {
+            case "ACTIVE":
+            case "TRIAL":
+            case "DISCOURAGED":
+                return Status.ACTIVE;
+
+            case "DEPRECATED":
+                return Status.INACTIVE;
+
+            default :
+                LOG.error("No mapping for status: " + status);
+                return Status.ACTIVE;
+        }
     }
 }
