@@ -41,6 +41,9 @@ package sh.isaac.model.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -58,9 +61,13 @@ import sh.isaac.api.ConceptProxy;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -129,8 +136,28 @@ public class LogicCoordinateImpl
       this.inferredAssemblage      = inferredAssemblage;
       this.descriptionLogicProfile = descriptionLogicProfile;
       this.classifier              = classifier;
-      this.conceptAssemblage = conceptAssemblage;
+      this.conceptAssemblage       = conceptAssemblage;
    }
+
+    public LogicCoordinateImpl(ByteArrayDataBuffer data) {
+        this.statedAssemblage        = data.getConceptSpecification();
+        this.inferredAssemblage      = data.getConceptSpecification();
+        this.descriptionLogicProfile = data.getConceptSpecification();
+        this.classifier              = data.getConceptSpecification();
+        this.conceptAssemblage       = data.getConceptSpecification();
+    }
+
+    public final void putExternal(ByteArrayDataBuffer out) {
+        out.putConceptSpecification(this.statedAssemblage);
+        out.putConceptSpecification(this.inferredAssemblage);
+        out.putConceptSpecification(this.descriptionLogicProfile);
+        out.putConceptSpecification(this.classifier);
+        out.putConceptSpecification(this.conceptAssemblage);
+    }
+
+    public static final LogicCoordinateImpl make(ByteArrayDataBuffer data) {
+        return new LogicCoordinateImpl(data);
+    }
 
    //~--- methods -------------------------------------------------------------
     @Override
@@ -214,7 +241,19 @@ public class LogicCoordinateImpl
              this.descriptionLogicProfile + ">, \n" + Get.conceptDescriptionText(this.classifier) +
              "<" + this.classifier + ">}";
    }
+    @Override
+    public String toUserString() {
+       StringBuilder sb = new StringBuilder("stated assemblage: ");
+       sb.append(Get.conceptDescriptionText(this.statedAssemblage));
+        sb.append("\ninferred assemblage: ");
+        sb.append(Get.conceptDescriptionText(this.inferredAssemblage));
+        sb.append("\nprofile: ");
+        sb.append(Get.conceptDescriptionText(this.descriptionLogicProfile));
+        sb.append("\nclassifier: ");
+        sb.append(Get.conceptDescriptionText(this.classifier));
 
+        return sb.toString();
+    }
    //~--- get methods ---------------------------------------------------------
 
    /**

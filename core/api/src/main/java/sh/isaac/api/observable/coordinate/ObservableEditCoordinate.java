@@ -75,6 +75,12 @@ public interface ObservableEditCoordinate
     */
    IntegerProperty pathNidProperty();
 
+   /**
+    *
+    * @return the underlying edit coordinate implementation.
+    */
+   EditCoordinate getEditCoordinate();
+
    @Override
    public ObservableEditCoordinate deepClone();
 }

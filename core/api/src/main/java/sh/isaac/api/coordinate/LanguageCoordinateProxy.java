@@ -66,8 +66,8 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    }
 
    @Override
-   public default Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-      return getLanguageCoordinate().getNextProrityLanguageCoordinate();
+   public default Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
+      return getLanguageCoordinate().getNextPriorityLanguageCoordinate();
    }
 
    @Override

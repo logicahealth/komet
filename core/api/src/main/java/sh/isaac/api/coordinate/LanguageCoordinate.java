@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
-import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,8 +76,8 @@ public interface LanguageCoordinate extends Coordinate {
      */
    default UUID getLanguageCoordinateUuid() {
        ArrayList<UUID> uuidList = new ArrayList();
-       if (getNextProrityLanguageCoordinate().isPresent()) {
-           uuidList.add(getNextProrityLanguageCoordinate().get().getLanguageCoordinateUuid());
+       if (getNextPriorityLanguageCoordinate().isPresent()) {
+           uuidList.add(getNextPriorityLanguageCoordinate().get().getLanguageCoordinateUuid());
        }
        UUIDUtil.addSortedUuids(uuidList, getDescriptionTypePreferenceList());
        UUIDUtil.addSortedUuids(uuidList, getDialectAssemblagePreferenceList());
@@ -94,7 +93,7 @@ public interface LanguageCoordinate extends Coordinate {
     * 
     * @return 
     */
-   Optional<LanguageCoordinate> getNextProrityLanguageCoordinate();
+   Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate();
 
    /**
     * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
@@ -339,4 +338,8 @@ public interface LanguageCoordinate extends Coordinate {
 
    @Override
    public LanguageCoordinate deepClone();
+
+   default String toUserString() {
+       return toString() + "\n";
+   }
 }

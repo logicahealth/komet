@@ -365,8 +365,8 @@ public class ObservableManifoldCoordinateImpl
    }
 
     @Override
-    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        return getLanguageCoordinate().getNextProrityLanguageCoordinate();
+    public Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
+        return getLanguageCoordinate().getNextPriorityLanguageCoordinate();
     }
 
     @Override

@@ -203,7 +203,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             for (String[] loincRecord : loincRecords) {
                 try {
 
-                    if (loincRecord[STATUS].equals("ACTIVE")) {
+                    //if (!loincRecord[STATUS].equals("DEPRECATED")) {
 
                         int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
                         // See if the concept is created (from the SNOMED/LOINC expressions. 
@@ -262,7 +262,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
                         assemblageService.writeSemanticChronology(recordToWrite);
 
-                    }
+                    //}
                 } catch (NoSuchElementException ex) {
                     noSuchElementList.add(loincRecord);
                 }

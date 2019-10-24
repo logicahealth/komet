@@ -258,6 +258,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                 final LogicalExpression le = logicalExpressionBuilder.build();
                 le.setConceptBeingDefinedNid(conceptNid);
                 if (le.isMeaningful()) {
+                    
 
                     // TODO [graph] what if the modules are different across the graph rels?
                     addLogicGraph(transaction, conceptNid,

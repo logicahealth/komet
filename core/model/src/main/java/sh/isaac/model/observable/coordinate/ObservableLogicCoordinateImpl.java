@@ -345,7 +345,10 @@ public class ObservableLogicCoordinateImpl
     public void setConceptAssemblage(ConceptSpecification conceptAssemblage) {
         logicCoordinate.setConceptAssemblage(conceptAssemblage);
     }
-    
-    
+
+    @Override
+    public String toUserString() {
+        return logicCoordinate.toUserString();
+    }
 }
 

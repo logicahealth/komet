@@ -47,11 +47,15 @@ package sh.isaac.api.logic;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+
+import java.time.Instant;
+import java.util.Optional;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -90,6 +94,22 @@ public interface LogicService {
    LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
          int logicAssemblageId,
          StampCoordinate stampCoordinate);
+
+   /**
+    *
+    * @return an array of instants at which one or more classifications where committed.
+    */
+   Instant[] getClassificationInstants();
+
+   /**
+    *
+    * @return an array of ClassifierResults that where committed at any given instant.  It is possible that
+    * multiple ClassifierResults are committed at a particular instant, such as the simultaneous release of
+    * a variety of editions.
+    */
+   Optional<ClassifierResults[]> getClassificationResultsForInstant(Instant instant);
+
+   void addClassifierResults(ClassifierResults classifierResults);
 
 }
 

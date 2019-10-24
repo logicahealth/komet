@@ -391,8 +391,8 @@ public interface ManifoldCoordinate
    
 
     @Override
-    default Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        return getLanguageCoordinate().getNextProrityLanguageCoordinate();
+    default Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
+        return getLanguageCoordinate().getNextPriorityLanguageCoordinate();
     }
 
     @Override
@@ -455,5 +455,20 @@ public interface ManifoldCoordinate
      */
     default int[] sortConcepts(int[] concepts) {
         throw new UnsupportedOperationException();
+    }
+
+    default String toUserString() {
+        StringBuilder sb = new StringBuilder("Origin stamp coordinate: " + getStampCoordinate().toUserString());
+        if (optionalDestinationStampCoordinate().isPresent()) {
+            sb.append("\nDestination stamp coordinate: ").append(optionalDestinationStampCoordinate().get().toUserString());
+        } else {
+            sb.append("\nDestination stamp coordinate: empty\n");
+        }
+        sb.append(getLanguageCoordinate().toUserString());
+        sb.append(getLogicCoordinate().toUserString());
+        sb.append("\nPremise type: ").append(getTaxonomyPremiseType()).append("\n");
+        sb.append("\nCustom taxonomy sort: ").append(hasCustomTaxonomySort()).append("\n");
+        return sb.toString();
+
     }
 }

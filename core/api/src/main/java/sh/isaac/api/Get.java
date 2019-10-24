@@ -39,6 +39,8 @@
 
 package sh.isaac.api;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.lmax.disruptor.dsl.Disruptor;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
@@ -196,9 +198,12 @@ public class Get
    private static boolean useLuceneIndexes = true;
    
    private static final IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = new IntObjectHashMap<>();
-    private static CountDownLatch termAuxCacheLatch = new CountDownLatch(1);
+   private static CountDownLatch termAuxCacheLatch = new CountDownLatch(1);
 
-   
+   private static Cache<Integer, String> nidToDescriptionCache = Caffeine.newBuilder().maximumSize(200000).build();
+
+
+
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -386,13 +391,20 @@ public class Get
    public static String conceptDescriptionText(int conceptNid) {
      if (conceptNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
-      }
+     }
+     String description = nidToDescriptionCache.getIfPresent(conceptNid);
+     if (description != null) {
+         return description;
+     }
+
      if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
          if (sc.getVersionType() == VersionType.DESCRIPTION) {
              LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate());
              if (latestDescription.isPresent()) {
-                 return "Desc: " + latestDescription.get().getText();
+                String text = "Desc: " + latestDescription.get().getText();
+                nidToDescriptionCache.put(conceptNid, text);
+                return text;
              }
          }
      }
@@ -400,8 +412,9 @@ public class Get
          defaultConceptSnapshotService().getDescriptionOptional(conceptNid);
 
       if (descriptionOptional.isPresent()) {
-         return descriptionOptional.get()
-                                   .getText();
+         String text = descriptionOptional.get().getText();
+         nidToDescriptionCache.put(conceptNid, text);
+         return text;
       }
 
       return "No desc for: " + conceptNid + " " + Get.identifierService.getUuidPrimordialStringForNid(conceptNid);
@@ -841,6 +854,7 @@ public class Get
       preferencesService              = null;
       TERM_AUX_CACHE.clear();
       termAuxCacheLatch = new CountDownLatch(1);
+      nidToDescriptionCache.invalidateAll();
    }
 
    public static ScheduledExecutorService scheduledExecutor() {

@@ -230,6 +230,10 @@ public interface ConceptSnapshot
        }
        return LatestVersion.empty();
    }
-   
+
+    @Override
+    default String toUserString() {
+        throw new UnsupportedOperationException();
+    }
 }
 

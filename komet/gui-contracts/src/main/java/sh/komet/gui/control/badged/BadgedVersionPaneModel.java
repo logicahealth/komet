@@ -434,6 +434,12 @@ public abstract class BadgedVersionPaneModel {
                     StringBuilder sb = new StringBuilder();
                     sb.append(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
                     LoincVersion lv = (LoincVersion) semanticVersion;
+                    sb.append("\nstatus: ");
+                    sb.append(lv.getLoincStatus());
+                    sb.append("\nlcn: ");
+                    sb.append(lv.getLongCommonName());
+                    sb.append("\nshort name: ");
+                    sb.append(lv.getShortName());
                     sb.append("\ncomponent: ");
                     sb.append(lv.getComponent());
                     sb.append("\nmethod: ");

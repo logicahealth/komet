@@ -365,8 +365,8 @@ public class ConceptSnapshotImpl
    }
 
     @Override
-    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        return this.manifoldCoordinate.getNextProrityLanguageCoordinate();
+    public Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
+        return this.manifoldCoordinate.getNextPriorityLanguageCoordinate();
     }
 
     @Override

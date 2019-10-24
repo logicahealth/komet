@@ -84,6 +84,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -141,7 +142,7 @@ public class CommitProvider
 
     private Optional<UUID> dataStoreId = Optional.empty();
 
-    private AtomicLong lastCommitTime = new AtomicLong(Long.MIN_VALUE);
+    private AtomicReference<Instant> lastCommitTime = new AtomicReference(Instant.MIN);
 
     /**
      * The uncommitted nid lock.
@@ -380,6 +381,11 @@ public class CommitProvider
      * TODO: Consider removal
      */
     public CommitTask commit(Transaction transaction, String commitComment, ConcurrentSkipListSet<AlertObject> alertCollection) {
+        return this.commit(transaction, commitComment, alertCollection, getTimeForCommit());
+    }
+
+    public CommitTask commit(Transaction transaction, String commitComment,
+                      ConcurrentSkipListSet<AlertObject> alertCollection, Instant commitTime) {
         Semaphore pendingWrites = writePermitReference.getAndSet(new Semaphore(WRITE_POOL_SIZE));
         pendingWrites.acquireUninterruptibly(WRITE_POOL_SIZE);
 
@@ -392,7 +398,7 @@ public class CommitProvider
                     this,
                     this.checkers,
                     alertCollection,
-                    (TransactionImpl) transaction);
+                    (TransactionImpl) transaction, commitTime);
             this.pendingCommitTasks.add(task);
             return task;
         } finally {
@@ -400,7 +406,6 @@ public class CommitProvider
             if (task != null) {
                 this.pendingCommitTasks.remove(task);
             }
-
         }
     }
 
@@ -898,7 +903,7 @@ public class CommitProvider
                 }
             }
 
-            this.lastCommitTime.set(Long.MIN_VALUE);
+            this.lastCommitTime.set(Instant.MIN);
             this.changeListeners.clear();
             this.checkers.clear();
             this.lastCommit = Long.MIN_VALUE;
@@ -1021,7 +1026,7 @@ public class CommitProvider
             sync().get();
             this.writeCompletionService.stop();
             this.dataStoreId = Optional.empty();
-            this.lastCommitTime.set(Long.MIN_VALUE);
+            this.lastCommitTime.set(Instant.MIN);
             this.changeListeners.clear();
             this.checkers.clear();
             this.lastCommit = Long.MIN_VALUE;
@@ -1225,16 +1230,20 @@ public class CommitProvider
         return this.stampCommentMap.getStampCommentStream();
     }
 
-    protected long getTimeForCommit() {
-        long commitTime = System.currentTimeMillis();
+    @Override
+    public Instant getTimeForCommit() {
+        Instant commitTime = Instant.now();
 
         //Make it impossible to have two commits happen in the same MS - because this messes up the RelativePositionCalculator
         //This could probably be done without a sync block, if I wanted to be clever enough, but I'm sure it won't matter...
+        // TODO: sort this out on another day... There is a use case for supporting multiple commits at the same instants.
+        // For example, releasing multiple concurrent editions.
         synchronized (lastCommitTime) {
-            if (commitTime > lastCommitTime.get()) {
+            if (commitTime.isAfter(lastCommitTime.get())) {
                 lastCommitTime.set(commitTime);
             } else {
-                commitTime = lastCommitTime.incrementAndGet();
+                lastCommitTime.set(lastCommitTime.get().plusMillis(1));
+                commitTime = lastCommitTime.get();
             }
         }
         return commitTime;

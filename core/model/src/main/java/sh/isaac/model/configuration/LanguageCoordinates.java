@@ -304,7 +304,7 @@ public class LanguageCoordinates {
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
       
-      coordinate.setNextProrityLanguageCoordinate(getSpanishLanguageFullySpecifiedNameCoordinate());
+      coordinate.setNextPriorityLanguageCoordinate(getSpanishLanguageFullySpecifiedNameCoordinate());
       
       return coordinate;
    }
@@ -325,7 +325,7 @@ public class LanguageCoordinates {
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
-      coordinate.setNextProrityLanguageCoordinate(getSpanishLanguagePreferredTermCoordinate());
+      coordinate.setNextPriorityLanguageCoordinate(getSpanishLanguagePreferredTermCoordinate());
       
       return coordinate;
    }
@@ -339,7 +339,7 @@ public class LanguageCoordinates {
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
-      coordinate.setNextProrityLanguageCoordinate(getFullyQualifiedCoordinate());
+      coordinate.setNextPriorityLanguageCoordinate(getFullyQualifiedCoordinate());
       
       return coordinate;
    }
@@ -358,7 +358,7 @@ public class LanguageCoordinates {
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
-      coordinate.setNextProrityLanguageCoordinate(getRegularNameCoordinate());
+      coordinate.setNextPriorityLanguageCoordinate(getRegularNameCoordinate());
       
       return coordinate;
    }
@@ -366,7 +366,7 @@ public class LanguageCoordinates {
    /**
     * A coordinate that completely ignores language - descriptions ranked by this coordinate will only be ranked by
     * description type and module preference.  This coordinate is primarily useful as a fallback coordinate for the final 
-    * {@link LanguageCoordinate#getNextProrityLanguageCoordinate()} in a chain
+    * {@link LanguageCoordinate#getNextPriorityLanguageCoordinate()} in a chain
     * 
     * See {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, java.util.List, LanguageCoordinate)}
     *
@@ -391,7 +391,7 @@ public class LanguageCoordinates {
    /**
     * A coordinate that completely ignores language - descriptions ranked by this coordinate will only be ranked by
     * description type and module preference.  This coordinate is primarily useful as a fallback coordinate for the final 
-    * {@link LanguageCoordinate#getNextProrityLanguageCoordinate()} in a chain
+    * {@link LanguageCoordinate#getNextPriorityLanguageCoordinate()} in a chain
     * 
     * See {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, java.util.List, LanguageCoordinate)}
     *

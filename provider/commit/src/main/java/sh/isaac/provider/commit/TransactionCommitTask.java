@@ -30,6 +30,8 @@ public class TransactionCommitTask extends CommitTask {
     /** The pending stamps for commit. */
     private final TransactionImpl transaction;
 
+    private final Instant commitTime;
+
     //~--- constructors --------------------------------------------------------
 
     /**
@@ -44,12 +46,13 @@ public class TransactionCommitTask extends CommitTask {
                                   CommitProvider commitProvider,
                              ConcurrentSkipListSet<ChangeChecker> checkers,
                              ConcurrentSkipListSet<AlertObject> alertCollection,
-                             TransactionImpl transaction) {
+                             TransactionImpl transaction, Instant commitTime) {
         this.commitComment = commitComment;
         this.commitProvider = commitProvider;
         this.checkers               = checkers;
         this.alertCollection = alertCollection;
         this.transaction = transaction;
+        this.commitTime = commitTime;
         addToTotalWork(transaction.getCheckCountForTransaction());
         updateTitle("Commit");
         updateMessage(commitComment);
@@ -71,9 +74,7 @@ public class TransactionCommitTask extends CommitTask {
             if (!this.transaction.readyToCommit(this.checkers, this.alertCollection, this)) {
                 return Optional.empty();
             }
-
-            long commitTime = this.commitProvider.getTimeForCommit();
-            Task<Void> stampCommitTask = Get.stampService().commit(this.transaction, commitTime);
+            Task<Void> stampCommitTask = Get.stampService().commit(this.transaction, commitTime.toEpochMilli());
             stampCommitTask.get();
 
 
@@ -81,7 +82,7 @@ public class TransactionCommitTask extends CommitTask {
                 if (this.commitComment != null) {
                     transaction.getStampsForTransaction().stream().forEach((stamp) -> commitProvider.addComment(stamp, this.commitComment));
                 }
-                final CommitRecord commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime),
+                final CommitRecord commitRecord = new CommitRecord(commitTime,
                         StampSequenceSet.of(transaction.getStampsForTransaction()),
                         new OpenIntIntHashMap(),
                         transaction.getComponentNidsForTransaction(),
@@ -112,22 +113,24 @@ public class TransactionCommitTask extends CommitTask {
      * @param checkers the checkers
      * @param transaction the transaction
      * @param commitProvider the commit provider
+     * @param commitTime the time to record for the commited records...
      * @return a CommitTaskGlobal3, where calling get() on the task will return an optional - if populated, the commit was successfully handled.
      * If the get() returns an Optional.empty(), then the commit failed the change checkers.  Calling {@link TransactionCommitTask#getAlerts()} will
      * provide the details on the failed change checkers.
      */
+
     public static TransactionCommitTask get(
             String commitComment,
             CommitProvider commitProvider,
             ConcurrentSkipListSet<ChangeChecker> checkers,
             ConcurrentSkipListSet<AlertObject> alertCollection,
-            TransactionImpl transaction) {
+            TransactionImpl transaction, Instant commitTime) {
         final TransactionCommitTask task = new TransactionCommitTask(
                 commitComment,
                 commitProvider,
                 checkers,
                 alertCollection,
-                transaction);
+                transaction, commitTime);
         commitProvider.getPendingCommitTasks().add(task);
         Get.activeTasks().add(task);
         try {
@@ -137,4 +140,5 @@ public class TransactionCommitTask extends CommitTask {
             Get.activeTasks().remove(task);
             throw e;
         }
-    }}
+    }
+}

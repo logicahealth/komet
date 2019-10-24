@@ -61,6 +61,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.xml.StampPathAdaptor;
 import sh.isaac.model.xml.StampTimeAdaptor;
 
@@ -189,6 +191,25 @@ public class StampPositionImpl
       return sb.toString();
    }
 
+
+   public String toUserString() {
+      final StringBuilder sb = new StringBuilder();
+
+
+      if (this.time == Long.MAX_VALUE) {
+         sb.append("latest");
+      } else if (this.time == Long.MIN_VALUE) {
+         sb.append("CANCELED");
+      } else {
+         sb.append(getTimeAsInstant());
+      }
+
+      sb.append(" on '")
+              .append(Get.conceptDescriptionText(this.stampPathConceptSpecification));
+      return sb.toString();
+   }
+
+
    //~--- get methods ---------------------------------------------------------
 
    /**
@@ -279,7 +300,15 @@ public class StampPositionImpl
    public StampPosition deepClone() {
       return new StampPositionImpl(time, stampPathConceptSpecification);
    }
-   
-   
+
+   public final void putExternal(ByteArrayDataBuffer out) {
+      out.putLong(this.time);
+      out.putNid(this.stampPathConceptSpecification.getNid());
+   }
+
+   public static final StampPositionImpl make(ByteArrayDataBuffer data) {
+      return new StampPositionImpl(data.getLong(), Get.conceptSpecification(data.getNid()));
+   }
+
 }
 

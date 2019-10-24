@@ -178,5 +178,11 @@ public interface StampCoordinate
      * stamp coordinate.
      */
     NidSet getAuthorNids();
+
+    /**
+     *
+     * @return multi-line string output suitable for presentation to user, as opposed to use in debugging.
+     */
+    String toUserString();
 }
 

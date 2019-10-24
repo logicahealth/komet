@@ -92,6 +92,14 @@ public interface EditCoordinate extends Coordinate {
    
    @Override
    EditCoordinate deepClone();
+
+   default String toUserString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append("author: ").append(Get.conceptDescriptionText(getAuthorNid())).append("\n");
+      sb.append("module: ").append(Get.conceptDescriptionText(getModuleNid())).append("\n");
+      sb.append("path: ").append(Get.conceptDescriptionText(getPathNid())).append("\n");
+      return sb.toString();
+   }
    
 }
 

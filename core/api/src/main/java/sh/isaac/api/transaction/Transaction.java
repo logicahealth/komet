@@ -8,6 +8,7 @@ import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.observable.ObservableVersion;
 
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -34,7 +35,19 @@ public interface Transaction {
 
     CommitTask commit(String comment);
 
+    /**
+     * Use when a specific commit time is required, such as when
+     * managing a classification run, and commit of inferred results.
+     *
+     * @param comment
+     * @param commitTime
+     * @return
+     */
+    CommitTask commit(String comment, Instant commitTime);
+
     CommitTask commit(String comment, ConcurrentSkipListSet<AlertObject> alertCollection);
+
+    CommitTask commit(String comment, ConcurrentSkipListSet<AlertObject> alertCollection, Instant commitTime);
 
     CommitTask commitObservableVersions(String commitComment, ObservableVersion... versionsToCommit);
 

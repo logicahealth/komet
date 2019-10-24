@@ -52,6 +52,12 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableStampCoordinateImpl;
 
 /**
  * The Class ManifoldCoordinateImpl.
@@ -65,15 +71,15 @@ public class ManifoldCoordinateImpl
    PremiseType taxonomyPremiseType;
 
    /** The stamp coordinate. */
-   StampCoordinate stampCoordinate;
-   
-   StampCoordinate destinationStampCoordinate;
+   StampCoordinateImpl stampCoordinate;
+
+   StampCoordinateImpl destinationStampCoordinate;
 
    /** The language coordinate. */
-   LanguageCoordinate languageCoordinate;
+   LanguageCoordinateImpl languageCoordinate;
 
    /** The logic coordinate. */
-   LogicCoordinate logicCoordinate;
+   LogicCoordinateImpl logicCoordinate;
    
    private Function<int[], int[]> customSorter = null;
 
@@ -84,6 +90,22 @@ public class ManifoldCoordinateImpl
    private ManifoldCoordinateImpl() {
       // for jaxb
    }
+
+    public ManifoldCoordinateImpl(ByteArrayDataBuffer data) {
+        this.taxonomyPremiseType = PremiseType.valueOf(data.getUTF());
+        this.stampCoordinate = StampCoordinateImpl.make(data);
+        this.destinationStampCoordinate = StampCoordinateImpl.make(data);
+        this.languageCoordinate = LanguageCoordinateImpl.make(data);
+        this.logicCoordinate = LogicCoordinateImpl.make(data);
+    }
+
+    public final void putExternal(ByteArrayDataBuffer out) {
+       out.putUTF(this.taxonomyPremiseType.name());
+       this.stampCoordinate.putExternal(out);
+       this.destinationStampCoordinate.putExternal(out);
+       this.languageCoordinate.putExternal(out);
+       this.logicCoordinate.putExternal(out);
+    }
 
    /**
     * Instantiates a new taxonomy coordinate impl.
@@ -97,11 +119,38 @@ public class ManifoldCoordinateImpl
                                  StampCoordinate stampCoordinate,
                                  LanguageCoordinate languageCoordinate,
                                  LogicCoordinate logicCoordinate) {
+       if (stampCoordinate instanceof ObservableStampCoordinateImpl) {
+           stampCoordinate = ((ObservableStampCoordinateImpl) stampCoordinate).getStampCoordinate();
+       }
+       if (languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
+           languageCoordinate = ((ObservableLanguageCoordinateImpl) languageCoordinate).getLanguageCoordinate();
+       }
+       if (logicCoordinate instanceof ObservableLogicCoordinate) {
+           logicCoordinate = ((ObservableLogicCoordinate) logicCoordinate).getLogicCoordinate();
+       }
       this.taxonomyPremiseType       = taxonomyType;
-      this.stampCoordinate    = stampCoordinate;
-      this.destinationStampCoordinate = stampCoordinate;
-      this.languageCoordinate = languageCoordinate;
-      this.logicCoordinate    = logicCoordinate;
+       if (stampCoordinate instanceof ManifoldCoordinate) {
+           stampCoordinate = ((ManifoldCoordinate) stampCoordinate).getStampCoordinate();
+       }
+       if (stampCoordinate instanceof ObservableStampCoordinate) {
+           stampCoordinate = ((ObservableStampCoordinate) stampCoordinate).getStampCoordinate();
+       }
+      this.stampCoordinate    = (StampCoordinateImpl) stampCoordinate;
+      this.destinationStampCoordinate = (StampCoordinateImpl) stampCoordinate;
+       if (languageCoordinate instanceof ManifoldCoordinate) {
+           languageCoordinate = ((ManifoldCoordinate) languageCoordinate).getLanguageCoordinate();
+       }
+      if (languageCoordinate instanceof ObservableLanguageCoordinate) {
+          languageCoordinate = ((ObservableLanguageCoordinate) languageCoordinate).getLanguageCoordinate();
+      }
+      this.languageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
+       if (logicCoordinate instanceof ManifoldCoordinate) {
+           logicCoordinate = ((ManifoldCoordinate) logicCoordinate).getLogicCoordinate();
+       }
+       if (logicCoordinate instanceof ObservableLogicCoordinate) {
+           logicCoordinate = ((ObservableLogicCoordinate) logicCoordinate).getLogicCoordinate();
+       }
+      this.logicCoordinate    = (LogicCoordinateImpl) logicCoordinate;
       //this.uuid               //lazy load
    }
    
@@ -121,10 +170,10 @@ public class ManifoldCoordinateImpl
                                  LanguageCoordinate languageCoordinate,
                                  LogicCoordinate logicCoordinate) {
       this.taxonomyPremiseType       = taxonomyType;
-      this.stampCoordinate    = stampCoordinate;
-      this.destinationStampCoordinate = destinationStampCoordinate == null ? stampCoordinate : destinationStampCoordinate;
-      this.languageCoordinate = languageCoordinate;
-      this.logicCoordinate    = logicCoordinate;
+      this.stampCoordinate    = (StampCoordinateImpl) stampCoordinate;
+      this.destinationStampCoordinate = (StampCoordinateImpl) (destinationStampCoordinate == null ? stampCoordinate : destinationStampCoordinate);
+      this.languageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
+      this.logicCoordinate    = (LogicCoordinateImpl) logicCoordinate;
       //this.uuid               //lazy load
    }
    

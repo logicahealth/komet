@@ -347,5 +347,10 @@ public class ObservableStampCoordinateImpl
     public NidSet getAuthorNids() {
         return this.stampCoordinate.getAuthorNids();
     }
+
+    @Override
+    public String toUserString() {
+        return stampCoordinate.toUserString();
+    }
 }
 

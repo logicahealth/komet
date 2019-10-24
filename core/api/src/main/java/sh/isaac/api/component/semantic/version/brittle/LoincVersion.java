@@ -118,7 +118,7 @@ public interface LoincVersion extends BrittleVersion {
             getTimeAspect()};
       
       if (getFieldTypes().length != temp.length) {
-         throw new RuntimeException("Mispecified brittle!");
+         throw new RuntimeException("Misspecified brittle!");
       }
       return temp;
    }

@@ -104,6 +104,13 @@ public interface LogicCoordinate extends Coordinate {
     * @return the nid for the assemblage within which the concepts to be classified are defined within. 
     */
    int getConceptAssemblageNid();
-   
+
+
+   /**
+    *
+    * @return multi-line string output suitable for presentation to user, as opposed to use in debugging.
+    */
+   String toUserString();
+
 }
 

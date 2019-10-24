@@ -90,7 +90,7 @@ public class FullClassification
                editCoordinate.getModuleNid());
 
          final Task<ClassifierResults> classifyTask =
-            logicService.getClassifierService(StampCoordinates.getDevelopmentLatest(),
+            logicService.getClassifierService(StampCoordinates.getDevelopmentLatestActiveOnly(),
                                               LogicCoordinates.getStandardElProfile(),
                                               editCoordinate)
                         .classify();

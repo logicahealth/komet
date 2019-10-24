@@ -657,7 +657,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
         Platform.runLater(()
                 -> {
             try {
-                if (!ssh.isCancelled()) {
+                if (ssh != null && !ssh.isCancelled()) {
                     Collection<CompositeQueryResult> results = ssh.getResults();
 
                     searchResults.getItems().addAll(results);

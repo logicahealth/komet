@@ -43,6 +43,7 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 /**
  * The Enum StampPrecedence.
@@ -124,5 +125,14 @@ public enum StampPrecedence {
         }
         throw new IllegalStateException("No prededence for: " + spec);
     }
+
+    public final void putExternal(ByteArrayDataBuffer out) {
+        out.putUTF(this.name());
+    }
+
+    public static final StampPrecedence make(ByteArrayDataBuffer data) {
+        return StampPrecedence.valueOf(data.getUTF());
+    }
+
 }
 

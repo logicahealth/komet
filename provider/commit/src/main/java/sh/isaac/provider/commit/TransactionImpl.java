@@ -16,6 +16,7 @@ import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.transaction.Transaction;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -144,10 +145,19 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
         return commit(comment, new ConcurrentSkipListSet<AlertObject>());
     }
 
+    @Override
+    public CommitTask commit(String comment, Instant commitTime) {
+        return commit(comment, new ConcurrentSkipListSet<AlertObject>());
+    }
+
 
     @Override
     public CommitTask commit(String comment, ConcurrentSkipListSet<AlertObject> alertCollection) {
         return Get.commitService().commit(this, comment, alertCollection);
+    }
+
+    public CommitTask commit(String comment, ConcurrentSkipListSet<AlertObject> alertCollection, Instant commitTime) {
+        return Get.commitService().commit(this, comment, alertCollection, commitTime);
     }
 
     @Override

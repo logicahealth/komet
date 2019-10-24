@@ -53,6 +53,7 @@ import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.transaction.Transaction;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Stream;
@@ -98,7 +99,7 @@ public interface CommitService
    Task<Void> addUncommitted(Transaction transaction, Version version);
 
    /**
-    * TODO remove and depend on transaction?
+    * TODO remove and depend on transaction? Make it a private interface or service for transactions?
     *
     * @param transaction
     * @param chronology
@@ -118,6 +119,8 @@ public interface CommitService
     */
    CommitTask commit(Transaction transaction, String commitComment, ConcurrentSkipListSet<AlertObject> alertCollection);
 
+   CommitTask commit(Transaction transaction, String commitComment,
+                     ConcurrentSkipListSet<AlertObject> alertCollection, Instant commitTime);
 
    /**
     * Import a object and immediately write to the proper service with no checks of any type performed.
@@ -241,5 +244,12 @@ public interface CommitService
     * @return a new transaction that will perform tests depending on value of performTests.
     */
    Transaction newTransaction(ChangeCheckerMode changeCheckerMode);
+
+   /**
+    * @return a current Instant that can be used as a commit time for a long-lived process, such as
+    * wanting to commit the results of a classification process at the time of the stamp position used
+    * to determine current axioms.
+    */
+   Instant getTimeForCommit();
 }
 

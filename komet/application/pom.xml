@@ -248,6 +248,12 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>classification</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>sh.isaac.core</groupId>
             <artifactId>metacontent</artifactId>
             <version>${project.parent.version}</version>

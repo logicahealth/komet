@@ -207,9 +207,9 @@ public class ConceptChronologyImpl
       builder.append(toUserString());
       builder.append(" <");
       builder.append(getNid());
-      builder.append(">[");
-      builder.append(getPrimordialUuid());
-      builder.append("] \n");
+      builder.append(">");
+      builder.append(getUuidList());
+      builder.append(" \n");
       for (Version v: getVersionList()) {
          builder.append("   ");
          builder.append(v);
@@ -226,7 +226,10 @@ public class ConceptChronologyImpl
       builder.append(toUserString());
       builder.append(" <");
       builder.append(getNid());
-      builder.append("> \n");
+      builder.append("> ");
+      builder.append(getUuidList());
+      builder.append(" \n");
+
       for (Version v: getVersionList()) {
          builder.append("   ");
          builder.append(v);

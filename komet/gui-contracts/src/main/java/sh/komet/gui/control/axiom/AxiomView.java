@@ -519,7 +519,10 @@ public class AxiomView {
                         titleLabel.setGraphic(Iconography.ROLE_GROUP.getIconographic());
                         StringBuilder builder = new StringBuilder();
 
-                        for (LogicNode descendentNode : roleNode.getDescendents()) {
+                        AbstractLogicNode[] descendents = roleNode.getDescendents();
+                        // apply sort here for particular cases...
+
+                        for (LogicNode descendentNode : descendents) {
                             if (descendentNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
                                 ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) descendentNode;
                                 builder.append("[");

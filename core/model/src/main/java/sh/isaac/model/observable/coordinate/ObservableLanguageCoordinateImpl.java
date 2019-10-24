@@ -190,7 +190,7 @@ public final class ObservableLanguageCoordinateImpl
     public ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty() {
         if (this.nextProrityLanguageCoordinateProperty == null) {
             ObservableLanguageCoordinate nextPriorityLanguageCoordinate = null;
-            Optional<LanguageCoordinate> nextPriorityOption = languageCoordinate.getNextProrityLanguageCoordinate();
+            Optional<LanguageCoordinate> nextPriorityOption = languageCoordinate.getNextPriorityLanguageCoordinate();
             if (nextPriorityOption.isPresent()) {
                 nextPriorityLanguageCoordinate = new ObservableLanguageCoordinateImpl(nextPriorityOption.get());
             }
@@ -221,10 +221,10 @@ public final class ObservableLanguageCoordinateImpl
     }
 
     /**
-     * @see sh.isaac.api.coordinate.LanguageCoordinate#getNextProrityLanguageCoordinate()
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getNextPriorityLanguageCoordinate()
      */
     @Override
-    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+    public Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
         return Optional.ofNullable(nextProrityLanguageCoordinateProperty().get());
     }
 

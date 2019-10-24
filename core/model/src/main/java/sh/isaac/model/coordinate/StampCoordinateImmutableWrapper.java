@@ -131,4 +131,9 @@ public class StampCoordinateImmutableWrapper implements StampCoordinate {
     public NidSet getAuthorNids() {
         return stampCoordinate.getAuthorNids();
     }
+
+    @Override
+    public String toUserString() {
+        return this.stampCoordinate.toUserString();
+    }
 }

@@ -205,12 +205,35 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
         if (Get.assemblageService().hasSemantic(semanticNid)) {
             semanticChronicle = (SemanticChronologyImpl) Get.assemblageService()
                     .getSemanticChronology(semanticNid);
-            
-            if ((semanticChronicle.getVersionType() != this.semanticType)
-                    || !semanticChronicle.isIdentifiedBy(getPrimordialUuid())
-                    || (semanticChronicle.getAssemblageNid() != this.assemblageId)
-                    || (semanticChronicle.getReferencedComponentNid() != this.referencedComponentNid)) {
-                throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing semantic!");
+
+            if ((semanticChronicle.getVersionType() != this.semanticType)) {
+                throw new RuntimeException("1. Builder is being used to attempt a mis-matched edit of an existing semantic! \n" +
+                        "Version types do not match: " + semanticChronicle.getVersionType() + " " + this.semanticType + "\n" +
+                        semanticChronicle + "\n" + this.toString());
+            }
+            if (!semanticChronicle.isIdentifiedBy(getPrimordialUuid())) {
+                throw new RuntimeException("2. Builder is being used to attempt a mis-matched edit of an existing semantic! \n" +
+                        "UUID mismatch: " + semanticChronicle.getPrimordialUuid() + " vs " + this.getPrimordialUuid() + "\n" +
+                        semanticChronicle + "\n" + this.toString());
+            }
+            if (semanticChronicle.getAssemblageNid() != this.assemblageId) {
+                throw new RuntimeException("3. Builder is being used to attempt a mis-matched edit of an existing semantic! \n" +
+                        " Assemblage nids do not match: " +
+                        Get.identifierService().getUuidPrimordialStringForNid(semanticChronicle.getAssemblageNid()) +
+                        " vs " +
+                        Get.identifierService().getUuidPrimordialStringForNid(this.assemblageId) + "\n" +
+                        semanticChronicle + "\n" + this.toString());
+            }
+            if (semanticChronicle.getReferencedComponentNid() != this.referencedComponentNid) {
+                LOG.error("UUID info before throw: " + this.getUuidList());
+                throw new RuntimeException("4. Builder is being used to attempt a mis-matched edit of an existing semantic! \n" +
+                        " Referenced component nids do not match: " +
+                        Get.identifierService().getUuidPrimordialStringForNid(semanticChronicle.getReferencedComponentNid()) +
+                        " vs " +
+                        Get.identifierService().getUuidPrimordialStringForNid(this.referencedComponentNid) + "\n" +
+                        Get.conceptDescriptionText(semanticChronicle.getReferencedComponentNid()) + "\n" +
+                        Get.conceptDescriptionText(this.referencedComponentNid) + "\n" +
+                        semanticChronicle + "\n" + this.toString());
             }
         } else {
             semanticChronicle = new SemanticChronologyImpl(this.semanticType,

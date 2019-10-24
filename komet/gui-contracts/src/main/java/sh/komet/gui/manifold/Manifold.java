@@ -115,7 +115,8 @@ public class Manifold
 
    public enum ManifoldGroup {UNLINKED("unlinked"), SEARCH("search"), 
    TAXONOMY("taxonomy"), FLWOR("flwor"), CLINICAL_STATEMENT("statement"),
-   CORRELATION("correlation"), KOMET("KOMET");
+   CORRELATION("correlation"), KOMET("KOMET"), CLASSIFICATON("classification");
+
       private String groupName;
       private UUID groupUuid;
       private ManifoldGroup(String groupName) {
@@ -144,12 +145,13 @@ public class Manifold
    //~--- static initializers -------------------------------------------------
 
    static {
-      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.UNLINKED.getGroupName(), () -> new Label());
-      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.SEARCH.getGroupName(), () -> Iconography.SIMPLE_SEARCH.getIconographic());
-      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.TAXONOMY.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
-      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.FLWOR.getGroupName(), () -> Iconography.FLWOR_SEARCH.getIconographic());
-      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.CORRELATION.getGroupName(), () -> new Label("C"));
-      ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.KOMET.getGroupName(), () -> new Label("K"));
+       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.UNLINKED.getGroupName(), () -> new Label());
+       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.SEARCH.getGroupName(), () -> Iconography.SIMPLE_SEARCH.getIconographic());
+       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.TAXONOMY.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
+       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.FLWOR.getGroupName(), () -> Iconography.FLWOR_SEARCH.getIconographic());
+       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.CORRELATION.getGroupName(), () -> new Label("C"));
+       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.KOMET.getGroupName(), () -> new Label("K"));
+       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.CLASSIFICATON.getGroupName(), () -> Iconography.INFERRED.getIconographic());
    }
 
    //~--- fields --------------------------------------------------------------
@@ -457,8 +459,8 @@ public class Manifold
    }
 
     @Override
-    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        return this.observableManifoldCoordinate.getNextProrityLanguageCoordinate();
+    public Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
+        return this.observableManifoldCoordinate.getNextPriorityLanguageCoordinate();
     }
 
     @Override

@@ -37,24 +37,19 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
+import sh.isaac.model.logic.ClassifierResultsImpl;
 
 /**
  * {@link CycleCheck}
@@ -69,14 +64,20 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	private Logger log = LogManager.getLogger();
 	private ManifoldCoordinate mc;
 	private HashSet<Integer> orphans = new HashSet<>();
+	private final StampCoordinate stampCoordinate;
+	private final LogicCoordinate logicCoordinate;
+	private final EditCoordinate editCoordinate;
 	
 	/**
 	 * Set up a new cycle checker task
 	 * @param stampCoordinate
 	 * @param logicCoordinate
 	 */
-	public CycleCheck(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate)
+	public CycleCheck(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate)
 	{
+		this.stampCoordinate = stampCoordinate;
+		this.logicCoordinate = logicCoordinate;
+		this.editCoordinate = editCoordinate;
 		updateTitle("Cycle Check");
 		mc = new ManifoldCoordinateImpl(PremiseType.STATED, stampCoordinate, LanguageCoordinates.getFullyQualifiedCoordinate(), logicCoordinate);
 	}
@@ -105,7 +106,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 			if (results.size() > 0)
 			{
 				log.info("Found {} concepts with cycles in their path to root", results.size());
-				return new ClassifierResults(results, orphans);
+				return new ClassifierResultsImpl(results, orphans, stampCoordinate, logicCoordinate, editCoordinate);
 			}
 			else
 			{
@@ -159,9 +160,10 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	}
 
 	/**
+	 *
 	 * @param path
-	 * @param parent
-	 * @param nid
+	 * @param nidOnPathToRoot
+	 * @param startNid
 	 * @param ts
 	 * @return
 	 */
