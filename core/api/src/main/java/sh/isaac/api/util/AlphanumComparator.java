@@ -37,7 +37,7 @@ public class AlphanumComparator implements Comparator<String>
     /**
      * Create a new instance of an AlphanumComparator.
      *
-     * @param caseSensitive
+     * @param ignoreCase
      */
     public AlphanumComparator(boolean ignoreCase)
     {
@@ -48,7 +48,8 @@ public class AlphanumComparator implements Comparator<String>
      * Get a reference to a cached, shared instance. Good for reuse, but would have multithreading issues if many threads are trying to sort at the
      * same time.
      *
-     * @param caseSensitive
+     * @param ignoreCase
+     * @return a comparator
      */
     public static synchronized AlphanumComparator getCachedInstance(boolean ignoreCase)
     {
