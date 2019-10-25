@@ -25,16 +25,14 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.mahout.math.Arrays;
+import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
@@ -106,14 +104,38 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  //We cannot skip inactive records when importing snapshot_active_only, because we will end up with the wrong date
                  //on the logic graph, since it combines all of these records into a single graph.
                  UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
+                 UUID destinationUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_DESTINATION_NID_INDEX]);
+                 UUID relTypeUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_TYPE_NID_INDEX]);
                  if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                      if (!identifierService.hasUuid(referencedConceptUuid)) {
-                         // if concept was not imported because inactive then skip
+                         // if concept was not imported because inactive then skip, we wouldn't process this row.
                          continue;
+                     }
+                     if (!identifierService.hasUuid(destinationUuid)) {
+                         //This is trickier - if its inactive, will point at a placeholder, so we can load, and keep the timestamp.
+                         //If its active, I think that is just an error, and will fail for now. 
+                         if (state == Status.INACTIVE) {
+                            destinationUuid = MetaData.UNINITIALIZED_COMPONENT____SOLOR.getPrimordialUuid();
+                         }
+                         else {
+                            throw new RuntimeException("Unexpected case of snapshot active only with an active rel that references a missing destination:" 
+                                  + Arrays.toString(relationshipRecord));
+                         }
+                     }
+                     if (!identifierService.hasUuid(relTypeUuid)) {
+                         //This is trickier - if its inactive, will point at a placeholder, so we can load, and keep the timestamp.
+                         //If its active, I think that is just an error, and will fail for now. 
+                         if (state == Status.INACTIVE) {
+                             relTypeUuid = MetaData.UNINITIALIZED_COMPONENT____SOLOR.getPrimordialUuid();
+                         }
+                         else {
+                            throw new RuntimeException("Unexpected case of snapshot active only with an active rel that references a missing reltype:" 
+                                  + Arrays.toString(relationshipRecord));
+                         }
                      }
                  }
 
-                 UUID betterRelUuid, moduleUuid, destinationUuid, relTypeUuid, relCharacteristicUuid, relModifierUuid;
+                 UUID betterRelUuid, moduleUuid, relCharacteristicUuid, relModifierUuid;
                  TemporalAccessor accessor;
 
                  betterRelUuid = UuidT5Generator.get(
@@ -126,8 +148,6 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                                  + importSpecification.streamType
                  );
                  moduleUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_MODULE_SCTID_INDEX]);
-                 destinationUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_DESTINATION_NID_INDEX]);
-                 relTypeUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_TYPE_NID_INDEX]);
                  relCharacteristicUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_CHARACTERISTIC_NID_INDEX]);
                  relModifierUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_MODIFIER_NID_INDEX]);
                  accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(relationshipRecord[RF2_EFFECTIVE_TIME_INDEX]));
