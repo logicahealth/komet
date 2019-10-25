@@ -41,7 +41,6 @@ import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -206,69 +205,66 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                 
                     Status status = mapStatus(loincRecord[STATUS]);
 
-                    if (status.isActive()) {
+                    int recordStamp = stampService.getStampSequence(status, commitTime, authorNid, moduleNid, pathNid);
+                    // See if the concept is created (from the SNOMED/LOINC expressions. 
+                    UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincRecord[LOINC_NUM]);
+                    int conceptNid = Get.nidWithAssignment(conceptUuid);
+                    Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
+                    if (!optionalConcept.isPresent()) {
 
-                        int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
-                        // See if the concept is created (from the SNOMED/LOINC expressions. 
-                        UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincRecord[LOINC_NUM]);
-                        int conceptNid = Get.nidWithAssignment(conceptUuid);
-                        Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
-                        if (!optionalConcept.isPresent()) {
-
-                            // Need to create new concept, and a stated definition...
-                            LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                            addAxioms(builder, loincRecord, loincAxiomMaker);
-                            
-                            
-                            LogicalExpression logicalExpression = builder.build();
-                            logicalExpression.getNodeCount();
-                            addLogicGraph(loincRecord[LOINC_NUM],
-                                    logicalExpression);
-
-                        }
-                        // make 2 LOINC descriptions
-                        String longCommonName = loincRecord[LONG_COMMON_NAME];
-                        if (longCommonName == null || longCommonName.isEmpty()) {
-                            longCommonName = loincRecord[LOINC_NUM] + " with no lcn";
-                        }
-
-                        addDescription(loincRecord, longCommonName,
-                                TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, true);
-
-                        addDescription(loincRecord, longCommonName,
-                                TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, true);
-
-                        String shortName = loincRecord[SHORTNAME];
-                        if (shortName == null || shortName.isEmpty()) {
-                            shortName = longCommonName + " with no sn";
-                        }
-
-                        if (!shortName.equals(longCommonName)){
-                            addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, false);
-                        }
-
-                        // make a LOINC semantic
-                        UUID loincRecordUuid = UuidT5Generator.get(DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(), loincRecord[LOINC_NUM]);
-
-                        SemanticChronologyImpl recordToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, loincRecordUuid,
-                                DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
-                        MutableDynamicVersion recordVersion = recordToWrite.createMutableVersion(recordStamp);
-                        DynamicData[] data = new DynamicData[] {
-                                new DynamicStringImpl(loincRecord[COMPONENT]),
-                                new DynamicStringImpl(loincRecord[LOINC_NUM]),
-                                new DynamicStringImpl(loincRecord[STATUS]),
-                                new DynamicStringImpl(loincRecord[LONG_COMMON_NAME]),
-                                new DynamicStringImpl(loincRecord[METHOD_TYP]),
-                                new DynamicStringImpl(loincRecord[PROPERTY]),
-                                new DynamicStringImpl(loincRecord[SCALE_TYP]),
-                                new DynamicStringImpl(loincRecord[SHORTNAME]),
-                                new DynamicStringImpl(loincRecord[SYSTEM]),
-                                new DynamicStringImpl(loincRecord[TIME_ASPCT])};
-                        recordVersion.setData(data);
-                        assemblageService.writeSemanticChronology(recordToWrite);
-                        count++;
+                        // Need to create new concept, and a stated definition...
+                        LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                        addAxioms(builder, loincRecord, loincAxiomMaker);
+                        
+                        
+                        LogicalExpression logicalExpression = builder.build();
+                        logicalExpression.getNodeCount();
+                        addLogicGraph(loincRecord[LOINC_NUM],
+                                logicalExpression);
 
                     }
+                    // make 2 LOINC descriptions
+                    String longCommonName = loincRecord[LONG_COMMON_NAME];
+                    if (longCommonName == null || longCommonName.isEmpty()) {
+                        longCommonName = loincRecord[LOINC_NUM] + " with no lcn";
+                    }
+
+                    addDescription(loincRecord, longCommonName,
+                            TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, true);
+
+                    addDescription(loincRecord, longCommonName,
+                            TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, true);
+
+                    String shortName = loincRecord[SHORTNAME];
+                    if (shortName == null || shortName.isEmpty()) {
+                        shortName = longCommonName + " with no sn";
+                    }
+
+                    if (!shortName.equals(longCommonName)){
+                        addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, false);
+                    }
+
+                    // make a LOINC semantic
+                    UUID loincRecordUuid = UuidT5Generator.get(DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(), loincRecord[LOINC_NUM]);
+
+                    SemanticChronologyImpl recordToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, loincRecordUuid,
+                            DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
+                    MutableDynamicVersion recordVersion = recordToWrite.createMutableVersion(recordStamp);
+                    DynamicData[] data = new DynamicData[] {
+                            new DynamicStringImpl(loincRecord[COMPONENT]),
+                            new DynamicStringImpl(loincRecord[LOINC_NUM]),
+                            new DynamicStringImpl(loincRecord[STATUS]),
+                            new DynamicStringImpl(loincRecord[LONG_COMMON_NAME]),
+                            new DynamicStringImpl(loincRecord[METHOD_TYP]),
+                            new DynamicStringImpl(loincRecord[PROPERTY]),
+                            new DynamicStringImpl(loincRecord[SCALE_TYP]),
+                            new DynamicStringImpl(loincRecord[SHORTNAME]),
+                            new DynamicStringImpl(loincRecord[SYSTEM]),
+                            new DynamicStringImpl(loincRecord[TIME_ASPCT])};
+                    recordVersion.setData(data);
+                    assemblageService.writeSemanticChronology(recordToWrite);
+                    count++;
+
                 } catch (NoSuchElementException ex) {
                     noSuchElementList.add(loincRecord);
                 }
@@ -379,7 +375,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
         int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
 
-        final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
+        final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
               Get.identifierService().getNidForUuids(conceptUuid),
                 graphAssemblageNid);
 
@@ -392,7 +388,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
         sb.setPrimordialUuid(generatedGraphPrimordialUuid);
 
-        final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+        final ArrayList<Chronology> builtObjects = new ArrayList<>();
 
         final SemanticChronology sci = (SemanticChronology) sb.build(stamp, builtObjects);
         // There should be no other build objects, so ignore the builtObjects list...
