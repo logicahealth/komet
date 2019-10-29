@@ -286,7 +286,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     private void addAxioms(LogicalExpressionBuilder builder, String[] loincRecord, AxiomsFromLoincRecord loincAxiomMaker) {
         Assertion[] assertions = loincAxiomMaker.make(builder, loincRecord);
         if (assertions.length == 0) {
-            builder.necessarySet(builder.and(builder.conceptAssertion(MetaData.UNCATEGORIZED_LOINC_PHENOMENON____SOLOR)));
+            builder.necessarySet(builder.and(builder.conceptAssertion(MetaData.UNCATEGORIZED_PHENOMENON____SOLOR)));
         } else {
             builder.necessarySet(builder.and(assertions));
         }

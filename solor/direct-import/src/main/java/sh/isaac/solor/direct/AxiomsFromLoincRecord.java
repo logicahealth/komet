@@ -440,8 +440,8 @@ public class AxiomsFromLoincRecord {
             addLoincMethod(builder, loincRecord[LoincWriter.METHOD_TYP], assertions);
         }
 
-        if (!assertions.isEmpty()) {
-            assertions.add(builder.conceptAssertion(MetaData.CATEGORIZED_LOINC_PHENOMENON____SOLOR));
+        if (assertions.isEmpty()) {
+            assertions.add(builder.conceptAssertion(MetaData.UNCATEGORIZED_PHENOMENON____SOLOR));
         }
         return assertions.toArray(new Assertion[assertions.size()]);
     }
