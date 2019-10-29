@@ -124,8 +124,9 @@ public class LanguageCoordinateImpl
         out.putConceptSpecificationArray(this.dialectAssemblageSpecPreferenceList);
         out.putConceptSpecificationArray(this.descriptionTypeSpecPreferenceList);
         out.putConceptSpecificationArray(this.moduleSpecPreferenceList);
-        out.putBoolean(this.nextPriorityLanguageCoordinate == null);
-        if (this.nextPriorityLanguageCoordinate != null) {
+        boolean hasNextPriorityCoordinate = this.nextPriorityLanguageCoordinate != null;
+        out.putBoolean(hasNextPriorityCoordinate);
+        if (hasNextPriorityCoordinate) {
             this.nextPriorityLanguageCoordinate.putExternal(out);
         }
     }

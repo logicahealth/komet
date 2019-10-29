@@ -54,6 +54,7 @@ import javax.xml.bind.annotation.XmlElement;
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.util.UUIDUtil;
 
 //~--- interfaces -------------------------------------------------------------
@@ -97,6 +98,8 @@ public interface StampCoordinate
         b.append(getStampPosition().getTime());
         return UUID.nameUUIDFromBytes(b.toString().getBytes());
     }
+
+    void putExternal(ByteArrayDataBuffer out);
 
     /**
     * Determine what states should be included in results based on this

@@ -143,7 +143,7 @@ public class StampPositionImpl
          return false;
       }
 
-      final StampPosition other = (StampPositionImpl) obj;
+      final StampPosition other = (StampPosition) obj;
 
       if (this.time != other.getTime()) {
          return false;

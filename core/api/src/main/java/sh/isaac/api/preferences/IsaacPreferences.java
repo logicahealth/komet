@@ -520,9 +520,17 @@ public interface IsaacPreferences {
     default Optional<byte[]> getByteArray(String key) {
         Optional<String> optionalValue = get(key);
         if (optionalValue.isPresent()) {
-            return Optional.of(getByteArray(key, null));
+            return Optional.of(getByteArray(key, new byte[0]));
         }
         return Optional.empty();
+    }
+
+    default Optional<byte[]> getByteArray(Enum key) {
+        return getByteArray(enumToGeneralKey(key));
+    }
+
+    default byte[] getByteArray(Enum key, byte[] defaultValue) {
+        return getByteArray(enumToGeneralKey(key), defaultValue);
     }
 
     /**

@@ -75,6 +75,7 @@ import sh.isaac.api.coordinate.LogicCoordinateProxy;
 import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampCoordinateProxy;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
@@ -516,6 +517,11 @@ public class Manifold
     @Override
     public NidSet getAuthorNids() {
         return this.observableManifoldCoordinate.getAuthorNids();
+    }
+
+    @Override
+    public void putExternal(ByteArrayDataBuffer out) {
+        throw new UnsupportedOperationException();
     }
 }
 

@@ -165,7 +165,21 @@ public final class LatestVersion<V> {
    public boolean isPresent() {
       return value != null;
    }
-   
+
+   /**
+    +    * Return false if there is no value present, otherwise, passes the value into the supplied customCheck, and returns that response.
+    +    * @param customCheck The test to run, if the value is present.
+    +    * @return true if present and customCheck returns true, otherwise, false.
+    +    */
+   public boolean isPresentAnd(Predicate<V> customCheck) {
+      if (value == null) {
+         return false;
+      }
+      else {
+         return customCheck.test(value);
+      }
+   }
+
    /**
     * Return true if there is a value absent, otherwise false.
     * @return true if the value absent, otherwise false.

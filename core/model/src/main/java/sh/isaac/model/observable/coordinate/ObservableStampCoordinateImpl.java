@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -115,10 +116,12 @@ public class ObservableStampCoordinateImpl
    public StampCoordinateImpl getStampCoordinate() {
         return stampCoordinate;
    }
-   
-   
 
-   //~--- methods -------------------------------------------------------------
+    @Override
+    public void putExternal(ByteArrayDataBuffer out) {
+        this.stampCoordinate.putExternal(out);
+    }
+    //~--- methods -------------------------------------------------------------
 
    /**
     * Allowed states property.

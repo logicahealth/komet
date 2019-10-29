@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.Collection;
 import java.util.List;
@@ -417,6 +418,11 @@ public class ObservableManifoldCoordinateImpl
     @Override
     public NidSet getAuthorNids() {
         return manifoldCoordinate.getAuthorNids();
+    }
+
+    @Override
+    public void putExternal(ByteArrayDataBuffer out) {
+        throw new UnsupportedOperationException();
     }
 }
 

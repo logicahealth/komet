@@ -49,7 +49,11 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
+import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.tree.TaxonomyAmalgam;
@@ -296,10 +300,31 @@ public class FxGet implements StaticIsaacCache {
     public static ConceptSpecification currentUser() {
         return (ConceptSpecification) SecurityUtils.getSubject().getSession().getAttribute(SessionProperty.USER_SESSION_CONCEPT);
     }
-    
+
+
+
     public static ObservableEditCoordinate editCoordinate() {
         return EditCoordinate.get();
     }
+
+    private static ObservableMap<UuidStringKey, ObservableStampCoordinate>    STAMP_COORDINATES = FXCollections.observableMap(new TreeMap<>());
+    private static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> LANGUAGE_COORDINATES = FXCollections.observableMap(new TreeMap<>());
+    private static ObservableMap<UuidStringKey, ObservableLogicCoordinate>    LOGIC_COORDINATES = FXCollections.observableMap(new TreeMap<>());
+    private static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> MANIFOLD_COORDINATES = FXCollections.observableMap(new TreeMap<>());
+
+    public static ObservableMap<UuidStringKey, ObservableStampCoordinate> stampCoordinates() {
+        return STAMP_COORDINATES;
+    }
+    public static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> languageCoordinates() {
+        return LANGUAGE_COORDINATES;
+    }
+    public static ObservableMap<UuidStringKey, ObservableLogicCoordinate> logicCoordinates() {
+        return LOGIC_COORDINATES;
+    }
+    public static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> manifoldCoordinates() {
+        return MANIFOLD_COORDINATES;
+    }
+
     
     public static ObservableList<String> taxonomyConfigurationNames() {
         return TAXONOMY_CONFIGURATION_KEY_LIST;

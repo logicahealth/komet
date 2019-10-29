@@ -1,4 +1,4 @@
-package sh.isaac.komet.preferences.manifold;
+package sh.isaac.komet.preferences.coordinate;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
@@ -18,11 +18,12 @@ import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.UuidStringKey;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class ManifoldItemPanel extends AbstractPreferences {
+public class ManifoldCoordinateItemPanel extends AbstractPreferences {
     public enum Keys {
         MANIFOLD_NAME,
         MANIFOLD_GROUP_UUID,
@@ -39,12 +40,12 @@ public class ManifoldItemPanel extends AbstractPreferences {
 
     private final Manifold manifoldItem;
 
-    public ManifoldItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
+    private final UuidStringKey itemKey;
+
+
+    public ManifoldCoordinateItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, getGroupName(preferencesNode, "Manifold"), manifold, kpc);
         nameProperty.set(groupNameProperty().get());
-        nameProperty.addListener((observable, oldValue, newValue) -> {
-            groupNameProperty().set(newValue);
-        });
 
         this.manifoldItem = FxGet.manifold(
                 Manifold.ManifoldGroup.getFromGroupUuid(
@@ -65,6 +66,14 @@ public class ManifoldItemPanel extends AbstractPreferences {
                 this.focusWrapper.setValue(newValue);
             }
         });
+        this.itemKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.get());
+        FxGet.manifoldCoordinates().put(itemKey, manifoldItem.getManifoldCoordinate());
+        nameProperty.addListener((observable, oldValue, newValue) -> {
+            groupNameProperty().set(newValue);
+            FxGet.languageCoordinates().remove(itemKey);
+            itemKey.updateString(newValue);
+            FxGet.manifoldCoordinates().put(itemKey, manifoldItem.getManifoldCoordinate());
+        });
     }
 
     @Override
@@ -84,8 +93,10 @@ public class ManifoldItemPanel extends AbstractPreferences {
         if (optionalFocus.isPresent()) {
             Manifold.getGroupFocusProperty(this.nameProperty.get()).set(Get.concept(optionalFocus.get()));
         }
-        manifoldItem.getHistoryRecords().clear();
-        manifoldItem.getHistoryRecords().addAll(getPreferencesNode().getComponentList(Keys.HISTORY_RECORDS));
+        if (!manifoldItem.getHistoryRecords().equals(getPreferencesNode().getComponentList(Keys.HISTORY_RECORDS))) {
+            manifoldItem.getHistoryRecords().clear();
+            manifoldItem.getHistoryRecords().addAll(getPreferencesNode().getComponentList(Keys.HISTORY_RECORDS));
+        }
     }
 
     private static class ComponentProxyEditorStub implements PropertyEditor<ComponentProxy> {

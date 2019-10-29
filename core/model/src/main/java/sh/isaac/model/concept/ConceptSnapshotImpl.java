@@ -64,6 +64,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.configuration.LanguageCoordinates;
@@ -435,6 +436,11 @@ public class ConceptSnapshotImpl
     @Override
     public NidSet getAuthorNids() {
         return manifoldCoordinate.getAuthorNids();
+    }
+
+    @Override
+    public void putExternal(ByteArrayDataBuffer out) {
+        throw new UnsupportedOperationException();
     }
 }
 

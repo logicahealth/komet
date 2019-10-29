@@ -267,12 +267,24 @@ public abstract class AbstractPreferences implements PreferenceGroup {
                 Optional<ObservableValue<? extends Object>> observable = item.getObservableValue();
                 if (observable.isPresent()) {
                     observable.get().addListener((obs, oldValue, newValue) -> {
-                        changed.set(true);
+                        validateChange(oldValue, newValue);
                     });
                 }
             }
         }
         this.propertySheetBorderPane.setCenter(sheet);
+    }
+
+    private void validateChange(Object oldValue, Object newValue) {
+        if (oldValue != newValue) {
+        if (newValue != null) {
+            if (!newValue.equals(oldValue)) {
+                changed.set(true);
+            }
+        } else {
+            changed.set(true);
+        }
+    }
     }
 
     @Override
@@ -285,7 +297,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
 
     protected final void addProperty(ObservableValue<?> observableValue) {
         observableValue.addListener(new WeakChangeListener<>((observable, oldValue, newValue) -> {
-            changed.set(true);
+            validateChange(oldValue, newValue);
         }));
     }
 

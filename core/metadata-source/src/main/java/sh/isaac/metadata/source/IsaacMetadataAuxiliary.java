@@ -823,7 +823,19 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(GIT_USER_NAME);
                   createConcept(GIT_PASSWORD);
                   popParent();
-               createConcept("Manifold properties").setModule(TermAux.KOMET_MODULE);
+               createConcept("Stamp coordinate properties").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                  createConcept("Stamp coordinate name");
+                  popParent();
+               createConcept("Language coordinate properties").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                  createConcept("Language coordinate name");
+                  popParent();
+               createConcept("Logic coordinate properties").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                  createConcept("Logic coordinate name");
+                   popParent();
+               createConcept("Manifold coordinate properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
                   createConcept("Manifold name").setModule(TermAux.KOMET_MODULE);
                   createConcept("Manifold focus").setModule(TermAux.KOMET_MODULE);
@@ -854,6 +866,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(LANGUAGE_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(MODULE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);

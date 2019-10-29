@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -349,6 +350,10 @@ public class ObservableLogicCoordinateImpl
     @Override
     public String toUserString() {
         return logicCoordinate.toUserString();
+    }
+
+    public void putExternal(ByteArrayDataBuffer buff) {
+       this.logicCoordinate.putExternal(buff);
     }
 }
 

@@ -1,5 +1,6 @@
 package sh.isaac.komet.batch.fxml;
 
+import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,11 +11,13 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.ActionCell;
 import sh.isaac.komet.batch.action.UpdateComponentAction;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.UuidStringKey;
 
 import java.io.IOException;
 
@@ -27,6 +30,9 @@ public class CompositeActionNodeController {
     @FXML
     private ChoiceBox<FxGet.ComponentListKey> listChoiceBox;
 
+    @FXML
+    private ChoiceBox<UuidStringKey> stampChoiceBox;
+
 
     private Manifold manifold;
 
@@ -37,6 +43,10 @@ public class CompositeActionNodeController {
         assert actionListView != null : "fx:id=\"actionListView\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
         actionListView.setCellFactory(param -> new ActionCell(actionListView, manifold));
         listChoiceBox.setItems(FxGet.componentListKeys());
+        stampChoiceBox.getItems().setAll(FxGet.stampCoordinates().keySet());
+        FxGet.stampCoordinates().addListener((MapChangeListener<UuidStringKey, ObservableStampCoordinate>) change -> {
+            stampChoiceBox.getItems().setAll(FxGet.stampCoordinates().keySet());
+        });
         //LetPropertySheet letPropertySheet = new LetPropertySheet();
     }
 

@@ -65,6 +65,7 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
             MetaData.FLWOR_QUERY_PANEL____SOLOR,
             MetaData.TAXONOMY_PANEL____SOLOR,
             MetaData.CLASSIFICATION_RESULTS_PANEL____SOLOR,
+            MetaData.COMPOSITE_ACTION_PANEL____SOLOR,
     };
 
     private UUID personaUuid;
