@@ -312,4 +312,11 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		}
 		return ibdfFile.get() != null ? new Path[] { ibdfFile.get() } : new Path[0];
 	}
+	
+	@Override
+	protected boolean IBDFPreloadActiveOnly()
+	{
+		//The loinc tech preview conversion needs some inactive concepts
+		return false;
+	}
 }
