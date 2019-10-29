@@ -230,7 +230,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                 handleMissingIdentifier(token);
             }
             if (nid == MetaData.OBSERVATION____SOLOR.getNid()) {
-                nid = MetaData.PHENOMENON____SOLOR.getNid();
+                nid = MetaData.LOINC_PHENOMENON____SOLOR.getNid();
             }
             assertions.add(builder.conceptAssertion(nid));
             if (tokenizer.hasMoreTokens()) {

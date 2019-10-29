@@ -610,7 +610,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addObservedByMethod(int methodNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
                 
@@ -626,11 +626,11 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addObservesComponent(int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
         
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
         
@@ -643,7 +643,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addInheresInConcept(int inheresInNid, ConceptBuilderService builderService, int stamp) throws IllegalStateException, NoSuchElementException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
         
