@@ -161,8 +161,16 @@ public class LoincTPImportHK2Direct extends DirectConverterBaseMojo implements D
 	@Override
 	protected Collection<VersionType> getIBDFSkipTypes()
 	{
-		//skip descriptions, acceptabilities
-		return  Arrays.asList(new VersionType[] {VersionType.DESCRIPTION, VersionType.COMPONENT_NID});
+		//The tech preview conversion needs descriptions.  We could probably skip some other stuff, but it wouldn't help performance that much...
+		//acceptabilities
+		return  Arrays.asList(new VersionType[] {VersionType.COMPONENT_NID});
+	}
+	
+	@Override
+	protected boolean IBDFPreloadActiveOnly()
+	{
+		//The tech preview conversion needs some inactive concepts
+		return false;
 	}
 
 	/**
