@@ -11,7 +11,7 @@ import java.net.URL;
 
 public class VersionTable {
     final VersionTableController controller;
-    final TableView tableView;
+    final TableView<ObservableChronology> tableView;
     public VersionTable(Manifold manifold) {
         try {
             URL resource = VersionTableController.class.getResource("VersionTable.fxml");

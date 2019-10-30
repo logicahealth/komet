@@ -116,7 +116,8 @@ public class Manifold
 
    public enum ManifoldGroup {UNLINKED("unlinked"), SEARCH("search"), 
    TAXONOMY("taxonomy"), FLWOR("flwor"), CLINICAL_STATEMENT("statement"),
-   CORRELATION("correlation"), KOMET("KOMET"), CLASSIFICATON("classification");
+   CORRELATION("correlation"), KOMET("KOMET"), CLASSIFICATON("classification"),
+       LIST("list");
 
       private String groupName;
       private UUID groupUuid;
@@ -153,6 +154,7 @@ public class Manifold
        ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.CORRELATION.getGroupName(), () -> new Label("C"));
        ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.KOMET.getGroupName(), () -> new Label("K"));
        ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.CLASSIFICATON.getGroupName(), () -> Iconography.INFERRED.getIconographic());
+       ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.LIST.getGroupName(), () -> Iconography.LIST.getIconographic());
    }
 
    //~--- fields --------------------------------------------------------------

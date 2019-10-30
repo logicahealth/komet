@@ -3,7 +3,10 @@ package sh.isaac.komet.batch.fxml;
  * 'ListViewNode.fxml' Controller Class
  */
 
+import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +17,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.util.UUIDUtil;
@@ -26,6 +32,7 @@ import sh.komet.gui.util.FxGet;
 
 import java.io.*;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -53,6 +60,7 @@ public class ListViewNodeController implements ComponentList {
     private DropHelper dropHelper;
 
     private final UUID listId = UUID.randomUUID();
+    private Manifold listManifold;
 
     @FXML
     void initialize() {
@@ -60,12 +68,14 @@ public class ListViewNodeController implements ComponentList {
         assert batchBorderPane != null : "fx:id=\"batchBorderPane\" was not injected: check your FXML file 'ListViewNode.fxml'.";
         this.listName.setText("Unamed " + UUID.randomUUID().toString());
         FxGet.addComponentList(this);
+        this.listManifold = Manifold.make(Manifold.ManifoldGroup.LIST);
     }
 
     public void setManifold(Manifold manifold) {
         this.manifold = manifold;
         this.versionTable = new VersionTable(manifold);
         this.versionTable.getRootNode().getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        this.versionTable.getRootNode().getSelectionModel().selectedItemProperty().addListener(this::selectedItemChanged);
 
         DragAndDropRowFactory dragAndDropRowFactory = new DragAndDropRowFactory();
         this.versionTable.getRootNode().setRowFactory(dragAndDropRowFactory);
@@ -74,6 +84,38 @@ public class ListViewNodeController implements ComponentList {
                 this::addIdentifiedObject, dragEvent -> true, dragAndDropRowFactory::isDragging);
 
         this.batchBorderPane.setCenter(this.versionTable.getRootNode());
+    }
+
+    private void selectedItemChanged(ObservableValue<? extends ObservableChronology> observable,
+                                     ObservableChronology oldValue, ObservableChronology newValue) {
+        if (newValue != null) {
+            IsaacObjectType objectType = newValue.getIsaacObjectType();
+            Chronology chronology = newValue;
+            while (objectType != null) {
+                switch (objectType) {
+                    case CONCEPT:
+                        this.listManifold.setFocusedConceptChronology(Get.concept(chronology.getNid()));
+                        objectType = null;
+                        break;
+                    case SEMANTIC:
+                        SemanticChronology semanticChronology = (SemanticChronology) chronology;
+                        Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService()
+                                .getChronology(semanticChronology.getReferencedComponentNid());
+                        if (optionalChronology.isPresent()) {
+                            chronology = optionalChronology.get();
+                            objectType = chronology.getIsaacObjectType();
+                        } else {
+                            chronology = null;
+                            objectType = null;
+                        }
+                        break;
+                    default:
+                        objectType = null;
+                }
+
+            }
+
+        }
     }
 
     private void addIdentifiedObject(IdentifiedObject object) {

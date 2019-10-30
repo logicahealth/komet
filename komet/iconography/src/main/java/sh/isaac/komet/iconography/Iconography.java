@@ -206,6 +206,7 @@ public enum Iconography implements Icons {
    ARROW_DOWN(MATERIAL_DESIGNS_WEBFONT, "arrow-down"),
    REDO(FONT_AWSOME, "redo"),
    DELETE_TRASHCAN(MATERIAL_ICON, "delete-trashcan"),
+   LIST(MATERIAL_DESIGNS_WEBFONT, "list-icon"),
 
    // MaterialDesignIcon.MENU_DOWN
    // MaterialDesignIcon.MENU_RIGHT
