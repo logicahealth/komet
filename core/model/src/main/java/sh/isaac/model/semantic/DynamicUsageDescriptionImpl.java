@@ -51,10 +51,9 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.Get;
 import sh.isaac.api.StaticIsaacCache;
-import sh.isaac.api.Status;
-import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -154,32 +153,20 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
       }
 
       if (StringUtils.isEmpty(this.semanticUsageDescription)) {
-         if (Get.configurationService().getDBBuildMode().get() == BuildMode.IBDF) {
-            //Non-fatal in this case - we may be building a DB such that the semantic is defined, but the descriptions haven't been loaded.  
-            //Happens in optimized IBDF preload situations.
-            logger.warn(
-                     "The Assemblage concept: " + assemblageConcept +
-                     " is not correctly assembled for use as an Assemblage for " +
-                     "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type " +
-                     "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION");
-         } else {
-            throw new RuntimeException(
-                "The Assemblage concept: " + assemblageConcept +
-                " is not correctly assembled for use as an Assemblage for " +
-                "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type " +
-                "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION");
-         }
+         throw new RuntimeException(
+             "The Assemblage concept: " + assemblageConcept +
+             " is not correctly assembled for use as an Assemblage for " +
+             "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type " +
+             "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION");
       }
 
       Get.assemblageService()
          .getSemanticChronologyStreamForComponent(assemblageConcept.getNid()).forEach(semantic -> {
             if (semantic.getVersionType() == VersionType.DYNAMIC) {
-                @SuppressWarnings("rawtypes")
                 final LatestVersion<? extends DynamicVersion> semanticVersion =
                    ((SemanticChronology) semantic).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
                 if (semanticVersion.isPresent()) {
-                   @SuppressWarnings("rawtypes")
                    final DynamicVersion       ds                  = semanticVersion.get();
                    final DynamicData[] refexDefinitionData = ds.getData();
 
@@ -387,7 +374,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
     */
    public static DynamicUsageDescription mockOrRead(int assemblageNid)
    {
-      if (isDynamicSemantic(assemblageNid))
+      if (isDynamicSemanticFullRead(assemblageNid))
       {
          return read(assemblageNid);
       }
@@ -787,18 +774,50 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
     * Test if dyn semantic.  Note, this only returns true if it is truely a dynamic semantics.
     * Mocked static semantics will not return true.
     * 
-    * True responses are cached, but false responses are not
+    * True responses are cached, but false responses are not.  The Dynamic semantic is fully read and cached, when true.
     *
     * @param assemblageNid the assemblage nid 
     * @return true, if dynamic element
     */
-   public static boolean isDynamicSemantic(int assemblageNid) {
+   public static boolean isDynamicSemanticFullRead(int assemblageNid) {
       try {
          read(assemblageNid);
          return true;
       } catch (final Exception e) {
          return false;
       }
+   }
+   
+   
+   /**
+    * An alternative method to determine if a concept defines a dynamic semantic - which will check the cache for positive hits, but does _NOT_ update the cache
+    * which is useful to not corrupt the cache for patterns where things happen out-of-order, such as certain loader patterns.
+    * This is also faster to check if a concept defines a dynamic semantic, in cases where you don't care about the actual definition.
+    * @param assemblageConceptNid
+    * @return true if dynamic, false otherwise.
+    */
+   public static boolean isDynamicSemanticNoRead(int assemblageConceptNid) {
+      
+      if (dynamicCache.getIfPresent(assemblageConceptNid) != null) {
+         return true;
+      }
+      final ConceptChronology assemblageConcept = Get.conceptService().getConceptChronology(assemblageConceptNid);
+      for (final SemanticChronology descriptionSemantic : assemblageConcept.getConceptDescriptionList()) {
+         final LatestVersion<Version> descriptionVersion = ((SemanticChronology) descriptionSemantic).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+
+         if (descriptionVersion.isPresent()) {
+            final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();
+
+            if (ds.getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+               final Optional<SemanticChronology> nestesdSemantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(ds.getNid(),
+                        DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).findAny();
+               if (nestesdSemantic.isPresent()) {
+                  return true;
+               }
+            }
+         }
+      }
+      return false;
    }
 
    /** 

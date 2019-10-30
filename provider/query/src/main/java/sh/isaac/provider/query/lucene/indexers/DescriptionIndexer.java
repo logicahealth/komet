@@ -38,6 +38,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.Util;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -55,6 +56,7 @@ import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.SemanticTags;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 
@@ -110,6 +112,18 @@ public class DescriptionIndexer extends LuceneIndexer
 			LOG.info("Populating metadata lookup hash");
 			populateMetadataCache(TermAux.SOLOR_METADATA.getNid());
 			LOG.info("System contains " + metadataConcepts.size() + " metadata concepts");
+			
+			//add in any dynamic semantic definition concepts from outside the metadata tree.
+			Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).forEach(semanticC -> {
+				//Dynamic semantics are nested... need to walk up two, to get to the concept...
+				Optional<Integer> nearestConcept = Util.getNearestConcept(semanticC.getNid());
+				if (nearestConcept.isPresent()) {
+					metadataConcepts.add(nearestConcept.get());
+				}
+			});
+			//for full correctness here, one should also include static semantics defined outside the metadata tree - but we don't make any in the rest API, 
+			//and I don't believe KOMET would make use of any queries that would need these indexed as "metadata". 
+			
 		}
 		else {
 			//We will just index without the cache, which is slower, but still accurate.
@@ -160,17 +174,24 @@ public class DescriptionIndexer extends LuceneIndexer
 	private void indexDescription(Document doc,SemanticChronology semanticChronology, Set<Integer> pathNids) {
 		doc.add(new TextField(FIELD_SEMANTIC_ASSEMBLAGE_NID, semanticChronology.getAssemblageNid() + "", Field.Store.NO));
 
-		String							 lastDescText	  = null;
-		String							 lastDescType	  = null;
+		String lastDescText = null;
+		String lastDescType = null;
 
 		boolean isMetadata = false;
 		if (metadataConcepts.size() > 0) {
-			 isMetadata = metadataConcepts.contains(semanticChronology.getReferencedComponentNid());
+			isMetadata = metadataConcepts.contains(semanticChronology.getReferencedComponentNid());
 		}
 		
 		//This is an if instead of an else, to guard against the metadataConcepts cache being emptied during a one-off index op.
 		if (!isMetadata && metadataConcepts.size() == 0){
-			 isMetadata = Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
+			isMetadata = Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
+			
+			if (!isMetadata) {
+				//See if it defines a dynamic semantic, even if outside the metadata tree.
+				isMetadata = DynamicUsageDescriptionImpl.isDynamicSemanticNoRead(semanticChronology.getReferencedComponentNid());
+			}
+			//For full correctness, this should check if it defines a static semantic, outside the metadata tree, but we don't in the rest API, 
+			//and komet doesn't currently use queries that depend on the metadata flag
 		}
 		
 		if (isMetadata) {

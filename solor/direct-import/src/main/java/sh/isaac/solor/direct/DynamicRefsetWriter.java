@@ -194,7 +194,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 						//See if we already know the SCTID / refset config due to a dependency preload (we should), or the initial process
 						//of the refset descriptors.  
 						int nid = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
-						if (DynamicUsageDescriptionImpl.isDynamicSemantic(nid))
+						if (DynamicUsageDescriptionImpl.isDynamicSemanticFullRead(nid))
 						{
 							//Should be all configured in the preload / dependencies - all happy - but sanity check the types alignment...
 							DynamicColumnInfo[] dci = DynamicUsageDescriptionImpl.read(nid).getColumnInfo();

@@ -135,7 +135,12 @@ public interface DynamicUtility {
          IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, EditCoordinate editCoord);
    
    /**
-    * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
+    * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage.
+    * 
+    * NOTE!!! If this concept lives outside of the metadata tree, in order to get the proper markers into the lucene indes on ALL of the descriptions 
+    * for this concept, once should reindex all of the descriptions attached to the passed in conceptNid, after writing the results of this call to the 
+    * system.
+    * 
     * See {@link DynamicUsageDescription} class for more details on this format.
     * @param conceptNid - The concept that will define a dynamic semantic
     * @param semanticDescription - The description that describes the purpose of this dynamic semantic

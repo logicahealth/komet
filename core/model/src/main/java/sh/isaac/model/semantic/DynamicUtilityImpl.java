@@ -298,6 +298,11 @@ public class DynamicUtilityImpl
             Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid(), data)
                   .setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid()).build(stampSequence, builtSemantics);
       }
+      
+      //Move the built description semantic to the end of the list, so that the dynamic aspects are earlier than the description, so that when 
+      //the lucene description indexer indexes this description, it will discover that it is a dynamic semantic, rather than falsely thinking it isn't.
+      builtSemantics.add(builtSemantics.remove(0));
+      
       return builtSemantics;
    }
 

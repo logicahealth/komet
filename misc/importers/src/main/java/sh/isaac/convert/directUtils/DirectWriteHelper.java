@@ -962,6 +962,15 @@ public class DirectWriteHelper
 		{
 			indexAndWrite(c);
 		}
+		//Reindex all descriptions on this concept, in case it it outside the metadata tree, and wouldn't otherwise be flagged as a potential
+		//metadata concept (which it is, now that it defines a semantic)
+		for (SemanticChronology sc : Get.assemblageService().getDescriptionsForComponent(identifierService.getNidForUuids(concept))) 
+		{
+			for (IndexBuilderService indexer : indexers)
+			{
+				indexer.indexNow(sc);
+			}
+		}
 	}
 
 	/**

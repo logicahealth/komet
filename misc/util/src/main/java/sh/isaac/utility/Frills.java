@@ -156,6 +156,7 @@ import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.api.TaxonomySnapshot;
+import sh.isaac.api.Util;
 
 /**
  * The Class Frills.
@@ -1861,28 +1862,11 @@ public class Frills
    /**
     * Convenience method to find the nearest concept related to a semantic.  Recursively walks referenced components until it finds a concept.
     * @param nid 
-    * @return the nearest concept nid, or -1, if no concept can be found.
+    * @return the nearest concept nid, or empty, if no concept can be found.
     */
    public static Optional<Integer> getNearestConcept(int nid)
    {
-      Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(nid);
-      
-      if (c.isPresent())
-      {
-         if (c.get().getIsaacObjectType() == IsaacObjectType.SEMANTIC)
-         {
-            return getNearestConcept(((SemanticChronology)c.get()).getReferencedComponentNid());
-         }
-         else if (c.get().getIsaacObjectType() == IsaacObjectType.CONCEPT)
-         {
-            return Optional.of(((ConceptChronology)c.get()).getNid());
-         }
-         else
-         {
-            LOG.warn("Unexpected object type: " + c.get().getIsaacObjectType());
-         }
-      }
-      return Optional.empty();
+      return Util.getNearestConcept(nid);
    }
 
    /**

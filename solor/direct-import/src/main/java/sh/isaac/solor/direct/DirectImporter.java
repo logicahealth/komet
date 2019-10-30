@@ -1791,12 +1791,17 @@ public class DirectImporter
                     "DynamicDefinition for refset " + Get.conceptDescriptionText(nid),
                     refsetDescriptors.getValue().toArray(new DynamicColumnInfo[refsetDescriptors.getValue().size()]), null, null, stampSequence);
 
-                for (Chronology c : items)
-                {
+                for (Chronology c : items) {
                     assemblageService.writeSemanticChronology((SemanticChronology)c);
-                    for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class))
-                    {
+                    for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
                         indexer.indexNow(c);
+                    }
+                }
+                //Reindex all descriptions on this concept, in case it it outside the metadata tree, and wouldn't otherwise be flagged as a potential
+                //metadata concept (which it is, now that it defines a semantic)
+                for (SemanticChronology sc : Get.assemblageService().getDescriptionsForComponent(nid)) {
+                    for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
+                        indexer.indexNow(sc);
                     }
                 }
                 LOG.info("Refset Config for sctid {}: {}", refsetDescriptors.getKey(), DynamicUsageDescriptionImpl.read(nid).toString());
