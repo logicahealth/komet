@@ -139,6 +139,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(TermAux.ORGANISM);
             createConcept(TermAux.OBJECT);
             createConcept(TermAux.PROCEDURE);
+            pushParent(current());
+                createConcept("Loinc Procedure");
+                popParent();
             createConcept(TermAux.SPECIMEN);
             createConcept(TermAux.SUBSTANCE);
          popParent();

@@ -152,7 +152,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             }
             // substitute procedure for observation...
             
-            assertions.add(builder.conceptAssertion(TermAux.PROCEDURE.getNid()));
+            assertions.add(builder.conceptAssertion(MetaData.LOINC_PROCEDURE____SOLOR.getNid()));
             if (tokenizer.hasMoreTokens()) {
                 String delimiter = tokenizer.nextToken();
                 switch (delimiter) {
