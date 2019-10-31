@@ -59,6 +59,8 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
             MetaData.CONCEPT_DETAILS_PANEL____SOLOR,
             MetaData.CONCEPT_DETAILS_SEARCH_LINKED_PANEL____SOLOR,
             MetaData.CONCEPT_DETAILS_TAXONOMY_LINKED_PANEL____SOLOR,
+            MetaData.CONCEPT_DETAILS_LIST_VIEW_LINKED_PANEL____SOLOR,
+            MetaData.CONCEPT_DETAILS_CLASSIFICATION_RESULTS_LINKED_PANEL____SOLOR,
             MetaData.CONCEPT_DETAILS_TREE_TABLE____SOLOR,
             MetaData.SIMPLE_SEARCH_PANEL____SOLOR,
             MetaData.EXTENDED_SEARCH_PANEL____SOLOR,
@@ -103,6 +105,19 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
     private final SimpleListProperty<ConceptSpecification> rightPaneOptionsProperty =
             new SimpleListProperty<>(this, MetaData.RIGHT_PANE_OPTIONS____SOLOR.toExternalString(), FXCollections.observableArrayList());
     private final PropertySheetConceptListWrapper rightPaneOptionsWrapper;
+
+    public PersonaItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc,
+                            String instanceName,
+                            ConceptSpecification[] leftPanelDefaults,
+                            ConceptSpecification[] centerPanelDefaults,
+                            ConceptSpecification[] rightPanelDefaults) {
+        this(preferencesNode, manifold, kpc);
+        instanceNameProperty.set(instanceName);
+        leftPaneDefaultsProperty.setAll(leftPanelDefaults);
+        centerPaneDefaultsProperty.setAll(centerPanelDefaults);
+        rightPaneDefaultsProperty.setAll(rightPanelDefaults);
+        save();
+    }
 
     public PersonaItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, getGroupName(preferencesNode), manifold, kpc);
@@ -271,7 +286,7 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
     public static WindowPreferencesItem createNewDefaultWindowPreferences(IsaacPreferences windowPreferencesNode,
                                                                    Manifold manifold, KometPreferencesController kpc) {
 
-        TransientPreferences transientPersonaPreferences = new TransientPreferences(PersonasPanel.DEFAULT_PERSONA);
+        TransientPreferences transientPersonaPreferences = new TransientPreferences(PersonasPanel.DEFAULT_PERSONA_UUID);
         transientPersonaPreferences.put(GROUP_NAME, DEFAULT_PERSONA_NAME);
         PersonaItemPanel persona = new PersonaItemPanel(transientPersonaPreferences, manifold, kpc);
 

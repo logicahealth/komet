@@ -337,7 +337,7 @@ public class MainApp
         List<MenuItem> itemsToAdd = new ArrayList<>();
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
             // TODO: Go away after personas completely implemented.
-            MenuItem newStatementWindowItem = new MenuItemWithText("Statement window");
+            MenuItem newStatementWindowItem = new MenuItemWithText("Statement Window");
             newStatementWindowItem.setOnAction(this::newStatement);
             itemsToAdd.add(newStatementWindowItem);
             for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
@@ -359,7 +359,7 @@ public class MainApp
         }
 
         // TODO: Go away after personas completely implemented.
-        MenuItem newKometWindowItem = new MenuItemWithText("Viewer window");
+        MenuItem newKometWindowItem = new MenuItemWithText("Viewer Window");
 
         itemsToAdd.add(newKometWindowItem);
 

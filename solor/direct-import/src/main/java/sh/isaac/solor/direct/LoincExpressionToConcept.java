@@ -101,6 +101,9 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     StringTokenizer tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
 
                     // get necessary or sufficient from Nid2 e.g. "Sufficient concept definition (SOLOR)"
+                    // getStandardAssertions just processes the Loinc/SNOMED refset
+                    // getProcedureAssertions clones the standard assertions, and changes a few fields
+                    // to get it to classify under the procedures taxonomy as well.
                     if (TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid() == loincVersion.getNid3()) {
                         builder.sufficientSet(builder.and(getStandardAssertions(tokenizer, builder)));
                         tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);

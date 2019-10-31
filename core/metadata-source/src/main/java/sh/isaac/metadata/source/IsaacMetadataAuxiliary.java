@@ -797,7 +797,18 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        "sh.komet.gui.provider.concept.detail.panel.ConceptDetailSearchLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                .getPreferredDescriptionBuilder().setDescriptionText("Concept details - search").setModule(TermAux.KOMET_MODULE);
 
-                    createConcept("Concept details taxonomy-linked panel").addStringSemantic(UUID.fromString("4155e905-57fb-5805-b9cd-55cfcf538e33"), "sh.komet.gui.provider.concept.detail.panel.ConceptDetailTaxonomyLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+       createConcept("Concept details classification-results-linked panel")
+               .addStringSemantic(UUID.fromString("e274d5b2-4db8-558c-be73-82a181b074f1"),
+                       "sh.komet.gui.provider.concept.detail.panel.ConceptDetailClassificationResultsLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Concept details - classification").setModule(TermAux.KOMET_MODULE);
+
+       createConcept("Concept details list-view-linked panel")
+               .addStringSemantic(UUID.fromString("de1ebfaa-e94c-5533-99c7-9309133eef2b"),
+                       "sh.komet.gui.provider.concept.detail.panel.ConceptDetailListLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Concept details - list").setModule(TermAux.KOMET_MODULE);
+
+
+       createConcept("Concept details taxonomy-linked panel").addStringSemantic(UUID.fromString("4155e905-57fb-5805-b9cd-55cfcf538e33"), "sh.komet.gui.provider.concept.detail.panel.ConceptDetailTaxonomyLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                             .getPreferredDescriptionBuilder().setDescriptionText("Concept details - taxonomy").setModule(TermAux.KOMET_MODULE);
 
                      createConcept("Concept details tree table").addStringSemantic(UUID.fromString("394e925e-3928-52f6-a0a6-b6b22813f1b5"), "sh.komet.gui.provider.concept.detail.treetable.ConceptDetailTreeTableProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
