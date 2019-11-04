@@ -777,6 +777,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                      createConcept("Groovy scripting panel").addStringSemantic(UUID.fromString("eafc507e-f7ef-5198-9dff-cee1f98bf2fb"), "sh.komet.scripting.groovy.GroovyViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                              .getPreferredDescriptionBuilder().setDescriptionText("Groovy").setModule(TermAux.KOMET_MODULE);
 
+                     //UuidT5Generator.get(TermAux.KOMET_MODULE.getPrimordialUuid(), "Import specification panel")
+                     createConcept("Import specification panel").addStringSemantic(UUID.fromString("5aed4bdb-e53f-548c-9700-c70374e98d9b"), "sh.komet.gui.importation.ImportSpecificationFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                        .getPreferredDescriptionBuilder().setDescriptionText("Import specification").setModule(TermAux.KOMET_MODULE);
+
                      createConcept("Export specification panel").addStringSemantic(UUID.fromString("088cabd6-47d2-57aa-8726-2ec91f287ce4"), "sh.komet.gui.exportation.ExportSpecificationFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                         .getPreferredDescriptionBuilder().setDescriptionText("Export specification").setModule(TermAux.KOMET_MODULE);
 

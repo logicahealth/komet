@@ -140,8 +140,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 
       manifoldLinkMenu.setGraphic(getNodeForManifold(manifold));
       manifold.groupNameProperty().addListener(new WeakChangeListener<>(this));
-// History
-// 
+
    }
 
    /**

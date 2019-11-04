@@ -280,14 +280,16 @@ public class UuidT5Generator {
    
    
    public static void main(String[] args) {
-        System.out.println(makeSolorIdFromRxNormId("1234"));
-        System.out.println(makeSolorIdFromRxNormId("12345"));
-        System.out.println(makeSolorIdFromLoincId("8867-4"));
-        System.out.println(makeSolorIdFromLoincId("67129-7"));
-        for (int i = 0; i < 10; i++) {
-           System.out.println(makeSolorIdFromUuid(UUID.randomUUID()));
-        }
-       
+//        System.out.println(makeSolorIdFromRxNormId("1234"));
+//        System.out.println(makeSolorIdFromRxNormId("12345"));
+//        System.out.println(makeSolorIdFromLoincId("8867-4"));
+//        System.out.println(makeSolorIdFromLoincId("67129-7"));
+//        for (int i = 0; i < 10; i++) {
+//           System.out.println(makeSolorIdFromUuid(UUID.randomUUID()));
+//        }
+       UUID uuid = UuidT5Generator.get(TermAux.KOMET_MODULE.getPrimordialUuid(), "Import specification panel");
+
+       System.out.println(uuid.toString());
    }
    
 }

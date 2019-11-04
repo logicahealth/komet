@@ -17,7 +17,7 @@
 package sh.isaac.komet.iconography;
 
 import de.jensd.fx.glyphs.emojione.EmojiOneView;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+importnn de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.jensd.fx.glyphs.icons525.Icons525View;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
@@ -126,8 +126,9 @@ public enum Iconography implements Icons {
    ICON_CLOSE(SVG, "icon-close"),
    ICON_EDIT(SVG, "icon-edit"),
    ICON_EXPAND(SVG, "icon-expand"),
-   ICON_IMPORT(MATERIAL_DESIGNS_WEBFONT, "icon-import"),
    ICON_EXPORT(MATERIAL_DESIGNS_WEBFONT, "icon-export"),
+   ICON_IMPORT(MATERIAL_DESIGNS_WEBFONT, "icon-import"),
+   IMPORT_GLYPH(MATERIAL_DESIGNS_WEBFONT, "import-glyph"),
    ICON_GO_TO_LINK(SVG, "icon-goto-link"),
    CASE_SENSITIVE_NOT(SVG, "not-case-sensitive"),
    ICON_RELOAD(SVG, "icon-reload"),
@@ -178,7 +179,7 @@ public enum Iconography implements Icons {
    ALERT_WARN2(MATERIAL_DESIGNS_WEBFONT, "alert-warn-2"),
    TEMPORARY_FIX(MATERIAL_ICON, "temporary-fix"),
    CHECK(FONT_AWSOME, "check"),
-   CHECKERED_FLAG(FONT_AWSOME, "checkered-flag"),
+   CHECKERED_FLAG(EMOJI_ONE, "checkered-flag"),
    // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
    DASHBOARD(OCT_ICON, "dashboard"),
    
@@ -207,7 +208,6 @@ public enum Iconography implements Icons {
    ARROW_DOWN(MATERIAL_DESIGNS_WEBFONT, "arrow-down"),
    REDO(FONT_AWSOME, "redo"),
    DELETE_TRASHCAN(MATERIAL_ICON, "delete-trashcan"),
-   LIST(MATERIAL_DESIGNS_WEBFONT, "list-icon"),
 
    // MaterialDesignIcon.MENU_DOWN
    // MaterialDesignIcon.MENU_RIGHT
