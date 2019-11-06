@@ -204,8 +204,6 @@ public class Get
    
    private static PreferencesService preferencesService;
    
-   //TODO there is either a threading issue, with a load not waiting for a clean to complete, or, there is a bug in this IntObjectHashMap, 
-   //which leads to index out of bounds exceptions once in a while, during a build test.  Need to finish tracking down...
    private static final IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = new IntObjectHashMap<>();
 
    /**
