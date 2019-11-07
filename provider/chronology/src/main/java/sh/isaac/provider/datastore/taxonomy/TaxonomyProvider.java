@@ -242,7 +242,7 @@ public class TaxonomyProvider
 
     @Override
     public void updateTaxonomy(SemanticChronology logicGraphChronology) {
-        LOG.debug("Updating taxonomy for commit to {}", () -> logicGraphChronology.toString());
+        LOG.trace("Updating taxonomy for commit to {}", () -> logicGraphChronology.toString());
         try {
             ChronologyUpdate.handleTaxonomyUpdate(logicGraphChronology);
         } catch (Throwable e) {
