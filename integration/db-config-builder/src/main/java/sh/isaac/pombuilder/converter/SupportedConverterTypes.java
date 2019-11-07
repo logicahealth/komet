@@ -105,8 +105,7 @@ public enum SupportedConverterTypes
 	
 	SCT_EXTENSION("rf2-src-data-*-extension", "\\d{8}.*$", 
 			"A typical Snomed extension version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
-			+ "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.  This can also be used for the "
-					+ "LOINC snomed collaboration RF2 release.",
+			+ "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.",
 			new String[] {}, new String[] {"rf2-ibdf-sct"}, new UploadFileInfo[] {
 			new UploadFileInfo("Snomed Extensions come from a variety of sources.  Note that the NLM has choosen to stop advertising the download links to the "
 					+ " US Extension, but still publishes it.  The current download pattern is now: "
@@ -118,6 +117,22 @@ public enum SupportedConverterTypes
 					+ "of hour, minute and second.",
 					".*_\\d{8}.*\\.zip$", true)
 	}, "rf2-ibdf-", "convert-RF2-direct-to-ibdf", "SnomedCT Extension", 
+			new String[] {"shared/licenses/sct.xml"},
+			new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
+	
+	SCT_EXTENSION_LOINC("rf2-src-data-loinc-extension", "\\d{8}.*$", 
+			"A typical Snomed extension version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
+			+ "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.  This should be used for the "
+					+ "LOINC snomed collaboration RF2 release.  This requires a loinc file - and should be the 'solor' converted loinc file.",
+			new String[] {}, new String[] {"rf2-ibdf-sct", "loinc-ibdf"}, new UploadFileInfo[] {
+			new UploadFileInfo("The LOINC coop file comes from IHTSDO - https://www.nlm.nih.gov/healthit/snomedct/international.html",
+					"https://download.nlm.nih.gov/umls/kss/IHTSDO20170731/SnomedCT_LOINCRF2_PRODUCTION_20170831T120000Z.zip",
+					"SnomedCT_LOINCRF2_PRODUCTION_YYYYMMDDTHHMMSSZ.zip",
+					"The expected file is the RF2 release zip file.  The filename must end with .zip, and must contain the release date in the Snomed standard"
+					+ " naming convention (4 digit year, 2 digit month, 2 digit day) - it also now also accepts the new naming convention with T and 2 digits each "
+					+ "of hour, minute and second.",
+					".*_\\d{8}.*\\.zip$", true)
+	}, "rf2-ibdf-loinc", "convert-RF2-direct-to-ibdf", "SnomedCT Loinc Extension", 
 			new String[] {"shared/licenses/sct.xml"},
 			new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
 	
@@ -503,11 +518,14 @@ public enum SupportedConverterTypes
 	 */
 	public static Pair<SupportedConverterTypes, String> findConverterTypeAndExtensionBySrcArtifactId(String srcArtifactId)
 	{
+		//Split this routine, so we do all of the exact matches first
 		for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
 			if (sct.getArtifactId().equals(srcArtifactId)) {
 				return new Pair<>(sct, "");
 			}
-			else if (sct.getArtifactId().contains("*")) {
+		}
+		for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
+			if (sct.getArtifactId().contains("*")) {
 				String[] parts = sct.getArtifactId().split("\\*");
 				if (srcArtifactId.startsWith(parts[0]) && (parts.length == 1 || srcArtifactId.endsWith(parts[1]))) {
 					return new Pair<>(sct, srcArtifactId.substring(parts[0].length(), srcArtifactId.length()));

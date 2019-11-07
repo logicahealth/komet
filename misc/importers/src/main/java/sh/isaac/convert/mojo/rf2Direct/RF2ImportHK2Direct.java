@@ -44,11 +44,11 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
@@ -285,32 +285,28 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		//There currently is no mechanism to automatically pre-load a required IBDF file if you are running the  converter live.
 		//for now, if you are running live, you just have to manually load the reqs first
 
-		// If we are converting an RF2 extension, we likely need snomed international first.  Look for it.... only expect one ibdf file in this folder. 
-		final AtomicReference<Path> ibdfFile = new AtomicReference<>();
+		// If we are converting an RF2 extension, we likely need snomed international first.  Look for it.... only expect one ibdf file in this folder.
+		ArrayList<Path> filesToPreload = new ArrayList<>();
 		Path ibdfPath = inputFileLocationPath.resolve("ibdf");
 		if (ibdfPath.toFile().isDirectory())
 		{
 			Files.walk(ibdfPath, new FileVisitOption[] {}).forEach(path -> {
 				if (path.toString().toLowerCase().endsWith(".ibdf"))
 				{
-					if (ibdfFile.get() != null)
-					{
-						throw new RuntimeException("Only expected to find one ibdf file in the folder " + inputFileLocationPath.resolve("ibdf").normalize());
-					}
-					ibdfFile.set(path);
+					filesToPreload.add(path);
 				}
 			});
 		}
 
-		if (ibdfFile.get() == null)
+		if (filesToPreload.size() == 0)
 		{
 			log.info("Didn't find any IBDF files to preload");
 		}
 		else
 		{
-			log.info("will preload {}", ibdfFile.get());
+			log.info("will preload {}", Arrays.toString(filesToPreload.toArray()));
 		}
-		return ibdfFile.get() != null ? new Path[] { ibdfFile.get() } : new Path[0];
+		return filesToPreload.toArray(new Path[filesToPreload.size()]);
 	}
 	
 	@Override

@@ -41,7 +41,6 @@ import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
-import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -313,7 +312,8 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                 commitTime, TermAux.USER.getNid(),
                 TermAux.SOLOR_OVERLAY_MODULE.getNid(),
                 TermAux.DEVELOPMENT_PATH.getNid());
-        UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
+        final UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
+        final int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
         if (!optionalConcept.isPresent()) {
             ConceptChronologyImpl conceptToWrite
@@ -335,10 +335,19 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             index(loincIdentifierToWrite);
             Get.assemblageService().writeSemanticChronology(loincIdentifierToWrite);
         }
+        else {
+           //The concept is present - see if it already has a logic graph.  If so, don't write a logic graph, as the logic graph from the 
+           //loinc converter is likely better than this one.
+            Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getNidForUuids(conceptUuid), 
+                    graphAssemblageNid).findFirst();
+            if (sc.isPresent()) {
+                //Not even going to check its state - active or not, its likely better.
+                LOG.trace("Not creating Loinc Expression for Concept as one already exists for {}", conceptUuid);
+                return null;
+            }
+        }
 
-        int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
-
-        final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
+        final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
               Get.identifierService().getNidForUuids(conceptUuid),
                 graphAssemblageNid);
 
@@ -350,10 +359,9 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
 
         sb.setPrimordialUuid(generatedGraphPrimordialUuid);
 
-        final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+        final ArrayList<Chronology> builtObjects = new ArrayList<>();
 
-        final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
-                builtObjects);
+        final SemanticChronology sci = sb.build(stamp, builtObjects);
         // There should be no other build objects, so ignore the builtObjects list...
 
         if (builtObjects.size() != 1) {
