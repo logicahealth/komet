@@ -59,6 +59,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -376,6 +378,9 @@ public class LoadTermstore extends AbstractMojo
 			Get.service(VersionManagmentPathService.class).rebuildPathMap();
 
 			getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
+			
+			ThreadPoolExecutor tpe = Get.workExecutors().getPotentiallyBlockingExecutor();
+			ArrayList<Future<?>> futures = new ArrayList<>();
 
 			for (final int nid : deferredActionNids)
 			{
@@ -385,22 +390,25 @@ public class LoadTermstore extends AbstractMojo
 
 					if (sc.getVersionType() == VersionType.LOGIC_GRAPH)
 					{
-						try
+						futures.add(tpe.submit(() -> 
 						{
-							Get.taxonomyService().updateTaxonomy(sc);
-						}
-						catch (Exception e)
-						{
-							Map<String, Object> args = new HashMap<>();
-							args.put(JsonWriter.PRETTY_PRINT, true);
-							ByteArrayOutputStream baos = new ByteArrayOutputStream();
-							JsonWriter json = new JsonWriter(baos, args);
-
-							UUID primordial = sc.getPrimordialUuid();
-							json.write(sc);
-							getLog().error("Failed on taxonomy update for object with primordial UUID " + primordial.toString() + ": " + baos.toString(), e);
-							json.close();
-						}
+							try
+							{
+								Get.taxonomyService().updateTaxonomy(sc);
+							}
+							catch (Exception e)
+							{
+								Map<String, Object> args = new HashMap<>();
+								args.put(JsonWriter.PRETTY_PRINT, true);
+								ByteArrayOutputStream baos = new ByteArrayOutputStream();
+								JsonWriter json = new JsonWriter(baos, args);
+	
+								UUID primordial = sc.getPrimordialUuid();
+								json.write(sc);
+								getLog().error("Failed on taxonomy update for object with primordial UUID " + primordial.toString() + ": " + baos.toString(), e);
+								json.close();
+							}
+						}));
 					}
 					else
 					{
@@ -411,6 +419,11 @@ public class LoadTermstore extends AbstractMojo
 				{
 					throw new UnsupportedOperationException("2 Unexpected nid in deferred set: " + nid);
 				}
+			}
+			//make sure they are all done
+			for (Future<?> f : futures)
+			{
+				f.get();
 			}
 
 			if (this.skippedAny)
