@@ -204,7 +204,9 @@ public class Get
    
    private static PreferencesService preferencesService;
    
-   private static final IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = new IntObjectHashMap<>();
+   //TODO there is either a threading issue, with a load not waiting for a clean to complete, or, there is a bug in this IntObjectHashMap, 
+   //which leads to index out of bounds exceptions once in a while, during a build test.  Need to finish tracking down...
+   private static IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = null;
 
    /**
     * Instantiates a new Get.
@@ -503,17 +505,17 @@ public class Get
        if (nid >= 0) {
            throw new IllegalStateException("Nids must be < 0: " + nid);
        }
-       if (TERM_AUX_CACHE.isEmpty()) {
-          synchronized (TERM_AUX_CACHE) {
-             if (TERM_AUX_CACHE.isEmpty()) {
-                for (ConceptSpecification conceptSpecification: TermAux.getAllSpecs()) {
-                      TERM_AUX_CACHE.put(conceptSpecification.getNid(), conceptSpecification);
-                  }
-             }
+       
+       IntObjectHashMap<ConceptSpecification> localRef = TERM_AUX_CACHE;
+       if (localRef == null) {
+          localRef = new IntObjectHashMap<>();
+          for (ConceptSpecification conceptSpecification: TermAux.getAllSpecs()) {
+             localRef.put(conceptSpecification.getNid(), conceptSpecification);
           }
+          TERM_AUX_CACHE = localRef;
        }
-       if (TERM_AUX_CACHE.containsKey(nid)) {
-           return TERM_AUX_CACHE.get(nid);
+       if (localRef.containsKey(nid)) {
+           return localRef.get(nid);
        }
        return new ConceptProxy(nid);
    } 
@@ -826,9 +828,7 @@ public class Get
       semanticIndexer                 = null;
       dataStore                       = null;
       preferencesService              = null;
-      synchronized (TERM_AUX_CACHE) {
-          TERM_AUX_CACHE.clear();
-      }
+      TERM_AUX_CACHE                  = null;
    }
 
    public static ScheduledExecutorService scheduledExecutor() {
