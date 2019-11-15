@@ -18,8 +18,7 @@ import javax.inject.Singleton;
  * aks8m - https://github.com/aks8m
  */
 
-@Service(name = "Import Specification View Provider",
-        metadata = "fqn={Import specification panel (SOLOR)},uuid={de59f527-95f5-53ad-97fa-c57574f3befa}")
+@Service(name = "Import Specification View Provider")
 @Singleton
 public class ImportSpecificationFactory implements ExplorationNodeFactory {
 

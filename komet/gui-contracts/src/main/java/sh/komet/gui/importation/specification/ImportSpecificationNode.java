@@ -1,9 +1,6 @@
 package sh.komet.gui.importation.specification;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
@@ -24,6 +21,7 @@ public class ImportSpecificationNode implements ExplorationNode {
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("Import Specification Builder");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Import Specification Builder");
     private final SimpleBooleanProperty closeExplorationNodeProperty = new SimpleBooleanProperty(false);
+    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.ICON_IMPORT.getIconographic());
 
     private final BorderPane borderPane;
 
@@ -72,7 +70,7 @@ public class ImportSpecificationNode implements ExplorationNode {
 
     @Override
     public boolean canClose() {
-        return false;
+        return true;
     }
 
     @Override
@@ -82,16 +80,6 @@ public class ImportSpecificationNode implements ExplorationNode {
 
     @Override
     public ObjectProperty<Node> getMenuIconProperty() {
-        return null;
+        return menuIconProperty;
     }
-
-//    @Override
-//    public Node getMenuIcon() {
-//        return Iconography.ICON_CHECK_MARK.getIconographic();
-//    }
-//
-//    @Override
-//    public SimpleBooleanProperty closeExplorationNodeProperty() {
-//        return this.closeExplorationNodeProperty;
-//    }
 }
