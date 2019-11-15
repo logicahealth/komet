@@ -469,7 +469,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());  
             //A while ago, there were two different language trees in the metadata - the language assembly, and the language concept.  In practice, 
             //this was nothing but confusing.  We retired the language assembly long ago, but has maintained the UUIDs of the language assembly children
-            //as extra UUIDs on each of these languages... but I believe those were also unecessary.  The most recent cleanup of this code removed those 
+            //as extra UUIDs on each of these languages... but I believe those were also unnecessary.  The most recent cleanup of this code removed those 
             //old hardcoded UUIDs.  If it causes an issue, talk to Dan, we can restore (just) those UUIDs.
             //Note, that each of these language concepts does still have two parents - one here, of LANGUAGE, and the other being DESCRIPTION_ASSEMBLAGE.
                createConcept(TermAux.ENGLISH_LANGUAGE, 
@@ -546,6 +546,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Russian language", null, TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
                createConcept("Irish language", null, TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
                createConcept("Czech language", null, TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
+               createConcept("Italian language", null, TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
+               createConcept("German language", null, TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
                popParent();
             createConcept("Measurement semantic");
             pushParent(current());

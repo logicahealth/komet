@@ -170,6 +170,7 @@
 						<id>fhir</id>
 						<configuration>
 							<generatePackage>fhir</generatePackage>
+							<packageLevelAnnotations>false</packageLevelAnnotations>
 							<generateDirectory>${project.build.directory}/generated-sources/fhir</generateDirectory>
 							<bindingDirectory>${project.basedir}/src/main/resources/fhir/bindings/</bindingDirectory>
 							<schemaDirectory>${project.basedir}/src/main/resources/fhir/</schemaDirectory>

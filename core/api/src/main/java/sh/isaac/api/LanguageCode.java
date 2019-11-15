@@ -244,7 +244,11 @@ public enum LanguageCode {
     * Danish.
     */
    DA,
-
+   
+   /**
+    * German
+    */
+   DE,
    /**
     * Danish (Denmark).
     */
@@ -255,6 +259,9 @@ public enum LanguageCode {
     */
    GA,
    
+   
+   //Italian
+   IT,
    /**
     * Korean
     */

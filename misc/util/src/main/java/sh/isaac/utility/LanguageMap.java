@@ -106,6 +106,8 @@ public class LanguageMap {
       case DA_DK:
          return MetaData.DANISH_LANGUAGE____SOLOR;
 
+      case DE:
+    	  return MetaData.GERMAN_LANGUAGE____SOLOR;
       case FR:
       case FR_BE:
       case FR_CA:
@@ -116,6 +118,8 @@ public class LanguageMap {
          return MetaData.FRENCH_LANGUAGE____SOLOR;
       case GA:
          return MetaData.IRISH_LANGUAGE____SOLOR;
+      case IT:
+          return MetaData.ITALIAN_LANGUAGE____SOLOR;
       case KO:
          return MetaData.KOREAN_LANGUAGE____SOLOR;
       case LT:
