@@ -16,6 +16,7 @@
 package sh.komet.gui.contract;
 
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.prefs.BackingStoreException;
 
@@ -59,6 +60,10 @@ public interface MenuProvider {
     MenuItem[] getMenuItems(AppMenu parentMenu, Window window);
 
     static void handleCloseRequest(WindowEvent e) {
+        Optional<String> absolutePath = Optional.ofNullable((String) ((Stage) e.getTarget()).getScene()
+                .getProperties()
+                .get(Keys.WINDOW_PREFERENCE_ABSOLUTE_PATH));
+
         if (MenuProvider.WINDOW_COUNT.get() == 1) {
             e.consume();
             Get.applicationStates().remove(ApplicationStates.RUNNING);
@@ -79,19 +84,23 @@ public interface MenuProvider {
             shutdownThread.setDaemon(true);
             shutdownThread.start();
         }
-        String absolutePath = (String) ((Stage) e.getTarget()).getScene().getProperties().get(Keys.WINDOW_PREFERENCE_ABSOLUTE_PATH);
-        if (absolutePath != null) {
-            try {
-                IsaacPreferences windowPreferencesNode =
-                        Get.preferencesService().getConfigurationPreferences().node(absolutePath);
-                IsaacPreferences windowParentNode = windowPreferencesNode.parent();
-                windowPreferencesNode.clear();
-                windowPreferencesNode.flush();
-                windowPreferencesNode.removeNode();
-                windowPreferencesNode.flush();
-                PreferenceGroup.removeChild(windowParentNode, windowPreferencesNode.name());
-                windowParentNode.flush();
-            } catch (BackingStoreException ex) {
+
+        if(absolutePath.isPresent()){
+            IsaacPreferences windowPreferencesNode = Get.preferencesService().getConfigurationPreferences().node(absolutePath.get());
+            IsaacPreferences windowParentNode = windowPreferencesNode.parent();
+
+            try{
+                if(MenuProvider.WINDOW_COUNT.get() != 1){
+                    windowPreferencesNode.clear();
+                    windowPreferencesNode.flush();
+                    windowPreferencesNode.removeNode();
+                    windowPreferencesNode.flush();
+                    PreferenceGroup.removeChild(windowParentNode, windowPreferencesNode.name());
+                    windowParentNode.flush();
+                } else{
+                    windowPreferencesNode.flush();
+                }
+            }catch (BackingStoreException ex) {
                 FxGet.dialogs().showErrorDialog(ex);
             }
         }
