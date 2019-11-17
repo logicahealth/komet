@@ -165,6 +165,12 @@ public interface StampCoordinate
     StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add);
 
     /**
+     * Create a new Stamp Coordinate identical to the this coordinate, but with the path for position replaced.
+     * @param pathForPosition the new path for position
+     * @return the new coordinate
+     */
+    StampCoordinate makePathAnalog(ConceptSpecification pathForPosition);
+    /**
      * An empty list is a wild-card, and should match all authors. If there are
      * one or more authors specified, only those authors will be included
      * in the results.

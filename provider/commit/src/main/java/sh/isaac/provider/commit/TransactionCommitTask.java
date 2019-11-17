@@ -99,7 +99,7 @@ public class TransactionCommitTask extends CommitTask {
             LOG.error("Unexpected commit failure", e1);
             throw new RuntimeException("Commit Failure of commit with message " + this.commitComment, e1);
         } finally {
-            CommitProvider.getPendingTransactions().remove(transaction);
+            PendingTransactions.removeTransaction(transaction);
             Get.activeTasks().remove(this);
             this.commitProvider.getPendingCommitTasks().remove(this);
             //LOG.info("Finished CommitTask " + taskSequenceId);

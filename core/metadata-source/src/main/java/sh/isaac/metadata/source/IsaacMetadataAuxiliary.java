@@ -717,6 +717,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.VERSION_TYPE_FOR_ACTION);
                   createConcept(ObservableFields.ROLE_TYPE_TO_ADD);
                   createConcept(ObservableFields.ASSEMBLAGE_FOR_CONSTRAINT);
+                  createConcept("Promotion source path").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Promotion destination path").setModule(TermAux.KOMET_MODULE);
+
                   popParent();
                createConcept("Configuration properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
@@ -782,6 +785,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
 
        createConcept("Component list panel").addStringSemantic(UUID.fromString("6b8fa23c-358e-5335-ac17-9239ea821842"), "sh.isaac.komet.batch.ListViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                .getPreferredDescriptionBuilder().setDescriptionText("Component list").setModule(TermAux.KOMET_MODULE);
+
+       createConcept("Transaction list panel").addStringSemantic(UUID.fromString("20afa3de-ce36-5c0d-922b-524f18c78383"), "sh.isaac.komet.batch.TransactionViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Transaction list").setModule(TermAux.KOMET_MODULE);
 
        createConcept("Composite action panel").addStringSemantic(UUID.fromString("1123d55e-75f6-502f-80a1-d9f0fe86eb7a"), "sh.isaac.komet.batch.CompositeActionFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                .getPreferredDescriptionBuilder().setDescriptionText("Composite action").setModule(TermAux.KOMET_MODULE);

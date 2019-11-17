@@ -37,7 +37,7 @@ public class PersonasPanel extends ParentPanel {
             PersonaItemPanel compositeAxtionResultsPersonaItemPanel = new PersonaItemPanel(compositeActionPersonaPreferences, manifold, kpc,
                     "Composite Action",
                     new ConceptSpecification[] {MetaData.COMPOSITE_ACTION_PANEL____SOLOR},
-                    new ConceptSpecification[] {MetaData.COMPONENT_LIST_PANEL____SOLOR},
+                    new ConceptSpecification[] {MetaData.COMPONENT_LIST_PANEL____SOLOR, MetaData.TRANSACTION_LIST_PANEL____SOLOR},
                     new ConceptSpecification[] {MetaData.CONCEPT_DETAILS_LIST_VIEW_LINKED_PANEL____SOLOR}
             );
             compositeAxtionResultsPersonaItemPanel.save();

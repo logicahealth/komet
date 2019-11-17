@@ -111,7 +111,7 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
     @Override
     protected Void call() throws Exception {
         try {
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
             int count = 0;
 
 

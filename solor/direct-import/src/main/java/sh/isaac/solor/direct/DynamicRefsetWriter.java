@@ -18,13 +18,7 @@ package sh.isaac.solor.direct;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import sh.isaac.api.AssemblageService;
@@ -149,7 +143,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 			int pathNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate().getPathNid();
 			List<String[]> noSuchElementList = new ArrayList<>();
 
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			boolean skippedAny = false;
 			int skipped = 0;
 			for (String[] refsetRecord : refsetRecords)

@@ -369,7 +369,7 @@ public class KometStageController
                         try {
                             TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
                             timd.configure(null, beer.toPath(), "0.8", null);
-                            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+                            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
                             timd.convertContent(transaction, update -> {
                             }, (work, totalWork) -> {
                             });

@@ -125,7 +125,7 @@ public class VhatXmlTests
 		{
 			// For VetsExporter
 			long now = System.currentTimeMillis();
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 			// Test VHAT Delta Importer
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -192,7 +192,7 @@ public class VhatXmlTests
 
 		// For VetsExporter
 		long now = System.currentTimeMillis();
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -256,7 +256,7 @@ public class VhatXmlTests
 		{
 			// For VetsExporter
 			long now = System.currentTimeMillis();
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 			// Test VHAT Delta Importer
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -347,7 +347,7 @@ public class VhatXmlTests
 		LOG.info("Testing {}", file.getFileName().toString());
 		// For VetsExporter
 		long now = System.currentTimeMillis();
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -394,7 +394,7 @@ public class VhatXmlTests
 	{
 		Path file = Paths.get("src/test/resources/xml/set1/trim_test3.xml");
 		LOG.info("Testing {}", file.getFileName().toString());
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -409,7 +409,7 @@ public class VhatXmlTests
 	{
 		Path file = Paths.get("src/test/resources/xml/set1/trim_test4.xml");
 		LOG.info("Testing {}", file.getFileName().toString());
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -425,7 +425,7 @@ public class VhatXmlTests
 
 		// For VetsExporter
 		long now = System.currentTimeMillis();
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -480,7 +480,7 @@ public class VhatXmlTests
 	{
 		Path file = Paths.get("src/test/resources/xml/set1/vuid_duplicate_concept.xml");
 		LOG.info("Testing {}", file.getFileName().toString());
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -494,7 +494,7 @@ public class VhatXmlTests
 	{
 		Path file = Paths.get("src/test/resources/xml/set1/vuid_duplicate_desig.xml");
 		LOG.info("Testing {}", file.getFileName().toString());
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -511,7 +511,7 @@ public class VhatXmlTests
 
 		try
 		{
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 			// Test VHAT Delta Importer
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -533,7 +533,7 @@ public class VhatXmlTests
 
 		try
 		{
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 			// Test VHAT Delta Importer
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -556,7 +556,7 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -577,7 +577,7 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -599,7 +599,7 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file1)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -624,7 +624,7 @@ public class VhatXmlTests
 		// For VetsExporter use
 		long now = System.currentTimeMillis();
 
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
@@ -698,7 +698,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -775,7 +775,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -834,7 +834,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -928,7 +928,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -987,7 +987,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1066,7 +1066,7 @@ public class VhatXmlTests
 		try
 		{
 			// Preliminary import to setup concept
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(preFile)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1096,7 +1096,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1173,7 +1173,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1235,7 +1235,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1296,7 +1296,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1371,7 +1371,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1444,7 +1444,7 @@ public class VhatXmlTests
 		try
 		{
 			// Preliminary import to setup concept
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(preFile)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1475,7 +1475,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1558,7 +1558,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1629,7 +1629,7 @@ public class VhatXmlTests
 
 		// Updating Subsets is not supported
 		// Test VHAT Delta Importer
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
@@ -1645,7 +1645,7 @@ public class VhatXmlTests
 
 		// Updating Subsets is not supported
 		// Test VHAT Delta Importer
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
@@ -1665,7 +1665,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1746,7 +1746,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -1869,7 +1869,7 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
@@ -1946,7 +1946,7 @@ public class VhatXmlTests
 		Assert.assertFalse(propertyTypeExists(activeStampCoord, "A0_Mike_Property2"));
 		Assert.assertFalse(relationshipTypeExists(activeStampCoord, "A1_Bad_Relationships"));
 
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -2004,7 +2004,7 @@ public class VhatXmlTests
 		Assert.assertFalse(subsetExists(activeStampCoord, "A0 Cool Subset Membership", 600000L));
 
 		// Test VHAT Delta Importer
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
@@ -2054,7 +2054,7 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
@@ -2153,7 +2153,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2233,7 +2233,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2314,7 +2314,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2396,7 +2396,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2531,7 +2531,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2609,7 +2609,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2671,7 +2671,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2734,7 +2734,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2789,7 +2789,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2846,7 +2846,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2902,7 +2902,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -2961,7 +2961,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3023,7 +3023,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3079,7 +3079,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3135,7 +3135,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3334,7 +3334,7 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
@@ -3390,7 +3390,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3445,7 +3445,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3501,7 +3501,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3563,7 +3563,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3665,7 +3665,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3767,7 +3767,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3838,7 +3838,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3906,7 +3906,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -3970,7 +3970,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4031,7 +4031,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4081,7 +4081,7 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4105,7 +4105,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4175,7 +4175,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4237,7 +4237,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4299,7 +4299,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4354,7 +4354,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4406,7 +4406,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4459,7 +4459,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4521,7 +4521,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4581,7 +4581,7 @@ public class VhatXmlTests
 		try
 		{
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4600,7 +4600,7 @@ public class VhatXmlTests
 		Path file = Paths.get("src/test/resources/xml/set2/61.create_concept_new_des_type.xml");
 		LOG.info("Testing {}", file.getFileName().toString());
 
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -4621,7 +4621,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4682,7 +4682,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4736,7 +4736,7 @@ public class VhatXmlTests
 
 		// For VetsExporter
 		long now = System.currentTimeMillis();
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		// Test VHAT Delta Importer
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
@@ -4800,7 +4800,7 @@ public class VhatXmlTests
 		long now = System.currentTimeMillis();
 
 		// Test VHAT Delta Importer
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 		new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
@@ -4862,7 +4862,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4918,7 +4918,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -4983,7 +4983,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -5039,7 +5039,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -5095,7 +5095,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -5162,7 +5162,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -5218,7 +5218,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -5285,7 +5285,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));
@@ -5338,7 +5338,7 @@ public class VhatXmlTests
 			long now = System.currentTimeMillis();
 
 			// Test VHAT Delta Importer
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			new VHATDeltaImport(transaction, new String(Files.readAllBytes(file)), TermAux.USER.getPrimordialUuid(),
 					Get.identifierService().getUuidPrimordialForNid(Frills.createAndGetDefaultEditModule(TermAux.VHAT_MODULES.getNid())),
 					TermAux.DEVELOPMENT_PATH.getPrimordialUuid(), null, new File("target"));

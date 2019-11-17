@@ -101,7 +101,7 @@ public class Nid1_Str2_VersionImpl
       return setupAnalog(stampSequence);
    }
 
-   private <V extends Version> V setupAnalog(int stampSequence) {
+   public <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Nid1_Str2_VersionImpl newVersion = new Nid1_Str2_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setNid1(this.nid1);

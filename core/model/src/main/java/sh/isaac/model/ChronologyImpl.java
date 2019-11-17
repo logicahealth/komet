@@ -348,7 +348,15 @@ public abstract class ChronologyImpl
         if (version.isUncommitted()) {
             this.unwrittenVersions.add(version);
         } else {
-            this.writtenVersions.add(version);
+            if (version.getStatus() == Status.CANCELED)  {
+                // Don't add canceled versions...
+                LOG.warn("Skipping canceled status version: " + version);
+            } else if (version.getTime() == Version.CANCELED_TIME) {
+                // Don't add versions with a canceled time
+                LOG.warn("Skipping canceled time version: " + version);
+            } else {
+                this.writtenVersions.add(version);
+            }
         }
     }
 
@@ -426,9 +434,6 @@ public abstract class ChronologyImpl
             constructorEnd(data);
         }
         readVersionList(data);
-        if (this.writtenVersions.isEmpty() && this.unwrittenVersions.isEmpty()) {
-           throw new IllegalStateException();
-        }
         if (data.isExternalData()) {
             ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), this.getVersionType());
         }

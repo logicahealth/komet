@@ -209,4 +209,9 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     public void putExternal(ByteArrayDataBuffer out) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
+        throw new UnsupportedOperationException();
+    }
 }

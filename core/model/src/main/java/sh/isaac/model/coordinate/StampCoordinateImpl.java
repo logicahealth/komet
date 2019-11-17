@@ -393,6 +393,17 @@ public class StampCoordinateImpl
         return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, newNids, this.modulePriorityList, this.allowedStates);
     }
 
+    @Override
+    public StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
+        StampPositionImpl stampPosition = new StampPositionImpl(this.stampPosition.getTime(), pathForPosition);
+        HashSet<ConceptSpecification> newNids = new HashSet<>();
+        newNids.addAll(this.moduleSpecifications);
+        final EnumSet<Status> newAllowedStates = EnumSet.noneOf(Status.class);
+        newAllowedStates.addAll(this.allowedStates);
+        List<ConceptSpecification> modulePriorityList = new ArrayList<>(this.modulePriorityList);
+        return new StampCoordinateImpl(this.stampPrecedence, stampPosition, newNids, modulePriorityList, newAllowedStates);
+    }
+
     /**
      * To string.
      *

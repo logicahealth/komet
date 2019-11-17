@@ -315,6 +315,17 @@ limitations under the License.
    -fx-fill: black;
 }
 
+.version-panel:uncommitted {
+    -fx-background-color: -komet-uncommitted-fill;
+    -fx-border-color:  -komet-uncommitted-fill;
+
+}
+
+.version-panel:uncommitted * .component-text {
+    -fx-background-color: -komet-uncommitted-fill;
+    -fx-border-color:  -komet-uncommitted-fill;
+
+}
 .component-panel:concept-version {
    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-concept-color ;
    -fx-text-fill: -komet-concept-color;
@@ -522,7 +533,7 @@ limitations under the License.
 .stamp-indicator {
    -fx-border-width: 2;
    -fx-border-color: -komet-tab-background-color;
-   -fx-border-insets: 6;    
+   -fx-border-insets: 6;
    -fx-border-radius: 5;
    -fx-font-size:12; 
    -fx-font-weight: normal;
@@ -530,6 +541,12 @@ limitations under the License.
    -fx-alignment: center;
    -fx-text-alignment: center;
    -fx-content-display: text-only;
+}
+.stamp-indicator:uncommitted {
+    /* -fx-border-color: -komet-uncommitted-border; */
+    -fx-border-color: -komet-tab-background-color;
+    -fx-border-width: 2;
+
 }
 .stamp-indicator:inactive {
     -fx-border-color: -komet-inactive-color;

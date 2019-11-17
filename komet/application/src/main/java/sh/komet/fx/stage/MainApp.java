@@ -62,6 +62,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.SystemUtils;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.RootPreferences;
@@ -468,6 +469,9 @@ public class MainApp
     }
 
     protected void shutdown() {
+        for (Transaction transaction: Get.commitService().getPendingTransactionList()) {
+            transaction.cancel();
+        }
         Get.applicationStates().remove(ApplicationStates.RUNNING);
         Get.applicationStates().add(ApplicationStates.STOPPING);
         try {

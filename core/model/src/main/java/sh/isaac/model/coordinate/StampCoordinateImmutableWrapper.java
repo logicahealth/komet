@@ -70,6 +70,11 @@ public class StampCoordinateImmutableWrapper implements StampCoordinate {
     }
 
     @Override
+    public StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
+        return stampCoordinate.makePathAnalog(pathForPosition);
+    }
+
+    @Override
     public String toString() {
         return stampCoordinate.toString();
     }

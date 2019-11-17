@@ -18,6 +18,7 @@ package sh.isaac.solor.mojo;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import javafx.concurrent.Task;
 import org.apache.maven.plugin.AbstractMojo;
@@ -88,7 +89,7 @@ public class SolorMojo extends AbstractMojo {
 
             getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
             LookupService.startupIsaac();
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
             //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
             //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
             //be configured at the assemblage level.

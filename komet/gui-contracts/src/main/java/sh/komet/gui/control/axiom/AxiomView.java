@@ -352,7 +352,7 @@ public class AxiomView {
             ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
             ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
             mutableVersion.setGraphData(this.expression.getData(DataTarget.INTERNAL));
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
             CommitTask commitTask = transaction.commitObservableVersions("Axiom view edit", mutableVersion);
         }
         updateExpression();

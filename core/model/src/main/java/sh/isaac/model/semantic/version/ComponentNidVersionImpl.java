@@ -125,6 +125,10 @@ public class ComponentNidVersionImpl
                       authorNid,
                       this.getModuleNid(),
                       this.getPathNid());
+      return (V) setupAnalog(stampSequence);
+   }
+   @Override
+   public <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final ComponentNidVersionImpl newVersion = new ComponentNidVersionImpl(this, stampSequence);
 

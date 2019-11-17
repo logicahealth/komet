@@ -330,7 +330,12 @@ public class ConceptSnapshotImpl
       return this.manifoldCoordinate.makeModuleAnalog(modules, add);
    }
 
-   @Override
+    @Override
+    public StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
+        return this.manifoldCoordinate.makePathAnalog(pathForPosition);
+    }
+
+    @Override
    public PremiseType getTaxonomyPremiseType() {
       return this.manifoldCoordinate.getTaxonomyPremiseType();
    }

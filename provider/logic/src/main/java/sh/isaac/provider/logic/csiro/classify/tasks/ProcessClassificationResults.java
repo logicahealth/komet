@@ -141,7 +141,7 @@ public class ProcessClassificationResults
             final Ontology inferredAxioms = this.inputData.getClassifiedOntology();
             Set<Integer> affectedConceptNids = this.inputData.getAffectedConceptNidSet();
             this.addToTotalWork(affectedConceptNids.size());
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 
             final ClassifierResults classifierResults = collectResults(transaction, inferredAxioms, affectedConceptNids);

@@ -44,15 +44,17 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
 
         if (!this.categorizedVersions.getUncommittedVersions().isEmpty()) {
             if (this.categorizedVersions.getUncommittedVersions().size() > 1) {
-                System.err.println("Error: can't handle more than one uncommitted version in this editor...");
+                System.err.println("Error: Can't handle more than one uncommitted version in this editor...");
             }
             ObservableCategorizedVersion uncommittedVersion = this.categorizedVersions.getUncommittedVersions().get(0);
             Optional<PropertySheetMenuItem> propertySheetMenuItem = uncommittedVersion.getUserObject(PROPERTY_SHEET_ATTACHMENT);
             if (propertySheetMenuItem.isPresent()) {
                 this.addEditingPropertySheet(propertySheetMenuItem.get());
             } else {
-                System.err.println("Error: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion.getPrimordialUuid()
-                        + "\n       " + uncommittedVersion);
+                System.err.println("Warn: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion.getPrimordialUuid()
+                        + "\n       " + uncommittedVersion + "\nWill treat uncommitted as a historic version. ");
+                versionPanes.add(new VersionPaneModel(manifold, uncommittedVersion, stampOrderHashMap,
+                        getDisclosureStateMap()));
             }
         }
 

@@ -319,7 +319,18 @@ public class ManifoldCoordinateImpl
        return mc;
    }
 
-   /**
+    @Override
+    public ManifoldCoordinateImpl makePathAnalog(ConceptSpecification pathForPosition) {
+             ManifoldCoordinateImpl mc = new ManifoldCoordinateImpl(this.taxonomyPremiseType,
+                    this.stampCoordinate.makePathAnalog(pathForPosition),
+                    this.destinationStampCoordinate,
+                    this.languageCoordinate,
+                    this.logicCoordinate);
+            mc.setCustomSorter(this.customSorter);
+            return mc;
+    }
+
+    /**
     * {@inheritDoc}
     */
    @Override

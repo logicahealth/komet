@@ -22,6 +22,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 import static sh.komet.gui.control.badged.BadgedVersionPaneModel.FIRST_COLUMN_WIDTH;
+import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import static sh.komet.gui.style.StyleClasses.STAMP_INDICATOR;
 
 /**
@@ -40,6 +41,11 @@ public class StampControl extends Label {
    }
 
    public void setStampedVersion(int stampSequence, ManifoldCoordinate manifoldCoordinate, int stampOrder) {
+      if (Get.stampService().isUncommitted(stampSequence)) {
+         pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
+      } else {
+         pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+      }
       this.setMinSize(FIRST_COLUMN_WIDTH, FIRST_COLUMN_WIDTH);
       this.setPrefSize(FIRST_COLUMN_WIDTH, FIRST_COLUMN_WIDTH);
       this.setMaxSize(FIRST_COLUMN_WIDTH, FIRST_COLUMN_WIDTH);

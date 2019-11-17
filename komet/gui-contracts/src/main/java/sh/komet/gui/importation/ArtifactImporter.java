@@ -150,7 +150,7 @@ public class ArtifactImporter
 								}
 							}
 						}
-						Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+						Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 						dc.convertContent(transaction, string -> updateTitle(string), (work, total) -> updateProgress(work, total));
 						transaction.commit();

@@ -178,8 +178,12 @@ public class ObservableStampCoordinateImpl
       return new ObservableStampCoordinateImpl(this.stampCoordinate.makeModuleAnalog(modules, add));
    }
 
+    @Override
+    public StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
+        return new ObservableStampCoordinateImpl(this.stampCoordinate.makePathAnalog(pathForPosition));
+    }
 
-   /**
+    /**
     * Stamp position property.
     *
     * @return the object property

@@ -46,6 +46,7 @@ import java.io.File;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -218,7 +219,7 @@ public class ConceptSuite {
       final int authorNid = TermAux.USER.getNid();
       final int moduleNid = TermAux.SOLOR_MODULE.getNid();
       final int pathNid   = TermAux.DEVELOPMENT_PATH.getNid();
-      Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+      Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
       final int stampSequence = Get.stampService()
                                    .getStampSequence(transaction, Status.ACTIVE, time, authorNid, moduleNid, pathNid);
       final List<Chronology> builtObjects = new ArrayList<>();

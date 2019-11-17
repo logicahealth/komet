@@ -166,10 +166,7 @@ public abstract class BadgedVersionPaneModel {
         this.stampOrderHashMap = stampOrderHashMap;
         this.categorizedVersion = categorizedVersion;
         this.isInactive.set(categorizedVersion.getStatus() == Status.INACTIVE);
-        int stampSequence = -1;
-        if (!categorizedVersion.isUncommitted()) {
-            stampSequence = categorizedVersion.getStampSequence();
-        }
+        int stampSequence = categorizedVersion.getStampSequence();
         if (stampOrderHashMap.containsKey(stampSequence)) {
             this.stampControl.setStampedVersion(
                     stampSequence,

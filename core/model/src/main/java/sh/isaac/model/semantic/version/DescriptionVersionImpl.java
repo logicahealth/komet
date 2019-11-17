@@ -50,6 +50,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -136,9 +137,11 @@ public class DescriptionVersionImpl
                       authorNid,
                       this.getModuleNid(),
                       this.getPathNid());
+      return (V) setupAnalog(stampSequence);
+   }
+   public <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final DescriptionVersionImpl newVersion = new DescriptionVersionImpl(this, stampSequence);
-
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;
    }

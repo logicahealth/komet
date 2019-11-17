@@ -42,6 +42,7 @@ package sh.isaac.api.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.DatastoreServices;
@@ -55,6 +56,7 @@ import sh.isaac.api.transaction.Transaction;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Stream;
 
@@ -243,7 +245,13 @@ public interface CommitService
     * @param changeCheckerMode true if tests should be performed.
     * @return a new transaction that will perform tests depending on value of performTests.
     */
-   Transaction newTransaction(ChangeCheckerMode changeCheckerMode);
+   Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode);
+
+   /**
+    *
+    * @return get a list of pending transactions.
+    */
+   ObservableSet<Transaction> getPendingTransactionList();
 
    /**
     * @return a current Instant that can be used as a commit time for a long-lived process, such as

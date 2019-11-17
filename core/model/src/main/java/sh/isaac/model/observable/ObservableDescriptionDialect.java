@@ -256,4 +256,8 @@ public class ObservableDescriptionDialect implements ObservableVersion {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public <V extends Version> V setupAnalog(int stampSequence) {
+        throw new UnsupportedOperationException();
+    }
 }

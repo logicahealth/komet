@@ -227,7 +227,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 
 			LookupService.startupIsaac();
 
-			Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 					readbackCoordinate = StampCoordinates.getDevelopmentLatest();
 

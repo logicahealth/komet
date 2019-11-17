@@ -43,6 +43,7 @@ package sh.isaac.provider.commit;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,6 +88,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -137,8 +139,6 @@ public class CommitProvider
      * The Constant WRITE_POOL_SIZE.
      */
     private static final int WRITE_POOL_SIZE = 40;
-
-    private static final ConcurrentSkipListSet<TransactionImpl> pendingTransactions = new ConcurrentSkipListSet<>();
 
     private Optional<UUID> dataStoreId = Optional.empty();
 
@@ -367,7 +367,7 @@ public class CommitProvider
      * TODO: Consider removal
      */
     protected Task<Void> cancel(TransactionImpl transaction) {
-        CommitProvider.pendingTransactions.remove(transaction);
+        PendingTransactions.removeTransaction(transaction);
         return Get.stampService()
                 .cancel(transaction);
     }
@@ -1371,24 +1371,24 @@ public class CommitProvider
         return checkers;
     }
 
-    public static ConcurrentSkipListSet<TransactionImpl> getPendingTransactions() {
-        return pendingTransactions;
+    @Override
+    public ObservableSet<Transaction> getPendingTransactionList() {
+        return PendingTransactions.getPendingTransactionList();
     }
 
     @Override
-    public Transaction newTransaction(ChangeCheckerMode performTests) {
-        if (singleTransactionOnly &! pendingTransactions.isEmpty()) {
-            for (Transaction transaction: pendingTransactions) {
+    public Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode performTests) {
+        if (singleTransactionOnly && PendingTransactions.getPendingTransactionCount() > 0) {
+            for (Transaction transaction: PendingTransactions.getConcurrentPendingTransactionList()) {
                 LOG.info("Pending transaction: " + transaction.getTransactionId());
             }
-
             throw new IllegalStateException("Second transaction.");
         }
-        TransactionImpl transaction = new TransactionImpl(performTests);
+        TransactionImpl transaction = new TransactionImpl(transactionName, performTests);
         if (logTransactionCreation) {
             logStackTrace(transaction);
         }
-        pendingTransactions.add(transaction);
+        PendingTransactions.addTransaction(transaction);
         return transaction;
     }
 
@@ -1407,7 +1407,6 @@ public class CommitProvider
         LOG.info(sb);
     }
 
-
     @Override
     public Task<Void> addUncommitted(Transaction transaction, Version version) {
         transaction.addVersionToTransaction(version);
@@ -1416,6 +1415,4 @@ public class CommitProvider
         }
         return addUncommitted(transaction, (SemanticChronology) version.getChronology());
     }
-
-
 }

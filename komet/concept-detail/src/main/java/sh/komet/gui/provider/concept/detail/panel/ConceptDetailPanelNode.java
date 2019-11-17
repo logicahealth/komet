@@ -390,7 +390,7 @@ public class ConceptDetailPanelNode
     
     private void handleCommit(ObservableDescriptionDialect observableDescriptionDialect, 
             ObservableVersion[] versionsToCommit) {
-        Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
         CommitTask commitTask = transaction.commitObservableVersions("", versionsToCommit);
         Get.executor().execute(() -> {
             try {

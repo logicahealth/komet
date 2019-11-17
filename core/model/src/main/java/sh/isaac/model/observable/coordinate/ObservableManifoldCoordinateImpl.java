@@ -206,7 +206,12 @@ public class ObservableManifoldCoordinateImpl
       return new ObservableManifoldCoordinateImpl(this.manifoldCoordinate.makeModuleAnalog(modules, add));
    }
 
-/**
+    @Override
+    public ObservableManifoldCoordinateImpl makePathAnalog(ConceptSpecification pathForPosition) {
+        return new ObservableManifoldCoordinateImpl(this.manifoldCoordinate.makePathAnalog(pathForPosition));
+    }
+
+    /**
     * Premise type property.
     *
     * @return the object property
