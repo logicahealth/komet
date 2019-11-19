@@ -39,13 +39,26 @@
 
 package sh.isaac.api;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.lmax.disruptor.dsl.Disruptor;
-import javafx.concurrent.Task;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
+import com.lmax.disruptor.dsl.Disruptor;
+import javafx.concurrent.Task;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -56,7 +69,11 @@ import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.PostCommitService;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.concept.*;
+import sh.isaac.api.component.concept.ConceptBuilderService;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -64,7 +81,12 @@ import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.datastore.DataStore;
-import sh.isaac.api.externalizable.*;
+import sh.isaac.api.externalizable.BinaryDataReaderService;
+import sh.isaac.api.externalizable.BinaryDataServiceFactory;
+import sh.isaac.api.externalizable.DataWriterService;
+import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.IsaacExternalizableSpliterator;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.GenerateIndexes;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.index.IndexDescriptionQueryService;
@@ -81,19 +103,6 @@ import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.api.query.QueryHandler;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.WorkExecutors;
-
-import javax.inject.Singleton;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -194,24 +203,15 @@ public class Get
    private static DataStore dataStore;
    
    private static PreferencesService preferencesService;
-
-   private static boolean useLuceneIndexes = true;
    
-   private static final IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = new IntObjectHashMap<>();
-   private static CountDownLatch termAuxCacheLatch = new CountDownLatch(1);
-
-   private static Cache<Integer, String> nidToDescriptionCache = Caffeine.newBuilder().maximumSize(200000).build();
-
-
-
-   //~--- constructors --------------------------------------------------------
+   //TODO there is either a threading issue, with a load not waiting for a clean to complete, or, there is a bug in this IntObjectHashMap, 
+   //which leads to index out of bounds exceptions once in a while, during a build test.  Need to finish tracking down...
+   private static IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = null;
 
    /**
     * Instantiates a new Get.
     */
    public Get() {}
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Active tasks.
@@ -382,46 +382,26 @@ public class Get
     * 
     * Note that this implementation does rely on the configuration of the 
     * {@link #defaultConceptSnapshotService()} - if that configuration is changed, 
-    * the behavor of this method will follow.
+    * the behavior of this method will follow.
     *
     * @param conceptNid nid of the concept to get the description for
-    * @return a description for this concept. If no description can be found,
-    * {@code "No desc for: " + conceptNid;} will be returned.
+    * @return a description for this concept. If no description can be found, {@code "No desc for: " + UUID;} will be returned.
+    * @see ConceptSnapshotService#conceptDescriptionText(int)
     */
    public static String conceptDescriptionText(int conceptNid) {
-     if (conceptNid >= 0) {
+      if (conceptNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
-     }
-     String description = nidToDescriptionCache.getIfPresent(conceptNid);
-     if (description != null) {
-         return description;
-     }
-
-     if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
+      }
+      if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
          if (sc.getVersionType() == VersionType.DESCRIPTION) {
-             LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate());
-             if (latestDescription.isPresent()) {
-                String text = "Desc: " + latestDescription.get().getText();
-                nidToDescriptionCache.put(conceptNid, text);
-                return text;
-             }
+            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate());
+            if (latestDescription.isPresent()) {
+               return "Desc: " + latestDescription.get().getText();
+            }
          }
-     }
-      final LatestVersion<DescriptionVersion> descriptionOptional =
-         defaultConceptSnapshotService().getDescriptionOptional(conceptNid);
-
-      if (descriptionOptional.isPresent()) {
-         String text = descriptionOptional.get().getText();
-         nidToDescriptionCache.put(conceptNid, text);
-         return text;
       }
-
-      return "No desc for: " + conceptNid + " " + Get.identifierService.getUuidPrimordialStringForNid(conceptNid);
-   }
-
-   public static String conceptDescriptionText(UUID conceptUuid) {
-      return conceptDescriptionText(Get.nidForUuids(conceptUuid));
+      return defaultConceptSnapshotService().conceptDescriptionText(conceptNid);
    }
    
    public static String conceptDescriptionText(ConceptSpecification conceptSpec) {
@@ -522,27 +502,23 @@ public class Get
     * @return A concept specification for the corresponding identifier
     */
    public static ConceptSpecification conceptSpecification(int nid) {
-       try {
-           if (nid >= 0) {
-               throw new IllegalStateException("Nids must be < 0: " + nid);
-           }
-           if (TERM_AUX_CACHE.isEmpty()) {
-               for (ConceptSpecification conceptSpecification: TermAux.getAllSpecs()) {
-                   TERM_AUX_CACHE.put(conceptSpecification.getNid(), conceptSpecification);
-               }
-               termAuxCacheLatch.countDown();
-           }
-           termAuxCacheLatch.await();
-           if (TERM_AUX_CACHE.containsKey(nid)) {
-               return TERM_AUX_CACHE.get(nid);
-           }
-           return new ConceptProxy(nid);
-       } catch (InterruptedException ex) {
-           throw new RuntimeException();
+       if (nid >= 0) {
+           throw new IllegalStateException("Nids must be < 0: " + nid);
        }
-   }
-   
-   
+       
+       IntObjectHashMap<ConceptSpecification> localRef = TERM_AUX_CACHE;
+       if (localRef == null) {
+          localRef = new IntObjectHashMap<>();
+          for (ConceptSpecification conceptSpecification: TermAux.getAllSpecs()) {
+             localRef.put(conceptSpecification.getNid(), conceptSpecification);
+          }
+          TERM_AUX_CACHE = localRef;
+       }
+       if (localRef.containsKey(nid)) {
+           return localRef.get(nid);
+       }
+       return new ConceptProxy(nid);
+   } 
 
    /**
     * Note, this method may fail during bootstrap, if concept being requested is not already loaded
@@ -852,9 +828,7 @@ public class Get
       semanticIndexer                 = null;
       dataStore                       = null;
       preferencesService              = null;
-      TERM_AUX_CACHE.clear();
-      termAuxCacheLatch = new CountDownLatch(1);
-      nidToDescriptionCache.invalidateAll();
+      TERM_AUX_CACHE                  = null;
    }
 
    public static ScheduledExecutorService scheduledExecutor() {
@@ -923,7 +897,7 @@ public class Get
     */
    public static Task<Void> startIndexTask(
          @SuppressWarnings("unchecked") Class<? extends IndexBuilderService>... indexersToReindex) {
-      if (!Get.useLuceneIndexes()) {
+      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
          throw new UnsupportedOperationException();
       }
       final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
@@ -978,8 +952,6 @@ public class Get
       return workExecutors;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    public static Disruptor<AlertEvent> alertDisruptor() {
       return ALERT_DISRUPTOR;
    }
@@ -1014,17 +986,10 @@ public class Get
 
       return services;
    }
+   
    private static final ConcurrentSkipListSet<ApplicationStates> APPLICATION_STATES = new ConcurrentSkipListSet<>();
    public static ConcurrentSkipListSet<ApplicationStates> applicationStates() {
        return APPLICATION_STATES;
-   }
-
-   public static boolean useLuceneIndexes() {
-      return useLuceneIndexes;
-   }
-
-   public static void setUseLuceneIndexes(boolean useLuceneIndexes) {
-      Get.useLuceneIndexes = useLuceneIndexes;
    }
 
    public static ObservableChronology observableChronology(UUID... uuids) {
