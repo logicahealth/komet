@@ -203,6 +203,7 @@ public class Get
    private static DataStore dataStore;
    
    private static PreferencesService preferencesService;
+   private static boolean useLuceneIndexes = true;
    
    //TODO there is either a threading issue, with a load not waiting for a clean to complete, or, there is a bug in this IntObjectHashMap, 
    //which leads to index out of bounds exceptions once in a while, during a build test.  Need to finish tracking down...
@@ -897,7 +898,7 @@ public class Get
     */
    public static Task<Void> startIndexTask(
          @SuppressWarnings("unchecked") Class<? extends IndexBuilderService>... indexersToReindex) {
-      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
+      if (!Get.useLuceneIndexes()) {
          throw new UnsupportedOperationException();
       }
       final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
@@ -1000,6 +1001,18 @@ public class Get
    }
    public static ObservableChronology observableChronology(ConceptSpecification spec) {
       return Get.observableChronologyService().getObservableChronology(spec);
+   }
+
+   public static boolean useLuceneIndexes() {
+      return useLuceneIndexes;
+   }
+
+   public static void setUseLuceneIndexes(boolean useLuceneIndexes) {
+      Get.useLuceneIndexes = useLuceneIndexes;
+   }
+
+   public static String conceptDescriptionText(UUID conceptUuid) {
+      return conceptDescriptionText(Get.nidForUuids(conceptUuid));
    }
 }
 
