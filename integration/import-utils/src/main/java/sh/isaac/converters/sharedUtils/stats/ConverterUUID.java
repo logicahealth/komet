@@ -168,7 +168,35 @@ public class ConverterUUID
 	{
 		if (namespace != null)
 		{
-			LOG.info("Reconfiguring Namespace from {} to {}!", this.namespace, namespace);
+			LOG.info("Reconfiguring Namespace from {} to {}", 
+					() -> {
+						StringBuilder sb = new StringBuilder();
+						if (!disableUUIDMap)
+						{
+							String s = getUUIDCreationString(this.namespace);
+							if (s != null)
+							{
+								sb.append(s);
+								sb.append(" - ");
+							}
+						}
+						sb.append(this.namespace);
+						return sb.toString();
+					},
+					() -> {
+						StringBuilder sb = new StringBuilder();
+						if (!disableUUIDMap)
+						{
+							String s = getUUIDCreationString(namespace);
+							if (s != null)
+							{
+								sb.append(s);
+								sb.append(" - ");
+							}
+						}
+						sb.append(namespace.toString());
+						return sb.toString();
+					});
 		}
 		this.namespace = namespace;
 	}

@@ -672,7 +672,28 @@ public class DirectWriteHelper
 	 */
 	public void changeModule(int moduleNid)
 	{
-		log.debug("Changing module nid from {} to {}", this.moduleNid, moduleNid);
+		log.debug("Changing module nid from {} to {}", 
+		() -> {
+			StringBuilder sb = new StringBuilder();
+			Get.defaultConceptSnapshotService().getDescriptionOptional(this.moduleNid).ifPresent(d -> sb.append(d.getText()));
+			if (sb.length() > 0)
+			{
+				sb.append(" - ");
+			}
+			sb.append(Get.identifierService().getUuidPrimordialStringForNid(this.moduleNid));
+			return sb.toString();
+		},
+		() -> {
+			StringBuilder sb = new StringBuilder();
+			Get.defaultConceptSnapshotService().getDescriptionOptional(moduleNid).ifPresent(d -> sb.append(d.getText()));
+			if (sb.length() > 0)
+			{
+				sb.append(" - ");
+			}
+			sb.append(Get.identifierService().getUuidPrimordialStringForNid(moduleNid));
+			return sb.toString();
+		});
+		
 		this.moduleNid = moduleNid;
 	}
 
