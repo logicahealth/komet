@@ -51,6 +51,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
@@ -71,6 +73,7 @@ import fhir.Extension;
 import fhir.Identifier;
 import fhir.PublicationStatusList;
 import fhir.ValueSet;
+import javafx.util.Pair;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCode;
@@ -81,16 +84,17 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.semantic.types.DynamicArrayImpl;
 import sh.isaac.model.semantic.types.DynamicBooleanImpl;
 import sh.isaac.model.semantic.types.DynamicDoubleImpl;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
+import sh.isaac.model.semantic.types.DynamicLongImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
@@ -105,13 +109,12 @@ import sh.isaac.utility.LanguageMap;
 @Service
 public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements DirectConverter
 {
-	private int conceptCount = 0;
-	
 	private DateTimeFormatter timeParser = new DateTimeFormatterBuilder().appendPattern("yyyy[-MM[-dd['T'HH:mm:ss[.SSS]xxx]]]")
 			.parseDefaulting(ChronoField.NANO_OF_SECOND, 0)
 			.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
 			.parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
 			.parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+			.parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
 			.toFormatter().withZone(ZoneId.of("UTC"));
 	
 	private UUID fhirRootConcept;
@@ -130,13 +133,12 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 	private static final String CODING = "coding";
 	private static final String TITLE = "title";
 	private static final String DESIGNIATION = "designation";
+	private static final String COMMENTS = "comments";
 	private static final String VERSION = "version";
 	private static final String CODE_SYSTEM_STATUS = "code system status";
 	private static final String ALL_FHIR_REFSET = "All FHIR Concepts";
 	
 	private HashSet<UUID> createdConcepts = new HashSet<>();
-	private HashSet<UUID> referencedParents = new HashSet<>();
-	
 	private UUID columnNameGroupConcept;
 	
 	/**
@@ -229,6 +231,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, oldestDate);
 		
 		dwh.makeDescriptionTypeConcept(null, DESIGNIATION, null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
+		dwh.makeDescriptionTypeConcept(null, COMMENTS, null, "codesystem-concept-comments", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
 		
 		columnNameGroupConcept = dwh.makeOtherMetadataRootNode("Complex Attribute Column Names", oldestDate);
 		UUID id = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "Id", null, null, null, null, null, oldestDate);
@@ -296,6 +299,12 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 				dwh.makeDescriptionEnNoDialect(attribute, csp.getValue().getDescription().getValue(), MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 						Status.ACTIVE, oldestDate);
 			}
+			//Handle stashed descriptions that were different
+			for (Extension e : csp.getValue().getExtension())
+			{
+				dwh.makeDescriptionEnNoDialect(attribute, e.getValueString().getValue(), MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+						Status.ACTIVE, oldestDate);
+			}
 		}
 		
 		// Every time concept created add membership to "All FHIR Concepts"
@@ -352,9 +361,6 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		dwh.processTaxonomyUpdates();
 		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
 		
-		log.info("Processed " + conceptCount + " concepts");
-		statusUpdates.accept("Processed " + conceptCount + " concepts");
-		
 		log.info("Load Statistics");
 
 		for (String line : dwh.getLoadStats().getSummary())
@@ -373,7 +379,8 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 
 	private void processValueSet(ValueSet vs)
 	{
-		log.info("Processing Value Set {}", vs.getName().getValue());
+		//TODO
+		log.info("TODO Processing Value Set {}", vs.getName().getValue());
 		//Reset the module for each item being processed
 		//setupModule(termName, Optional.of(foo),  MetaData.FHIR_MODULES____SOLOR.getPrimordialUuid(), Optional.empty(uri), date.getTime());
 
@@ -501,15 +508,27 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			handleExtension(codeSystemConcept, extension, codeSystemDate);
 		}
 		
+		//A map of each concept in this code system, to its list of parents, with each one also keeping a date to use when constructing the taxonomy. 
+		HashMap<UUID, Pair<HashSet<UUID>, AtomicLong>> taxonomyInfo = new HashMap<>();
+		
 		for (CodeSystemConcept csc : cs.getConcept())
 		{
-			buildConcept(codeSystemConcept, csc, codeSystemDate);
+			buildConcept(codeSystemConcept, csc, codeSystemDate, taxonomyInfo);
 		}
+		
+		for(Entry<UUID, Pair<HashSet<UUID>, AtomicLong>> taxonomy : taxonomyInfo.entrySet())
+		{
+			//Don't use the concept status on the taxonomy
+			dwh.makeParentGraph(taxonomy.getKey(), taxonomy.getValue().getKey(), Status.ACTIVE, taxonomy.getValue().getValue().get());
+		}
+		
+		log.info("Processed {} concepts", cs.getConcept().size());
 	}
 
-	private void buildConcept(UUID parent, CodeSystemConcept csc, long date)
+	private void buildConcept(UUID parent, CodeSystemConcept csc, long date, HashMap<UUID, Pair<HashSet<UUID>, AtomicLong>> taxonomyInfo)
 	{
 		String code = csc.getCode().getValue();
+		AtomicInteger descCount = new AtomicInteger();
 		
 		UUID conceptUUID = converterUUID.createNamespaceUUIDFromString(code, true);
 		createdConcepts.add(conceptUUID);
@@ -521,11 +540,12 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		
 		Optional.ofNullable(csc.getDefinition()).map(i -> i.getValue()).ifPresent(definition -> 
 		{
-			dwh.makeDescriptionEnNoDialect(conceptUUID, definition, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), status, date);
+			dwh.makeDescriptionEnNoDialect(conceptUUID, definition, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, date);
 		});
 		Optional.ofNullable(csc.getDisplay()).map(i -> i.getValue()).ifPresent(display -> 
 		{
-			dwh.makeDescriptionEnNoDialect(conceptUUID, display, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), status, date);
+			descCount.getAndIncrement();
+			dwh.makeDescriptionEnNoDialect(conceptUUID, display, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, date);
 		});
 		Optional.ofNullable(csc.getId()).ifPresent(id -> 
 		{
@@ -537,13 +557,45 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			UUID designation;
 			if (csd.getLanguage() == null ||  StringUtils.isBlank(csd.getLanguage().getValue()))
 			{
-				designation = dwh.makeDescriptionEnNoDialect(conceptUUID, csd.getValue().getValue(), dwh.getDescriptionType(DESIGNIATION), status, date);
+				descCount.getAndIncrement();
+				designation = dwh.makeDescriptionEnNoDialect(conceptUUID, csd.getValue().getValue(), dwh.getDescriptionType(DESIGNIATION), Status.ACTIVE, date);
 			}
 			else
 			{
-				designation = dwh.makeDescription(conceptUUID, csd.getValue().getValue(), dwh.getDescriptionType(DESIGNIATION), 
+				//There exists designations in some FHIR files which are NOT unique, and only differ by content which is nested on them, like "use"
+				//For example:
+			//          <designation>
+			//            <language value="nl"/>
+			//            <use>
+			//              <system value="http://terminology.hl7.org/CodeSystem/designation-usage"/>
+			//              <code value="display"/>
+			//            </use>
+			//            <value value="Man"/>
+			//          </designation>
+			//          <designation>
+			//            <language value="nl"/>
+			//            <use>
+			//              <system value="http://terminology.hl7.org/CodeSystem/designation-usage"/>
+			//              <code value="definition"/>
+			//            </use>
+			//            <value value="Man"/>
+			//          </designation>
+				//For garbage cases like this, we need to calculate our UUID with some information from the nested use...
+				String addOn = "";
+				if (csd.getUse() != null && csd.getUse().getCode() != null && StringUtils.isNotBlank(csd.getUse().getCode().getValue()))
+				{
+					addOn = ":USE:" + csd.getUse().getCode().getValue();
+				}
+				
+				//Same code as the default, but with a bit of USE information added into the text, if it is provided.
+				UUID uuidForDescription = UuidFactory.getUuidForDescriptionSemantic(converterUUID.getNamespace(), conceptUUID, MetaData.NOT_APPLICABLE____SOLOR.getPrimordialUuid(), 
+						dwh.getDescriptionType(DESIGNIATION), LanguageMap.getConceptForLanguageCode(LanguageCode.getLangCode(csd.getLanguage().getValue())).getPrimordialUuid(),
+						csd.getValue().getValue() + addOn, ((input, uuid) -> converterUUID.addMapping(input, uuid)));
+				
+				descCount.getAndIncrement();
+				designation = dwh.makeDescription(uuidForDescription, conceptUUID, csd.getValue().getValue(), dwh.getDescriptionType(DESIGNIATION), 
 						LanguageMap.getConceptForLanguageCode(LanguageCode.getLangCode(csd.getLanguage().getValue())).getPrimordialUuid(),
-						MetaData.NOT_APPLICABLE____SOLOR.getPrimordialUuid(), status, date, null, null);
+						MetaData.NOT_APPLICABLE____SOLOR.getPrimordialUuid(), Status.ACTIVE, date, null, null);
 			}
 			
 			if (csd.getUse() != null)
@@ -583,22 +635,18 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		
 		for (CodeSystemConcept nested : csc.getConcept())
 		{
-			buildConcept(conceptUUID, nested, date);
+			buildConcept(conceptUUID, nested, date, taxonomyInfo);
 		}
 		
-		ArrayList<UUID> parents = findParents(csc);
-		referencedParents.addAll(parents);
-		
-		if (parent != null)
-		{
-			parents.add(parent);
-		}
-		if (parents.size() > 0)
-		{
-			dwh.makeParentGraph(conceptUUID, parents, status, date);
-		}
+		collectParents(csc, conceptUUID, date, parent, taxonomyInfo);
 		
 		dwh.makeDynamicRefsetMember(dwh.getRefsetType(ALL_FHIR_REFSET), conceptUUID, date);
+		
+		if (descCount.get() == 0)
+		{
+			//Some fhir code systems have no description (how bizarre) use the code as a description for these.
+			dwh.makeDescriptionEnNoDialect(conceptUUID, code, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, date);
+		}
 	}
 	
 	private void handleProperty(UUID forItem, CodeSystemProperty1 property, long time)
@@ -619,9 +667,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		}
 		else if (property.getValueCoding() != null)
 		{
-			//data = new DynamicUUIDImpl(converterUUID.createNamespaceUUIDFromString(property.getValueCoding().g.getValue(), true));
-			//TODO would need to properly calculate the UUID for a concept from any URI...
-			log.error("Coding type not supported yet!");
+			throw new RuntimeException("Not yet supported");
 		}
 		else if (property.getValueInteger() != null)
 		{
@@ -630,6 +676,14 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		else if (property.getValueDecimal() != null)
 		{
 			data = new DynamicDoubleImpl(Double.valueOf(property.getValueDecimal().getValue()));
+		}
+		else if (property.getValueDateTime() != null)
+		{
+			data = new DynamicLongImpl(Instant.from(timeParser.parse(property.getValueDateTime().getValue())).toEpochMilli());
+		}
+		else
+		{
+			throw new RuntimeException("Unsupported property");
 		}
 		
 		if (data != null)
@@ -654,17 +708,33 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		return Status.ACTIVE;
 	}
 	
-	private ArrayList<UUID> findParents(CodeSystemConcept csc)
+	private void collectParents(CodeSystemConcept csc, UUID conceptBeingProcessed, long dateForConceptBeingProcessed, UUID passedParent, 
+			HashMap<UUID, Pair<HashSet<UUID>, AtomicLong>> taxonomyInfo)
 	{
-		ArrayList<UUID> parents = new ArrayList<>();
+		if (passedParent != null)
+		{
+			Pair<HashSet<UUID>, AtomicLong> parentInfo = taxonomyInfo.computeIfAbsent(conceptBeingProcessed, 
+					(uuidAgain) -> new Pair<HashSet<UUID>, AtomicLong>(new HashSet<UUID>(), new AtomicLong(0)));
+			parentInfo.getKey().add(passedParent);
+			if (parentInfo.getValue().get() < dateForConceptBeingProcessed)
+			{
+				parentInfo.getValue().set(dateForConceptBeingProcessed);
+			}
+		}
 		for (CodeSystemProperty1 property :csc.getProperty())
 		{
 			if (property.getCode().getValue().equals("child"))
 			{
-				parents.add(converterUUID.createNamespaceUUIDFromString(property.getValueCode().getValue(), true));
+				UUID child = converterUUID.createNamespaceUUIDFromString(property.getValueCode().getValue(), true);
+				Pair<HashSet<UUID>, AtomicLong> parentInfo = taxonomyInfo.computeIfAbsent(child, 
+						(uuidAgain) -> new Pair<HashSet<UUID>, AtomicLong>(new HashSet<UUID>(), new AtomicLong(0)));
+				parentInfo.getKey().add(conceptBeingProcessed);
+				if (parentInfo.getValue().get() < dateForConceptBeingProcessed)
+				{
+					parentInfo.getValue().set(dateForConceptBeingProcessed);
+				}
 			}
 		}
-		return parents;
 	}
 
 	private void handleExtension(UUID forItem, Extension extension, long time)
@@ -680,24 +750,65 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			{
 				data[1] = new DynamicStringImpl(extension.getValueString().getValue());
 			}
-			else if (extension.getValueString().getExtension() != null && extension.getValueString().getExtension().size() > 0) 
+			else if ("http://hl7.org/fhir/StructureDefinition/codesystem-concept-comments".equals(extension.getUrl()) && extension.getValueString().getExtension() != null 
+					&& extension.getValueString().getExtension().size() == 1) 
 			{
-				//This is some particularly stupid schema design we have to handle here....
-				//Example content:
-//				<valueString>
-//	              <extension url="http://hl7.org/fhir/StructureDefinition/translation">
-//	                <extension url="lang">
-//	                  <valueString value="nl"/>
-//	                </extension>
-//	                <extension url="content">
-//	                  <valueString value="Zo spoedig mogelijk"/>
-//	                </extension>
-//	              </extension>
-//	            </valueString>
+				//<concept>
+				//  <extension url="http://hl7.org/fhir/StructureDefinition/codesystem-concept-comments">
+				//  <valueString>
+				//    <extension url="http://hl7.org/fhir/StructureDefinition/translation">
+				//      <extension url="lang">
+				//        <valueString value="nl"/>
+				//      </extension>
+				//      <extension url="content">
+				//        <valueString value="Zo spoedig mogelijk"/>
+				//      </extension>
+				//    </extension>
+				//  </valueString>
 				
-				
-				
-				
+				if ("http://hl7.org/fhir/StructureDefinition/translation".equals(extension.getValueString().getExtension().get(0).getUrl()))
+				{
+					String lang = null;
+					String content = null;
+					for (Extension e : extension.getValueString().getExtension().get(0).getExtension())
+					{
+						if ("lang".equals(e.getUrl()))
+						{
+							if (e.getValueString() != null)
+							{
+								lang = e.getValueString().getValue();
+							}
+							else if (e.getValueCode() != null)
+							{
+								lang = e.getValueCode().getValue();
+							}
+							else
+							{
+								throw new RuntimeException("unhandled translation format");
+							}
+							
+						}
+						else if ("content".equals(e.getUrl()))
+						{
+							content = e.getValueString().getValue();
+						}
+					}
+					if (lang != null && content != null)
+					{
+						data = null;
+						dwh.makeDescription(forItem, content, dwh.getDescriptionType(COMMENTS), 
+								LanguageMap.getConceptForLanguageCode(LanguageCode.getLangCode(lang)).getPrimordialUuid(), MetaData.NOT_APPLICABLE____SOLOR.getPrimordialUuid(), 
+								Status.ACTIVE, time, null, null);
+					}
+					else
+					{
+						throw new RuntimeException("Nested translation extension type not yet handled");
+					}
+				}
+				else
+				{
+					throw new RuntimeException("Nested extension type not yet handled");
+				}
 			}
 		}
 		//Putting these in as strings for now.
@@ -727,9 +838,12 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			throw new RuntimeException("Extension type not yet handled");
 		}
 		
-		UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(EXTENSION), forItem, data, time);
-		if (dataNested != null) {
-			dwh.makeDynamicSemantic(assemablageNested, made, dataNested, time);
+		if (data != null)
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(EXTENSION), forItem, data, time);
+			if (dataNested != null) {
+				dwh.makeDynamicSemantic(assemablageNested, made, dataNested, time);
+			}
 		}
 	}
 
@@ -837,16 +951,14 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 					left.getCode().getValue(), left.getUri().getValue(), right.getUri().getValue());
 			return false;
 		}
-		if (!Objects.equals(left.getDescription() == null ? null : left.getDescription().getValue(), 
-				right.getDescription() == null ? null : right.getDescription().getValue()))
-		{
-			log.error("Property definition consistency error for code '{}' in the description.  Second value will be ignored. 1: '{}' 2: '{}'", 
-					left.getCode().getValue(), left.getDescription().getValue(), right.getDescription().getValue());
-			return false;
-		}
 		return true;
 	}
 
+	/**
+	 * Note that this stashes "extra" descriptions in as a extension
+	 * @param mergeInto
+	 * @param mergeFrom
+	 */
 	private void mergeProperties(CodeSystemProperty mergeInto, CodeSystemProperty mergeFrom)
 	{
 		if (mergeInto.getDescription() == null || mergeInto.getDescription().getValue() == null)
@@ -856,6 +968,31 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		if (mergeInto.getUri() == null || mergeInto.getUri().getValue() == null || mergeInto.getUri().getValue().equals("http://.........?"))
 		{
 			mergeInto.setUri(mergeFrom.getUri());
+		}
+		
+		//See if they have differing descriptions, if so, keep both.
+		if (mergeInto.getDescription() != null && StringUtils.isNotBlank(mergeInto.getDescription().getValue()) 
+				&& mergeFrom.getDescription() != null && StringUtils.isNotBlank(mergeFrom.getDescription().getValue()) 
+				&& !Objects.equals(mergeInto.getDescription().getValue(), mergeFrom.getDescription().getValue()))
+		{
+			//See if we have stuffed any descriptions aside already...
+			boolean found = false;
+			for (Extension e : mergeInto.getExtension())
+			{
+				if (e.getValueString().getValue().equals(mergeFrom.getDescription().getValue()))
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				Extension e = new Extension();
+				fhir.String s = new fhir.String();
+				s.setValue(mergeFrom.getDescription().getValue());
+				e.setValueString(s);
+				mergeInto.getExtension().add(e);
+			}
 		}
 	}
 }
