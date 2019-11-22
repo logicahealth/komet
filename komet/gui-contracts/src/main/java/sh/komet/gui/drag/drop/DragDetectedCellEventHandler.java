@@ -39,7 +39,6 @@ package sh.komet.gui.drag.drop;
 import java.util.function.IntSupplier;
 
 import javafx.scene.control.ListView;
-import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
@@ -86,13 +85,13 @@ public class DragDetectedCellEventHandler
     public void handle(MouseEvent event) {
         /* drag was detected, start a drag-and-drop gesture */
  /* allow any transfer mode */
-        Region eventNode = null;
+        Node eventNode = null;
         IdentifiedObject identifiedObject = null;
 
         if (nidSupplier != null) {
             identifiedObject = Get.identifiedObjectService().getChronology(nidSupplier.getAsInt()).get();
-            if (event.getSource() instanceof Region) {
-                eventNode = (Region) event.getSource();
+            if (event.getSource() instanceof Node) {
+                eventNode = (Node) event.getSource();
             } else {
                 LOG.warn("Non node source of drag? {}", event.getSource());
             }
@@ -112,9 +111,9 @@ public class DragDetectedCellEventHandler
                     .getSelectedItem() instanceof IdentifiedObject) {
                 identifiedObject = tableView.getSelectionModel()
                         .getSelectedItem();
-                eventNode = (Region) event.getPickResult()
+                eventNode = (Node) event.getPickResult()
                         .getIntersectedNode();
-                eventNode = (Region) eventNode.getParent();
+                eventNode = (Node) eventNode.getParent();
             }
         } else if (event.getSource() instanceof ListView) {
 
@@ -122,11 +121,11 @@ public class DragDetectedCellEventHandler
             Object selectedObject = listView.getSelectionModel().getSelectedItem();
             if (selectedObject instanceof IdentifiedObject) {
                 identifiedObject = (IdentifiedObject) selectedObject;
-                eventNode = (Region) event.getPickResult()
+                eventNode = (Node) event.getPickResult()
                         .getIntersectedNode().getParent().getParent();
 
             } else if (selectedObject instanceof CompositeQueryResult) {
-                eventNode = (Region) event.getPickResult()
+                eventNode = (Node) event.getPickResult()
                         .getIntersectedNode().getParent().getParent().getParent();
                 identifiedObject = ((CompositeQueryResult) selectedObject).getContainingConcept();
             } else {

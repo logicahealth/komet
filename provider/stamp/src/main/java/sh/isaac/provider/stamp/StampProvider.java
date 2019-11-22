@@ -769,6 +769,10 @@ public class StampProvider
             return false;
         }
 
+        if (getStatusForStamp(stamp) == Status.CANCELED) {
+            return false;
+        }
+
         return getTimeForStamp(stamp) != Long.MIN_VALUE;
     }
 

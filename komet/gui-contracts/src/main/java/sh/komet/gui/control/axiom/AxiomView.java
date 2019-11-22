@@ -415,13 +415,13 @@ public class AxiomView {
                     LatestVersion<Version> latest = Get.concept(conceptNode.getConceptNid()).getLatestVersion(manifold);
                     if (latest.isPresent()) {
                         Status latestStatus = latest.get().getStatus();
-                        titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
+                        titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
                                 latestStatus, manifold, premiseType));
                         if (latestStatus != Status.ACTIVE) {
                             titleLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, true);
                         }
                     } else {
-                        titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
+                        titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
                                 Status.PRIMORDIAL, manifold, premiseType));
                     }
 
