@@ -283,10 +283,10 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             ConceptLabel conceptLabel = new ConceptLabel(manifoldForDisplay, ConceptLabel::setPreferredText, (label) -> {
                 List<MenuItem> labelMenu = new ArrayList<>();
 
-                for (String manifoldGroup : Manifold.getGroupNames()) {
-                    Menu manifoldHistory = new Menu(manifoldGroup);
+                for (Manifold.ManifoldGroup manifoldGroup : Manifold.ManifoldGroup.values()) {
+                    Menu manifoldHistory = new Menu(manifoldGroup.getGroupName());
                     labelMenu.add(manifoldHistory);
-                    Collection<ComponentProxy> groupHistory = Manifold.getGroupHistory(manifoldGroup);
+                    Collection<ComponentProxy> groupHistory = Manifold.get(manifoldGroup).getHistoryRecords();
                     for (ComponentProxy record : groupHistory) {
                         MenuItem conceptItem = new MenuItemWithText(
                                 manifoldForDisplay.getPreferredDescriptionText(record.getNid())

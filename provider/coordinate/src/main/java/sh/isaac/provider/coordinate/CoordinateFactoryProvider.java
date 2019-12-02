@@ -435,7 +435,7 @@ public class CoordinateFactoryProvider
 
         if (descriptionsForLanguageOfType.isEmpty()) {
             //Didn't find any that matched any of the allowed description types.  See if there is another priority coordinate to continue with
-            Optional<LanguageCoordinate> nextPriorityCoordinate = languageCoordinate.getNextProrityLanguageCoordinate();
+            Optional<LanguageCoordinate> nextPriorityCoordinate = languageCoordinate.getNextPriorityLanguageCoordinate();
             if (nextPriorityCoordinate.isPresent()) {
                 return getSpecifiedDescription(stampCoordinate, descriptionList, nextPriorityCoordinate.get());
             }

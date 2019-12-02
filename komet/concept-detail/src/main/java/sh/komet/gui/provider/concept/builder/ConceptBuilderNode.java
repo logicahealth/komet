@@ -256,7 +256,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         ObservableVersion[] versionsToCommit;
         try {
             versionsToCommit = getVersionsToCommit();
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
             CommitTask commitTask = transaction.commitObservableVersions("Lambda graph edit", versionsToCommit);
             Get.executor().execute(() -> {
                 try {

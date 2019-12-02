@@ -44,15 +44,17 @@ import java.util.Optional;
 import java.util.function.Supplier;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
@@ -72,18 +74,20 @@ public class ConceptDetailTreeTableNode
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.CONCEPT_TABLE.getIconographic());
-    private final Manifold conceptDetailManifold;
+    private final SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
+    private final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final ConceptLabelToolbar conceptLabelToolbar;
 
     //~--- constructors --------------------------------------------------------
     public ConceptDetailTreeTableNode(Manifold conceptDetailManifold) {
         try {
-            this.conceptDetailManifold = conceptDetailManifold;
-            this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
-            conceptDetailManifold.focusedConceptProperty()
-                    .addListener(this::updateTitle);
-            this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(true));
+            this.manifoldProperty.set(conceptDetailManifold);
+            this.manifoldProperty.get().getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
+
+            conceptDetailManifold.manifoldSelectionProperty().addListener(this::updateTitleListener);
+            this.conceptLabelToolbar = ConceptLabelToolbar.make(this.manifoldProperty, this.selectionIndexProperty,
+                    this, Optional.of(true));
             conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
             conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
 
@@ -94,15 +98,16 @@ public class ConceptDetailTreeTableNode
 
             ConceptDetailTreeTableController conceptDetailController = loader.getController();
 
-            conceptDetailController.setManifold(conceptDetailManifold);
-            if (conceptDetailManifold.getFocusedConcept().isPresent()) {
-                updateTitle(conceptDetailManifold.focusedConceptProperty(), null,
-                        conceptDetailManifold.getFocusedConcept().get());
-            }
+            conceptDetailController.setManifoldProperty(this.manifoldProperty);
+            updateTitle();
             conceptDetailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private Optional<ConceptChronology> getOptionalFocusedConcept() {
+        return this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
     }
 
     @Override
@@ -110,23 +115,25 @@ public class ConceptDetailTreeTableNode
         throw new UnsupportedOperationException();
     }
 
-    private void updateTitle(ObservableValue<? extends ConceptSpecification> observable,
-            ConceptSpecification oldValue,
-            ConceptSpecification newValue) {
-        if (titleLabel == null) {
-            if (newValue == null) {
-                titleProperty.set("empty");
-                toolTipProperty.set(
-                        "concept details for: empty");
-            } else {
-                titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
-                toolTipProperty.set(
-                        "concept details for: "
-                        + this.conceptDetailManifold.getFullySpecifiedDescriptionText(
-                                newValue));
-            }
-        }
+    private void updateTitleListener(ListChangeListener.Change<? extends ComponentProxy> c) {
+        updateTitle();
+    }
 
+    private void updateTitle() {
+        Optional<ConceptChronology> optionalConcept = getOptionalFocusedConcept();
+        if (optionalConcept.isEmpty()) {
+            titleProperty.set("empty");
+            toolTipProperty.set(
+                    "concept details for: empty");
+        } else {
+            //TODO handle list properly...
+
+            titleProperty.set(this.manifoldProperty.get().getPreferredDescriptionText(optionalConcept.get()));
+            toolTipProperty.set(
+                    "concept details for: "
+                            + this.manifoldProperty.get().getFullySpecifiedDescriptionText(
+                            optionalConcept.get()));
+        }
     }
     //~--- get methods ---------------------------------------------------------
 
@@ -148,7 +155,8 @@ public class ConceptDetailTreeTableNode
     @Override
     public Optional<Node> getTitleNode() {
         if (titleLabel == null) {
-            this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);
+            this.titleLabel = new ManifoldLinkedConceptLabel(this.manifoldProperty, this.selectionIndexProperty,
+                    ManifoldLinkedConceptLabel::setPreferredText, this);
             this.titleLabel.setGraphic(Iconography.CONCEPT_TABLE.getIconographic());
             this.titleProperty.set("");
         }
@@ -169,7 +177,7 @@ public class ConceptDetailTreeTableNode
 
     @Override
     public Manifold getManifold() {
-        return this.conceptDetailManifold;
+        return this.manifoldProperty.get();
     }
 
     @Override

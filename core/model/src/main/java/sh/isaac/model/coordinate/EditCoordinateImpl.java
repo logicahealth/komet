@@ -52,6 +52,8 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -93,6 +95,22 @@ public class EditCoordinateImpl
       this.author = author;
       this.module = module;
       this.path   = path;
+   }
+
+   private EditCoordinateImpl(ByteArrayDataBuffer data) {
+      this.author = data.getConceptSpecification();
+      this.module = data.getConceptSpecification();
+      this.path = data.getConceptSpecification();
+   }
+
+   public final void putExternal(ByteArrayDataBuffer out) {
+      out.putConceptSpecification(this.author);
+      out.putConceptSpecification(this.module);
+      out.putConceptSpecification(this.path);
+   }
+
+   public static final EditCoordinateImpl make(ByteArrayDataBuffer data) {
+      return new EditCoordinateImpl(data);
    }
 
    //~--- methods -------------------------------------------------------------

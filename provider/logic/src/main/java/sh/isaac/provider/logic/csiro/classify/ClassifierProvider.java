@@ -96,12 +96,12 @@ public class ClassifierProvider
 
    @Override
    public TimedTask<ClassifierResults> classify() {
-      return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate, false);
+      return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate, this.editCoordinate, true);
    }
    
    @Override
    public TimedTask<ClassifierResults> classify(boolean cycleCheck) {
-      return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate, cycleCheck);
+      return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate, this.editCoordinate, cycleCheck);
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -16,6 +16,7 @@ import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.transaction.Transaction;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -35,15 +36,16 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
 
     final UUID transactionId;
     final ChangeCheckerMode changeCheckerMode;
+    final Optional<String> transactionName;
 
-    public TransactionImpl(ChangeCheckerMode changeCheckerMode) {
-        this.transactionId = UUID.randomUUID();
-        this.changeCheckerMode = changeCheckerMode;
+    public TransactionImpl(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode) {
+        this(transactionName, UUID.randomUUID(), changeCheckerMode);
     }
 
-    private TransactionImpl(UUID uuid, ChangeCheckerMode changeCheckerMode) {
+    private TransactionImpl(Optional<String> transactionName, UUID uuid, ChangeCheckerMode changeCheckerMode) {
         this.transactionId = uuid;
         this.changeCheckerMode = changeCheckerMode;
+        this.transactionName = transactionName;
     }
 
     @Override
@@ -70,7 +72,7 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
 
     public TransactionImpl.TransactionsForPath addStampToTransaction(int stampSequence) {
         int pathNid = Get.stampService().getPathNidForStamp(stampSequence);
-        children.computeIfAbsent(pathNid, pathNidKey -> new TransactionsForPath(this.changeCheckerMode, pathNidKey)).addStampToTransaction(stampSequence);
+        children.computeIfAbsent(pathNid, pathNidKey -> new TransactionsForPath(this.transactionName, this.changeCheckerMode, pathNidKey)).addStampToTransaction(stampSequence);
         return children.get(stampSequence);
     }
 
@@ -85,7 +87,7 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
 
     @Override
     public void addVersionToTransaction(Version v) {
-        children.computeIfAbsent(v.getPathNid(), pathNidKey -> new TransactionsForPath(this.changeCheckerMode, pathNidKey)).addComponentNidToTransaction(v.getNid());
+        children.computeIfAbsent(v.getPathNid(), pathNidKey -> new TransactionsForPath(this.transactionName, this.changeCheckerMode, pathNidKey)).addComponentNidToTransaction(v.getNid());
     }
 
     @Override
@@ -144,10 +146,19 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
         return commit(comment, new ConcurrentSkipListSet<AlertObject>());
     }
 
+    @Override
+    public CommitTask commit(String comment, Instant commitTime) {
+        return commit(comment, new ConcurrentSkipListSet<AlertObject>());
+    }
+
 
     @Override
     public CommitTask commit(String comment, ConcurrentSkipListSet<AlertObject> alertCollection) {
         return Get.commitService().commit(this, comment, alertCollection);
+    }
+
+    public CommitTask commit(String comment, ConcurrentSkipListSet<AlertObject> alertCollection, Instant commitTime) {
+        return Get.commitService().commit(this, comment, alertCollection, commitTime);
     }
 
     @Override
@@ -170,7 +181,7 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
     }
 
     public Transaction getTransactionForPath(int pathNid) {
-        return children.computeIfAbsent(pathNid, pathNidKey -> new TransactionsForPath(this.changeCheckerMode, pathNidKey));
+        return children.computeIfAbsent(pathNid, pathNidKey -> new TransactionsForPath(this.transactionName, this.changeCheckerMode, pathNidKey));
     }
 
     private class TransactionsForPath extends TransactionImpl {
@@ -178,13 +189,13 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
         final ConcurrentSkipListSet<Integer> components = new ConcurrentSkipListSet<>();
         final int pathNid;
 
-        public TransactionsForPath(ChangeCheckerMode changeCheckerMode, int pathNid) {
-            super(changeCheckerMode);
+        public TransactionsForPath(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode, int pathNid) {
+            super(transactionName, changeCheckerMode);
             this.pathNid = pathNid;
         }
 
-        public TransactionsForPath(UUID uuid, ChangeCheckerMode changeCheckerMode, int pathNid) {
-            super(uuid, changeCheckerMode);
+        public TransactionsForPath(Optional<String> transactionName, UUID uuid, ChangeCheckerMode changeCheckerMode, int pathNid) {
+            super(transactionName, uuid, changeCheckerMode);
             this.pathNid = pathNid;
         }
         public boolean containsComponent(int nid) {
@@ -278,5 +289,14 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
     @Override
     public CommitTask commitObservableVersions(String commitComment, ObservableVersion... versionsToCommit) {
         return ((CommitProvider) Get.commitService()).commitObservableVersions(this, commitComment, versionsToCommit);
+    }
+
+    @Override
+    public String toString() {
+        if (transactionName.isPresent()) {
+            return transactionName.get();
+        }
+
+        return transactionId.toString();
     }
 }

@@ -919,7 +919,7 @@ public class FLWORQueryController
     //~--- set methods ---------------------------------------------------------
     public void setManifold(Manifold manifold) throws IOException {
         this.manifold = manifold;
-        this.letPropertySheet = new LetPropertySheet(this.manifold.deepClone(), this);
+        this.letPropertySheet = new LetPropertySheet(this.manifold, this);
         returnStampCoordinateColumn.setCellValueFactory((param) -> {
             return param.getValue().stampCoordinateKeyProperty();
         });

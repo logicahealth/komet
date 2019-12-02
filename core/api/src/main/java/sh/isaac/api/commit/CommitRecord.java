@@ -58,6 +58,8 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.collections.NidSet;
 
 import sh.isaac.api.collections.StampSequenceSet;
+import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
@@ -86,6 +88,37 @@ public class CommitRecord {
    protected NidSet semanticNidsInCommit;
 
    //~--- constructors --------------------------------------------------------
+
+   private CommitRecord(ByteArrayDataBuffer data) {
+      this.commitTime = Instant.ofEpochMilli(data.getLong());
+      this.stampsInCommit = StampSequenceSet.of(data.getIntArray());
+      int mapSize = data.getInt();
+      this.stampAliases = new OpenIntIntHashMap(mapSize);
+      for (int i = 0; i < mapSize; i++) {
+         stampAliases.put(data.getInt(), data.getInt());
+      }
+      this.commitComment = data.getUTF();
+      this.conceptNidsInCommit = NidSet.of(data.getNidArray());
+      this.semanticNidsInCommit = NidSet.of(data.getNidArray());
+   }
+
+   public final void putExternal(ByteArrayDataBuffer out) {
+      out.putLong(commitTime.toEpochMilli());
+      out.putIntArray(stampsInCommit.asArray());
+      out.putInt(stampAliases.size());
+      stampAliases.forEachPair((first, second) -> {
+         out.putInt(first);
+         out.putInt(second);
+         return true;
+      });
+      out.putUTF(commitComment);
+      out.putNidArray(conceptNidsInCommit.asArray());
+      out.putNidArray(semanticNidsInCommit.asArray());
+   }
+
+   public static final CommitRecord make(ByteArrayDataBuffer data) {
+      return new CommitRecord(data);
+   }
 
    /**
     * Instantiates a new commit record.

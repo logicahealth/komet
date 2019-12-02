@@ -48,7 +48,7 @@ public class ConceptCorrelationViewMenuProvider implements MenuProvider {
     @Override
     public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
         if (parentMenu == AppMenu.NEW_WINDOW) {
-            MenuItem newComparisonWindowMenuItem = new MenuItemWithText("Correlation window");
+            MenuItem newComparisonWindowMenuItem = new MenuItemWithText("Correlation Window");
             newComparisonWindowMenuItem.setOnAction(this::newCorelationView);
             return new MenuItem[] {newComparisonWindowMenuItem};
         }

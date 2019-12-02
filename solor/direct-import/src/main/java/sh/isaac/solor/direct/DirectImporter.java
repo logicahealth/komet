@@ -327,7 +327,7 @@ public class DirectImporter
 
         addToTotalWork(specificationsToImport.size());
 
-        Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
         for (ImportSpecification importSpecification : specificationsToImport) {
             String message = "Importing " + trimZipName(importSpecification.contentProvider.getStreamSourceName());
@@ -569,6 +569,9 @@ public class DirectImporter
     }
 
     private void readLOINC(Transaction transaction, BufferedReader br, ImportSpecification importSpecification) throws IOException, InterruptedException, ExecutionException {
+        // TODO: is this redundant with subsequent call to
+        // TODO: is THIS DEAD CODE?
+        LOG.warn("### RUNNING OBSOLETE CODE? ");
         updateMessage("Transforming LOINC expressions...");
         LoincExpressionToConcept expressionToConceptTask = new LoincExpressionToConcept(transaction);
         Get.executor().submit(expressionToConceptTask).get();

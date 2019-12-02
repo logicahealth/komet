@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>sh.isaac</groupId>
+        <artifactId>komet</artifactId>
+        <version>5.1.1-BATCH-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>sh.isaac.komet</groupId>
+    <artifactId>classification</artifactId>
+    <name>ISAAC’s KOMET: Classification results view</name>
+    <description>
+        A exploration view of classification results for ISAAC's KOMET.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>metadata</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+
+        <!-- ISAAC App Utils. -->
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>iconography</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>gui-contracts</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>komet-preferences</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>model</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+</project>

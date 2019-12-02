@@ -98,6 +98,11 @@ public class SemanticVersionImpl
                       authorNid,
                       this.getModuleNid(),
                       this.getPathNid());
+      return (V) setupAnalog(stampSequence);
+   }
+
+   @Override
+   public <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final SemanticVersionImpl newVersion = new SemanticVersionImpl(this, stampSequence);
 

@@ -141,7 +141,7 @@ public interface LanguageCoordinateService {
     * but still rank by the requested type.   
     * 
     *  - If no descriptions match this criteria, then 
-    *    - if a {@link LanguageCoordinate#getNextProrityLanguageCoordinate()} is supplied, the method is re-evaluated with the next coordinate.
+    *    - if a {@link LanguageCoordinate#getNextPriorityLanguageCoordinate()} is supplied, the method is re-evaluated with the next coordinate.
     *    - if there is no next priority coordinate, then an empty {@link LatestVersion} is returned.
     * 
     * For any descriptions that matched the criteria, they are then compared with the requested 

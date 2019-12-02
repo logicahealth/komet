@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
+ *
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
  * Apache License, Version 2.0.
  *
  * See: https://www.usa.gov/government-works
- * 
+ *
  * Contributions prior to 2013:
  *
  * Copyright (C) International Health Terminology Standards Development Organisation.
@@ -37,12 +37,12 @@
 package sh.isaac.provider.logic;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+
+import java.io.*;
+import java.time.Instant;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javafx.concurrent.Task;
 
 import javax.annotation.PostConstruct;
@@ -60,18 +60,23 @@ import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
+
 /**
  * The Class LogicProvider.
  *
@@ -82,214 +87,290 @@ import sh.isaac.api.component.semantic.SemanticSnapshotService;
 public class LogicProvider
         implements LogicService {
 
-   /**
-    * The Constant LOG.
-    */
-   private static final Logger LOG = LogManager.getLogger();
+    /**
+     * The Constant LOG.
+     */
+    private static final Logger LOG = LogManager.getLogger();
 
-   /**
-    * The Constant classifierServiceMap.
-    */
-   private static final Map<ClassifierServiceKey, ClassifierService> classifierServiceMap = new ConcurrentHashMap<>();
+    /**
+     * The Constant classifierServiceMap.
+     */
+    private static final Map<ClassifierServiceKey, ClassifierService> classifierServiceMap = new ConcurrentHashMap<>();
 
-   private final Set<Task<?>> pendingLogicTasks = ConcurrentHashMap.newKeySet();
-   //~--- constructors --------------------------------------------------------
-   /**
-    * Instantiates a new logic provider.
-    */
-   private LogicProvider() {
-      // For HK2
-      LOG.info("logic provider constructed");
-   }
+    private final Set<Task<?>> pendingLogicTasks = ConcurrentHashMap.newKeySet();
+
+    private final ConcurrentHashMap<Instant, ClassifierResults[]> classifierResultMap = new ConcurrentHashMap<>();
+
+    private File classifierResultsFile;
+
+    //~--- constructors --------------------------------------------------------
+
+    /**
+     * Instantiates a new logic provider.
+     */
+    private LogicProvider() {
+        // For HK2
+        LOG.info("logic provider constructed");
+    }
 
     public Set<Task<?>> getPendingLogicTasks() {
         return pendingLogicTasks;
     }
 
-   //~--- methods -------------------------------------------------------------
-   /**
-    * Start me.
-    */
-   @PostConstruct
-   private void startMe() {
-      LOG.info("Starting LogicProvider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-      classifierServiceMap.clear();
-      pendingLogicTasks.clear();
-   }
+    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Stop me.
-    */
-   @PreDestroy
-   private void stopMe() {
-      LOG.info("Stopping LogicProvider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-      for (Task<?> updateTask : pendingLogicTasks) {
-                try {
-                    LOG.info("Waiting for completion of: " + updateTask.getTitle());
-                    updateTask.get();
-                    LOG.info("Completed: " + updateTask.getTitle());
-                } catch (Throwable ex) {
-                    LOG.error(ex);
+    /**
+     * Start me.
+     */
+    @PostConstruct
+    private void startMe() {
+        LOG.info("Starting LogicProvider for change to runlevel: " + LookupService.getProceedingToRunLevel());
+        classifierServiceMap.clear();
+        pendingLogicTasks.clear();
+        // read from disk...
+        DataStore store = Get.service(DataStore.class);
+        File logicProviderDir = new File(store.getDataStorePath().toAbsolutePath().toFile(), "logic-provider");
+        logicProviderDir.mkdirs();
+        this.classifierResultsFile = new File(logicProviderDir, "classification-results");
+        if (this.classifierResultsFile.exists()) {
+            // Open and load...
+            try (DataInputStream input = new DataInputStream(new FileInputStream(this.classifierResultsFile))) {
+                ByteArrayDataBuffer buff = ByteArrayDataBuffer.make(input);
+                int instantCount = buff.getInt();
+                for (int i = 0; i < instantCount; i++) {
+                  Instant instant = Instant.ofEpochMilli(buff.getLong());
+                  ClassifierResultsImpl[] resultsForInstant = new ClassifierResultsImpl[buff.getInt()];
+                  for (int j = 0; j < resultsForInstant.length; j++) {
+                     resultsForInstant[j] = ClassifierResultsImpl.make(buff);
+                  }
+                  this.classifierResultMap.put(instant, resultsForInstant);
                 }
+            } catch (IOException e) {
+               LOG.error(e);
             }
-      classifierServiceMap.clear();
-      pendingLogicTasks.clear();
-   }
+        }
+    }
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the classifier service.
-    *
-    * @param stampCoordinate the stamp coordinate
-    * @param logicCoordinate the logic coordinate
-    * @param editCoordinate the edit coordinate
-    * @return the classifier service
-    */
-   @Override
-   public ClassifierService getClassifierService(StampCoordinate stampCoordinate,
-           LogicCoordinate logicCoordinate,
-           EditCoordinate editCoordinate) {
-      final ClassifierServiceKey key = new ClassifierServiceKey(stampCoordinate, logicCoordinate, editCoordinate);
+    /**
+     * Stop me.
+     */
+    @PreDestroy
+    private void stopMe() {
+        LOG.info("Stopping LogicProvider for change to runlevel: " + LookupService.getProceedingToRunLevel());
+        for (Task<?> updateTask : pendingLogicTasks) {
+            try {
+                LOG.info("Waiting for completion of: " + updateTask.getTitle());
+                updateTask.get();
+                LOG.info("Completed: " + updateTask.getTitle());
+            } catch (Throwable ex) {
+                LOG.error(ex);
+            }
+        }
+        this.classifierServiceMap.clear();
+        this.pendingLogicTasks.clear();
+        ByteArrayDataBuffer buff = new ByteArrayDataBuffer();
+        Instant[] instants = getClassificationInstants();
+        buff.putInt(instants.length);
+        for (int i = 0; i < instants.length; i++) {
+            buff.putLong(instants[i].toEpochMilli());
+            Optional<ClassifierResults[]> optionalResults = getClassificationResultsForInstant(instants[i]);
+            if (optionalResults.isPresent()) {
+                ClassifierResults[] results = optionalResults.get();
+                buff.putInt(results.length);
+                for (int j = 0; j < results.length; j++) {
+                    ((ClassifierResultsImpl) results[j]).putExternal(buff);
+                }
+            } else {
+                throw new IllegalStateException("No results for " + instants[i]);
+            }
+        }
+        // write to disk...
+        try (DataOutputStream output = new DataOutputStream(new FileOutputStream(this.classifierResultsFile))) {
+            buff.write(output);
+        } catch (IOException e) {
+            LOG.error(e);
+        }
+    }
 
-      if (!classifierServiceMap.containsKey(key)) {
-         classifierServiceMap.putIfAbsent(key,
-                 new ClassifierProvider(stampCoordinate, logicCoordinate, editCoordinate));
-      }
+    //~--- get methods ---------------------------------------------------------
 
-      return classifierServiceMap.get(key);
-   }
+    /**
+     * Gets the classifier service.
+     *
+     * @param stampCoordinate the stamp coordinate
+     * @param logicCoordinate the logic coordinate
+     * @param editCoordinate  the edit coordinate
+     * @return the classifier service
+     */
+    @Override
+    public ClassifierService getClassifierService(StampCoordinate stampCoordinate,
+                                                  LogicCoordinate logicCoordinate,
+                                                  EditCoordinate editCoordinate) {
+        final ClassifierServiceKey key = new ClassifierServiceKey(stampCoordinate, logicCoordinate, editCoordinate);
 
-   /**
-    * Gets the logical expression.
-    *
-    * @param conceptId the concept id
-    * @param logicAssemblageId the logic assemblage id
-    * @param stampCoordinate the stamp coordinate
-    * @return the logical expression
-    */
-   @Override
-   public LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
-           int logicAssemblageId,
-           StampCoordinate stampCoordinate) {
-      final SemanticSnapshotService<LogicGraphVersionImpl> ssp = Get.assemblageService()
-              .getSnapshot(LogicGraphVersionImpl.class,
-                      stampCoordinate);
+        if (!classifierServiceMap.containsKey(key)) {
+            classifierServiceMap.putIfAbsent(key,
+                    new ClassifierProvider(stampCoordinate, logicCoordinate, editCoordinate));
+        }
 
-      List<LatestVersion<LogicalExpression>> latestExpressions = new ArrayList<>();
-      final List<LatestVersion<LogicGraphVersionImpl>> latestVersions
-              = ssp.getLatestSemanticVersionsForComponentFromAssemblage(conceptId,
-                      logicAssemblageId);
-      for (LatestVersion<LogicGraphVersionImpl> lgs : latestVersions) {
-         final LogicalExpression expressionValue
-                 = new LogicalExpressionImpl(lgs.get().getGraphData(),
-                         DataSource.INTERNAL,
-                         lgs.get().getReferencedComponentNid());
+        return classifierServiceMap.get(key);
+    }
 
-         final LatestVersion<LogicalExpression> latestExpressionValue
-                 = new LatestVersion<>(expressionValue);
+    /**
+     * Gets the logical expression.
+     *
+     * @param conceptId         the concept id
+     * @param logicAssemblageId the logic assemblage id
+     * @param stampCoordinate   the stamp coordinate
+     * @return the logical expression
+     */
+    @Override
+    public LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
+                                                                           int logicAssemblageId,
+                                                                           StampCoordinate stampCoordinate) {
+        final SemanticSnapshotService<LogicGraphVersionImpl> ssp = Get.assemblageService()
+                .getSnapshot(LogicGraphVersionImpl.class,
+                        stampCoordinate);
 
-         lgs.contradictions().forEach((LogicGraphVersionImpl contradiction) -> {
-            final LogicalExpressionImpl contradictionValue
-                    = new LogicalExpressionImpl(contradiction.getGraphData(),
-                            DataSource.INTERNAL,
-                            contradiction.getReferencedComponentNid());
+        List<LatestVersion<LogicalExpression>> latestExpressions = new ArrayList<>();
+        final List<LatestVersion<LogicGraphVersionImpl>> latestVersions
+                = ssp.getLatestSemanticVersionsForComponentFromAssemblage(conceptId,
+                logicAssemblageId);
+        for (LatestVersion<LogicGraphVersionImpl> lgs : latestVersions) {
+            final LogicalExpression expressionValue
+                    = new LogicalExpressionImpl(lgs.get().getGraphData(),
+                    DataSource.INTERNAL,
+                    lgs.get().getReferencedComponentNid());
 
-            latestExpressionValue.addLatest(contradictionValue);
-         });
+            final LatestVersion<LogicalExpression> latestExpressionValue
+                    = new LatestVersion<>(expressionValue);
 
-         latestExpressions.add(latestExpressionValue);
-      }
-      if (latestExpressions.isEmpty()) {
-         LOG.warn("No logical expression for: " + Get.conceptDescriptionText(conceptId) + " in: "
-                 + Get.conceptDescriptionText(logicAssemblageId) + "\n\n"
-                 + Get.conceptService().getConceptChronology(conceptId).toString());
-         return new LatestVersion<>();
-      } else if (latestExpressions.size() > 1) {
-         throw new IllegalStateException("More than one logical expression for concept in assemblage: "
-                 + latestVersions);
-      }
+            lgs.contradictions().forEach((LogicGraphVersionImpl contradiction) -> {
+                final LogicalExpressionImpl contradictionValue
+                        = new LogicalExpressionImpl(contradiction.getGraphData(),
+                        DataSource.INTERNAL,
+                        contradiction.getReferencedComponentNid());
 
-      return latestExpressions.get(0);
-   }
+                latestExpressionValue.addLatest(contradictionValue);
+            });
 
-   //~--- inner classes -------------------------------------------------------
-   /**
-    * The Class ClassifierServiceKey.
-    */
-   private static class ClassifierServiceKey {
+            latestExpressions.add(latestExpressionValue);
+        }
+        if (latestExpressions.isEmpty()) {
+            LOG.warn("No logical expression for: " + Get.conceptDescriptionText(conceptId) + " in: "
+                    + Get.conceptDescriptionText(logicAssemblageId) + "\n\n"
+                    + Get.conceptService().getConceptChronology(conceptId).toString());
+            return new LatestVersion<>();
+        } else if (latestExpressions.size() > 1) {
+            throw new IllegalStateException("More than one logical expression for concept in assemblage: "
+                    + latestVersions);
+        }
 
-      /**
-       * The stamp coordinate.
-       */
-      StampCoordinate stampCoordinate;
+        return latestExpressions.get(0);
+    }
 
-      /**
-       * The logic coordinate.
-       */
-      LogicCoordinate logicCoordinate;
+    //~--- inner classes -------------------------------------------------------
 
-      /**
-       * The edit coordinate.
-       */
-      EditCoordinate editCoordinate;
+    /**
+     * The Class ClassifierServiceKey.
+     */
+    private static class ClassifierServiceKey {
 
-      //~--- constructors -----------------------------------------------------
-      /**
-       * Instantiates a new classifier service key.
-       *
-       * @param stampCoordinate the stamp coordinate
-       * @param logicCoordinate the logic coordinate
-       * @param editCoordinate the edit coordinate
-       */
-      public ClassifierServiceKey(StampCoordinate stampCoordinate,
-              LogicCoordinate logicCoordinate,
-              EditCoordinate editCoordinate) {
-         this.stampCoordinate = stampCoordinate;
-         this.logicCoordinate = logicCoordinate;
-         this.editCoordinate = editCoordinate;
-      }
+        /**
+         * The stamp coordinate.
+         */
+        StampCoordinate stampCoordinate;
 
-      //~--- methods ----------------------------------------------------------
-      /**
-       * Equals.
-       *
-       * @param obj the obj
-       * @return true, if successful
-       */
-      @Override
-      public boolean equals(Object obj) {
-         if (obj == null) {
-            return false;
-         }
+        /**
+         * The logic coordinate.
+         */
+        LogicCoordinate logicCoordinate;
 
-         if (getClass() != obj.getClass()) {
-            return false;
-         }
+        /**
+         * The edit coordinate.
+         */
+        EditCoordinate editCoordinate;
 
-         final ClassifierServiceKey other = (ClassifierServiceKey) obj;
+        //~--- constructors -----------------------------------------------------
 
-         if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
-            return false;
-         }
+        /**
+         * Instantiates a new classifier service key.
+         *
+         * @param stampCoordinate the stamp coordinate
+         * @param logicCoordinate the logic coordinate
+         * @param editCoordinate  the edit coordinate
+         */
+        public ClassifierServiceKey(StampCoordinate stampCoordinate,
+                                    LogicCoordinate logicCoordinate,
+                                    EditCoordinate editCoordinate) {
+            this.stampCoordinate = stampCoordinate;
+            this.logicCoordinate = logicCoordinate;
+            this.editCoordinate = editCoordinate;
+        }
 
-         if (!Objects.equals(this.logicCoordinate, other.logicCoordinate)) {
-            return false;
-         }
+        //~--- methods ----------------------------------------------------------
 
-         return Objects.equals(this.editCoordinate, other.editCoordinate);
-      }
+        /**
+         * Equals.
+         *
+         * @param obj the obj
+         * @return true, if successful
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
 
-      /**
-       * Hash code.
-       *
-       * @return the int
-       */
-      @Override
-      public int hashCode() {
-         int hash = 3;
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
 
-         hash = 59 * hash + Objects.hashCode(this.logicCoordinate);
-         return hash;
-      }
-   }
+            final ClassifierServiceKey other = (ClassifierServiceKey) obj;
+
+            if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
+                return false;
+            }
+
+            if (!Objects.equals(this.logicCoordinate, other.logicCoordinate)) {
+                return false;
+            }
+
+            return Objects.equals(this.editCoordinate, other.editCoordinate);
+        }
+
+        /**
+         * Hash code.
+         *
+         * @return the int
+         */
+        @Override
+        public int hashCode() {
+            int hash = 3;
+
+            hash = 59 * hash + Objects.hashCode(this.logicCoordinate);
+            return hash;
+        }
+    }
+
+    @Override
+    public Instant[] getClassificationInstants() {
+        return classifierResultMap.keySet().toArray(new Instant[0]);
+    }
+
+    @Override
+    public Optional<ClassifierResults[]> getClassificationResultsForInstant(Instant instant) {
+        return Optional.ofNullable(classifierResultMap.get(instant));
+    }
+
+    @Override
+    public void addClassifierResults(ClassifierResults classifierResults) {
+        classifierResultMap.merge(classifierResults.getStampCoordinate().getStampPosition().getTimeAsInstant(),
+                new ClassifierResults[]{classifierResults}, (classifierResults1, classifierResults2) -> {
+                    ArrayList<ClassifierResults> newResultList = new ArrayList<>();
+                    newResultList.addAll(Arrays.asList(classifierResults1));
+                    newResultList.addAll(Arrays.asList(classifierResults2));
+                    return newResultList.toArray(new ClassifierResults[newResultList.size()]);
+                });
+    }
 }

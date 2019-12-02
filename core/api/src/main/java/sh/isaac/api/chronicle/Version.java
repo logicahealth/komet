@@ -17,58 +17,94 @@
 package sh.isaac.api.chronicle;
 
 import java.util.UUID;
+
+import sh.isaac.api.Get;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.transaction.Transaction;
 
 /**
- *
  * @author kec
  */
 public interface Version extends MutableStampedVersion, IdentifiedStampedVersion {
-  /**
-    * Gets the chronology.
-    *
-    * @return the chronology
-    */
-   Chronology getChronology();
-   
-   VersionType getSemanticType();
+    /**
+     * Gets the chronology.
+     *
+     * @return the chronology
+     */
+    Chronology getChronology();
 
- /**
-  * Create a analog version with Long.MAX_VALUE as the time, indicating
-  * the version is uncommitted. It is the responsibility of the caller to
-  * add the mutable version to the commit manager when changes are complete
-  * prior to committing the component. Values for all properties except time & author
-  * will be copied from this version.
-  * @param <V> the mutable version type
-  * @param authorNid the nid for the author concept
-  * @param transaction the transaction that will govern persistence of the analog.
-  *
-  * @return the mutable version
-  */
- <V extends Version> V makeAnalog(Transaction transaction, int authorNid);
+    VersionType getSemanticType();
 
- /**
-    * Create a analog version with Long.MAX_VALUE as the time, indicating
-    * the version is uncommitted. It is the responsibility of the caller to
-    * add the mutable version to the commit manager when changes are complete
-    * prior to committing the component. Values for all properties except author,
-    * time, and path (which are provided by the edit coordinate) will be copied 
-    * from this version. 
-    *
-    * @param <V> the mutable version type
-    * @param ec edit coordinate to provide the author and path for the mutable version
-    * @return the mutable version
-    */
-   <V extends Version> V makeAnalog(EditCoordinate ec);
-   
-   /**
-    * Adds the additional uuids.
-    *
-    * @param uuids the uuid
-    */
-   public void addAdditionalUuids(UUID ...uuids);
+    /**
+     * Create a analog version with Long.MAX_VALUE as the time, indicating
+     * the version is uncommitted. It is the responsibility of the caller to
+     * add the mutable version to the commit manager when changes are complete
+     * prior to committing the component. Values for all properties except time & author
+     * will be copied from this version.
+     *
+     * @param <V>         the mutable version type
+     * @param authorNid   the nid for the author concept
+     * @param transaction the transaction that will govern persistence of the analog.
+     * @return the mutable version
+     */
+    <V extends Version> V makeAnalog(Transaction transaction, int authorNid);
+
+    /**
+     * Create a analog version with Long.MAX_VALUE as the time, indicating
+     * the version is uncommitted. It is the responsibility of the caller to
+     * add the mutable version to the commit manager when changes are complete
+     * prior to committing the component. Values for all properties except author,
+     * time, and path (which are provided by the edit coordinate) will be copied
+     * from this version.
+     *
+     * @param <V> the mutable version type
+     * @param ec  edit coordinate to provide the author and path for the mutable version
+     * @return the mutable version
+     * @deprecated use the make analog with the transaction instead.
+     */
+    @Deprecated
+    <V extends Version> V makeAnalog(EditCoordinate ec);
+
+    /**
+     * Create a analog version with Long.MAX_VALUE as the time, indicating
+     * the version is uncommitted. It is the responsibility of the caller to
+     * add the mutable version to the commit manager when changes are complete
+     * prior to committing the component. Values for all properties except time,
+     * author, and path will be copied from this version.
+     *
+     * @param <V>         the mutable version type
+     * @param ec   the edit coordinate
+     * @param transaction the transaction that will govern persistence of the analog.
+     * @return the mutable version
+     */
+    default <V extends Version> V makeAnalog(Transaction transaction, EditCoordinate ec) {
+        final int stampSequence = Get.stampService()
+                .getStampSequence(transaction,
+                        this.getStatus(),
+                        Long.MAX_VALUE,
+                        ec.getAuthorNid(),
+                        this.getModuleNid(),
+                        ec.getPathNid());
+        return setupAnalog(stampSequence);
+    }
+
+    /**
+     * Values for all properties except time,
+     * author, and path will be copied from this version.
+     *
+     * @param stampSequence
+     * @param <V>
+     * @return the mutable version
+     */
+    <V extends Version> V setupAnalog(int stampSequence);
+
+    /**
+     * Adds the additional uuids.
+     *
+     * @param uuids the uuid
+     */
+    public void addAdditionalUuids(UUID... uuids);
 
     /**
      * DeepEquals considers all fields, not just the stamp and the assumptions that the commit manager will not allow

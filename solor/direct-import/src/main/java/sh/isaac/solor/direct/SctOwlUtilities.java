@@ -2,14 +2,12 @@ package sh.isaac.solor.direct;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.api.logic.assertions.SomeRole;
 import sh.isaac.api.logic.assertions.connectors.And;
-import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.api.util.UuidT3Generator;
 
 import java.io.BufferedReader;
@@ -18,10 +16,12 @@ import java.io.StreamTokenizer;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 import static java.io.StreamTokenizer.TT_EOF;
 import static java.io.StreamTokenizer.TT_WORD;
+import static java.io.StreamTokenizer.TT_EOL;
+import static java.io.StreamTokenizer.TT_NUMBER;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.*;
 
 public class SctOwlUtilities {
@@ -65,10 +65,14 @@ public class SctOwlUtilities {
                     NecessarySet(processSet(leb, t, originalExpression));
                     break;
 
+                case "transitiveobjectproperty":
+                case "reflexiveobjectproperty":
+                    NecessarySet(processObjectProperties(leb, t, originalExpression));
+                    t.pushBack();
+                    break;
 
                 default:
-                    throw new IllegalStateException("Expecting equivalentclasses or subclassof. Found: " + t +
-                            "\n Original: " + originalExpression);
+                    throwIllegalStateException("Expecting equivalentclasses or subclassof.", t, originalExpression);
 
             }
             t.nextToken();
@@ -76,8 +80,7 @@ public class SctOwlUtilities {
                 if (t.ttype == TT_EOF) {
                     // OK alternative to conclude processing of expressions.
                 } else {
-                    throw new IllegalStateException("Expecting closure of set with ). Found: " + t +
-                            "\n Original: " + originalExpression);
+                    throwIllegalStateException("Expecting closure of set with ).", t, originalExpression);
                 }
             }
             while (t.ttype == ')') {
@@ -85,8 +88,7 @@ public class SctOwlUtilities {
             }
         }
         if (t.ttype != TT_EOF) {
-            throw new IllegalStateException("Expecting TT_WORD. Found: " + t +
-                    "\n Original: " + originalExpression);
+            throwIllegalStateException("Expecting TT_WORD. Found: ", t, originalExpression);
         }
 
 
@@ -103,8 +105,7 @@ public class SctOwlUtilities {
                     break;
 
                 default:
-                    throw new IllegalStateException("Expecting equivalentclasses or subclassof. Found: " + t +
-                            "\n Original: " + originalExpression);
+                    throwIllegalStateException("Expecting equivalentclasses or subclassof.", t, originalExpression);
 
             }
             t.nextToken();
@@ -112,8 +113,7 @@ public class SctOwlUtilities {
                 if (t.ttype == TT_EOF) {
                     // OK alternative to conclude processing of expressions.
                 } else {
-                    throw new IllegalStateException("Expecting closure of set with ). Found: " + t +
-                            "\n Original: " + originalExpression);
+                    throwIllegalStateException("Expecting closure of set with ). ", t, originalExpression);
                 }
             }
             while (t.ttype == ')') {
@@ -121,12 +121,139 @@ public class SctOwlUtilities {
             }
         }
         if (t.ttype != TT_EOF) {
-            throw new IllegalStateException("Expecting TT_WORD. Found: " + t +
-                    "\n Original: " + originalExpression);
+            throwIllegalStateException("Expecting TT_WORD. ", t, originalExpression);
         }
         LogicalExpression expression = leb.build();
         expression.setConceptBeingDefinedNid(conceptNid);
         return expression;
+    }
+
+    private static ConceptAssertion handleSubclassOf(LogicalExpressionBuilder logicalExpressionBuilder, StreamTokenizer t, String original) throws IOException {
+        if (t.nextToken() != '(') {
+            throw new IllegalStateException("Expecting '(' found: " + t.ttype + " " + t.sval);
+        }
+        if (t.nextToken() != ':') {
+            throw new IllegalStateException("Expecting ':' found: " + t.ttype + " " + t.sval);
+        }
+        if (t.nextToken() != TT_WORD) {
+            throw new IllegalStateException("Expecting concept identifier found: " + t.ttype + " " + t.sval);
+        }
+        if (t.nextToken() != ':') {
+            throw new IllegalStateException("Expecting ':' found: " + t.ttype + " " + t.sval);
+        }
+        if (t.nextToken() == TT_WORD) {
+            return logicalExpressionBuilder.conceptAssertion(
+                    Get.nidForUuids(UuidT3Generator.fromSNOMED(t.sval)));
+        } else {
+            throwIllegalStateException("Expecting concept identifier. ", t, original);
+        }
+        throw new IllegalStateException("unreachable");
+    }
+
+
+    private static And processObjectProperties(LogicalExpressionBuilder logicalExpressionBuilder, StreamTokenizer t, String original) throws IOException {
+        List<Assertion> andList = new ArrayList<>();
+
+         switch (t.sval.toLowerCase()) {
+
+             case "transitiveobjectproperty":
+                 parseAndDiscardOpenParen(t, original);
+                 parseAndDiscardColon(t, original);
+                 parseAndDiscardWord(t,original);
+                 andList.add(logicalExpressionBuilder.conceptAssertion(MetaData.TRANSITIVE_FEATURE____SOLOR));
+                 break;
+             case "reflexiveobjectproperty":
+                 parseAndDiscardOpenParen(t, original);
+                 parseAndDiscardColon(t, original);
+                 parseAndDiscardWord(t,original);
+                 andList.add(logicalExpressionBuilder.conceptAssertion(MetaData.REFLEXIVE_FEATURE____SOLOR));
+                 break;
+             case "subclassof":
+                 andList.add(handleSubclassOf(logicalExpressionBuilder, t, original));
+                 break;
+            default:
+                throwIllegalStateException("Expecting identifier start or ObjectIntersectionOf. ", t, original);
+        }
+
+         while (t.ttype != TT_EOF) {
+             t.nextToken();
+             if (t.ttype == TT_WORD) {
+                 handleNextObjectPropertyClause(logicalExpressionBuilder, t, original, andList);
+                 parseToCloseParen(t);
+             }
+         }
+
+        return And(andList.toArray(new Assertion[andList.size()]));
+    }
+
+    private static void handleNextObjectPropertyClause(LogicalExpressionBuilder logicalExpressionBuilder, StreamTokenizer t, String original, List<Assertion> andList) throws IOException {
+        switch (t.ttype) {
+            case TT_EOF:
+                break;
+            case TT_WORD:
+                switch (t.sval.toLowerCase()) {
+
+                    case "transitiveobjectproperty":
+                        parseAndDiscardOpenParen(t, original);
+                        parseAndDiscardColon(t, original);
+                        parseAndDiscardWord(t,original);
+                        andList.add(logicalExpressionBuilder.conceptAssertion(MetaData.TRANSITIVE_FEATURE____SOLOR));
+                        break;
+                    case "reflexiveobjectproperty":
+                        parseAndDiscardOpenParen(t, original);
+                        parseAndDiscardColon(t, original);
+                        parseAndDiscardWord(t,original);
+                        andList.add(logicalExpressionBuilder.conceptAssertion(MetaData.REFLEXIVE_FEATURE____SOLOR));
+                        break;
+                    case "subclassof":
+                        andList.add(handleSubclassOf(logicalExpressionBuilder, t, original));
+                        break;
+                    default:
+                        throwIllegalStateException("Expecting identifier start or ObjectIntersectionOf.", t, original);
+                }
+                parseToCloseParen(t);
+                break;
+            default:
+                throwIllegalStateException(t, original);
+        }
+    }
+
+    private static void throwIllegalStateException(StreamTokenizer t, String original) {
+        throwIllegalStateException(Optional.empty(), t, original);
+    }
+    private static void throwIllegalStateException(String prefix, StreamTokenizer t, String original) {
+        throwIllegalStateException(Optional.of(prefix), t, original);
+    }
+    private static void throwIllegalStateException(Optional<String> prefix, StreamTokenizer t, String original) {
+        StringBuilder sb = new StringBuilder();
+        if (prefix.isPresent()) {
+            sb.append(prefix.get());
+            sb.append(" ");
+        }
+        sb.append("Found: ");
+        switch (t.ttype) {
+            case TT_EOF:
+                sb.append("TT_EOF");
+                break;
+            case TT_EOL:
+                sb.append("TT_EOL");
+                break;
+            case TT_NUMBER:
+                sb.append("TT_NUMBER: ");
+                sb.append(t.nval);
+                break;
+            case TT_WORD:
+                sb.append("TT_WORD: ");
+                sb.append(t.sval);
+                break;
+            default:
+                for (char c: Character.toChars(t.ttype)) {
+                    sb.append(c);
+                }
+        }
+        sb.append("\nOriginal: ");
+        sb.append(original);
+        throw new IllegalStateException(sb.toString());
     }
 
     private static And processPropertySet(LogicalExpressionBuilder logicalExpressionBuilder, StreamTokenizer tokenizer, String original) throws IOException {
@@ -148,19 +275,19 @@ public class SctOwlUtilities {
                             //
                             // SubObjectPropertyOf(:738774007 :762705008)
                             if (tokenizer.nextToken() != '(') {
-                                throw new IllegalStateException("Expecting (. Found " + tokenizer.sval);
+                                throwIllegalStateException("Expecting (.", tokenizer, original);
                             }
                             switch (tokenizer.nextToken()) {
                                 case ':':
                                     // Skip concept id...
                                     if (tokenizer.nextToken() != TT_WORD) {
-                                        throw new IllegalStateException("Expecting Word. Found " + tokenizer.sval);
+                                        throwIllegalStateException("Expecting Word.", tokenizer, original);
                                     }
                                     if (tokenizer.nextToken() != ':') {
-                                        throw new IllegalStateException("Expecting :. Found " + tokenizer.sval);
+                                        throwIllegalStateException("Expecting :.", tokenizer, original);
                                     }
                                     if (tokenizer.nextToken() != TT_WORD) {
-                                        throw new IllegalStateException("Expecting Word. Found " + tokenizer.sval);
+                                        throwIllegalStateException("Expecting Word.", tokenizer, original);
                                     }
                                     andList.add(logicalExpressionBuilder.conceptAssertion(
                                             Get.nidForUuids(UuidT3Generator.fromSNOMED(tokenizer.sval))));
@@ -169,12 +296,11 @@ public class SctOwlUtilities {
                                     break;
                                 case TT_WORD:
                                     if (!tokenizer.sval.toLowerCase().equals("objectpropertychain")) {
-                                        throw new IllegalStateException("Expected ObjectPropertyChain, found: " + tokenizer.sval);
+                                        throwIllegalStateException("Expected ObjectPropertyChain.", tokenizer, original);
                                     }
                                     andList.add(processObjectPropertyChain(logicalExpressionBuilder, tokenizer, original));
                                     parseToCloseParen(tokenizer);
                                     break;
-
                             }
 
                             break;
@@ -191,12 +317,12 @@ public class SctOwlUtilities {
                             break;
 
                         default:
-                            throw new IllegalStateException("Expecting ObjectIntersectionOf. Found: " + tokenizer + " " + tokenizer.sval+ "\n" + original);
+                            throwIllegalStateException("Expecting ObjectIntersectionOf.", tokenizer, original);
                     }
                     break;
 
                 default:
-                    throw new IllegalStateException("Expecting identifier start or ObjectIntersectionOf. Found: " + tokenizer + "\n" + original);
+                    throwIllegalStateException("Expecting identifier start or ObjectIntersectionOf.", tokenizer, original);
             }
         }
         return And(andList.toArray(new Assertion[andList.size()]));
@@ -208,25 +334,25 @@ public class SctOwlUtilities {
         // ObjectPropertyChain(:363701004 :738774007) :363701004
 
         if (tokenizer.nextToken() != '(') {
-            throw new IllegalStateException("Expected (, found: " + tokenizer.sval);
+            throwIllegalStateException("Expected (.", tokenizer, original);
         }
         List<Integer> propertyPatternList = new ArrayList<>();
 
         while (tokenizer.nextToken() == ':') {
             if (tokenizer.nextToken() != TT_WORD) {
-                throw new IllegalStateException("Expected TT_WORD, found: " + tokenizer.sval);
+                throwIllegalStateException("Expected TT_WORD.", tokenizer, original);
             }
             propertyPatternList.add(Get.nidForUuids(UuidT3Generator.fromSNOMED(tokenizer.sval)));
         }
 
         if (tokenizer.ttype != ')') {
-            throw new IllegalStateException("Expected ), found: " + tokenizer.sval + " type: " + tokenizer.ttype);
+            throwIllegalStateException("Expected ).", tokenizer, original);
         }
         if (tokenizer.nextToken() != ':') {
-            throw new IllegalStateException("Expected :, found: " + tokenizer.sval + " type: " + tokenizer.ttype);
+            throwIllegalStateException("Expected :.", tokenizer, original);
         }
         if (tokenizer.nextToken() != TT_WORD) {
-            throw new IllegalStateException("Expected TT_WORD, found: " + tokenizer.sval + " type: " + tokenizer.ttype);
+            throwIllegalStateException("Expected TT_WORD.", tokenizer, original);
         }
         int propertyImplication = Get.nidForUuids(UuidT3Generator.fromSNOMED(tokenizer.sval));
         int[]  propertyPattern = new int[propertyPatternList.size()];
@@ -240,8 +366,10 @@ public class SctOwlUtilities {
 
     }
     private static void parseToCloseParen(StreamTokenizer tokenizer) throws IOException {
-        while (tokenizer.nextToken() != ')') {
+
+        while (tokenizer.ttype != ')' && tokenizer.ttype != TT_EOF) {
             // loop
+            tokenizer.nextToken();
         }
     }
 
@@ -249,7 +377,7 @@ public class SctOwlUtilities {
 
     private static And processSet(LogicalExpressionBuilder logicalExpressionBuilder, StreamTokenizer tokenizer, String original) throws IOException {
         if (tokenizer.nextToken() != '(') {
-            throw new IllegalStateException("Expecting (. Found: " + tokenizer + "\n" + original);
+            throwIllegalStateException("Expecting (.", tokenizer, original);
         }
         switch (tokenizer.nextToken()) {
             case ':':
@@ -272,35 +400,35 @@ public class SctOwlUtilities {
                         return And(andList.toArray(new Assertion[andList.size()]));
 
                     default:
-                        throw new IllegalStateException("Expecting ObjectIntersectionOf. Found: " + tokenizer + " " + tokenizer.sval+ "\n" + original);
+                        throwIllegalStateException("Expecting ObjectIntersectionOf.", tokenizer, original);
                 }
 
             default:
-                throw new IllegalStateException("Expecting identifier start or ObjectIntersectionOf. Found: " + tokenizer + "\n" + original);
+                throwIllegalStateException("Expecting identifier start or ObjectIntersectionOf.", tokenizer, original);
         }
         if (tokenizer.nextToken() == TT_WORD) {
             // the identifier for the concept being defined.
 
         } else {
-            throw new IllegalStateException("Expecting identifier. Found: " + tokenizer + "\n" + original);
+            throwIllegalStateException("Expecting identifier.", tokenizer, original);
         }
 
         List<Assertion> andList = new ArrayList<>();
         // can be either ObjectIntersectionOf or : for single concept
         switch (tokenizer.nextToken()) {
             case ':':
-                andList.add(getConceptAssertion(logicalExpressionBuilder, tokenizer));
+                andList.add(getConceptAssertion(logicalExpressionBuilder, tokenizer, original));
                 break;
             case TT_WORD:
                 if (tokenizer.sval.toLowerCase().equals("objectintersectionof")) {
                     andList.addAll(processObjectIntersectionOf(logicalExpressionBuilder, tokenizer, original));
                 } else {
-                    throw new IllegalStateException("Expecting ObjectIntersectionOf. Found: " + tokenizer + "\n" + original);
+                    throwIllegalStateException("Expecting ObjectIntersectionOf.", tokenizer, original);
                 }
 
                 break;
             default:
-                throw new IllegalStateException("Expecting identifier or ObjectIntersectionOf. Found: " + tokenizer + "\n" + original);
+                throwIllegalStateException("Expecting identifier or ObjectIntersectionOf.", tokenizer, original);
         }
 
 
@@ -313,7 +441,7 @@ public class SctOwlUtilities {
         while (tokenizer.ttype != ')' ) {
             switch (tokenizer.ttype) {
                 case ':':
-                    assertionList.add(getConceptAssertion(logicalExpressionBuilder, tokenizer));
+                    assertionList.add(getConceptAssertion(logicalExpressionBuilder, tokenizer, original));
                     break;
                 case TT_WORD:
                     switch (tokenizer.sval.toLowerCase()) {
@@ -333,10 +461,10 @@ public class SctOwlUtilities {
         return assertionList;
     }
 
-    private static ConceptAssertion getConceptAssertion(LogicalExpressionBuilder logicalExpressionBuilder, StreamTokenizer tokenizer) throws IOException {
+    private static ConceptAssertion getConceptAssertion(LogicalExpressionBuilder logicalExpressionBuilder, StreamTokenizer tokenizer, String original) throws IOException {
         if (tokenizer.nextToken() != TT_WORD) {
             // the identifier for the concept being defined.
-            throw new IllegalStateException("Expecting SNOMED identifier. Found: " + tokenizer);
+            throwIllegalStateException("Expecting SNOMED identifier.", tokenizer, original);
         }
         return logicalExpressionBuilder.conceptAssertion(Get.nidForUuids(UuidT3Generator.fromSNOMED(tokenizer.sval)));
     }
@@ -344,21 +472,21 @@ public class SctOwlUtilities {
     private static SomeRole getSomeRole(LogicalExpressionBuilder logicalExpressionBuilder, StreamTokenizer tokenizer, String original) throws IOException {
         if (tokenizer.nextToken() != '(') {
             // the identifier for the concept being defined.
-            throw new IllegalStateException("Expecting (. Found: " + tokenizer);
+            throwIllegalStateException("Expecting (.", tokenizer, original);
         }
         if (tokenizer.nextToken() != ':') {
             // the identifier for the concept being defined.
-            throw new IllegalStateException("Expecting :. Found: " + tokenizer);
+            throwIllegalStateException("Expecting :.", tokenizer, original);
         }
         if (tokenizer.nextToken() != TT_WORD) {
             // the identifier for the concept being defined.
-            throw new IllegalStateException("Expecting SNOMED identifier. Found: " + tokenizer + "\n: Original: " + original);
+            throwIllegalStateException("Expecting SNOMED identifier.", tokenizer, original);
         }
 
         SomeRole someRole = logicalExpressionBuilder.someRole(Get.nidForUuids(UuidT3Generator.fromSNOMED(tokenizer.sval)), getRestriction(logicalExpressionBuilder, tokenizer, original));
         if (tokenizer.nextToken() != ')') {
             // the identifier for the concept being defined.
-            throw new IllegalStateException("Expecting ). Found: " + tokenizer);
+            throwIllegalStateException("Expecting ).", tokenizer, original);
         }
         return someRole;
     }
@@ -366,7 +494,7 @@ public class SctOwlUtilities {
     private static Assertion getRestriction(LogicalExpressionBuilder logicalExpressionBuilder, StreamTokenizer tokenizer, String original) throws IOException {
         switch (tokenizer.nextToken()) {
             case ':':
-                return getConceptAssertion(logicalExpressionBuilder, tokenizer);
+                return getConceptAssertion(logicalExpressionBuilder, tokenizer, original);
             case TT_WORD:
                 switch (tokenizer.sval.toLowerCase()) {
                     case "objectintersectionof":
@@ -375,9 +503,10 @@ public class SctOwlUtilities {
                         return And(getSomeRole(logicalExpressionBuilder, tokenizer, original));
                 }
             default:
-                throw new IllegalStateException(tokenizer.toString());
+                throwIllegalStateException(tokenizer, original);
 
         }
+        throw new IllegalStateException("unreachable");
     }
 
 
@@ -407,4 +536,23 @@ public class SctOwlUtilities {
 //
 //        }
 
+    private static void parseAndDiscardOpenParen(StreamTokenizer tokenizer, String original) throws IOException {
+        if (tokenizer.nextToken() == '(') {
+            return;
+        }
+        throwIllegalStateException("Expecting '('.", tokenizer, original);
+    }
+
+    private static void parseAndDiscardColon(StreamTokenizer tokenizer, String original) throws IOException {
+        if (tokenizer.nextToken() == ':') {
+            return;
+        }
+        throwIllegalStateException("Expecting ':'.", tokenizer, original);
+    }
+    private static void parseAndDiscardWord(StreamTokenizer tokenizer, String original) throws IOException {
+        if (tokenizer.nextToken() == TT_WORD) {
+            return;
+        }
+        throwIllegalStateException("Expecting ':'.", tokenizer, original);
+    }
 }

@@ -126,6 +126,7 @@ public enum Iconography implements Icons {
    ICON_CLOSE(SVG, "icon-close"),
    ICON_EDIT(SVG, "icon-edit"),
    ICON_EXPAND(SVG, "icon-expand"),
+   ICON_IMPORT(MATERIAL_DESIGNS_WEBFONT, "icon-import"),
    ICON_EXPORT(MATERIAL_DESIGNS_WEBFONT, "icon-export"),
    ICON_GO_TO_LINK(SVG, "icon-goto-link"),
    CASE_SENSITIVE_NOT(SVG, "not-case-sensitive"),
@@ -206,6 +207,7 @@ public enum Iconography implements Icons {
    ARROW_DOWN(MATERIAL_DESIGNS_WEBFONT, "arrow-down"),
    REDO(FONT_AWSOME, "redo"),
    DELETE_TRASHCAN(MATERIAL_ICON, "delete-trashcan"),
+   LIST(MATERIAL_DESIGNS_WEBFONT, "list-icon"),
 
    // MaterialDesignIcon.MENU_DOWN
    // MaterialDesignIcon.MENU_RIGHT

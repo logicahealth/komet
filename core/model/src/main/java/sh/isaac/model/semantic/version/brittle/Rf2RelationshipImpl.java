@@ -106,7 +106,7 @@ public class Rf2RelationshipImpl
       return setupAnalog(stampSequence);
    }
 
-   private <V extends Version> V setupAnalog(int stampSequence) {
+   public <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Rf2RelationshipImpl newVersion = new Rf2RelationshipImpl(this, stampSequence);
 

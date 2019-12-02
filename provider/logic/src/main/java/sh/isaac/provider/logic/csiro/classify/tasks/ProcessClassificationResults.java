@@ -39,6 +39,8 @@ package sh.isaac.provider.logic.csiro.classify.tasks;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -63,11 +65,15 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
@@ -77,6 +83,7 @@ import sh.isaac.api.task.AggregateTaskInput;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.configuration.EditCoordinates;
+import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 
 /**
@@ -91,12 +98,23 @@ public class ProcessClassificationResults
 
     int classificationDuplicateCount = -1;
     int classificationCountDuplicatesToNote = 10;
+    private final StampCoordinate stampCoordinate;
+    private final LogicCoordinate logicCoordinate;
+    private final EditCoordinate editCoordinate;
+    private final Instant effectiveCommitTime;
 
     /**
      * Instantiates a new process classification results task.
      *
      */
-    public ProcessClassificationResults() {
+    public ProcessClassificationResults(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate) {
+        if (stampCoordinate.getStampPosition().getTime() == Long.MAX_VALUE) {
+            throw new IllegalStateException("Stamp position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
+        }
+        this.stampCoordinate = stampCoordinate;
+        this.effectiveCommitTime = stampCoordinate.getStampPosition().getTimeAsInstant();
+        this.logicCoordinate = logicCoordinate;
+        this.editCoordinate = editCoordinate;
         updateTitle("Retrieve inferred axioms");
     }
     
@@ -123,9 +141,13 @@ public class ProcessClassificationResults
             final Ontology inferredAxioms = this.inputData.getClassifiedOntology();
             Set<Integer> affectedConceptNids = this.inputData.getAffectedConceptNidSet();
             this.addToTotalWork(affectedConceptNids.size());
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+
+
             final ClassifierResults classifierResults = collectResults(transaction, inferredAxioms, affectedConceptNids);
-            transaction.commit("Classifier");
+            transaction.commit("Classifier").get();
+            Get.logicService().addClassifierResults(classifierResults);
+            LOG.info("Adding classifier results to logic service...");
             return classifierResults;
         } finally {
             Get.taxonomyService().notifyTaxonomyListenersToRefresh();
@@ -179,9 +201,20 @@ public class ProcessClassificationResults
                 }
             }
         });
-        return new ClassifierResults(affectedConcepts,
+        if (!equivalentSets.isEmpty()) {
+            LOG.info("Equivalent set count: " + equivalentSets.size());
+            int setCount = 1;
+            for (IntArrayList equivalentSet: equivalentSets) {
+                StringBuilder sb = new StringBuilder("Set " + setCount++ + ":\n");
+                for (int nid: equivalentSet.elements()) {
+                    sb.append(Get.conceptDescriptionText(nid)).append("\n");
+                }
+                LOG.info(sb.toString());
+            }
+        }
+        return new ClassifierResultsImpl(affectedConcepts,
                 equivalentSets,
-                writeBackInferred(transaction, classifiedResult, affectedConcepts));
+                writeBackInferred(transaction, classifiedResult, affectedConcepts), stampCoordinate, logicCoordinate, editCoordinate);
     }
 
     /**
@@ -378,7 +411,7 @@ public class ProcessClassificationResults
                         .error("Error during writeback - skipping concept ", e);
             }
         });
-        final Task<Optional<CommitRecord>> commitTask = transaction.commit( "classifier run");
+        final Task<Optional<CommitRecord>> commitTask = transaction.commit( "classifier run", this.effectiveCommitTime);
 
         try {
             final Optional<CommitRecord> commitRecord = commitTask.get();

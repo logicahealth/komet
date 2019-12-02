@@ -187,7 +187,7 @@ public class GetConceptNidForExpressionTask
                                             "expression",
                                             this.expression,
                                             MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
-         Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+         Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
          final ConceptChronology concept = builder.build(transaction, this.statedEditCoordinate)
                                                   .get();
 

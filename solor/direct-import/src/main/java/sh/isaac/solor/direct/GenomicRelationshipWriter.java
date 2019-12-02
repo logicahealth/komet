@@ -63,7 +63,7 @@ public class GenomicRelationshipWriter extends TimedTaskWithProgressTracker<Void
             AssemblageService assemblageService = Get.assemblageService();
             IdentifierService identifierService = Get.identifierService();
             HashSet<Integer> defferedTaxonomyNids = new HashSet<>();
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
             for(Map.Entry<String, Set<String>> entry : this.genomicRelationshipMap.entrySet()){
 

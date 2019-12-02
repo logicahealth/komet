@@ -54,6 +54,7 @@ import javax.xml.bind.annotation.XmlElement;
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.util.UUIDUtil;
 
 //~--- interfaces -------------------------------------------------------------
@@ -97,6 +98,8 @@ public interface StampCoordinate
         b.append(getStampPosition().getTime());
         return UUID.nameUUIDFromBytes(b.toString().getBytes());
     }
+
+    void putExternal(ByteArrayDataBuffer out);
 
     /**
     * Determine what states should be included in results based on this
@@ -162,6 +165,12 @@ public interface StampCoordinate
     StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add);
 
     /**
+     * Create a new Stamp Coordinate identical to the this coordinate, but with the path for position replaced.
+     * @param pathForPosition the new path for position
+     * @return the new coordinate
+     */
+    StampCoordinate makePathAnalog(ConceptSpecification pathForPosition);
+    /**
      * An empty list is a wild-card, and should match all authors. If there are
      * one or more authors specified, only those authors will be included
      * in the results.
@@ -178,5 +187,11 @@ public interface StampCoordinate
      * stamp coordinate.
      */
     NidSet getAuthorNids();
+
+    /**
+     *
+     * @return multi-line string output suitable for presentation to user, as opposed to use in debugging.
+     */
+    String toUserString();
 }
 

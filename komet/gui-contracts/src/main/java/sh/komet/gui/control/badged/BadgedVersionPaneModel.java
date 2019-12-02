@@ -166,10 +166,7 @@ public abstract class BadgedVersionPaneModel {
         this.stampOrderHashMap = stampOrderHashMap;
         this.categorizedVersion = categorizedVersion;
         this.isInactive.set(categorizedVersion.getStatus() == Status.INACTIVE);
-        int stampSequence = -1;
-        if (!categorizedVersion.isUncommitted()) {
-            stampSequence = categorizedVersion.getStampSequence();
-        }
+        int stampSequence = categorizedVersion.getStampSequence();
         if (stampOrderHashMap.containsKey(stampSequence)) {
             this.stampControl.setStampedVersion(
                     stampSequence,
@@ -434,6 +431,12 @@ public abstract class BadgedVersionPaneModel {
                     StringBuilder sb = new StringBuilder();
                     sb.append(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
                     LoincVersion lv = (LoincVersion) semanticVersion;
+                    sb.append("\nstatus: ");
+                    sb.append(lv.getLoincStatus());
+                    sb.append("\nlcn: ");
+                    sb.append(lv.getLongCommonName());
+                    sb.append("\nshort name: ");
+                    sb.append(lv.getShortName());
                     sb.append("\ncomponent: ");
                     sb.append(lv.getComponent());
                     sb.append("\nmethod: ");

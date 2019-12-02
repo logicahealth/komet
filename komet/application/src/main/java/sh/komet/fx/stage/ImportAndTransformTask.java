@@ -15,6 +15,7 @@
  */
 package sh.komet.fx.stage;
 
+import java.util.Optional;
 import java.util.concurrent.Future;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
@@ -47,7 +48,7 @@ public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> i
    protected Void call() throws Exception {
       try {
          completedUnitOfWork();
-         Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+         Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
          updateMessage("Importing new content...");
          DirectImporter importer = new DirectImporter(importType);
          Future<?> importTask = Get.executor().submit(importer);

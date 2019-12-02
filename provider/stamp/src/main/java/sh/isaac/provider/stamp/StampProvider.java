@@ -98,6 +98,10 @@ public class StampProvider
      */
     private static final String STAMP_MANAGER_DATA_FILENAME = "stamp-manager.data";
 
+    private static final String STAMP_MANAGER_DATA_SEQUENCE_TO_STAMP_FILENAME = "stamp-manager.sequenceToStamp";
+
+    private static final String STAMP_MANAGER_DATA_SEQUENCE_TO_UNCOMMITTED_STAMP_FILENAME = "stamp-manager.sequenceToUncommittedStamp";
+
     /**
      * The Constant DEFAULT_STAMP_MANAGER_FOLDER.
      */
@@ -170,8 +174,8 @@ public class StampProvider
         this.inverseStampMap = new ConcurrentHashMap<>();
 
         if (Get.dataStore().implementsExtendedStoreAPI()) {
-            dataStore = (ExtendedStore) Get.dataStore();
-            sequenceToStamp = dataStore.<Integer, byte[], Stamp>getStore("stampProviderSequenceToStamp",
+            this.dataStore = (ExtendedStore) Get.dataStore();
+            this.sequenceToStamp = dataStore.<Integer, byte[], Stamp>getStore("stampProviderSequenceToStamp",
                     (toSerialize) -> toSerialize == null ? null : DataToBytesUtils.getBytes(toSerialize::write),
                     (toDeserialize) -> {
                         try {
@@ -181,7 +185,7 @@ public class StampProvider
                         }
                     });
 
-            sequenceToUncommittedStamp = dataStore.<Integer, byte[], UncommittedStamp>getStore("stampProviderSequenceToUncommittedStamp",
+            this.sequenceToUncommittedStamp = dataStore.<Integer, byte[], UncommittedStamp>getStore("stampProviderSequenceToUncommittedStamp",
                     (toSerialize) -> toSerialize == null ? null : DataToBytesUtils.getBytes(toSerialize::write),
                     (toDeserialize) -> {
                         try {
@@ -196,6 +200,13 @@ public class StampProvider
             Files.createDirectories(this.dbFolderPath);
             this.stampManagerFolder = this.dbFolderPath.resolve(DEFAULT_STAMP_MANAGER_FOLDER);
             LOG.info("DataStore does not implement extended API, local file store will be used for Stamp Manager");
+
+            this.sequenceToStamp = new StampFileStoreMap(
+                    new File(this.stampManagerFolder.toFile(),
+                             STAMP_MANAGER_DATA_SEQUENCE_TO_STAMP_FILENAME));
+            this.sequenceToUncommittedStamp = new UncommittedStampFileStoreMap(
+                    new File(this.stampManagerFolder.toFile(),
+                             STAMP_MANAGER_DATA_SEQUENCE_TO_UNCOMMITTED_STAMP_FILENAME));
         }
     }
 
@@ -211,10 +222,8 @@ public class StampProvider
     public void addStamp(Stamp stamp, int stampSequence) {
         this.stampMap.put(stamp, stampSequence);
         this.inverseStampMap.put(stampSequence, stamp);
-        if (dataStore != null) {
-            sequenceToStamp.put(stampSequence, stamp);
-        }
-        LOG.trace("Added stamp {}", stamp);
+        this.sequenceToStamp.put(stampSequence, stamp);
+         LOG.trace("Added stamp {}", stamp);
     }
 
     /**
@@ -251,6 +260,10 @@ public class StampProvider
             return Long.MIN_VALUE;
         }
 
+        protected Status getStatus(Status uncommittedStatus) {
+            return Status.CANCELED;
+        }
+
         protected String getTitleString() {
             return "Canceling transaction: ";
         }
@@ -281,7 +294,7 @@ public class StampProvider
             // and replace with a stamp with a proper time.
             if (uncommittedStamp.getTransactionId().equals(transaction.getTransactionId())) {
                 final Stamp stamp = new Stamp(
-                        uncommittedStamp.status,
+                        getStatus(uncommittedStamp.status),
                         getTime(),
                         uncommittedStamp.authorNid,
                         uncommittedStamp.moduleNid,
@@ -289,9 +302,7 @@ public class StampProvider
 
                 addStamp(stamp, stampSequence);
                 uncommittedStampIntegerConcurrentHashMap.remove(uncommittedStamp);
-                if (sequenceToUncommittedStamp!= null) {
-                    sequenceToUncommittedStamp.remove(stampSequence);
-                }
+                sequenceToUncommittedStamp.remove(stampSequence);
 
                 completedUnitOfWork();
             }
@@ -312,6 +323,9 @@ public class StampProvider
 
         protected long getTime() {
             return this.commitTime;
+        }
+        protected Status getStatus(Status uncommittedStatus) {
+            return uncommittedStatus;
         }
 
         protected String getTitleString() {
@@ -511,7 +525,7 @@ public class StampProvider
                     Files.write(this.stampManagerFolder.resolve(DATASTORE_ID_FILE), this.dataStoreId.get().toString().getBytes());
                 }
 
-                uncommittedStampIntegerConcurrentHashMap.clear();
+                this.uncommittedStampIntegerConcurrentHashMap.clear();
                 this.nextStampSequence.set(FIRST_STAMP_SEQUENCE);
                 this.stampMap.clear();
                 this.stampSequence_PathNid_Map.clear();
@@ -537,20 +551,22 @@ public class StampProvider
 
                         final int uncommittedSize = in.readInt();
 
-                        for (int i = 0; i < uncommittedSize; i++) {
-                            int stampSequence = in.readInt();
-                            UncommittedStamp uncommittedStamp = new UncommittedStamp(in);
-                            uncommittedStampIntegerConcurrentHashMap
-                                    .put(uncommittedStamp, stampSequence);
-                            sequenceToUncommittedStamp.put(stampSequence, uncommittedStamp);
-                        }
+                             for (int i = 0; i < uncommittedSize; i++) {
+                                int stampSequence = in.readInt();
+                                UncommittedStamp uncommittedStamp = new UncommittedStamp(in);
+                                uncommittedStampIntegerConcurrentHashMap
+                                        .put(uncommittedStamp, stampSequence);
+                                sequenceToUncommittedStamp.put(stampSequence, uncommittedStamp);
+                            }
+
                     }
                 }
             } else {
                 LOG.debug("Looking for data store based stamp data");
                 this.databaseValidity = null;
                 this.dataStoreId = null;
-                uncommittedStampIntegerConcurrentHashMap.clear();
+                this.uncommittedStampIntegerConcurrentHashMap.clear();
+                this.sequenceToUncommittedStamp.clearStore();
                 this.nextStampSequence.set(FIRST_STAMP_SEQUENCE);
                 this.stampMap.clear();
                 this.stampSequence_PathNid_Map.clear();
@@ -631,7 +647,8 @@ public class StampProvider
                     entry.getKey().write(out);
                     out.writeInt(entry.getValue());
                 }
-
+                ((FileStoreMapData)sequenceToStamp).save();
+                ((FileStoreMapData)sequenceToUncommittedStamp).save();
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
@@ -752,6 +769,10 @@ public class StampProvider
             return false;
         }
 
+        if (getStatusForStamp(stamp) == Status.CANCELED) {
+            return false;
+        }
+
         return getTimeForStamp(stamp) != Long.MIN_VALUE;
     }
 
@@ -816,6 +837,7 @@ public class StampProvider
 
         if (cancelUncommittedStamps && time == Long.MAX_VALUE) {
             time = Long.MIN_VALUE;
+            status = Status.CANCELED;
             LOG.warn("Canceling uncommitted stamp: " + Get.conceptDescriptionText(authorNid) + " " +
                     Get.conceptDescriptionText(moduleNid) + " " +
                     Get.conceptDescriptionText(pathNid));
@@ -860,7 +882,8 @@ public class StampProvider
                     final int stampSequence = this.nextStampSequence.getAndIncrement();
                     Transaction transactionForPath = ((TransactionImpl) transaction).addStampToTransaction(stampSequence);
                     LOG.trace("Putting {}, {} into uncommitted stamp to sequence map", usp, stampSequence);
-                    uncommittedStampIntegerConcurrentHashMap.put(usp, stampSequence);
+                    this.uncommittedStampIntegerConcurrentHashMap.put(usp, stampSequence);
+                    this.sequenceToUncommittedStamp.put(stampSequence, usp);
                     this.inverseStampMap.put(stampSequence, stampKey);
                     if (dataStore != null) {
                         dataStore.putSharedStoreLong(DEFAULT_STAMP_MANAGER_FOLDER + "-nextStampSequence", nextStampSequence.get());
@@ -885,9 +908,9 @@ public class StampProvider
 
                     this.inverseStampMap.put(stampValue.getAsInt(), stampKey);
                     this.stampMap.put(stampKey, stampValue.getAsInt());
+                    this.sequenceToStamp.put(stampValue.getAsInt(), stampKey);
                     if (dataStore != null) {
                         dataStore.putSharedStoreLong(DEFAULT_STAMP_MANAGER_FOLDER + "-nextStampSequence", nextStampSequence.get());
-                        sequenceToStamp.put(stampValue.getAsInt(), stampKey);
                     }
                 }
             } finally {

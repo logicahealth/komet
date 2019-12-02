@@ -596,7 +596,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                final ConceptBuilder isa = createConcept("Is-a");
                isa.setPrimordialUuid(TermAux.IS_A.getPrimordialUuid());
                isa.addUuids(UUID.fromString("c93a30b9-ba77-3adb-a9b8-4589c9f8fb25")); // merge with "Is a (attribute)" //SCTID 116680003
-               popParent();
+                createConcept("Logically equivalent to");
+                popParent();
             createConcept("Connective operator");
             pushParent(current());
                createConcept("And").setPrimordialUuid(NodeSemantic.AND.getSemanticUuid());
@@ -689,7 +690,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                createConcept("Intrinsic role");
                pushParent(current());
-                  createConcept(TermAux.ROLE_GROUP);
+               // Added UUID corresponding to SNOMED role group UUID.
+                  createConcept(TermAux.ROLE_GROUP).addUuids(UUID.fromString("051fbfed-3c40-3130-8c09-889cb7b7b5b6"));
+
                   popParent();
                createConcept(TermAux.PART_OF);  //TODO [KEC] not sure if I put these 4 (previously) missing concepts in the right place in the hierarchy
                createConcept(TermAux.LATERALITY);
@@ -714,6 +717,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.VERSION_TYPE_FOR_ACTION);
                   createConcept(ObservableFields.ROLE_TYPE_TO_ADD);
                   createConcept(ObservableFields.ASSEMBLAGE_FOR_CONSTRAINT);
+                  createConcept("Promotion source path").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Promotion destination path").setModule(TermAux.KOMET_MODULE);
+
                   popParent();
                createConcept("Configuration properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
@@ -726,18 +732,26 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("Left tab nodes").getPreferredDescriptionBuilder().setDescriptionText("Left tab").setModule(TermAux.KOMET_MODULE);
                   createConcept("Right tab nodes").getPreferredDescriptionBuilder().setDescriptionText("Right tab").setModule(TermAux.KOMET_MODULE);
                   createConcept("Center tab nodes").getPreferredDescriptionBuilder().setDescriptionText("Center tab nodes").setModule(TermAux.KOMET_MODULE);
-                  createConcept("Exploration nodes").setModule(TermAux.KOMET_MODULE);
-
                   createConcept("Window x position").setModule(TermAux.KOMET_MODULE);
                   createConcept("Window y position").setModule(TermAux.KOMET_MODULE);
                   createConcept("Window width").setModule(TermAux.KOMET_MODULE);
                   createConcept("Window height").setModule(TermAux.KOMET_MODULE);
-
-                  pushParent(current());
-                     createConcept("Simple search panel").addStringSemantic(UUID.fromString("4d45c20c-cf25-5280-b422-fad245e12899"), "sh.komet.gui.search.simple.SimpleSearchViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                  popParent();
+               createConcept("Komet panels").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                     createConcept("Exploration nodes").setModule(TermAux.KOMET_MODULE);
+                     pushParent(current());
+                     createConcept("Simple search panel")
+                             .addStringSemantic(UUID.fromString("4d45c20c-cf25-5280-b422-fad245e12899"),
+                                     "sh.komet.gui.search.simple.SimpleSearchViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                              .getPreferredDescriptionBuilder().setDescriptionText("Simple search")
                              .setModule(TermAux.KOMET_MODULE);
 
+                     createConcept("Classification results panel")
+                             .addStringSemantic(UUID.fromString("8f76efd0-4978-56a9-90cc-66937e9b36fc"),
+                                     "sh.komet.gui.provider.classification.ClassificationResultsProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                             .getPreferredDescriptionBuilder().setDescriptionText("Classification results")
+                             .setModule(TermAux.KOMET_MODULE);
 
                      createConcept("Extended search panel").addStringSemantic(UUID.fromString("d8301130-5bb6-52d6-b85a-04ac36a3b70c"), "sh.komet.gui.search.extended.ExtendedSearchViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                              .getPreferredDescriptionBuilder().setDescriptionText("Extended search").setModule(TermAux.KOMET_MODULE);
@@ -766,11 +780,18 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                      createConcept("Groovy scripting panel").addStringSemantic(UUID.fromString("eafc507e-f7ef-5198-9dff-cee1f98bf2fb"), "sh.komet.scripting.groovy.GroovyViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                              .getPreferredDescriptionBuilder().setDescriptionText("Groovy").setModule(TermAux.KOMET_MODULE);
 
+                     //UuidT5Generator.get(TermAux.KOMET_MODULE.getPrimordialUuid(), "Import specification panel")
+                     createConcept("Import specification panel").addStringSemantic(UUID.fromString("5aed4bdb-e53f-548c-9700-c70374e98d9b"), "sh.komet.gui.importation.ImportSpecificationFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+                        .getPreferredDescriptionBuilder().setDescriptionText("Import specification").setModule(TermAux.KOMET_MODULE);
+
                      createConcept("Export specification panel").addStringSemantic(UUID.fromString("088cabd6-47d2-57aa-8726-2ec91f287ce4"), "sh.komet.gui.exportation.ExportSpecificationFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                         .getPreferredDescriptionBuilder().setDescriptionText("Export specification").setModule(TermAux.KOMET_MODULE);
 
        createConcept("Component list panel").addStringSemantic(UUID.fromString("6b8fa23c-358e-5335-ac17-9239ea821842"), "sh.isaac.komet.batch.ListViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                .getPreferredDescriptionBuilder().setDescriptionText("Component list").setModule(TermAux.KOMET_MODULE);
+
+       createConcept("Transaction list panel").addStringSemantic(UUID.fromString("20afa3de-ce36-5c0d-922b-524f18c78383"), "sh.isaac.komet.batch.TransactionViewFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Transaction list").setModule(TermAux.KOMET_MODULE);
 
        createConcept("Composite action panel").addStringSemantic(UUID.fromString("1123d55e-75f6-502f-80a1-d9f0fe86eb7a"), "sh.isaac.komet.batch.CompositeActionFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                .getPreferredDescriptionBuilder().setDescriptionText("Composite action").setModule(TermAux.KOMET_MODULE);
@@ -780,10 +801,26 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   pushParent(current());
                      createConcept("Concept details panel").addStringSemantic(UUID.fromString("de7b7946-d001-56de-919b-0dba9459a28a"), "sh.komet.gui.provider.concept.detail.panel.ConceptDetailPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                              .getPreferredDescriptionBuilder().setDescriptionText("Concept details").setModule(TermAux.KOMET_MODULE);
-       createConcept("Concept details search-linked panel").addStringSemantic(UUID.fromString("99a62de4-b0d7-5781-87a5-02580aa6ed87"), "sh.komet.gui.provider.concept.detail.panel.ConceptDetailSearchLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+
+                     createConcept("Concept details search-linked panel")
+               .addStringSemantic(UUID.fromString("99a62de4-b0d7-5781-87a5-02580aa6ed87"),
+                       "sh.komet.gui.provider.concept.detail.panel.ConceptDetailSearchLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                .getPreferredDescriptionBuilder().setDescriptionText("Concept details - search").setModule(TermAux.KOMET_MODULE);
+
+       createConcept("Concept details classification-results-linked panel")
+               .addStringSemantic(UUID.fromString("e274d5b2-4db8-558c-be73-82a181b074f1"),
+                       "sh.komet.gui.provider.concept.detail.panel.ConceptDetailClassificationResultsLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Concept details - classification").setModule(TermAux.KOMET_MODULE);
+
+       createConcept("Concept details list-view-linked panel")
+               .addStringSemantic(UUID.fromString("de1ebfaa-e94c-5533-99c7-9309133eef2b"),
+                       "sh.komet.gui.provider.concept.detail.panel.ConceptDetailListLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Concept details - list").setModule(TermAux.KOMET_MODULE);
+
+
        createConcept("Concept details taxonomy-linked panel").addStringSemantic(UUID.fromString("4155e905-57fb-5805-b9cd-55cfcf538e33"), "sh.komet.gui.provider.concept.detail.panel.ConceptDetailTaxonomyLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
-               .getPreferredDescriptionBuilder().setDescriptionText("Concept details - taxonomy").setModule(TermAux.KOMET_MODULE);
+                            .getPreferredDescriptionBuilder().setDescriptionText("Concept details - taxonomy").setModule(TermAux.KOMET_MODULE);
+
                      createConcept("Concept details tree table").addStringSemantic(UUID.fromString("394e925e-3928-52f6-a0a6-b6b22813f1b5"), "sh.komet.gui.provider.concept.detail.treetable.ConceptDetailTreeTableProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                              .getPreferredDescriptionBuilder().setDescriptionText("Concept details tree table").setModule(TermAux.KOMET_MODULE);
                      createConcept("Semantic tree table panel").addStringSemantic(UUID.fromString("bbf42dbe-050c-53c5-847b-03d704f2aef9"), "sh.isaac.komet.gui.semanticViewer.SemanticViewer", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
@@ -807,11 +844,24 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(GIT_USER_NAME);
                   createConcept(GIT_PASSWORD);
                   popParent();
-               createConcept("Manifold properties").setModule(TermAux.KOMET_MODULE);
+               createConcept("Stamp coordinate properties").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                  createConcept("Stamp coordinate name");
+                  popParent();
+               createConcept("Language coordinate properties").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                  createConcept("Language coordinate name");
+                  popParent();
+               createConcept("Logic coordinate properties").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                  createConcept("Logic coordinate name");
+                   popParent();
+               createConcept("Manifold coordinate properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
                   createConcept("Manifold name").setModule(TermAux.KOMET_MODULE);
                   createConcept("Manifold focus").setModule(TermAux.KOMET_MODULE);
                   createConcept("Manifold history").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Manifold selection").setModule(TermAux.KOMET_MODULE);
                   popParent();
                createConcept("Persona properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
@@ -838,6 +888,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(LANGUAGE_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(MODULE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);

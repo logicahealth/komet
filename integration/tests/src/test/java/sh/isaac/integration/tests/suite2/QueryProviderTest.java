@@ -20,10 +20,8 @@ package sh.isaac.integration.tests.suite2;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -73,7 +71,7 @@ public class QueryProviderTest {
 		System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
 		Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 		LookupService.startupIsaac();
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 		TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
 		timd.configure(null, Paths.get(QueryProviderTest.class.getResource("/turtle/bevontology-0.8.ttl").toURI()), "0.8", null);
 		timd.convertContent(transaction, update -> {}, (work, total) ->{});

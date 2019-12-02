@@ -1,4 +1,4 @@
-package sh.isaac.komet.preferences.manifold;
+package sh.isaac.komet.preferences.coordinate;
 
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.NaturalOrder;
@@ -11,12 +11,12 @@ import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
-import static sh.isaac.komet.preferences.manifold.ManifoldItemPanel.Keys.MANIFOLD_GROUP_UUID;
+import static sh.isaac.komet.preferences.coordinate.ManifoldCoordinateItemPanel.Keys.MANIFOLD_GROUP_UUID;
 
-public class ManifoldGroupsPanel extends ParentPanel {
+public class ManifoldCoordinateGroupPanel extends ParentPanel {
 
-    public ManifoldGroupsPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Manifolds"), manifold, kpc);
+    public ManifoldCoordinateGroupPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Manifold"), manifold, kpc);
         if (!initialized()) {
             // add each default manifold...
 
@@ -26,14 +26,15 @@ public class ManifoldGroupsPanel extends ParentPanel {
                 IsaacPreferences manifoldPreferences = addChildPanel(group.getGroupUuid(), Optional.of(group.getGroupName()));
                 manifoldPreferences.putUuid(MANIFOLD_GROUP_UUID, group.getGroupUuid());
 
-                ManifoldItemPanel manifoldItemPanel = new ManifoldItemPanel(manifoldPreferences, manifold, kpc);
+                ManifoldCoordinateItemPanel manifoldCoordinateItemPanel = new ManifoldCoordinateItemPanel(manifoldPreferences, manifold, kpc);
             }
+            save();
         }
     }
 
     @Override
     protected Class getChildClass() {
-        return ManifoldItemPanel.class;
+        return ManifoldCoordinateItemPanel.class;
     }
 
     @Override

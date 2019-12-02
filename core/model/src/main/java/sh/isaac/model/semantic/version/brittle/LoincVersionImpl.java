@@ -137,7 +137,7 @@ public class LoincVersionImpl
       return setupAnalog(stampSequence);
    }
 
-   private <V extends Version> V setupAnalog(int stampSequence) {
+   public <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final LoincVersionImpl newVersion = new LoincVersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setComponent(this.component);

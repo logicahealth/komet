@@ -111,7 +111,7 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
     @Override
     protected Void call() throws Exception {
         try {
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
             int count = 0;
 
 
@@ -182,7 +182,7 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
                     propertyBuilder.append(" ").append(owlExpression);
                     if (!owlExpression.toLowerCase().contains("objectpropertychain")) {
                         //TODO ask Michael Lawley if this is ok...
-                        String tempExpression = owlExpression.toLowerCase().replace("subobjectpropertyof", " SubClassOf");
+                        String tempExpression = owlExpression.toLowerCase().replace("subobjectpropertyof", " subclassof");
                         classBuilder.append(" ").append(tempExpression);
                     }
                 } else {

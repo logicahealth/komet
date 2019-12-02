@@ -940,4 +940,8 @@ public abstract class ObservableVersionImpl
         return this.getStampedVersion().deepEquals(other);
     }
 
+    @Override
+    public <V extends Version> V setupAnalog(int stampSequence) {
+        throw new UnsupportedOperationException(); // should only be called in the non-observable version.
+    }
 }

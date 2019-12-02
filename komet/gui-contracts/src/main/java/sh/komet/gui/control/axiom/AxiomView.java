@@ -352,7 +352,7 @@ public class AxiomView {
             ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
             ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
             mutableVersion.setGraphData(this.expression.getData(DataTarget.INTERNAL));
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
             CommitTask commitTask = transaction.commitObservableVersions("Axiom view edit", mutableVersion);
         }
         updateExpression();
@@ -415,13 +415,13 @@ public class AxiomView {
                     LatestVersion<Version> latest = Get.concept(conceptNode.getConceptNid()).getLatestVersion(manifold);
                     if (latest.isPresent()) {
                         Status latestStatus = latest.get().getStatus();
-                        titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
+                        titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
                                 latestStatus, manifold, premiseType));
                         if (latestStatus != Status.ACTIVE) {
                             titleLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, true);
                         }
                     } else {
-                        titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
+                        titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
                                 Status.PRIMORDIAL, manifold, premiseType));
                     }
 
@@ -519,7 +519,10 @@ public class AxiomView {
                         titleLabel.setGraphic(Iconography.ROLE_GROUP.getIconographic());
                         StringBuilder builder = new StringBuilder();
 
-                        for (LogicNode descendentNode : roleNode.getDescendents()) {
+                        AbstractLogicNode[] descendents = roleNode.getDescendents();
+                        // apply sort here for particular cases...
+
+                        for (LogicNode descendentNode : descendents) {
                             if (descendentNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
                                 ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) descendentNode;
                                 builder.append("[");

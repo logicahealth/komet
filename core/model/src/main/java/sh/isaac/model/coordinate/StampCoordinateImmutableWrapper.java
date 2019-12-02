@@ -26,6 +26,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 /**
  *
@@ -66,6 +67,11 @@ public class StampCoordinateImmutableWrapper implements StampCoordinate {
     @Override
     public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
         return stampCoordinate.makeModuleAnalog(modules, add);
+    }
+
+    @Override
+    public StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
+        return stampCoordinate.makePathAnalog(pathForPosition);
     }
 
     @Override
@@ -130,5 +136,15 @@ public class StampCoordinateImmutableWrapper implements StampCoordinate {
     @Override
     public NidSet getAuthorNids() {
         return stampCoordinate.getAuthorNids();
+    }
+
+    @Override
+    public String toUserString() {
+        return this.stampCoordinate.toUserString();
+    }
+
+    @Override
+    public void putExternal(ByteArrayDataBuffer out) {
+        stampCoordinate.putExternal(out);
     }
 }

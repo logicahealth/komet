@@ -61,6 +61,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.util.ArrayUtil;
 import sh.isaac.model.ModelGet;
@@ -98,7 +99,7 @@ public class LanguageCoordinateImpl
 
     private final HashMap<Integer, LanguageCoordinate> altDescriptionTypeListCache = new HashMap<>();
 
-    LanguageCoordinateImpl nextProrityLanguageCoordinate;
+    LanguageCoordinateImpl nextPriorityLanguageCoordinate = null;
 
     /**
      * noarg for jaxb
@@ -106,7 +107,35 @@ public class LanguageCoordinateImpl
     public LanguageCoordinateImpl() {
     }
 
-    
+    public LanguageCoordinateImpl(ByteArrayDataBuffer data) {
+        this.languageConcept = data.getConceptSpecification();
+        this.dialectAssemblageSpecPreferenceList = data.getConceptSpecificationArray();
+        this.descriptionTypeSpecPreferenceList = data.getConceptSpecificationArray();
+        this.moduleSpecPreferenceList = data.getConceptSpecificationArray();
+        if (data.getBoolean()) {
+            this.nextPriorityLanguageCoordinate = new LanguageCoordinateImpl(data);
+        } else {
+            this.nextPriorityLanguageCoordinate = null;
+        }
+    }
+
+    public final void putExternal(ByteArrayDataBuffer out) {
+        out.putConceptSpecification(this.languageConcept);
+        out.putConceptSpecificationArray(this.dialectAssemblageSpecPreferenceList);
+        out.putConceptSpecificationArray(this.descriptionTypeSpecPreferenceList);
+        out.putConceptSpecificationArray(this.moduleSpecPreferenceList);
+        boolean hasNextPriorityCoordinate = this.nextPriorityLanguageCoordinate != null;
+        out.putBoolean(hasNextPriorityCoordinate);
+        if (hasNextPriorityCoordinate) {
+            this.nextPriorityLanguageCoordinate.putExternal(out);
+        }
+    }
+
+    public static final LanguageCoordinateImpl make(ByteArrayDataBuffer data) {
+        return new LanguageCoordinateImpl(data);
+    }
+
+
     public LanguageCoordinateImpl(ConceptSpecification languageConcept,
             ConceptSpecification[] dialectAssemblagePreferenceList,
             ConceptSpecification[] descriptionTypePreferenceList,
@@ -372,23 +401,23 @@ public class LanguageCoordinateImpl
     /**
      * Same as {@link #setDescriptionTypePreferenceList(int[])}, except it also
      * makes the same call recursively on the preference list in
-     * {@link #getNextProrityLanguageCoordinate()}, if any.
+     * {@link #getNextPriorityLanguageCoordinate()}, if any.
      *
      * @param descriptionTypeNidPreferenceList
      */
     public void setDescriptionTypePreferenceListRecursive(int[] descriptionTypeNidPreferenceList) {
         this.languageCoordinateUuid = null;
         this.descriptionTypeSpecPreferenceList = ArrayUtil.toSpecificationArray(descriptionTypeNidPreferenceList);
-        if (getNextProrityLanguageCoordinate().isPresent()) {
-            ((LanguageCoordinateImpl) getNextProrityLanguageCoordinate().get()).setDescriptionTypePreferenceListRecursive(descriptionTypeNidPreferenceList);
+        if (getNextPriorityLanguageCoordinate().isPresent()) {
+            ((LanguageCoordinateImpl) getNextPriorityLanguageCoordinate().get()).setDescriptionTypePreferenceListRecursive(descriptionTypeNidPreferenceList);
         }
     }
 
     public void setDescriptionTypePreferenceListRecursive(ConceptSpecification[] descriptionTypeSpecPreferenceList) {
         this.languageCoordinateUuid = null;
         this.descriptionTypeSpecPreferenceList = descriptionTypeSpecPreferenceList;
-        if (getNextProrityLanguageCoordinate().isPresent()) {
-            ((LanguageCoordinateImpl) getNextProrityLanguageCoordinate().get()).setDescriptionTypePreferenceListRecursive(descriptionTypeSpecPreferenceList);
+        if (getNextPriorityLanguageCoordinate().isPresent()) {
+            ((LanguageCoordinateImpl) getNextPriorityLanguageCoordinate().get()).setDescriptionTypePreferenceListRecursive(descriptionTypeSpecPreferenceList);
         }
     }
 
@@ -478,7 +507,7 @@ public class LanguageCoordinateImpl
         final ChangeListener<ObservableLanguageCoordinate> listener = (ObservableValue<? extends ObservableLanguageCoordinate> observable,
                 ObservableLanguageCoordinate oldValue,
                 ObservableLanguageCoordinate newValue) -> {
-            this.nextProrityLanguageCoordinate = ((ObservableLanguageCoordinateImpl) newValue).unwrap();
+            this.nextPriorityLanguageCoordinate = ((ObservableLanguageCoordinateImpl) newValue).unwrap();
         };
 
         nextProrityLanguageCoordinateProperty.addListener(new WeakChangeListener<>(listener));
@@ -506,15 +535,15 @@ public class LanguageCoordinateImpl
                 dialectAssemblageSpecPreferenceList.clone(),
                 descriptionTypeSpecPreferenceList.clone(),
                 moduleSpecPreferenceList == null ? null : moduleSpecPreferenceList.clone());
-        if (this.nextProrityLanguageCoordinate != null) {
-            newCoordinate.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) this.nextProrityLanguageCoordinate.deepClone();
+        if (this.nextPriorityLanguageCoordinate != null) {
+            newCoordinate.nextPriorityLanguageCoordinate = (LanguageCoordinateImpl) this.nextPriorityLanguageCoordinate.deepClone();
         }
         return newCoordinate;
     }
 
     @Override
-    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        return Optional.ofNullable(this.nextProrityLanguageCoordinate);
+    public Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
+        return Optional.ofNullable(this.nextPriorityLanguageCoordinate);
     }
 
     /**
@@ -523,9 +552,9 @@ public class LanguageCoordinateImpl
      * or until there are no next priority language coordinates left. 
      * @param languageCoordinate the next coordinate to fall back to
      */
-    public void setNextProrityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
+    public void setNextPriorityLanguageCoordinate(LanguageCoordinate languageCoordinate) {
         this.languageCoordinateUuid = null;
-        this.nextProrityLanguageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
+        this.nextPriorityLanguageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
         altDescriptionTypeListCache.clear();
     }
 

@@ -91,7 +91,7 @@ public class BugDemo
 						new DynamicData[] { new DynamicUUIDImpl(Get.identifierService().getUuidPrimordialForNid(MetaData.AND____SOLOR.getAssemblageNid())) }));
 
 		// build the description and the extended type
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 		try {
 			descriptionSemanticBuilder.build(transaction, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate()).get();
 			transaction.commit();
@@ -127,7 +127,7 @@ public class BugDemo
 		LogicalExpression parentDef = defBuilder.build();
 		cb.setLogicalExpression(parentDef);
 
-		Transaction transaction1 = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+		Transaction transaction1 = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
 		cb.build(transaction1, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
 
 		Optional<CommitRecord> cr = transaction1.commit("created extended type concept").get();
@@ -149,7 +149,7 @@ public class BugDemo
 				Get.semanticBuilderService().getDynamicBuilder(descriptionSemanticBuilder, DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid(),
 						new DynamicData[] { new DynamicUUIDImpl(Get.identifierService().getUuidPrimordialForNid(cb.getNid())) }));
 
-		Transaction transaction2 = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+		Transaction transaction2 = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
 
 		// build the description and the extended type
 		SemanticChronology newDescription = descriptionSemanticBuilder.build(transaction2, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate())
@@ -186,7 +186,7 @@ public class BugDemo
 	{
 		SemanticChronology lg = Frills.getLogicGraphChronology(MetaData.ACTION_PURPOSE____SOLOR.getNid(), true).get();
 
-		Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 		MutableLogicGraphVersion mlg = lg.createMutableVersion(transaction, Status.ACTIVE, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
 
 		LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();

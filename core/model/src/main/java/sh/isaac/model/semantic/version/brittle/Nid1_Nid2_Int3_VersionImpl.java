@@ -101,7 +101,7 @@ public class Nid1_Nid2_Int3_VersionImpl
                       ec.getAuthorNid(),
                       this.getModuleNid(),
                       ec.getPathNid());
-      return setupAnaolg(stampSequence);
+      return setupAnalog(stampSequence);
    }
 
    @Override
@@ -113,10 +113,10 @@ public class Nid1_Nid2_Int3_VersionImpl
                       authorNid,
                       this.getModuleNid(),
                       this.getPathNid());
-      return setupAnaolg(stampSequence);
+      return setupAnalog(stampSequence);
    }
 
-   private <V extends Version> V setupAnaolg(int stampSequence) {
+   public <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Nid1_Nid2_Int3_VersionImpl newVersion = new Nid1_Nid2_Int3_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setNid1(this.nid1);

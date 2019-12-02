@@ -231,7 +231,10 @@ public class ObservableEditCoordinateImpl
    public ObservableEditCoordinate deepClone() {
       return new ObservableEditCoordinateImpl(editCoordinate.deepClone());
    }
-   
-   
+
+    @Override
+    public EditCoordinateImpl getEditCoordinate() {
+        return this.editCoordinate;
+    }
 }
 

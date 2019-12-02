@@ -592,7 +592,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
 
    private Transaction getTransaction(AtomicReference<Transaction> transactionReference) {
       if (transactionReference.get() == null) {
-         transactionReference.set(Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE));
+         transactionReference.set(Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE));
       }
       return transactionReference.get();
    }

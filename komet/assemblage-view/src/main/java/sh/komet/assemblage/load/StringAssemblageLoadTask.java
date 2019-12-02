@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import sh.isaac.MetaData;
@@ -85,7 +86,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
     protected Void call() throws Exception {
         ZonedDateTime zonedDateTime = DateTimeUtil.epochToZonedDateTime(System.currentTimeMillis());
         String dateTime = DateTimeUtil.format(zonedDateTime);
-        Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
         ConceptSpecification assemblageSpec = build(transaction, makeBuilder(assemblageName, "SOLOR", MetaData.ASSEMBLAGE____SOLOR), UUID.randomUUID().toString());
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);

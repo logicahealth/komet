@@ -107,10 +107,10 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         }
         if (wrapper.allowHistory()) {
             this.menuButton.getItems().add(fixedWidthManifoldSeperator);
-            for (String manifoldGroup : Manifold.getGroupNames()) {
-                Collection<ComponentProxy> groupHistory = Manifold.getGroupHistory(manifoldGroup);
+            for (Manifold.ManifoldGroup manifoldGroup : Manifold.ManifoldGroup.values()) {
+                Collection<ComponentProxy> groupHistory = Manifold.get(manifoldGroup).getHistoryRecords();
                 if (!groupHistory.isEmpty()) {
-                    Menu manifoldHistory = new Menu(manifoldGroup);
+                    Menu manifoldHistory = new Menu(manifoldGroup.getGroupName());
                     this.menuButton.getItems().add(manifoldHistory);
                     for (ComponentProxy record : groupHistory) {
                         ConceptMenuItem conceptItem = new ConceptMenuItem(Get.conceptSpecification(record.getNid()),
@@ -158,8 +158,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         this.popOver.setTitle("");
         this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
-        Manifold manifoldClone = manifold.deepClone();
-        manifoldClone.setGroupName(Manifold.ManifoldGroup.UNLINKED.getGroupName());
+        Manifold manifoldClone = Manifold.get(Manifold.ManifoldGroup.UNLINKED);
         ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifoldClone, null);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();

@@ -39,6 +39,9 @@ package sh.isaac.api.observable.coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javafx.beans.value.ObservableValueBase;
 
 /**
@@ -48,7 +51,7 @@ import javafx.beans.value.ObservableValueBase;
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
 public abstract class ObservableCoordinateImpl extends ObservableValueBase<ObservableCoordinate> implements ObservableCoordinate {
-   private final List<Object> listenerReferences = new ArrayList<>();
+   private final CopyOnWriteArrayList<Object> listenerReferences = new CopyOnWriteArrayList<>();
 
    /**
     * Convenience method for holding listener references to prevent garbage collection.

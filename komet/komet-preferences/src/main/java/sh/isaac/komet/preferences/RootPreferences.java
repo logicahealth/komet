@@ -24,7 +24,7 @@ import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.CHILDREN_NO
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
 
-import sh.isaac.komet.preferences.manifold.ManifoldGroupsPanel;
+import sh.isaac.komet.preferences.coordinate.CoordinateGroupPanel;
 import sh.isaac.komet.preferences.personas.PersonasPanel;
 import sh.isaac.komet.preferences.window.WindowsPanel;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
@@ -47,7 +47,7 @@ public class RootPreferences extends AbstractPreferences {
             addChild(SYNCHRONIZATION_ITEMS_GROUP_NAME, SynchronizationItems.class);
             addChild("Attachment actions", AttachmentItems.class);
             addChild("Logic actions", LogicItemPanels.class);
-            addChild("Manifolds", ManifoldGroupsPanel.class);
+            addChild("Coordinates", CoordinateGroupPanel.class);
             addChild("Taxonomy configurations", TaxonomyItems.class);
             addChild("Personas", PersonasPanel.class);
             addChild("Window configurations", WindowsPanel.class);

@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -72,18 +73,18 @@ public class LogicDetailNode
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.LAMBDA.getIconographic());
-    private final Manifold conceptDetailManifold;
+    private final SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
+    private final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final ConceptLabelToolbar conceptLabelToolbar;
     private LogicalExpression editInFlight;
 
     //~--- constructors --------------------------------------------------------
     public LogicDetailNode(Manifold conceptDetailManifold) {
-        this.conceptDetailManifold = conceptDetailManifold;
-        this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
-        conceptDetailManifold.focusedConceptProperty()
-                .addListener(this::setConceptListener);
-        this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(false));
+        this.manifoldProperty.set(conceptDetailManifold);
+        conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
+        this.conceptLabelToolbar = ConceptLabelToolbar.make(this.manifoldProperty, this.selectionIndexProperty,
+                this, Optional.of(false));
         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
         conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         getLogicDetail();
@@ -95,8 +96,8 @@ public class LogicDetailNode
     }
 
     private void setConceptListener(ObservableValue<? extends ConceptSpecification> observable,
-            ConceptSpecification oldSpec,
-            ConceptSpecification newSpec) {
+                                    ConceptSpecification oldSpec,
+                                    ConceptSpecification newSpec) {
         setConcept(newSpec);
 
     }
@@ -115,45 +116,57 @@ public class LogicDetailNode
                 toolTipProperty.set(
                         "concept details for: empty");
             } else {
-                titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
+                titleProperty.set(this.manifoldProperty.get().getPreferredDescriptionText(newValue));
                 toolTipProperty.set(
                         "concept details for: "
-                                + this.conceptDetailManifold.getFullySpecifiedDescriptionText(
+                                + this.manifoldProperty.get().getFullySpecifiedDescriptionText(
                                         newValue));
             }
         }
     }
     
     private void cancelEdit(Event event) {
-        setConcept(conceptDetailManifold.getFocusedConcept().get());
+        Optional<ConceptChronology> optionalFocus = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
+        if (optionalFocus.isPresent()) {
+            setConcept(optionalFocus.get());
+        } else {
+            setConcept(null);
+        }
     }
     
     private void commitEdit(Event event) {
-        
-        LatestVersion<LogicGraphVersion> latestVersion = conceptDetailManifold.getStatedLogicGraphVersion(conceptDetailManifold.getFocusedConcept().get());
-        if (latestVersion.isPresent()) {
-            LogicGraphVersion version = latestVersion.get();
-            ObservableSemanticChronologyImpl observableSemanticChronology = new ObservableSemanticChronologyImpl(version.getChronology());
-            ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
-            ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
-            mutableVersion.setGraphData(editInFlight.getData(DataTarget.INTERNAL));
-            Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
-            CommitTask commitTask = transaction.commitObservableVersions("Lambda graph edit", mutableVersion);
-            Get.executor().execute(() -> {
-                try {
-                    Optional<CommitRecord> commitRecord = commitTask.get();
-                    //completeCommit(commitTask, commitRecord);
-                } catch (InterruptedException | ExecutionException ex) {
-                    FxGet.dialogs().showErrorDialog("Error during commit", ex);
-                }
-            });
+        Optional<ConceptChronology> optionalFocus = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
+        if (optionalFocus.isPresent()) {
+            LatestVersion<LogicGraphVersion> latestVersion = getManifold().getStatedLogicGraphVersion(optionalFocus.get());
+            if (latestVersion.isPresent()) {
+                LogicGraphVersion version = latestVersion.get();
+                ObservableSemanticChronologyImpl observableSemanticChronology = new ObservableSemanticChronologyImpl(version.getChronology());
+                ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
+                ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+                mutableVersion.setGraphData(editInFlight.getData(DataTarget.INTERNAL));
+                Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+                CommitTask commitTask = transaction.commitObservableVersions("Lambda graph edit", mutableVersion);
+                Get.executor().execute(() -> {
+                    try {
+                        Optional<CommitRecord> commitRecord = commitTask.get();
+                        //completeCommit(commitTask, commitRecord);
+                    } catch (InterruptedException | ExecutionException ex) {
+                        FxGet.dialogs().showErrorDialog("Error during commit", ex);
+                    }
+                });
+            }
         }
-        setConcept(conceptDetailManifold.getFocusedConcept().get());
+        if (optionalFocus.isPresent()) {
+            setConcept(optionalFocus.get());
+        } else {
+            setConcept(null);
+        }
     }
 
     private Node getLogicDetail() {
-        if (conceptDetailManifold.getFocusedConcept().isPresent()) {
-            Optional<LogicalExpression> statedExpression = conceptDetailManifold.getStatedLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
+        Optional<ConceptChronology> optionalFocus = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
+        if (optionalFocus.isPresent()) {
+            Optional<LogicalExpression> statedExpression = this.manifoldProperty.get().getStatedLogicalExpression(optionalFocus.get());
             getLogicDetail(statedExpression);
         } else {
             conceptDetailPane.setCenter(new Label("Empty"));
@@ -171,7 +184,7 @@ public class LogicDetailNode
             if (statedExpression.get().isUncommitted()) {
                 editInFlight = statedExpression.get();
                 BorderPane expressionBorderPane = new BorderPane();
-                expressionBorderPane.setCenter(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, conceptDetailManifold));
+                expressionBorderPane.setCenter(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, getManifold()));
 
                 ToolBar commitToolbar = new ToolBar();
                 Region spacer = new Region();
@@ -186,14 +199,15 @@ public class LogicDetailNode
                 splitPane.getItems().add(expressionBorderPane);
             } else {
                 editInFlight = null;
-                splitPane.getItems().add(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, conceptDetailManifold));
+                splitPane.getItems().add(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, getManifold()));
             }
         } else {
             conceptDetailPane.setCenter(new Label("No stated form"));
         }
-        Optional<LogicalExpression> inferredExpression = conceptDetailManifold.getInferredLogicalExpression(conceptDetailManifold.getFocusedConcept().get());
+        Optional<LogicalExpression> inferredExpression = this.manifoldProperty.get().getInferredLogicalExpression(
+                this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get()).get());
         if (inferredExpression.isPresent()) {
-            splitPane.getItems().add(AxiomView.create(inferredExpression.get(), PremiseType.INFERRED, conceptDetailManifold));
+            splitPane.getItems().add(AxiomView.create(inferredExpression.get(), PremiseType.INFERRED, this.manifoldProperty.get()));
         } else {
             conceptDetailPane.setCenter(new Label("No inferred form"));
         }
@@ -271,7 +285,8 @@ Root[0]➞[41]
     public Optional<Node> getTitleNode() {
         // MaterialDesignIcon.LAMBDA
         if (titleLabel == null) {
-            this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);
+            this.titleLabel = new ManifoldLinkedConceptLabel(this.manifoldProperty, this.selectionIndexProperty,
+                    ManifoldLinkedConceptLabel::setPreferredText, this);
             this.titleLabel.setGraphic(Iconography.LAMBDA.getIconographic());
             this.titleProperty.set("");
         }
@@ -292,7 +307,7 @@ Root[0]➞[41]
 
     @Override
     public Manifold getManifold() {
-        return this.conceptDetailManifold;
+        return this.manifoldProperty.get();
     }
 
     @Override

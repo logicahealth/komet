@@ -40,6 +40,7 @@ package sh.isaac.model.index;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -166,7 +167,7 @@ public class SemanticIndexerConfiguration implements IsaacCache {
          throw new RuntimeException("It doesn't make sense to index a dynamic without indexing any column data");
       }
 
-      Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+      Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
       final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService()
               .getDynamicBuilder(assemblageNid,
                       DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
@@ -239,7 +240,7 @@ public class SemanticIndexerConfiguration implements IsaacCache {
          throw new RuntimeException("It doesn't make sense to index a dynamic without indexing any column data");
       }
 
-      Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.ACTIVE);
+      Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
       final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService()
               .getDynamicBuilder(assemblageNid,
                       DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
@@ -282,7 +283,7 @@ public class SemanticIndexerConfiguration implements IsaacCache {
                     .getService(IndexSemanticQueryService.class));
          }
 
-         Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+         Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
          ((SemanticChronology) rdv.getChronology()).createMutableVersion(transaction, Status.INACTIVE,
                  EditCoordinates.getDefaultUserMetadata());

@@ -119,7 +119,6 @@ public class NaturalOrder implements Comparator<String> {
       // No digits
       return (Character.toLowerCase(c1) - Character.toLowerCase(c2));
    }
-
    @Override
    public int compare(String o1, String o2) {
       return compareStrings(o1, o2);

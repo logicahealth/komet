@@ -1,12 +1,12 @@
-package sh.isaac.komet.preferences.manifold;
+package sh.isaac.komet.preferences.coordinate;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.MetaData;
 import sh.isaac.api.ComponentProxy;
-import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
@@ -18,15 +18,16 @@ import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.UuidStringKey;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class ManifoldItemPanel extends AbstractPreferences {
+public class ManifoldCoordinateItemPanel extends AbstractPreferences {
     public enum Keys {
         MANIFOLD_NAME,
         MANIFOLD_GROUP_UUID,
-        FOCUSED_CONCEPT,
+        SELECTED_COMPONENTS,
         HISTORY_RECORDS,
     }
 
@@ -34,58 +35,62 @@ public class ManifoldItemPanel extends AbstractPreferences {
     private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.MANIFOLD_NAME____SOLOR.toExternalString());
 
-    private final PropertySheetItemConceptWrapper focusWrapper;
+    private final PropertySheetListWrapper<ComponentProxy> selectionWrapper;
     private final PropertySheetListWrapper<ComponentProxy> historyWrapper;
 
-    private final Manifold manifoldItem;
+    private final Manifold manifold;
 
-    public ManifoldItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
+    private final UuidStringKey itemKey;
+
+
+    public ManifoldCoordinateItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, getGroupName(preferencesNode, "Manifold"), manifold, kpc);
         nameProperty.set(groupNameProperty().get());
-        nameProperty.addListener((observable, oldValue, newValue) -> {
-            groupNameProperty().set(newValue);
-        });
 
-        this.manifoldItem = FxGet.manifold(
-                Manifold.ManifoldGroup.getFromGroupUuid(
-                        UUID.fromString(preferencesNode.name())
-                ).get());
+        this.manifold = manifold;
 
         revertFields();
         save();
         getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
-        this.focusWrapper = new PropertySheetItemConceptWrapper(manifold, "Manifold focus", manifoldItem.focusedConceptProperty());
-        this.historyWrapper = new PropertySheetListWrapper(manifold, Manifold.getGroupHistory(nameProperty.get()),
+
+        this.selectionWrapper = new PropertySheetListWrapper(manifold, manifold.manifoldSelectionProperty(),
                 () -> new ComponentProxy(TermAux.UNINITIALIZED_COMPONENT_ID.getNid(), TermAux.UNINITIALIZED_COMPONENT_ID.getFullyQualifiedName()), manifold1 -> new ComponentProxyEditorStub(manifold1));
-        getItemList().add(this.focusWrapper);
+
+
+        this.historyWrapper = new PropertySheetListWrapper(manifold, manifold.getHistoryRecords(),
+                () -> new ComponentProxy(TermAux.UNINITIALIZED_COMPONENT_ID.getNid(), TermAux.UNINITIALIZED_COMPONENT_ID.getFullyQualifiedName()), manifold1 -> new ComponentProxyEditorStub(manifold1));
+        getItemList().add(this.selectionWrapper);
         getItemList().add(this.historyWrapper);
-        this.manifoldItem.focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                save();
-                this.focusWrapper.setValue(newValue);
-            }
+
+
+        this.itemKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.get());
+        FxGet.manifoldCoordinates().put(itemKey, this.manifold.getManifoldCoordinate());
+        nameProperty.addListener((observable, oldValue, newValue) -> {
+            groupNameProperty().set(newValue);
+            FxGet.languageCoordinates().remove(itemKey);
+            itemKey.updateString(newValue);
+            FxGet.manifoldCoordinates().put(itemKey, this.manifold.getManifoldCoordinate());
         });
     }
 
     @Override
     protected void saveFields() {
         getPreferencesNode().put(PreferenceGroup.Keys.GROUP_NAME, this.nameProperty.get());
-        Optional<ConceptSpecification> focusedConcept = this.manifoldItem.getFocusedConcept();
-        if (focusedConcept.isPresent()) {
-            getPreferencesNode().putConceptSpecification(Keys.FOCUSED_CONCEPT, focusedConcept.get());
-        }
-        getPreferencesNode().putComponentList(Keys.HISTORY_RECORDS, manifoldItem.getHistoryRecords());
+        getPreferencesNode().putComponentList(Keys.SELECTED_COMPONENTS, manifold.manifoldSelectionProperty());
+        getPreferencesNode().putComponentList(Keys.HISTORY_RECORDS, manifold.getHistoryRecords());
     }
 
     @Override
     protected void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(PreferenceGroup.Keys.GROUP_NAME, getGroupName()));
-        Optional<ConceptSpecification> optionalFocus = getPreferencesNode().getConceptSpecification(Keys.FOCUSED_CONCEPT);
-        if (optionalFocus.isPresent()) {
-            Manifold.getGroupFocusProperty(this.nameProperty.get()).set(Get.concept(optionalFocus.get()));
+        if (!manifold.manifoldSelectionProperty().get().equals(getPreferencesNode().getComponentList(Keys.SELECTED_COMPONENTS))) {
+            manifold.manifoldSelectionProperty().clear();
+            manifold.manifoldSelectionProperty().addAll(getPreferencesNode().getComponentList(Keys.SELECTED_COMPONENTS));
         }
-        manifoldItem.getHistoryRecords().clear();
-        manifoldItem.getHistoryRecords().addAll(getPreferencesNode().getComponentList(Keys.HISTORY_RECORDS));
+        if (!manifold.getHistoryRecords().get().equals(getPreferencesNode().getComponentList(Keys.HISTORY_RECORDS))) {
+            manifold.getHistoryRecords().clear();
+            manifold.getHistoryRecords().addAll(getPreferencesNode().getComponentList(Keys.HISTORY_RECORDS));
+        }
     }
 
     private static class ComponentProxyEditorStub implements PropertyEditor<ComponentProxy> {

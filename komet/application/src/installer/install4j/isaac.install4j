@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="7.0.12" transformSequenceNumber="7">
   <directoryPresets config="../../../../../../Informatics Dropbox/maven/informatics-dev-cert.p12" />
-  <application name="KOMET ${compiler:sys.version}" distributionSourceDir="" applicationId="8536-7156-0298-8682" mediaDir="../../../target" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="KOMET" publisher="Health Services Platform Consortium" publisherWeb="http://solor.io" version="5.1.1-Rx" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="true" macSignature="????" macVolumeId="7146e034e95ea019" javaMinVersion="11" javaMaxVersion="11" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
+  <application name="KOMET ${compiler:sys.version}" distributionSourceDir="" applicationId="5407-3158-6590-5944" mediaDir="../../../target" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="KOMET" publisher="Health Services Platform Consortium" publisherWeb="http://solor.io" version="5.1.1-Rx3" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="true" macSignature="????" macVolumeId="7146e034e95ea019" javaMinVersion="11" javaMaxVersion="11" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -78,7 +78,7 @@
       </iconImageFiles>
     </launcher>
   </launchers>
-  <installerGui installerType="1" addOnAppId="" suggestPreviousLocations="true" autoUpdateDescriptorUrl="" useAutoUpdateBaseUrl="false" autoUpdateBaseUrl="">
+  <installerGui installerType="1" addOnAppId="" suggestPreviousLocations="false" autoUpdateDescriptorUrl="" useAutoUpdateBaseUrl="false" autoUpdateBaseUrl="">
     <staticMembers script="" />
     <customCode />
     <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
@@ -1208,7 +1208,7 @@ return console.askYesNo(message, true);
     </macos>
   </mediaSets>
   <buildIds buildAll="false">
-    <mediaSet refId="65" />
+    <mediaSet refId="524" />
   </buildIds>
   <buildOptions verbose="false" faster="true" disableSigning="false" disableJreBundling="false" debug="false" />
 </install4j>

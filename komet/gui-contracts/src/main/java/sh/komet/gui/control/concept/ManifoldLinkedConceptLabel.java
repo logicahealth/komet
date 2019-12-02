@@ -37,29 +37,15 @@
 package sh.komet.gui.control.concept;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
-
 import javafx.scene.Node;
-
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Background;
-
 import javafx.stage.WindowEvent;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.MetaData;
@@ -68,14 +54,23 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-
+import sh.isaac.api.docbook.DocBook;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.komet.gui.drag.drop.DragAndDropHelper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.menu.MenuItemWithText;
+import sh.komet.gui.util.FxGet;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
 
-import sh.isaac.api.docbook.DocBook;
-import sh.komet.gui.menu.MenuItemWithText;
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -85,38 +80,38 @@ import sh.komet.gui.menu.MenuItemWithText;
 public class ManifoldLinkedConceptLabel
         extends Label implements PropertyEditor<Object> {
 
-    private static final String EMPTY_TEXT = "empty";
-    TransferMode[] transferMode = null;
-    Manifold manifold;
+    public static final String EMPTY_TEXT = "empty";
+     SimpleObjectProperty<Manifold> manifoldProperty;
+    SimpleIntegerProperty selectionIndexProperty;
     Consumer<ManifoldLinkedConceptLabel> descriptionTextUpdater;
-    Background originalBackground;
     final Supplier<List<MenuItem>> menuSupplier;
     final DragAndDropHelper dragAndDropHelper;
 
     //~--- constructors --------------------------------------------------------
-    public ManifoldLinkedConceptLabel(Manifold manifold,
+    public ManifoldLinkedConceptLabel(SimpleObjectProperty<Manifold> manifoldProperty,
+                                      SimpleIntegerProperty selectionIndexProperty,
             Consumer<ManifoldLinkedConceptLabel> descriptionTextUpdater,
             Supplier<List<MenuItem>> menuSupplier) {
         super(EMPTY_TEXT);
         if (menuSupplier == null) {
             throw new IllegalStateException("Supplier<List<MenuItem>> menuSupplier cannot be null");
         }
-        this.manifold = manifold;
+        this.manifoldProperty = manifoldProperty;
+        this.selectionIndexProperty = selectionIndexProperty;
         this.descriptionTextUpdater = descriptionTextUpdater;
         this.menuSupplier = menuSupplier;
-        this.manifold.focusedConceptProperty().addListener(
-                (ObservableValue<? extends ConceptSpecification> observable,
-                        ConceptSpecification oldValue,
-                        ConceptSpecification newValue) -> {
-                    this.descriptionTextUpdater.accept(this);
-                });
-        if (this.manifold.getFocusedConcept().isPresent()) {
+        this.manifoldProperty.addListener((observable, oldValue, newValue) -> {
+            oldValue.manifoldSelectionProperty().removeListener(this::selectionListChanged);
+            newValue.manifoldSelectionProperty().addListener(this::selectionListChanged);
+        });
+        this.manifoldProperty.get().manifoldSelectionProperty().addListener(this::selectionListChanged);
+        if (this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get()).isPresent()) {
            this.descriptionTextUpdater.accept(this);
         }
         this.getStyleClass().add(CONCEPT_LABEL.toString());
         this.dragAndDropHelper = new DragAndDropHelper(this, () -> {
-            if (manifold.getFocusedConcept().isPresent()) {
-                return Get.concept(manifold.getFocusedConcept().get());
+            if (manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get()).isPresent()) {
+                return manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get()).get();
             }
             return null;
 
@@ -139,15 +134,19 @@ public class ManifoldLinkedConceptLabel
     }
 
     //~--- methods -------------------------------------------------------------
+    private void selectionListChanged(ListChangeListener.Change<? extends ComponentProxy> c) {
+        this.descriptionTextUpdater.accept(this);
+    }
+
     private MenuItem makeCopyMenuItem() {
         Menu copyMenu = new Menu("copy");
 
         MenuItem conceptLoincCodeMenuItem = new MenuItemWithText("Concept LOINC code");
         copyMenu.getItems().add(conceptLoincCodeMenuItem);
         conceptLoincCodeMenuItem.setOnAction((event) -> {
-            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(selectionIndexProperty.get());
             if (concept.isPresent()) {
-                Optional<String> optionalLoincCode = Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(), MetaData.LOINC_ID_ASSEMBLAGE____SOLOR, manifold);
+                Optional<String> optionalLoincCode = Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(), MetaData.LOINC_ID_ASSEMBLAGE____SOLOR, manifoldProperty.get());
 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
@@ -163,9 +162,9 @@ public class ManifoldLinkedConceptLabel
         MenuItem conceptSnomedCodeItem = new MenuItemWithText("Concept SNOMED code");
         copyMenu.getItems().add(conceptSnomedCodeItem);
         conceptSnomedCodeItem.setOnAction((event) -> {
-            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
             if (concept.isPresent()) {
-                Optional<String> optionalSnomedCode = Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(), MetaData.SCTID____SOLOR, manifold);
+                Optional<String> optionalSnomedCode = Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(), MetaData.SCTID____SOLOR, manifoldProperty.get());
 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
@@ -182,7 +181,7 @@ public class ManifoldLinkedConceptLabel
         MenuItem conceptFQNMenuItem = new MenuItemWithText("Concept Fully Qualified Name");
         copyMenu.getItems().add(conceptFQNMenuItem);
         conceptFQNMenuItem.setOnAction((event) -> {
-            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
             if (concept.isPresent()) {
                 String fqnString = concept.get().getFullyQualifiedName();
                 Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -196,7 +195,7 @@ public class ManifoldLinkedConceptLabel
         MenuItem conceptUuidMenuItem = new MenuItemWithText("Concept UUID");
         copyMenu.getItems().add(conceptUuidMenuItem);
         conceptUuidMenuItem.setOnAction((event) -> {
-            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
             if (concept.isPresent()) {
                 String uuidStr = concept.get().getPrimordialUuid().toString();
                 Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -210,9 +209,9 @@ public class ManifoldLinkedConceptLabel
         MenuItem docBookInlineReferenceMenuItem = new MenuItemWithText("Docbook inline concept reference");
         copyMenu.getItems().add(docBookInlineReferenceMenuItem);
         docBookInlineReferenceMenuItem.setOnAction((event) -> {
-            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
             if (concept.isPresent()) {
-                String docbookXml = DocBook.getInlineEntry(concept.get(), manifold);
+                String docbookXml = DocBook.getInlineEntry(concept.get(), manifoldProperty.get());
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
                 content.putString(docbookXml);
@@ -223,9 +222,9 @@ public class ManifoldLinkedConceptLabel
         MenuItem copyDocBookMenuItem = new MenuItemWithText("Docbook glossary entry");
         copyMenu.getItems().add(copyDocBookMenuItem);
         copyDocBookMenuItem.setOnAction((event) -> {
-            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
             if (concept.isPresent()) {
-                String docbookXml = DocBook.getGlossentry(concept.get(), manifold);
+                String docbookXml = DocBook.getGlossentry(concept.get(), manifoldProperty.get());
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
                 content.putString(docbookXml);
@@ -235,36 +234,32 @@ public class ManifoldLinkedConceptLabel
         MenuItem copyJavaShortSpecMenuItem = new MenuItemWithText("Java concept specification");
         copyMenu.getItems().add(copyJavaShortSpecMenuItem);
         copyJavaShortSpecMenuItem.setOnAction((event) -> {
-            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
             if (concept.isPresent()) {
-                ConceptSpecification conceptSpec = (ConceptSpecification) concept.get();
-                StringBuilder builder = new StringBuilder();
-                builder.append("new ConceptProxy(\"");
-                builder.append(conceptSpec.getFullyQualifiedName());
-                builder.append("\", UUID.fromString(\"");
-                builder.append(conceptSpec.getPrimordialUuid().toString());
-                builder.append("\"))");
-                
+                ConceptSpecification conceptSpec = concept.get();
+
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
-                content.putString(builder.toString());
+                content.putString("new ConceptProxy(\"" +
+                        conceptSpec.getFullyQualifiedName() +
+                        "\", UUID.fromString(\"" +
+                        conceptSpec.getPrimordialUuid().toString() +
+                        "\"))");
                 clipboard.setContent(content);
             }
         });
         MenuItem copyJavaSpecMenuItem = new MenuItemWithText("Java qualified concept specification");
         copyMenu.getItems().add(copyJavaSpecMenuItem);
         copyJavaSpecMenuItem.setOnAction((event) -> {
-            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
             if (concept.isPresent()) {
-                ConceptSpecification conceptSpec = (ConceptSpecification) concept.get();
-                StringBuilder builder = new StringBuilder();
-                builder.append("new sh.isaac.api.ConceptProxy(\"");
-                builder.append(conceptSpec.toExternalString());
-                builder.append("\")");
-                
+                ConceptSpecification conceptSpec = concept.get();
+
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
-                content.putString(builder.toString());
+                content.putString("new sh.isaac.api.ConceptProxy(\"" +
+                        conceptSpec.toExternalString() +
+                        "\")");
                 clipboard.setContent(content);
             }
         });
@@ -272,7 +267,7 @@ public class ManifoldLinkedConceptLabel
         MenuItem copyConceptDetailedInfoItem = new MenuItemWithText("Copy concept detailed info");
         copyMenu.getItems().add(copyConceptDetailedInfoItem);
         copyConceptDetailedInfoItem.setOnAction((event) -> {
-            Optional<ConceptSpecification> concept = this.manifold.getFocusedConcept();
+            Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
             if (concept.isPresent()) {
                 ConceptChronology conceptChronicle = Get.concept(concept.get());
                 Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -306,14 +301,15 @@ public class ManifoldLinkedConceptLabel
 
         Menu manifoldHistoryMenu = new Menu("history");
         contextMenu.getItems().add(manifoldHistoryMenu);
-        Collection<ComponentProxy> historyCollection = this.manifold.getHistoryRecords();
+        Collection<ComponentProxy> historyCollection = this.manifoldProperty.get().getHistoryRecords();
 
         setupHistoryMenuItem(historyCollection, manifoldHistoryMenu);
 
-        for (String manifoldGroupName : Manifold.getGroupNames()) {
-            Menu groupHistory = new Menu(manifoldGroupName + " history");
+        for (Manifold.ManifoldGroup group: Manifold.ManifoldGroup.values()) {
+            Manifold manifoldForGroup = Manifold.get(group);
+            Menu groupHistory = new Menu(group.getGroupName() + " history");
             contextMenu.getItems().add(groupHistory);
-            setupHistoryMenuItem(Manifold.getGroupHistory(manifoldGroupName), groupHistory);
+            setupHistoryMenuItem(manifoldForGroup.getHistoryRecords(), groupHistory);
         }
     }
 
@@ -323,26 +319,31 @@ public class ManifoldLinkedConceptLabel
             historyItem.setUserData(historyRecord);
             historyItem.setOnAction((ActionEvent actionEvent) -> {
                 unlink();
-                MenuItem historyMenuItem = (MenuItem) actionEvent.getSource();
+                //MenuItem historyMenuItem = (MenuItem) actionEvent.getSource();
                 ComponentProxy itemHistoryRecord = (ComponentProxy) historyItem.getUserData();
-                this.manifold.setFocusedConceptChronology(Get.concept(itemHistoryRecord.getNid()));
+                setConceptChronology(Get.concept(itemHistoryRecord.getNid()));
             });
             manifoldHistoryMenu.getItems().add(historyItem);
         }
     }
 
     private void unlink() {
-        if (!this.manifold
+        if (!this.manifoldProperty.get()
                 .getGroupName()
                 .equals(ManifoldGroup.UNLINKED.getGroupName())) {
-            this.manifold
-                    .setGroupName(ManifoldGroup.UNLINKED.getGroupName());
+            this.manifoldProperty.get().manifoldSelectionProperty().removeListener(this::selectionListChanged);
+            this.manifoldProperty.set(Manifold.get(ManifoldGroup.UNLINKED));
+            this.manifoldProperty.get().manifoldSelectionProperty().addListener(this::selectionListChanged);
+            this.selectionIndexProperty.set(0);
+            FxGet.dialogs().showErrorDialog("Unsupported operation.", "Can't unlink manifold yet...",
+                    "Have to implement a shared manifold property to unlink, and deal with change in index...");
+
         }
     }
 
     public void setConceptChronology(ConceptChronology conceptChronology) {
-        this.manifold
-                .setFocusedConceptChronology(conceptChronology);
+        unlink();
+        this.manifoldProperty.get().manifoldSelectionProperty().setAll((ComponentProxy) conceptChronology);
     }
 
     //~--- set methods ---------------------------------------------------------
@@ -362,9 +363,9 @@ public class ManifoldLinkedConceptLabel
 
     public static void setFullySpecifiedText(ManifoldLinkedConceptLabel label) {
         
-        if (label.manifold.getFocusedConcept().isPresent()) {
-            ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept().get());
-            label.manifold.getDescription(focusedConcept.getNid(), new int[] {
+        if (label.manifoldProperty.get().getOptionalFocusedConcept(label.selectionIndexProperty.get()).isPresent()) {
+            ConceptChronology focusedConcept = Get.concept(label.manifoldProperty.get().getOptionalFocusedConcept(label.selectionIndexProperty.get()).get());
+            label.manifoldProperty.get().getDescription(focusedConcept.getNid(), new int[] {
                     MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid(), 
                     MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()})
                     .ifPresent(label::setDescriptionText)
@@ -375,9 +376,9 @@ public class ManifoldLinkedConceptLabel
     }
 
     public static void setPreferredText(ManifoldLinkedConceptLabel label) {
-        if (label.manifold.getFocusedConcept().isPresent()) {
-            ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept().get());
-            label.manifold.getDescription(focusedConcept.getNid(), new int[] {
+        if (label.manifoldProperty.get().getOptionalFocusedConcept(label.selectionIndexProperty.get()).isPresent()) {
+            ConceptChronology focusedConcept = Get.concept(label.manifoldProperty.get().getOptionalFocusedConcept(label.selectionIndexProperty.get()).get());
+            label.manifoldProperty.get().getDescription(focusedConcept.getNid(), new int[] {
                   MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(), 
                   MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()})
                     .ifPresent(label::setDescriptionText)
@@ -394,10 +395,8 @@ public class ManifoldLinkedConceptLabel
 
     @Override
     public Integer getValue() {
-        if (manifold.getFocusedConcept().isPresent()) {
-            return this.manifold.getFocusedConcept().get().getNid();
-        }
-        return Integer.MAX_VALUE;
+        Optional<ConceptChronology> optionalConcept = manifoldProperty.get().getOptionalFocusedConcept(selectionIndexProperty.get());
+        return optionalConcept.map(IdentifiedObject::getNid).orElse(Integer.MAX_VALUE);
     }
 
     @Override
@@ -405,12 +404,12 @@ public class ManifoldLinkedConceptLabel
         if (value instanceof Integer) {
             Integer intValue = (Integer) value;
             if (intValue < 0) {
-                this.manifold.setFocusedConceptChronology(Get.concept((Integer) value));
+                this.setConceptChronology(Get.concept((Integer) value));
             }
         } else if (value instanceof ConceptSpecification) {
             ConceptSpecification spec = (ConceptSpecification) value;
             if (spec.getNid() < 0) {
-                this.manifold.setFocusedConceptChronology(Get.concept((ConceptSpecification) value));
+                this.setConceptChronology(Get.concept((ConceptSpecification) value));
             }
 
         } else {

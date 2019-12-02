@@ -45,6 +45,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+
+import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.javafx.collections.ObservableListWrapper;
@@ -61,21 +63,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -88,10 +76,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import sh.isaac.MetaData;
-import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
+import sh.isaac.api.*;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
@@ -225,9 +210,19 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
 
     void selectionChanged(ListChangeListener.Change<? extends CompositeQueryResult> c) {
         while (c.next()) {
-            if (!c.getAddedSubList().isEmpty()) {
-                CompositeQueryResult result = c.getAddedSubList().get(0);
-                outsideManifold.setFocusedConceptChronology(result.getContainingConcept());
+            if (c.wasPermutated()) {
+                for (int i = c.getFrom(); i < c.getTo(); ++i) {
+                    //nothing to do...
+                }
+            } else if (c.wasUpdated()) {
+                //nothing to do
+            } else {
+                for (CompositeQueryResult remitem : c.getRemoved()) {
+                    outsideManifold.manifoldSelectionProperty().remove(new ComponentProxy(remitem.getContainingConcept().toExternalString()));
+                }
+                for (CompositeQueryResult additem : c.getAddedSubList()) {
+                    outsideManifold.manifoldSelectionProperty().add(new ComponentProxy(additem.getContainingConcept().toExternalString()));
+                }
             }
         }
     }
@@ -549,7 +544,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                     public void handle(MouseEvent mouseEvent) {
                                         if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                                             if (mouseEvent.getClickCount() == 2) {
-                                                outsideManifold.setFocusedConceptChronology(item.getContainingConcept());
+                                                outsideManifold.manifoldSelectionProperty().setAll(new ComponentProxy(item.getContainingConcept()));
                                             }
                                         }
                                     }
@@ -657,7 +652,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
         Platform.runLater(()
                 -> {
             try {
-                if (!ssh.isCancelled()) {
+                if (ssh != null && !ssh.isCancelled()) {
                     Collection<CompositeQueryResult> results = ssh.getResults();
 
                     searchResults.getItems().addAll(results);

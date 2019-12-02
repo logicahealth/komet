@@ -17,6 +17,7 @@
 package sh.komet.gui.importation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
@@ -57,7 +58,7 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
    @Override
    protected Void call() throws Exception {
       try {
-         Transaction transaction = Get.commitService().newTransaction(ChangeCheckerMode.INACTIVE);
+         Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
          completedUnitOfWork();
          updateMessage("Importing new content...");
          DirectImporter importer = new DirectImporter(importType, entriesToImport);

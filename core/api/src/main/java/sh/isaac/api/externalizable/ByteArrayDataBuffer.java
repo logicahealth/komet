@@ -41,14 +41,14 @@ package sh.isaac.api.externalizable;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.UTFDataFormatException;
 
 import java.nio.ReadOnlyBufferException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.locks.StampedLock;
 
 import javax.xml.bind.DatatypeConverter;
@@ -57,7 +57,9 @@ import javax.xml.bind.DatatypeConverter;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.Status;
 import sh.isaac.api.commit.StampService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -1228,7 +1230,23 @@ public class ByteArrayDataBuffer {
       } else {
          putIntArray(nids);
       }
+   }
 
+   public void putNidArray(Collection<Integer> nidCollection) {
+
+      int[] nids  = new int[nidCollection.size()];
+      int index = 0;
+      for (Integer nid: nidCollection) {
+         nids[index++] = nid;
+      }
+      if (this.externalData) {
+         putInt(nids.length);
+         for (int i = 0; i < nids.length; i++) {
+            putUuid(Get.identifierService().getUuidPrimordialForNid(nids[i]));
+         }
+      } else {
+         putIntArray(nids);
+      }
    }
 
    /**
@@ -1318,6 +1336,79 @@ public class ByteArrayDataBuffer {
       }
 
       return result;
+   }
+
+   public void putConceptSpecification(ConceptSpecification specification) {
+      putNid(specification.getNid());
+   }
+
+   public ConceptSpecification getConceptSpecification() {
+      return Get.conceptSpecification(getNid());
+   }
+
+   public void putConceptSpecificationSet(Set<ConceptSpecification> conceptSpecificationSet) {
+      putInt(conceptSpecificationSet.size());
+      for (ConceptSpecification conceptSpecification: conceptSpecificationSet) {
+         putConceptSpecification(conceptSpecification);
+      }
+   }
+
+   public Set<ConceptSpecification> getConceptSpecificationSet() {
+      int setSize = getInt();
+      Set<ConceptSpecification> conceptSpecificationSet = new HashSet<>(setSize);
+      for (int i = 0; i < setSize; i++) {
+         conceptSpecificationSet.add(getConceptSpecification());
+      }
+      return conceptSpecificationSet;
+   }
+
+    public void putConceptSpecificationList(List<ConceptSpecification> conceptSpecificationList) {
+        putInt(conceptSpecificationList.size());
+        for (ConceptSpecification conceptSpecification: conceptSpecificationList) {
+            putConceptSpecification(conceptSpecification);
+        }
+    }
+
+    public List<ConceptSpecification> getConceptSpecificationList() {
+        int listSize = getInt();
+        List<ConceptSpecification> conceptSpecificationList = new ArrayList<>(listSize);
+        for (int i = 0; i < listSize; i++) {
+            conceptSpecificationList.add(getConceptSpecification());
+        }
+        return conceptSpecificationList;
+    }
+
+    public void putConceptSpecificationArray(ConceptSpecification[] conceptSpecificationArray) {
+        putInt(conceptSpecificationArray.length);
+        for (ConceptSpecification conceptSpecification: conceptSpecificationArray) {
+            putConceptSpecification(conceptSpecification);
+        }
+    }
+
+    public ConceptSpecification[] getConceptSpecificationArray() {
+        int listSize = getInt();
+        ConceptSpecification[] conceptSpecificationArray = new ConceptSpecification[listSize];
+        for (int i = 0; i < listSize; i++) {
+            conceptSpecificationArray[i] = getConceptSpecification();
+        }
+        return conceptSpecificationArray;
+    }
+
+    public void putStatusSet(EnumSet<Status> statusSet) {
+      putInt(statusSet.size());
+      for (Status status: statusSet) {
+         putUTF(status.name());
+      }
+   }
+
+   public EnumSet<Status> getStatusSet() {
+      int setSize = getInt();
+      List<Status> statusSet = new ArrayList(setSize);
+      for (int i = 0; i < setSize; i++) {
+         statusSet.add(Status.valueOf(getUTF()));
+      }
+      return EnumSet.copyOf(statusSet);
+
    }
 
    /**
@@ -1511,6 +1602,18 @@ public class ByteArrayDataBuffer {
          throw new IllegalStateException("Size = " + size + " used = " + byteBuffer.getUsed());
       }
       return byteBuffer;
+   }
+
+   public void write(DataOutputStream output) throws IOException {
+      output.writeInt(position);
+      output.write(data, 0, position);
+   }
+
+   public static ByteArrayDataBuffer make(DataInputStream input) throws IOException {
+      int size = input.readInt();
+      byte[] data = new byte[size];
+      input.read(data, 0, size);
+      return new ByteArrayDataBuffer(data);
    }
 }
 

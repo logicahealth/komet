@@ -36,6 +36,7 @@
  */
 package sh.isaac.model.observable.coordinate;
 
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.List;
 import java.util.Optional;
@@ -82,6 +83,8 @@ public final class ObservableLanguageCoordinateImpl
      */
     private final ListProperty<ConceptSpecification> descriptionTypePreferenceListProperty;
 
+    private final ListProperty<ConceptSpecification> modulePreferenceListProperty;
+
     private ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty = null;
 
     /**
@@ -106,15 +109,14 @@ public final class ObservableLanguageCoordinateImpl
         this.languageProperty.addListener((ObservableValue<? extends ConceptSpecification> observable, ConceptSpecification oldValue, ConceptSpecification newValue) -> {
             ObservableLanguageCoordinateImpl.this.languageCoordinate.setLanguageConceptNid(newValue.getNid());
         });
-        
+
+        //
         ObservableList<ConceptSpecification> dialectAssemblagePreferenceList = FXCollections.observableArrayList();
         for (ConceptSpecification spec: languageCoordinate.getDialectAssemblageSpecPreferenceList()) {
             dialectAssemblagePreferenceList.add(spec);
         }
-        
         this.dialectAssemblagePreferenceListProperty = new SimpleListProperty(this, 
                 ObservableFields.DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(), dialectAssemblagePreferenceList);
-        
         this.dialectAssemblagePreferenceListProperty.addListener((ListChangeListener.Change<? extends ConceptSpecification> c) -> {
             int[] newList = new int[c.getList().size()];
             int i = 0;
@@ -123,17 +125,15 @@ public final class ObservableLanguageCoordinateImpl
             }
             ObservableLanguageCoordinateImpl.this.languageCoordinate.setDialectAssemblagePreferenceList(newList);           
         });
-        
+
+        //
         ObservableList<ConceptSpecification> descriptionTypePreferenceList = FXCollections.observableArrayList();
         for (ConceptSpecification spec: languageCoordinate.getDescriptionTypeSpecPreferenceList()) {
             descriptionTypePreferenceList.add(spec);
         }
-        
-        
         this.descriptionTypePreferenceListProperty = new SimpleListProperty<>(this,
                     ObservableFields.DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                     descriptionTypePreferenceList);
-       
         this.descriptionTypePreferenceListProperty.addListener((ListChangeListener.Change<? extends ConceptSpecification> c) -> {
             int[] newList = new int[c.getList().size()];
             int i = 0;
@@ -142,7 +142,27 @@ public final class ObservableLanguageCoordinateImpl
             }
             ObservableLanguageCoordinateImpl.this.languageCoordinate.setDescriptionTypePreferenceList(newList);           
         });
-        
+
+        //
+        ObservableList<ConceptSpecification> modulePreferenceList = FXCollections.observableArrayList();
+        modulePreferenceList.setAll(languageCoordinate.getDescriptionTypeSpecPreferenceList());
+
+        this.modulePreferenceListProperty = new SimpleListProperty<>(this,
+                ObservableFields.MODULE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
+                descriptionTypePreferenceList);
+        this.modulePreferenceListProperty.addListener((ListChangeListener.Change<? extends ConceptSpecification> c) -> {
+            ObservableLanguageCoordinateImpl.this.languageCoordinate.setModuleSpecPreferenceListForLanguage(c.getList().toArray(new ConceptSpecification[c.getList().size()]));
+        });
+
+    }
+
+    public void putExternal(ByteArrayDataBuffer out) {
+        this.languageCoordinate.putExternal(out);
+    }
+
+    @Override
+    public ListProperty<ConceptSpecification> modulePreferenceListForLanguage() {
+        return this.modulePreferenceListProperty;
     }
 
     @Override
@@ -190,7 +210,7 @@ public final class ObservableLanguageCoordinateImpl
     public ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty() {
         if (this.nextProrityLanguageCoordinateProperty == null) {
             ObservableLanguageCoordinate nextPriorityLanguageCoordinate = null;
-            Optional<LanguageCoordinate> nextPriorityOption = languageCoordinate.getNextProrityLanguageCoordinate();
+            Optional<LanguageCoordinate> nextPriorityOption = languageCoordinate.getNextPriorityLanguageCoordinate();
             if (nextPriorityOption.isPresent()) {
                 nextPriorityLanguageCoordinate = new ObservableLanguageCoordinateImpl(nextPriorityOption.get());
             }
@@ -221,10 +241,10 @@ public final class ObservableLanguageCoordinateImpl
     }
 
     /**
-     * @see sh.isaac.api.coordinate.LanguageCoordinate#getNextProrityLanguageCoordinate()
+     * @see sh.isaac.api.coordinate.LanguageCoordinate#getNextPriorityLanguageCoordinate()
      */
     @Override
-    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
+    public Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
         return Optional.ofNullable(nextProrityLanguageCoordinateProperty().get());
     }
 

@@ -106,7 +106,7 @@ public class ConceptVersionImpl
       return setupAnalog(stampSequence);
    }
 
-   private <V extends Version> V setupAnalog(int stampSequence) {
+   public <V extends Version> V setupAnalog(int stampSequence) {
       ConceptChronologyImpl chronologyImpl = (ConceptChronologyImpl) this.chronicle;
       final ConceptVersionImpl newVersion = new ConceptVersionImpl(chronologyImpl, stampSequence);
 

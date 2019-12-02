@@ -365,5 +365,10 @@ public class DynamicImpl
       DynamicImpl otherImpl = (DynamicImpl) other;
       return Arrays.equals(this.data, otherImpl.data);
    }
+
+   @Override
+   public <V extends Version> V setupAnalog(int stampSequence) {
+      throw new UnsupportedOperationException();
+   }
 }
 

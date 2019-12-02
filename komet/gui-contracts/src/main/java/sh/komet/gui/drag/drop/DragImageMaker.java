@@ -19,6 +19,7 @@ package sh.komet.gui.drag.drop;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -26,7 +27,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.transform.NonInvertibleTransformException;
+import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.interfaces.DraggableWithImage;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -38,8 +41,18 @@ public class DragImageMaker implements DraggableWithImage {
 
    Region node;
 
-   public DragImageMaker(Region node) {
-      this.node = node;
+   public DragImageMaker(Node node) {
+      Node originalNode = node;
+      while (!(node instanceof Region) && (node != null)) {
+         node = node.getParent();
+      }
+      this.node = (Region) node;
+      if (this.node == null) {
+         FxGet.dialogs().showErrorDialog("Drag error" ,
+                 "Can't make drag image of " + originalNode.getClass(),
+                 "Can't find region for node: " + originalNode);
+         node = new Label("Can't make drag image of " + originalNode.getClass());
+      }
    }
 
    @Override

@@ -248,5 +248,10 @@ public class CategorizedVersion
    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
       return delegate.makeAnalog(transaction, authorNid);
    }
+
+   @Override
+   public <V extends Version> V setupAnalog(int stampSequence) {
+      throw new UnsupportedOperationException();
+   }
 }
 

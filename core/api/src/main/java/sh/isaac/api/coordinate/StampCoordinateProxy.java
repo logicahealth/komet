@@ -70,4 +70,9 @@ public interface StampCoordinateProxy extends StampCoordinate {
    default StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
       return getStampCoordinate().makeModuleAnalog(modules, add);
    }
+
+   @Override
+   default StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
+      return getStampCoordinate().makePathAnalog(pathForPosition);
+   }
 }

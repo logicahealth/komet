@@ -130,7 +130,7 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
       return setupAnalog(stampSequence);
    }
 
-   private <V extends Version> V setupAnalog(int stampSequence) {
+   public <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = new Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setInt1(this.int1);

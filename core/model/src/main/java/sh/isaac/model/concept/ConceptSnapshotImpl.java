@@ -64,6 +64,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.configuration.LanguageCoordinates;
@@ -329,7 +330,12 @@ public class ConceptSnapshotImpl
       return this.manifoldCoordinate.makeModuleAnalog(modules, add);
    }
 
-   @Override
+    @Override
+    public StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
+        return this.manifoldCoordinate.makePathAnalog(pathForPosition);
+    }
+
+    @Override
    public PremiseType getTaxonomyPremiseType() {
       return this.manifoldCoordinate.getTaxonomyPremiseType();
    }
@@ -365,8 +371,8 @@ public class ConceptSnapshotImpl
    }
 
     @Override
-    public Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-        return this.manifoldCoordinate.getNextProrityLanguageCoordinate();
+    public Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
+        return this.manifoldCoordinate.getNextPriorityLanguageCoordinate();
     }
 
     @Override
@@ -435,6 +441,11 @@ public class ConceptSnapshotImpl
     @Override
     public NidSet getAuthorNids() {
         return manifoldCoordinate.getAuthorNids();
+    }
+
+    @Override
+    public void putExternal(ByteArrayDataBuffer out) {
+        throw new UnsupportedOperationException();
     }
 }
 

@@ -79,9 +79,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
-import sh.isaac.api.Get;
-import sh.isaac.api.RefreshListener;
-import sh.isaac.api.Status;
+import sh.isaac.api.*;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
 import sh.isaac.api.alert.AlertEvent;
@@ -107,7 +105,6 @@ import sh.komet.gui.layout.LayoutAnimator;
 
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
 import sh.komet.gui.util.FxGet;
-import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- classes ----------------------------------------------------------------
@@ -163,7 +160,7 @@ public class MultiParentTreeView
     //~--- constructors --------------------------------------------------------
     public MultiParentTreeView(Manifold manifold, ConceptSpecification rootSpec) {
         long startTime = System.currentTimeMillis();
-        this.manifold = manifold.deepClone();
+        this.manifold = manifold;
         this.manifold.getStampCoordinate().allowedStatesProperty().addListener((observable, oldValue, newValue) -> {
             LOG.info("Allowed states changed to: {}", newValue);
         });
@@ -176,16 +173,24 @@ public class MultiParentTreeView
         this.taxonomySnapshotProperty.set(FxGet.taxonomySnapshot(this.manifold, taxonomyConfiguration.getValue()));
         getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
         treeView = new TreeView<>();
-        treeView.getSelectionModel()
-                .selectedItemProperty()
-                .addListener(
-                        (ObservableValue<? extends TreeItem<ConceptChronology>> observable,
-                                TreeItem<ConceptChronology> oldValue,
-                                TreeItem<ConceptChronology> newValue) -> {
-                            if (newValue != null) {
-                                this.manifold.setFocusedConceptChronology(newValue.getValue());
-                            }
-                        });
+        treeView.getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<ConceptChronology>>) c -> {
+            while (c.next()) {
+                if (c.wasPermutated()) {
+                    for (int i = c.getFrom(); i < c.getTo(); ++i) {
+                        //nothing to do...
+                    }
+                } else if (c.wasUpdated()) {
+                    //nothing to do
+                } else {
+                    for (TreeItem<ConceptChronology> remitem : c.getRemoved()) {
+                        manifold.manifoldSelectionProperty().remove(new ComponentProxy(remitem.getValue().toExternalString()));
+                    }
+                    for (TreeItem<ConceptChronology> additem : c.getAddedSubList()) {
+                        manifold.manifoldSelectionProperty().add(new ComponentProxy(additem.getValue().toExternalString()));
+                    }
+                }
+            }
+        });
         this.setCenter(treeView);
 
         ConceptChronology rootConcept = Get.conceptService()

@@ -45,6 +45,7 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -74,6 +75,8 @@ public interface ObservableLanguageCoordinate
     * @return the object property
     */
    ListProperty<ConceptSpecification> dialectAssemblagePreferenceListProperty();
+
+   ListProperty<ConceptSpecification>  modulePreferenceListForLanguage();
 
    /**
     * The next priority language coordinate property. 
@@ -105,6 +108,8 @@ public interface ObservableLanguageCoordinate
    void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList);
     
    @Override
-   public ObservableLanguageCoordinate deepClone();
+   ObservableLanguageCoordinate deepClone();
+
+   void putExternal(ByteArrayDataBuffer out);
 }
 

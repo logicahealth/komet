@@ -49,6 +49,8 @@ import javafx.concurrent.Task;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
@@ -85,6 +87,7 @@ import sh.isaac.model.ModelGet;
 public class ConceptBuilderImpl
         extends ComponentBuilder<ConceptChronology>
         implements ConceptBuilder {
+   private static final Logger LOG = LogManager.getLogger();
 
    /**
     * The description builders.
@@ -179,6 +182,9 @@ public class ConceptBuilderImpl
       this.defaultLanguageForDescriptions = defaultLanguageForDescriptions;
       this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
       this.defaultLogicCoordinate = defaultLogicCoordinate;
+      if (this.defaultLogicCoordinate.getStatedAssemblageNid() != TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid()) {
+         throw new IllegalStateException("Incorrect stated assemblage: " + Get.conceptDescriptionText(this.defaultLogicCoordinate.getStatedAssemblageNid()));
+      }
 
       if (logicalExpression != null) {
          this.logicalExpressions.add(logicalExpression);
@@ -301,7 +307,12 @@ public class ConceptBuilderImpl
       ModelGet.identifierService().setupNid(conceptChronology.getNid(), conceptChronology.getAssemblageNid(), conceptChronology.getIsaacObjectType(), conceptChronology.getVersionType());
       builtObjects.add(conceptChronology);
       getDescriptionBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
-      getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
+      try {
+         getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
+      } catch (RuntimeException e) {
+         LOG.error("Error from semantic builder when building: " + this.toString());
+         throw e;
+      }
       return conceptChronology;
    }
 
@@ -456,7 +467,7 @@ public class ConceptBuilderImpl
 
    @Override
    public String toString() {
-      return "ConceptBuilderImpl{" + conceptName + (StringUtils.isNotBlank(semanticTag) ? " (" + semanticTag + ")" : "") + '}';
+      return "ConceptBuilderImpl{" + conceptName + (StringUtils.isNotBlank(semanticTag) ? " (" + semanticTag + ") " : " ") + this.getPrimordialUuid() + '}';
    }
    
    @Override

@@ -72,6 +72,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableStampPosition;
 import sh.isaac.model.xml.StampPositionAdaptor;
 import sh.isaac.model.xml.StatusEnumSetAdaptor;
@@ -97,7 +98,7 @@ public class StampCoordinateImpl
     /**
      * The stamp position.
      */
-    StampPosition stampPosition;
+    StampPositionImpl stampPosition;
 
     /**
      * The module concepts.
@@ -109,21 +110,45 @@ public class StampCoordinateImpl
      */
     Set<ConceptSpecification> authorSpecifications;
 
+
+    List<ConceptSpecification> modulePriorityList;
+
     /**
      * The allowed states.
      */
     EnumSet<Status> allowedStates;
 
-    List<ConceptSpecification> modulePriorityList;
-
     private StampCoordinateImmutableWrapper stampCoordinateImmutable = null;
+
+    UUID stampCoordinateUuid;
 
     /**
      * No arg constructor for JAXB.
      */
     public StampCoordinateImpl() {
     }
-    UUID stampCoordinateUuid;
+
+    private StampCoordinateImpl(ByteArrayDataBuffer data) {
+        this.stampPrecedence = StampPrecedence.make(data);
+        this.stampPosition = StampPositionImpl.make(data);
+        this.moduleSpecifications = data.getConceptSpecificationSet();
+        this.authorSpecifications = data.getConceptSpecificationSet();
+        this.modulePriorityList = data.getConceptSpecificationList();
+        this.allowedStates  = data.getStatusSet();
+    }
+
+    public final void putExternal(ByteArrayDataBuffer out) {
+        this.stampPrecedence.putExternal(out);
+        this.stampPosition.putExternal(out);
+        out.putConceptSpecificationSet(moduleSpecifications);
+        out.putConceptSpecificationSet(authorSpecifications);
+        out.putConceptSpecificationList(modulePriorityList);
+        out.putStatusSet(allowedStates);
+    }
+
+    public static final StampCoordinateImpl make(ByteArrayDataBuffer data) {
+        return new StampCoordinateImpl(data);
+    }
 
     @Override
     @XmlElement
@@ -165,10 +190,9 @@ public class StampCoordinateImpl
                                Set<ConceptSpecification> authorSpecifications,
                                Set<ConceptSpecification> moduleSpecifications,
                                List<ConceptSpecification> modulePriorityList,
-
                                EnumSet<Status> allowedStates) {
         this.stampPrecedence = stampPrecedence;
-        this.stampPosition = stampPosition;
+        this.stampPosition = (StampPositionImpl) stampPosition;
         this.authorSpecifications = authorSpecifications;
         this.moduleSpecifications = moduleSpecifications;
         this.modulePriorityList = modulePriorityList;
@@ -359,11 +383,6 @@ public class StampCoordinateImpl
         return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSpecifications, this.modulePriorityList, states);
     }
 
-    /**
-     * @see
-     * sh.isaac.api.coordinate.StampCoordinate#makeModuleAnalog(Collection<ConceptSpecification>,
-     * boolean)
-     */
     @Override
     public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
         HashSet<ConceptSpecification> newNids = new HashSet<>();
@@ -372,6 +391,17 @@ public class StampCoordinateImpl
             newNids.addAll(this.moduleSpecifications);
         }
         return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, newNids, this.modulePriorityList, this.allowedStates);
+    }
+
+    @Override
+    public StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
+        StampPositionImpl stampPosition = new StampPositionImpl(this.stampPosition.getTime(), pathForPosition);
+        HashSet<ConceptSpecification> newNids = new HashSet<>();
+        newNids.addAll(this.moduleSpecifications);
+        final EnumSet<Status> newAllowedStates = EnumSet.noneOf(Status.class);
+        newAllowedStates.addAll(this.allowedStates);
+        List<ConceptSpecification> modulePriorityList = new ArrayList<>(this.modulePriorityList);
+        return new StampCoordinateImpl(this.stampPrecedence, stampPosition, newNids, modulePriorityList, newAllowedStates);
     }
 
     /**
@@ -413,6 +443,43 @@ public class StampCoordinateImpl
         }
         builder.append(this.allowedStates)
                 .append('}');
+        return builder.toString();
+    }
+
+    public String toUserString() {
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append("precedence: ")
+                .append(this.stampPrecedence)
+                .append("\nposition: ")
+                .append(this.stampPosition.toUserString())
+                .append("\nmodules: ");
+
+        if (this.moduleSpecifications == null || this.moduleSpecifications.isEmpty()) {
+            builder.append("all ");
+        } else {
+            builder.append(Get.conceptDescriptionTextListFromSpecList(this.moduleSpecifications))
+                    .append(" ");
+        }
+
+        builder.append("\nmodule priorities: ");
+        if (this.modulePriorityList == null || this.modulePriorityList.isEmpty()) {
+            builder.append("none ");
+        } else {
+            builder.append(Get.conceptDescriptionTextListFromSpecList(this.modulePriorityList))
+                    .append(" ");
+        }
+
+        builder.append("\nauthors: ");
+        if (this.authorSpecifications == null || this.authorSpecifications.isEmpty()) {
+            builder.append("any");
+        } else {
+            builder.append(Get.conceptDescriptionTextListFromSpecList(this.authorSpecifications));
+        }
+        builder.append("\nallowed states: ");
+
+        builder.append(this.allowedStates)
+                .append('\n');
         return builder.toString();
     }
 
@@ -482,7 +549,7 @@ public class StampCoordinateImpl
 
     public void setStampPosition(StampPosition stampPosition) {
         this.stampCoordinateUuid = null;
-        this.stampPosition = stampPosition;
+        this.stampPosition = (StampPositionImpl) stampPosition;
     }
 
     //~--- set methods ---------------------------------------------------------
@@ -496,7 +563,7 @@ public class StampCoordinateImpl
             ObjectProperty<ObservableStampPosition> stampPositionProperty) {
         this.stampCoordinateUuid = null;
         final ChangeListener<ObservableStampPosition> listener = (observable, oldValue, newValue) -> {
-            this.stampPosition = newValue;
+            this.stampPosition = (StampPositionImpl) newValue;
         };
 
         stampPositionProperty.addListener(new WeakChangeListener<>(listener));
