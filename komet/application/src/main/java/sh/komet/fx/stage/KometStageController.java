@@ -39,6 +39,7 @@ package sh.komet.fx.stage;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -54,6 +55,7 @@ import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.commit.ChangeCheckerMode;
@@ -225,15 +227,20 @@ public class KometStageController
 
         for (ManifoldGroup mg : ManifoldGroup.values()) {
             Manifold manifold = FxGet.manifold(mg);
-            manifold.focusedConceptProperty()
-                    .addListener(this::printSelectionDetails);
-            manifold.focusedConceptProperty()
-                    .addListener((ObservableValue<? extends IdentifiedObject> observable,
-                                  IdentifiedObject oldValue,
-                                  IdentifiedObject newValue) -> {
+            manifold.manifoldSelectionProperty().addListener(this::printSelectionDetails);
+
+            manifold.manifoldSelectionProperty()
+                    .addListener((ListChangeListener.Change<? extends ComponentProxy> c) -> {
+                        StringBuilder buff = new StringBuilder();
+                        for (int index = 0; index < c.getList().size(); index++) {
+                            buff.append(Get.conceptDescriptionText(c.getList().get(index).getNid()));
+                            if (index < c.getList().size() - 1) {
+                                buff.append("; ");
+                            }
+                        }
                         FxGet.statusMessageService()
                                 .reportSceneStatus(statusMessage.getScene(),
-                                        mg.getGroupName() + " selected: " + (newValue == null ? "" : newValue.toUserString()));
+                                        mg.getGroupName() + " selected: " + buff.toString());
                     });
         }
 
@@ -433,7 +440,7 @@ public class KometStageController
                 .add(tab);
         tabPane.getSelectionModel().select(tab);
         if (node instanceof DetailNode) {
-            node.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
+            node.getManifold().manifoldSelectionProperty().addListener((observable, oldValue, newValue) -> {
                 if (((DetailNode) node).selectInTabOnChange()) {
                     tabPane.getSelectionModel().select(tab);
                 }
@@ -532,7 +539,7 @@ public class KometStageController
                     if (en instanceof DetailNode) {
                         DetailNode dt = (DetailNode) en;
                         //TODO this is broken by design, if more than one tab requests focus on change...
-                        dt.getManifold().focusedConceptProperty().addListener((observable, oldValue, newValue) -> {
+                        dt.getManifold().manifoldSelectionProperty().addListener((observable, oldValue, newValue) -> {
                             if (dt.selectInTabOnChange()) {
                                 leftTabPane.getSelectionModel().select(tab);
                             }
@@ -603,17 +610,17 @@ public class KometStageController
         return wrapped;
     }
 
-    private void printSelectionDetails(ObservableValue<? extends IdentifiedObject> observable,
-                                       IdentifiedObject oldValue,
-                                       IdentifiedObject newValue) {
+    private void printSelectionDetails(ListChangeListener.Change<? extends ComponentProxy> c) {
         Get.executor().submit(() -> {
             if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                 StringBuffer buff = new StringBuffer();
                 buff.append("selected (processed in background):\n");
-                if (newValue instanceof ConceptChronology) {
-                    ConceptChronology concept = (ConceptChronology) newValue;
+                for (int i = 0; i < c.getList().size(); i++) {
+                    ConceptChronology concept = Get.concept(c.getList().get(i).getNid());
                     buff.append(concept.toString());
+                    buff.append("\n");
                 }
+
                 if (Get.configurationService().isVerboseDebugEnabled()) {
                     System.out.println(buff.toString());
                 } else {

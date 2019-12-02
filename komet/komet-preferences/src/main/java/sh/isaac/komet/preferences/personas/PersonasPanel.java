@@ -46,9 +46,9 @@ public class PersonasPanel extends ParentPanel {
             classificationResultsPersonaPreferences.put(GROUP_NAME, CLASSIFICATION_RESULTS_PERSONA_NAME);
             PersonaItemPanel classificationResultsPersonaItemPanel = new PersonaItemPanel(classificationResultsPersonaPreferences, manifold, kpc,
                     "Classification Results",
-                    new ConceptSpecification[] {MetaData.CLASSIFICATION_RESULTS_PANEL____SOLOR},
+                    new ConceptSpecification[] {MetaData.CLASSIFICATION_RESULTS_PANEL____SOLOR, MetaData.ACTIVITIES_PANEL____SOLOR},
                     new ConceptSpecification[] {MetaData.CONCEPT_DETAILS_CLASSIFICATION_RESULTS_LINKED_PANEL____SOLOR},
-                    new ConceptSpecification[] {MetaData.TAXONOMY_PANEL____SOLOR}
+                    new ConceptSpecification[] {MetaData.CONCEPT_DETAILS_CLASSIFICATION_RESULTS_LINKED_PANEL____SOLOR, MetaData.TAXONOMY_PANEL____SOLOR}
             );
             classificationResultsPersonaItemPanel.save();
 

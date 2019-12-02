@@ -44,7 +44,7 @@ public class LogicDetailProviderFactory implements DetailNodeFactory {
 
    @Override
    public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      return new LogicDetailNode(manifold.deepClone());
+      return new LogicDetailNode(manifold);
    }
    @Override
    public String getMenuText() {

@@ -2,6 +2,7 @@ package sh.komet.gui.provider.classification;
 
 import java.net.URL;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -10,8 +11,10 @@ import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Callback;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -88,29 +91,38 @@ public class ClassifierResultsController {
 
         inferredChangesList.setCellFactory(conceptCellFactory());
         orphanList.setCellFactory(conceptCellFactory());
+        orphanList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         inferredChangesList.getSelectionModel().getSelectedItems().addListener(this::onChanged);
+        inferredChangesList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         orphanList.getSelectionModel().getSelectedItems().addListener(this::onChanged);
+        orphanList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         equivalenciesTree.getSelectionModel().getSelectedItems().addListener(this::onTreeSelectionChanged);
+        equivalenciesTree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         cyclesTree.getSelectionModel().getSelectedItems().addListener(this::onTreeSelectionChanged);
+        cyclesTree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
     }
     private void onTreeSelectionChanged(ListChangeListener.Change<? extends TreeItem<StringWithOptionalConceptSpec>> change) {
         if (!change.getList().isEmpty()) {
-            TreeItem<StringWithOptionalConceptSpec> selectedItem = change.getList().get(0);
-            if (selectedItem.getValue().getOptionalConceptSpecification().isPresent()) {
-                FxGet.manifold(Manifold.ManifoldGroup.CLASSIFICATON).setFocusedConceptChronology(
-                       Get.concept(selectedItem.getValue().getOptionalConceptSpecification().get())
-                );
+            ArrayList<ComponentProxy> changeList = new ArrayList<>(change.getList().size());
+            for (TreeItem<StringWithOptionalConceptSpec> treeItem: change.getList()) {
+                if (treeItem.getValue().getOptionalConceptSpecification().isPresent()) {
+                    changeList.add(new ComponentProxy(treeItem.getValue().conceptSpecification));
+                }
             }
+            FxGet.manifold(Manifold.ManifoldGroup.CLASSIFICATON).manifoldSelectionProperty().setAll(changeList);
+
        }
     }
 
 
     private void onChanged(ListChangeListener.Change<? extends Integer> change) {
         if (!change.getList().isEmpty()) {
-            FxGet.manifold(Manifold.ManifoldGroup.CLASSIFICATON).setFocusedConceptChronology(
-                    Get.concept(change.getList().get(0))
-            );
+            ArrayList<ComponentProxy> changeList = new ArrayList<>(change.getList().size());
+            for (Integer conceptNid: change.getList()) {
+                changeList.add(new ComponentProxy(Get.concept(conceptNid)));
+            }
+            FxGet.manifold(Manifold.ManifoldGroup.CLASSIFICATON).manifoldSelectionProperty().setAll(changeList);
         }
     }
 

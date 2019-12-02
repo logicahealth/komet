@@ -32,7 +32,6 @@ import javafx.collections.*;
 
 import javax.inject.Singleton;
 
-import org.apache.commons.lang.Validate;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
@@ -49,16 +48,10 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.tree.TaxonomyAmalgam;
-import sh.isaac.model.coordinate.EditCoordinateImpl;
-import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.komet.gui.contract.*;
 import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
@@ -375,7 +368,7 @@ public class FxGet implements StaticIsaacCache {
     public static Manifold manifold(Manifold.ManifoldGroup manifoldGroup) {
         if (MANIFOLDS.isEmpty()) {
             for (Manifold.ManifoldGroup mg : Manifold.ManifoldGroup.values()) {
-                MANIFOLDS.put(mg, Manifold.make(mg));
+                MANIFOLDS.put(mg, Manifold.get(mg));
             }
 
         }

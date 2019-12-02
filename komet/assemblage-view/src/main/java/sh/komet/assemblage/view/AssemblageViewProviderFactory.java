@@ -38,7 +38,7 @@ public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
 
    @Override
    public AssemblageViewProvider createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      AssemblageViewProvider assemblageViewProvider = new AssemblageViewProvider(manifold.deepClone());
+      AssemblageViewProvider assemblageViewProvider = new AssemblageViewProvider(manifold);
       return assemblageViewProvider;
    }
 

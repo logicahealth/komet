@@ -27,5 +27,12 @@ public class ConceptDetailTaxonomyLinkedPanelProviderFactory extends ConceptDeta
         preferencesNode.put(ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME,
                 preferencesNode.get(ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME, Manifold.ManifoldGroup.TAXONOMY.getGroupName()));
 
-        return new ConceptDetailPanelNode(manifold.deepClone(), preferencesNode);
-    }}
+        return new ConceptDetailPanelNode(manifold, preferencesNode);
+    }
+
+    @Override
+    public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
+        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.TAXONOMY, Manifold.ManifoldGroup.UNLINKED, Manifold.ManifoldGroup.SEARCH};
+    }
+
+}

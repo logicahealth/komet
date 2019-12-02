@@ -158,8 +158,19 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
 
     public static String getWindowName(String prefix, String nodeName) {
         windowIds.add(nodeName);
-        if (windowIds.size() > 1){
-            return prefix + " " + windowIds.size();
+        if (windowIds.size() > 1) {
+            int foundCount = 0;
+            for (Window window: Window.getWindows()) {
+                if (window instanceof Stage) {
+                    Stage stage = (Stage) window;
+                    if (stage.getTitle().startsWith(prefix)) {
+                        foundCount++;
+                    }
+                }
+            }
+            if (foundCount > 0) {
+                return prefix + " " + foundCount;
+            }
         }
         return prefix;
     }

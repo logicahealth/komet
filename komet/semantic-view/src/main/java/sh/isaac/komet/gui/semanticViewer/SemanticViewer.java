@@ -97,10 +97,12 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import sh.isaac.MetaData;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -160,7 +162,8 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 
     ViewFocus viewFocus_;
     int viewFocusNid_;
-    private Manifold manifoldConcept_;
+    private SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
+    private final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("-");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("-");
@@ -246,7 +249,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
             rootNode_.getStylesheets().add(SemanticViewer.class.getResource("/css/semantic-view.css").toString());
             rootNode_.setFillWidth(true);
 
-            clt = ConceptLabelToolbar.make(manifoldConcept_, this, ((viewFocus_ == null || viewFocus_ == ViewFocus.REFERENCED_COMPONENT) ?
+            clt = ConceptLabelToolbar.make(manifoldProperty, selectionIndexProperty, this, ((viewFocus_ == null || viewFocus_ == ViewFocus.REFERENCED_COMPONENT) ?
                     Optional.of(false) : Optional.empty()));
             rootNode_.getChildren().add(clt.getToolbarNode());
 
@@ -380,8 +383,9 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
             {
                 try {
                     SemanticViewer driv = Get.service(SemanticViewer.class);
-                    Manifold mf = manifoldConcept_.deepClone();
-                    mf.setFocusedConceptChronology(Get.concept(viewFocusNid_));
+                    Manifold mf = manifoldProperty.get().deepClone();
+                    ConceptChronology selectedConcept = Get.concept(viewFocusNid_);
+                    mf.manifoldSelectionProperty().setAll(new ComponentProxy(selectedConcept));
                     driv.setAssemblage(viewFocusNid_, mf, null, null, null, true);
                     driv.showView(null);
                 } catch (Exception e) {
@@ -646,8 +650,9 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
                              ReadOnlyBooleanProperty showFullHistory, boolean displayFSNButton) {
         //disable refresh, as the bindings mucking causes many refresh calls
         noRefresh_.getAndIncrement();
-        titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
-        titleProperty.set(manifoldConcept_.getRegularName(componentNid).orElse(manifoldConcept_.getFullySpecifiedDescriptionText(componentNid)));
+        titleLabel = new ManifoldLinkedConceptLabel(manifoldProperty, selectionIndexProperty,
+                ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
+        titleProperty.set(manifoldProperty.get().getRegularName(componentNid).orElse(manifoldProperty.get().getFullySpecifiedDescriptionText(componentNid)));
         viewFocus_ = ViewFocus.REFERENCED_COMPONENT;
         viewFocusNid_ = componentNid;
         initialInit();
@@ -661,14 +666,14 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
                               ReadOnlyBooleanProperty showFullHistory, boolean displayFSNButton) {
         //disable refresh, as the bindings mucking causes many refresh calls
         noRefresh_.getAndIncrement();
-        if (manifoldConcept_ != null) {
+        if (manifoldProperty.get() != null) {
             throw new RuntimeException("bad code path");
         } else {
-            manifoldConcept_ = manifold;
-            titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
+            manifoldProperty.set(manifold);
+            titleLabel = new ManifoldLinkedConceptLabel(manifoldProperty, selectionIndexProperty, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
             titleLabel.setGraphic(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
         }
-        titleProperty.set(manifoldConcept_.getRegularName(assemblageConceptNid).orElse(manifoldConcept_.getFullySpecifiedDescriptionText(assemblageConceptNid)));
+        titleProperty.set(manifoldProperty.get().getRegularName(assemblageConceptNid).orElse(manifoldProperty.get().getFullySpecifiedDescriptionText(assemblageConceptNid)));
         viewFocus_ = ViewFocus.ASSEMBLAGE;
         viewFocusNid_ = assemblageConceptNid;
         initialInit();
@@ -1372,7 +1377,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
                 continue;
             }
             if (showActiveOnly_.get() == false || r.getStatus() == Status.ACTIVE) {
-                SemanticGUI newRefexDynamicGUI = new SemanticGUI(r, !r.getPrimordialUuid().equals(lastSeenRefex), manifoldConcept_);  //first one we see with a new UUID is current, others are historical
+                SemanticGUI newRefexDynamicGUI = new SemanticGUI(r, !r.getPrimordialUuid().equals(lastSeenRefex), manifoldProperty.get());  //first one we see with a new UUID is current, others are historical
 
                 // HeaderNode FILTERING DONE HERE
                 boolean filterOut = false;
@@ -1582,20 +1587,21 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
      */
     @Override
     public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-        manifoldConcept_ = manifold;
-        titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
+        manifoldProperty.set(manifold);
+        titleLabel = new ManifoldLinkedConceptLabel(manifoldProperty, selectionIndexProperty,
+                ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
         titleLabel.setGraphic(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
 
-        if (manifold.getFocusedConcept().isPresent()) {
-            setComponent(manifold.getFocusedConcept().get().getNid(), null, null, null, true);
+        if (manifold.getOptionalFocusedConcept(selectionIndexProperty.get()).isPresent()) {
+            setComponent(manifold.getOptionalFocusedConcept(selectionIndexProperty.get()).get().getNid(), null, null, null, true);
         }
 
-        manifoldConcept_.focusedConceptProperty().addListener((change) ->
+        manifoldProperty.get().manifoldSelectionProperty().addListener((ListChangeListener<ComponentProxy>) c ->
         {
-            if (manifoldConcept_.getFocusedConcept().isPresent()) {
-                setComponent(manifold.getFocusedConcept().get().getNid(), null, null, null, true);
-                toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.getFullySpecifiedDescriptionText(manifold.getFocusedConcept().get()));
-                displayFSN_.set(manifoldConcept_.getLanguageCoordinate().isFQNPreferred());
+            if (manifoldProperty.get().getOptionalFocusedConcept(selectionIndexProperty.get()).isPresent()) {
+                setComponent(manifold.getOptionalFocusedConcept(selectionIndexProperty.get()).get().getNid(), null, null, null, true);
+                toolTipProperty.set("attached semantics for: " + this.manifoldProperty.get().getFullySpecifiedDescriptionText(manifold.getOptionalFocusedConcept(selectionIndexProperty.get()).get()));
+                displayFSN_.set(manifoldProperty.get().getLanguageCoordinate().isFQNPreferred());
             } else {
                 treeRoot_.getChildren().clear();
                 ttv_.getColumns().clear();
@@ -1637,7 +1643,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 
             @Override
             public Manifold getManifold() {
-                return manifoldConcept_;
+                return manifoldProperty.get();
             }
 
             @Override

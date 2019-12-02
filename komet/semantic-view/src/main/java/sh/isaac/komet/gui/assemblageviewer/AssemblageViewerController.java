@@ -64,8 +64,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
@@ -203,7 +205,8 @@ public class AssemblageViewerController
 			{
 				SemanticViewer driv = LookupService.get().getService(SemanticViewer.class);
 				Manifold mf = manifold_.deepClone();
-				mf.setFocusedConceptChronology(Get.concept(sdc.getNid()));
+				ConceptChronology selectedConcept = Get.concept(semanticList.getSelectionModel().getSelectedItem().getNid());
+				mf.manifoldSelectionProperty().setAll(new ComponentProxy(selectedConcept));
 				driv.setAssemblage(sdc.getNid(), mf, null, null, null, true);
 				driv.showView(null);
 			}
@@ -254,7 +257,8 @@ public class AssemblageViewerController
 		viewUsage.setOnAction((event) -> {
 			SemanticViewer driv = LookupService.get().getService(SemanticViewer.class);
 			Manifold mf = manifold_.deepClone();
-			mf.setFocusedConceptChronology(Get.concept(semanticList.getSelectionModel().getSelectedItem().getNid()));
+			ConceptChronology selectedConcept = Get.concept(semanticList.getSelectionModel().getSelectedItem().getNid());
+			mf.manifoldSelectionProperty().setAll(new ComponentProxy(selectedConcept));
 			driv.setAssemblage(semanticList.getSelectionModel().getSelectedItem().getNid(), mf, null, null, null, true);
 			driv.showView(null);
 		});

@@ -41,6 +41,7 @@ package sh.komet.gui.search.simple;
 
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
@@ -52,6 +53,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.api.ComponentProxy;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -173,10 +176,24 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
                 .textProperty());
         this.resultColumn.setCellFactory((TableColumn<ObservableDescriptionVersion,
                 String> stringText) -> new DescriptionTableCell());
-        this.resultTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                this.manifold.setFocusedConceptChronology(
-                        Get.conceptService().getConceptChronology(newSelection.getReferencedComponentNid()));
+
+
+        this.resultTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<? super ObservableDescriptionVersion>)  c -> {
+            while (c.next()) {
+                if (c.wasPermutated()) {
+                    for (int i = c.getFrom(); i < c.getTo(); ++i) {
+                        //nothing to do...
+                    }
+                } else if (c.wasUpdated()) {
+                    //nothing to do
+                } else {
+                    for (ObservableDescriptionVersion remitem : c.getRemoved()) {
+                        manifold.manifoldSelectionProperty().remove(new ComponentProxy(Get.concept(remitem.getReferencedComponentNid())));
+                    }
+                    for (ObservableDescriptionVersion additem : c.getAddedSubList()) {
+                        manifold.manifoldSelectionProperty().add(new ComponentProxy(Get.concept(additem.getReferencedComponentNid())));
+                    }
+                }
             }
         });
 

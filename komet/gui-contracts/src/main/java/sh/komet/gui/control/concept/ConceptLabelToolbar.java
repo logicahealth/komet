@@ -18,6 +18,9 @@ package sh.komet.gui.control.concept;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.beans.property.BooleanProperty;
@@ -40,7 +43,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import org.controlsfx.control.ToggleSwitch;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -55,13 +57,12 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public class ConceptLabelToolbar implements ChangeListener<String> {
+public class ConceptLabelToolbar {
 
    protected static final Logger LOG = LogManager.getLogger();
    final MenuButton manifoldLinkMenu = new MenuButton();
    final ManifoldLinkedConceptLabel conceptLabel;
    final Label rightInfoLabel = new Label("");
-   final Manifold manifold;
    final Supplier<List<MenuItem>> menuSupplier;
    final GridPane toolBarGrid = new GridPane();
    final OnOffToggleSwitch focusOnChange = new OnOffToggleSwitch();
@@ -70,18 +71,10 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
    public void manifoldEventHandler(Event event) {
       try {
          MenuItem menuItem = (MenuItem) event.getSource();
-           String manifoldGroup = (String) menuItem.getUserData();
-           Optional<ConceptSpecification> spec = manifold.getConceptForGroup(manifoldGroup);
-           manifold.setGroupName(manifoldGroup);
-           if (spec.isPresent()) {
-              ConceptChronology focusedConcept = Get.concept(spec.get());
-              manifold.setFocusedConceptChronology(focusedConcept);
-           } else {
-              if (!manifold.getGroupName().equals(ManifoldGroup.UNLINKED.getGroupName())) {
-                 manifold.setFocusedConceptChronology(null);
-              }
-           }
-           manifoldLinkMenu.setGraphic(getNodeForManifold(manifoldGroup));
+           String manifoldGroupString = (String) menuItem.getUserData();
+           Manifold newManifold = Manifold.get(manifoldGroupString);
+           conceptLabel.manifoldProperty.set(newManifold);
+           manifoldLinkMenu.setGraphic(getNodeForManifold(newManifold));
       }
       catch (Exception e) {
          LOG.warn("Failure handling manifold event!", e);
@@ -109,10 +102,14 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
       return combinedGraphic;
    }
 
-   private ConceptLabelToolbar(Manifold manifold, Supplier<List<MenuItem>> menuSupplier, Optional<Boolean> focusTabOnConceptChange) {
-      this.manifold = manifold;
+   private ConceptLabelToolbar(SimpleObjectProperty<Manifold> manifoldProperty,
+                               SimpleIntegerProperty selectionIndexProperty,
+                               Supplier<List<MenuItem>> menuSupplier,
+                               Optional<Boolean> focusTabOnConceptChange) {
       this.menuSupplier = menuSupplier;
-      this.conceptLabel = new ManifoldLinkedConceptLabel(manifold, ManifoldLinkedConceptLabel::setFullySpecifiedText, menuSupplier);
+      this.conceptLabel = new ManifoldLinkedConceptLabel(manifoldProperty,
+              selectionIndexProperty,
+              ManifoldLinkedConceptLabel::setFullySpecifiedText, menuSupplier);
       if (focusTabOnConceptChange.isPresent())
       {
          this.focusOnChange.selectedProperty().set(focusTabOnConceptChange.get());
@@ -138,21 +135,23 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
          manifoldLinkMenu.getItems().add(manifoldItem);
       });
 
-      manifoldLinkMenu.setGraphic(getNodeForManifold(manifold));
-      manifold.groupNameProperty().addListener(new WeakChangeListener<>(this));
-
+      manifoldLinkMenu.setGraphic(getNodeForManifold(manifoldProperty.get()));
    }
 
    /**
-    * 
-    * @param manifold
+    *
+    * @param manifoldProperty
+    * @param selectionIndexProperty
     * @param menuSupplier
-    * @param focusTabOnConceptChange - Optional.empty, if you don't want this feature, other wise true or false to set the initial state
+    * @param focusTabOnConceptChange
     * @return
     */
-   public static ConceptLabelToolbar make(Manifold manifold, Supplier<List<MenuItem>> menuSupplier, Optional<Boolean> focusTabOnConceptChange) {
+   public static ConceptLabelToolbar make(SimpleObjectProperty<Manifold> manifoldProperty,
+                                          SimpleIntegerProperty selectionIndexProperty,
+                                          Supplier<List<MenuItem>> menuSupplier,
+                                          Optional<Boolean> focusTabOnConceptChange) {
 
-      ConceptLabelToolbar gctb = new ConceptLabelToolbar(manifold, menuSupplier, focusTabOnConceptChange);
+      ConceptLabelToolbar gctb = new ConceptLabelToolbar(manifoldProperty, selectionIndexProperty, menuSupplier, focusTabOnConceptChange);
       GridPane.setConstraints(gctb.manifoldLinkMenu, 0, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
       gctb.toolBarGrid.getChildren().add(gctb.manifoldLinkMenu);
       GridPane.setConstraints(gctb.conceptLabel, 1, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.ALWAYS, Priority.NEVER);
@@ -180,10 +179,6 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 
    public Node getToolbarNode() {
        return this.toolBarGrid;
-   }
-   @Override
-   public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-      manifoldLinkMenu.setGraphic(getNodeForManifold(manifold));      
    }
 
     public Label getRightInfoLabel() {

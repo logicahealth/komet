@@ -37,58 +37,32 @@
 package sh.komet.gui.provider.concept.detail.panel;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
-import java.util.prefs.BackingStoreException;
 
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
-
 import javafx.application.Platform;
-
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-
-import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
-
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-
+import javafx.scene.Parent;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
-
 import sh.isaac.MetaData;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
@@ -99,35 +73,43 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.*;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.iconography.Iconography;
-
 import sh.isaac.komet.iconography.IconographyHelper;
-import sh.komet.gui.control.badged.ComponentPaneModel;
-import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
-import sh.komet.gui.control.concept.ConceptLabelToolbar;
+import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.komet.gui.control.ExpandControl;
 import sh.komet.gui.control.StampControl;
+import sh.komet.gui.control.badged.ComponentPaneModel;
+import sh.komet.gui.control.concept.ConceptLabelToolbar;
+import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
 import sh.komet.gui.control.toggle.OnOffToggleSwitch;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.provider.concept.builder.ConceptBuilderComponentPanel;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
+import sh.komet.gui.util.FxGet;
+
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+import java.util.prefs.BackingStoreException;
 
 import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.model.observable.ObservableDescriptionDialect;
-import sh.komet.gui.provider.concept.builder.ConceptBuilderComponentPanel;
-import sh.komet.gui.util.FxGet;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -144,16 +126,22 @@ public class ConceptDetailPanelNode
 
     public enum Keys {
         MANIFOLD_GROUP_NAME,
-        FOCUSED_CONCEPT
-
+        MANIFOLD_SELECTION_INDEX,
+        CONCEPT_DETAIL_PANEL_NODE_INSTANCE
     }
     //~--- fields --------------------------------------------------------------
     private final HashMap<String, AtomicBoolean> disclosureStateMap = new HashMap<>();
     private final UUID listenerUuid = UUID.randomUUID();
     private final BorderPane conceptDetailPane = new BorderPane();
+    {
+        conceptDetailPane.getProperties().put(Keys.CONCEPT_DETAIL_PANEL_NODE_INSTANCE, this);
+    }
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.CONCEPT_DETAILS.getIconographic());
+    private final SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
+    private final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
+
     private final VBox componentPanelBox = new VBox(8);
     private final GridPane versionBrancheGrid = new GridPane();
     private final GridPane toolGrid = new GridPane();
@@ -166,7 +154,6 @@ public class ConceptDetailPanelNode
     private final ArrayList<Integer> sortedStampSequences = new ArrayList<>();
     private final List<ComponentPaneModel> componentPaneModels = new ArrayList<>();
     private ManifoldLinkedConceptLabel titleLabel = null;
-    private final Manifold conceptDetailManifold;
     private final ScrollPane scrollPane;
     private final ConceptLabelToolbar conceptLabelToolbar;
     private final IsaacPreferences preferences;
@@ -179,32 +166,31 @@ public class ConceptDetailPanelNode
     }
 
     //~--- constructors --------------------------------------------------------
-    public ConceptDetailPanelNode(Manifold conceptDetailManifold, IsaacPreferences preferences) {
-        this.conceptDetailManifold = conceptDetailManifold;
+    public ConceptDetailPanelNode(Manifold manifold, IsaacPreferences preferences) {
+        // The manifold group specified in the preferences takes precedence.
+        manifold = Manifold.get(preferences.get(Keys.MANIFOLD_GROUP_NAME, manifold.getGroupName()));
+        this.manifoldProperty.set(manifold);
         this.preferences = preferences;
-        this.conceptDetailManifold.groupNameProperty().addListener((observable, oldValue, newValue) ->
+        this.manifoldProperty.addListener((observable, oldValue, newValue) ->
         {
             try {
-                this.preferences.put(Keys.MANIFOLD_GROUP_NAME, newValue);
+                if (oldValue != null) {
+                    oldValue.manifoldSelectionProperty().removeListener(this::selectionChanged);
+                }
+                newValue.manifoldSelectionProperty().addListener(this::selectionChanged);
+                updateMenuGraphic(newValue.getGroupName());
+                savePreferences();
                 this.preferences.sync();
             } catch (BackingStoreException e) {
                 throw new RuntimeException(e);
             }
         });
-
-        this.conceptDetailManifold.setGroupName(preferences.get(Keys.MANIFOLD_GROUP_NAME, Manifold.ManifoldGroup.UNLINKED.getGroupName()));
-        updateMenuGraphic(this.conceptDetailManifold.getGroupName());
-        this.conceptDetailManifold.groupNameProperty().addListener((observable, oldValue, newValue) -> {
-            updateMenuGraphic(newValue);
-        });
-
-
+        this.manifoldProperty.get().manifoldSelectionProperty().addListener(this::selectionChanged);
+        updateMenuGraphic(this.manifoldProperty.get().getGroupName());
 
         this.historySwitch.setSelected(false); // add to pref...
         updateManifoldHistoryStates();
-        conceptDetailManifold.focusedConceptProperty()
-                .addListener(this::setConcept);
-        this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(true));
+        this.conceptLabelToolbar = ConceptLabelToolbar.make(this.manifoldProperty, this.selectionIndexProperty, this, Optional.of(true));
         this.conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
         this.conceptDetailPane.getStyleClass()
                 .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
@@ -232,13 +218,55 @@ public class ConceptDetailPanelNode
         // commit service uses weak change listener references, so this method call is not a leak.
         Get.commitService()
                 .addChangeListener(this);
-        titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(conceptDetailManifold.focusedConceptProperty().get()));
+        Optional<ConceptChronology> optionalFocus = manifold.getOptionalFocusedConcept(selectionIndexProperty.get());
+        if (optionalFocus.isPresent()) {
+            titleProperty.set(this.manifoldProperty.get().getPreferredDescriptionText(optionalFocus.get()));
+        } else {
+            titleProperty.set(ManifoldLinkedConceptLabel.EMPTY_TEXT);
+        }
 
         this.savePreferences();
-        Platform.runLater(() -> setConcept(this.conceptDetailManifold.focusedConceptProperty(),
-                null,
-                this.conceptDetailManifold.focusedConceptProperty().get()));
+        Platform.runLater(() ->  resetConceptFromFocus());
+        this.conceptDetailPane.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                this.manifoldProperty.get().manifoldSelectionProperty().removeListener(this::selectionChanged);
+                return;
+            }
+            setSelectionIndex();
+        });
+    }
 
+    private void selectionChanged(ListChangeListener.Change<? extends ComponentProxy> c) {
+        if (c.getList().size() > 1) {
+            if (conceptDetailPane.getScene() == null) {
+                this.manifoldProperty.get().manifoldSelectionProperty().removeListener(this::selectionChanged);
+                return;
+            }
+            if (this.selectionIndexProperty.get() == 0) {
+                setSelectionIndex();
+            }
+
+        } else {
+            this.selectionIndexProperty.set(0);
+        }
+        Optional<ConceptChronology> optionalFocus = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
+        if (optionalFocus.isPresent()) {
+            this.titleProperty.set(this.manifoldProperty.get().getPreferredDescriptionText(optionalFocus.get()));
+            Platform.runLater(() -> {
+                this.setConcept(optionalFocus.get());
+            });
+        } else {
+            this.titleProperty.set(ManifoldLinkedConceptLabel.EMPTY_TEXT);
+            this.setConcept(null);
+        }
+    }
+
+    private void setSelectionIndex() {
+        Parent root = conceptDetailPane.getScene().getRoot();
+        List<ConceptDetailPanelNode> equivalentNodes = new ArrayList();
+        getEquivalentNodesInWindow(root, equivalentNodes);
+        final int myIndex = equivalentNodes.indexOf(this);
+        this.selectionIndexProperty.set(myIndex);
     }
 
     /**
@@ -249,16 +277,17 @@ public class ConceptDetailPanelNode
         if (newValue.equals(Manifold.ManifoldGroup.UNLINKED.getGroupName())) {
             menuIconProperty.set(IconographyHelper.combine(Iconography.CONCEPT_DETAILS.getIconographic(), Iconography.LINK_BROKEN.getIconographic()));
         } else {
-            menuIconProperty.set(IconographyHelper.combine(Iconography.CONCEPT_DETAILS.getIconographic(), this.conceptDetailManifold.getIconographic()));
+            menuIconProperty.set(IconographyHelper.combine(Iconography.CONCEPT_DETAILS.getIconographic(), this.manifoldProperty.get().getIconographic()));
         }
     }
 
     @Override
     public void savePreferences() {
-        if (this.conceptDetailManifold.getFocusedConcept().isPresent()) {
-            this.preferences.putConceptSpecification(Keys.FOCUSED_CONCEPT, this.conceptDetailManifold.getFocusedConcept().get());
+        Optional<ConceptChronology> optionalFocus = this.manifoldProperty.get().getOptionalFocusedConcept(selectionIndexProperty.get());
+        if (optionalFocus.isPresent()) {
+            this.preferences.putInt(Keys.MANIFOLD_SELECTION_INDEX, this.selectionIndexProperty.getValue());
         }
-       this.preferences.put(Keys.MANIFOLD_GROUP_NAME, this.conceptDetailManifold.getGroupName());
+       this.preferences.put(Keys.MANIFOLD_GROUP_NAME, this.manifoldProperty.get().getGroupName());
     }
 
     @Override
@@ -284,21 +313,17 @@ public class ConceptDetailPanelNode
 
     @Override
     public void handleCommit(CommitRecord commitRecord) {
-        if (conceptDetailManifold.getFocusedConcept() != null && conceptDetailManifold.getFocusedConcept().isPresent()) {
-            ConceptSpecification focusedConceptSpec = conceptDetailManifold.getFocusedConcept().get();
+        Optional<ConceptChronology> optionalFocus = this.manifoldProperty.get().getOptionalFocusedConcept(selectionIndexProperty.get());
+        if (optionalFocus.isPresent()) {
+            ConceptSpecification focusedConceptSpec = optionalFocus.get();
             ConceptChronology focusedConcept = Get.concept(focusedConceptSpec);
             NidSet recursiveSemantics = focusedConcept.getRecursiveSemanticNids();
 
             final Runnable runnable = () -> {
-                setConcept(
-                        conceptDetailManifold.focusedConceptProperty(),
-                        null,
-                        conceptDetailManifold.focusedConceptProperty()
-                                .get());
+                resetConceptFromFocus();
             };
             if (commitRecord.getConceptsInCommit()
-                    .contains(conceptDetailManifold.getFocusedConcept().get()
-                            .getNid())) {
+                    .contains(optionalFocus.get().getNid())) {
                 Platform.runLater(
                         runnable);
             } else if (!recursiveSemantics.and(commitRecord.getSemanticNidsInCommit())
@@ -313,7 +338,7 @@ public class ConceptDetailPanelNode
         if (ComponentPaneModel.isSemanticTypeSupported(observableChronology.getVersionType())) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
-                            this.conceptDetailManifold);
+                            this.manifoldProperty.get());
 
             if (oscCategorizedVersions.getLatestVersion()
                     .isPresent()) {
@@ -358,7 +383,7 @@ public class ConceptDetailPanelNode
                     "Categorized version has no latest version or uncommitted version: \n" + categorizedVersions);
         }
 
-        ComponentPaneModel componentPaneModel = new ComponentPaneModel(conceptDetailManifold, categorizedVersion,
+        ComponentPaneModel componentPaneModel = new ComponentPaneModel(this.manifoldProperty.get(), categorizedVersion,
                 stampOrderHashMap, disclosureStateMap);
 
         componentPaneModels.add(componentPaneModel);
@@ -408,17 +433,18 @@ public class ConceptDetailPanelNode
         populateVersionBranchGrid();
         componentPanelBox.getChildren().add(toolGrid);
 
-
-        Optional<ConceptSpecification> focusedConceptSpec = this.conceptDetailManifold.getFocusedConcept();
+        Optional<ConceptChronology> focusedConceptSpec = this.manifoldProperty.get().getOptionalFocusedConcept(selectionIndexProperty.get());
 
         if (focusedConceptSpec.isPresent()) {
             ConceptChronology newValue = Get.concept(focusedConceptSpec.get());
             if (titleLabel == null) {
-                titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
+                titleProperty.set(this.manifoldProperty.get().getPreferredDescriptionText(newValue));
+            } else {
+                titleProperty.set(this.titleLabel.getText());
             }
 
             toolTipProperty.set(
-                    "concept details for: " + this.conceptDetailManifold.getFullySpecifiedDescriptionText(newValue));
+                    "concept details for: " + this.manifoldProperty.get().getFullySpecifiedDescriptionText(newValue));
 
             ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
                     .getObservableConceptChronology(
@@ -441,7 +467,7 @@ public class ConceptDetailPanelNode
             while (iter.hasNext()) {
                 ObservableDescriptionDialect descDialect = iter.next();
                 if (descDialect.getCommitState() == CommitStates.UNCOMMITTED) {
-                    ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(conceptDetailManifold,
+                    ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(this.manifoldProperty.get(),
                             descDialect, true, null);
                     parallelTransition.getChildren().add(addComponent(descPanel));
                     descPanel.setCommitHandler((event) -> {
@@ -469,7 +495,7 @@ public class ConceptDetailPanelNode
                                 } else {
                                     LatestVersion<SemanticVersion> latest
                                             = semanticChronology.getLatestVersion(
-                                                    conceptDetailManifold);
+                                            this.manifoldProperty.get());
 
                                     if (latest.isPresent()) {
                                         return latest.get()
@@ -512,7 +538,7 @@ public class ConceptDetailPanelNode
                                             }
 
                                             if (o1.getAssemblageNid()
-                                            == conceptDetailManifold.getInferredAssemblageNid()) {
+                                            == this.manifoldProperty.get().getInferredAssemblageNid()) {
                                                 return -1;
                                             }
 
@@ -540,9 +566,10 @@ public class ConceptDetailPanelNode
     }
 
     private void newDescription(Event event) {
-        if (conceptDetailManifold.getFocusedConcept().isPresent()) {
+        Optional<ConceptChronology> optionalFocus = this.manifoldProperty.get().getOptionalFocusedConcept(selectionIndexProperty.get());
+        if (optionalFocus.isPresent()) {
             ObservableDescriptionDialect newDescriptionDialect
-                    = new ObservableDescriptionDialect(conceptDetailManifold.getFocusedConcept().get().getPrimordialUuid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
+                    = new ObservableDescriptionDialect(optionalFocus.get().getPrimordialUuid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
             newDescriptions.add(newDescriptionDialect);
             newDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
             newDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
@@ -599,7 +626,7 @@ public class ConceptDetailPanelNode
                 int stampSequence = sortedStampSequences.get(stampOrder);
                 stampControl.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !Get.stampService().isStampActive(stampSequence));
 
-                stampControl.setStampedVersion(stampSequence, conceptDetailManifold, stampOrder + 1);
+                stampControl.setStampedVersion(stampSequence, this.manifoldProperty.get(), stampOrder + 1);
                 versionBrancheGrid.add(stampControl, 0, stampOrder + 2);
             }
         }
@@ -657,26 +684,31 @@ public class ConceptDetailPanelNode
     }
 
     private void toggleVersionGraph(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        setConcept(
-                conceptDetailManifold.focusedConceptProperty(),
-                null,
-                conceptDetailManifold.focusedConceptProperty()
-                        .get());
+        resetConceptFromFocus();
+    }
+
+    private void resetConceptFromFocus() {
+        Optional<ConceptChronology> optionalFocus = this.manifoldProperty.get().getOptionalFocusedConcept(selectionIndexProperty.get());
+        if (optionalFocus.isPresent()) {
+            setConcept(optionalFocus.get());
+        } else {
+            setConcept(null);
+        }
     }
 
     private void updateManifoldHistoryStates() {
         if (historySwitch.isSelected()) {
-            this.conceptDetailManifold.getStampCoordinate()
+            this.manifoldProperty.get().getStampCoordinate()
                     .allowedStatesProperty()
                     .clear();
-            this.conceptDetailManifold.getStampCoordinate()
+            this.manifoldProperty.get().getStampCoordinate()
                     .allowedStatesProperty()
                     .addAll(Status.makeActiveAndInactiveSet());
         } else {
-            this.conceptDetailManifold.getStampCoordinate()
+            this.manifoldProperty.get().getStampCoordinate()
                     .allowedStatesProperty()
                     .clear();
-            this.conceptDetailManifold.getStampCoordinate()
+            this.manifoldProperty.get().getStampCoordinate()
                     .allowedStatesProperty()
                     .addAll(Status.makeActiveOnlySet());
         }
@@ -698,14 +730,31 @@ public class ConceptDetailPanelNode
     }
 
     //~--- set methods ---------------------------------------------------------
-    private void setConcept(ObservableValue<? extends ConceptSpecification> observable,
-            ConceptSpecification oldSpec,
-            ConceptSpecification newSpec) {
-        ConceptChronology newValue = Get.concept(newSpec);
+
+    private void getEquivalentNodesInWindow(Parent parent, List<ConceptDetailPanelNode> equivalentNodes) {
+        for (Node child: parent.getChildrenUnmodifiable()) {
+            if (child.getProperties().containsKey(Keys.CONCEPT_DETAIL_PANEL_NODE_INSTANCE)) {
+                ConceptDetailPanelNode possiblyEquivalentNode = (ConceptDetailPanelNode) child.getProperties().get(Keys.CONCEPT_DETAIL_PANEL_NODE_INSTANCE);
+                if (possiblyEquivalentNode.getManifold().getGroupName().equals(getManifold().getGroupName())) {
+                    equivalentNodes.add(possiblyEquivalentNode);
+                }
+            } else {
+                if (child instanceof Parent) {
+                    getEquivalentNodesInWindow((Parent) child, equivalentNodes);
+                }
+            }
+        }
+    }
+
+    private void setConcept(ConceptSpecification newSpec) {
 
         stampOrderHashMap.clear();
-        updateStampControls(newValue);
         componentPaneModels.clear();
+
+        if (newSpec != null) {
+            ConceptChronology newValue = Get.concept(newSpec);
+            updateStampControls(newValue);
+        }
 
         IntArrayList stampSequences = stampOrderHashMap.keys();
         sortedStampSequences.clear();
@@ -737,11 +786,7 @@ public class ConceptDetailPanelNode
 
     //~--- set methods ---------------------------------------------------------
     private void setShowHistory(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        setConcept(
-                conceptDetailManifold.focusedConceptProperty(),
-                null,
-                conceptDetailManifold.focusedConceptProperty()
-                        .get());
+        resetConceptFromFocus();
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -753,7 +798,8 @@ public class ConceptDetailPanelNode
     @Override
     public Optional<Node> getTitleNode() {
         if (titleLabel == null) {
-            this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);
+            this.titleLabel = new ManifoldLinkedConceptLabel(this.manifoldProperty, this.selectionIndexProperty,
+                    ManifoldLinkedConceptLabel::setPreferredText, this);
             this.titleLabel.setGraphic(Iconography.CONCEPT_DETAILS.getIconographic());
             this.titleProperty.set("");
         }
@@ -775,7 +821,7 @@ public class ConceptDetailPanelNode
 
     @Override
     public Manifold getManifold() {
-        return this.conceptDetailManifold;
+        return this.manifoldProperty.get();
     }
 
     @Override

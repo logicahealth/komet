@@ -28,6 +28,12 @@ public class ConceptDetailListLinkedPanelProviderFactory extends ConceptDetailPa
         preferencesNode.put(ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME,
                 preferencesNode.get(ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME, Manifold.ManifoldGroup.LIST.getGroupName()));
 
-        return new ConceptDetailPanelNode(manifold.deepClone(), preferencesNode);
+        return new ConceptDetailPanelNode(manifold, preferencesNode);
     }
+
+    @Override
+    public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
+        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.LIST, Manifold.ManifoldGroup.UNLINKED, Manifold.ManifoldGroup.TAXONOMY, Manifold.ManifoldGroup.SEARCH};
+    }
+
 }

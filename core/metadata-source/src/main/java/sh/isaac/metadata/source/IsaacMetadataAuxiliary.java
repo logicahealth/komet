@@ -861,6 +861,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("Manifold name").setModule(TermAux.KOMET_MODULE);
                   createConcept("Manifold focus").setModule(TermAux.KOMET_MODULE);
                   createConcept("Manifold history").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Manifold selection").setModule(TermAux.KOMET_MODULE);
                   popParent();
                createConcept("Persona properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());

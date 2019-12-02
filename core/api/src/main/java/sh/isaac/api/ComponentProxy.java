@@ -1,7 +1,9 @@
 package sh.isaac.api;
 
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.util.StringUtils;
+import sh.isaac.api.util.UUIDUtil;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
@@ -30,6 +32,10 @@ public class ComponentProxy implements IdentifiedObject {
         this.componentString = componentString;
     }
 
+    public ComponentProxy(ConceptSpecification conceptSpecification) {
+        this(conceptSpecification.toExternalString());
+    }
+
     public ComponentProxy(String componentString, UUID[] uuids) {
         this.uuids = uuids;
         this.componentString = componentString;
@@ -46,7 +52,9 @@ public class ComponentProxy implements IdentifiedObject {
         final List<UUID> uuidList = new ArrayList<>(parts.length - partIndex);
 
         for (int i = partIndex; i < parts.length; i++) {
-            uuidList.add(UUID.fromString(parts[i]));
+            if (UUIDUtil.isUUID(parts[i])) {
+                uuidList.add(UUID.fromString(parts[i]));
+            }
         }
 
         if (uuidList.size() < 1) {

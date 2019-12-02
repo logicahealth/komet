@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Orientation;
@@ -52,15 +53,17 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
     private final SimpleObjectProperty<LogicalExpression> expressionProperty = new SimpleObjectProperty<>();
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.LAMBDA.getIconographic());
 
-    private final Manifold conceptDetailManifold;
+    private final SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
+    private final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
     private ManifoldLinkedConceptLabel titleLabel = null;
     private final ConceptLabelToolbar conceptLabelToolbar;
 
     //~--- constructors --------------------------------------------------------
     public ExpressionView(Manifold conceptDetailManifold) {
-        this.conceptDetailManifold = conceptDetailManifold;
-        this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
-        this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(false));
+        this.manifoldProperty.set(conceptDetailManifold);
+        conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
+        this.conceptLabelToolbar = ConceptLabelToolbar.make(this.manifoldProperty, this.selectionIndexProperty,
+                this, Optional.of(false));
         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
         conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         expressionProperty().addListener((observable, oldValue, newValue) -> {
@@ -98,7 +101,7 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
         splitPane.setOrientation(Orientation.VERTICAL);
         conceptDetailPane.setCenter(splitPane);
         if (expressionProperty.get() != null) {
-            splitPane.getItems().add(AxiomView.createWithCommitPanel(expressionProperty.get(), PremiseType.STATED, conceptDetailManifold));
+            splitPane.getItems().add(AxiomView.createWithCommitPanel(expressionProperty.get(), PremiseType.STATED, getManifold()));
         } else {
             conceptDetailPane.setCenter(new Label("No stated form"));
         }
@@ -114,7 +117,7 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
     public Optional<Node> getTitleNode() {
         // MaterialDesignIcon.LAMBDA
         if (titleLabel == null) {
-            this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);
+            this.titleLabel = new ManifoldLinkedConceptLabel(this.manifoldProperty, this.selectionIndexProperty, ManifoldLinkedConceptLabel::setPreferredText, this);
             this.titleLabel.setGraphic(Iconography.LAMBDA.getIconographic());
             this.titleProperty.set("");
         }
@@ -135,7 +138,7 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
 
     @Override
     public Manifold getManifold() {
-        return this.conceptDetailManifold;
+        return this.manifoldProperty.get();
     }
 
     @Override

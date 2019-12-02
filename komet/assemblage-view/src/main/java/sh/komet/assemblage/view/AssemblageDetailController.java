@@ -17,16 +17,24 @@
 package sh.komet.assemblage.view;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Supplier;
+
+import javafx.beans.Observable;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
@@ -78,7 +86,7 @@ public class AssemblageDetailController {
    private TreeTableColumn<ObservableCategorizedVersion, Integer> assemblageModuleColumn;
    @FXML  // fx:id="assemblagePathColumn"
    private TreeTableColumn<ObservableCategorizedVersion, Integer> assemblagePathColumn;
-   private Manifold manifold;
+   private SimpleObjectProperty<Manifold> manifoldProperty;
    private TreeTableConceptCellFactory assemblageCellFactory;
    private TreeTableWhatCellFactory whatCellFactory;
    private TreeTableGeneralCellFactory generalCellFactory;
@@ -117,7 +125,7 @@ public class AssemblageDetailController {
            ObservableList<? extends ObservableChronology> children, boolean addSemantics) {
       for (ObservableChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
-         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifold);
+         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifoldProperty.get());
 
          if (categorizedVersions.getLatestVersion()
                  .isPresent()) {
@@ -149,26 +157,27 @@ public class AssemblageDetailController {
          }
       }
    }
+   private void selectionChanged(ListChangeListener.Change<? extends ComponentProxy> c) {
 
-   private void focusConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
-           ConceptSpecification oldValue,
-           ConceptSpecification newValue) {
-      if (newValue == null) {
+
+      if (c.getList().isEmpty()) {
          assemblageExtensionTreeTable.setRoot(null);
       } else {
          ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
                  .getObservableConceptChronology(
-                         newValue.getNid());
+                         //TODO handle list properly...
+                         c.getList().get(0).getNid());
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                  = observableConceptChronology.getCategorizedVersions(
-                         manifold);
+                 manifoldProperty.get());
 
          TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
          ObservableList<ObservableChronology> children = FXCollections.observableArrayList();
          ObservableChronologyService observableChronologyService = Get.observableChronologyService();
-         Get.identifierService().getNidsForAssemblage(newValue)
-                 .forEach((nid) -> 
-                 children.add(observableChronologyService.getObservableChronology(nid)));
+         //TODO handle list properly...
+         Get.identifierService().getNidsForAssemblage(c.getList().get(0).getNid())
+                 .forEach((nid) ->
+                         children.add(observableChronologyService.getObservableChronology(nid)));
          addChildren(assemblageRoot, children, true);
          assemblageExtensionTreeTable.setRoot(assemblageRoot);
       }
@@ -178,51 +187,54 @@ public class AssemblageDetailController {
    public BorderPane getAssemblageDetailRootPane() {
       return assemblageDetailRootPane;
    }
+   //~--- set methods ---------------------------------------------------------
+   public void setManifoldProperty(SimpleObjectProperty<Manifold> manifoldProperty) {
 
-   public Manifold getManifold() {
-      return manifold;
+
+      this.manifoldProperty = manifoldProperty;
+      manifoldChanged(manifoldProperty, null, manifoldProperty.get());
+      manifoldProperty.addListener(this::manifoldChanged);
+
+      this.assemblageStatusColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("state"));
+      this.assemblageTimeColumn.setVisible(false);
+      this.assemblageTimeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("time"));
+      this.assemblageTimeColumn.setCellFactory(this.timeCellFactory::call);
+      this.assemblageAuthorColumn.setVisible(false);
+      this.assemblageAuthorColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("authorSequence"));
+
+      this.assemblageModuleColumn.setVisible(false);
+      this.assemblageModuleColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("moduleSequence"));
+      this.assemblagePathColumn.setVisible(false);
+      this.assemblagePathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence"));
+      this.assemblagePathColumn.setCellFactory(this.assemblageCellFactory::call);
    }
 
-   //~--- set methods ---------------------------------------------------------
-   public void setManifold(Manifold manifold) {
-      if ((this.manifold != null) && (this.manifold != manifold)) {
-         throw new UnsupportedOperationException("Manifold previously set... " + manifold);
-      }
+   private void manifoldChanged(ObservableValue<? extends Manifold> manifoldProperty, Manifold oldManifold, Manifold newManifold) {
 
-      this.manifold = manifold;
-      this.manifold.focusedConceptProperty()
-              .addListener(this::focusConceptChanged);
-      this.assemblageCellFactory = new TreeTableConceptCellFactory(manifold);
-      this.whatCellFactory = new TreeTableWhatCellFactory(manifold);
-      this.generalCellFactory = new TreeTableGeneralCellFactory(manifold);
-      this.modulePathCellFactory = new TreeTableModulePathCellFactory(manifold);
-      this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(manifold);
-      
-      assemblageWhatColumn.setCellValueFactory(this.whatCellFactory::getCellValue);
-      assemblageWhatColumn.setCellFactory(this.whatCellFactory::call);
-      assemblageGeneralColumn.setCellValueFactory(this.generalCellFactory::getCellValue);
-      assemblageGeneralColumn.setCellFactory(this.generalCellFactory::call);
-      assemblageStatusColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("state"));
-      assemblageTimeColumn.setVisible(false);
-      assemblageTimeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("time"));
-      assemblageTimeColumn.setCellFactory(this.timeCellFactory::call);
-      assemblageAuthorColumn.setVisible(false);
-      assemblageAuthorColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("authorSequence"));
-      assemblageAuthorColumn.setCellFactory(this.assemblageCellFactory::call);
-      
-      
-      assemblageModulePathColumn.setCellValueFactory(this.modulePathCellFactory::getCellValue);
-      assemblageModulePathColumn.setCellFactory(this.modulePathCellFactory::call);
-      
-      assemblageAuthorTimeColumn.setCellValueFactory(this.authorTimeCellFactory::getCellValue);
-      assemblageAuthorTimeColumn.setCellFactory(this.authorTimeCellFactory::call);
-      
-      assemblageModuleColumn.setVisible(false);
-      assemblageModuleColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("moduleSequence"));
-      assemblageModuleColumn.setCellFactory(this.assemblageCellFactory::call);
-      assemblagePathColumn.setVisible(false);
-      assemblagePathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence"));
-      assemblagePathColumn.setCellFactory(this.assemblageCellFactory::call);
+      if (oldManifold != null) {
+         oldManifold.manifoldSelectionProperty().get().removeListener(this::selectionChanged);
+      }
+       newManifold.manifoldSelectionProperty().get().addListener(this::selectionChanged);
+      this.assemblageCellFactory = new TreeTableConceptCellFactory(newManifold);
+      this.assemblageAuthorColumn.setCellFactory(this.assemblageCellFactory::call);
+      this.assemblageModuleColumn.setCellFactory(this.assemblageCellFactory::call);
+
+
+      this.whatCellFactory = new TreeTableWhatCellFactory(newManifold);
+      this.assemblageWhatColumn.setCellValueFactory(this.whatCellFactory::getCellValue);
+      this.assemblageWhatColumn.setCellFactory(this.whatCellFactory::call);
+
+      this.generalCellFactory = new TreeTableGeneralCellFactory(newManifold);
+      this.assemblageGeneralColumn.setCellValueFactory(this.generalCellFactory::getCellValue);
+      this.assemblageGeneralColumn.setCellFactory(this.generalCellFactory::call);
+
+      this.modulePathCellFactory = new TreeTableModulePathCellFactory(newManifold);
+      this.assemblageModulePathColumn.setCellValueFactory(this.modulePathCellFactory::getCellValue);
+      this.assemblageModulePathColumn.setCellFactory(this.modulePathCellFactory::call);
+
+      this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(newManifold);
+      this.assemblageAuthorTimeColumn.setCellValueFactory(this.authorTimeCellFactory::getCellValue);
+      this.assemblageAuthorTimeColumn.setCellFactory(this.authorTimeCellFactory::call);
    }
 
 }
