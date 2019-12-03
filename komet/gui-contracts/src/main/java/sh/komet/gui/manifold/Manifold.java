@@ -325,10 +325,10 @@ public class Manifold
 
     @Override
     public String toString() {
-        return "Manifold{" + "groupNameProperty=" + groupName + ", manifoldUuid=" +
+        return "Manifold{groupName=" + groupName + ", manifoldUuid=" +
                 manifoldUuid + ", observableManifoldCoordinate=" + observableManifoldCoordinate +
                 ", editCoordinate=" + observableEditCoordinate + ", manifoldSelection=" +
-                manifoldSelection + '}';
+                manifoldSelection.get() + '}';
     }
 
 
