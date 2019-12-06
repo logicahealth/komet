@@ -58,6 +58,7 @@ import javafx.concurrent.Task;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
@@ -387,7 +388,7 @@ public class ProcessClassificationResults
                                             .equals(inferredExpression)) {
                                         final MutableLogicGraphVersion newVersion
                                                 = ((SemanticChronology) inferredChronology).createMutableVersion(transaction,
-                                                        sh.isaac.api.Status.ACTIVE,
+                                                        Status.ACTIVE,
                                                         EditCoordinates.getClassifierSolorOverlay());
 
                                         newVersion.setGraphData(

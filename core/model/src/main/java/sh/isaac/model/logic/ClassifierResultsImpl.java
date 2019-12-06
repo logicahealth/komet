@@ -1,6 +1,7 @@
 package sh.isaac.model.logic;
 
 import org.apache.mahout.math.list.IntArrayList;
+import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.collections.IntArrayWrapper;
 import sh.isaac.api.commit.CommitRecord;
@@ -24,7 +25,9 @@ public class ClassifierResultsImpl implements ClassifierResults {
     /**
      * Set of concepts potentially affected by the last classification.
      */
-    private final Set<Integer> affectedConcepts;
+    private final Set<Integer> classificationConceptSet;
+
+    private final Set<Integer> conceptsWithInferredChanges = new HashSet<>();
 
     /** The equivalent sets. */
     private final Set<int[]> equivalentSets;
@@ -44,9 +47,9 @@ public class ClassifierResultsImpl implements ClassifierResults {
     private EditCoordinateImpl editCoordinate;
 
     private ClassifierResultsImpl(ByteArrayDataBuffer data) {
-        this.affectedConcepts = new HashSet<>();
+        this.classificationConceptSet = new HashSet<>();
         for (int nid: data.getNidArray()) {
-            affectedConcepts.add(nid);
+            classificationConceptSet.add(nid);
         }
         int equivalentSetSize = data.getInt();
         equivalentSets = new HashSet<>(equivalentSetSize);
@@ -56,6 +59,7 @@ public class ClassifierResultsImpl implements ClassifierResults {
         cleanUpEquivalentSets();
         if (data.getBoolean()) {
             this.commitRecord = Optional.of(CommitRecord.make(data));
+            convertToConceptsWithInferredChanges();
         } else {
             this.commitRecord = Optional.empty();
         }
@@ -83,6 +87,13 @@ public class ClassifierResultsImpl implements ClassifierResults {
         this.editCoordinate = EditCoordinateImpl.make(data);
     }
 
+    private void convertToConceptsWithInferredChanges() {
+        for (int semanticNid: this.commitRecord.get().getSemanticNidsInCommit().asArray()) {
+            this.conceptsWithInferredChanges.add(
+                    Get.assemblageService().getSemanticChronology(semanticNid).getReferencedComponentNid());
+        }
+    }
+
     private final void cleanUpEquivalentSets() {
         HashSet<IntArrayWrapper> cleanEquivalentSets = new HashSet<>();
         for (int[] set: equivalentSets) {
@@ -96,7 +107,7 @@ public class ClassifierResultsImpl implements ClassifierResults {
     }
 
     public final void putExternal(ByteArrayDataBuffer out) {
-        out.putNidArray(this.affectedConcepts);
+        out.putNidArray(this.classificationConceptSet);
         out.putInt(equivalentSets.size());
         for (int[] equivalentSet: equivalentSets) {
             out.putNidArray(equivalentSet);
@@ -136,17 +147,17 @@ public class ClassifierResultsImpl implements ClassifierResults {
     /**
      * Instantiates a new classifier results.
      *
-     * @param affectedConcepts the affected concepts
+     * @param classificationConceptSet the affected concepts
      * @param equivalentSets the equivalent sets
      * @param commitRecord the commit record
      */
-    public ClassifierResultsImpl(Set<Integer> affectedConcepts,
+    public ClassifierResultsImpl(Set<Integer> classificationConceptSet,
                              Set<IntArrayList> equivalentSets,
                              Optional<CommitRecord> commitRecord,
                              StampCoordinate stampCoordinate,
                              LogicCoordinate logicCoordinate,
                              EditCoordinate editCoordinate) {
-        this.affectedConcepts = affectedConcepts;
+        this.classificationConceptSet = classificationConceptSet;
         this.equivalentSets = new HashSet<>();
         for (IntArrayList set: equivalentSets) {
             set.sort();
@@ -154,6 +165,9 @@ public class ClassifierResultsImpl implements ClassifierResults {
         }
         cleanUpEquivalentSets();
         this.commitRecord     = commitRecord;
+        if (this.commitRecord.isPresent()) {
+            convertToConceptsWithInferredChanges();
+        }
         assignCoordinates(stampCoordinate, logicCoordinate, editCoordinate);
     }
 
@@ -166,7 +180,7 @@ public class ClassifierResultsImpl implements ClassifierResults {
                              StampCoordinate stampCoordinate,
                              LogicCoordinate logicCoordinate,
                                  EditCoordinate editCoordinate) {
-        this.affectedConcepts = new HashSet<>();
+        this.classificationConceptSet = new HashSet<>();
         this.equivalentSets   = new HashSet<>();
         this.commitRecord     = Optional.empty();
         this.conceptsWithCycles = Optional.of(conceptsWithCycles);
@@ -220,14 +234,14 @@ public class ClassifierResultsImpl implements ClassifierResults {
     public String toString() {
         return "ClassifierResults{" + "written semantics: "
                 + (this.commitRecord.isPresent() && this.commitRecord.get().getSemanticNidsInCommit() != null ? this.commitRecord.get().getSemanticNidsInCommit().size(): "0")
-                + " affectedConcepts=" + this.affectedConcepts.size() + ", equivalentSets="
+                + " affectedConcepts=" + this.classificationConceptSet.size() + ", equivalentSets="
                 + this.equivalentSets.size() + ", Orphans detected=" + orphanedConcepts.size()
                 + " Concepts with cycles=" + (conceptsWithCycles.isPresent() ? conceptsWithCycles.get().size() : 0) + '}';
     }
 
     @Override
-    public Set<Integer> getAffectedConcepts() {
-        return this.affectedConcepts;
+    public Set<Integer> getClassificationConceptSet() {
+        return this.classificationConceptSet;
     }
 
     @Override
@@ -274,4 +288,11 @@ public class ClassifierResultsImpl implements ClassifierResults {
     public Instant getCommitTime() {
         return this.stampCoordinate.getStampPosition().getTimeAsInstant();
     }
+
+    @Override
+    public Set<Integer> getConceptsWithInferredChanges() {
+        return conceptsWithInferredChanges;
+    }
+
+
 }

@@ -4,6 +4,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -54,6 +55,26 @@ public class ClassificationResultsNode implements ExplorationNode {
         gridPane.getChildren().add(resultChoices);
         this.classificationResultsPane.setTop(gridPane);
 
+        setupClassificationResults();
+        Get.logicService().getClassificationInstants().addListener((ListChangeListener<? super Instant>) c -> {
+            setupClassificationResults();
+        });
+
+
+        resultChoices.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            this.layoutResults(newValue);
+        });
+
+        resultChoices.setButtonCell(new ClassifierResultsListCell());
+        resultChoices.setCellFactory(new Callback<ListView<ClassifierResults>, ListCell<ClassifierResults>>() {
+            @Override public ListCell<ClassifierResults> call(ListView<ClassifierResults> p) {
+                return new ClassifierResultsListCell();
+            }
+        });
+    }
+
+    private void setupClassificationResults() {
+        ClassifierResults currentSelection = resultChoices.getSelectionModel().getSelectedItem();
         List<ClassifierResults> classifierResults = new ArrayList<>();
         for (Instant instant: Get.logicService().getClassificationInstants()) {
             Optional<ClassifierResults[]> optionalResult = Get.logicService().getClassificationResultsForInstant(instant);
@@ -73,17 +94,10 @@ public class ClassificationResultsNode implements ExplorationNode {
             return editModule1.compareTo(editModule2);
         });
 
-        resultChoices.getItems().addAll(classifierResults);
-        resultChoices.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            this.layoutResults(newValue);
-        });
-
-        resultChoices.setButtonCell(new ClassifierResultsListCell());
-        resultChoices.setCellFactory(new Callback<ListView<ClassifierResults>, ListCell<ClassifierResults>>() {
-            @Override public ListCell<ClassifierResults> call(ListView<ClassifierResults> p) {
-                return new ClassifierResultsListCell();
-            }
-        });
+        resultChoices.getItems().setAll(classifierResults);
+        if (currentSelection != null) {
+            resultChoices.getSelectionModel().select(currentSelection);
+        }
     }
 
     class ClassifierResultsListCell extends ListCell<ClassifierResults> {

@@ -43,6 +43,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
 import javax.annotation.PostConstruct;
@@ -101,6 +104,8 @@ public class LogicProvider
 
     private final ConcurrentHashMap<Instant, ClassifierResults[]> classifierResultMap = new ConcurrentHashMap<>();
 
+    private final ObservableList<Instant> classifierInstants = FXCollections.observableArrayList();
+
     private File classifierResultsFile;
 
     //~--- constructors --------------------------------------------------------
@@ -145,6 +150,12 @@ public class LogicProvider
                      resultsForInstant[j] = ClassifierResultsImpl.make(buff);
                   }
                   this.classifierResultMap.put(instant, resultsForInstant);
+                    if (Platform.isFxApplicationThread()) {
+                        classifierInstants.add(instant);
+                    } else {
+                        Platform.runLater(() -> { classifierInstants.add(instant); });
+                    }
+
                 }
             } catch (IOException e) {
                LOG.error(e);
@@ -170,20 +181,14 @@ public class LogicProvider
         this.classifierServiceMap.clear();
         this.pendingLogicTasks.clear();
         ByteArrayDataBuffer buff = new ByteArrayDataBuffer();
-        Instant[] instants = getClassificationInstants();
-        buff.putInt(instants.length);
-        for (int i = 0; i < instants.length; i++) {
-            buff.putLong(instants[i].toEpochMilli());
-            LOG.info("Writing classifier results for: " + instants[i]);
-            Optional<ClassifierResults[]> optionalResults = getClassificationResultsForInstant(instants[i]);
-            if (optionalResults.isPresent()) {
-                ClassifierResults[] results = optionalResults.get();
-                buff.putInt(results.length);
-                for (int j = 0; j < results.length; j++) {
-                    ((ClassifierResultsImpl) results[j]).putExternal(buff);
-                }
-            } else {
-                throw new IllegalStateException("No results for " + instants[i]);
+        Set<Map.Entry<Instant, ClassifierResults[]>> classifierResultsEntrySet = classifierResultMap.entrySet();
+        buff.putInt(classifierResultsEntrySet.size());
+        for (Map.Entry<Instant, ClassifierResults[]> entry: classifierResultsEntrySet) {
+            buff.putLong(entry.getKey().toEpochMilli());
+            LOG.info("Writing classifier results for: " + entry.getKey());
+            buff.putInt(entry.getValue().length);
+            for (ClassifierResults results: entry.getValue()) {
+                ((ClassifierResultsImpl) results).putExternal(buff);
             }
         }
         // write to disk...
@@ -356,8 +361,8 @@ public class LogicProvider
     }
 
     @Override
-    public Instant[] getClassificationInstants() {
-        return classifierResultMap.keySet().toArray(new Instant[0]);
+    public ObservableList<Instant> getClassificationInstants() {
+        return classifierInstants;
     }
 
     @Override
@@ -367,7 +372,13 @@ public class LogicProvider
 
     @Override
     public void addClassifierResults(ClassifierResults classifierResults) {
-        classifierResultMap.merge(classifierResults.getStampCoordinate().getStampPosition().getTimeAsInstant(),
+        Instant classifierTime = classifierResults.getStampCoordinate().getStampPosition().getTimeAsInstant();
+        if (Platform.isFxApplicationThread()) {
+            classifierInstants.add(classifierTime);
+        } else {
+            Platform.runLater(() -> { classifierInstants.add(classifierTime); });
+        }
+        classifierResultMap.merge(classifierTime,
                 new ClassifierResults[]{classifierResults}, (classifierResults1, classifierResults2) -> {
                     ArrayList<ClassifierResults> newResultList = new ArrayList<>();
                     newResultList.addAll(Arrays.asList(classifierResults1));

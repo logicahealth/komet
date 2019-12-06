@@ -44,6 +44,7 @@ package sh.isaac.api.logic;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import javafx.collections.ObservableList;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.chronicle.LatestVersion;
@@ -97,9 +98,9 @@ public interface LogicService {
 
    /**
     *
-    * @return an array of instants at which one or more classifications where committed.
+    * @return an observable list of instants at which one or more classifications where committed.
     */
-   Instant[] getClassificationInstants();
+   ObservableList<Instant> getClassificationInstants();
 
    /**
     *

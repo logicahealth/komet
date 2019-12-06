@@ -55,6 +55,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
 
@@ -292,11 +293,13 @@ public class ClassifierData
 
         final Set<Integer> affectedConceptNids = new ConcurrentSkipListSet<>();
 
+
         for (Node node : this.reasoner.getClassifiedOntology().getAffectedNodes()) {
             if (node != null) {
                 // TODO why does the classifier include null in the affected node set.
                 for (String equivalent : node.getEquivalentConcepts()) {
-                    affectedConceptNids.add(Integer.parseInt(equivalent));
+                    int nid = Integer.parseInt(equivalent);
+                    affectedConceptNids.add(nid);
                 }
             }
         }

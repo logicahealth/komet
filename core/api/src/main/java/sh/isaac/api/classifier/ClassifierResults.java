@@ -61,11 +61,19 @@ public interface ClassifierResults {
 
 
    /**
-    * Get the set of concepts potentially affected by the last classification.
+    * Get the set of concepts sent to the classifier for evaluation.
     *
-    * @return the affected concepts
+    * @return the concepts included in the classification.
     */
-   Set<Integer> getAffectedConcepts();
+   Set<Integer> getClassificationConceptSet();
+
+   /**
+    * Get the set of concepts that had inferred form changes as a result
+    * of classification.
+    *
+    * @return the concepts with inferred changes.
+    */
+   Set<Integer> getConceptsWithInferredChanges();
 
    /**
     * Gets the commit record.

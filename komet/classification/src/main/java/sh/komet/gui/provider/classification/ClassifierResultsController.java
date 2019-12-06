@@ -14,7 +14,6 @@ import javafx.util.Callback;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -198,12 +197,12 @@ public class ClassifierResultsController {
             Get.executor().execute(new PrepareClassifierEquivalencies(classifierResults.getEquivalentSets(), equivalenciesTree));
          }
 
-        if ( classifierResults.getAffectedConcepts().isEmpty()) {
+        if ( classifierResults.getConceptsWithInferredChanges().isEmpty()) {
             inferredChangesPane.setText(inferredChangesPane.getText() + ": none");
             inferredChangesPane.setDisable(true);
         } else {
-            inferredChangesPane.setText(inferredChangesPane.getText() + ": " + NumberFormat.getInstance().format(classifierResults.getAffectedConcepts().size()));
-            Get.executor().execute(new PrepareConceptSet("Sorting list of inferred changes", classifierResults.getAffectedConcepts(), inferredChangesList.getItems()));
+            inferredChangesPane.setText(inferredChangesPane.getText() + ": " + NumberFormat.getInstance().format(classifierResults.getConceptsWithInferredChanges().size()));
+            Get.executor().execute(new PrepareConceptSet("Sorting list of inferred changes", classifierResults.getConceptsWithInferredChanges(), inferredChangesList.getItems()));
         }
 
         stampTextArea.setText(classifierResults.getStampCoordinate().toUserString());
