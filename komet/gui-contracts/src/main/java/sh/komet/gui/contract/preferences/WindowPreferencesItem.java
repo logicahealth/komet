@@ -32,5 +32,6 @@ public interface WindowPreferencesItem {
     SimpleIntegerProperty leftTabSelectionProperty();
     SimpleIntegerProperty centerTabSelectionProperty();
     SimpleIntegerProperty rightTabSelectionProperty();
+    SimpleObjectProperty<double[]> dividerPositionsProperty();
 
 }

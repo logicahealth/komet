@@ -20,6 +20,7 @@ import javafx.scene.layout.Priority;
 import javafx.util.Callback;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -35,8 +36,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.prefs.BackingStoreException;
 
 public class ClassificationResultsNode implements ExplorationNode {
+    public enum Keys {
+        SELECTION_DEFAULT_TEXT
+    }
 
     private final BorderPane classificationResultsPane = new BorderPane();
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("Classifier results");
@@ -44,10 +49,12 @@ public class ClassificationResultsNode implements ExplorationNode {
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.INFERRED.getIconographic());
     private final Manifold classificationResultsManifold;
     private final ComboBox<ClassifierResults> resultChoices = new ComboBox<>();
+    private final IsaacPreferences nodePreferences;
 
     //~--- constructors --------------------------------------------------------
-    public ClassificationResultsNode(Manifold classificationResultsManifold) {
+    public ClassificationResultsNode(Manifold classificationResultsManifold, IsaacPreferences nodePreferences) {
         this.classificationResultsManifold = classificationResultsManifold;
+        this.nodePreferences = nodePreferences;
         this.classificationResultsPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         this.classificationResultsPane.setCenter(new Label("Classification results"));
         GridPane gridPane = new GridPane();
@@ -56,6 +63,7 @@ public class ClassificationResultsNode implements ExplorationNode {
         this.classificationResultsPane.setTop(gridPane);
 
         setupClassificationResults();
+
         Get.logicService().getClassificationInstants().addListener((ListChangeListener<? super Instant>) c -> {
             setupClassificationResults();
         });
@@ -64,6 +72,16 @@ public class ClassificationResultsNode implements ExplorationNode {
         resultChoices.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.layoutResults(newValue);
         });
+        Optional<String> optionalSelection = this.nodePreferences.get(Keys.SELECTION_DEFAULT_TEXT);
+        if (optionalSelection.isPresent()) {
+            String selectionDefaultText = optionalSelection.get();
+            for (ClassifierResults resultChoice: resultChoices.getItems()) {
+                if (resultChoice.getDefaultText().equals(selectionDefaultText)) {
+                    resultChoices.getSelectionModel().select(resultChoice);
+                    break;
+                }
+            }
+        }
 
         resultChoices.setButtonCell(new ClassifierResultsListCell());
         resultChoices.setCellFactory(new Callback<ListView<ClassifierResults>, ListCell<ClassifierResults>>() {
@@ -117,6 +135,13 @@ public class ClassificationResultsNode implements ExplorationNode {
     }
 
     private void layoutResults(ClassifierResults classifierResult) {
+        try {
+            String classifierResultDefaultText = classifierResult.getDefaultText();
+            nodePreferences.put(Keys.SELECTION_DEFAULT_TEXT, classifierResultDefaultText);
+            nodePreferences.sync();
+        } catch (BackingStoreException e) {
+            FxGet.dialogs().showErrorDialog("Error writing classification results selection to preferences.", e);
+        }
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/provider/classification/ClassifierResultsInterface.fxml"));
             loader.load();

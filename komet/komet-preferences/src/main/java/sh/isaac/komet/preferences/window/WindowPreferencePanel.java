@@ -3,6 +3,7 @@ package sh.isaac.komet.preferences.window;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import sh.isaac.MetaData;
@@ -65,6 +66,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         LEFT_TAB_SELECTION,
         CENTER_TAB_SELECTION,
         RIGHT_TAB_SELECTION,
+        DIVIDER_POSITIONS
     };
 
     private final SimpleBooleanProperty enableLeftPaneProperty = new SimpleBooleanProperty(this, MetaData.ENABLE_LEFT_PANE____SOLOR.toExternalString(), false);
@@ -99,7 +101,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     private final SimpleIntegerProperty centerTabSelectionProperty = new SimpleIntegerProperty(this, "center tab selection", 0);
     private final SimpleIntegerProperty rightTabSelectionProperty = new SimpleIntegerProperty(this, "right tab selection", 0);
 
-
+    private final SimpleObjectProperty<double[]> dividerPositionsProperty = new SimpleObjectProperty<>(this, "divider positions", new double[] {0.2504, 0.7504});
     private PersonaItem personaItem;
 
     private static HashSet<String> windowIds = new HashSet<>();
@@ -258,11 +260,12 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         getPreferenceNode().putInt(Keys.LEFT_TAB_SELECTION, leftTabSelectionProperty.get());
         getPreferenceNode().putInt(Keys.CENTER_TAB_SELECTION, centerTabSelectionProperty.get());
         getPreferenceNode().putInt(Keys.RIGHT_TAB_SELECTION, rightTabSelectionProperty.get());
-
+        getPreferenceNode().putDoubleArray(Keys.DIVIDER_POSITIONS, dividerPositionsProperty.get());
     }
 
     @Override
     protected void revertFields() {
+        setDefaultLocationAndSize();
 
         Optional<UUID> optionalPersonaUuid = getPreferenceNode().getUuid(Keys.PERSONA_UUID);
         if (optionalPersonaUuid.isPresent()) {
@@ -293,7 +296,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         this.centerTabSelectionProperty.set(getPreferenceNode().getInt(Keys.CENTER_TAB_SELECTION, centerTabSelectionProperty.get()));
         this.rightTabSelectionProperty.set(getPreferenceNode().getInt(Keys.RIGHT_TAB_SELECTION, rightTabSelectionProperty.get()));
 
-        setDefaultLocationAndSize();
+        this.dividerPositionsProperty.set(getPreferenceNode().getDoubleArray(Keys.DIVIDER_POSITIONS, this.dividerPositionsProperty.get()));
     }
 
     private void setDefaultLocationAndSize() {
@@ -301,8 +304,13 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         this.yLocationProperty.setValue(getPreferencesNode().getDouble(Keys.Y_LOC, 40.0));
         this.heightProperty.setValue(getPreferencesNode().getDouble(Keys.HEIGHT, 897));
         this.widthProperty.setValue(getPreferencesNode().getDouble(Keys.WIDTH, 1400));
+        this.dividerPositionsProperty.setValue(new double[] {0.2504, 0.7504});
     }
 
+    @Override
+    public SimpleObjectProperty<double[]> dividerPositionsProperty() {
+        return dividerPositionsProperty;
+    }
 
     @Override
     public boolean showDelete() {

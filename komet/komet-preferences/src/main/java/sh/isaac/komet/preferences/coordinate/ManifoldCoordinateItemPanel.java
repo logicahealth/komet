@@ -2,6 +2,7 @@ package sh.isaac.komet.preferences.coordinate;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import org.controlsfx.property.editor.PropertyEditor;
@@ -23,7 +24,7 @@ import sh.komet.gui.util.UuidStringKey;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ManifoldCoordinateItemPanel extends AbstractPreferences {
+public class ManifoldCoordinateItemPanel extends AbstractPreferences implements Runnable {
     public enum Keys {
         MANIFOLD_NAME,
         MANIFOLD_GROUP_UUID,
@@ -45,6 +46,7 @@ public class ManifoldCoordinateItemPanel extends AbstractPreferences {
 
     public ManifoldCoordinateItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, getGroupName(preferencesNode, "Manifold"), manifold, kpc);
+        manifold = Manifold.get(groupNameProperty().get());
         nameProperty.set(groupNameProperty().get());
 
         this.manifold = manifold;
@@ -71,6 +73,13 @@ public class ManifoldCoordinateItemPanel extends AbstractPreferences {
             itemKey.updateString(newValue);
             FxGet.manifoldCoordinates().put(itemKey, this.manifold.getManifoldCoordinate());
         });
+        this.manifold.manifoldSelectionProperty().setAll(getPreferencesNode().getComponentList(Keys.SELECTED_COMPONENTS));
+        this.manifold.setSelectionPreferenceUpdater(this);
+    }
+
+    @Override
+    public void run() {
+        save();
     }
 
     @Override

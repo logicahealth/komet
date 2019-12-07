@@ -105,9 +105,10 @@ public class ManifoldLinkedConceptLabel
             newValue.manifoldSelectionProperty().addListener(this::selectionListChanged);
         });
         this.manifoldProperty.get().manifoldSelectionProperty().addListener(this::selectionListChanged);
-        if (this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get()).isPresent()) {
-           this.descriptionTextUpdater.accept(this);
-        }
+        this.descriptionTextUpdater.accept(this);
+        this.selectionIndexProperty.addListener((observable, oldValue, newValue) -> {
+            this.descriptionTextUpdater.accept(this);
+        });
         this.getStyleClass().add(CONCEPT_LABEL.toString());
         this.dragAndDropHelper = new DragAndDropHelper(this, () -> {
             if (manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get()).isPresent()) {

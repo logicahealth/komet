@@ -43,7 +43,9 @@ public class DateTimeUtil {
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
     private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
     private static final DateTimeFormatter ZONE_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
-  
+    private static final DateTimeFormatter TEXT_FORMAT_WITH_ZONE = DateTimeFormatter.ofPattern("MMM dd, yyyy; hh:mm a zzz");
+
+
     public static ZonedDateTime epochToZonedDateTime(long epochMilliSecond) {
         return Instant.ofEpochMilli(epochMilliSecond).atZone(ZoneOffset.UTC);
     }
@@ -58,6 +60,10 @@ public class DateTimeUtil {
             return "Canceled";
         }
        return FORMATTER.format(Instant.ofEpochMilli(epochMilliSecond).atZone(ZoneOffset.UTC));
+    }
+
+    public static String textFormatWithZone(ZonedDateTime zonedDateTime) {
+        return TEXT_FORMAT_WITH_ZONE.format(zonedDateTime);
     }
 
     /**

@@ -40,17 +40,21 @@
 package sh.isaac.api.classifier;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
+import sh.isaac.api.Get;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.util.time.DateTimeUtil;
 
 /**
  * The Class ClassifierResults.
@@ -117,4 +121,12 @@ public interface ClassifierResults {
    EditCoordinate getEditCoordinate();
 
    Instant getCommitTime();
+
+   default String getDefaultText() {
+      StringBuilder sb = new StringBuilder();
+      sb.append(DateTimeUtil.textFormatWithZone(getCommitTime().atZone(ZoneOffset.systemDefault())));
+      sb.append(" to the ");
+      sb.append(Get.defaultCoordinate().getPreferredDescriptionText(getEditCoordinate().getModuleNid()));
+      return sb.toString();
+   }
 }

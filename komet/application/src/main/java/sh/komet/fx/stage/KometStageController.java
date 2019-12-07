@@ -585,6 +585,24 @@ public class KometStageController
         this.windowPreferencesItem.centerTabSelectionProperty().bind(this.centerTabPane.getSelectionModel().selectedIndexProperty());
         this.windowPreferencesItem.rightTabSelectionProperty().bind(this.rightTabPane.getSelectionModel().selectedIndexProperty());
 
+        this.windowSplitPane.setDividerPositions(this.windowPreferencesItem.dividerPositionsProperty().get());
+        Platform.runLater(() -> {
+            // The initial layout seems to adjust the divider positions. Doing a runLater seems to put the
+            // dividers in the right location.
+            // Once in the right location, we can then add listeners, so that the initial layout adjustment
+            // does not overwrite the saved layout.
+            setupDividerPositions();
+        });
+    }
+
+    void setupDividerPositions() {
+        this.windowSplitPane.setDividerPositions(this.windowPreferencesItem.dividerPositionsProperty().get());
+        for (SplitPane.Divider divider: this.windowSplitPane.getDividers()) {
+            divider.positionProperty().addListener((observable, oldValue, newValue) -> {
+                this.windowPreferencesItem.dividerPositionsProperty().setValue(this.windowSplitPane.getDividerPositions());
+                this.windowPreferencesItem.save();
+            });
+        }
     }
 
     public void saveSettings() throws BackingStoreException {

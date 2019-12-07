@@ -451,6 +451,45 @@ public interface IsaacPreferences {
         return OptionalDouble.empty();
     }
 
+    default void putDoubleArray(Enum key, double[] array) {
+        putDoubleArray(enumToGeneralKey(key), array);
+    }
+
+    default void putDoubleArray(String key, double[] array) {
+        List<String> doubleList = new ArrayList<>(array.length);
+        for (double value: array) {
+            doubleList.add(Double.toString(value));
+        }
+        putList(key, doubleList);
+    }
+
+    default  double[] getDoubleArray(String key, double[] defaultArray) {
+        Optional<double[]> optionalArray = getDoubleArray(key);
+        if (optionalArray.isPresent()) {
+            return optionalArray.get();
+        }
+        return defaultArray;
+    }
+
+    default  double[] getDoubleArray(Enum key, double[] defaultArray) {
+        return getDoubleArray(enumToGeneralKey(key), defaultArray);
+    }
+    default Optional<double[]> getDoubleArray(Enum key) {
+        return getDoubleArray(enumToGeneralKey(key));
+    }
+    default Optional<double[]> getDoubleArray(String key) {
+        Optional<List<String>> optionalValue = getOptionalList(key);
+        if (optionalValue.isPresent()) {
+            List<String> listValue = optionalValue.get();
+            double[] doubleArray = new double[listValue.size()];
+            for (int i = 0; i < doubleArray.length; i++) {
+                doubleArray[i] = Double.parseDouble(listValue.get(i));
+            }
+            return Optional.of(doubleArray);
+        }
+        return Optional.empty();
+    }
+
     /**
      * Associates a string representing the specified byte array with the
      * specified key in this preference node. The associated string is the

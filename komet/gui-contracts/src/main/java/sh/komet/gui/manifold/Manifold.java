@@ -196,6 +196,7 @@ public class Manifold
     final UUID manifoldUuid;
     final ObservableManifoldCoordinate observableManifoldCoordinate;
     final ObservableEditCoordinate observableEditCoordinate;
+    private Runnable selectionPreferenceUpdater;
 
     //~--- constructors --------------------------------------------------------
 
@@ -218,7 +219,9 @@ public class Manifold
 
     //~--- methods -------------------------------------------------------------
 
-
+    public void setSelectionPreferenceUpdater(Runnable selectionPreferenceUpdater) {
+        this.selectionPreferenceUpdater = selectionPreferenceUpdater;
+    }
     public SimpleListProperty<ComponentProxy> manifoldSelectionProperty() {
         return manifoldSelection;
     }
@@ -248,6 +251,9 @@ public class Manifold
                     addHistory(historyRecord, manifoldHistory);
                 }
             }
+        }
+        if (this.selectionPreferenceUpdater != null) {
+            this.selectionPreferenceUpdater.run();
         }
     }
 

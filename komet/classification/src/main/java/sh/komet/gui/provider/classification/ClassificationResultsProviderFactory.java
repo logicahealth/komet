@@ -16,7 +16,7 @@ import sh.komet.gui.manifold.Manifold;
 public class ClassificationResultsProviderFactory implements ExplorationNodeFactory<ClassificationResultsNode> {
     @Override
     public ClassificationResultsNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {
-        return new ClassificationResultsNode(manifold);
+        return new ClassificationResultsNode(manifold, nodePreferences);
     }
 
     @Override

@@ -25,8 +25,8 @@ public class ManifoldCoordinateGroupPanel extends ParentPanel {
             for (Manifold.ManifoldGroup group: manifoldValues) {
                 IsaacPreferences manifoldPreferences = addChildPanel(group.getGroupUuid(), Optional.of(group.getGroupName()));
                 manifoldPreferences.putUuid(MANIFOLD_GROUP_UUID, group.getGroupUuid());
-
-                ManifoldCoordinateItemPanel manifoldCoordinateItemPanel = new ManifoldCoordinateItemPanel(manifoldPreferences, manifold, kpc);
+                Manifold manifoldForChild = Manifold.get(group);
+                ManifoldCoordinateItemPanel manifoldCoordinateItemPanel = new ManifoldCoordinateItemPanel(manifoldPreferences, manifoldForChild, kpc);
             }
             save();
         }
