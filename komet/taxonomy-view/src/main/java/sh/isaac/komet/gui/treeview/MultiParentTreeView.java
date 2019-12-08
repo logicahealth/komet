@@ -190,6 +190,15 @@ public class MultiParentTreeView
                     }
                 }
             }
+            // Check to make sure lists are equal in size/properly synchronized.
+            if (manifold.manifoldSelectionProperty().get().size() != c.getList().size()) {
+                // lists are out of sync, reset with fresh list.
+                ComponentProxy[] selectedItems = new ComponentProxy[c.getList().size()];
+                for (int i = 0; i < selectedItems.length; i++) {
+                    selectedItems[i] = new ComponentProxy(c.getList().get(i).getValue().toExternalString());
+                }
+                manifold.manifoldSelectionProperty().setAll(selectedItems);
+            }
         });
         this.setCenter(treeView);
 
@@ -202,7 +211,7 @@ public class MultiParentTreeView
                 TermAux.UNINITIALIZED_COMPONENT_ID.getNid(),
                 Iconography.TAXONOMY_ROOT_ICON.getIconographic());
         treeView.getSelectionModel()
-                .setSelectionMode(SelectionMode.SINGLE);
+                .setSelectionMode(SelectionMode.MULTIPLE);
         treeView.setCellFactory((TreeView<ConceptChronology> p) -> new MultiParentTreeCell(treeView));
         treeView.setRoot(rootTreeItem);
 
