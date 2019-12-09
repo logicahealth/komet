@@ -41,11 +41,12 @@ package sh.isaac.provider.datastore.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.model.taxonomy.GraphCollector;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
-import java.util.UUID;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
@@ -60,7 +61,9 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
-import sh.isaac.model.tree.HashTreeBuilder;
+import sh.isaac.model.taxonomy.GraphCollectorIsolated;
+import sh.isaac.model.taxonomy.TaxonomyFlag;
+import sh.isaac.model.tree.HashTreeBuilderIsolated;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -70,13 +73,29 @@ import sh.isaac.model.tree.HashTreeBuilder;
  */
 public class TreeBuilderTask
         extends TimedTaskWithProgressTracker<Tree> implements Stoppable {
+   private static final String             stopMessage = "Stop requested during compute";
+
    private String                          message           = "setting up taxonomy collection";
    private final int                       conceptCount;
    private final IntFunction<int[]>        taxonomyDataProvider;
-   private final ManifoldCoordinate        manifoldCoordinate;
    private final int                       conceptAssemblageNid;
    private boolean                         stopRequested = false;
-   private static final String             stopMessage = "Stop requested during compute";
+
+   private final RelativePositionCalculator relativePositionCalculator;
+   private final int taxonomyFlags;
+   private final Optional<RelativePositionCalculator> optionalDestinationCalculator;
+   private final Optional<Function<int[],int[]>> optionalSortFunction;
+   private final PremiseType premiseType;
+
+/*
+    public GraphCollectorIsolated(IntFunction<int[]> taxonomyDataProvider,
+                                  RelativePositionCalculator relativePositionCalculator,
+                                  int taxonomyFlags,
+                                  Optional<RelativePositionCalculator> optionalDestinationCalculator,
+                                  Optional<Function<int[],int[]>> optionalSortFunction) {
+
+ */
+
 
    private static final Logger LOG = LogManager.getLogger();
 
@@ -87,8 +106,23 @@ public class TreeBuilderTask
       if (taxonomyDataProvider == null) {
          throw new IllegalStateException("taxonomyDataProvider cannot be null");
       }
+      this.premiseType = manifoldCoordinate.getTaxonomyPremiseType();
       this.taxonomyDataProvider               = taxonomyDataProvider;
-      this.manifoldCoordinate                 = manifoldCoordinate;
+      this.relativePositionCalculator = manifoldCoordinate.getRelativePositionCalculator();
+      this.taxonomyFlags = TaxonomyFlag.getFlagsFromManifoldCoordinate(manifoldCoordinate);
+      if (manifoldCoordinate.optionalDestinationStampCoordinate().isPresent()) {
+
+         this.optionalDestinationCalculator = Optional.of(
+                 manifoldCoordinate.optionalDestinationStampCoordinate().get().getRelativePositionCalculator());
+      } else {
+         this.optionalDestinationCalculator = Optional.empty();
+      }
+
+      if (manifoldCoordinate.hasCustomTaxonomySort()) {
+         this.optionalSortFunction = Optional.of(manifoldCoordinate::sortConcepts);
+      } else {
+         this.optionalSortFunction = Optional.empty();
+      }
       this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate()
             .getConceptAssemblageNid();
       LookupService.registerStoppable(this, LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);
@@ -133,7 +167,11 @@ public class TreeBuilderTask
    }
 
    private Tree compute() {
-      GraphCollector  collector = new GraphCollector(this.taxonomyDataProvider, this.manifoldCoordinate);
+
+      GraphCollectorIsolated  collector = new GraphCollectorIsolated(this.taxonomyDataProvider,
+              this.relativePositionCalculator, this.taxonomyFlags,
+              this.optionalDestinationCalculator,
+              this.optionalSortFunction);
       IntStream       conceptNidStream = Get.identifierService()
                                             .getNidsForAssemblage(conceptAssemblageNid);
       long count = conceptNidStream.count();
@@ -146,7 +184,7 @@ public class TreeBuilderTask
       }
       conceptNidStream = Get.identifierService()
                                             .getNidsForAssemblage(conceptAssemblageNid);
-      HashTreeBuilder graphBuilder     = conceptNidStream.filter(
+      HashTreeBuilderIsolated graphBuilder     = (HashTreeBuilderIsolated) conceptNidStream.filter(
                                              (conceptNid) -> {
                                                 if (conceptNid == TermAux.SOLOR_METADATA.getNid()) {
                                                    System.out.println("Found 1: " + TermAux.SOLOR_METADATA.getFullyQualifiedName());
@@ -156,8 +194,8 @@ public class TreeBuilderTask
                return true;
             })
                                                          .collect(
-                                                               () -> new HashTreeBuilder(
-                                                                     this.manifoldCoordinate,
+                                                               () -> new HashTreeBuilderIsolated(
+                                                                     this.premiseType,
                                                                            this.conceptAssemblageNid),
                                                                      collector,
                                                                      collector);
@@ -167,7 +205,7 @@ public class TreeBuilderTask
       Tree tree = graphBuilder.getSimpleDirectedGraph(this);
 
       message = "complete";
-      LOG.info("Tree build completed for {}", this.manifoldCoordinate);
+      LOG.info("Tree build completed for {}", this.relativePositionCalculator.getDestination());
       return tree;
    }
 

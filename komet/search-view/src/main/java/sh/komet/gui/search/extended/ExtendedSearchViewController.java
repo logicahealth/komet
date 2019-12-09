@@ -97,6 +97,7 @@ import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.index.IndexStatusListener;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.query.CompositeQueryResult;
 import sh.isaac.api.query.QueryHandle;
 import sh.isaac.api.util.Interval;
@@ -225,7 +226,15 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                 }
             }
         }
+        if (outsideManifold.manifoldSelectionProperty().size() != c.getList().size()) {
+            ArrayList<ComponentProxy> selectionList = new ArrayList<>(c.getList().size());
+            for (CompositeQueryResult additem : c.getList()) {
+                selectionList.add(new ComponentProxy(additem.getContainingConcept().toExternalString()));
+            }
+            outsideManifold.manifoldSelectionProperty().setAll(selectionList);
+        }
     }
+
     @FXML
     public void initialize() {
         assert borderPane != null : "fx:id=\"borderPane\" was not injected: check your FXML file 'ExtendedSearchView.fxml'.";

@@ -30,11 +30,7 @@ import org.aopalliance.instrument.UndoNotSupportedException;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
@@ -213,5 +209,10 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     @Override
     public StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public StampCoordinateReadOnly getStampCoordinateReadOnly() {
+        return getStampCoordinate().getStampCoordinateReadOnly();
     }
 }

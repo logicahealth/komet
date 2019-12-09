@@ -195,6 +195,14 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
                     }
                 }
             }
+            if (manifold.manifoldSelectionProperty().size() != c.getList().size()) {
+                ArrayList<ComponentProxy> selectionList = new ArrayList<>(c.getList().size());
+                for (ObservableDescriptionVersion descriptionVersion: c.getList()) {
+                    selectionList.add(new ComponentProxy(Get.concept(descriptionVersion.getReferencedComponentNid())));
+                }
+                manifold.manifoldSelectionProperty().setAll(selectionList);
+
+            }
         });
 
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {

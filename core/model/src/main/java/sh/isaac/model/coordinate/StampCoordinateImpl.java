@@ -70,6 +70,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampCoordinateReadOnly;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -82,6 +83,7 @@ import sh.isaac.model.xml.StatusEnumSetAdaptor;
  * The Class StampCoordinateImpl.
  *
  * @author kec
+ * TODO make the read-only aspect better implemented...
  */
 @XmlRootElement(name = "StampCoordinate")
 @XmlAccessorType(XmlAccessType.NONE)
@@ -643,5 +645,10 @@ public class StampCoordinateImpl
     @Override
     public NidSet getAuthorNids() {
         return NidSet.of(this.authorSpecifications);
+    }
+
+    @Override
+    public StampCoordinateReadOnly getStampCoordinateReadOnly() {
+        return new StampCoordinateImmutableWrapper(this.deepClone());
     }
 }

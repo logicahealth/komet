@@ -64,6 +64,9 @@ import sh.isaac.model.tree.HashTreeBuilder;
  * HashTreeBuilder per thread, and then when the process completes, the HashTreeBuilders are 
  * merged in a single thread. 
  * @author kec
+ * @deprecated Working to replace GraphCollector with GraphCollectorIsolated as a means to ensure that
+ * the coordinates don't change during the graph collection process, which is the case with
+ * mutable coordinates.
  */
 public class GraphCollector
          implements ObjIntConsumer<HashTreeBuilder>, BiConsumer<HashTreeBuilder, HashTreeBuilder> {

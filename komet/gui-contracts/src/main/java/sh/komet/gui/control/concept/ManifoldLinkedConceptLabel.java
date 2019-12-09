@@ -344,7 +344,7 @@ public class ManifoldLinkedConceptLabel
 
     public void setConceptChronology(ConceptChronology conceptChronology) {
         unlink();
-        this.manifoldProperty.get().manifoldSelectionProperty().setAll((ComponentProxy) conceptChronology);
+        this.manifoldProperty.get().manifoldSelectionProperty().setAll(new ComponentProxy(conceptChronology));
     }
 
     //~--- set methods ---------------------------------------------------------

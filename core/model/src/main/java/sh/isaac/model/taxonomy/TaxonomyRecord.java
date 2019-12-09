@@ -50,6 +50,7 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
@@ -487,6 +488,22 @@ public class TaxonomyRecord {
     }
 
     /**
+     * Contains stamp of type with flags.
+     *
+     * @param typeNid Integer.MAX_VALUE is a wildcard and will match all types.
+     * @param flags the flags
+     * @return true if found.
+     */
+    public boolean containsStampOfTypeWithFlags(int typeNid, int flags) {
+        for (TypeStampTaxonomyRecords record: this.conceptNidRecordMap.values()) {
+            if (record.containsStampOfTypeWithFlags(typeNid, flags)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Gets the concept nids for type, ignoring coordinates
      *
      * @param typeNid typeNid to match, or Integer.MAX_VALUE if a wildcard.
@@ -519,10 +536,31 @@ public class TaxonomyRecord {
      * @param typeSequence typeNid to match, or Integer.MAX_VALUE if a wildcard.
      * @param mc used to determine if a concept is active.
      * @return active concepts identified by their sequence value.
+     * @deprecated method that uses RelativePositionCalculator is safer from a concurrent modification perspective.
      */
     public int[] getConceptNidsForType(int typeSequence, ManifoldCoordinate mc, IntFunction<int[]> taxonomyDataProvider) {
         final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(mc);
         final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(mc);
+        Optional<RelativePositionCalculator> optionalDestinationComputer = Optional.empty();
+        if (mc.optionalDestinationStampCoordinate().isPresent()) {
+            StampCoordinate destinationCoordinate = mc.optionalDestinationStampCoordinate().get();
+            optionalDestinationComputer = Optional.ofNullable(destinationCoordinate.getRelativePositionCalculator());
+        }
+
+        Optional<Function<int[],int[]>> optionalSortFunction = Optional.empty();
+
+        if (mc.hasCustomTaxonomySort()) {
+            optionalSortFunction = Optional.of(mc::sortConcepts);
+        }
+
+        return getConceptNidsForType(typeSequence, taxonomyDataProvider, flags, computer,
+                optionalDestinationComputer, optionalSortFunction);
+    }
+
+    public int[] getConceptNidsForType(int typeSequence, IntFunction<int[]> taxonomyDataProvider, int flags,
+                                        RelativePositionCalculator originComputer,
+                                        Optional<RelativePositionCalculator> optionalDestinationComputer,
+                                        Optional<Function<int[],int[]>> optionalSortFunction) {
         final RoaringBitmap conceptSequencesForTypeSet = new RoaringBitmap();
 
         this.conceptNidRecordMap.forEachPair((int possibleParentNid,
@@ -539,15 +577,15 @@ public class TaxonomyRecord {
                 }
             });
 
-            if (computer.isLatestActive(stampsForConceptIntStream.toArray())) {
+            if (originComputer.isLatestActive(stampsForConceptIntStream.toArray())) {
                 // relationship of type is active per at least one relationship,
                 // now see if the destination concept meets other criterion.
                 // if the optional destination stamp coordinate is present, we need to filter and only return
                 // the concept nids that meet the criterion of this destination stamp coordinate.
-                if (mc.optionalDestinationStampCoordinate().isPresent()) {
+                if (optionalDestinationComputer.isPresent()) {
                     // See if the relationship is active
                     TaxonomyRecordPrimitive targetConceptRecord = new TaxonomyRecordPrimitive(taxonomyDataProvider.apply(possibleParentNid));
-                    if (targetConceptRecord.conceptSatisfiesStamp(possibleParentNid, mc.optionalDestinationStampCoordinate().get())) {
+                    if (targetConceptRecord.conceptSatisfiesStamp(possibleParentNid, optionalDestinationComputer.get())) {
                         conceptSequencesForTypeSet.add(possibleParentNid);
                     }
                 } else {
@@ -557,8 +595,8 @@ public class TaxonomyRecord {
             return true;
         });
         IntArrayList conceptSequencesForTypeList = new IntArrayList(conceptSequencesForTypeSet.toArray());
-        if (mc.hasCustomTaxonomySort()) {
-            return mc.sortConcepts(conceptSequencesForTypeList.elements());
+        if (optionalSortFunction.isPresent()) {
+            return optionalSortFunction.get().apply(conceptSequencesForTypeList.elements());
         } else {
             conceptSequencesForTypeList.sort();
             return conceptSequencesForTypeList.elements();

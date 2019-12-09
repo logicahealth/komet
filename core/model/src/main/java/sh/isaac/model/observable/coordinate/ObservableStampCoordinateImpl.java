@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.coordinate.StampCoordinateReadOnly;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.Collection;
@@ -358,6 +359,11 @@ public class ObservableStampCoordinateImpl
     @Override
     public String toUserString() {
         return stampCoordinate.toUserString();
+    }
+
+    @Override
+    public StampCoordinateReadOnly getStampCoordinateReadOnly() {
+        return getStampCoordinate().getStampCoordinateReadOnly();
     }
 }
 

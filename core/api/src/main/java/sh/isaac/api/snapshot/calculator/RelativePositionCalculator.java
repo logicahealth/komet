@@ -70,6 +70,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.RoaringIntSet;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampCoordinateReadOnly;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.identity.IdentifiedObject;
@@ -99,7 +100,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
    private StampService stampService;
 
    /** The coordinate. */
-   private StampCoordinate coordinate;
+   private StampCoordinateReadOnly coordinate;
    private EnumSet<Status>  allowedStates;
    private final ConcurrentHashMap<Integer, Boolean> stampOnRoute = new ConcurrentHashMap<>();
    private final ConcurrentHashMap<Integer, Boolean> stampIsAllowedState = new ConcurrentHashMap<>();
@@ -125,7 +126,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     *
     * @param coordinate the coordinate
     */
-   private RelativePositionCalculator(StampCoordinate coordinate) {
+   private RelativePositionCalculator(StampCoordinateReadOnly coordinate) {
       //For the internal callback to populate the cache
       this.coordinate             = coordinate;
       this.pathNidSegmentMap = setupPathNidSegmentMap(coordinate.getStampPosition());
@@ -607,32 +608,12 @@ public class RelativePositionCalculator implements StaticIsaacCache {
            }
        }
 
-      calcToTry = new RelativePositionCalculator(coordinate);
+      calcToTry = new RelativePositionCalculator(coordinate.getStampCoordinateReadOnly());
       lastCalculator = calcToTry;
 
       return calcToTry;
    }
 
-   /**
-    * Gets the calculator.
-    *
-    * @param coordinate the coordinate
-    * @return the calculator
-    */
-   public RelativePositionCalculator getCalculatorInstance(StampCoordinate coordinate) {
-       
-       RelativePositionCalculator calcToTry = lastCalculator;
-       if (calcToTry != null) {
-           if (calcToTry.coordinate == coordinate) {
-               return calcToTry;
-           }
-       }
-
-      calcToTry = new RelativePositionCalculator(coordinate);
-      lastCalculator = calcToTry;
-
-      return calcToTry;
-   }
 
    /**
     * Gets the destination.

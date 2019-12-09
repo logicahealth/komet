@@ -59,11 +59,7 @@ import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
@@ -446,6 +442,11 @@ public class ConceptSnapshotImpl
     @Override
     public void putExternal(ByteArrayDataBuffer out) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public StampCoordinateReadOnly getStampCoordinateReadOnly() {
+        return getStampCoordinate().getStampCoordinateReadOnly();
     }
 }
 

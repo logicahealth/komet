@@ -24,6 +24,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampCoordinateReadOnly;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -32,7 +33,7 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
  *
  * @author kec
  */
-public class StampCoordinateImmutableWrapper implements StampCoordinate {
+public class StampCoordinateImmutableWrapper implements StampCoordinateReadOnly {
     private final StampCoordinateImpl stampCoordinate;
 
     public StampCoordinateImmutableWrapper(StampCoordinateImpl stampCoordinate) {
@@ -146,5 +147,10 @@ public class StampCoordinateImmutableWrapper implements StampCoordinate {
     @Override
     public void putExternal(ByteArrayDataBuffer out) {
         stampCoordinate.putExternal(out);
+    }
+
+    @Override
+    public StampCoordinateReadOnly getStampCoordinateReadOnly() {
+        return this;
     }
 }

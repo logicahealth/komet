@@ -77,6 +77,7 @@ import sh.isaac.model.collections.store.IntIntArrayNoStore;
  * A {@code Tree} implemented using a {@code OpenIntObjectHashMap<int[]>}.
  *
  * @author kec
+ * @deprecated Moving to HashTreeWithIntArraySetsIsolated
  */
 public class HashTreeWithIntArraySets
          implements Tree {

@@ -47,11 +47,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
@@ -304,10 +300,7 @@ public class ManifoldCoordinateImpl
       return mc;
    }
 
-   /**
-    * {@inheritDoc}
-    * @see sh.isaac.api.coordinate.StampCoordinate#makeModuleAnalog(int[], boolean)
-    */
+
    @Override
    public ManifoldCoordinateImpl makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
        ManifoldCoordinateImpl mc = new ManifoldCoordinateImpl(this.taxonomyPremiseType, 
@@ -447,5 +440,10 @@ public class ManifoldCoordinateImpl
     @Override
     public NidSet getAuthorNids() {
         return getStampCoordinate().getAuthorNids();
+    }
+
+    @Override
+    public StampCoordinateReadOnly getStampCoordinateReadOnly() {
+        return getStampCoordinate().getStampCoordinateReadOnly();
     }
 }

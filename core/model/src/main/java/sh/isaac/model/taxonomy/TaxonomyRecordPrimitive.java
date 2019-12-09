@@ -120,25 +120,30 @@ public class TaxonomyRecordPrimitive {
     * @return true, if successful
     */
    public boolean conceptSatisfiesStamp(int conceptNid, StampCoordinate stampCoordinate) {
-         int index = 0;
+      final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(stampCoordinate);
 
-         while (index < taxonomyData.length) {
-            // the destination nid
-            final int recordConceptNid = taxonomyData[index++];
-            // followed by a variable number of type, stamp, flag records
-            final int length = taxonomyData[index];
-            if (recordConceptNid == conceptNid) {
-               final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(stampCoordinate);
-               final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(taxonomyData, index);
-               return records.containsConceptNidViaType(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, computer);
-            }
+      return conceptSatisfiesStamp(conceptNid, computer);
+   }
 
-            index += length;
-            if (index < 0) {
-               throw new IllegalStateException("Index: " + index);
-            }
+   public boolean conceptSatisfiesStamp(int conceptNid, RelativePositionCalculator calculator) {
+      int index = 0;
+
+      while (index < taxonomyData.length) {
+         // the destination nid
+         final int recordConceptNid = taxonomyData[index++];
+         // followed by a variable number of type, stamp, flag records
+         final int length = taxonomyData[index];
+         if (recordConceptNid == conceptNid) {
+            final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(taxonomyData, index);
+            return records.containsConceptNidViaType(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, calculator);
          }
-         return false;
+
+         index += length;
+         if (index < 0) {
+            throw new IllegalStateException("Index: " + index);
+         }
+      }
+      return false;
    }
 
    public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
@@ -224,6 +229,18 @@ public class TaxonomyRecordPrimitive {
    }
 
    /**
+    * Contains stamp of type with flags.
+    *
+    * @param typeNid Integer.MAX_VALUE is a wildcard and will match all types.
+    * @param flags the flags
+    * @return true if found.
+    */
+
+   public boolean containsStampOfTypeWithFlags(int typeNid, int flags) {
+      return getTaxonomyRecordUnpacked().containsStampOfTypeWithFlags(typeNid, flags);
+   }
+
+   /**
     * Inferred flag set.
     *
     * @param index the index
@@ -293,9 +310,15 @@ public class TaxonomyRecordPrimitive {
     * @param conceptNid the concept nid
     * @param stampCoordinate the stamp coordinate
     * @return true, if concept active
+    * @deprecated replace with calls that use RelativePositionCalculator
+    * TODO replace with calls that use RelativePositionCalculator
     */
    public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
-      return getTaxonomyRecordUnpacked().conceptSatisfiesStamp(conceptNid, stampCoordinate);
+      return conceptSatisfiesStamp(conceptNid, stampCoordinate);
+   }
+
+   public boolean isConceptActive(int conceptNid, RelativePositionCalculator relativePositionCalculator) {
+      return conceptSatisfiesStamp(conceptNid, relativePositionCalculator);
    }
 
    /**

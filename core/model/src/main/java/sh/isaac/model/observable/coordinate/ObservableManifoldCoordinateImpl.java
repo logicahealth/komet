@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.Collection;
@@ -59,15 +60,11 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -428,6 +425,11 @@ public class ObservableManifoldCoordinateImpl
     @Override
     public void putExternal(ByteArrayDataBuffer out) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public StampCoordinateReadOnly getStampCoordinateReadOnly() {
+        return getStampCoordinate().getStampCoordinateReadOnly();
     }
 }
 

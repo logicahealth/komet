@@ -55,6 +55,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.util.UUIDUtil;
 
 //~--- interfaces -------------------------------------------------------------
@@ -193,5 +194,11 @@ public interface StampCoordinate
      * @return multi-line string output suitable for presentation to user, as opposed to use in debugging.
      */
     String toUserString();
+
+    StampCoordinateReadOnly getStampCoordinateReadOnly();
+
+    default RelativePositionCalculator getRelativePositionCalculator() {
+        return RelativePositionCalculator.getCalculator(getStampCoordinateReadOnly());
+    }
 }
 
