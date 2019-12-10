@@ -58,6 +58,11 @@ import sh.isaac.api.Get;
  * @author kec
  */
 public class UUIDUtil {
+    /**
+     * Nil UUID
+     * The "nil" UUID, a special case, is the UUID 00000000-0000-0000-0000-000000000000; that is, all bits set to zero.[2]
+     */
+    public static final UUID NIL_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
    /**
     * Convert.
     *

@@ -439,6 +439,8 @@ public class AxiomsFromLoincRecord {
 
         if (assertions.isEmpty()) {
             assertions.add(builder.conceptAssertion(MetaData.UNCATEGORIZED_PHENOMENON____SOLOR));
+        } else {
+            assertions.add(builder.conceptAssertion(MetaData.PHENOMENON____SOLOR));
         }
         return assertions.toArray(new Assertion[assertions.size()]);
     }

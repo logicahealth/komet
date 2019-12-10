@@ -40,6 +40,7 @@ package sh.isaac.provider.datastore.taxonomy;
 import sh.isaac.api.*;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
+import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import java.lang.ref.WeakReference;
 
@@ -428,23 +429,17 @@ public class TaxonomyProvider
     private class SnapshotCacheKey {
 
         final PremiseType taxPremiseType;
-        StampCoordinate stampCoordinate;
-        StampCoordinate destinationCoordinate;
+        UUID stampCoordinateUuid;
+        UUID destinationCoordinateUuid;
         final int customSortHash;
 
         public SnapshotCacheKey(ManifoldCoordinate mc) {
             this.taxPremiseType = mc.getTaxonomyPremiseType();
-            this.stampCoordinate = mc.getStampCoordinate();
-            if (this.stampCoordinate instanceof ObservableStampCoordinate) {
-                this.stampCoordinate = ((ObservableStampCoordinate) this.stampCoordinate).getStampCoordinate();
-            }
+            this.stampCoordinateUuid = mc.getStampCoordinateUuid();
             if (mc.optionalDestinationStampCoordinate().isPresent()) {
-                this.destinationCoordinate = mc.optionalDestinationStampCoordinate().get();
-                if (this.destinationCoordinate instanceof ObservableStampCoordinate) {
-                    this.destinationCoordinate = ((ObservableStampCoordinate) this.destinationCoordinate).getStampCoordinate();
-                }
+                this.destinationCoordinateUuid = mc.optionalDestinationStampCoordinate().get().getStampCoordinateUuid();
             } else {
-                this.destinationCoordinate = null;
+                this.destinationCoordinateUuid = UUIDUtil.NIL_UUID;
             }
             this.customSortHash = mc.getCustomTaxonomySortHashCode();
         }
@@ -453,8 +448,8 @@ public class TaxonomyProvider
         public int hashCode() {
             int hash = 7;
             hash = 29 * hash + Objects.hashCode(this.taxPremiseType);
-            hash = 29 * hash + this.stampCoordinate.hashCode();
-            hash = 29 * hash + this.destinationCoordinate.hashCode();
+            hash = 29 * hash + this.stampCoordinateUuid.hashCode();
+            hash = 29 * hash + this.destinationCoordinateUuid.hashCode();
             hash = 29 * hash + customSortHash;
             return hash;
         }
@@ -463,8 +458,8 @@ public class TaxonomyProvider
         public String toString() {
             return "SnapshotCacheKey{" +
                     "taxPremiseType=" + taxPremiseType +
-                    ",\n   stampCoordinate=" + stampCoordinate +
-                    ",\n   destinationCoordinate=" + destinationCoordinate +
+                    ",\n   stampCoordinate=" + stampCoordinateUuid +
+                    ",\n   destinationCoordinate=" + destinationCoordinateUuid +
                     ",\n   customSortHash=" + customSortHash +
                     '}';
         }
@@ -484,10 +479,10 @@ public class TaxonomyProvider
             if (this.taxPremiseType != other.taxPremiseType) {
                 return false;
             }
-            if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
+            if (!Objects.equals(this.stampCoordinateUuid, other.stampCoordinateUuid)) {
                 return false;
             }
-            if (!Objects.equals(this.destinationCoordinate, other.destinationCoordinate)) {
+            if (!Objects.equals(this.destinationCoordinateUuid, other.destinationCoordinateUuid)) {
                 return false;
             }
             if (this.customSortHash != other.customSortHash) {

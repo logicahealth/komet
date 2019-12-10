@@ -202,17 +202,17 @@ public class ProcessClassificationResults
                 }
             }
         });
-        if (!equivalentSets.isEmpty()) {
-            LOG.info("Equivalent set count: " + equivalentSets.size());
-            int setCount = 1;
-            for (IntArrayList equivalentSet: equivalentSets) {
-                StringBuilder sb = new StringBuilder("Set " + setCount++ + ":\n");
-                for (int nid: equivalentSet.elements()) {
-                    sb.append(Get.conceptDescriptionText(nid)).append("\n");
-                }
-                LOG.info(sb.toString());
-            }
-        }
+//        if (!equivalentSets.isEmpty()) {
+//            LOG.info("Equivalent set count: " + equivalentSets.size());
+//            int setCount = 1;
+//            for (IntArrayList equivalentSet: equivalentSets) {
+//                StringBuilder sb = new StringBuilder("Set " + setCount++ + ":\n");
+//                for (int nid: equivalentSet.elements()) {
+//                    sb.append(Get.conceptDescriptionText(nid)).append("\n");
+//                }
+//                LOG.info(sb.toString());
+//            }
+//        }
         return new ClassifierResultsImpl(affectedConcepts,
                 equivalentSets,
                 writeBackInferred(transaction, classifiedResult, affectedConcepts), stampCoordinate, logicCoordinate, editCoordinate);

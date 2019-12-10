@@ -153,6 +153,29 @@ public class ClassifierResultsController {
     }
 
     public void setResults(ClassifierResults classifierResults) {
+        if (classifierResults == null) {
+            cyclesPane.setText(cyclesPane.getText() + ": null result");
+            TreeItem<StringWithOptionalConceptSpec> root = new TreeItem<>(new StringWithOptionalConceptSpec("Cycles Root"));
+            root.setExpanded(true);
+            cyclesTree.setRoot(root);
+            cyclesTree.setShowRoot(false);
+            cyclesPane.setDisable(true);
+
+            orphansPane.setText(orphansPane.getText() + ": null result");
+            orphansPane.setDisable(true);
+
+            equivalenciesPane.setText(equivalenciesPane.getText() + ": null result");
+            equivalenciesPane.setDisable(true);
+
+            inferredChangesPane.setText(inferredChangesPane.getText() + ": null result");
+            inferredChangesPane.setDisable(true);
+
+            stampTextArea.setText("null result");
+            logicTextArea.setText("null result");
+            editTextArea.setText("null result");
+
+            return;
+        }
         if (classifierResults.getCycles().isPresent()) {
             Map<Integer, Set<int[]>> cycles = classifierResults.getCycles().get();
             cyclesPane.setText(cyclesPane.getText() + ": " + NumberFormat.getInstance().format(cycles.size()));

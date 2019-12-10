@@ -23,11 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import sh.isaac.MetaData;
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
+import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.Chronology;
@@ -181,6 +177,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     }
 
     private void index(Chronology chronicle) {
+        if (chronicle.getVersionType() == VersionType.LOGIC_GRAPH) {
+            Get.taxonomyService().updateTaxonomy((SemanticChronology) chronicle);
+        }
         for (IndexBuilderService indexer : indexers) {
             indexer.indexNow(chronicle);
         }

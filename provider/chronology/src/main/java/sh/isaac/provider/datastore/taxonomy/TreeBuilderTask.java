@@ -41,11 +41,13 @@ package sh.isaac.provider.datastore.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;

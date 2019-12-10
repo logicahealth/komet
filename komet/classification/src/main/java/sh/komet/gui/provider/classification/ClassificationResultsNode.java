@@ -136,9 +136,11 @@ public class ClassificationResultsNode implements ExplorationNode {
 
     private void layoutResults(ClassifierResults classifierResult) {
         try {
-            String classifierResultDefaultText = classifierResult.getDefaultText();
-            nodePreferences.put(Keys.SELECTION_DEFAULT_TEXT, classifierResultDefaultText);
-            nodePreferences.sync();
+            if (classifierResult != null) {
+                String classifierResultDefaultText = classifierResult.getDefaultText();
+                nodePreferences.put(Keys.SELECTION_DEFAULT_TEXT, classifierResultDefaultText);
+                nodePreferences.sync();
+            }
         } catch (BackingStoreException e) {
             FxGet.dialogs().showErrorDialog("Error writing classification results selection to preferences.", e);
         }

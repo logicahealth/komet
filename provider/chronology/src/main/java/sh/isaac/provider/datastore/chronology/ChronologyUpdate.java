@@ -168,7 +168,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
 
         for (Graph<LogicGraphVersion> versionGraph : versionGraphList) {
             // this is the CPU hog...
-            // TODO: this unnecessaryily processes old versions. Should check for old version with 
+            // TODO: this unnecessarily processes old versions. Should check for old version with
             // inferred/stated and stamp, and skip if it already exists. 
             processVersionNode(referencedComponentNid, versionGraph.getRoot(), taxonomyRecordForConcept, taxonomyFlags);
         }

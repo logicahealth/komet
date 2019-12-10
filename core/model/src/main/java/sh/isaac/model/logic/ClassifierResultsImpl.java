@@ -1,6 +1,7 @@
 package sh.isaac.model.logic;
 
 import org.apache.mahout.math.list.IntArrayList;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.collections.IntArrayWrapper;

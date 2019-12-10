@@ -39,12 +39,12 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.coordinate.LogicCoordinate;
@@ -63,7 +63,9 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 public class ExtractAxioms
         extends TimedTaskWithProgressTracker<ClassifierData> {
 
-   Logger log = LogManager.getLogger();
+   private static ConceptProxy problemConcept = new ConceptProxy("[#] Abortions",
+           UUID.fromString("f3de7f8d-53c4-58a7-8013-febda45ae73d"));
+
    StampCoordinate stampCoordinate;
 
    LogicCoordinate logicCoordinate;
@@ -118,18 +120,41 @@ public class ExtractAxioms
                                                                             .getSnapshot(LogicGraphVersionImpl.class,
                                                                                   stampCoordinate);
 
+      AtomicInteger inactiveConcepts = new AtomicInteger(0);
+
       semanticSnapshot.getLatestSemanticVersionsFromAssemblage(logicCoordinate.getStatedAssemblageNid(), this)
                     .forEach((LatestVersion<LogicGraphVersionImpl> latest) -> {
                                 final LogicGraphVersionImpl lgs = latest.get();
                                 final int conceptNid = lgs.getReferencedComponentNid();
 
+                                if (conceptNid == problemConcept.getNid()) {
+                                    boolean active = Get.conceptService()
+                                            .isConceptActive(conceptNid, stampCoordinate);
+                                    if (active) {
+                                        LOG.info("Found ACTIVE problem concept: " + problemConcept);
+                                    } else {
+                                        LOG.info("Found INACTIVE problem concept: " + problemConcept);
+                                    }
+
+                                }
+
                                 if (Get.conceptService()
                                        .isConceptActive(conceptNid, stampCoordinate)) {
                                    cd.translate(lgs);
                                    logicGraphMembers.incrementAndGet();
+                                } else {
+                                    inactiveConcepts.incrementAndGet();
                                 }
                              });
-      
-      log.info("Extracted " + logicGraphMembers + " logical definitions from: " + Get.conceptDescriptionText(logicCoordinate.getStatedAssemblageNid()));
+
+       StringBuilder sb = new StringBuilder();
+       sb.append("Extracted ");
+       sb.append(logicGraphMembers);
+       sb.append(" active (");
+       sb.append(inactiveConcepts.get());
+       sb.append(" inactive) logical definitions from: ");
+       sb.append(Get.conceptDescriptionText(logicCoordinate.getStatedAssemblageNid()));
+
+       LOG.info(sb);
    }
 }
