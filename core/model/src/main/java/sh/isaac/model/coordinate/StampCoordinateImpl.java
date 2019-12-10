@@ -220,7 +220,7 @@ public class StampCoordinateImpl
             return false;
         }
 
-        if (!Objects.equals(this.stampPosition, other.getStampPosition())) {
+        if (!this.stampPosition.equals(other.getStampPosition())) {
             return false;
         }
 

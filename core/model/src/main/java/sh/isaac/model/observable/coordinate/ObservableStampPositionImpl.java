@@ -205,5 +205,14 @@ public class ObservableStampPositionImpl
       return new ObservableStampPositionImpl(stampPosition.deepClone());
    }
    
+   @Override
+   public int hashCode() {
+      return this.stampPosition.hashCode();
+   }
+   
+   @Override
+   public boolean equals(Object obj) {
+      return this.stampPosition.equals(obj);
+   }
 }
 

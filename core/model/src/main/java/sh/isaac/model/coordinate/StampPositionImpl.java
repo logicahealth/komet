@@ -137,17 +137,17 @@ public class StampPositionImpl
          return false;
       }
 
-      if (getClass() != obj.getClass()) {
+      if (!(obj instanceof StampPosition)) {
          return false;
       }
 
-      final StampPositionImpl other = (StampPositionImpl) obj;
+      final StampPosition other = (StampPosition) obj;
 
-      if (this.time != other.time) {
+      if (this.time != other.getTime()) {
          return false;
       }
 
-      return this.stampPathConceptSpecification.getNid() == other.stampPathConceptSpecification.getNid();
+      return this.stampPathConceptSpecification.getNid() == other.getStampPathSpecification().getNid();
    }
 
    /**
