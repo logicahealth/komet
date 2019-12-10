@@ -442,7 +442,7 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy PRESSURE_MEASURE_SEMANTICS = new ConceptProxy("Pressure measure semantic", "Pressure measurement", UUID.fromString("62728a7c-7546-5f70-83c4-2859e08dd9be"));
     public static ConceptProxy MM_HG = new ConceptProxy("Milimeters of mercury", "mm Hg", UUID.fromString("713876c4-a832-5302-8baa-41cd7e7bcd2d"));
     public static ConceptProxy TIME_MEASUREMENT_SEMANTIC = new ConceptProxy("Time measurement semantic", "Time measurement", UUID.fromString("6bd7c916-2bf1-5ae4-996a-6390074bf27f"));
-    public static ConceptProxy EXISTENTIAL_MEASUREMENT_SEMANTIC = new ConceptProxy("Existential measurement semantic", "Existential measurement", UUID.fromString("57e1643b-da06-5684-a2ef-044727c25b81"));
+    public static ConceptProxy EXISTENTIAL_MEASUREMENT_SEMANTIC = new ConceptProxy("Existential measurement semantic", "Existential measurement", UUID.fromString("e8300958-372a-5e7f-9420-4c90778dfc9d"));
 
     public static ConceptProxy MILLIGRAM = new ConceptProxy("milligram", "mg", UUID.fromString("64b14d8e-5893-5927-a165-28d7ea0a1357"));
     public static ConceptProxy MASS_MEASUREMENT_SEMANTIC = new ConceptProxy("Mass measurement semantic", "Mass measurement", UUID.fromString("cda282b6-5c4f-539e-ad88-64f88a61263e"));
@@ -513,7 +513,7 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Language coordinate key for manifold", "Language coordiante key", UUID.fromString("2621ca26-8efb-56e2-9b1c-61313c40c27f"));
     public static ConceptProxy LOGIC_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Logic coordinate key for manifold", "Logic coordinate key", UUID.fromString("300bf628-b40d-534f-9072-7b38c4f6f1b5"));
     public static ConceptProxy PREMISE_TYPE_FOR_MANIFOLD = new ConceptProxy("Premise type for manifold", "Premise type", UUID.fromString("7df6c6cb-9f91-5515-a05b-6b2886938363"));
-    public static ConceptProxy REFLECTION_CLASS_ASSEMBLAGE = new ConceptProxy("Reflection class assemblage", "Reflection class", UUID.fromString("57e1643b-da06-5684-a2ef-044727c25b81"));
+    public static ConceptProxy REFLECTION_CLASS_ASSEMBLAGE = new ConceptProxy("Reflection class assemblage", "Reflection class", UUID.fromString("3aff3dd9-f78f-5551-8864-d9e6f9d9cad3"));
     public static ConceptProxy PROVIDER_CLASS_ASSEMBLAGE = new ConceptProxy("Provider class assemblage", "Provider classs", UUID.fromString("8551edb2-6e34-52fe-9113-d25b742b303a"));
 
    
