@@ -85,7 +85,9 @@ public class ExtractAxioms
    protected ClassifierData call()
             throws Exception {
       Get.activeTasks().add(this);
+      setStartTime();
        try {
+           log.info("Extract Axioms running");
            final AtomicInteger logicGraphMembers = new AtomicInteger();
            final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
            
@@ -95,10 +97,10 @@ public class ExtractAxioms
                cd.clearAxioms();
                processAllStatedAxioms(this.stampCoordinate, this.logicCoordinate, cd, logicGraphMembers);
            }
-           
            return cd;
        } finally {
            Get.activeTasks().remove(this);
+           log.info("Extract Axioms complete");
        }
    }
 

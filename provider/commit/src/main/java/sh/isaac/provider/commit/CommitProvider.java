@@ -390,7 +390,7 @@ public class CommitProvider
      *
      * @param chronicle the chronicle
      * @param editCoordinate the edit coordinate
-     * @return the task
+     * @return the task - which is already executing.
      */
     @Override
     public Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate) {
@@ -437,7 +437,9 @@ public class CommitProvider
             throw new RuntimeException("Unsupported chronology type: " + chronicle);
         }
 
-        return new SequentialAggregateTask<>("Canceling change", subTasks);
+        Task<Void> t = new SequentialAggregateTask<Void>("Canceling change", subTasks);
+        Get.workExecutors().getExecutor().execute(t);
+        return t;
     }
 
     /**

@@ -91,6 +91,7 @@ public class AggregateClassifyTask
                   .addState(ApplicationStates.CLASSIFYING);
       }
       try {
+         log.debug("Aggregate classify begins");
          if (cc != null) {
             log.debug("Running cycle check");
             ClassifierResults cr = cc.call();
@@ -100,7 +101,6 @@ public class AggregateClassifyTask
                return cr;
             }
          }
-         log.debug("Starting classification aggregate tasks");
          ClassifierResults cr = super.call();
          if (cc != null) {
             cr.addOrphans(cc.getOrphans());

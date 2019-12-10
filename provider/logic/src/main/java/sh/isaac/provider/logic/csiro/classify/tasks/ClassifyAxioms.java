@@ -39,6 +39,8 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.task.AggregateTaskInput;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -53,6 +55,7 @@ public class ClassifyAxioms
         extends TimedTaskWithProgressTracker<ClassifierData> implements AggregateTaskInput {
 
    ClassifierData inputData;
+   Logger log = LogManager.getLogger();
 
    /**
     * Instantiates a new classify axioms.
@@ -77,7 +80,9 @@ public class ClassifyAxioms
    protected ClassifierData call()
             throws Exception {
       Get.activeTasks().add(this);
+      setStartTime();
        try {
+          log.info("Classify begins");
           if (inputData == null) {
               throw new RuntimeException("Input data to ClassifyAxioms must be specified by calling setInput prior to executing");
            }
@@ -86,6 +91,7 @@ public class ClassifyAxioms
            return inputData;
        } finally {
            Get.activeTasks().remove(this);
+           log.info("Classify ends");
        }
    }
 }
