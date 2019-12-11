@@ -537,7 +537,9 @@ public class TaxonomyProvider
                 LOG.warn(Get.conceptDescriptionText(childNid) + " has a taxonomy isA record that points to itself");
                 continue;
             }
-            if (wasEverKindOf(directParentNid, parentNid, 0)) {
+            NidSet nidSet = new NidSet();
+            nidSet.add(childNid);
+            if (wasEverKindOf(directParentNid, parentNid, nidSet)) {
                 return true;
             }
         }
@@ -546,32 +548,37 @@ public class TaxonomyProvider
     }
     
     /**
-     * Just the recursive portion of wasEverKindOf, with a depth limit for cycle detection
+     * recursive portion of wasEverKindOf, with a hashset of already examined nodes to prevent following a cycle.
+     * This was previously implemented with a depth counter, but that is not effective, as when you look at all rels
+     * over the full history of a terminology, without taking state into account, its easy to get cycles.
      * @param childNid
      * @param parentNid
      * @param depth
      * @return
      */
-    private boolean wasEverKindOf(int childNid, int parentNid, int depth) {
-        if (depth == 40) {
-            LOG.warn("Taxonomy depth at 40: " + depth + "; \n" + Get.conceptDescriptionText(childNid) + " <? \n" + Get.conceptDescriptionText(parentNid));
-        }
-        if (depth > 60) {
-            LOG.error("Taxonomy depth > 60" + Get.conceptDescriptionText(childNid) + " <? " + Get.conceptDescriptionText(parentNid));
-            LOG.error("Return false secondary to presumed cycle. ");
-            // TODO raise alert to user via alert mechanism. 
-            return false;
-        }
+    private boolean wasEverKindOf(int childNid, int parentNid, NidSet visited) {
         if (wasEverChildOf(childNid, parentNid)) {
             return true;
         }
+        
+        //This really shouldn't happen, but leaving it here as a sanity check to prevent infinite loops.
+        if (visited.size() > 500) {
+            LOG.error("Visited more than 500 nodes on path to parent - current child: " + Get.conceptDescriptionText(childNid) + " parent: " + Get.conceptDescriptionText(parentNid));
+            LOG.error("Return false secondary to presumed bad data or implementation error. ");
+            return false;
+        }
+        
+        visited.add(childNid);
 
         for (int directParentNid : getTaxonomyRecord(childNid).getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(isANidSet).toArray()) {
             if (directParentNid == childNid) {
                 LOG.warn(Get.conceptDescriptionText(childNid) + " has a taxonomy isA record that points to itself");
                 continue;
             }
-            if (wasEverKindOf(directParentNid, parentNid, depth + 1)) {
+            if (visited.contains(directParentNid)) {
+                continue;
+            }
+            if (wasEverKindOf(directParentNid, parentNid, visited)) {
                 return true;
             }
         }
