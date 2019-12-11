@@ -592,7 +592,19 @@ public class KometStageController
             // Once in the right location, we can then add listeners, so that the initial layout adjustment
             // does not overwrite the saved layout.
             setupDividerPositions();
+            setupFocusOwner(this.windowPreferencesItem.isFocusOwner());
         });
+    }
+
+    void setupFocusOwner(boolean focusOwner) {
+        stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            this.windowPreferencesItem.setFocusOwner(newValue);
+            this.windowPreferencesItem.save();
+        });
+        if (focusOwner) {
+            this.stage.requestFocus();
+        }
+
     }
 
     void setupDividerPositions() {

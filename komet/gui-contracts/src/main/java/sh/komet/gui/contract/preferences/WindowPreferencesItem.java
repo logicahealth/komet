@@ -24,6 +24,9 @@ public interface WindowPreferencesItem {
     SimpleDoubleProperty widthProperty();
     PersonaItem getPersonaItem();
     void setPersonaItem(PersonaItem personaItem);
+
+    void setFocusOwner(boolean focusOwner);
+    boolean isFocusOwner();
     ObservableList<TabSpecification> getNodesList(int paneIndex);
     SimpleBooleanProperty enableLeftPaneProperty();
     SimpleBooleanProperty enableCenterPaneProperty();

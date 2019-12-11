@@ -66,7 +66,8 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         LEFT_TAB_SELECTION,
         CENTER_TAB_SELECTION,
         RIGHT_TAB_SELECTION,
-        DIVIDER_POSITIONS
+        DIVIDER_POSITIONS,
+        IS_FOCUS_OWNER
     };
 
     private final SimpleBooleanProperty enableLeftPaneProperty = new SimpleBooleanProperty(this, MetaData.ENABLE_LEFT_PANE____SOLOR.toExternalString(), false);
@@ -418,6 +419,15 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         }
     }
 
+    @Override
+    public void setFocusOwner(boolean focusOwner) {
+        this.preferencesNode.putBoolean(Keys.IS_FOCUS_OWNER, focusOwner);
+    }
+
+    @Override
+    public boolean isFocusOwner() {
+        return this.preferencesNode.getBoolean(Keys.IS_FOCUS_OWNER, false);
+    }
 
     @Override
     public boolean isPaneEnabled(int paneIndex) {
