@@ -43,6 +43,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.xml.bind.JAXBContext;
@@ -53,8 +54,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.util.CloseIgnoringInputStream;
 import fhir.Bundle;
+import fhir.BundleEntry;
 import fhir.CodeSystem;
 import fhir.ObjectFactory;
+import fhir.ResourceContainer;
 import fhir.ValueSet;
 
 
@@ -102,8 +105,60 @@ public class FHIRReader
 				log.error("Error processing {}", path,  e);
 			}
 		});
+		
+		//Scan for nested <contained> crap, pull up the code systems.  Also, look for code systems that contain value sets.
+
+		for (CodeSystem c : codeSystems)
+		{
+			handleContained(c.getContained());
+		}
+		for (ValueSet vs : valueSets)
+		{
+			handleContained(vs.getContained());
+		}
+		
+		for (Bundle b : bundles)
+		{
+			for (BundleEntry be : b.getEntry())
+			{
+				if (be.getResource().getCodeSystem() != null)
+				{
+					handleContained(be.getResource().getCodeSystem().getContained());
+				}
+				if (be.getResource().getValueSet() != null)
+				{
+					handleContained(be.getResource().getValueSet().getContained());
+				}
+			}
+		}
 
 		log.info("Read {} bundles, {} CodeSystems, and {} ValueSets" , bundles.size(), codeSystems.size(), valueSets.size());
+	}
+	
+	private void handleContained(List<ResourceContainer> rc)
+	{
+		if (rc != null)
+		{
+			for (ResourceContainer container : rc)
+			{
+				if (container.getBundle() != null)
+				{
+					log.error("nested bundles not supported");
+				}
+				if (container.getCodeSystem() != null)
+				{
+					codeSystems.add(container.getCodeSystem());
+				}
+				if (container.getConceptMap() != null)
+				{
+					log.error("nested concept map not yet supported: {}", container.getConceptMap().getName().getValue());
+				}
+				if (container.getValueSet() != null)
+				{
+					valueSets.add(container.getValueSet());
+				}
+			}
+		}
 	}
 	
 	private void processZip(InputStream zipStream) throws IOException, JAXBException

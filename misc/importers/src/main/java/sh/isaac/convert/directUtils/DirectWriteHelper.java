@@ -1662,6 +1662,15 @@ public class DirectWriteHelper
 	}
 	
 	/**
+	 * You probably shouldn't call this method.  It only exists for a very particular edge case of FHIR loading.
+	 * @param refsetName
+	 */
+	public void removeRefsetTypeMapping(String refsetName)
+	{
+		createdRefsetTypes.remove(refsetName);
+	}
+	
+	/**
 	 * @param otherMetadataName
 	 * @return Return the UUID of the grouping concept that was created by {@link #makeOtherMetadataRootNode(String, long)}
 	 */

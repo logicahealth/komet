@@ -44,9 +44,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
@@ -61,17 +61,23 @@ import org.jvnet.hk2.annotations.Service;
 import fhir.Bundle;
 import fhir.BundleEntry;
 import fhir.BundleTypeList;
+import fhir.Canonical;
 import fhir.CodeSystem;
 import fhir.CodeSystemConcept;
 import fhir.CodeSystemContentModeList;
 import fhir.CodeSystemDesignation;
 import fhir.CodeSystemProperty;
 import fhir.CodeSystemProperty1;
+import fhir.CodeableConcept;
+import fhir.Coding;
 import fhir.ContactDetail;
+import fhir.ContactPoint;
 import fhir.DomainResource;
 import fhir.Extension;
 import fhir.Identifier;
+import fhir.Meta;
 import fhir.PublicationStatusList;
+import fhir.Uri;
 import fhir.ValueSet;
 import javafx.util.Pair;
 import sh.isaac.MetaData;
@@ -135,11 +141,28 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 	private static final String DESIGNIATION = "designation";
 	private static final String COMMENTS = "comments";
 	private static final String VERSION = "version";
-	private static final String CODE_SYSTEM_STATUS = "code system status";
+	private static final String PUBLICATION_STATUS = "publication status";
 	private static final String ALL_FHIR_REFSET = "All FHIR Concepts";
+	private static final String PROFILE = "profile";
+	private static final String EXPERIMENTAL = "experimental";
+	private static final String COPYRIGHT = "copyright";
+	private static final String IMMUTABLE = "immutable";
+	private static final String IMPLICIT_RULES = "implicit rules";
+	private static final String JURISDICTION = "jurisdiction";
+	private static final String TYPE = "type";
+	private static final String SYSTEM = "system";
+	private static final String PURPOSE = "purpose";
+	private static final String VERSION_NEEDED = "version needed";
+	private static final String CASE_SENSITIVE = "case sensitive";
+	private static final String IDENTIFIER = "identifier";
+	private static final String META = "meta";
+	private static final String TELECOM = "telecom";
+	private static final String HIERARCHY_MEANING = "hierarchy meaning";
 	
-	private HashSet<UUID> createdConcepts = new HashSet<>();
+	private HashMap<String, UUID> uriCodeToUUIDMap = new HashMap<>();
 	private UUID columnNameGroupConcept;
+	
+	private final AtomicInteger translationSanityCheck = new AtomicInteger();
 	
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
@@ -208,21 +231,75 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		
 		//Set up our metadata hierarchy
 		dwh.makeMetadataHierarchy(true, true, false, false, true, false, oldestDate);
-		
-		dwh.makeAttributeTypeConcept(null, URI, "Uniform Resource Identifier Reference", null, true, null, null, oldestDate);
+	
+		columnNameGroupConcept = dwh.makeOtherMetadataRootNode("Complex Attribute Column Names", oldestDate);
+		UUID version = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "Version", null, null, null, null, null, oldestDate);
+		UUID display = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "Display", null, null, null, null, null, oldestDate);
+		UUID userSelected = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "User Selected", null, null, null, null, null, oldestDate);
+		UUID elementId = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "element id", null, null, null, null, null, oldestDate);
+		UUID lastUpdated = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "last updated", null, null, null, null, null, oldestDate);
+		UUID versionId = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "version id", null, null, null, null, null, oldestDate);
+		UUID represents = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "represents", null, null, null, null, null, oldestDate);
+		UUID system = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, SYSTEM, null, null, null, null, null, oldestDate);
+		UUID rank = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "rank", null, null, null, null, null, oldestDate);
+		UUID periodStart = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "period start", null, null, null, null, null, oldestDate);
+		UUID periodEnd = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "period end", null, null, null, null, null, oldestDate);
+
+		dwh.makeAttributeTypeConcept(null, URI, "Uniform Resource Identifier Reference", null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, represents, DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(1, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(2, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
+
+		//For whatever silly reason, sometimes in FHIR they define an ID as a complex object with a value an another ID....
 		dwh.makeAttributeTypeConcept(null, ID, null, null, "The logical id of the resource, as used in the URL for the resource. Once assigned, "
-				+ "this value never changes.", true, null, null, oldestDate);
+				+ "this value never changes.", new DynamicColumnInfo[] {
+						new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
+						new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
+		
 		UUID url = dwh.makeAttributeTypeConcept(null, URL, "Uniform Resource Locator", null, true, null, null, oldestDate);
 		dwh.makeAttributeTypeConcept(null, LANGUAGE, null, null, false, DynamicDataType.STRING, null, oldestDate);
 		dwh.makeAttributeTypeConcept(null, CODESYSTEM_STATUS, null, null, false, DynamicDataType.STRING, null, oldestDate);
-		dwh.makeAttributeTypeConcept(null, PUBLISHER, null, null, false, DynamicDataType.STRING, null, oldestDate);
-		dwh.makeAttributeTypeConcept(null, CONTACT, null, null, false, DynamicDataType.STRING, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, PUBLISHER, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, CONTACT, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
+				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
+		null, null, oldestDate);
 		dwh.makeAttributeTypeConcept(null, VERSION, null, null, false, DynamicDataType.STRING, null, oldestDate);
-		dwh.makeAttributeTypeConcept(null, CODE_SYSTEM_STATUS, null, null, false, DynamicDataType.STRING, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, PUBLICATION_STATUS, null, null, false, DynamicDataType.STRING, null, oldestDate);
 		dwh.makeAttributeTypeConcept(null, EXTENSION, null, null, null, new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, url, DynamicDataType.STRING, null, true), 
-						new DynamicColumnInfo(1, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.POLYMORPHIC, null, false)},
+						new DynamicColumnInfo(1, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.POLYMORPHIC, null, false),
+						new DynamicColumnInfo(2, elementId, DynamicDataType.STRING, null, false)},
 				null, null, oldestDate);
+		
+		dwh.makeAttributeTypeConcept(null, PROFILE, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true), 
+				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
+		null, null, oldestDate);
+		
+		dwh.makeRefsetTypeConcept(null, EXPERIMENTAL, null, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, COPYRIGHT, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
+				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
+		null, null, oldestDate);
+		
+		dwh.makeRefsetTypeConcept(null, IMMUTABLE, null, null, oldestDate);
+		dwh.makeRefsetTypeConcept(null, CASE_SENSITIVE, null, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, IMPLICIT_RULES, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
+				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
+		null, null, oldestDate);
+		
+		dwh.makeAttributeTypeConcept(null, JURISDICTION, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
+		
+		//Same format as Jurisdiction - both are 'codable concept' objects
+		dwh.makeAttributeTypeConcept(null, TYPE, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, oldestDate, StampCoordinates.getDevelopmentLatest());
 		
@@ -233,30 +310,46 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		dwh.makeDescriptionTypeConcept(null, DESIGNIATION, null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
 		dwh.makeDescriptionTypeConcept(null, COMMENTS, null, "codesystem-concept-comments", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
 		
-		columnNameGroupConcept = dwh.makeOtherMetadataRootNode("Complex Attribute Column Names", oldestDate);
-		UUID id = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "Id", null, null, null, null, null, oldestDate);
-		UUID system = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "System", null, null, null, null, null, oldestDate);
-		UUID version = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "Version", null, null, null, null, null, oldestDate);
-		UUID display = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "Display", null, null, null, null, null, oldestDate);
-		UUID userSelected = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "User Selected", null, null, null, null, null, oldestDate);
-		//Use is actually defined as a type of "Coding", but is usually named use. May need to rename this, or add a column, if we determine we need to use 
-		//it in cases where it isnt' referred to as a 'use'.
-		dwh.makeAttributeTypeConcept(null, USE, null, null, null, new DynamicColumnInfo[] {
-				new DynamicColumnInfo(0, id, DynamicDataType.STRING, null, false),
-				new DynamicColumnInfo(1, system, DynamicDataType.STRING, null, false), 
+		UUID use = dwh.makeAttributeTypeConcept(null, CODING, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, represents, DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(2, version, DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(3, MetaData.CODE____SOLOR.getPrimordialUuid(), DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(4, display, DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(5, userSelected, DynamicDataType.BOOLEAN, null, false)},
 		null, null, oldestDate);
+
+		dwh.makeAttributeTypeConcept(null, IDENTIFIER, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(1, use, DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(2, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
+
+		dwh.makeAttributeTypeConcept(null, PURPOSE, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
+				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
+		null, null, oldestDate);
 		
-		dwh.makeAttributeTypeConcept(null, CODING, null, null, null, new DynamicColumnInfo[] {
-				new DynamicColumnInfo(0, id, DynamicDataType.STRING, null, false),
-				new DynamicColumnInfo(1, system, DynamicDataType.STRING, null, false), 
-				new DynamicColumnInfo(2, version, DynamicDataType.STRING, null, false),
-				new DynamicColumnInfo(3, MetaData.CODE____SOLOR.getPrimordialUuid(), DynamicDataType.STRING, null, false),
-				new DynamicColumnInfo(4, display, DynamicDataType.STRING, null, false),
-				new DynamicColumnInfo(5, userSelected, DynamicDataType.BOOLEAN, null, false)},
+		dwh.makeAttributeTypeConcept(null, META, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, versionId, DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(1, lastUpdated, DynamicDataType.LONG, null, false),
+				new DynamicColumnInfo(2, elementId, DynamicDataType.STRING, null, false)},
+		null, null, oldestDate);
+		
+		dwh.makeAttributeTypeConcept(null, TELECOM, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
+				new DynamicColumnInfo(1, system, DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(2, use, DynamicDataType.STRING, null, false),
+				new DynamicColumnInfo(3, rank, DynamicDataType.INTEGER, null, false),
+				new DynamicColumnInfo(4, periodStart, DynamicDataType.LONG, null, false),
+				new DynamicColumnInfo(5, periodEnd, DynamicDataType.LONG, null, false),
+				new DynamicColumnInfo(6, elementId, DynamicDataType.STRING, null, false)},
+		null, null, oldestDate);
+		
+		dwh.makeRefsetTypeConcept(null, VERSION_NEEDED, null, null, oldestDate);
+		//TODO see if I can get rid of all of these elementIds
+		dwh.makeAttributeTypeConcept(null, HIERARCHY_MEANING, null, null, null, new DynamicColumnInfo[] {
+				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
+				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
 		null, null, oldestDate);
 		
 		for (Entry<String, CodeSystemProperty> csp : findUniqueProperties(fr).entrySet())
@@ -375,21 +468,314 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			converterUUID.dump(outputDirectory, "fhirUuid");
 		}
 		converterUUID.clearCache();
+		if (translationSanityCheck.get() != 0)
+		{
+			log.error("Tranlation handling error - should be 0: {}", translationSanityCheck.get());
+		}
 	}
 
 	private void processValueSet(ValueSet vs)
 	{
-		//TODO
-		log.info("TODO Processing Value Set {}", vs.getName().getValue());
-		//Reset the module for each item being processed
-		//setupModule(termName, Optional.of(foo),  MetaData.FHIR_MODULES____SOLOR.getPrimordialUuid(), Optional.empty(uri), date.getTime());
+		log.info("Processing Value Set {}", vs.getName().getValue());
+		
+		final Optional<String> id = Optional.ofNullable(vs.getId()).map(i -> i.getValue());
+		
+		long lastUpdatedDate = 0;
+
+		if (vs.getMeta() != null)
+		{
+			if (vs.getMeta().getLastUpdated() != null)
+			{
+				lastUpdatedDate = vs.getMeta().getLastUpdated().getValue().toGregorianCalendar().getTimeInMillis();
+			}
+		}
+		
+		if (lastUpdatedDate == 0)
+		{
+			lastUpdatedDate = oldestDate;
+		}
+		
+		Optional<String> uri = getURIFromIdentifier(vs.getIdentifier());
+		final Optional<String> version = Optional.ofNullable(vs.getVersion()).map(i -> i.getValue());
+		final Optional<String> name = Optional.ofNullable(vs.getName()).map(i -> i.getValue());
+		final Optional<String> title = Optional.ofNullable(vs.getTitle()).map(i -> i.getValue());
+		if (title.isPresent() && (vs.getTitle().getExtension().size() > 0 || StringUtils.isNotBlank(vs.getTitle().getId())))
+		{
+			log.warn("Unhandled title attribute");
+		}
+		final Optional<PublicationStatusList> status = Optional.ofNullable(vs.getStatus()).map(i -> i.getValue());
+		
+		long valueSetDate = Optional.ofNullable(vs.getDate()).map(i -> Instant.from(timeParser.parse(i.getValue())).toEpochMilli()).orElse(lastUpdatedDate);
+		if (lastUpdatedDate > valueSetDate)
+		{
+			valueSetDate = lastUpdatedDate;
+		}
+		long valueSetDateFinal = valueSetDate;
+		
+		//Reset the module for each item being processed.  Names aren't unique, so use id as the FQN / UUID generation basis
+		setupModule(id.get(), name, version,  MetaData.FHIR_MODULES____SOLOR.getPrimordialUuid(), uri, valueSetDate);
+		
+		//normally, we leave the UUID generator set up with the parent module namespace, and only change the module here to represent a version of a terminology.
+		//However, in the case of fhir, we need codesystem and valueset specific UUID generation, so I need to reset the namespace to something for this value set, 
+		//that doesn't include the version.
+		converterUUID.configureNamespace(converterUUID.createNamespaceUUIDFromString(UuidT5Generator.PATH_ID_FROM_FS_DESC, "valueSet:" + id.get()));
 
 		
+		//Build up a concept to represent this valueset type
+		UUID valueSetConcept = converterUUID.createNamespaceUUIDFromString(id.get());
+		
+		//FHIR spec files have some duplicate refset names.  Normally, we don't allow these in a loader, hence the error this would produce.
+		//Ignore the issue for the FHIR loader, as we don't need this map to get the refset name.
+		dwh.removeRefsetTypeMapping(name.get());
+		if (title.isPresent())
+		{
+			dwh.removeRefsetTypeMapping(title.get());
+		}
+		dwh.makeRefsetTypeConcept(valueSetConcept, name.get(), (title.isPresent() ? title.get() : null), null, valueSetDate);
+		
+		handleMeta(valueSetConcept, valueSetDate, vs.getMeta());
+		handleIdentifiers(valueSetConcept, valueSetDate, vs.getIdentifier());
+		
+		if (title.isPresent())
+		{
+			dwh.makeDescriptionEnNoDialect(valueSetConcept, title.get(), dwh.getDescriptionType(TITLE), Status.ACTIVE, valueSetDate);
+		}
+
+		if (status.isPresent() && status.get() == PublicationStatusList.RETIRED)
+		{
+			throw new RuntimeException("Don't yet handle inactive refset: " + id);
+		}
+		if (status.isPresent())
+		{
+			dwh.makeStringAnnotation(dwh.getAttributeType(PUBLICATION_STATUS), valueSetConcept, status.get().name(), valueSetDate);
+		}
+		
+		if (version.isPresent())
+		{
+			dwh.makeStringAnnotation(dwh.getAttributeType(VERSION), valueSetConcept, version.get(), valueSetDate);
+		}
+		
+		final Optional<String> language = Optional.ofNullable(vs.getLanguage()).map(i -> i.getValue());
+		if (language.isPresent() && !language.get().equals("en"))
+		{
+			log.warn("Non-english language code systems not properly handled yet.");
+		}
+		
+		Optional.ofNullable(vs.getPublisher()).ifPresent(publisher -> 
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(PUBLISHER), valueSetConcept, new DynamicData[] {
+					new DynamicStringImpl(publisher.getValue()),
+					(StringUtils.isBlank(publisher.getId()) ? null : new DynamicStringImpl(publisher.getId()))}, valueSetDateFinal);
+			for (Extension e : publisher.getExtension())
+			{
+				handleExtension(made, e, valueSetDateFinal);
+			}
+		});
+		for (ContactDetail cd : vs.getContact())
+		{
+			if (cd.getName() != null && StringUtils.isNotBlank(cd.getName().getValue()))
+			{
+				UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(CONTACT), valueSetConcept, new DynamicData[] {
+						new DynamicStringImpl(cd.getName().getValue()),
+						(StringUtils.isBlank(cd.getId()) ? null : new DynamicStringImpl(cd.getId()))}, valueSetDate);
+				handleTelecom(made, valueSetDate, cd.getTelecom());
+				for (Extension e : cd.getExtension())
+				{
+					handleExtension(made, e, valueSetDate);
+				}
+			}
+		}
+		
+		Optional.ofNullable(vs.getUrl()).ifPresent(url -> 
+		{
+			UUID made = dwh.makeBrittleStringAnnotation(dwh.getAttributeType(URL), valueSetConcept, url.getValue(), valueSetDateFinal);
+			if (StringUtils.isNotBlank(url.getId()))
+			{
+				log.warn("Unhandled url attribute");
+			}
+			for (Extension e : url.getExtension())
+			{
+				handleExtension(made, e, valueSetDateFinal);
+			}
+		});
+		
+		if (vs.getExperimental() != null && vs.getExperimental().isValue().booleanValue())
+		{
+			dwh.makeDynamicRefsetMember(dwh.getRefsetType(EXPERIMENTAL), valueSetConcept, valueSetDate);
+		}
+		
+		Optional.ofNullable(vs.getDescription()).map(i -> i.getValue()).ifPresent(description -> 
+		{
+			dwh.makeDescriptionEnNoDialect(valueSetConcept, description, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, valueSetDateFinal);
+		});
+		
+		for (Extension extension : vs.getExtension())
+		{
+			handleExtension(valueSetConcept, extension, valueSetDate);
+		}
+		
+		if (vs.getCompose() != null)
+		{
+			//TODO 
+			log.error("Compose not yet handled in valueset: {}", id);
+		}
+		//contained are pre-processed in the fhir reader
+		// vs.getContained()
+		Optional.ofNullable(vs.getCopyright()).ifPresent(copyright ->
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(COPYRIGHT), valueSetConcept, new DynamicData[] {
+					new DynamicStringImpl(copyright.getValue()),
+					(StringUtils.isBlank(copyright.getId()) ? null : new DynamicStringImpl(copyright.getId()))}, valueSetDateFinal);
+			for (Extension e : copyright.getExtension())
+			{
+				handleExtension(made, e, valueSetDateFinal);
+			}
+		});
+		if (vs.getExpansion() != null)
+		{
+			log.info("Value Set Expansions are ignored by this loader: {}", id);
+		}
+		if (vs.getImmutable() != null && vs.getImmutable().isValue().booleanValue())
+		{
+			dwh.makeDynamicRefsetMember(dwh.getRefsetType(IMMUTABLE), valueSetConcept, valueSetDate);
+		}
+		
+		Optional.ofNullable(vs.getImplicitRules()).ifPresent(implicitRules ->
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(IMPLICIT_RULES), valueSetConcept, new DynamicData[] {
+					new DynamicStringImpl(implicitRules.getValue()),
+					(StringUtils.isBlank(implicitRules.getId()) ? null : new DynamicStringImpl(implicitRules.getId()))}, valueSetDateFinal);
+			for (Extension e : implicitRules.getExtension())
+			{
+				handleExtension(made, e, valueSetDateFinal);
+			}
+		});
+		if (vs.getJurisdiction().size() > 0)
+		{
+			for (CodeableConcept j : vs.getJurisdiction())
+			{
+				handleCodeableConcept(valueSetConcept, valueSetDate, j, JURISDICTION);
+			}
+		}
+		for (Extension ex : vs.getModifierExtension())
+		{
+			handleExtension(valueSetConcept, ex, valueSetDate);
+		}
+		if (vs.getPurpose() != null && StringUtils.isNotBlank(vs.getPurpose().getValue()))
+		{
+			DynamicData[] dataNested = new DynamicData[] {
+					new DynamicStringImpl(vs.getPurpose().getValue()),
+					StringUtils.isNotBlank(vs.getPurpose().getId()) ? new DynamicStringImpl(vs.getPurpose().getId()) : null};
+			UUID purpose = dwh.makeDynamicSemantic(dwh.getAttributeType(PURPOSE), valueSetConcept, dataNested, valueSetDate);
+			
+			for (Extension e : vs.getPurpose().getExtension())
+			{
+				handleExtension(purpose, e, valueSetDate);
+			}
+		}
+		if (vs.getUseContext().size() > 0)
+		{
+			//TODO 
+			log.error("Use Context not yet handled in valueset: {}", id);
+		}
 	}
+
+	private void handleCodeableConcept(UUID attachTo, long date, CodeableConcept cc, String attributeTypeConstant)
+	{
+		if (cc == null)
+		{
+			return;
+		}
+		DynamicData[] dataNested = new DynamicData[] {
+				StringUtils.isNotBlank(cc.getText() == null ? null : cc.getText().getValue()) ? new DynamicStringImpl(cc.getText().getValue()) : null, 
+						StringUtils.isNotBlank(cc.getId()) ? new DynamicStringImpl(cc.getId()) : null};
+		UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(attributeTypeConstant), attachTo, dataNested, date);
+
+		for (Coding c : cc.getCoding())
+		{
+			handleCoding(made, "coding", c, date);
+		}
+		for (Extension e : cc.getExtension())
+		{
+			handleExtension(made, e, date);
+		}
+	}
+
+	private void handleIdentifiers(UUID forItem, long date, List<Identifier> identifier)
+	{
+		for (Identifier i : identifier)
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(IDENTIFIER), forItem, 
+					new DynamicData[] {new DynamicStringImpl(i.getValue().getValue()),
+							((i.getUse() == null || i.getUse().getValue() == null) ? null : new DynamicStringImpl(i.getUse().getValue().name())),
+							(StringUtils.isBlank(i.getId()) ? null : new DynamicStringImpl(i.getId()))}, date);
+			for (Extension e : i.getExtension())
+			{
+				handleExtension(made, e, date);
+			}
+			
+			//Sanity checks for stupidity in the data model
+			if (i.getUse() != null && (i.getUse().getExtension().size() > 0 || StringUtils.isNotBlank(i.getUse().getId())))
+			{
+				log.error("Unhandled identifier use aspect");
+			}
+			
+			if (i.getValue().getExtension().size() > 0 || StringUtils.isNotBlank(i.getValue().getId()))
+			{
+				log.error("Unhandled identifier value aspect");
+			}
+			
+			handleCodeableConcept(made, date, i.getType(), TYPE);
+			handleUri(made, SYSTEM, date, i.getSystem());
+			if (i.getPeriod() != null)
+			{
+				log.error("Unhandled period in identifier");
+			}
+			if (i.getAssigner() != null)
+			{
+				log.error("Unhandled assigner in identifier");
+			}
+		}
+	}
+	
+	private void handleUri(UUID forItem, String purposeLabel, long date, Uri uri)
+	{
+		if (uri == null)
+		{
+			return;
+		}
+		UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(URI), forItem, new DynamicData[] {
+				new DynamicStringImpl(purposeLabel), 
+				new DynamicStringImpl(uri.getValue()), 
+				StringUtils.isNotBlank(uri.getId()) ? new DynamicStringImpl(uri.getId()) : null}, date);
+
+		for (Extension e : uri.getExtension())
+		{
+			handleExtension(made, e, date);
+		}
+	}
+	
+	private void handleCanonical(UUID forItem, String purposeLabel, long date, Canonical uri)
+	{
+		if (uri == null)
+		{
+			return;
+		}
+		UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(URI), forItem, new DynamicData[] {
+				new DynamicStringImpl(purposeLabel), 
+				new DynamicStringImpl(uri.getValue()), 
+				StringUtils.isNotBlank(uri.getId()) ? new DynamicStringImpl(uri.getId()) : null}, date);
+
+		for (Extension e : uri.getExtension())
+		{
+			handleExtension(made, e, date);
+		}
+	}
+	
 
 	private void processCodeSystem(CodeSystem cs)
 	{
-		log.info("Processing Code System {}", cs.getName().getValue());
+		log.info("Processing Code System {}", cs.getName() == null ? cs.getUrl().getValue() : cs.getName().getValue());
 		final Optional<CodeSystemContentModeList> content = Optional.ofNullable(cs.getContent()).map(i -> i.getValue());
 		if (content.isPresent() && content.get() != CodeSystemContentModeList.COMPLETE)
 		{
@@ -401,8 +787,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		final Optional<String> id = Optional.ofNullable(cs.getId()).map(i -> i.getValue());
 		final Optional<String> version = Optional.ofNullable(cs.getVersion()).map(i -> i.getValue());
 		final Optional<String> date = Optional.ofNullable(cs.getDate()).map(i -> i.getValue());
-		final Optional<String> url = Optional.ofNullable(cs.getUrl()).map(i -> i.getValue());
-		if (url.orElse("").equals("http://hl7.org/fhir/CodeSystem/example"))
+		if (Optional.ofNullable(cs.getUrl()).map(i -> i.getValue()).orElse("").equals("http://hl7.org/fhir/CodeSystem/example"))
 		{
 			log.info("Skipping example codesystem");
 			return;
@@ -410,32 +795,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		
 		long codeSystemDate = date.map(i -> Instant.from(timeParser.parse(i)).toEpochMilli()).orElse(oldestDate);
 		
-		Optional<String> uri = Optional.empty();
-		for (Identifier identifier : cs.getIdentifier())
-		{
-			Optional<String> identifierType = Optional.ofNullable(identifier.getSystem()).map(i -> i.getValue());
-			Optional<String> identifierValue = Optional.ofNullable(identifier.getValue()).map(i -> i.getValue());
-			
-			if (identifierType.isPresent())
-			{
-				if (identifierType.get().equals("urn:ietf:rfc:3986"))  //Constant for URI, usually contains an OID
-				{
-					if (uri.isPresent() && uri.get().equals(identifierValue.orElse("")))
-					{
-						log.error("Multiple URI identifiers not currently handled!");
-					}
-					uri = identifierValue;
-				}
-				else
-				{
-					log.error("Unknown identifier type {}", identifierType.get());
-				}
-			}
-			else
-			{
-				log.error("No identifier type specified!");
-			}
-		}
+		Optional<String> uri = getURIFromIdentifier(cs.getIdentifier());
 
 		//Reset the module for each item being processed.  Names aren't unique, so use id as the FQN / UUID generation basis
 		setupModule(id.get(), name, version.isPresent() ? version : date,  MetaData.FHIR_MODULES____SOLOR.getPrimordialUuid(), uri, codeSystemDate);
@@ -443,7 +803,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		//normally, we leave the UUID generator set up with the parent module namespace, and only change the module here to represent a version of a terminology.
 		//However, in the case of fhir, we need codesystem and valueset specific UUID generation, so I need to reset the namespace to something for this code system, 
 		//that doesn't include the version.
-		converterUUID.configureNamespace(converterUUID.createNamespaceUUIDFromString(UuidT5Generator.PATH_ID_FROM_FS_DESC, id.get()));
+		converterUUID.configureNamespace(converterUUID.createNamespaceUUIDFromString(UuidT5Generator.PATH_ID_FROM_FS_DESC, "codeSystem:" + id.get()));
 		
 		//Properties are handled in initial setup
 
@@ -454,20 +814,30 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		}
 		
 		final Optional<String> title = Optional.ofNullable(cs.getTitle()).map(i -> i.getValue());
+		if (title.isPresent() && (cs.getTitle().getExtension().size() > 0 || StringUtils.isNotBlank(cs.getTitle().getId())))
+		{
+			log.warn("Unhandled title attribute");
+		}
 		final Optional<PublicationStatusList> status = Optional.ofNullable(cs.getStatus()).map(i -> i.getValue());
-		final Optional<String> publisher = Optional.ofNullable(cs.getPublisher()).map(i -> i.getValue());
-		ArrayList<String> contacts = new ArrayList<>();
+		
+		//Build up a concept to represent the root of the code system.
+		UUID codeSystemConcept = dwh.makeConceptEnNoDialect(null, name.orElse(id.get()), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), new UUID[] {fhirRootConcept}, 
+				status.isPresent() ? (status.get().ordinal() == PublicationStatusList.RETIRED.ordinal() ? Status.INACTIVE : Status.ACTIVE) : Status.ACTIVE, codeSystemDate);
+		
 		for (ContactDetail cd : cs.getContact())
 		{
 			if (cd.getName() != null && StringUtils.isNotBlank(cd.getName().getValue()))
 			{
-				contacts.add(cd.getName().getValue());
+				UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(CONTACT), codeSystemConcept, new DynamicData[] {
+						new DynamicStringImpl(cd.getName().getValue()),
+						(StringUtils.isBlank(cd.getId()) ? null : new DynamicStringImpl(cd.getId()))}, codeSystemDate);
+				handleTelecom(made, codeSystemDate, cd.getTelecom());
+				for (Extension e : cd.getExtension())
+				{
+					handleExtension(made, e, codeSystemDate);
+				}
 			}
 		}
-		
-		//Build up a concept to represent the root of the code system.
-		UUID codeSystemConcept = dwh.makeConceptEnNoDialect(null, name.get(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), new UUID[] {fhirRootConcept}, 
-				status.isPresent() ? (status.get() == PublicationStatusList.RETIRED ? Status.INACTIVE : Status.ACTIVE) : Status.ACTIVE, codeSystemDate);
 		
 		if (title.isPresent())
 		{
@@ -477,30 +847,25 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		if (id.isPresent())
 		{
 			dwh.makeBrittleStringAnnotation(dwh.getAttributeType(ID), codeSystemConcept, id.get(), codeSystemDate);
+			
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(ID), codeSystemConcept, new DynamicData[] {
+					new DynamicStringImpl(cs.getId().getValue()), 
+					StringUtils.isNotBlank(cs.getId().getId()) ? new DynamicStringImpl(cs.getId().getId()) : null}, codeSystemDate);
+			for (Extension e : cs.getId().getExtension())
+			{
+				handleExtension(made, e, codeSystemDate);
+			}
 		}
-		if (url.isPresent())
-		{
-			dwh.makeBrittleStringAnnotation(dwh.getAttributeType(URL), codeSystemConcept, url.get(), codeSystemDate);
-		}
-		if (uri.isPresent())
-		{
-			dwh.makeBrittleStringAnnotation(dwh.getAttributeType(URI), codeSystemConcept, uri.get(), codeSystemDate);
-		}
+		handleMeta(codeSystemConcept, codeSystemDate, cs.getMeta());
+		handleIdentifiers(codeSystemConcept, codeSystemDate, cs.getIdentifier());
+		
 		if (version.isPresent())
 		{
 			dwh.makeStringAnnotation(dwh.getAttributeType(VERSION), codeSystemConcept, version.get(), codeSystemDate);
 		}
 		if (status.isPresent())
 		{
-			dwh.makeStringAnnotation(dwh.getAttributeType(CODE_SYSTEM_STATUS), codeSystemConcept, status.get().name(), codeSystemDate);
-		}
-		if (publisher.isPresent())
-		{
-			dwh.makeStringAnnotation(dwh.getAttributeType(PUBLISHER), codeSystemConcept, publisher.get(), codeSystemDate);
-		}
-		for (String s : contacts)
-		{
-			dwh.makeStringAnnotation(dwh.getAttributeType(CONTACT), codeSystemConcept, s, codeSystemDate);
+			dwh.makeStringAnnotation(dwh.getAttributeType(PUBLICATION_STATUS), codeSystemConcept, status.get().name(), codeSystemDate);
 		}
 		
 		for (Extension extension : cs.getExtension())
@@ -513,7 +878,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		
 		for (CodeSystemConcept csc : cs.getConcept())
 		{
-			buildConcept(codeSystemConcept, csc, codeSystemDate, taxonomyInfo);
+			buildConcept(codeSystemConcept, csc, codeSystemDate, taxonomyInfo, uri);
 		}
 		
 		for(Entry<UUID, Pair<HashSet<UUID>, AtomicLong>> taxonomy : taxonomyInfo.entrySet())
@@ -522,16 +887,283 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			dwh.makeParentGraph(taxonomy.getKey(), taxonomy.getValue().getKey(), Status.ACTIVE, taxonomy.getValue().getValue().get());
 		}
 		
+		if (cs.getCaseSensitive() != null && cs.getCaseSensitive().isValue())
+		{
+			dwh.makeDynamicRefsetMember(dwh.getRefsetType(CASE_SENSITIVE), codeSystemConcept, codeSystemDate);
+		}
+		if (cs.getCompositional() != null)
+		{
+			log.error("compositional not yet handled");
+		}
+
+		//contained are pre-processed in the FHIR reader
+		//cs.getContained();
+		cs.getContent();
+		Optional.ofNullable(cs.getCopyright()).ifPresent(copyright ->
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(COPYRIGHT), codeSystemConcept, new DynamicData[] {
+					new DynamicStringImpl(copyright.getValue()),
+					(StringUtils.isBlank(copyright.getId()) ? null : new DynamicStringImpl(copyright.getId()))}, codeSystemDate);
+			for (Extension e : copyright.getExtension())
+			{
+				handleExtension(made, e, codeSystemDate);
+			}
+		});
+		//cs.getCount();
+		
+		Optional.ofNullable(cs.getDescription()).map(i -> i.getValue()).ifPresent(description -> 
+		{
+			dwh.makeDescriptionEnNoDialect(codeSystemConcept, description, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, codeSystemDate);
+		});
+		if (cs.getExperimental() != null && cs.getExperimental().isValue().booleanValue())
+		{
+			dwh.makeDynamicRefsetMember(dwh.getRefsetType(EXPERIMENTAL), codeSystemConcept, codeSystemDate);
+		}
+		if (cs.getFilter().size() > 0)
+		{
+			log.error("Code system filter not yet supported");
+		}
+		if (cs.getHierarchyMeaning() != null)
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(HIERARCHY_MEANING), codeSystemConcept, new DynamicData[] {
+					new DynamicStringImpl(cs.getHierarchyMeaning().getValue().name()),
+					(StringUtils.isBlank(cs.getHierarchyMeaning().getId()) ? null : new DynamicStringImpl(cs.getHierarchyMeaning().getId()))}, codeSystemDate);
+			for (Extension e : cs.getHierarchyMeaning().getExtension())
+			{
+				handleExtension(made, e, codeSystemDate);
+			}
+		}
+		Optional.ofNullable(cs.getImplicitRules()).ifPresent(implicitRules ->
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(IMPLICIT_RULES), codeSystemConcept, new DynamicData[] {
+					new DynamicStringImpl(implicitRules.getValue()),
+					(StringUtils.isBlank(implicitRules.getId()) ? null : new DynamicStringImpl(implicitRules.getId()))}, codeSystemDate);
+			for (Extension e : implicitRules.getExtension())
+			{
+				handleExtension(made, e, codeSystemDate);
+			}
+		});
+		if (cs.getJurisdiction().size() > 0)
+		{
+			for (CodeableConcept j : cs.getJurisdiction())
+			{
+				handleCodeableConcept(codeSystemConcept, codeSystemDate, j, JURISDICTION);
+			}
+		}
+
+		for (Extension e : cs.getModifierExtension())
+		{
+			handleExtension(codeSystemConcept, e, codeSystemDate);
+		}
+		
+		Optional.ofNullable(cs.getPublisher()).ifPresent(publisher -> 
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(PUBLISHER), codeSystemConcept, new DynamicData[] {
+					new DynamicStringImpl(publisher.getValue()),
+					(StringUtils.isBlank(publisher.getId()) ? null : new DynamicStringImpl(publisher.getId()))}, codeSystemDate);
+			for (Extension e : publisher.getExtension())
+			{
+				handleExtension(made, e, codeSystemDate);
+			}
+		});
+		cs.getPurpose();
+		if (cs.getPurpose() != null && StringUtils.isNotBlank(cs.getPurpose().getValue()))
+		{
+			DynamicData[] dataNested = new DynamicData[] {
+					new DynamicStringImpl(cs.getPurpose().getValue()),
+					StringUtils.isNotBlank(cs.getPurpose().getId()) ? new DynamicStringImpl(cs.getPurpose().getId()) : null};
+			UUID purpose = dwh.makeDynamicSemantic(dwh.getAttributeType(PURPOSE), codeSystemConcept, dataNested, codeSystemDate);
+			
+			for (Extension e : cs.getPurpose().getExtension())
+			{
+				handleExtension(purpose, e, codeSystemDate);
+			}
+		}
+		//TODO no idea if we ever would need to do anything with the narrative, here or on the valuset
+		//cs.getText();
+		Optional.ofNullable(cs.getUrl()).ifPresent(url -> 
+		{
+			UUID made = dwh.makeBrittleStringAnnotation(dwh.getAttributeType(URL), codeSystemConcept, url.getValue(), codeSystemDate);
+			if (StringUtils.isNotBlank(url.getId()))
+			{
+				log.warn("Unhandled url attribute");
+			}
+			for (Extension e : url.getExtension())
+			{
+				handleExtension(made, e, codeSystemDate);
+			}
+		});
+		if (cs.getUseContext().size() > 0)
+		{
+			//TODO 
+			log.error("Use Context not yet handled in code system: {}", id);
+		}
+		if (cs.getValueSet() != null)
+		{
+			handleCanonical(codeSystemConcept, "canonical", codeSystemDate, cs.getValueSet());
+		}
+		if (cs.getVersionNeeded() != null && cs.getVersionNeeded().isValue().booleanValue())
+		{
+			dwh.makeDynamicRefsetMember(dwh.getRefsetType(IMMUTABLE), codeSystemConcept, codeSystemDate);
+		}
+		
 		log.info("Processed {} concepts", cs.getConcept().size());
 	}
+	
+	private void handleTelecom(UUID attachTo, long date, List<ContactPoint> telecom)
+	{
+		for (ContactPoint cp : telecom)
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(TELECOM), attachTo, new DynamicData[] {
+					new DynamicStringImpl(cp.getValue().getValue()), 
+					(cp.getSystem() == null ? null : new DynamicStringImpl(cp.getSystem().getValue().name())), 
+					(cp.getUse() == null ? null : new DynamicStringImpl(cp.getUse().getValue().name())),
+					(cp.getRank() == null ? null : new DynamicIntegerImpl(cp.getRank().getValue().intValue())),
+					((cp.getPeriod() == null || cp.getPeriod().getStart() == null) ? null : 
+						new DynamicLongImpl(Instant.from(timeParser.parse(cp.getPeriod().getStart().getValue())).toEpochMilli())),
+					((cp.getPeriod() == null || cp.getPeriod().getEnd() == null) ? null : 
+						new DynamicLongImpl(Instant.from(timeParser.parse(cp.getPeriod().getEnd().getValue())).toEpochMilli())),
+					StringUtils.isBlank(cp.getId()) ? null : new DynamicStringImpl(cp.getId())}, date);
 
-	private void buildConcept(UUID parent, CodeSystemConcept csc, long date, HashMap<UUID, Pair<HashSet<UUID>, AtomicLong>> taxonomyInfo)
+			for (Extension e : cp.getExtension())
+			{
+				handleExtension(made, e, date);
+			}
+			
+			if (cp.getValue().getExtension().size() > 0 || StringUtils.isNotBlank(cp.getValue().getId()))
+			{
+				log.error("Unhandled telecom value attribute");
+			}
+			if (cp.getSystem() != null && (cp.getSystem().getExtension().size() > 0 || StringUtils.isNotBlank(cp.getSystem().getId())))
+			{
+				log.error("Unhandled telecom system attribute");
+			}
+			if (cp.getUse() != null && (cp.getUse().getExtension().size() > 0 || StringUtils.isNotBlank(cp.getUse().getId())))
+			{
+				log.error("Unhandled telecom use attribute");
+			}
+			if (cp.getRank() != null && (cp.getRank().getExtension().size() > 0 || StringUtils.isNotBlank(cp.getRank().getId())))
+			{
+				log.error("Unhandled telecom rank attribute");
+			}
+			if (cp.getPeriod() != null && cp.getPeriod().getStart() != null 
+					&& (cp.getPeriod().getStart().getExtension().size() > 0 || StringUtils.isNotBlank(cp.getPeriod().getStart().getId())))
+			{
+				log.error("Unhandled telecom start attribute");
+			}
+			if (cp.getPeriod() != null && cp.getPeriod().getEnd() != null 
+					&& (cp.getPeriod().getEnd().getExtension().size() > 0 || StringUtils.isNotBlank(cp.getPeriod().getEnd().getId())))
+			{
+				log.error("Unhandled telecom end attribute");
+			}
+		}
+	}
+
+	private void handleMeta(UUID attachTo, long date, Meta meta)
+	{
+		if (meta == null)
+		{
+			return;
+		}
+		Long lastUpdated = null;
+		if (meta.getLastUpdated() != null)
+		{
+			lastUpdated = meta.getLastUpdated().getValue().toGregorianCalendar().getTimeInMillis();
+		}
+		
+		UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(META), attachTo, new DynamicData[] {
+				(meta.getVersionId() == null ? null : new DynamicStringImpl(meta.getVersionId().getValue())), 
+				(lastUpdated == null ? null : new DynamicLongImpl(lastUpdated)), 
+				StringUtils.isBlank(meta.getId()) ? null : new DynamicStringImpl(meta.getId())}, date);
+
+		for (Extension e : meta.getExtension())
+		{
+			handleExtension(made, e, date);
+		}
+		
+		if (meta.getSource() != null)
+		{
+			handleUri(made, "source", date, meta.getSource());
+		}
+		
+		if (meta.getVersionId() != null && (meta.getVersionId().getExtension().size() > 0 || StringUtils.isNotBlank(meta.getVersionId().getId())))
+		{
+			log.error("unhandled parts of meta");
+		}
+		
+		for (Canonical p : meta.getProfile())
+		{
+			dwh.makeDynamicSemantic(dwh.getAttributeType(PROFILE), attachTo, new DynamicData[] {
+					new DynamicStringImpl(p.getValue()),
+					(StringUtils.isBlank(p.getId()) ? null : new DynamicStringImpl(p.getId()))}, date);
+		}
+		for (Coding c : meta.getSecurity())
+		{
+			handleCoding(made, "security", c, date);
+		}
+		
+		for (Coding c : meta.getTag())
+		{
+			handleCoding(made, "tag", c, date);
+		}
+	}
+
+	private Optional<String> getURIFromIdentifier(List<Identifier> identifiers)
+	{
+		Optional<String> uri = Optional.empty();
+		for (Identifier identifier : identifiers)
+		{
+			Optional<String> identifierType = Optional.ofNullable(identifier.getSystem()).map(i -> i.getValue());
+			Optional<String> identifierValue = Optional.ofNullable(identifier.getValue()).map(i -> i.getValue());
+			
+			if (identifierType.isPresent())
+			{
+				if (identifierType.get().equals("urn:ietf:rfc:3986"))  //Constant for URI, usually contains an OID
+				{
+					if (uri.isPresent() && !uri.get().equals(identifierValue.orElse(uri.get())))
+					{
+						log.error("Multiple URI identifiers not currently handled!");
+					}
+					uri = identifierValue;
+				}
+				else if (identifierType.get().toLowerCase().startsWith("http"))
+				{
+					String temp = identifierType.get() + (identifierType.get().endsWith("/") ? "" : "/") + identifierValue.get();
+					if (uri.isPresent() && !uri.get().equals(temp))
+					{
+						log.error("Multiple URI identifiers not currently handled!");
+					}
+					uri = Optional.of(temp);
+				}
+				else
+				{
+					log.error("Unknown identifier type {}", identifierType.get());
+				}
+			}
+			else
+			{
+				log.error("No identifier type specified!");
+			}
+		}
+		return uri;
+	}
+
+	private Optional<UUID> getConceptUUID(String codeSystemURI, String conceptCode)
+	{
+		//We could compute these, rather than do a hashed lookup, but this gives me a sanity check that we don't have missing refs
+		return Optional.ofNullable(uriCodeToUUIDMap.get(codeSystemURI + ":" + conceptCode));
+	}
+
+	private void buildConcept(UUID parent, CodeSystemConcept csc, long date, HashMap<UUID, Pair<HashSet<UUID>, AtomicLong>> taxonomyInfo, Optional<String> codeSystemURI)
 	{
 		String code = csc.getCode().getValue();
 		AtomicInteger descCount = new AtomicInteger();
 		
 		UUID conceptUUID = converterUUID.createNamespaceUUIDFromString(code, true);
-		createdConcepts.add(conceptUUID);
+		if (codeSystemURI.isPresent())
+		{
+			uriCodeToUUIDMap.put(codeSystemURI.get() + ":" + code, conceptUUID);
+		}
 		
 		Status status = findStatus(csc);
 		dwh.makeConcept(conceptUUID, status, date);
@@ -549,7 +1181,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		});
 		Optional.ofNullable(csc.getId()).ifPresent(id -> 
 		{
-			dwh.makeBrittleStringAnnotation(dwh.getAttributeType(ID), conceptUUID, id, date);
+			dwh.makeDynamicSemantic(dwh.getAttributeType(ID), conceptUUID, new DynamicData[] {new DynamicStringImpl(id), null}, date);
 		});
 		
 		for (CodeSystemDesignation csd : csc.getDesignation())
@@ -600,21 +1232,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			
 			if (csd.getUse() != null)
 			{
-				UUID use = dwh.makeDynamicSemantic(dwh.getAttributeType(USE), designation, new DynamicData[] {
-						csd.getUse().getId() != null ? new DynamicStringImpl(csd.getUse().getId()) : null,
-						csd.getUse().getSystem() != null ? new DynamicStringImpl(csd.getUse().getSystem().getValue()) : null,
-						csd.getUse().getVersion() != null ? new DynamicStringImpl(csd.getUse().getVersion().getValue()) : null,
-						csd.getUse().getCode() != null ? new DynamicStringImpl(csd.getUse().getCode().getValue()) : null,
-						csd.getUse().getDisplay() != null ? new DynamicStringImpl(csd.getUse().getDisplay().getValue()) : null,
-						csd.getUse().getUserSelected() != null ? new DynamicBooleanImpl(csd.getUse().getUserSelected().isValue()) : null,
-				}, date);
-				if (csd.getUse().getCode() != null && csd.getUse().getCode().getExtension() != null)
-				{
-					for (Extension extension : csd.getUse().getCode().getExtension())
-					{
-						handleExtension(use, extension, date);
-					}
-				}
+				handleCoding(designation, USE, csd.getUse(), date);
 			}
 		}
 		
@@ -635,7 +1253,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		
 		for (CodeSystemConcept nested : csc.getConcept())
 		{
-			buildConcept(conceptUUID, nested, date, taxonomyInfo);
+			buildConcept(conceptUUID, nested, date, taxonomyInfo, codeSystemURI);
 		}
 		
 		collectParents(csc, conceptUUID, date, parent, taxonomyInfo);
@@ -739,111 +1357,236 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 
 	private void handleExtension(UUID forItem, Extension extension, long time)
 	{
-		DynamicData[] data = new DynamicData[2];
-		data[0] = new DynamicStringImpl(extension.getUrl());
-		DynamicData[] dataNested = null;
-		UUID assemablageNested = null;
+		DynamicStringImpl url = new DynamicStringImpl(extension.getUrl());
+		
+		if ("http://hl7.org/fhir/StructureDefinition/translation".equals(extension.getUrl()))
+		{
+			//We handle these differently
+			translationSanityCheck.getAndIncrement();
+			return;
+		}
 		
 		if (extension.getValueString() != null)
 		{
-			if (StringUtils.isNotBlank(extension.getValueString().getValue()))
+			if ("http://hl7.org/fhir/StructureDefinition/codesystem-concept-comments".equals(url.getDataString())) 
 			{
-				data[1] = new DynamicStringImpl(extension.getValueString().getValue());
-			}
-			else if ("http://hl7.org/fhir/StructureDefinition/codesystem-concept-comments".equals(extension.getUrl()) && extension.getValueString().getExtension() != null 
-					&& extension.getValueString().getExtension().size() == 1) 
-			{
+				//Most likely, one of these stupid formats:
 				//<concept>
 				//  <extension url="http://hl7.org/fhir/StructureDefinition/codesystem-concept-comments">
-				//  <valueString>
-				//    <extension url="http://hl7.org/fhir/StructureDefinition/translation">
-				//      <extension url="lang">
-				//        <valueString value="nl"/>
+				//    <valueString value="Retained for backwards compatibility only as of v2.6 and CDA R 2. Preferred value is text/xml.">
+				//      <extension url="http://hl7.org/fhir/StructureDefinition/translation">
+				//        <extension url="lang">
+				//          <valueCode value="nl"/>
+				//        </extension>
+				//        <extension url="content">
+				//          <valueString value="Alleen voor backward compatibiliteit vanaf v2.6 en CDAr2. Voorkeurswaarde is text/xml."/>
+				//        </extension>
 				//      </extension>
-				//      <extension url="content">
-				//        <valueString value="Zo spoedig mogelijk"/>
-				//      </extension>
-				//    </extension>
-				//  </valueString>
+				//    </valueString>
 				
-				if ("http://hl7.org/fhir/StructureDefinition/translation".equals(extension.getValueString().getExtension().get(0).getUrl()))
+				//<concept>
+				//  <extension url="http://hl7.org/fhir/StructureDefinition/codesystem-concept-comments">
+				//    <valueString>
+				//      <extension url="http://hl7.org/fhir/StructureDefinition/translation">
+				//        <extension url="lang">
+				//          <valueString value="nl"/>
+				//        </extension>
+				//        <extension url="content">
+				//          <valueString value="Zo spoedig mogelijk"/>
+				//        </extension>
+				//      </extension>
+				//    </valueString>
+				
+				
+				if (StringUtils.isNotBlank(extension.getValueString().getId()))
 				{
-					String lang = null;
-					String content = null;
-					for (Extension e : extension.getValueString().getExtension().get(0).getExtension())
+					log.warn("Unhandled ID on a comment");
+				}
+				
+				//This seems to be optional....
+				if (StringUtils.isNotBlank(extension.getValueString().getValue()))
+				{
+					UUID made = dwh.makeDescriptionEnNoDialect(forItem, extension.getValueString().getValue(), dwh.getDescriptionType(COMMENTS), Status.ACTIVE, time);
+					for (Extension e : extension.getValueString().getExtension())
 					{
-						if ("lang".equals(e.getUrl()))
+						//This will skip any that match the translation pattern, just below.
+						handleExtension(made, e, time);
+					}
+				}
+				
+				for (Extension nestedE : extension.getValueString().getExtension())
+				{
+					if ("http://hl7.org/fhir/StructureDefinition/translation".equals(nestedE.getUrl()))
+					{
+						translationSanityCheck.getAndDecrement();
+						String lang = null;
+						String content = null;
+						for (Extension e : nestedE.getExtension())
 						{
-							if (e.getValueString() != null)
+							if ("lang".equals(e.getUrl()))
 							{
-								lang = e.getValueString().getValue();
+								if (e.getValueString() != null)
+								{
+									lang = e.getValueString().getValue();
+								}
+								else if (e.getValueCode() != null)
+								{
+									lang = e.getValueCode().getValue();
+								}
+								else
+								{
+									throw new RuntimeException("unhandled translation format");
+								}
+								
 							}
-							else if (e.getValueCode() != null)
+							else if ("content".equals(e.getUrl()))
 							{
-								lang = e.getValueCode().getValue();
+								content = e.getValueString().getValue();
 							}
 							else
 							{
 								throw new RuntimeException("unhandled translation format");
 							}
-							
 						}
-						else if ("content".equals(e.getUrl()))
+						if (lang != null && content != null)
 						{
-							content = e.getValueString().getValue();
+							try
+							{
+								dwh.makeDescription(forItem, content, dwh.getDescriptionType(COMMENTS), 
+										LanguageMap.getConceptForLanguageCode(LanguageCode.getLangCode(lang)).getPrimordialUuid(), 
+										MetaData.NOT_APPLICABLE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time, null, null);
+							}
+							catch (RuntimeException e1)
+							{
+								if (e1.getMessage().startsWith("Just made a duplicate UUID"))
+								{
+									log.debug("Igoring duplicate comment translation: '{}'", content);
+								}
+								else
+								{
+									throw e1;
+								}
+							}
 						}
-					}
-					if (lang != null && content != null)
-					{
-						data = null;
-						dwh.makeDescription(forItem, content, dwh.getDescriptionType(COMMENTS), 
-								LanguageMap.getConceptForLanguageCode(LanguageCode.getLangCode(lang)).getPrimordialUuid(), MetaData.NOT_APPLICABLE____SOLOR.getPrimordialUuid(), 
-								Status.ACTIVE, time, null, null);
-					}
-					else
-					{
-						throw new RuntimeException("Nested translation extension type not yet handled");
+						else
+						{
+							throw new RuntimeException("unhandled translation format");
+						}
 					}
 				}
-				else
+			}
+			else
+			{
+				//Not a comment - just a string...
+				UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(EXTENSION), forItem, 
+						new DynamicData[] {url, new DynamicStringImpl(extension.getValueString().getValue()),
+								(StringUtils.isBlank(extension.getValueString().getId()) ? null : new DynamicStringImpl(extension.getValueString().getId()))}, time);
+				for (Extension e : extension.getValueString().getExtension())
 				{
-					throw new RuntimeException("Nested extension type not yet handled");
+					handleExtension(made, e, time);
 				}
 			}
 		}
 		//Putting these in as strings for now.
 		else if (extension.getValueCode() != null)
 		{
-			data[1] = new DynamicStringImpl(extension.getValueCode().getValue());
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(EXTENSION), forItem, 
+					new DynamicData[] {url, new DynamicStringImpl(extension.getValueCode().getValue()),
+							(StringUtils.isBlank(extension.getValueCode().getId()) ? null : new DynamicStringImpl(extension.getValueCode().getId()))}, time);
+			for (Extension e : extension.getValueCode().getExtension())
+			{
+				handleExtension(made, e, time);
+			}
 		}
 		else if (extension.getValueInteger() != null)
 		{
-			data[1] = new DynamicIntegerImpl(extension.getValueInteger().getValue());
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(EXTENSION), forItem,
+					new DynamicData[] {url, new DynamicIntegerImpl(extension.getValueInteger().getValue()),
+							(StringUtils.isBlank(extension.getValueInteger().getId()) ? null : new DynamicStringImpl(extension.getValueInteger().getId()))}, time);
+			for (Extension e : extension.getValueInteger().getExtension())
+			{
+				handleExtension(made, e, time);
+			}
 		}
 		else if (extension.getValueCoding() != null)
 		{
-			data[1] = null;
-			assemablageNested = dwh.getAttributeType(CODING);
-			dataNested = new DynamicData[] {
-					extension.getValueCoding().getId() != null ? new DynamicStringImpl(extension.getValueCoding().getId()) : null,
-					extension.getValueCoding().getSystem() != null ? new DynamicStringImpl(extension.getValueCoding().getSystem().getValue()) : null,
-					extension.getValueCoding().getVersion() != null ? new DynamicStringImpl(extension.getValueCoding().getVersion().getValue()) : null,
-					extension.getValueCoding().getCode() != null ? new DynamicStringImpl(extension.getValueCoding().getCode().getValue()) : null,
-					extension.getValueCoding().getDisplay() != null ? new DynamicStringImpl(extension.getValueCoding().getDisplay().getValue()) : null,
-					extension.getValueCoding().getUserSelected() != null ? new DynamicBooleanImpl(extension.getValueCoding().getUserSelected().isValue()) : null,
-			};
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(EXTENSION), forItem,
+					new DynamicData[] {url, null, null}, time);
+			handleCoding(made, "coding", extension.getValueCoding(), time);
+			for (Extension e : extension.getValueCoding().getExtension())
+			{
+				handleExtension(made, e, time);
+			}
+		}
+		else if (extension.getValueBoolean() != null)
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(EXTENSION), forItem, 
+					new DynamicData[] {url, new DynamicBooleanImpl(extension.getValueBoolean().isValue()),
+							(StringUtils.isBlank(extension.getValueBoolean().getId()) ? null : new DynamicStringImpl(extension.getValueBoolean().getId()))}, time);
+			for (Extension e : extension.getValueBoolean().getExtension())
+			{
+				handleExtension(made, e, time);
+			}
+		}
+		else if (extension.getValueCanonical() != null)
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(EXTENSION), forItem, 
+					new DynamicData[] {url, new DynamicStringImpl(extension.getValueCanonical().getValue()),
+							(StringUtils.isBlank(extension.getValueCanonical().getId()) ? null : new DynamicStringImpl(extension.getValueCanonical().getId()))}, time);
+			for (Extension e : extension.getValueCanonical().getExtension())
+			{
+				handleExtension(made, e, time);
+			}
+		}
+		else if (extension.getValueMarkdown() != null)
+		{
+			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(EXTENSION), forItem, 
+					new DynamicData[] {url, new DynamicStringImpl(extension.getValueMarkdown().getValue()),
+							(StringUtils.isBlank(extension.getValueMarkdown().getId()) ? null : new DynamicStringImpl(extension.getValueMarkdown().getId()))}, time);
+			for (Extension e : extension.getValueMarkdown().getExtension())
+			{
+				handleExtension(made, e, time);
+			}
 		}
 		else
 		{
 			throw new RuntimeException("Extension type not yet handled");
 		}
-		
-		if (data != null)
+	}
+	
+	private void handleCoding(UUID forItem, String purpose, Coding c, long time)
+	{
+		DynamicData[] dataNested = new DynamicData[] {
+				new DynamicStringImpl(purpose),
+				c.getId() != null ? new DynamicStringImpl(c.getId()) : null,
+				c.getVersion() != null ? new DynamicStringImpl(c.getVersion().getValue()) : null,
+				c.getCode() != null ? new DynamicStringImpl(c.getCode().getValue()) : null,
+				c.getDisplay() != null ? new DynamicStringImpl(c.getDisplay().getValue()) : null,
+				c.getUserSelected() != null ? new DynamicBooleanImpl(c.getUserSelected().isValue()) : null,
+		};
+		UUID coding = dwh.makeDynamicSemantic(dwh.getAttributeType(CODING), forItem, dataNested, time);
+		for (Extension e : c.getExtension())
 		{
-			UUID made = dwh.makeDynamicSemantic(dwh.getAttributeType(EXTENSION), forItem, data, time);
-			if (dataNested != null) {
-				dwh.makeDynamicSemantic(assemablageNested, made, dataNested, time);
-			}
+			handleExtension(coding, e, time);
+		}
+		
+		handleUri(coding, SYSTEM, time, c.getSystem());
+		
+		if (c.getVersion() != null && (StringUtils.isNotBlank(c.getVersion().getId()) || c.getVersion().getExtension().size() > 0))
+		{
+			log.error("Unhandled coding aspect on version");
+		}
+		if (c.getCode() != null && (StringUtils.isNotBlank(c.getCode().getId()) || c.getCode().getExtension().size() > 0))
+		{
+			log.error("Unhandled coding aspect on code");
+		}
+		if (c.getDisplay() != null && (StringUtils.isNotBlank(c.getDisplay().getId()) || c.getDisplay().getExtension().size() > 0))
+		{
+			log.error("Unhandled coding aspect on display");
+		}
+		if (c.getUserSelected() != null && (StringUtils.isNotBlank(c.getUserSelected().getId()) || c.getUserSelected().getExtension().size() > 0))
+		{
+			log.error("Unhandled coding aspect on userSelected");
 		}
 	}
 
