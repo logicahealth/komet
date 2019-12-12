@@ -198,7 +198,23 @@ id	effectiveTime	active	moduleId	definitionStatusId
             defStatusAssemblageNid = TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getNid();
          }
 
+         /*
+         Even though there may be a new record (when a concept changes from primitive to defined),
+         we still need to filter out when the concept status has not changed, so we don't
+         redundantly write equivalent concept STAMP records.
+
+          Records may not be in concept order, and if not, then extra values may be written, which
+          should not impact the semantics of what is written (technically correct, but redundant.
+
+          A check of the SNOMED files on a few concepts indicates that the records ARE in concept order...
+          */
+         String[] previousConceptRecord = null;
+          Status previousState = null;
          for (String[] conceptRecord : conceptRecords) {
+             if (previousConceptRecord != null && !previousConceptRecord[SRF_ID_INDEX].equals(conceptRecord[SRF_ID_INDEX])) {
+                 previousConceptRecord = null;
+                 previousState = null;
+             }
             final Status state = this.solorReleaseFormat
                     ? Status.fromZeroOneToken(conceptRecord[SRF_STATUS_INDEX])
                     : Status.fromZeroOneToken(conceptRecord[RF2_ACTIVE_INDEX]);
@@ -233,11 +249,15 @@ id	effectiveTime	active	moduleId	definitionStatusId
             int moduleNid = identifierService.assignNid(moduleUuid);
             int legacyDefStatusNid = identifierService.assignNid(legacyDefStatus);
 
-            ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(conceptUuid, conceptAssemblageNid);
-            index(conceptToWrite);
-            int conceptStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
-            conceptToWrite.createMutableVersion(conceptStamp);
-            conceptService.writeConcept(conceptToWrite);
+             int conceptStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
+             ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(conceptUuid, conceptAssemblageNid);
+            if (previousState == null ||  previousState != state) {
+                // Don't write a new concept version if the state has not changed...
+                index(conceptToWrite);
+                conceptToWrite.createMutableVersion(conceptStamp);
+                conceptService.writeConcept(conceptToWrite);
+            }
+
 
             // add to legacy def status assemblage
             UUID defStatusPrimordialUuid;
@@ -281,6 +301,8 @@ id	effectiveTime	active	moduleId	definitionStatusId
             index(identifierToWrite);
             assemblageService.writeSemanticChronology(identifierToWrite);
             completedUnitOfWork();
+            previousConceptRecord = conceptRecord;
+            previousState = state;
          }
 
          return null;

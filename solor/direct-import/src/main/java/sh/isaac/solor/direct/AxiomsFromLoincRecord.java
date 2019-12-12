@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
+
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -32,7 +34,9 @@ import sh.isaac.api.logic.assertions.Assertion;
  */
 public class AxiomsFromLoincRecord {
 
-    private final Set<String> methods = new HashSet<>();
+    private final Set<String> methods = new ConcurrentSkipListSet<>();
+    private final Set<String> unknownMethods = new ConcurrentSkipListSet<>();
+
     private final ConceptProxy methodProxy = new ConceptProxy("Method (attribute)",
             UUID.fromString("d0f9e3b1-29e4-399f-b129-36693ba4acbc"));
     private final ConceptProxy ultrasoundProxy = new ConceptProxy("Ultrasound imaging - action (qualifier value)",
@@ -4871,10 +4875,11 @@ public class AxiomsFromLoincRecord {
                         builder.and(builder.someRole(methodProxy.getNid(), builder.conceptAssertion(ultrasoundProxy)))));
                 break;            
             default:
-                System.out.println("Unknown loinc method: " + loincField);
+                unknownMethods.add(loincField);
         }
     }
     public void listMethods() {
-        System.out.println("Methods: " + methods);
+        System.out.println("\nUnknown Methods: " + unknownMethods);
+        System.out.println("\n\nMethods: " + methods + "\n");
     }
 }

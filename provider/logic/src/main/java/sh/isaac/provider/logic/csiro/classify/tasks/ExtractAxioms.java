@@ -63,9 +63,6 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 public class ExtractAxioms
         extends TimedTaskWithProgressTracker<ClassifierData> {
 
-   private static ConceptProxy problemConcept = new ConceptProxy("[#] Abortions",
-           UUID.fromString("f3de7f8d-53c4-58a7-8013-febda45ae73d"));
-
    StampCoordinate stampCoordinate;
 
    LogicCoordinate logicCoordinate;
@@ -126,17 +123,6 @@ public class ExtractAxioms
                     .forEach((LatestVersion<LogicGraphVersionImpl> latest) -> {
                                 final LogicGraphVersionImpl lgs = latest.get();
                                 final int conceptNid = lgs.getReferencedComponentNid();
-
-                                if (conceptNid == problemConcept.getNid()) {
-                                    boolean active = Get.conceptService()
-                                            .isConceptActive(conceptNid, stampCoordinate);
-                                    if (active) {
-                                        LOG.info("Found ACTIVE problem concept: " + problemConcept);
-                                    } else {
-                                        LOG.info("Found INACTIVE problem concept: " + problemConcept);
-                                    }
-
-                                }
 
                                 if (Get.conceptService()
                                        .isConceptActive(conceptNid, stampCoordinate)) {
