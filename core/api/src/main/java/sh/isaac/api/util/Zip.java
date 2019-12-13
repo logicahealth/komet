@@ -56,11 +56,12 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.progress.ProgressMonitor;
-import net.lingala.zip4j.util.Zip4jConstants;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
+import net.lingala.zip4j.progress.ProgressMonitor.Result;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -127,15 +128,15 @@ public class Zip {
                                      artifactId + "-" + version + classifierTemp + dataTypeTemp + ".zip"));
       this.zf.setRunInThread(true);
       this.zp = new ZipParameters();
-      this.zp.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_MAXIMUM);
-      this.zp.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+      this.zp.setCompressionLevel(CompressionLevel.MAXIMUM);
+      this.zp.setCompressionMethod(CompressionMethod.DEFLATE);
       this.zp.setDefaultFolderPath(zipContentCommonRoot.getAbsolutePath());
 
       final String rootFolder = (createArtifactTopLevelFolder
                                  ? (artifactId + "-" + version + classifierTemp + dataTypeTemp)
                                  : "");
 
-      this.zp.setRootFolderInZip(rootFolder);
+      this.zp.setRootFolderNameInZip(rootFolder);
       this.zp.setIncludeRootFolder(createArtifactTopLevelFolder);
       this.status.set("Waiting for files");
    }
@@ -154,7 +155,7 @@ public class Zip {
       this.zf.addFiles(dataFiles, this.zp);
 
       while (this.zf.getProgressMonitor()
-                    .getResult() == ProgressMonitor.RESULT_WORKING) {
+                    .getResult() == Result.WORK_IN_PROGRESS) {
          this.totalWork.set(this.zf.getProgressMonitor()
                                    .getTotalWork());
          this.workComplete.set(this.zf.getProgressMonitor()
@@ -168,7 +169,7 @@ public class Zip {
       this.totalWork.set(1);
 
       if (this.zf.getProgressMonitor()
-                 .getResult() == ProgressMonitor.RESULT_ERROR) {
+                 .getResult() == Result.ERROR) {
          throw this.zf.getProgressMonitor()
                       .getException();
       }

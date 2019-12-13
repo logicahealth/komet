@@ -211,7 +211,7 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 					{
 						try
 						{
-							if (store.getCurrentFillRate() < 90)
+							if (store.getChunksFillRate() < 90)
 							{
 								updateMessage("Compacting Data Store");
 								
@@ -231,15 +231,15 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 								{
 									LOG.error("Unexpected:", e);
 								}
-								LOG.debug("Fill rate prior to rewrite: {}", store.getCurrentFillRate());
-								store.compactRewriteFully();
-								LOG.debug("Fill rate after to rewrite: {}", store.getCurrentFillRate());
+								LOG.debug("Fill rate prior to rewrite: {}", store.getChunksFillRate());
+								store.compactMoveChunks();
+								LOG.debug("Fill rate after to rewrite: {}", store.getChunksFillRate());
 								int iterationLimit = 3;
-								while (store.getCurrentFillRate() < 90 && iterationLimit >= 0)
+								while (store.getChunksFillRate() < 90 && iterationLimit >= 0)
 								{
 									iterationLimit--;
 									store.compactMoveChunks();
-									LOG.debug("Fill rate after compact: {}", store.getCurrentFillRate());
+									LOG.debug("Fill rate after compact: {}", store.getChunksFillRate());
 								}
 								LOG.debug("compact move chunks complete");
 								store.setAutoCommitDelay(1000);

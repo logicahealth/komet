@@ -31,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.poi.util.CloseIgnoringInputStream;
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -150,7 +151,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
     }
 
     private void readLoinc(CSVReader reader, String readingFrom)
-            throws IOException {
+            throws IOException, CsvValidationException {
         long commitTime = System.currentTimeMillis();
         AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;

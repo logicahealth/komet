@@ -50,6 +50,7 @@ import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
+import com.opencsv.exceptions.CsvValidationException;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -122,6 +123,7 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 	}
 
 	/**
+	 * @throws CsvValidationException 
 	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
 	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
 	 */

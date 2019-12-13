@@ -63,6 +63,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.IOUtils;
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -684,7 +685,7 @@ public class DirectImporter
         }
     }
 
-    private void readLOINC(BufferedReader br, ImportSpecification importSpecification) throws IOException, InterruptedException, ExecutionException {
+    private void readLOINC(BufferedReader br, ImportSpecification importSpecification) throws IOException, InterruptedException, ExecutionException, CsvValidationException {
         updateMessage("Transforming LOINC expressions...");
         LoincExpressionToConcept expressionToConceptTask = new LoincExpressionToConcept();
         Get.executor().submit(expressionToConceptTask).get();

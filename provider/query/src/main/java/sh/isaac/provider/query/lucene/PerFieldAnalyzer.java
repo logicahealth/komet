@@ -105,7 +105,7 @@ public class PerFieldAnalyzer
    @Override
    protected TokenStreamComponents wrapComponents(String fieldName, TokenStreamComponents components) {
       if (fieldName.endsWith(WHITE_SPACE_FIELD_MARKER)) {
-         return new TokenStreamComponents(components.getTokenizer(), new LowerCaseFilter(components.getTokenStream()));
+         return new TokenStreamComponents(components.getSource(), new LowerCaseFilter(components.getTokenStream()));
       } else {
          return components;
       }

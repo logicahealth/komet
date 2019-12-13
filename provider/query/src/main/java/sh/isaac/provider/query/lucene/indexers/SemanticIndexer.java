@@ -60,6 +60,7 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
@@ -128,6 +129,7 @@ public class SemanticIndexer extends LuceneIndexer implements IndexSemanticQuery
 	public static final String INDEX_NAME = "semantics-index";
 
 	private static final String COLUMN_STRING_FIELD_DATA = "sColData";
+	private static final String COLUMN_STRING_FIELD_DATA_TOKENIZED = "sColDataT";
 	private static final String COLUMN_INT_FIELD_DATA = "iColData";
 	private static final String COLUMN_LONG_FIELD_DATA = "lColData";
 	private static final String COLUMN_FLOAT_FIELD_DATA = "fColData";
@@ -530,19 +532,19 @@ public class SemanticIndexer extends LuceneIndexer implements IndexSemanticQuery
 		}
 		else if (dataCol instanceof DynamicString)
 		{
-			doc.add(new TextField(COLUMN_STRING_FIELD_DATA, ((DynamicString) dataCol).getDataString(), Store.NO));
+			doc.add(new TextField(COLUMN_STRING_FIELD_DATA_TOKENIZED, ((DynamicString) dataCol).getDataString(), Store.NO));
 
 			if (colNumber >= 0)
 			{
-				doc.add(new TextField(COLUMN_STRING_FIELD_DATA + "_" + colNumber, ((DynamicString) dataCol).getDataString(), Store.NO));
+				doc.add(new TextField(COLUMN_STRING_FIELD_DATA_TOKENIZED + "_" + colNumber, ((DynamicString) dataCol).getDataString(), Store.NO));
 			}
 
 			// yes, indexed 4 different times - twice with the standard analyzer, twice with the whitespace analyzer.
-			doc.add(new TextField(COLUMN_STRING_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, ((DynamicString) dataCol).getDataString(), Store.NO));
+			doc.add(new TextField(COLUMN_STRING_FIELD_DATA_TOKENIZED + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, ((DynamicString) dataCol).getDataString(), Store.NO));
 
 			if (colNumber >= 0)
 			{
-				doc.add(new TextField(COLUMN_STRING_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+				doc.add(new TextField(COLUMN_STRING_FIELD_DATA_TOKENIZED + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
 						((DynamicString) dataCol).getDataString(), Store.NO));
 			}
 
@@ -714,7 +716,13 @@ public class SemanticIndexer extends LuceneIndexer implements IndexSemanticQuery
 
 					queryString = queryString.replaceAll("\\s-", " \\\\-");
 					LOG.debug("Modified search string is: ''{}''", queryString);
-					return buildTokenizedStringQuery(queryString, COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny, prefixSearch, false);
+					//We don't know if the string they are searching for was a string that was tokenized, or one that wasn't (like a UUID), so need to search both types.
+					BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
+					booleanQueryBuilder.add(
+							new BooleanClause(buildTokenizedStringQuery(queryString, COLUMN_STRING_FIELD_DATA_TOKENIZED + columnNamePostFixIfAny, prefixSearch, false), Occur.SHOULD));
+					booleanQueryBuilder.add(
+							new BooleanClause(buildTokenizedStringQuery(queryString, COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny, prefixSearch, false), Occur.SHOULD));
+					return booleanQueryBuilder.build();
 				}
 			}.buildColumnHandlingQuery(assemblageConcepts, searchColumns);
 		}
