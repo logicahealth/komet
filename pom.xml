@@ -1047,10 +1047,10 @@
                <enableSshAgent>true</enableSshAgent>
                <fetchRemote>false</fetchRemote>
                <installProject>true</installProject>
-               <commitMessagePrefix>[gitflow] </commitMessagePrefix>
+               <commitMessagePrefix>[gitflow]</commitMessagePrefix>
                <commitMessages>
-                  <releaseStartMessage>Update versions for release</releaseStartMessage>
-                  <releaseFinishMessage>Update for next development version</releaseFinishMessage>
+                  <releaseStartMessage> Update versions for release</releaseStartMessage>
+                  <releaseFinishMessage> Update for next development version</releaseFinishMessage>
                </commitMessages>
                <username>${git.user}</username>
                <password>${git.password}</password>
