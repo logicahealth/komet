@@ -47,6 +47,7 @@ import java.util.function.Supplier;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -185,7 +186,7 @@ public class Manifold
     //~--- fields --------------------------------------------------------------
 
     private final SimpleObjectProperty<ConceptSnapshotService> conceptSnapshotProperty = new SimpleObjectProperty<>();
-    final SimpleListProperty<ComponentProxy> manifoldSelection = new SimpleListProperty<>(this, MetaData.MANIFOLD_SELECTION____SOLOR.toExternalString(), FXCollections.observableList(new LinkedList<>()));
+    final SimpleListProperty<ComponentProxy> manifoldSelection;
     final SimpleListProperty<ComponentProxy> manifoldHistory;
     final String groupName;
     final UUID manifoldUuid;
@@ -204,6 +205,9 @@ public class Manifold
         this.manifoldUuid = manifoldUuid;
         this.observableManifoldCoordinate = observableManifoldCoordinate;
         this.observableEditCoordinate = editCoordinate;
+        manifoldSelection = new SimpleListProperty(this,
+                MetaData.MANIFOLD_SELECTION____SOLOR.toExternalString(),
+                FXCollections.observableList(new LinkedList<>()));
         this.manifoldSelection.addListener(this::selectionListChanged);
         if (groupName.equals(ManifoldGroup.UNLINKED.getGroupName())) {
             manifoldHistory = UNLINKED_HISTORY;

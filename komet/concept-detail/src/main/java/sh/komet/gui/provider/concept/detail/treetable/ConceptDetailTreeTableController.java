@@ -116,6 +116,7 @@ public class ConceptDetailTreeTableController {
    private TreeTableGeneralCellFactory generalCellFactory;
    private TreeTableModulePathCellFactory modulePathCellFactory;
    private TreeTableAuthorTimeCellFactory authorTimeCellFactory;
+   private final ListChangeListener<ComponentProxy> selectionChangedListener = c -> this.selectionChanged(c);
 
    //~--- methods -------------------------------------------------------------
    @FXML  // This method is called by the FXMLLoader when initialization is complete
@@ -159,7 +160,7 @@ public class ConceptDetailTreeTableController {
       manifoldProperty.addListener(this::manifoldChanged);
 
       this.manifoldProperty.get().manifoldSelectionProperty()
-              .addListener(this::selectionChanged);
+              .addListener(this.selectionChangedListener);
 
       conceptStatusColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("state"));
       conceptTimeColumn.setVisible(false);
@@ -178,9 +179,9 @@ public class ConceptDetailTreeTableController {
    private void manifoldChanged(ObservableValue<? extends Manifold> manifoldProperty, Manifold oldManifold, Manifold newManifold) {
 
       if (oldManifold != null) {
-         oldManifold.manifoldSelectionProperty().get().removeListener(this::selectionChanged);
+         oldManifold.manifoldSelectionProperty().get().removeListener(this.selectionChangedListener);
       }
-      newManifold.manifoldSelectionProperty().get().addListener(this::selectionChanged);
+      newManifold.manifoldSelectionProperty().get().addListener(this.selectionChangedListener);
       this.conceptCellFactory = new TreeTableConceptCellFactory(newManifold);
       this.conceptAuthorColumn.setCellFactory(this.conceptCellFactory::call);
       this.conceptModuleColumn.setCellFactory(this.conceptCellFactory::call);

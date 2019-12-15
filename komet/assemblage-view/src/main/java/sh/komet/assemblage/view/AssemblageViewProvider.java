@@ -69,6 +69,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
     private final SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
     private final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
     private final AssemblageMenuProvider assemblageMenuProvider = new AssemblageMenuProvider(this.manifoldProperty);
+    private final ListChangeListener<ComponentProxy> selectionChangedListener = c -> this.selectionChanged(c);
 
    public AssemblageViewProvider(Manifold manifold) {
       try {
@@ -86,10 +87,10 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
          loader.load();
          AssemblageDetailController assemblageDetailController = loader.getController();
          assemblageDetailController.setManifoldProperty(manifoldProperty);
-         manifold.manifoldSelectionProperty().addListener(this::selectionChanged);
+         manifold.manifoldSelectionProperty().addListener(this.selectionChangedListener);
          manifoldProperty.addListener((observable, oldValue, newValue) -> {
-             oldValue.manifoldSelectionProperty().removeListener(this::selectionChanged);
-             newValue.manifoldSelectionProperty().addListener(this::selectionChanged);
+             oldValue.manifoldSelectionProperty().removeListener(this.selectionChangedListener);
+             newValue.manifoldSelectionProperty().addListener(this.selectionChangedListener);
          });
          assemblageDetailPane.setCenter(assemblageDetailController.getAssemblageDetailRootPane());
       } catch (IOException ex) {

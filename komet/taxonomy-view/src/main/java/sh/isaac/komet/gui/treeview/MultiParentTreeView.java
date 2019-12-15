@@ -550,6 +550,7 @@ public class MultiParentTreeView
         @Override
         protected Void call() throws Exception {
             treeView.scrollTo(treeView.getRow(currentItem));
+            treeView.getSelectionModel().clearSelection();
             treeView.getSelectionModel().select(currentItem);
             if (pathIndex < expansionPath.size()) {
                 UUID childUuidToMatch = expansionPath.get(pathIndex);

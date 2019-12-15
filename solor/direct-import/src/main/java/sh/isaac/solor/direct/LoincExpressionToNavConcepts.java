@@ -195,6 +195,29 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                         UUID.fromString("840406cf-a69e-3ad6-83cf-5d166a7a1c9e")).getNid(), 
                         builderService, stamp);
 
+                addObservedByMethod(transaction, new ConceptProxy("Device (physical object)",
+                                UUID.fromString("6e8f5d95-0505-3aa8-a730-e1e9d821e4aa")).getNid(),
+                        builderService, stamp);
+
+                addObservedByMethod(transaction, new ConceptProxy("Measurement - action (qualifier value)",
+                                UUID.fromString("10424678-abfd-3d47-b92b-84015811c10c")).getNid(),
+                        builderService, stamp);
+                addInheresInConcept(transaction, new ConceptProxy("Kingdom Fungi (organism)",
+                        UUID.fromString("46fb6871-ed38-36c6-b796-126237b476d6")).getNid(),
+                        builderService, stamp);
+
+                addInheresInConcept(transaction, new ConceptProxy("Domain Eukarya (organism)",
+                                UUID.fromString("57b6a020-1e83-37ff-971a-36b178e25591")).getNid(),
+                        builderService, stamp);
+
+                addInheresInConcept(transaction, new ConceptProxy("Domain Archaea (organism)",
+                                UUID.fromString("ff6dc5c8-334d-385c-992e-3e106ed363f3")).getNid(),
+                        builderService, stamp);
+                addObservedByMethod(transaction, new ConceptProxy("Technique (qualifier value)",
+                                UUID.fromString("9b84adfe-78b0-334e-9749-389d5334d393")).getNid(),
+                        builderService, stamp);
+
+
                 //ObservedByMethod Set 1
                 addObservedByMethod(transaction, new ConceptProxy("Cold incubation, 24 hours", UUID.fromString("1e4e0092-999f-32b6-8dd1-883d270ab536")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Adverse Childhood Experience questionnaire (assessment scale)", UUID.fromString("1b5e2fc4-5f55-36ec-aa46-67be3f087a48")).getNid(), builderService, stamp);

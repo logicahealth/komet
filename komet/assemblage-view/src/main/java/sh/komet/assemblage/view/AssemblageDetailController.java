@@ -92,6 +92,8 @@ public class AssemblageDetailController {
    private TreeTableGeneralCellFactory generalCellFactory;
    private TreeTableModulePathCellFactory modulePathCellFactory;
    private TreeTableAuthorTimeCellFactory authorTimeCellFactory;
+   private final ListChangeListener<ComponentProxy> selectionChangedListener = c -> this.selectionChanged(c);
+
 
    //~--- methods -------------------------------------------------------------
    @FXML  // This method is called by the FXMLLoader when initialization is complete
@@ -212,9 +214,9 @@ public class AssemblageDetailController {
    private void manifoldChanged(ObservableValue<? extends Manifold> manifoldProperty, Manifold oldManifold, Manifold newManifold) {
 
       if (oldManifold != null) {
-         oldManifold.manifoldSelectionProperty().get().removeListener(this::selectionChanged);
+         oldManifold.manifoldSelectionProperty().get().removeListener(this.selectionChangedListener);
       }
-       newManifold.manifoldSelectionProperty().get().addListener(this::selectionChanged);
+       newManifold.manifoldSelectionProperty().get().addListener(this.selectionChangedListener);
       this.assemblageCellFactory = new TreeTableConceptCellFactory(newManifold);
       this.assemblageAuthorColumn.setCellFactory(this.assemblageCellFactory::call);
       this.assemblageModuleColumn.setCellFactory(this.assemblageCellFactory::call);

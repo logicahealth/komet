@@ -136,6 +136,9 @@ public class ConceptLabelToolbar {
       });
 
       manifoldLinkMenu.setGraphic(getNodeForManifold(manifoldProperty.get()));
+      manifoldProperty.addListener((observable, oldValue, newValue) -> {
+         manifoldLinkMenu.setGraphic(getNodeForManifold(manifoldProperty.get()));
+      });
    }
 
    /**

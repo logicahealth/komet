@@ -60,7 +60,6 @@ import sh.komet.gui.drag.drop.DragAndDropHelper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.menu.MenuItemWithText;
-import sh.komet.gui.util.FxGet;
 
 import java.util.Collection;
 import java.util.List;
@@ -87,6 +86,9 @@ public class ManifoldLinkedConceptLabel
     final Supplier<List<MenuItem>> menuSupplier;
     final DragAndDropHelper dragAndDropHelper;
 
+    private final ListChangeListener<ComponentProxy> selectionChangedListener = c -> this.selectionListChanged(c);
+
+
     //~--- constructors --------------------------------------------------------
     public ManifoldLinkedConceptLabel(SimpleObjectProperty<Manifold> manifoldProperty,
                                       SimpleIntegerProperty selectionIndexProperty,
@@ -101,10 +103,11 @@ public class ManifoldLinkedConceptLabel
         this.descriptionTextUpdater = descriptionTextUpdater;
         this.menuSupplier = menuSupplier;
         this.manifoldProperty.addListener((observable, oldValue, newValue) -> {
-            oldValue.manifoldSelectionProperty().removeListener(this::selectionListChanged);
-            newValue.manifoldSelectionProperty().addListener(this::selectionListChanged);
+            oldValue.manifoldSelectionProperty().removeListener(this.selectionChangedListener);
+            this.selectionListChanged(null);
+            newValue.manifoldSelectionProperty().addListener(this.selectionChangedListener);
         });
-        this.manifoldProperty.get().manifoldSelectionProperty().addListener(this::selectionListChanged);
+        this.manifoldProperty.get().manifoldSelectionProperty().addListener(this.selectionChangedListener);
         this.descriptionTextUpdater.accept(this);
         this.selectionIndexProperty.addListener((observable, oldValue, newValue) -> {
             this.descriptionTextUpdater.accept(this);
@@ -332,13 +335,10 @@ public class ManifoldLinkedConceptLabel
         if (!this.manifoldProperty.get()
                 .getGroupName()
                 .equals(ManifoldGroup.UNLINKED.getGroupName())) {
-            this.manifoldProperty.get().manifoldSelectionProperty().removeListener(this::selectionListChanged);
+            this.manifoldProperty.get().manifoldSelectionProperty().removeListener(this.selectionChangedListener);
             this.manifoldProperty.set(Manifold.get(ManifoldGroup.UNLINKED));
-            this.manifoldProperty.get().manifoldSelectionProperty().addListener(this::selectionListChanged);
+            this.manifoldProperty.get().manifoldSelectionProperty().addListener(this.selectionChangedListener);
             this.selectionIndexProperty.set(0);
-            FxGet.dialogs().showErrorDialog("Unsupported operation.", "Can't unlink manifold yet...",
-                    "Have to implement a shared manifold property to unlink, and deal with change in index...");
-
         }
     }
 

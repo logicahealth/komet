@@ -160,6 +160,8 @@ public class ConceptDetailPanelNode
 
     private final ObservableList<ObservableDescriptionDialect> newDescriptions = FXCollections.observableArrayList();
 
+    private final ListChangeListener<ComponentProxy> selectionChangedListener = c -> this.selectionChanged(c);
+
     //~--- initializers --------------------------------------------------------
     {
         expandControlLabel.setGraphicTextGap(0);
@@ -175,9 +177,10 @@ public class ConceptDetailPanelNode
         {
             try {
                 if (oldValue != null) {
-                    oldValue.manifoldSelectionProperty().removeListener(this::selectionChanged);
+                    oldValue.manifoldSelectionProperty().removeListener(this.selectionChangedListener);
                 }
-                newValue.manifoldSelectionProperty().addListener(this::selectionChanged);
+                this.selectionListChanged(newValue.manifoldSelectionProperty());
+                newValue.manifoldSelectionProperty().addListener(this.selectionChangedListener);
                 updateMenuGraphic(newValue.getGroupName());
                 savePreferences();
                 this.preferences.sync();
@@ -185,7 +188,7 @@ public class ConceptDetailPanelNode
                 throw new RuntimeException(e);
             }
         });
-        this.manifoldProperty.get().manifoldSelectionProperty().addListener(this::selectionChanged);
+        this.manifoldProperty.get().manifoldSelectionProperty().addListener(this.selectionChangedListener);
         updateMenuGraphic(this.manifoldProperty.get().getGroupName());
 
         this.historySwitch.setSelected(false); // add to pref...
@@ -229,7 +232,7 @@ public class ConceptDetailPanelNode
         Platform.runLater(() ->  resetConceptFromFocus());
         this.conceptDetailPane.sceneProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null) {
-                this.manifoldProperty.get().manifoldSelectionProperty().removeListener(this::selectionChanged);
+                this.manifoldProperty.get().manifoldSelectionProperty().removeListener(this.selectionChangedListener);
                 return;
             }
             setSelectionIndex();
@@ -237,9 +240,13 @@ public class ConceptDetailPanelNode
     }
 
     private void selectionChanged(ListChangeListener.Change<? extends ComponentProxy> c) {
-        if (c.getList().size() > 1) {
+        selectionListChanged(c.getList());
+    }
+
+    private void selectionListChanged(ObservableList<? extends ComponentProxy> list) {
+        if (list.size() > 1) {
             if (conceptDetailPane.getScene() == null) {
-                this.manifoldProperty.get().manifoldSelectionProperty().removeListener(this::selectionChanged);
+                this.manifoldProperty.get().manifoldSelectionProperty().removeListener(this.selectionChangedListener);
                 return;
             }
             if (this.selectionIndexProperty.get() == 0) {

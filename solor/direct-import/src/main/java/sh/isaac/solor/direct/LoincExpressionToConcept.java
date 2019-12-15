@@ -95,6 +95,15 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     String loincCode = loincVersion.getStr1(); // "48023-6"
                     String sctExpression = loincVersion.getStr2();
 
+                    // TODO: change implementation of retired concepts to adding an additional record
+                    // rather than an opaque change it code
+                    // Replace retired "23496000" -> ConceptProxy("Fungus (organism)", UUID.fromString("2c90345f-f003-311f-b128-95981c04c65f"))
+                    // with "same as" association: "414561005" -> ConceptProxy("Kingdom Fungi (organism)", UUID.fromString("46fb6871-ed38-36c6-b796-126237b476d6"))
+                    if (sctExpression.contains("23496000")) {
+                        LOG.warn("Replacing retired 23496000:Fungus with 414561005:Kingdom Fungi");
+                        sctExpression = sctExpression.replace("23496000", "414561005");
+                    }
+
                     //  "363787002:246093002=720113009,370134009=123029007,246501002=702675006,704327008=122592007,370132008=117363000,704319004=50863008,704318007=705057003"
                     LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
                     

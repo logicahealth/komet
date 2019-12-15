@@ -2,6 +2,7 @@ package sh.komet.gui.control.text;
 
 
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
@@ -18,6 +19,8 @@ public class StackLabelText extends StackPane {
 
     Label label = new Label();
     TextArea textArea;
+    ChangeListener<Boolean> listener = (ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) ->
+            this.textAreaFocusListener(observable, oldValue, newValue);
 
     public StackLabelText() {
         StackPane.setAlignment(label, Pos.TOP_LEFT);
@@ -51,12 +54,12 @@ public class StackLabelText extends StackPane {
         HitInfo hitInfo = skin.getIndex(mouseEvent.getX(), mouseEvent.getY());
         skin.positionCaret(hitInfo, false);
 
-        textArea.focusedProperty().addListener(this::textAreaFocusListener);
+        textArea.focusedProperty().addListener(this.listener);
     }
 
     private void textAreaFocusListener(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
         if (!newValue) {
-            textArea.focusedProperty().removeListener(this::textAreaFocusListener);
+            textArea.focusedProperty().removeListener(this.listener);
             textArea = null;
             getChildren().clear();
             getChildren().add(label);
