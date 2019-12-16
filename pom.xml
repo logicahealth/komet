@@ -678,6 +678,11 @@
             <version>${org.apache.lucene.version}</version>
          </dependency>
          <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-backward-codecs</artifactId>
+            <version>${org.apache.lucene.version}</version>
+         </dependency>
+         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
             <version>5.6.0.201912101111-r</version>
