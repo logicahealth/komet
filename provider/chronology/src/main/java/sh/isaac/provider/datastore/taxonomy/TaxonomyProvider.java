@@ -130,7 +130,7 @@ public class TaxonomyProvider
      * The tree cache.
      */
     private final ConcurrentHashMap<SnapshotCacheKey, Task<Tree>> snapshotCache = new ConcurrentHashMap<>(5);
-    private final ConcurrentHashMap<SnapshotCacheKey, TaxonomySnapshot> noTreeSnapshotCache = new ConcurrentHashMap<>(5);
+    private final ConcurrentHashMap<SnapshotCacheKey, TaxonomySnapshot> noTreeSnapshotCache = new ConcurrentHashMap<>(50);  //These have a low footprint, can cache many
     private final NidSet isANidSet = new NidSet();  //init in startup
     private final NidSet childOfTypeNidSet = new NidSet();  //init in startup
     private final UUID listenerUUID = UUID.randomUUID();
