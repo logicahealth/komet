@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<!--This config is for running in eclipse-->
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="%-5p %d  [%t] %C{2} (%F:%L) - %m%n" />
+			<Filters>
+				<ThresholdFilter level="debug" />
+			</Filters>
+		</Console>
+
+		<!-- Prints everything -->
+		<RollingFile name="FILE-DEBUG" fileName="target/db-config-builder-debug.log" filePattern="db-config-builder-debug.log-%i.log">
+			<PatternLayout pattern="%d %-5p [%t] %logger (%F:%L) - %msg%n" />
+			<Policies>
+				<OnStartupTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy max="4"/>
+			<Filters>
+				<ThresholdFilter level="ALL" />
+			</Filters>
+		</RollingFile>
+	</Appenders>
+
+	<Loggers>
+		<!-- Quiet down / make louder various loggers -->
+		<Logger name="sh.isaac" level="debug" />
+		<Root level="info">
+			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="FILE-DEBUG" />
+		</Root>
+	</Loggers>
+</Configuration>
