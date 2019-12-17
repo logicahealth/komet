@@ -232,16 +232,8 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 									LOG.error("Unexpected:", e);
 								}
 								LOG.debug("Fill rate prior to rewrite: {}", store.getChunksFillRate());
-								store.compactMoveChunks();
+								store.compactFile(1 * 60 * 1000);  //max of one minute, since this is in the shutdown sequence.
 								LOG.debug("Fill rate after to rewrite: {}", store.getChunksFillRate());
-								int iterationLimit = 3;
-								while (store.getChunksFillRate() < 90 && iterationLimit >= 0)
-								{
-									iterationLimit--;
-									store.compactMoveChunks();
-									LOG.debug("Fill rate after compact: {}", store.getChunksFillRate());
-								}
-								LOG.debug("compact move chunks complete");
 								store.setAutoCommitDelay(1000);
 								LOG.info("compact complete");
 							}
