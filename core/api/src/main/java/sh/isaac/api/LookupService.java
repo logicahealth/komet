@@ -616,9 +616,13 @@ public class LookupService {
    public static <T> T getService(Class<T> contractOrImpl) {
       final T service = get().getService(contractOrImpl, new Annotation[0]);
 
-      LOG.debug("LookupService returning {} for {}", ((service != null) ? service.getClass()
-            .getName()
-            : null), contractOrImpl.getName());
+      //Quiet this down, partially due to https://issues.apache.org/jira/browse/LOG4J2-2738
+      if (service == null) {
+          LOG.debug("LookupService returning {} for {}", ((service != null) ? service.getClass().getName() : null), contractOrImpl.getName());
+      }
+      else {
+          LOG.trace("LookupService returning {} for {}", ((service != null) ? service.getClass().getName() : null), contractOrImpl.getName());
+      }
       return service;
    }
    
