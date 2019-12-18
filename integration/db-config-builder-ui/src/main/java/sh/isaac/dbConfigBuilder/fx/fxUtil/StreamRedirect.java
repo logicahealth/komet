@@ -64,10 +64,14 @@ public class StreamRedirect extends OutputStream
 				log.info("Maven Execution: " + messageTrimmed);
 			}
 		
-			Platform.runLater(() ->
+			//TODO clean this up when SOLOR fixed.
+			if (!messageTrimmed.contains("logic.LogicalExpressionImpl"))  //Don't log these to the screen, currently a million of them going on in SOLOR.
 			{
-				ta_.appendText(message);
-			});
+				Platform.runLater(() ->
+				{
+					ta_.appendText(message);
+				});
+			}
 		}
 		
 		lastMessage = message;
