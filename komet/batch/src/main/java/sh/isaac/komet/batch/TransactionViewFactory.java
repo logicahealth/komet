@@ -19,7 +19,7 @@ public class TransactionViewFactory implements ExplorationNodeFactory<Transactio
 
     @Override
     public TransactionViewNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {
-        return new TransactionViewNode(manifold);
+        return new TransactionViewNode(manifold, nodePreferences);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class TransactionViewFactory implements ExplorationNodeFactory<Transactio
 
     @Override
     public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.UNLINKED};
+        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.LIST};
     }
 
     @Override

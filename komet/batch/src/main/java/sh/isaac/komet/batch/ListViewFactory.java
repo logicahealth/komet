@@ -20,7 +20,7 @@ public class ListViewFactory implements ExplorationNodeFactory<ListViewNode> {
 
     @Override
     public ListViewNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {
-        return new ListViewNode(manifold);
+        return new ListViewNode(manifold, nodePreferences);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class ListViewFactory implements ExplorationNodeFactory<ListViewNode> {
 
     @Override
     public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.UNLINKED};
+        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.LIST};
     }
 
     @Override

@@ -350,10 +350,10 @@ public abstract class ChronologyImpl
         } else {
             if (version.getStatus() == Status.CANCELED)  {
                 // Don't add canceled versions...
-                LOG.warn("Skipping canceled status version: " + version);
+                // LOG.warn("Skipping canceled status version: " + version);
             } else if (version.getTime() == Version.CANCELED_TIME) {
                 // Don't add versions with a canceled time
-                LOG.warn("Skipping canceled time version: " + version);
+                // LOG.warn("Skipping canceled time version: " + version);
             } else {
                 this.writtenVersions.add(version);
             }

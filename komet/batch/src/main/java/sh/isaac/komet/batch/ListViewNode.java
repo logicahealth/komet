@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.batch.fxml.ListViewNodeController;
 import sh.isaac.komet.batch.iconography.PluginIcons;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -17,6 +18,9 @@ import java.util.Optional;
 import static sh.isaac.komet.batch.ListViewFactory.LIST_VIEW;
 
 public class ListViewNode implements ExplorationNode {
+    public enum Keys {
+        MANIFOLD_GROUP_NAME,
+    }
 
     final Manifold manifold;
     final SimpleStringProperty title = new SimpleStringProperty(LIST_VIEW);
@@ -25,8 +29,10 @@ public class ListViewNode implements ExplorationNode {
     final ListViewNodeController controller;
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(PluginIcons.SCRIPT_ICON.getStyledIconographic());
 
-    public ListViewNode(Manifold manifold) {
+    public ListViewNode(Manifold manifold, IsaacPreferences preferences) {
         try {
+            // The manifold group specified in the preferences takes precedence.
+            manifold = Manifold.get(preferences.get(Keys.MANIFOLD_GROUP_NAME, manifold.getGroupName()));
             this.manifold = manifold;
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ListViewNode.fxml"));
             this.root = loader.load();

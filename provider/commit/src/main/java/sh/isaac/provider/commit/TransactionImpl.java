@@ -46,6 +46,7 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
         this.transactionId = uuid;
         this.changeCheckerMode = changeCheckerMode;
         this.transactionName = transactionName;
+        LOG.info("Created transaction: " + this);
     }
 
     @Override
@@ -293,10 +294,11 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
 
     @Override
     public String toString() {
+        StringBuilder sb = new StringBuilder();
         if (transactionName.isPresent()) {
-            return transactionName.get();
+            sb.append(transactionName.get()).append(" ");
         }
-
-        return transactionId.toString();
+        sb.append(transactionId.toString());
+        return sb.toString();
     }
 }

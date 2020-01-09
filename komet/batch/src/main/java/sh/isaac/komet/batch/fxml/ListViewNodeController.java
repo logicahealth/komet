@@ -3,6 +3,7 @@ package sh.isaac.komet.batch.fxml;
  * 'ListViewNode.fxml' Controller Class
  */
 
+import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -33,9 +34,7 @@ import sh.komet.gui.util.FxGet;
 
 import java.io.*;
 import java.net.URL;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 
 public class ListViewNodeController implements ComponentList {
 
@@ -104,6 +103,16 @@ public class ListViewNodeController implements ComponentList {
                 }
             }
         }
+        // Check to make sure lists are equal in size/properly synchronized.
+        if (manifold.manifoldSelectionProperty().get().size() != c.getList().size()) {
+            // lists are out of sync, reset with fresh list.
+            ComponentProxy[] selectedItems = new ComponentProxy[c.getList().size()];
+            for (int i = 0; i < selectedItems.length; i++) {
+                ObservableChronology component = c.getList().get(i);
+                selectedItems[i] = new ComponentProxy(component.getNid(), component.toUserString());
+            }
+            manifold.manifoldSelectionProperty().setAll(selectedItems);
+        }
     }
 
     private void addIdentifiedObject(IdentifiedObject object) {
@@ -168,6 +177,7 @@ public class ListViewNodeController implements ComponentList {
         if (importFile != null) {
             try (FileReader reader = new FileReader(importFile); BufferedReader bufferedReader = new BufferedReader(reader)) {
                 ObservableList<ObservableChronology> items = versionTable.getRootNode().getItems();
+                List<ObservableChronology> newList = new ArrayList<>();
                 listName.setText(importFile.getName().substring(0, importFile.getName().lastIndexOf(".")));
                 items.clear();
                 int lineCount = 0;
@@ -175,9 +185,11 @@ public class ListViewNodeController implements ComponentList {
                     if (lineCount == 0 &! UUIDUtil.isUUID(lineString)) {
                         listName.setText(lineString);
                     } else {
-                        items.add(Get.observableChronology(UUID.fromString(lineString)));
+                        newList.add(Get.observableChronology(UUID.fromString(lineString)));
+                        //items.add(Get.observableChronology(UUID.fromString(lineString)));
                     }
                 });
+                Platform.runLater(() -> items.setAll(newList));
             } catch (IOException e) {
                 FxGet.dialogs().showErrorDialog(e);
             }

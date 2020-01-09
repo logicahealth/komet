@@ -46,6 +46,8 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.collections.RoaringIntSet;
+import sh.isaac.api.collections.SequenceSet;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.commit.UncommittedStamp;
@@ -76,6 +78,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
 //~--- classes ----------------------------------------------------------------
@@ -123,9 +126,12 @@ public class StampProvider
     private final AtomicInteger nextStampSequence = new AtomicInteger(FIRST_STAMP_SEQUENCE);
 
     /**
-     * Persistent map of stamp sequences to a Stamp object.
+     * Persistent map of stamp sequences to a Stamp object. When a Stamp is canceld, the time is
+     * set to Long.MIN_VALUE, therefore there can be more than one stamp sequence for canceled
+     * stamps. The stamp map supports an int[] so that when more than one canceled stamp with a
+     * particuar module, author, & path will be properly represented.
      */
-    private final ConcurrentHashMap<Stamp, Integer> stampMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Stamp, int[]> stampMap = new ConcurrentHashMap<>();
 
     /**
      * The database validity.
@@ -220,10 +226,18 @@ public class StampProvider
      */
     @Override
     public void addStamp(Stamp stamp, int stampSequence) {
-        this.stampMap.put(stamp, stampSequence);
+        this.stampMap.merge(stamp, new int[]{stampSequence}, this::mergeSequences);
         this.inverseStampMap.put(stampSequence, stamp);
         this.sequenceToStamp.put(stampSequence, stamp);
          LOG.trace("Added stamp {}", stamp);
+    }
+
+    private int[] mergeSequences(int[] ints, int[] ints2) {
+        SequenceSet sequences = SequenceSet.of(ints);
+        for (int sequence: ints2) {
+            sequences.add(sequence);
+        }
+        return sequences.asArray();
     }
 
     /**
@@ -291,21 +305,23 @@ public class StampProvider
 
         private void processTransaction(UncommittedStamp uncommittedStamp, Integer stampSequence, TransactionImpl transaction) {
             // for each uncommitted stamp matching the transaction, remove the uncommitted stamp
-            // and replace with a stamp with a proper time.
-            if (uncommittedStamp.getTransactionId().equals(transaction.getTransactionId())) {
+            // and replace with a stamp with a proper time indicating canceled...
+            if (transaction.getTransactionId().equals(uncommittedStamp.getTransactionId())) {
                 final Stamp stamp = new Stamp(
                         getStatus(uncommittedStamp.status),
                         getTime(),
                         uncommittedStamp.authorNid,
                         uncommittedStamp.moduleNid,
                         uncommittedStamp.pathNid);
+                if (stamp.getStatus() == Status.CANCELED) {
+                    LOG.info("Canceling Stamp <" + stampSequence + ">: " + stamp + " " + transaction);
+                }
 
                 addStamp(stamp, stampSequence);
                 uncommittedStampIntegerConcurrentHashMap.remove(uncommittedStamp);
                 sequenceToUncommittedStamp.remove(stampSequence);
-
-                completedUnitOfWork();
             }
+            completedUnitOfWork();
             for (TransactionImpl childTransaction : transaction.getChildren()) {
                 processTransaction(uncommittedStamp, stampSequence, childTransaction);
             }
@@ -541,13 +557,28 @@ public class StampProvider
 
                         final int stampMapSize = in.readInt();
 
+                        if (stampMapSize +1 != this.nextStampSequence.get()) {
+                            LOG.error("Stamp map size inconsistent with next stamp sequence: "
+                                    + (stampMapSize+1) + ", " + this.nextStampSequence.get());
+                        }
+                        BitSet stampSet = new BitSet();
+                        stampSet.set(0); // 0 not used, but makes sizes correct.
                         for (int i = 0; i < stampMapSize; i++) {
                             final int stampSequence = in.readInt();
+                            stampSet.set(stampSequence);
                             final Stamp stamp = new Stamp(in);
 
-                            this.stampMap.put(stamp, stampSequence);
+                            this.stampMap.merge(stamp, new int[]{stampSequence}, this::mergeSequences);
                             this.inverseStampMap.put(stampSequence, stamp);
                         }
+                        if (stampSet.cardinality() != stampSet.length()) {
+                            LOG.error("Gaps in stamps: " + stampSet);
+                        } else {
+                            LOG.info("Stamp map size: " + stampMapSize +
+                                    " Next stamp sequence: " + this.nextStampSequence.get() +
+                                    "\n Stamp set: " + stampSet);
+                        }
+
 
                         final int uncommittedSize = in.readInt();
 
@@ -577,7 +608,7 @@ public class StampProvider
                     this.nextStampSequence.set((int) oi.getAsLong());
                     sequenceToStamp.getStream().forEach(stampPair ->
                     {
-                        this.stampMap.put(stampPair.getValue(), stampPair.getKey());
+                        this.stampMap.merge(stampPair.getValue(), new int[]{stampPair.getKey()}, this::mergeSequences);
                         this.inverseStampMap.put(stampPair.getKey(), stampPair.getValue());
                     });
 
@@ -627,17 +658,20 @@ public class StampProvider
                     new FileOutputStream(
                             new File(this.stampManagerFolder.toFile(), STAMP_MANAGER_DATA_FILENAME)))) {
                 out.writeInt(this.nextStampSequence.get());
-                out.writeInt(this.stampMap.size());
-                this.stampMap.forEach(
-                        (Stamp stamp,
-                         Integer stampSequence) -> {
-                            try {
-                                out.writeInt(stampSequence);
-                                stamp.write(out);
-                            } catch (final IOException ex) {
-                                throw new RuntimeException(ex);
-                            }
-                        });
+                out.writeInt(this.inverseStampMap.size());
+                BitSet stampSet = new BitSet();
+                this.inverseStampMap.forEach((stampSequence, stamp) -> {
+                    try {
+                        stampSet.set(stampSequence);
+                        out.writeInt(stampSequence);
+                        stamp.write(out);
+                    } catch (final IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                });
+                if (stampSet.cardinality()+1 != stampSet.length()) {
+                    LOG.error("Gaps in stamps before uncommitted stamps: " + stampSet);
+                }
 
                 final int size = uncommittedStampIntegerConcurrentHashMap.size();
 
@@ -649,6 +683,11 @@ public class StampProvider
                 }
                 ((FileStoreMapData)sequenceToStamp).save();
                 ((FileStoreMapData)sequenceToUncommittedStamp).save();
+                if (stampSet.cardinality()+1 != stampSet.length()) {
+                    LOG.error("Gaps in stamps AFTER uncommitted stamps: " + stampSet);
+                } else {
+                    LOG.info("no gaps in stamps: " + stampSet);
+                }
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
@@ -870,12 +909,14 @@ public class StampProvider
             final Integer temp = uncommittedStampIntegerConcurrentHashMap.get(usp);
 
             if (temp != null) {
+                LOG.info("Created stamp (1): " + temp);
                 return temp;
             } else {
                 this.stampLock.lock();
 
                 try {
                     if (uncommittedStampIntegerConcurrentHashMap.containsKey(usp)) {
+                        LOG.info("Created stamp (2): " + uncommittedStampIntegerConcurrentHashMap.get(usp));
                         return uncommittedStampIntegerConcurrentHashMap.get(usp);
                     }
 
@@ -888,6 +929,7 @@ public class StampProvider
                     if (dataStore != null) {
                         dataStore.putSharedStoreLong(DEFAULT_STAMP_MANAGER_FOLDER + "-nextStampSequence", nextStampSequence.get());
                     }
+                    LOG.info("Created stamp (3): " + stampSequence);
                     return stampSequence;
                 } finally {
                     this.stampLock.unlock();
@@ -907,7 +949,7 @@ public class StampProvider
                     OptionalInt stampValue = OptionalInt.of(this.nextStampSequence.getAndIncrement());
 
                     this.inverseStampMap.put(stampValue.getAsInt(), stampKey);
-                    this.stampMap.put(stampKey, stampValue.getAsInt());
+                    this.stampMap.merge(stampKey, new int[]{stampValue.getAsInt()}, this::mergeSequences);
                     this.sequenceToStamp.put(stampValue.getAsInt(), stampKey);
                     if (dataStore != null) {
                         dataStore.putSharedStoreLong(DEFAULT_STAMP_MANAGER_FOLDER + "-nextStampSequence", nextStampSequence.get());
@@ -916,8 +958,9 @@ public class StampProvider
             } finally {
                 this.stampLock.unlock();
             }
+            LOG.info("Created stamp (4b): " + Arrays.toString(this.stampMap.get(stampKey)));
         }
-        return this.stampMap.get(stampKey);
+        return this.stampMap.get(stampKey)[0];
     }
 
     /**

@@ -48,6 +48,8 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.transaction.Transaction;
@@ -61,6 +63,11 @@ import sh.isaac.api.util.Hashcode;
  * @author kec
  */
 public class UncommittedStamp {
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
+
    /** The hash code. */
    public int hashCode = Integer.MAX_VALUE;
 
@@ -129,6 +136,7 @@ public class UncommittedStamp {
               "s: " + status + " a: " + authorNid + " m: " + moduleNid + " p: " + pathNid;
       assert authorNid < 0:
               "s: " + status + " a: " + authorNid + " m: " + moduleNid + " p: " + pathNid;
+      //LOG.info("Created uncommitted stamp " + this.toString() + " with transaction: " + transaction);
    }
 
    public UncommittedStamp(Status status, int authorNid, int moduleNid, int pathNid) {

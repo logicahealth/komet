@@ -205,8 +205,9 @@ public class Stamp
    @Override
    public int hashCode() {
       if (this.hashCode == Integer.MAX_VALUE) {
-         this.hashCode = Hashcode.compute(new int[] { this.authorNid, this.status.ordinal(), this.pathNid,
-               (int) this.time });
+         this.hashCode = Hashcode.compute(new int[] {
+                 this.status.ordinal(), (int) this.time, this.authorNid, this.moduleNid, this.pathNid
+                });
       }
 
       return this.hashCode;

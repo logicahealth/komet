@@ -67,29 +67,38 @@ public class TransactionViewNodeController implements ComponentList {
         assert transactionChoice != null : "fx:id=\"transactionChoice\" was not injected: check your FXML file 'TransactionViewNode.fxml'.";
         this.listManifold = Manifold.get(Manifold.ManifoldGroup.LIST);
 
-
         Get.commitService().getPendingTransactionList().addListener(new SetChangeListener<Transaction>() {
             @Override
             public void onChanged(Change<? extends Transaction> change) {
+                Transaction priorSelection = transactionChoice.getSelectionModel().getSelectedItem();
+                transactionChoice.getSelectionModel().select(null);
                 transactionChoice.getItems().setAll(change.getSet());
+                if (priorSelection != null && change.getSet().contains(priorSelection)) {
+                    transactionChoice.getSelectionModel().select(priorSelection);
+                }
             }
+        });
+
+        transactionChoice.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            refreshList();
         });
     }
 
 
     @FXML
     void refreshList(ActionEvent event) {
-        // TODO
-        Transaction t = transactionChoice.getSelectionModel().getSelectedItem();
-        if (t != null) {
-            TableView<ObservableChronology> rootNode = versionTable.getRootNode();
-            rootNode.getItems().clear();
+        refreshList();
+    }
 
+    void refreshList() {
+        Transaction t = transactionChoice.getSelectionModel().getSelectedItem();
+        TableView<ObservableChronology> rootNode = versionTable.getRootNode();
+        rootNode.getItems().clear();
+        if (t != null) {
             for (Integer nid: t.getComponentNidsForTransaction()) {
                 rootNode.getItems().add(Get.observableChronology(nid));
             }
         }
-
     }
 
     @Override
@@ -120,6 +129,17 @@ public class TransactionViewNodeController implements ComponentList {
                 }
             }
         }
+        // Check to make sure lists are equal in size/properly synchronized.
+        if (manifold.manifoldSelectionProperty().get().size() != c.getList().size()) {
+            // lists are out of sync, reset with fresh list.
+            ComponentProxy[] selectedItems = new ComponentProxy[c.getList().size()];
+            for (int i = 0; i < selectedItems.length; i++) {
+                ObservableChronology component = c.getList().get(i);
+                selectedItems[i] = new ComponentProxy(component.getNid(), component.toUserString());
+            }
+            manifold.manifoldSelectionProperty().setAll(selectedItems);
+        }
+
     }
 
 

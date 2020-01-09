@@ -3,6 +3,7 @@ package sh.komet.gui.control.badged;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -74,7 +75,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
         this.categorizedVersions.getHistoricVersions()
                 .forEach(
                         (historicVersion) -> {
-                            if (historicVersion.getStampSequence() != -1) {
+                            if (historicVersion.getStampSequence() != -1 && historicVersion.getStatus() != Status.CANCELED) {
                                 versionPanes.add(new VersionPaneModel(manifold, historicVersion, stampOrderHashMap,
                                         getDisclosureStateMap()));
                             }
