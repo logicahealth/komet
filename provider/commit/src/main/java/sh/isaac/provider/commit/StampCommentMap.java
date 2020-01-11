@@ -51,7 +51,14 @@ import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.externalizable.StampComment;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -60,6 +67,11 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 //~--- non-JDK imports --------------------------------------------------------
+
+import org.apache.mahout.math.map.OpenIntObjectHashMap;
+import sh.isaac.api.datastore.ExtendedStore;
+import sh.isaac.api.datastore.ExtendedStoreData;
+import sh.isaac.api.externalizable.StampComment;
 
 //~--- classes ----------------------------------------------------------------
 

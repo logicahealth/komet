@@ -287,7 +287,7 @@ public class CompositeSearchResult implements CompositeQueryResult {
                     strings.add(((DescriptionVersion) version).getText());
                     break;
                 case DYNAMIC:
-                    strings.add(((DynamicVersion<?>) version).dataToString());
+                    strings.add(((DynamicVersion) version).dataToString());
                     break;
                 case LOGIC_GRAPH:
                     strings.add(((LogicGraphVersion) version).getLogicalExpression().toSimpleString());
@@ -304,7 +304,6 @@ public class CompositeSearchResult implements CompositeQueryResult {
                 case MEASURE_CONSTRAINTS:
                     strings.add("Measure Constraint with nid of " + version.getNid());
                     break;
-                case LOINC_RECORD:
                 case Nid1_Int2:
                 case Nid1_Int2_Str3_Str4_Nid5_Nid6:
                 case Nid1_Nid2:

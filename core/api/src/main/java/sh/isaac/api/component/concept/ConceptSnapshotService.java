@@ -38,25 +38,53 @@
 
 
 package sh.isaac.api.component.concept;
-
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-
-//~--- interfaces -------------------------------------------------------------
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
  * The Interface ConceptSnapshotService.
  *
  * @author kec
  */
-public interface ConceptSnapshotService extends SharedConceptSnapshotService {
+public interface ConceptSnapshotService {
 
-   //~--- get methods ---------------------------------------------------------
+   /**
+    * Simple method for getting text of the description of a concept.
+    * This method will return a description type according to the constraints of
+    * the
+    * {@code StampCoordinate} and the default
+    * {@code LanguageCoordinate}.
+    * @param conceptNid of the concept to get the description for
+    * @return a description for this concept. If no description can be found,
+    * {@code "No desc for: " + UUID;} will be returned.
+    */
+   default String conceptDescriptionText(int conceptNid) {
+       final LatestVersion<DescriptionVersion> descriptionOptional = getDescriptionOptional(conceptNid);
+
+       if (descriptionOptional.isPresent()) {
+           return descriptionOptional.get().getText();
+       }
+
+       return "No desc for: " + Get.identifierService().getUuidPrimordialStringForNid(conceptNid);
+   }
+
+   /**
+    * Gets the manifold coordinate.
+    *
+    * @return the {@code ManifoldCoordinate} associated with this snapshot.
+    */
+   ManifoldCoordinate getManifoldCoordinate();
+
+   /**
+    * Checks if concept active.
+    *
+    * @param conceptNid of the concept to determine if it is active
+    * according to the {@code StampCoordinate} of this snapshot service
+    * @return true, if concept active
+    */
+   boolean isConceptActive(int conceptNid);
 
    /**
     * Gets the concept snapshot.
@@ -94,7 +122,9 @@ public interface ConceptSnapshotService extends SharedConceptSnapshotService {
     * there is not description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   LatestVersion<DescriptionVersion> getFullySpecifiedDescription(int conceptNid);
+   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(int conceptNid) {
+      return getManifoldCoordinate().getFullySpecifiedDescription(Get.assemblageService().getDescriptionsForComponent(conceptNid));
+   }
 
    /**
     * Gets the preferred description.
@@ -104,6 +134,7 @@ public interface ConceptSnapshotService extends SharedConceptSnapshotService {
     * there is not description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   LatestVersion<DescriptionVersion> getPreferredDescription(int conceptNid);
+   default LatestVersion<DescriptionVersion> getPreferredDescription(int conceptNid) {
+      return getManifoldCoordinate().getPreferredDescription(Get.assemblageService().getDescriptionsForComponent(conceptNid));
+   }
 }
-//~--- JDK imports ------------------------------------------------------------

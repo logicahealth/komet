@@ -16,21 +16,9 @@
  */
 package sh.isaac.solor.direct;
 
-import java.time.format.DateTimeFormatter;
-import static java.time.temporal.ChronoField.INSTANT_SECONDS;
-import java.time.temporal.TemporalAccessor;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import sh.isaac.MetaData;
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
+import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -44,6 +32,16 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
+
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Semaphore;
+
+import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 
 /**
  * The concept data populates a concept as well as a legacy definition state assemblage, and sct identifier assemblage.
@@ -218,7 +216,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
             final Status state = this.solorReleaseFormat
                     ? Status.fromZeroOneToken(conceptRecord[SRF_STATUS_INDEX])
                     : Status.fromZeroOneToken(conceptRecord[RF2_ACTIVE_INDEX]);
-            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+            if (state == Status.INACTIVE && importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                 if (!CONCEPT_STRING_WHITELIST.contains(conceptRecord[RF2_CONCEPT_SCT_ID_INDEX])) {
                     continue;
                 }
@@ -236,11 +234,11 @@ id	effectiveTime	active	moduleId	definitionStatusId
                accessor = DateTimeFormatter.ISO_INSTANT.parse(
                        DirectImporter.getIsoInstant(conceptRecord[SRF_TIME_INDEX]));
             }else{
-               conceptUuid = UuidT3Generator.fromSNOMED(conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
-               moduleUuid = UuidT3Generator.fromSNOMED(conceptRecord[RF2_MODULE_SCTID_INDEX]);
-               legacyDefStatus = UuidT3Generator.fromSNOMED(conceptRecord[RF2_DEF_STATUS_INDEX]);
-               accessor = DateTimeFormatter.ISO_INSTANT.parse(
-                       DirectImporter.getIsoInstant(conceptRecord[RF2_EFFECTIVE_TIME_INDEX]));
+            conceptUuid = UuidT3Generator.fromSNOMED(conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
+            moduleUuid = UuidT3Generator.fromSNOMED(conceptRecord[RF2_MODULE_SCTID_INDEX]);
+            legacyDefStatus = UuidT3Generator.fromSNOMED(conceptRecord[RF2_DEF_STATUS_INDEX]);
+            accessor = DateTimeFormatter.ISO_INSTANT.parse(
+            DirectImporter.getIsoInstant(conceptRecord[RF2_EFFECTIVE_TIME_INDEX]));
             }
 
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
@@ -266,7 +264,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
                defStatusPrimordialUuid = UuidT5Generator.get(TermAux.SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getPrimordialUuid(),
                        conceptRecord[SRF_ID_INDEX]);
             }else{
-               defStatusPrimordialUuid = UuidT5Generator.get(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getPrimordialUuid(),
+            defStatusPrimordialUuid = UuidT5Generator.get(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getPrimordialUuid(),
                        conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
             }
 
@@ -287,8 +285,8 @@ id	effectiveTime	active	moduleId	definitionStatusId
                identifierUuid = UuidT5Generator.get(MetaData.UUID____SOLOR.getPrimordialUuid(),
                        conceptRecord[SRF_ID_INDEX]);
             }else{
-               identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(),
-                       conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
+            identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(),
+                   conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
             }
 
             SemanticChronologyImpl identifierToWrite = new SemanticChronologyImpl(VersionType.STRING,

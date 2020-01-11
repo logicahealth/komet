@@ -39,7 +39,6 @@
 
 package sh.isaac.api;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 
@@ -150,8 +149,8 @@ public interface TaxonomyService
      * {@link #getSnapshotNoTree(ManifoldCoordinate)}
      * @return the Snapshot service
      */
-   TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, EnumSet<Status> allowedStates, boolean computeTree);
-   
+   TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, Set<Status> allowedStates, boolean computeTree);
+
    /**
     * 
     * @param conceptAssemblageNid The assemblage Nid which specifies the assemblage where the concepts in this tree
@@ -193,5 +192,28 @@ public interface TaxonomyService
     * @return The new, merged value.
     */
    int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction);
+   
+   /**
+    * Checks if kindOf, ignoring all coordinates (active, inactive, any path, any module, etc) 
+    * @param childNid
+    * @param parentNid
+    * @return
+    */
+   public boolean wasEverKindOf(int childNid, int parentNid);
+   
+   /**
+    * Checks if childOf, ignoring all coordinates (active, inactive, any path, any module, etc)
+    * @param childNid
+    * @param parentNid
+    * @return
+    */
+   public boolean wasEverChildOf(int childNid, int parentNid);
+   
+   /**
+    * Gets isA children of the specified concept, ignoring all coordinates (active, inactive, any path, any module)
+    * @param parentNid
+    * @return
+    */
+   public int[] getAllTaxonomyChildren(int parentNid);
 }
 

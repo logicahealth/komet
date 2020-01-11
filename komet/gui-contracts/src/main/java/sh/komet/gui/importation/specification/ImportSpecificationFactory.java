@@ -4,7 +4,6 @@ import javafx.scene.Node;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.constants.MetadataConceptConstant;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
@@ -18,7 +17,8 @@ import javax.inject.Singleton;
  * aks8m - https://github.com/aks8m
  */
 
-@Service(name = "Import Specification View Provider")
+@Service(name = "Import Specification View Provider",
+        metadata = "fqn={Import specification panel (SOLOR)},uuid={de59f527-95f5-53ad-97fa-c57574f3befa}")
 @Singleton
 public class ImportSpecificationFactory implements ExplorationNodeFactory {
 

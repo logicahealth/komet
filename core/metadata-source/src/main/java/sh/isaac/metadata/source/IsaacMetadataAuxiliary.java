@@ -135,10 +135,14 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Uncategorized phenomenon");
                createConcept("Finding").addUuids(UUID.fromString("bd83b1dd-5a82-34fa-bb52-06f666420a1c"));
                createConcept("Observation").addUuids(UUID.fromString("d678e7a6-5562-3ff1-800e-ab070e329824"));
+               createConcept("Loinc Phenomenon");
             popParent();
             createConcept(TermAux.ORGANISM);
             createConcept(TermAux.OBJECT);
             createConcept(TermAux.PROCEDURE);
+            pushParent(current());
+                createConcept("Loinc Procedure");
+                popParent();
             createConcept(TermAux.SPECIMEN);
             createConcept(TermAux.SUBSTANCE);
          popParent();
@@ -151,7 +155,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                 createConcept(TermAux.MEMBERSHIP_SEMANTIC);
                 createConcept(TermAux.DYNAMIC_SEMANTIC);
-                createConcept(TermAux.CONCEPT_SEMANTIC).addComponentIntSemantic(UUID.fromString("4262f3b1-1e11-5258-a414-1d7c7d60ee6b"), TermAux.CONCEPT_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
+                createConcept(CONCEPT_SEMANTIC).addComponentIntSemantic(UUID.fromString("4262f3b1-1e11-5258-a414-1d7c7d60ee6b"), TermAux.CONCEPT_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.COMPONENT_SEMANTIC).addComponentIntSemantic(UUID.fromString("ca0ae831-128b-5130-a647-9006cf42b24d"), TermAux.COMPONENT_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.LOGICAL_EXPRESSION_SEMANTIC).addComponentIntSemantic(UUID.fromString("145c5c77-7484-5250-950b-3015b0592e0c"), TermAux.LOGICAL_EXPRESSION_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.INTEGER_SEMANTIC).addComponentIntSemantic(UUID.fromString("55ca0d0d-95e7-50d9-b871-d16c251e2632"), TermAux.INTEGER_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
@@ -194,6 +198,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                pushParent(current());
                   createConcept("Solor genomic module");
+                  createConcept("Solor LIVD module");
                   createConcept("SOLOR quality assurance rule module");
                   createConcept("SOLOR temporary concept module")
                           .addDescription("The temporary module is used for concepts such as those that represent feature paths, that are never part of a release.", TermAux.DEFINITION_DESCRIPTION_TYPE);
@@ -202,8 +207,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
                   createConcept(TermAux.SOLOR_OVERLAY_MODULE).addDescription("SOLOR overlay", TermAux.REGULAR_NAME_DESCRIPTION_TYPE)
                      .addUuids(UUID.fromString("1f2016a6-960e-11e5-8994-feff819cdc9f"));
-                  createConcept("Solor umls module");
-               
+                  createConcept("Solor UMLS module");
                   popParent();
 
                createConcept(TermAux.SCT_CORE_MODULE);
@@ -220,6 +224,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("NUCC modules", "NUCC").addDescription("National Uniform Claim Committee", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("CVX modules", "CVX").addDescription("Vaccines Administered", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("MVX modules", "MVX").addDescription("Manufacturers of Vaccines", TermAux.DEFINITION_DESCRIPTION_TYPE);
+               createConcept("FHIR modules", "FHIR").addDescription("FHIR formatted terminology", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("CPT® modules", "CPT").addDescription("Current Procedural Terminology", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("SOPT modules", "SOPT").addDescription("Source of Payment Typology", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("ICD10 modules", "ICD10").addDescription("Procedure Coding System Tenth Revision", TermAux.DEFINITION_DESCRIPTION_TYPE);
@@ -230,7 +235,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.DELOITTE_USER);
                createConcept("Bootstrap administrator", "admin");
                createConcept("Clinvar User");
-               createConcept("umls User");
+               createConcept("UMLS User");
+               createConcept("LIVD User");
+               createConcept("CVX User");
                popParent();
             createConcept(TermAux.PATH);
             pushParent(current());
@@ -240,38 +247,38 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                masterPath.addUuids(UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66")); // UUID from WB_AUX_PATH
                popParent();
             createConcept("Sufficient concept definition operator");
-               pushParent(current());
+            pushParent(current());
                createConcept(TermAux.SUFFICIENT_CONCEPT_DEFINITION);
                createConcept(TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION);
                popParent();
-               
+
             createConcept(TermAux.STATEMENT_TYPE);
-                pushParent(current());
+            pushParent(current());
                 createConcept(TermAux.REQUEST_STATEMENT);
                 createConcept(TermAux.PERFORMANCE_STATEMENT);
                 popParent();
 
             createConcept("Priority").setPrimordialUuid(UUID.fromString("61c1f346-2103-3032-8066-2add812a5b74"));
-                pushParent(current());
+            pushParent(current());
                 createConcept("Routine").setPrimordialUuid(UUID.fromString("90581618-c1c5-3e6e-ab21-80b18ded492c"));
                 createConcept("Immediate").setPrimordialUuid(UUID.fromString("bffcefca-d520-3d4a-ac37-ce8376376136"));
                 popParent();
             
             createConcept(TermAux.SUBJECT_OF_INFORMATION);
-                pushParent(current());
+            pushParent(current());
                 createConcept(TermAux.SUBJECT_OF_RECORD);
                 createConcept(TermAux.MATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD);
-                    pushParent(current());
+                pushParent(current());
                     createConcept(TermAux.MOTHER_OF_SUBJECT_OF_RECORD);
                     popParent();
                 createConcept(TermAux.PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD);
-                    pushParent(current());
+                pushParent(current());
                     createConcept(TermAux.FATHER_OF_SUBJECT_OF_RECORD);
                     popParent();
                 popParent();
 
-                createConcept(TermAux.MODE);
-                pushParent(current());
+            createConcept(TermAux.MODE);
+            pushParent(current());
                 createConcept(TermAux.TEMPLATE);
                 createConcept(TermAux.INSTANCE);
                 popParent();
@@ -282,6 +289,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Property set").setPrimordialUuid(NodeSemantic.PROPERTY_SET.getSemanticUuid()).setModule(TermAux.KOMET_MODULE);
                popParent();
             createConcept(TermAux.IDENTIFIER_SOURCE)
+               .addComponentSemantic(UUID.fromString("b1cb6636-014c-58c9-ba81-048fb7905253"), TermAux.MEMBERSHIP_SEMANTIC, SEMANTIC_TYPE)
                .addDescription("A parent concept and membership assemblage used to group identifiers", TermAux.DEFINITION_DESCRIPTION_TYPE);
             pushParent(current());
                createConcept(TermAux.RXNORM_CUI).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
@@ -291,15 +299,28 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Code").setPrimordialUuid("803af596-aea8-5184-b8e1-45f801585d17")
                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);// UUID comes from the algorithm in the VHAT econ loader
                ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
-               loincBuilder.addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               loincBuilder.addComponentSemantic(UUID.fromString("79dd5256-ede4-56d8-8ff6-3aba8767786b"), STRING_SEMANTIC, SEMANTIC_TYPE).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
-               createConcept("Clinvar Variant ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("NCBI Gene ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("Clinvar Description ID").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("Clinvar Variant ID").addComponentSemantic(UUID.fromString("87c7af7e-3e45-541c-8402-523ff2f7db18"), STRING_SEMANTIC, SEMANTIC_TYPE)
+                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("NCBI Gene ID").addComponentSemantic(UUID.fromString("040e9fe1-b3f3-5721-b970-66b16f8faf07"), STRING_SEMANTIC, SEMANTIC_TYPE)
+                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("Clinvar Description ID").addComponentSemantic(UUID.fromString("b792685d-a3d0-519a-9316-1cf388c5f96b"), STRING_SEMANTIC, SEMANTIC_TYPE)
+                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("CVX Code").addComponentSemantic(UUID.fromString("3e559afb-69e5-5b44-9c59-8c9076ecca2e"), STRING_SEMANTIC, SEMANTIC_TYPE)
+                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("CVX Description ID").addComponentSemantic(UUID.fromString("b6488476-1bdf-5986-966d-ed406b40e958"), STRING_SEMANTIC, SEMANTIC_TYPE)
+                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("FHIR URI").addComponentSemantic(UUID.fromString("d03c92c7-e630-59da-8680-74b1be6497ce"), STRING_SEMANTIC, SEMANTIC_TYPE)
+                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("OID").addDescription("HL7 Object Identifier", TermAux.REGULAR_NAME_DESCRIPTION_TYPE)
+                   .addComponentSemantic(UUID.fromString("52ec2f3a-588d-502d-aa72-b59841b2fe31"), STRING_SEMANTIC, SEMANTIC_TYPE)
+                   .setPrimordialUuid("374ce9a6-7f66-5c70-94ae-9aeea2f95c73") //UUID from the loader
+                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                popParent();
 
             createConcept("Assemblage membership type");
-               pushParent(current());
+            pushParent(current());
                createConcept("Normal member").setPrimordialUuid("bebbda5d-2fa4-5106-8f02-f2d4673fb1c9");
                createConcept("Marked parent").setPrimordialUuid("5b5adb62-6ced-5013-b849-cad9d1bd34f3");
                popParent();
@@ -387,12 +408,13 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   popParent();
                createConcept("Logic assemblage");
                pushParent(current());
-                  createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
-                  createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+                  createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE).addComponentSemantic(UUID.fromString("16be5d9b-0d0f-5573-8dca-8a21257688d2"), TermAux.LOGICAL_EXPRESSION_SEMANTIC, SEMANTIC_TYPE);
+                  createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE).addComponentSemantic(UUID.fromString("8cff3e39-0cdf-55d5-8986-d701ee828072"), TermAux.LOGICAL_EXPRESSION_SEMANTIC, SEMANTIC_TYPE);
                   createConcept(TermAux.SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   ConceptBuilder builder = createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   builder.getPreferredDescriptionBuilder().setDescriptionText("SNOMED legacy implication");
                   createConcept("Clinvar Definition Assemblage");
+                  createConcept("CVX Definition Assemblage");
                   popParent();
                createConcept(TermAux.CONCEPT_ASSEMBLAGE);
                pushParent(current());
@@ -400,7 +422,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.LOINC_CONCEPT_ASSEMBLAGE);
                   createConcept(TermAux.RXNORM_CONCEPT_ASSEMBLAGE);
                   popParent();
-               createConcept("External data assemblage");
+               createConcept(TermAux.EXTERNAL_DATA_ASSEMBLAGE);
                pushParent(current());
                   createConcept(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE);
                   createConcept(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE);
@@ -409,7 +431,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
                   createConcept("Clinvar Variant to Gene Non-Defining Taxonomy");
                   createConcept("Clinvar Gene to Phenotype Non-Defining Taxonomy");
-                  createConcept("umls equivalency assemblage");
+                  createConcept("UMLS equivalency assemblage");
+                  createConcept("LIVD Assemblage");
                   popParent();
                createConcept("Rule assemblage");
                pushParent(current());
@@ -440,15 +463,23 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept("Content Metadata");
             pushParent(current());
                createConcept(TermAux.DATABASE_UUID);
-               createConcept("Source Artifact Version");
-               createConcept("Source Release Date");
-               createConcept("Converter Version");
-               createConcept("Converted IBDF Artifact Version");
-               createConcept("Converted IBDF Artifact Classifier");
+               //This is used for the version of the maven artifact that contains the source
+               createConcept("Source Artifact Version").addAssemblageMembership(STRING_SEMANTIC);
+               //This is used for the version of the source content itself - often times teh same as Source Artifact Version, except in cases
+               //where the source content contains multiple versioned things in a single release, like a fhir xml bundle 
+               createConcept("Source Content Version").addAssemblageMembership(STRING_SEMANTIC);
+               createConcept("Source Release Date").addAssemblageMembership(STRING_SEMANTIC);
+               createConcept("Converter Version").addAssemblageMembership(STRING_SEMANTIC);
+               createConcept("Converted IBDF Artifact Version").addAssemblageMembership(STRING_SEMANTIC);
+               createConcept("Converted IBDF Artifact Classifier").addAssemblageMembership(STRING_SEMANTIC);
                popParent();
             createConcept(TermAux.LANGUAGE);
-            pushParent(current());  //Adding the UUIDs from the retired "assemblage" only concept, which just made the metadata far more 
-            //confusing than necessary, also, making 2 parents, one of language, the other under assemblage.
+            pushParent(current());  
+            //A while ago, there were two different language trees in the metadata - the language assembly, and the language concept.  In practice, 
+            //this was nothing but confusing.  We retired the language assembly long ago, but has maintained the UUIDs of the language assembly children
+            //as extra UUIDs on each of these languages... but I believe those were also unnecessary.  The most recent cleanup of this code removed those 
+            //old hardcoded UUIDs.  If it causes an issue, talk to Dan, we can restore (just) those UUIDs.
+            //Note, that each of these language concepts does still have two parents - one here, of LANGUAGE, and the other being DESCRIPTION_ASSEMBLAGE.
                createConcept(TermAux.ENGLISH_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
                        .addComponentSemantic(UUID.fromString("16fd6c1f-e4d6-50ad-b77a-8b57eaae16cb"), DESCRIPTION_SEMANTIC, SEMANTIC_TYPE)
@@ -524,6 +555,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Russian language", null, TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
                createConcept("Irish language", null, TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
                createConcept("Czech language", null, TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
+               createConcept("Italian language", null, TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
+               createConcept("German language", null, TermAux.DESCRIPTION_ASSEMBLAGE.getNid(), null);
                popParent();
             createConcept("Measurement semantic");
             pushParent(current());
@@ -921,13 +954,13 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   popParent();
                createConcept("Version properties");
                pushParent(current());
-                  createConcept(STATUS_FOR_VERSION);
-                  createConcept(TIME_FOR_VERSION);
-                  createConcept(AUTHOR_NID_FOR_VERSION);
-                  createConcept(MODULE_NID_FOR_VERSION);
-                  createConcept(PATH_NID_FOR_VERSION);
-                  createConcept(COMMITTED_STATE_FOR_VERSION);
-                  createConcept(STAMP_SEQUENCE_FOR_VERSION);
+                  createConcept(TermAux.STATUS_FOR_VERSION);
+                  createConcept(TermAux.TIME_FOR_VERSION);
+                  createConcept(TermAux.AUTHOR_NID_FOR_VERSION);
+                  createConcept(TermAux.MODULE_NID_FOR_VERSION);
+                  createConcept(TermAux.PATH_NID_FOR_VERSION);
+                  createConcept(TermAux.COMMITTED_STATE_FOR_VERSION);
+                  createConcept(TermAux.STAMP_SEQUENCE_FOR_VERSION);
                   createConcept("Description version properties");
                   pushParent(current());
                      createConcept(CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION);
@@ -945,8 +978,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(UUID_LIST_FOR_COMPONENT);
                   createConcept(COMMITTED_STATE_FOR_CHRONICLE);
                   createConcept(SEMANTIC_LIST_FOR_CHRONICLE);
-                  createConcept(ASSEMBLAGE_NID_FOR_COMPONENT);
-                  createConcept(REFERENCED_COMPONENT_NID_FOR_SEMANTIC);
+                  createConcept(TermAux.ASSEMBLAGE_NID_FOR_COMPONENT);
+                  createConcept(TermAux.REFERENCED_COMPONENT_NID_FOR_SEMANTIC);
                   popParent();
                createConcept("Concept properties");
                pushParent(current());
@@ -977,132 +1010,136 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.LOGIC_GRAPH_FOR_SEMANTIC);
                   createConcept(ObservableFields.LONG_VALUE_FOR_SEMANTIC);
                   createConcept(ObservableFields.IMAGE_DATA_FOR_SEMANTIC);
-                   createConcept(ObservableFields.TYPE_NID_FOR_RF2_REL);
-                   createConcept(ObservableFields.DESTINATION_NID_FOR_RF2_REL);
-                   createConcept(ObservableFields.REL_GROUP_FOR_RF2_REL);
-                   createConcept(ObservableFields.CHARACTERISTIC_NID_FOR_RF2_REL);
-                   createConcept(ObservableFields.MODIFIER_NID_FOR_RF2_REL);
-                   createConcept(ObservableFields.NID1);
-                   createConcept(ObservableFields.NID2);
-                   createConcept(ObservableFields.NID3);
-                   createConcept(ObservableFields.NID4);
-                   createConcept(ObservableFields.NID5);
-                   createConcept(ObservableFields.NID6);
-                   createConcept(ObservableFields.NID7);
-                   createConcept(ObservableFields.STR1);
-                   createConcept(ObservableFields.STR2);
-                   createConcept(ObservableFields.STR3);
-                   createConcept(ObservableFields.STR4);
-                   createConcept(ObservableFields.STR5);
-                   createConcept(ObservableFields.STR6);
-                   createConcept(ObservableFields.STR7);
-                   createConcept(ObservableFields.INT1);
-                   createConcept(ObservableFields.INT2);
-                   createConcept(ObservableFields.INT3);
-                   createConcept(ObservableFields.INT4);
-                   createConcept(ObservableFields.INT5);
-                   createConcept(ObservableFields.INT6);
-                   createConcept(ObservableFields.INT7);
-                        pushParent(current());
-                        createConcept(ObservableFields.LOINC_NUMBER);
-                        createConcept(ObservableFields.LOINC_COMPONENT);
-                        createConcept(ObservableFields.LOINC_PROPERTY);
-                        createConcept(ObservableFields.LOINC_TIME_ASPECT);
-                        createConcept(ObservableFields.LOINC_SYSTEM);
-                        createConcept(ObservableFields.LOINC_SCALE_TYPE);
-                        createConcept(ObservableFields.LOINC_METHOD_TYPE);
-                        createConcept(ObservableFields.LOINC_STATUS);
-                        createConcept(ObservableFields.LOINC_SHORT_NAME);
-                        createConcept(ObservableFields.LOINC_LONG_COMMON_NAME);
-                        popParent();
-                   
-                   popParent();
-            createConcept("Clinical statement properties");
-            pushParent(current());
-               createConcept("Circumstance properties");
+                  createConcept(ObservableFields.TYPE_NID_FOR_RF2_REL);
+                  createConcept(ObservableFields.DESTINATION_NID_FOR_RF2_REL);
+                  createConcept(ObservableFields.REL_GROUP_FOR_RF2_REL);
+                  createConcept(ObservableFields.CHARACTERISTIC_NID_FOR_RF2_REL);
+                  createConcept(ObservableFields.MODIFIER_NID_FOR_RF2_REL);
+                  createConcept(ObservableFields.NID1);
+                  createConcept(ObservableFields.NID2);
+                  createConcept(ObservableFields.NID3);
+                  createConcept(ObservableFields.NID4);
+                  createConcept(ObservableFields.NID5);
+                  createConcept(ObservableFields.NID6);
+                  createConcept(ObservableFields.NID7);
+                  createConcept(ObservableFields.STR1);
+                  createConcept(ObservableFields.STR2);
+                  createConcept(ObservableFields.STR3);
+                  createConcept(ObservableFields.STR4);
+                  createConcept(ObservableFields.STR5);
+                  createConcept(ObservableFields.STR6);
+                  createConcept(ObservableFields.STR7);
+                  createConcept(ObservableFields.INT1);
+                  createConcept(ObservableFields.INT2);
+                  createConcept(ObservableFields.INT3);
+                  createConcept(ObservableFields.INT4);
+                  createConcept(ObservableFields.INT5);
+                  createConcept(ObservableFields.INT6);
+                  createConcept(ObservableFields.INT7);
+                  pushParent(current());
+                     createConcept(ObservableFields.LOINC_NUMBER);
+                     createConcept(ObservableFields.LOINC_COMPONENT);
+                     createConcept(ObservableFields.LOINC_PROPERTY);
+                     createConcept(ObservableFields.LOINC_TIME_ASPECT);
+                     createConcept(ObservableFields.LOINC_SYSTEM);
+                     createConcept(ObservableFields.LOINC_SCALE_TYPE);
+                     createConcept(ObservableFields.LOINC_METHOD_TYPE);
+                     createConcept(ObservableFields.LOINC_STATUS);
+                     createConcept(ObservableFields.LOINC_SHORT_NAME);
+                     createConcept(ObservableFields.LOINC_LONG_COMMON_NAME);
+                     popParent();
+                  createConcept("LIVD Semantics");
+                  pushParent(current());
+                     createConcept("LIVD Publication Version ID");
+                     createConcept("LIVD Manufacturer");
+                     createConcept("LIVD Model");
+                     createConcept("LIVD Equipment UID");
+                     createConcept("LIVD Equipment UID Type");
+                     createConcept("LIVD Vendor Analyte Code");
+                     createConcept("LIVD Vendor Analyte Name");
+                     createConcept("LIVD Vendor Specimen Description");
+                     createConcept("LIVD Vendor Result Description");
+                     createConcept("LIVD Vendor Reference ID");
+                     createConcept("LIVD Vendor Comment");
+                     popParent();
+                  popParent();
+               createConcept("Clinical statement properties");
                pushParent(current());
-                    createConcept(ObservableFields.CIRCUMSTANCE_PURPOSE_LIST);
-                    createConcept(ObservableFields.CIRCUMSTANCE_TIMING);
-                    
-                    createConcept("Performance circumstance properties");
-                    pushParent(current());
+                  createConcept("Circumstance properties");
+                  pushParent(current());
+                     createConcept(ObservableFields.CIRCUMSTANCE_PURPOSE_LIST);
+                     createConcept(ObservableFields.CIRCUMSTANCE_TIMING);
+                     createConcept("Performance circumstance properties");
+                     pushParent(current());
                         createConcept(ObservableFields.PERFORMANCE_CIRCUMSTANCE_RESULT);
                         createConcept(ObservableFields.PERFORMANCE_CIRCUMSTANCE_PARTICIPANTS);
                         popParent();
-                    
-                    
-                    createConcept("Request circumstance properties");
-                    pushParent(current());
+                     createConcept("Request circumstance properties");
+                     pushParent(current());
                         createConcept(ObservableFields.REQUEST_CIRCUMSTANCE_CONDITIONAL_TRIGGERS);
                         createConcept(ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_PARTICIPANTS);
                         createConcept(ObservableFields.REQUEST_CIRCUMSTANCE_PRIORITY);
                         createConcept(ObservableFields.REQUEST_CIRCUMSTANCE_REPETITIONS);
                         createConcept(ObservableFields.REQUEST_CIRCUMSTANCE_REQUESTED_RESULT);
                         popParent();
-                        
-                    createConcept("Unstructured circumstance properties");
-                    pushParent(current());
+                     createConcept("Unstructured circumstance properties");
+                     pushParent(current());
                         createConcept(ObservableFields.UNSTRUCTURED_CIRCUMSTANCE_TEXT);
                         popParent();
-                    popParent();
-               createConcept("Statement properties");
-               pushParent(current());
-                   createConcept(ObservableFields.STATEMENT_STAMP_COORDINATE);
-                   createConcept(ObservableFields.STATEMENT_NARRATIVE);
-                   createConcept(ObservableFields.STATEMENT_TIME);
-                   createConcept(ObservableFields.STATEMENT_ID);
-                   createConcept(ObservableFields.STATEMENT_SOR);
-                   createConcept(ObservableFields.STATEMENT_AUTHORS);
-                   createConcept(ObservableFields.STATEMENT_SOI);
-                   createConcept(ObservableFields.STATEMENT_TYPE);
-                   createConcept(ObservableFields.STATEMENT_MODE);
-                   createConcept(ObservableFields.STATEMENT_TOPIC);
-                   createConcept(ObservableFields.STATEMENT_CIRCUMSTANCE);
-                   createConcept(ObservableFields.STATEMENT_ASSOCIATIONS);
-                   popParent();
-               createConcept("Interval properties");
-               pushParent(current());
-                   createConcept(ObservableFields.INTERVAL_LOWER_BOUND);
-                   createConcept(ObservableFields.INTERVAL_UPPER_BOUND);
-                   createConcept(ObservableFields.INTERVAL_INCLUDE_UPPER_BOUND);
-                   createConcept(ObservableFields.INTERVAL_INCLUDE_LOWER_BOUND);
-                   popParent();
-               createConcept("Result properties");
-               pushParent(current());
-                    createConcept(ObservableFields.INTERVENTION_RESULT_STATUS);
-                    popParent();
-
-               createConcept("Measure properties");
-               pushParent(current());
-                   createConcept(ObservableFields.MEASURE_NARRATIVE);
-                   createConcept(ObservableFields.MEASURE_RESOLUTION);
-                   createConcept(ObservableFields.MEASURE_SEMANTIC);
-                   createConcept(ObservableFields.OBSERVATION_RESULT_HEALTH_RISK);
-                   createConcept(ObservableFields.MEASURE_NORMAL_RANGE);
-                   popParent();
-               
-               createConcept("Participant properties");
-               pushParent(current());
-                    createConcept(ObservableFields.PARTICIPANT_ID);   
-                    createConcept(ObservableFields.PARTICIPANT_ROLE);
-                    popParent();
-                    
- 
-               createConcept("Repetition properties");
-               pushParent(current());
-                    createConcept(ObservableFields.REPETITION_PERIOD_START);
-                    createConcept(ObservableFields.REPETITION_PERIOD_DURATION);
-                    createConcept(ObservableFields.REPETITION_EVENT_FREQUENCY);
-                    createConcept(ObservableFields.REPETITION_EVENT_SEPARATION);
-                    createConcept(ObservableFields.REPETITION_EVENT_DURATION);
-                    popParent();
-
+                     popParent();
+                  createConcept("Statement properties");
+                  pushParent(current());
+                     createConcept(ObservableFields.STATEMENT_STAMP_COORDINATE);
+                     createConcept(ObservableFields.STATEMENT_NARRATIVE);
+                     createConcept(ObservableFields.STATEMENT_TIME);
+                     createConcept(ObservableFields.STATEMENT_ID);
+                     createConcept(ObservableFields.STATEMENT_SOR);
+                     createConcept(ObservableFields.STATEMENT_AUTHORS);
+                     createConcept(ObservableFields.STATEMENT_SOI);
+                     createConcept(ObservableFields.STATEMENT_TYPE);
+                     createConcept(ObservableFields.STATEMENT_MODE);
+                     createConcept(ObservableFields.STATEMENT_TOPIC);
+                     createConcept(ObservableFields.STATEMENT_CIRCUMSTANCE);
+                     createConcept(ObservableFields.STATEMENT_ASSOCIATIONS);
+                     popParent();
+                  createConcept("Interval properties");
+                  pushParent(current());
+                     createConcept(ObservableFields.INTERVAL_LOWER_BOUND);
+                     createConcept(ObservableFields.INTERVAL_UPPER_BOUND);
+                     createConcept(ObservableFields.INTERVAL_INCLUDE_UPPER_BOUND);
+                     createConcept(ObservableFields.INTERVAL_INCLUDE_LOWER_BOUND);
+                     popParent();
+                  createConcept("Result properties");
+                  pushParent(current());
+                     createConcept(ObservableFields.INTERVENTION_RESULT_STATUS);
+                     popParent();
+                  createConcept("Measure properties");
+                  pushParent(current());
+                     createConcept(ObservableFields.MEASURE_NARRATIVE);
+                     createConcept(ObservableFields.MEASURE_RESOLUTION);
+                     createConcept(ObservableFields.MEASURE_SEMANTIC);
+                     createConcept(ObservableFields.OBSERVATION_RESULT_HEALTH_RISK);
+                     createConcept(ObservableFields.MEASURE_NORMAL_RANGE);
+                     popParent();
+                  createConcept("Participant properties");
+                  pushParent(current());
+                     createConcept(ObservableFields.PARTICIPANT_ID);   
+                     createConcept(ObservableFields.PARTICIPANT_ROLE);
+                     popParent();
+                  createConcept("Repetition properties");
+                  pushParent(current());
+                     createConcept(ObservableFields.REPETITION_PERIOD_START);
+                     createConcept(ObservableFields.REPETITION_PERIOD_DURATION);
+                     createConcept(ObservableFields.REPETITION_EVENT_FREQUENCY);
+                     createConcept(ObservableFields.REPETITION_EVENT_SEPARATION);
+                     createConcept(ObservableFields.REPETITION_EVENT_DURATION);
+                  popParent();
                createConcept("Statement association properties");
                pushParent(current());
-                    createConcept(ObservableFields.STATEMENT_ASSOCIATION_SEMANTIC);
-                    createConcept(ObservableFields.STATEMENT_ASSOCIATION_ID);
-                    popParent();
-                popParent();
+                  createConcept(ObservableFields.STATEMENT_ASSOCIATION_SEMANTIC);
+                  createConcept(ObservableFields.STATEMENT_ASSOCIATION_ID);
+                  popParent();
+               popParent();
 
             createConcept("Query clauses");
             pushParent(current());

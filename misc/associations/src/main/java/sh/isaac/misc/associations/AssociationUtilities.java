@@ -94,7 +94,7 @@ public class AssociationUtilities
       LatestVersion<Version> latest = sc.getLatestVersion(localStamp);
       if (latest.isPresent())
       {
-         return Optional.of(AssociationInstance.read((DynamicVersion<?>)latest.get(), stamp));
+         return Optional.of(AssociationInstance.read((DynamicVersion)latest.get(), stamp));
       }
       return Optional.empty();
    }
@@ -109,7 +109,13 @@ public class AssociationUtilities
    {
       ArrayList<AssociationInstance> results = new ArrayList<>();
       StampCoordinate localStamp = stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp;
-      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, getAssociationConceptNids())
+      
+      Set<Integer> associationTypes = getAssociationConceptNids();
+      if (associationTypes.size() == 0) 
+      {
+          return results;
+      }
+      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, associationTypes)
          .forEach(associationC -> 
             {
                LatestVersion<Version> latest = associationC.getLatestVersion(localStamp);
@@ -117,7 +123,7 @@ public class AssociationUtilities
                {
                   if (latest.get().getSemanticType() == VersionType.DYNAMIC) 
                   {
-                     results.add(AssociationInstance.read((DynamicVersion<?>)latest.get(), stamp));
+                     results.add(AssociationInstance.read((DynamicVersion)latest.get(), stamp));
                   }
                   else
                   {
@@ -198,7 +204,7 @@ public class AssociationUtilities
                LatestVersion<Version> latest = associationC.getLatestVersion(localStamp);
                if (latest.isPresent())
                {
-                  results.add(AssociationInstance.read((DynamicVersion<?>)latest.get(), stamp));
+                  results.add(AssociationInstance.read((DynamicVersion)latest.get(), stamp));
                }
                
             });

@@ -197,6 +197,16 @@ public class ObservableManifoldCoordinateImpl
    public ObservableManifoldCoordinate makeCoordinateAnalog(Status... state) {
       return new ObservableManifoldCoordinateImpl(this.manifoldCoordinate.makeCoordinateAnalog(state));
    }
+   
+   
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public StampCoordinate makeCoordinateAnalog(Set<Status> statusSet) {
+      return new ObservableManifoldCoordinateImpl((ManifoldCoordinate) this.manifoldCoordinate.makeCoordinateAnalog(statusSet));
+   }
 
    @Override
    public ObservableManifoldCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
@@ -227,8 +237,6 @@ public class ObservableManifoldCoordinateImpl
       }
       return this.taxonomyTypeProperty;
    }
-   
-   
 
    /**
     * Gets the taxonomy type.

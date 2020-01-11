@@ -60,21 +60,16 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.semantic.version.*;
-import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.AbstractVersionImpl;
+import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
+import sh.isaac.model.semantic.version.DescriptionVersionImpl;
+import sh.isaac.model.semantic.version.DynamicImpl;
+import sh.isaac.model.semantic.version.ImageVersionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
+import sh.isaac.model.semantic.version.LongVersionImpl;
+import sh.isaac.model.semantic.version.SemanticVersionImpl;
+import sh.isaac.model.semantic.version.StringVersionImpl;
+import sh.isaac.model.semantic.version.brittle.*;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -230,7 +225,7 @@ public class SemanticChronologyImpl
 
       case Str1_Str2_Nid3_Nid4_Nid5:
          return new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(chronology, stampSequence, bb);
-          
+
       case LOINC_RECORD:
          return new LoincVersionImpl(chronology, stampSequence, bb);
 
@@ -372,7 +367,7 @@ public class SemanticChronologyImpl
          return (M) new DynamicImpl((SemanticChronologyImpl) this, stampSequence);
 
       case LOGIC_GRAPH:
-            return (M) new LogicGraphVersionImpl((SemanticChronologyImpl) this, stampSequence);
+         return (M) new LogicGraphVersionImpl((SemanticChronologyImpl) this, stampSequence);
 
       case IMAGE:
             return (M) new ImageVersionImpl((SemanticChronologyImpl) this, stampSequence);
@@ -418,9 +413,6 @@ public class SemanticChronologyImpl
 
       case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
          return (M) new Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl((SemanticChronology) this, stampSequence);
-
-      case LOINC_RECORD:
-         return (M) new LoincVersionImpl((SemanticChronology) this, stampSequence);
          
       case Str1_Nid2_Nid3_Nid4:
           return (M) new Str1_Nid2_Nid3_Nid4_VersionImpl((SemanticChronology) this, stampSequence);

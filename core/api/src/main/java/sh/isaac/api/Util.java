@@ -39,20 +39,19 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javafx.concurrent.Task;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.externalizable.IsaacObjectType;
 
-import sh.isaac.api.progress.ActiveTasks;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class Util.
@@ -60,6 +59,8 @@ import sh.isaac.api.progress.ActiveTasks;
  * @author kec
  */
 public class Util {
+	
+	private static final Logger LOG = LogManager.getLogger(Util.class);
    /**
     * Adds the to task set and wait till done.
     *
@@ -97,5 +98,26 @@ public class Util {
 
       return paths;
    }
+   
+   /**
+    * Convenience method to find the nearest concept related to a semantic.  Recursively walks referenced components until it finds a concept.
+    * @param nid 
+    * @return the nearest concept nid, or empty, if no concept can be found.
+    */
+   public static Optional<Integer> getNearestConcept(int nid) {
+      Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(nid);
+      
+      if (c.isPresent()) {
+         if (c.get().getIsaacObjectType() == IsaacObjectType.SEMANTIC) {
+            return getNearestConcept(((SemanticChronology)c.get()).getReferencedComponentNid());
+         }
+         else if (c.get().getIsaacObjectType() == IsaacObjectType.CONCEPT) {
+            return Optional.of(((ConceptChronology)c.get()).getNid());
+         }
+         else {
+            LOG.warn("Unexpected object type: " + c.get().getIsaacObjectType());
+         }
+      }
+      return Optional.empty();
+   }
 }
-

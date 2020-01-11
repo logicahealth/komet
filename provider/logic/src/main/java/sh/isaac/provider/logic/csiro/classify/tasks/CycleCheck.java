@@ -80,7 +80,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 		this.logicCoordinate = logicCoordinate;
 		this.editCoordinate = editCoordinate;
 		updateTitle("Cycle Check");
-		mc = new ManifoldCoordinateImpl(PremiseType.STATED, stampCoordinate, LanguageCoordinates.getFullyQualifiedCoordinate(), logicCoordinate);
+		mc = new ManifoldCoordinateImpl(PremiseType.STATED, stampCoordinate, LanguageCoordinates.getFullyQualifiedCoordinate(false), logicCoordinate);
 	}
 
 	/**

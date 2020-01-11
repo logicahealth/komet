@@ -213,11 +213,19 @@ public class LogicProvider
     public ClassifierService getClassifierService(StampCoordinate stampCoordinate,
                                                   LogicCoordinate logicCoordinate,
                                                   EditCoordinate editCoordinate) {
-        final ClassifierServiceKey key = new ClassifierServiceKey(stampCoordinate, logicCoordinate, editCoordinate);
+        StampCoordinate sc;
+        if (stampCoordinate.getStampPosition().getTime() == Long.MAX_VALUE) {
+            LOG.info("changing classify coordinate time to now, rather that latest");
+            sc = stampCoordinate.makeCoordinateAnalog(System.currentTimeMillis());
+        }
+        else {
+            sc = stampCoordinate;
+        }
+        final ClassifierServiceKey key = new ClassifierServiceKey(sc, logicCoordinate, editCoordinate);
 
         if (!classifierServiceMap.containsKey(key)) {
             classifierServiceMap.putIfAbsent(key,
-                    new ClassifierProvider(stampCoordinate, logicCoordinate, editCoordinate));
+                    new ClassifierProvider(sc, logicCoordinate, editCoordinate));
         }
 
         return classifierServiceMap.get(key);

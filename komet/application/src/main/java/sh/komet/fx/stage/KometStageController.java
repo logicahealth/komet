@@ -281,18 +281,6 @@ public class KometStageController
         items.add(selectiveExport);
 
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-
-            MenuItem importTransformFull = new MenuItemWithText("Import and transform - FULL");
-
-            importTransformFull.setOnAction((ActionEvent event) -> {
-                ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.manifold(ManifoldGroup.TAXONOMY),
-                        ImportType.FULL);
-                Get.executor().submit(itcTask);
-
-            });
-
-            items.add(importTransformFull);
-
             MenuItem artifactImport = new MenuItemWithText("Artifact Import");
             artifactImport.setOnAction((ActionEvent event) -> {
                 ArtifactImporter.startArtifactImport(topGridPane.getScene().getWindow());
@@ -300,33 +288,6 @@ public class KometStageController
             items.add(artifactImport);
         }
 
-        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-
-            MenuItem importSourcesFull = new MenuItemWithText("Import terminology content - FULL");
-            importSourcesFull.setOnAction((ActionEvent event) -> {
-                DirectImporter importerFull = new DirectImporter(ImportType.FULL);
-                Get.executor().submit(importerFull);
-            });
-            items.add(importSourcesFull);
-            MenuItem importSourcesSnapshot = new MenuItemWithText("Import terminology content - ACTIVE");
-            importSourcesSnapshot.setOnAction((ActionEvent event) -> {
-                DirectImporter importerSnapshot = new DirectImporter(ImportType.ACTIVE_ONLY);
-                Get.executor().submit(importerSnapshot);
-            });
-            items.add(importSourcesSnapshot);
-            MenuItem transformSourcesFull = new MenuItemWithText("Transform RF2 to EL++ - FULL");
-            transformSourcesFull.setOnAction((ActionEvent event) -> {
-                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.FULL);
-                Get.executor().submit(transformer);
-            });
-            items.add(transformSourcesFull);
-            MenuItem transformSourcesActiveOnly = new MenuItemWithText("Transform RF2 to EL++ - ACTIVE");
-            transformSourcesActiveOnly.setOnAction((ActionEvent event) -> {
-                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.ACTIVE_ONLY);
-                Get.executor().submit(transformer);
-            });
-            items.add(transformSourcesActiveOnly);
-        }
 
 //      MenuItem setLowMemConfigAndQuit = new MenuItem("Set to low memory configuration, erase database, and quit");
 //      setLowMemConfigAndQuit.setOnAction((ActionEvent event) -> {

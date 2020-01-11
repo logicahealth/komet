@@ -100,7 +100,6 @@ import com.sun.javafx.perf.PerformanceTracker;
 import com.sun.javafx.runtime.VersionInfo;
 import com.sun.javafx.runtime.async.AsyncOperation;
 import com.sun.javafx.runtime.async.AsyncOperationListener;
-//import com.sun.javafx.scene.text.HitInfo;
 import com.sun.javafx.scene.text.TextLayoutFactory;
 import com.sun.javafx.tk.AppletWindow;
 import com.sun.javafx.tk.DummyToolkit;
@@ -157,6 +156,8 @@ public class HeadlessToolkit
 
    /** The context map. */
    private final Map<Object, Object> contextMap = Collections.synchronizedMap(new HashMap<>());
+   
+   private Thread standInFxThread;
 
    //~--- methods -------------------------------------------------------------
 
@@ -213,17 +214,6 @@ public class HeadlessToolkit
    public void closeAppletWindow() {
       throw new UnsupportedOperationException("Not supported yet.");
    }
-
-//   /**
-//    * Convert hit info to FX.
-//    *
-//    * @param hit the hit
-//    * @return the hit info
-//    */
-//   @Override
-//   public HitInfo convertHitInfoToFX(Object hit) {
-//      throw new UnsupportedOperationException("Not supported yet.");
-//   }
 
    /**
     * Convert shape to FX path.
@@ -598,7 +588,7 @@ public class HeadlessToolkit
       if (!this.toolkitRunning.getAndSet(true)) {
          log.info("Starting a stand-in JavaFX Application Thread");
 
-         final Thread t = new Thread(() -> {
+         standInFxThread = new Thread(() -> {
                                         final Thread user = Thread.currentThread();
 
                                         user.setName("JavaFX Application Thread");
@@ -617,8 +607,8 @@ public class HeadlessToolkit
                                         }
                                      });
 
-         t.setDaemon(true);
-         t.start();
+         standInFxThread.setDaemon(true);
+         standInFxThread.start();
       }
 
       this.tasks.add(runnable);
@@ -998,5 +988,10 @@ public class HeadlessToolkit
        throw new UnsupportedOperationException("Not supported yet.");
    }
 
+   @Override
+   public boolean isFxUserThread()
+   {
+      return Thread.currentThread() == standInFxThread;
+   }
 }
 

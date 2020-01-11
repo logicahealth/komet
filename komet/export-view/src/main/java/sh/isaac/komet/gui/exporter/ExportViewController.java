@@ -10,6 +10,8 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.CheckListView;
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.solor.DirectExporterFactory;
 import sh.komet.gui.exportation.ExportFormatType;
@@ -35,10 +37,17 @@ public class ExportViewController {
     private ChoiceBox<ExportFormatType> exportTypeChoiceBox;
     @FXML
     private TextField directoryTextField;
+    @FXML
+    private CheckListView<String> manufacturerCheckListView;
+    @FXML
+    private CheckListView<String> modelCheckedListView;
+    @FXML
+    private CheckListView<String> analyteCheckedListView;
+    @FXML
+    private CheckListView<String> specimenCheckListView;
 
     private final ObservableList<ExportFormatType> exportFormatTypes = FXCollections.observableArrayList();
     private File selectedDirectory;
-
 
     @FXML
     void initialize(){
@@ -52,6 +61,15 @@ public class ExportViewController {
         this.exportTypeChoiceBox.setItems(this.exportFormatTypes);
         this.exportButton.setDisable(true);
         this.exportTypeChoiceBox.getSelectionModel().selectFirst();
+
+        Get.assemblageService().getSemanticNidStream(MetaData.LIVD_ASSEMBLAGE____SOLOR.getNid())
+                .forEach(nid -> {
+
+                    System.out.println("break");
+
+
+        });
+
     }
 
     @FXML

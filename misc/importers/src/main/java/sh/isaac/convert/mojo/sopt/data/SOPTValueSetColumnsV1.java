@@ -55,7 +55,8 @@ public enum SOPTValueSetColumnsV1
 	ValueSetDefinition("Value Set Definition"), 
 	ValueSetStatus("Value Set Status"), 
 	ValueSetUpdatedDate("VS Last Updated Date"), 
-	ValueSetReleaseComments("VS Release Comments");
+	ValueSetReleaseComments("VS Release Comments"),
+	ValueSetConceptDefinitionText("Value Set Concept Definition Text");  //added in V8 (though probably in error, on this tab)
 
 	final private String columnName;
 

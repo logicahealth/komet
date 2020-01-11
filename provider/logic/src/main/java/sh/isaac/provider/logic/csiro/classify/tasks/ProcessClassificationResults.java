@@ -51,6 +51,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import au.csiro.ontology.Node;
 import au.csiro.ontology.Ontology;
@@ -96,6 +97,7 @@ public class ProcessClassificationResults
         extends TimedTaskWithProgressTracker<ClassifierResults> implements AggregateTaskInput {
 
     ClassifierData inputData;
+    Logger log = LogManager.getLogger();
 
     int classificationDuplicateCount = -1;
     int classificationCountDuplicatesToNote = 10;
@@ -135,7 +137,9 @@ public class ProcessClassificationResults
     protected ClassifierResults call()
             throws Exception {
         Get.activeTasks().add(this);
+        setStartTime();
         try {
+            log.info("Processing classication results");
             if (inputData == null) {
                 throw new RuntimeException("Input data to ProcessClassificationResults must be specified by calling setInput prior to executing");
             }
@@ -151,8 +155,10 @@ public class ProcessClassificationResults
             LOG.info("Adding classifier results to logic service...");
             return classifierResults;
         } finally {
+            log.info("Notify taxonomy update");
             Get.taxonomyService().notifyTaxonomyListenersToRefresh();
             Get.activeTasks().remove(this);
+            log.info("Classify results process complete");
         }
     }
 

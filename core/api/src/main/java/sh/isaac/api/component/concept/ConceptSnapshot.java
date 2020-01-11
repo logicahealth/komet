@@ -236,4 +236,3 @@ public interface ConceptSnapshot
         throw new UnsupportedOperationException();
     }
 }
-

@@ -55,6 +55,8 @@ import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -189,7 +191,7 @@ public class ExportTaxonomy
          try (DataOutputStream xmlData =
                new DataOutputStream(new BufferedOutputStream(new FileOutputStream(metadataXmlDataFile)));
             FileWriter yamlFile = new FileWriter(new File(metadataDirectory.getAbsolutePath(),
-                                                          taxonomy.getClass().getSimpleName() + ".yaml"));) {
+                                                          taxonomy.getClass().getSimpleName() + ".yaml"), Charset.forName(StandardCharsets.UTF_8.name()));) {
             taxonomy.exportYamlBinding(yamlFile, this.bindingPackage, this.bindingClass, constantsForYamlOnly);
          }
 

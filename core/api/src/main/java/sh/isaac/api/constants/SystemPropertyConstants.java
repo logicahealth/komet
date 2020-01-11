@@ -38,6 +38,7 @@
 package sh.isaac.api.constants;
 
 import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.GlobalDatastoreConfiguration;
 import sh.isaac.api.LookupService;
 
 /**
@@ -84,6 +85,12 @@ public class SystemPropertyConstants {
     * This will override {@link ConfigurationService#getDatabaseImplementation()}
     */
    public static final String DATA_STORE_TYPE = "DATA_STORE_TYPE";
+   
+   /** 
+    * Used to disable the lucene implementation, even when it is on the classpath.
+    * This will override {@ GlobalDatastoreConfiguration#enableLuceneIndexes()}
+    */
+   public static final String ENABLE_LUCENE = "ENABLE_LUCENE";
 
    /**
     * May be optionally used to enable console-level, extremely verbose debug output by providing a value of 'true'

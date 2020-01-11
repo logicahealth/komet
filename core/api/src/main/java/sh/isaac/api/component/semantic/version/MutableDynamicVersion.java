@@ -49,7 +49,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
  * @author kec
  * @param <T> the generic type
  */
-public interface MutableDynamicVersion<T extends MutableDynamicVersion<T>> extends MutableSemanticVersion, DynamicVersion<T>
+public interface MutableDynamicVersion extends MutableSemanticVersion, DynamicVersion
 {
 	/**
 	 * Set the data (if any) for the DynamicVersion.

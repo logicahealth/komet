@@ -272,7 +272,7 @@ public class IsaacMappingConstants implements ModuleProvidedConstants, IsaacCach
          UUID.fromString("8d6463c2-b0ec-5e34-a882-1208d52703ea"),
          "A Semantic used to annotate Mapping Set concepts. This semantic carries field identifiers for organizing an ordered columnar display row.",
          new DynamicColumnInfo[] { 
-               new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_MAPPING_DISPLAY_FIELDS.getPrimordialUuid(), DynamicDataType.ARRAY, null, true, true), 
+               new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_MAPPING_DISPLAY_FIELDS.getPrimordialUuid(), DynamicDataType.ARRAY, null, true),
                }, null) 
    {
       {
@@ -304,7 +304,7 @@ public class IsaacMappingConstants implements ModuleProvidedConstants, IsaacCach
          "A Semantic used annotate semantic definition concepts that represent a mapping definition.  Mapping semantics will contain a data column named 'target concept', "
          + "another named 'mapping equivalence type', and may contain additional extended columns.  This semantic carries additional information about the semantic definition.",
          new DynamicColumnInfo[] { 
-               new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_MAPPING_PURPOSE.getPrimordialUuid(), DynamicDataType.STRING, null, false, true),
+               new DynamicColumnInfo(0, this.DYNAMIC_COLUMN_MAPPING_PURPOSE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
                }, null) 
    {
       {
@@ -318,8 +318,8 @@ public class IsaacMappingConstants implements ModuleProvidedConstants, IsaacCach
          "A Semantic used annotate semantic definition concepts that represent a mapping definition.  This annotation type carries pair data"
                + "of a concept used for a label, and a string value.",
          new DynamicColumnInfo[] { 
-               new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_NAME.getPrimordialUuid(), DynamicDataType.NID, null, true, true),
-               new DynamicColumnInfo(1, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false, true), },
+               new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_NAME.getPrimordialUuid(), DynamicDataType.NID, null, true),
+               new DynamicColumnInfo(1, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false), },
          null) {
       {
          setParent(DynamicConstants.get().DYNAMIC_ASSEMBLAGES);
@@ -332,8 +332,8 @@ public class IsaacMappingConstants implements ModuleProvidedConstants, IsaacCach
          "A Semantic used annotate semantic definition concepts that represent a mapping definition.  This annotation type carries pair data"
                + "of a concept used for a label, and a nid value.",
          new DynamicColumnInfo[] { 
-               new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_NAME.getPrimordialUuid(), DynamicDataType.NID, null, true, true),
-               new DynamicColumnInfo(1, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.NID, null, false, true), },
+               new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_NAME.getPrimordialUuid(), DynamicDataType.NID, null, true),
+               new DynamicColumnInfo(1, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.NID, null, false), },
          null) {
       {
          setParent(DynamicConstants.get().DYNAMIC_ASSEMBLAGES);

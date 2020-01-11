@@ -53,23 +53,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.ContextEnabled;
+import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
-import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
@@ -81,11 +81,15 @@ import sh.isaac.mojo.LoadTermstore;
  *
  * Base mojo class with shared parameters for reuse by terminology specific converters.
  * 
- * This base mojo is intended for converters that have been rewritten as "direct" importers.
+ * This base mojo is intended for converters that have been rewritten as "direct" importers, and also serves for 
+ * mojo support.
+ * 
+ * Note, due to class path issues with the convoluted project structure, this entire maven module will not contain 
+ * any @Mojo annotations.  All @Mojo annotations for classes that extend this should reside in the importers-mojos module.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public abstract class DirectConverterBaseMojo extends AbstractMojo
+public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mojo, ContextEnabled 
 {
 	protected Logger log = LogManager.getLogger();
 
@@ -226,10 +230,8 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 			Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 
 			LookupService.startupIsaac();
-
-			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
-
-					readbackCoordinate = StampCoordinates.getDevelopmentLatest();
+			
+			readbackCoordinate = StampCoordinates.getDevelopmentLatest();
 
 			Path[] filesToPreload = getIBDFFilesToPreload();
 			if (filesToPreload != null && filesToPreload.length > 0)
@@ -244,13 +246,20 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 				lt.execute();
 			}
 			
+			// Don't need to build indexes - but don't disable till after the pre-loads, as we might need indexes on those.
+			for (IndexBuilderService ibs : LookupService.getServices(IndexBuilderService.class))
+			{
+				ibs.refreshQueryEngine();  //refresh, so that the data loaded above is available
+				ibs.setEnabled(false);
+			}
+			
 			DataWriteListenerImpl listener = new DataWriteListenerImpl(ibdfFileToWrite, toIgnore == null ? null : toIgnore.get());
 
 			// we register this after the metadata has already been written.
 			LookupService.get().getService(DataStore.class).registerDataWriteListener(listener);
 
-			convertContent(transaction, statusUpdate -> {}, (workDone, workTotal) -> {});
-			transaction.commit("Direct converter base mojo");
+			convertContent(statusUpdate -> {}, (workDone, workTotal) -> {});
+
 			LookupService.shutdownSystem();
 
 			listener.close();
@@ -270,12 +279,12 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	 * is work done, the second argument is work total.
 	 * @throws IOException 
 	 */
-	protected abstract void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
+	protected abstract void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
 	
 	
 	/**
 	 * Implementors should override this method, if they have IBDF files that should be pre-loaded, prior to the callback to 
-	 * {@link #convertContent(Transaction, Consumer)}, and prior to the injection of the IBDF change set listener.
+	 * {@link #convertContent(Consumer)}, and prior to the injection of the IBDF change set listener.
 	 * 
 	 * This is only used by loaders that cannot execute without having another terminology preloaded - such as snomed extensions
 	 * that need to do snomed lookups, or loinc tech preview, which requires snomed, and loinc, for example.
@@ -314,10 +323,26 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 	 * @param releaseTime
 	 * @return
 	 */
-	protected UUID setupModule(Transaction transaction, String name, UUID parentModule, long releaseTime)
+	protected UUID setupModule(String name, UUID parentModule, Optional<String> fhirURI, long releaseTime)
+	{
+		return setupModule(name, Optional.empty(), Optional.empty(), parentModule, fhirURI, releaseTime);
+	}
+	
+	/**
+	 * Create the version specific module concept, and add the loader metadata to it.
+	 * @param name - a name to use for constructing the FQN, which will be unique, when this method combines it with the version info
+	 * @param altName - an additional name to attach as a description
+	 * @param moduleVersionString if provided, uses this in the name, and content version annotations, rather than the 
+	 *     converterSourceArtifactVersion - useful for source artifacts that contain multiple versions of content.
+	 * @param parentModule
+	 * @param releaseTime
+	 * @param fhirURI
+	 * @return
+	 */
+	protected UUID setupModule(String name, Optional<String> altName, Optional<String> moduleVersionString, UUID parentModule, Optional<String> fhirURI, long releaseTime)
 	{
 		//Create a module for this version.
-		String fullName = name + " " + converterSourceArtifactVersion + " module";
+		String fullName = name + " " + moduleVersionString.orElse(converterSourceArtifactVersion) + " module";
 		UUID versionModule = converterUUID.createNamespaceUUIDFromString(fullName);
 		int moduleNid = Get.identifierService().assignNid(versionModule);
 		dwh.changeModule(moduleNid);  //change to the version specific module for all future work.
@@ -330,10 +355,17 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo
 		dwh.makeDescriptionEnNoDialect(versionModule, fullName, 
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 				Status.ACTIVE, releaseTime);
-		dwh.makeParentGraph(transaction, versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
+		if (altName.isPresent())
+		{
+			dwh.makeDescriptionEnNoDialect(versionModule, altName.get(), 
+					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+					Status.ACTIVE, releaseTime);
+		}
+		dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 		
-		dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, Optional.of(new Date(releaseTime).toString()), 
-				Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), releaseTime);
+		dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, moduleVersionString.orElse(converterSourceArtifactVersion), 
+				Optional.of(new Date(releaseTime).toString()),Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), 
+				fhirURI, releaseTime);
 		
 		return versionModule;
 	}

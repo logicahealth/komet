@@ -32,7 +32,7 @@
 				<exclusion>
 					<groupId>sh.isaac.misc</groupId>
 					<artifactId>vhat-util</artifactId>
-			</exclusion>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>

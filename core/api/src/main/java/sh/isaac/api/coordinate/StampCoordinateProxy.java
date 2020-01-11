@@ -18,6 +18,8 @@ package sh.isaac.api.coordinate;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -62,8 +64,8 @@ public interface StampCoordinateProxy extends StampCoordinate {
    }
 
    @Override
-   public default StampCoordinate makeCoordinateAnalog(Status... state) {
-      return getStampCoordinate().makeCoordinateAnalog(state);
+   default StampCoordinate makeCoordinateAnalog(Set<Status> statusSet) {
+      return getStampCoordinate().makeCoordinateAnalog(statusSet);
    }
 
    @Override
@@ -74,5 +76,6 @@ public interface StampCoordinateProxy extends StampCoordinate {
    @Override
    default StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
       return getStampCoordinate().makePathAnalog(pathForPosition);
+
    }
 }

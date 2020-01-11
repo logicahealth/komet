@@ -193,9 +193,15 @@ public class ConceptProxy
          final ConceptSpecification other = (ConceptSpecification) obj;
 
          if (obj instanceof ConceptProxy) {
-            //A hack to make ConceptProxy 'lazier' in certain bootstrap scenarios
-            if (cachedNid != 0 && ((ConceptProxy)obj).cachedNid != 0) {
-               return cachedNid == ((ConceptProxy)obj).cachedNid;
+            //A hack to make ConceptProxy 'lazier' in certain bootstrap scenarios, and also certain tests 
+            //that purposefully don't use valid nids
+            if (cachedNid != 0) {
+                if (((ConceptProxy)obj).cachedNid != 0) {
+                   return cachedNid == ((ConceptProxy)obj).cachedNid;
+                }
+                else {
+                    return cachedNid == ((ConceptProxy)obj).getNid();
+                }
             }
             ConceptProxy proxy = (ConceptProxy) obj;
             return Arrays.stream(this.getUuids()).anyMatch((UUID objUuid) -> {

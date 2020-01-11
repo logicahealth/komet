@@ -45,5 +45,9 @@ public interface ManifoldCoordinateProxy extends ManifoldCoordinate {
    public default UUID getCoordinateUuid() {
       return getManifoldCoordinate().getCoordinateUuid();
    }
-   
+
+   @Override
+   public default LogicCoordinate getLogicCoordinate() {
+      return getManifoldCoordinate().getLogicCoordinate();
+   }
 }

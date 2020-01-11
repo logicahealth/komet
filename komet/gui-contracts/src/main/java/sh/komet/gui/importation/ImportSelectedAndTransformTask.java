@@ -43,9 +43,11 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
    final Manifold manifold;
    final ImportType importType;
    final List<ContentProvider> entriesToImport;
-   
-   public ImportSelectedAndTransformTask(Manifold manifold, ImportType importType,
+   private final Transaction transaction;
+
+   public ImportSelectedAndTransformTask(Transaction transaction, Manifold manifold, ImportType importType,
          List<ContentProvider> entriesToImport) {
+      this.transaction = transaction;
       this.entriesToImport = entriesToImport;
       this.manifold = manifold;
       this.importType = importType;
@@ -61,7 +63,7 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
          Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
          completedUnitOfWork();
          updateMessage("Importing new content...");
-         DirectImporter importer = new DirectImporter(importType, entriesToImport);
+         DirectImporter importer = new DirectImporter(transaction, importType, entriesToImport);
          Future<?> importTask = Get.executor().submit(importer);
          importTask.get();
          completedUnitOfWork();

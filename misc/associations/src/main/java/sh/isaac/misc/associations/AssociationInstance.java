@@ -57,14 +57,14 @@ import sh.isaac.api.coordinate.StampCoordinate;
  */
 public class AssociationInstance
 {
-   private DynamicVersion<?> semantic;
+   private DynamicVersion semantic;
    private StampCoordinate stampCoord;
    
    private transient AssociationType assnType_;
 
    //TODO [DAN 3] Write the code that checks the index states on startup
    
-   private AssociationInstance(DynamicVersion<?> data, StampCoordinate stampCoordinate)
+   private AssociationInstance(DynamicVersion data, StampCoordinate stampCoordinate)
    {
       this.semantic = data;
       this.stampCoord = stampCoordinate;
@@ -77,7 +77,7 @@ public class AssociationInstance
     * if one calls {@link AssociationInstance#getAssociationType()} - see {@link AssociationType#read(int, StampCoordinate)}
     * @return
     */
-   public static AssociationInstance read(DynamicVersion<?> data, StampCoordinate stampCoordinate)
+   public static AssociationInstance read(DynamicVersion data, StampCoordinate stampCoordinate)
    {
       return new AssociationInstance(data, stampCoordinate);
    }
@@ -182,7 +182,7 @@ public class AssociationInstance
       return this.semantic.getAssemblageNid();
    }
 
-   public DynamicVersion<?> getData()
+   public DynamicVersion getData()
    {
       return this.semantic;
    }

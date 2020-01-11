@@ -64,18 +64,31 @@
       </dependency>
       <dependency>
          <groupId>com.fasterxml.jackson.core</groupId>
-         <artifactId>jackson-core</artifactId>
-         <version>2.9.7</version>
-      </dependency>
-      <dependency>
-         <groupId>com.fasterxml.jackson.core</groupId>
-         <artifactId>jackson-annotations</artifactId>
-         <version>2.9.7</version>
-      </dependency>
-      <dependency>
-         <groupId>com.fasterxml.jackson.core</groupId>
          <artifactId>jackson-databind</artifactId>
-         <version>2.9.7</version>
       </dependency>
+      <dependency>
+         <groupId>com.monitorjbl</groupId>
+         <artifactId>xlsx-streamer</artifactId>
+         <version>2.1.0</version>
+         <exclusions>
+            <exclusion>
+               <groupId>xml-apis</groupId>
+               <artifactId>xml-apis</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>xml-apis</groupId>
+               <artifactId>xml-apis-ext</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>com.rackspace.apache</groupId>
+               <artifactId>xerces2-xsd11</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+       <dependency>
+           <groupId>sh.isaac.integration</groupId>
+           <artifactId>import-utils</artifactId>
+           <version>${project.parent.version}</version>
+       </dependency>
    </dependencies>
 </project>

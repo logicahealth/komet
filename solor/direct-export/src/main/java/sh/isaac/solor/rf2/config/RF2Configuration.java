@@ -1,5 +1,17 @@
 package sh.isaac.solor.rf2.config;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import org.apache.commons.text.WordUtils;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
@@ -8,19 +20,14 @@ import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.configuration.LanguageCoordinates;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.solor.rf2.utility.PreExportUtility;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 public class RF2Configuration {
 
@@ -40,6 +47,21 @@ public class RF2Configuration {
     private final TaxonomySnapshot noTreeTaxonomySnapshot;
     private final RF2ReleaseType rf2ReleaseType;
     private final RF2ExportHelper rf2ExportHelper;
+    
+    
+    /**
+     * TODO 
+     * One should take a look at {@link DynamicDataType#translateSCTIDMetadata} to see how SCTIDs are translated to types during import, 
+     * These export rules below are likely not correct - we should probably be tracking the actual translations per refset, so they can be 
+     * exported again correctly.  
+     * As an example, there are  at least 6 different SCTIDs that are translated into our "String" field.  The only one we are writing back out
+     * is parsableString, which obviously isn't correct.
+     */
+    public static final String REFERENCED_COMPONENT = "449608002";
+    private static final String CONCEPT_TYPE_COMPONENT = "900000000000461009";
+    public static final String SIGNED_INTEGER = "900000000000477005";
+    public static final String PARSABLE_STRING = "707000009";
+    private static final String REFSET_DESCRIPTOR_REFSET = "900000000000456007";
 
 
     public RF2Configuration(RF2FileType rf2FileType, RF2ReleaseType rf2ReleaseType, LocalDateTime localDateTime, File exportDirectory,
@@ -102,12 +124,12 @@ public class RF2Configuration {
 
         if(isDescriptorAssemblagePresent) {
             refsetDescriptorHeaders = preExportUtility.generateRefsetDescriptorHeaders();
-            this.isDescriptorAssemblage = assemblageNid == Get.concept(UuidT3Generator.fromSNOMED("900000000000456007")).getNid();
+            this.isDescriptorAssemblage = assemblageNid == Get.concept(UuidT3Generator.fromSNOMED(REFSET_DESCRIPTOR_REFSET)).getNid();
         }
 
         this.noTreeTaxonomySnapshot = noTreeTaxonomySnapshot;
 
-        setFilePath(versionType, assemblageFQN);
+        setFilePath(assemblageNid, assemblageFQN);
         setIntStreamSupplier(assemblageNid);
         setFileHeader(assemblageNid);
     }
@@ -135,158 +157,104 @@ public class RF2Configuration {
 
                 final StringBuilder descriptorStringBuilder = new StringBuilder();
 
-                final String integerFieldDescription = this.rf2ExportHelper.getIdString(MetaData.INTEGER_FIELD____SOLOR.getNid());
-                final String stringFieldDescription = this.rf2ExportHelper.getIdString(MetaData.STRING_FIELD____SOLOR.getNid());
-                final String longFieldDescription = this.rf2ExportHelper.getIdString(MetaData.LONG_FIELD____SOLOR.getNid());
+                Get.concept(assemblageNid).getVersionList().stream().forEach(version -> {
+                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) 
+                            + REFERENCED_COMPONENT + "\t" + CONCEPT_TYPE_COMPONENT + "\t0\r\n");
+                    DynamicUsageDescription dud = DynamicUsageDescriptionImpl.mockOrRead(assemblageNid);
+                    
+                    //Build the header row for our data columns
+                    StringBuilder header = new StringBuilder();
+                    header.append(rf2FileType.getFileHeader());
+                    for (DynamicColumnInfo dci : dud.getColumnInfo()) {
+                        switch (dci.getColumnDataType()) {
+                            case INTEGER:
+                            case LONG:
+                            case STRING:
+                            case BOOLEAN:
+                            case DOUBLE:
+                            case FLOAT:
+                                header.append(dci.getColumnName());
+                                header.append("\t");
+                            //I'm not entirely sure if it is better to use the name componentId for these, or if we should use the actual semantic column name...
+                            case NID:
+                            case UUID:
+                                header.append("componentId\t");
+                                break;
+                            case ARRAY:
+                            case BYTEARRAY:
+                            case POLYMORPHIC:
+                            case UNKNOWN:
+                            default :
+                                throw new RuntimeException("Unexpected type! " + dci.getColumnDataType());
+                        }
+                        
+                        //header row handled, now add the descriptor row for this column
+                        
+                        StringBuilder descriptor = new StringBuilder();
+                        descriptor.append(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder));
+                        //TODO I'm not sure this idString thing really does the right thing here... 
+                        //Add the 'attributeDescription'
+                        descriptor.append(rf2ExportHelper.getIdString(Get.nidForUuids(dci.getColumnDescriptionConcept())));
+                        descriptor.append("\t");
+                        //Add the 'attributeType'
+                        switch (dci.getColumnDataType()) {  //Note, these aren't likely correct, we should be specifying more specific types.  
+                            //See input mapping in {@link DynamicDataType#translateSCTIDMetadata}
+                            case INTEGER:
+                                descriptor.append(SIGNED_INTEGER);
+                                descriptor.append("\t");
+                                break;
+                            case NID:
+                            case UUID:
+                                descriptor.append(CONCEPT_TYPE_COMPONENT);
+                                descriptor.append("\t");
+                                break;
+                            case LONG:  //Not sure we want to treat longs as strings, but that is what they do in the file naming, below...
+                            case STRING:
+                                descriptor.append(PARSABLE_STRING);
+                                descriptor.append("\t");
+                                break;
+                            case BOOLEAN:
+                            case DOUBLE:
+                            case FLOAT:
+                            case ARRAY:
+                            case BYTEARRAY:
+                            case POLYMORPHIC:
+                            case UNKNOWN:
+                            default :
+                                throw new RuntimeException("Unexpected type! " + dci.getColumnDataType());
+                        }
+                        //Add the attributeOrder
+                        descriptor.append(dci.getColumnOrder() + 1);
+                        descriptor.append("\r\n");
+                        this.refsetDescriptorDefinitions.add(descriptor.toString());
+                    }
+                    
+                    if (header.charAt(header.length() - 1) == '\t')
+                    {
+                        header.setLength(header.length() - 1);
+                    }
+                    this.fileHeader = header.toString();
 
-                Get.concept(assemblageNid).getVersionList().stream()
-                        .forEach(version -> {
-
-                            switch (Get.assemblageService().getVersionTypeForAssemblage(assemblageNid)) {
-                                case MEMBER:
-                                    this.fileHeader = rf2FileType.getFileHeader().trim() + "\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    break;
-                                case COMPONENT_NID:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "componentId\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t1\r\n");
-                                    break;
-                                case STRING:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "stringValue\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t1\r\n");
-                                    break;
-                                case LONG:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "longValue\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + longFieldDescription + "\t" + "707000009\t1\r\n");
-                                    break;
-                                case Nid1_Int2:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "componentId\tintegerValue\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + integerFieldDescription + "\t" + "900000000000477005\t2\r\n");
-                                    break;
-                                case Nid1_Nid2:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "componentId\tcomponentId\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t2\r\n");
-                                    break;
-                                case Nid1_Str2:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "componentId\tstringValue\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t2\r\n");
-                                    break;
-                                case Str1_Str2:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "stringValue\tstringValue\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t2\r\n");
-                                    break;
-                                case Nid1_Nid2_Int3:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "componentId\tcomponentId\tintegerValue\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t2\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + integerFieldDescription + "\t" + "900000000000477005\t3\r\n");
-                                    break;
-                                case Nid1_Nid2_Str3:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "componentId\tcomponentId\tstringValue\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t2\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t3\r\n");
-                                    break;
-                                case Str1_Nid2_Nid3_Nid4:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "stringValue\tcomponentId\tcomponentId\tcomponentId\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t2\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t3\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t4\r\n");
-                                    break;
-                                case Str1_Str2_Nid3_Nid4:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "stringValue\tstringValue\tcomponentId\tcomponentId\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t2\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t3\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t4\r\n");
-                                    break;
-                                case Str1_Str2_Nid3_Nid4_Nid5:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "stringValue\tstringValue\tcomponentId\tcomponentId\tcomponentId\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t2\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t3\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t4\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t5\r\n");
-                                    break;
-                                case Nid1_Int2_Str3_Str4_Nid5_Nid6:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "componentId\tintegerValue\tstringValue\tstringValue\tcomponentId\tcomponentId\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + integerFieldDescription + "\t" + "900000000000477005\t2\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t3\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t4\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t5\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t6\r\n");
-                                    break;
-                                case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "integerValue\tintegerValue\tstringValue\tstringValue\tstringValue\tcomponentId\tcomponentId\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + integerFieldDescription + "\t" + "900000000000477005\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + integerFieldDescription + "\t" + "900000000000477005\t2\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t3\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t4\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t5\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t6\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t7\r\n");
-                                    break;
-                                case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "stringValue\tstringValue\tstringValue\tstringValue\tstringValue\tstringValue\tstringValue\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t2\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t3\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t4\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t5\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t6\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t7\r\n");
-                                    break;
-                                case LOINC_RECORD:
-                                    this.fileHeader = rf2FileType.getFileHeader() + "loincNum\tcomponent\tproperty\ttimeAspect\tsystem\tscaleType\tmethodType\tstatus\tshortName\tlongCommonName\r\n";
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + "449608002\t900000000000461009\t0\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t1\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t2\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t3\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t4\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t5\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t6\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t7\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t8\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t9\r\n");
-                                    this.refsetDescriptorDefinitions.add(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder) + stringFieldDescription + "\t" + "707000009\t10\r\n");
-                                    break;
-                            }
-                        });
+                });
             }
         }
     }
 
+    /**
+     * Creates the first 6 columns of https://confluence.ihtsdotools.org/display/DOCRELFMT/5.2.11+Reference+Set+Descriptor
+     * with a trailing tab
+     */
     private String createDescriptorBaseString(Version version, int assemblageNid, StringBuilder stringBuilder){
 
         stringBuilder.setLength(0);
 
+        //TODO why on earth is this exporting random UUIDs?  Thats useless.....
         return stringBuilder
                 .append(UUID.randomUUID().toString() + "\t")
                 .append(rf2ExportHelper.getTimeString(version) + "\t")
                 .append(rf2ExportHelper.getActiveString(version) + "\t")
                 .append(rf2ExportHelper.getIdString(version.getModuleNid()) + "\t")
-                .append("900000000000456007" + "\t")
+                .append(REFSET_DESCRIPTOR_REFSET + "\t")
                 .append(rf2ExportHelper.getIdString(assemblageNid) + "\t").toString();
     }
 
@@ -340,6 +308,8 @@ public class RF2Configuration {
                 this.exportCount = identifierService.getNidsForAssemblage(assemblageNid).count();
 
                 break;
+            default :
+                throw new RuntimeException("Unsupported RF2 File Type " + this.rf2FileType);
         }
     }
 
@@ -361,60 +331,35 @@ public class RF2Configuration {
                 .replace("RELEASETYPE", this.rf2ReleaseType.toString()));
     }
 
-    private void setFilePath(VersionType versionType, String assemblageFQN){
-        String pattern = "";
+    private void setFilePath(int assemblageNid, String assemblageFQN){
+        StringBuilder pattern = new StringBuilder();
 
-        switch (versionType){
-            case MEMBER:
-                break;
-            case COMPONENT_NID:
-                pattern = "c";
-                break;
-            case STRING:
-            case LONG:
-                pattern = "s";
-                break;
-            case Nid1_Int2:
-                pattern = "ci";
-                break;
-            case Nid1_Nid2:
-                pattern = "cc";
-                break;
-            case Nid1_Str2:
-                pattern = "cs";
-                break;
-            case Str1_Str2:
-                pattern = "ss";
-                break;
-            case Nid1_Nid2_Int3:
-                pattern = "cci";
-                break;
-            case Nid1_Nid2_Str3:
-                pattern = "ccs";
-                break;
-            case Str1_Nid2_Nid3_Nid4:
-                pattern = "sccc";
-                break;
-            case Str1_Str2_Nid3_Nid4:
-                pattern = "sscc";
-                break;
-            case Str1_Str2_Nid3_Nid4_Nid5:
-                pattern = "ssccc";
-                break;
-            case Nid1_Int2_Str3_Str4_Nid5_Nid6:
-                pattern = "cisscc";
-                break;
-            case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-                pattern = "iissscc";
-                break;
-            case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-                pattern = "sssssss";
-                break;
-            case LOINC_RECORD:
-                pattern = "ssssssssss";
-                break;
+        DynamicUsageDescription dud = DynamicUsageDescriptionImpl.mockOrRead(assemblageNid);
+        
+        for (DynamicColumnInfo dci : dud.getColumnInfo()) {
+            switch (dci.getColumnDataType()) {  
+                case INTEGER:
+                    pattern.append("i");
+                    break;
+                case NID:
+                case UUID:
+                    pattern.append("c");
+                    break;
+                case LONG:  //Not sure we want to treat longs as strings, but that is what they do in the file naming, below...
+                case STRING:
+                    pattern.append("s");
+                    break;
+                case BOOLEAN:
+                case DOUBLE:
+                case FLOAT:
+                case ARRAY:
+                case BYTEARRAY:
+                case POLYMORPHIC:
+                case UNKNOWN:
+                default :
+                    throw new RuntimeException("Unexpected type! " + dci.getColumnDataType());
+            }
         }
-
         String formattedFQNForFileName = WordUtils.capitalizeFully(assemblageFQN);
         if(assemblageFQN.contains("(") && assemblageFQN.contains(")"))
             formattedFQNForFileName = formattedFQNForFileName
@@ -428,7 +373,7 @@ public class RF2Configuration {
                 this.exportDirectory + this.parentDirectory + this.rf2FileType.getFilePath()
                         .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
                         .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime))
-                        .replace("PATTERN", pattern)
+                        .replace("PATTERN", pattern.toString())
                         .replace("SUMMARY", formattedFQNForFileName)
                         .replace("RELEASETYPE", this.rf2ReleaseType.toString()));
     }

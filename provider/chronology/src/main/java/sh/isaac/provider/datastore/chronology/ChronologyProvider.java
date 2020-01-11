@@ -799,16 +799,11 @@ public class ChronologyProvider
     /**
      * The Class ConceptSnapshotProvider.
      */
-    public class ConceptSnapshotProvider
-            implements ConceptSnapshotService {
+    public class ConceptSnapshotProvider implements ConceptSnapshotService {
 
-        /**
-         * The manifold coordinate.
-         */
         ManifoldCoordinate manifoldCoordinate;
         LanguageCoordinate regNameCoord;
 
-        //~--- constructors -----------------------------------------------------
         /**
          * Instantiates a new concept snapshot provider.
          *
@@ -816,45 +811,14 @@ public class ChronologyProvider
          */
         public ConceptSnapshotProvider(ManifoldCoordinate manifoldCoordinate) {
             this.manifoldCoordinate = manifoldCoordinate;
-            this.regNameCoord = LanguageCoordinates.getRegularNameCoordinate();
+            this.regNameCoord = LanguageCoordinates.getRegularNameCoordinate(false);
         }
 
-        //~--- methods ----------------------------------------------------------
-        /**
-         * Concept description text.
-         *
-         * @param conceptId the concept id
-         * @return the string
-         */
-        @Override
-        public String conceptDescriptionText(int conceptId) {
-            final LatestVersion<DescriptionVersion> descriptionOptional = getDescriptionOptional(conceptId);
-
-            if (descriptionOptional.isPresent()) {
-                return descriptionOptional.get()
-                        .getText();
-            }
-
-            return "No desc for: " + conceptId;
-        }
-
-        /**
-         * To string.
-         *
-         * @return the string
-         */
         @Override
         public String toString() {
             return "ConceptSnapshotProvider{" + "manifoldCoordinate=" + this.manifoldCoordinate + '}';
         }
 
-        //~--- get methods ------------------------------------------------------
-        /**
-         * Checks if concept active.
-         *
-         * @param conceptNid the concept nid
-         * @return true, if concept active
-         */
         @Override
         public boolean isConceptActive(int conceptNid) {
             return ChronologyProvider.this.isConceptActive(conceptNid, this.manifoldCoordinate);
@@ -865,29 +829,9 @@ public class ChronologyProvider
             return getConceptSnapshot(conceptSpecification.getNid());
         }
 
-        /**
-         * Gets the concept snapshot.
-         *
-         * @param conceptNid the concept nid
-         * @return the concept snapshot
-         */
         @Override
         public ConceptSnapshot getConceptSnapshot(int conceptNid) {
             return new ConceptSnapshotImpl(getConceptChronology(conceptNid), this.manifoldCoordinate);
-        }
-
-        /**
-         * Gets the description list.
-         *
-         * @return the description list
-         */
-        private List<SemanticChronology> getDescriptionList(int conceptNid) {
-            if (conceptNid >= 0) {
-                throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
-            }
-
-            return Get.assemblageService()
-                    .getDescriptionsForComponent(conceptNid);
         }
 
         @Override
@@ -896,48 +840,20 @@ public class ChronologyProvider
                 throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptId);
             }
 
-            LatestVersion<DescriptionVersion> lv = this.manifoldCoordinate.getDescription(getDescriptionList(conceptId));
+            LatestVersion<DescriptionVersion> lv = this.manifoldCoordinate.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptId));
             if (lv.isAbsent()) {
                //Use a coordinate that will return anything
-               return regNameCoord.getDescription(getDescriptionList(conceptId), this.manifoldCoordinate);
+               return regNameCoord.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptId), this.manifoldCoordinate);
             }
             else {
                return lv;
             }
         }
 
-        /**
-         * Gets the fully specified description.
-         *
-         * @param conceptId the concept id
-         * @return the fully specified description
-         */
-        @Override
-        public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(int conceptId) {
-            return this.manifoldCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId));
-        }
-
-        /**
-         * Gets the stamp coordinate.
-         *
-         * @return the stamp coordinate
-         */
         @Override
         public ManifoldCoordinate getManifoldCoordinate() {
             return this.manifoldCoordinate;
         }
-
-        /**
-         * Gets the preferred description.
-         *
-         * @param conceptId the concept id
-         * @return the preferred description
-         */
-        @Override
-        public LatestVersion<DescriptionVersion> getPreferredDescription(int conceptId) {
-            return this.manifoldCoordinate.getPreferredDescription(getDescriptionList(conceptId));
-        }
-
     }
 
     @Override

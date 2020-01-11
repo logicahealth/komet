@@ -92,7 +92,7 @@ public class AuthorModulePathRestriction {
     */
    public static AuthorModulePathRestriction restrict(ManifoldCoordinate mc) {
       AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
-      ar.authors = NidSet.EMPTY;
+      ar.authors = new NidSet();
       ar.modules = mc.getModuleNids();
       ar.paths = NidSet.of(new int[] { mc.getStampCoordinate().getStampPosition().getStampPathSpecification().getNid() });
       return ar;
@@ -105,7 +105,7 @@ public class AuthorModulePathRestriction {
     */
    public static AuthorModulePathRestriction restrict(StampCoordinate sc) {
       AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
-      ar.authors = NidSet.EMPTY;
+      ar.authors = new NidSet();
       ar.modules = sc.getModuleNids();
       ar.paths = NidSet.of(new int[] { sc.getStampPosition().getStampPathSpecification().getNid() });
       return ar;

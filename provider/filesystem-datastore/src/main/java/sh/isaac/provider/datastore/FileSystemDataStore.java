@@ -48,6 +48,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -731,7 +733,7 @@ public class FileSystemDataStore
                     completedUnitOfWork();  // 8
                     updateMessage("Writing properties...");
 
-                    try (FileWriter writer = new FileWriter(propertiesFile)) {
+                    try (FileWriter writer = new FileWriter(propertiesFile, Charset.forName(StandardCharsets.UTF_8.name()))) {
                         FileSystemDataStore.this.properties.store(writer, null);
                     }
                     completedUnitOfWork();  // 9

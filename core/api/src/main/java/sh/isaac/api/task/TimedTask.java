@@ -200,7 +200,6 @@ public abstract class TimedTask<T>
                 } else {
                     LOG.error(ex.getLocalizedMessage(), ex);
                 }
-
             }
             this.completeMessageGenerator.accept(this);
         });

@@ -103,6 +103,7 @@ public interface ObservableManifoldCoordinate
    
    /**
     * @return An observable version of {@link #optionalDestinationStampCoordinate()}
+
     */
    public ObjectProperty<ObservableStampCoordinate> destinationStampCoordinateProperty();
 

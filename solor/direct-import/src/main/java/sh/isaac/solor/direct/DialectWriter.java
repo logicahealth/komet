@@ -127,11 +127,11 @@ public class DialectWriter
 
          for (String[] descriptionRecord: dialectRecords) {
             final Status state = Status.fromZeroOneToken(descriptionRecord[ACTIVE_INDEX]);
-            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+            if (state == Status.INACTIVE && importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                 continue;
             }
             UUID referencedComponentUuid = UuidT3Generator.fromSNOMED(descriptionRecord[REFERENCED_COMPONENT_SCT_ID_INDEX]);
-            if (importType == ImportType.ACTIVE_ONLY) {
+            if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                 if (!identifierService.hasUuid(referencedComponentUuid)) {
                     // if description was not imported because inactive, or inactive concept then skip
                     continue;

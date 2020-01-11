@@ -34,8 +34,10 @@ public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> i
    
    final Manifold manifold;
    final ImportType importType;
+   final Transaction transaction;
    
-   public ImportAndTransformTask(Manifold manifold, ImportType importType) {
+   public ImportAndTransformTask(Transaction transaction, Manifold manifold, ImportType importType) {
+      this.transaction = transaction;
       this.manifold = manifold;
       this.importType = importType;
       updateTitle("Import and transform " + importType.toString());
@@ -50,7 +52,7 @@ public class ImportAndTransformTask extends TimedTaskWithProgressTracker<Void> i
          completedUnitOfWork();
          Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
          updateMessage("Importing new content...");
-         DirectImporter importer = new DirectImporter(importType);
+         DirectImporter importer = new DirectImporter(this.transaction, this.importType);
          Future<?> importTask = Get.executor().submit(importer);
          importTask.get();
          completedUnitOfWork();

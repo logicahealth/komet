@@ -15,7 +15,7 @@
 				<include>diff.json</include>
 				<include>stats.txt</include>
 			</includes>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory>${file.separator}</outputDirectory>
 		</fileSet>
 	</fileSets>
 	<files>

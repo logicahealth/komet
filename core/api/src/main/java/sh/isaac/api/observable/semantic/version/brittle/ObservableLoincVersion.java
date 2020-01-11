@@ -24,18 +24,18 @@ import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
  *
  * @author kec
  */
-public interface ObservableLoincVersion 
+public interface ObservableLoincVersion
         extends ObservableSemanticVersion, LoincVersion {
-   
-   StringProperty loincNumProperty(); 
-   StringProperty componentProperty();  
-   StringProperty propertyProperty();  
-   StringProperty timeAspectProperty();  
-   StringProperty systemProperty();  
-   StringProperty scaleTypeProperty();  
-   StringProperty methodTypeProperty();  
-   StringProperty loincStatusProperty();   
-   StringProperty shortNameProperty();    
-   StringProperty longCommonNameProperty(); 
-   
+
+    StringProperty loincNumProperty();
+    StringProperty componentProperty();
+    StringProperty propertyProperty();
+    StringProperty timeAspectProperty();
+    StringProperty systemProperty();
+    StringProperty scaleTypeProperty();
+    StringProperty methodTypeProperty();
+    StringProperty loincStatusProperty();
+    StringProperty shortNameProperty();
+    StringProperty longCommonNameProperty();
+
 }

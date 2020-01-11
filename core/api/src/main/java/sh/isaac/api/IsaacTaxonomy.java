@@ -272,18 +272,6 @@ public class IsaacTaxonomy {
                cb.addSemantic(sb);
             }
 
-            final DynamicArray<DynamicData> indexConfig
-                    = LookupService.getService(DynamicUtility.class)
-                            .configureColumnIndexInfo(dsc.getDynamicColumns());
-
-            if (indexConfig != null) {
-               sb = Get.semanticBuilderService()
-                       .getDynamicBuilder(cb,
-                               DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
-                                       .getNid(),
-                               new DynamicData[]{indexConfig});
-               cb.addSemantic(sb);
-            }
          }
          
          cb.setT5UuidNested(namespace);
@@ -362,7 +350,7 @@ public class IsaacTaxonomy {
       out.append("import java.util.UUID;\n");
       
       out.append("\n//Generated " + new Date().toString() + "\n");
-      out.append("//Pom Version " + VersionFinder.findProjectVersion(true) + "\n");
+      out.append("//Pom Version " + VersionFinder.findProjectVersion() + "\n");
       
 
       out.append("\n\npublic class " + className + " {\n");
@@ -428,14 +416,14 @@ public class IsaacTaxonomy {
            throws IOException {
       out.append("#YAML Bindings for " + packageName + "." + className + "\n");
       out.append("#Generated " + new Date().toString() + "\n");
-      out.append("#Pom Version " + VersionFinder.findProjectVersion(true) + "\n");
+      out.append("#Pom Version " + VersionFinder.findProjectVersion() + "\n");
       out.append("\nAUXILIARY_METADATA_VERSION: " + auxiliaryMetadataVersion + "\n");
       
       HashSet<String> genConstants = new HashSet<>();
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
          if (concept.getModule().isPresent() && concept.getModule().get().equals(TermAux.KOMET_MODULE)) {
-             continue;
+            continue;
          }
          String conceptName = concept.getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()));
            

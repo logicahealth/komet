@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-//import com.sun.javafx.scene.control.skin.TableHeaderRow;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;

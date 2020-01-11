@@ -88,7 +88,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -453,9 +452,8 @@ public class CommitProvider
                 if (!semanticChronology.getVersionList().isEmpty()) {
                     Get.assemblageService()
                             .writeSemanticChronology(semanticChronology);
+                    deferNidAction(semanticChronology.getNid());
                 }
-
-                deferNidAction(semanticChronology.getNid());
                 break;
 
             case STAMP_ALIAS:
@@ -496,8 +494,6 @@ public class CommitProvider
                         Get.conceptService()
                                 .writeConcept(conceptChronology);
                     }
-
-
                 }
             }
             break;
@@ -511,15 +507,16 @@ public class CommitProvider
                 if (optionalExistingSemantic.isEmpty()) {
                     Get.assemblageService()
                             .writeSemanticChronology(semanticChronology);
+                    deferNidAction(semanticChronology.getNid());
                 } else {
                     removeDuplicates(optionalExistingSemantic, semanticChronology);
                     if (!semanticChronology.getVersionList().isEmpty()) {
                         Get.assemblageService()
                                 .writeSemanticChronology(semanticChronology);
+                        deferNidAction(semanticChronology.getNid());
                     }
                 }
 
-                deferNidAction(semanticChronology.getNid());
                 break;
 
             case STAMP_ALIAS:
@@ -544,7 +541,7 @@ public class CommitProvider
     }
 
     private void removeDuplicates(Optional<? extends Chronology> optionalExistingChronology, ChronologyImpl newChronology) {
-        HashSet<String> existingSamps = new HashSet();
+        HashSet<String> existingSamps = new HashSet<>();
         for (Version v : optionalExistingChronology.get().getVersionList()) {
             existingSamps.add(v.getSampKey());
         }
@@ -578,6 +575,7 @@ public class CommitProvider
     @Override
     public void postProcessImportNoChecks() {
         final Set<Integer> nids = this.deferredImportNoCheckNids.getAndSet(new ConcurrentSkipListSet<>());
+        ArrayList<Exception> exceptions = new ArrayList<>();
         if (nids != null) {
             LOG.info("Post processing import. Deferred set size: " + nids.size());
 
@@ -594,9 +592,8 @@ public class CommitProvider
                         try {
                             Get.taxonomyService().updateTaxonomy(sc);
                         } catch (RuntimeException e) {
-                            //TODO better way of reporting errors without stopping processing of remaining content
-                            e.printStackTrace();
-                            LOG.error("While processing: " + sc);
+                            LOG.error("While processing: " + sc, e);
+                            exceptions.add(e);
                         }
                     }
                 } else {
@@ -606,7 +603,7 @@ public class CommitProvider
                             " in deferred set: " + nid + " UUIDs: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)));
                 }
             }
-            if (Get.useLuceneIndexes()) {
+            if (Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
                 ArrayList<Future<Long>> futures = new ArrayList<>();
                 List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
                 for (final int nid : nids) {
@@ -633,6 +630,7 @@ public class CommitProvider
                         f.get();
                     } catch (InterruptedException | ExecutionException e) {
                         LOG.error("Unexpected error waiting for index update", e);
+                        exceptions.add(e);
                     }
                 }
 
@@ -640,11 +638,16 @@ public class CommitProvider
                     try {
                         ibs.sync().get();
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        LOG.error("Error rebuilding indexes!", e);
+                        exceptions.add(e);
                     }
                 }
             }
             LOG.info("Post processing import complete");
+        }
+        if (exceptions.size() > 0) {
+            LOG.error("Encountered {} errors during postProcessImportNoChecks", exceptions.size());
+            throw new RuntimeException("Errors during import!", exceptions.get(0));
         }
     }
 
@@ -968,6 +971,7 @@ public class CommitProvider
                                 uncommittedVersions.add(v);
                             }
                         }
+
                     }
                     // Warn or fail if multiple uncommitted versions in passed chronology
                     if (uncommittedVersions.size() > 1) {

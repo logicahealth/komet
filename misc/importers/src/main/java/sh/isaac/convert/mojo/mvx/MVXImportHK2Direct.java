@@ -36,9 +36,37 @@
  */
 package sh.isaac.convert.mojo.mvx;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import javax.xml.bind.JAXBException;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.MetaData;
+import sh.isaac.api.Get;
+import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
+import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
+import sh.isaac.convert.directUtils.DirectWriteHelper;
+import sh.isaac.convert.mojo.cvx.data.CVXCodesHelper;
+import sh.isaac.convert.mojo.cvx.data.CVXCodes.CVXInfo;
+import sh.isaac.convert.mojo.mvx.data.MVXCodes;
+import sh.isaac.convert.mojo.mvx.data.MVXCodesHelper;
+import sh.isaac.convert.mojo.mvx.data.MVXCodes.MVXInfo;
+import sh.isaac.convert.mojo.mvx.reader.MVXReader;
+import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
+import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.pombuilder.converter.ConverterOptionParam;
+import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 
 /**
  * {@link MVXImportHK2Direct}
@@ -47,10 +75,183 @@ import sh.isaac.convert.directUtils.DirectConverter;
  */
 @PerLookup
 @Service
-public class MVXImportHK2Direct extends MVXImportMojoDirect implements DirectConverter
+public class MVXImportHK2Direct extends DirectConverterBaseMojo implements DirectConverter
 {
-	private MVXImportHK2Direct()
+	private int conceptCount = 0;
+	
+	/**
+	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
+	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 */
+	protected MVXImportHK2Direct()
 	{
-		//For HK2
+		
+	}
+	
+	@Override
+	public ConverterOptionParam[] getConverterOptions()
+	{
+		return new ConverterOptionParam[] {};
+	}
+
+	@Override
+	public void setConverterOption(String internalName, String... values)
+	{
+		//noop, we don't require any.
+	}
+	
+	/**
+	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
+	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
+	 * 
+	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampCoordinate)
+	 */
+	@Override
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	{
+		this.outputDirectory = outputDirectory;
+		this.inputFileLocationPath = inputFolder;
+		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
+		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
+		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
+	}
+	
+	@Override
+	public SupportedConverterTypes[] getSupportedTypes()
+	{
+		return new SupportedConverterTypes[] {SupportedConverterTypes.MVX};
+	}
+
+	/**
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 */
+	@Override
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
+	{
+		
+		final MVXReader importer = new MVXReader(inputFileLocationPath);
+		MVXCodes terminology;
+		try
+		{
+			terminology = importer.process();
+		}
+		catch (JAXBException e1)
+		{
+			throw new IOException("Error reading file", e1);
+		}
+
+		log.info("Read " + terminology.getMVXInfo().size() + " entries");
+		statusUpdates.accept("Read " + terminology.getMVXInfo().size() + " entries");
+
+		
+		// There is no global release date for mvx - but each item has its own date. This date will only be used for metadata.  
+		//Use the oldest date we can find in the content, to reduce stamp viewing issues.
+		
+		long oldest = Long.MAX_VALUE;
+		for (MVXInfo row : terminology.getMVXInfo())
+		{
+			try
+			{
+				long updateTime = MVXCodesHelper.getLastUpdatedDate(row).getTime();
+				if (updateTime < oldest)
+				{
+					oldest = updateTime;
+				}
+			}
+			catch (Exception e)
+			{
+				log.error("error while looking for earliest date", e);
+			}
+		}
+		
+		Date date = new Date(oldest);
+
+		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.MVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+				"MVX", false);
+		
+		setupModule("MVX", MetaData.MVX_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://hl7.org/fhir/sid/mvx"), date.getTime());
+		
+		//Set up our metadata hierarchy
+		dwh.makeMetadataHierarchy(true, true, true, false, true, false, date.getTime());
+		
+		dwh.makeDescriptionTypeConcept(null, "Manufacturer Name", null, null,
+				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, date.getTime());
+		
+		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, date.getTime(), readbackCoordinate);
+
+		// Every time concept created add membership to "All CPT Concepts"
+		dwh.makeRefsetTypeConcept(null, "All MVX Concepts", null, null, date.getTime());
+
+		log.info("Metadata load stats");
+		for (String line : dwh.getLoadStats().getSummary())
+		{
+			log.info(line);
+		}
+		
+		dwh.clearLoadStats();
+		
+		statusUpdates.accept("Loading content");
+
+		// Create MVX root concept under SOLOR_CONCEPT____SOLOR
+		final UUID mvxRootConcept = dwh.makeConceptEnNoDialect(null, "MVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, date.getTime());
+
+		for (MVXInfo row : terminology.getMVXInfo())
+		{
+			try
+			{
+				String code = MVXCodesHelper.getMvxCode(row) + "";
+				String manfName = MVXCodesHelper.getManufacturerName(row);
+				Status status = MVXCodesHelper.getState(row);
+				long lastUpdated = MVXCodesHelper.getLastUpdatedDate(row).getTime();
+
+				// Create row concept
+				final UUID rowConcept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(code), status, lastUpdated);
+				dwh.makeParentGraph(rowConcept, mvxRootConcept, Status.ACTIVE, lastUpdated);
+				
+				dwh.makeDescriptionEnNoDialect(rowConcept, manfName, dwh.getDescriptionType("Manufacturer Name"), status, lastUpdated);
+
+				// Add required MVXCode annotation
+				dwh.makeBrittleStringAnnotation(MetaData.CODE____SOLOR.getPrimordialUuid(), rowConcept, code, lastUpdated);
+
+				// Add optional Notes comment annotation
+				if (StringUtils.isNotBlank(MVXCodesHelper.getNotes(row)))
+				{
+					dwh.makeComment(rowConcept, MVXCodesHelper.getNotes(row), null, lastUpdated);
+				}
+
+				// Add to refset allMvxConceptsRefset
+				dwh.makeDynamicRefsetMember(dwh.getRefsetType("All MVX Concepts"), rowConcept, lastUpdated);
+
+				++conceptCount;
+			}
+			catch (Exception e)
+			{
+				final String msg = "Failed processing row with " + e.getClass().getSimpleName() + " " + e.getLocalizedMessage() + ": " + row;
+				throw new RuntimeException(msg, e);
+			}
+		}
+		
+		dwh.processTaxonomyUpdates();
+		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		
+		log.info("Processed " + conceptCount + " concepts");
+		statusUpdates.accept("Processed " + conceptCount + " concepts");
+		
+		log.info("Load Statistics");
+
+		for (String line : dwh.getLoadStats().getSummary())
+		{
+			log.info(line);
+		}
+
+		// this could be removed from final release. Just added to help debug editor problems.
+		if (outputDirectory != null)
+		{
+			log.info("Dumping UUID Debug File");
+			converterUUID.dump(outputDirectory, "mvxUuid");
+		}
+		converterUUID.clearCache();
 	}
 }

@@ -18,6 +18,7 @@ import java.util.Optional;
 public class ImportSpecificationNode implements ExplorationNode {
 
     private final Manifold manifold;
+
     private final SimpleStringProperty titleProperty = new SimpleStringProperty("Import Specification Builder");
     private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Import Specification Builder");
     private final SimpleBooleanProperty closeExplorationNodeProperty = new SimpleBooleanProperty(false);
@@ -28,7 +29,7 @@ public class ImportSpecificationNode implements ExplorationNode {
     public ImportSpecificationNode(Manifold manifold) {
         try {
             this.manifold = manifold;
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ImportSpecification.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ImportSpecificationPanel.fxml"));
             this.borderPane = loader.load();
             ImportSpecificationController importSpecificationController = loader.getController();
             importSpecificationController.setManifold(manifold);

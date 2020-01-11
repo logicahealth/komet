@@ -57,11 +57,11 @@ public class StampCoordinateImmutableWrapper implements StampCoordinateReadOnly 
 
     @Override
     public StampCoordinateImpl makeCoordinateAnalog(Status... states) {
-        return stampCoordinate.makeCoordinateAnalog(states);
+        return (StampCoordinateImpl) stampCoordinate.makeCoordinateAnalog(states);
     }
 
     @Override
-    public StampCoordinate makeCoordinateAnalog(EnumSet<Status> states) {
+    public StampCoordinate makeCoordinateAnalog(Set<Status> states) {
         return stampCoordinate.makeCoordinateAnalog(states);
     }
 
@@ -107,11 +107,6 @@ public class StampCoordinateImmutableWrapper implements StampCoordinateReadOnly 
     @Override
     public StampCoordinateImpl deepClone() {
         return stampCoordinate.deepClone();
-    }
-
-    @Override
-    public StampCoordinate getImmutableAllStateAnalog() {
-        return this;
     }
 
     @Override

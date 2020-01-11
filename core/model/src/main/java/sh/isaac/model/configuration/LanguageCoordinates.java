@@ -339,8 +339,8 @@ public class LanguageCoordinates {
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
-      coordinate.setNextPriorityLanguageCoordinate(getFullyQualifiedCoordinate());
-      
+      coordinate.setNextPriorityLanguageCoordinate(getFullyQualifiedCoordinate(false));
+
       return coordinate;
    }
    /**
@@ -358,8 +358,7 @@ public class LanguageCoordinates {
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList, 
                                         modulePreferenceList);
-      coordinate.setNextPriorityLanguageCoordinate(getRegularNameCoordinate());
-      
+      coordinate.setNextPriorityLanguageCoordinate(getRegularNameCoordinate(false));
       return coordinate;
    }
    
@@ -369,15 +368,18 @@ public class LanguageCoordinates {
     * {@link LanguageCoordinate#getNextPriorityLanguageCoordinate()} in a chain
     * 
     * See {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, java.util.List, LanguageCoordinate)}
+    * @param regNameOnly if true, only returns descriptions of type regular name, if false, prefers those, but will 
+    *     return a FQN or definition if regular name isn't available.  Also allows extended description types of each.
     *
     * @return a coordinate that prefers regular names, of arbitrary language, but will return descriptions of any description
     * type
     */
-   public static LanguageCoordinate getRegularNameCoordinate() {
+   public static LanguageCoordinate getRegularNameCoordinate(boolean regNameOnly) {
       final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
-                    TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, 
-                    TermAux.DEFINITION_DESCRIPTION_TYPE}, 
+              (regNameOnly ? new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE} : 
+                new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
+                        TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, 
+                        TermAux.DEFINITION_DESCRIPTION_TYPE}), 
               null);
 
       final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
@@ -394,16 +396,47 @@ public class LanguageCoordinates {
     * {@link LanguageCoordinate#getNextPriorityLanguageCoordinate()} in a chain
     * 
     * See {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, java.util.List, LanguageCoordinate)}
+    * @param fqnOnly if true, only returns descriptions of fqn if false, prefers those, but will return a regular name or definition 
+    *     if fqn name isn't available.  Also allows extended description types of each. 
     *
     * @return a coordinate that prefers fully qualified names, of arbitrary language  but will return descriptions of any description
     * type
     */
-   public static LanguageCoordinate getFullyQualifiedCoordinate() {
+   public static LanguageCoordinate getFullyQualifiedCoordinate(boolean fqnOnly) {
       final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE,
+              (fqnOnly ? new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE} : 
+                  new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE,
                     TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
-                    TermAux.DEFINITION_DESCRIPTION_TYPE}, 
+                    TermAux.DEFINITION_DESCRIPTION_TYPE}), 
               null);
+
+      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
+      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.LANGUAGE,
+                                        new ConceptProxy[] {},
+                                        descriptionTypePreferenceList, 
+                                        modulePreferenceList);
+      return coordinate;
+   }
+   
+   /**
+    * A coordinate that completely ignores language - descriptions ranked by this coordinate will only be ranked by
+    * description type and module preference.  This coordinate is primarily useful as a fallback coordinate for the final 
+    * {@link LanguageCoordinate#getNextProrityLanguageCoordinate()} in a chain
+    * 
+    * See {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, java.util.List, LanguageCoordinate)}
+    * @param defOnly - if true, will only return definition types (or extended types) - if false, will fall back to regular name types, 
+    *     then FQN types. 
+    *
+    * @return a coordinate that prefers definitions, of arbitrary language.
+    * type
+    */
+   public static LanguageCoordinate getDefinitionCoordinate(boolean defOnly) {
+	   final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+	              (defOnly ? new ConceptProxy[] {TermAux.DEFINITION_DESCRIPTION_TYPE} : 
+	                  new ConceptProxy[] {TermAux.DEFINITION_DESCRIPTION_TYPE,
+	                    TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
+	                    TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}), 
+	              null);
 
       final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.LANGUAGE,
@@ -423,9 +456,6 @@ public class LanguageCoordinates {
     * @return the initial list, plus any equivalent non-core types in the appropriate order.  See {@link DynamicConstants#DYNAMIC_DESCRIPTION_CORE_TYPE}
     */
    public static ConceptSpecification[] expandDescriptionTypePreferenceList(ConceptSpecification[] descriptionTypePreferenceList, StampCoordinate stampCoordinate) {
-      if (!LookupService.isIsaacStarted()) {
-           return descriptionTypePreferenceList;
-      }
       long time = System.currentTimeMillis();
       StampCoordinate stamp = stampCoordinate == null ? StampCoordinates.getDevelopmentLatestActiveOnly() : stampCoordinate;
       HashMap<ConceptSpecification, HashSet<ConceptSpecification>> equivalentTypes = new HashMap<>();
@@ -433,8 +463,7 @@ public class LanguageCoordinates {
       //Collect the mappings from core types -> non core types
       Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(sc -> 
       {
-         @SuppressWarnings("unchecked")
-         DynamicVersion<? extends Version> dv = (DynamicVersion<? extends Version>)sc.getLatestVersion(stamp).get();
+         DynamicVersion dv = (DynamicVersion)sc.getLatestVersion(stamp).get();
          ConceptProxy coreType = new ConceptProxy(Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID()));
          HashSet<ConceptSpecification> mapped = equivalentTypes.get(coreType);
          if (mapped == null) {

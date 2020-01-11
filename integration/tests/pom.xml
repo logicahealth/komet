@@ -107,12 +107,12 @@
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
-      <dependency>
-         <groupId>sh.isaac.misc</groupId>
-         <artifactId>importers</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-      </dependency>
+<!--      <dependency>-->
+<!--         <groupId>sh.isaac.misc</groupId>-->
+<!--         <artifactId>importers-mojos</artifactId>-->
+<!--         <version>${project.version}</version>-->
+<!--         <scope>test</scope>-->
+<!--      </dependency>-->
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>log-config</artifactId>
@@ -233,5 +233,22 @@
          </build>
       </profile>
    </profiles>
-   
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+               <skip>true</skip>
+            </configuration>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-install-plugin</artifactId>
+            <configuration>
+               <skip>true</skip>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
 </project>

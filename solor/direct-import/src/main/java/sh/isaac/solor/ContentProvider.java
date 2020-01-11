@@ -90,6 +90,7 @@ public class ContentProvider implements Supplier<ContentStreamProvider>
 
 	//TODO replace this constructor with the approach that uses the supplier constructor, to keep all of the zip 
 	// handling logic in the place where it comes from, and supports paths, instead of just files.
+	@Deprecated
 	public ContentProvider(File zipFile, ZipEntry nestedZipFile, ZipEntry entry, byte[] unzippedOuterBytes)
 	{
 		this.itemByteSupplier = () -> unzippedOuterBytes;

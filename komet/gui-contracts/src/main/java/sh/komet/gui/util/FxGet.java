@@ -16,22 +16,10 @@
  */
 package sh.komet.gui.util;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
-
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.WeakChangeListener;
 import javafx.collections.*;
-
-import javax.inject.Singleton;
-
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
@@ -64,6 +52,10 @@ import sh.komet.gui.interfaces.ComponentList;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.provider.StatusMessageProvider;
+
+import javax.inject.Singleton;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  *

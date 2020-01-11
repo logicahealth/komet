@@ -204,7 +204,7 @@ public class Get
    
    private static PreferencesService preferencesService;
    private static boolean useLuceneIndexes = true;
-   
+
    //TODO there is either a threading issue, with a load not waiting for a clean to complete, or, there is a bug in this IntObjectHashMap, 
    //which leads to index out of bounds exceptions once in a while, during a build test.  Need to finish tracking down...
    private static IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = null;
@@ -898,7 +898,7 @@ public class Get
     */
    public static Task<Void> startIndexTask(
          @SuppressWarnings("unchecked") Class<? extends IndexBuilderService>... indexersToReindex) {
-      if (!Get.useLuceneIndexes()) {
+      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
          throw new UnsupportedOperationException();
       }
       final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);

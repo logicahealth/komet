@@ -276,8 +276,8 @@ public class Writers {
                output.write("\"componentNid\":\"");
                output.write(cns.getComponentNid() + "");
                output.write("\"");
-            } else if (sv instanceof DynamicVersion<?>) {
-               final DynamicVersion<?> ds = (DynamicVersion<?>) sv;
+            } else if (sv instanceof DynamicVersion) {
+               final DynamicVersion ds = (DynamicVersion) sv;
 
                output.write("\"data\":\"");
                output.write(ds.dataToString());

@@ -304,6 +304,10 @@ public class CellHelper {
                 case Str1_Str2_Nid3_Nid4_Nid5:
                     processStr1_Str2_Nid3_Nid4_Nid5(assemblageNameText, referencedComponentText, (Str1_Str2_Nid3_Nid4_Nid5_Version) semanticVersion);
                     break;
+                    
+                case DYNAMIC:
+                    processDynamic(assemblageNameText, referencedComponentText, (DynamicVersion) semanticVersion);
+                    break;
 
                 default:
                     processString(assemblageNameText, referencedComponentText, "not implemented for type: " + semanticType, StyleClasses.ERROR_TEXT);
@@ -411,7 +415,6 @@ public class CellHelper {
         Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
-
     private void processLOINC_RECORD(Text assemblageNameText, Text referencedComponentText, LoincVersion brittleVersion) {
 
         String buff = brittleVersion.getLoincNum() +
@@ -434,6 +437,11 @@ public class CellHelper {
                 " t: " +
                 brittleVersion.getTimeAspect();
         Text defaultText = new Text(buff);
+        addTextToCell(assemblageNameText, defaultText, referencedComponentText);
+    }
+
+    private void processDynamic(Text assemblageNameText, Text referencedComponentText, DynamicVersion version) {
+        Text defaultText = new Text(version.dataToString());
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }
 

@@ -37,12 +37,14 @@
 package sh.isaac.model.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
-import org.apache.mahout.math.map.OpenLongObjectHashMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 
@@ -124,8 +126,8 @@ public class TypeStampTaxonomyRecords {
         int[] valueArray = new int[this.typeStamp_flag_map.size() * 3];
         int i = 0;
         for (TypeStampTaxonomyRecord record: this.typeStamp_flag_map.values()) {
-            valueArray[i++] = record.typeNid;
-            valueArray[i++] = record.stamp;
+            valueArray[i++] = record.getTypeNid();
+            valueArray[i++] = record.getStampSequence();
             valueArray[i++] = record.getTaxonomyFlags();
         }
         return valueArray;
@@ -275,7 +277,7 @@ public class TypeStampTaxonomyRecords {
                 } else if (flags == (flags & record.taxonomyFlagBits)) {
                     return true;                   // finish search.
                 }
-            } else if (record.typeNid == typeNid) {
+            } else if (record.getTypeNid() == typeNid) {
                 if (flags == 0) {                 // taxonomy flag wildcard--inferred, stated, non-defining, ...
                     return true;                   // finish search
                 } else if (flags == (flags & record.taxonomyFlagBits)) {

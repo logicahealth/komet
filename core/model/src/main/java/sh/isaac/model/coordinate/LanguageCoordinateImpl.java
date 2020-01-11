@@ -44,6 +44,11 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -532,7 +537,7 @@ public class LanguageCoordinateImpl
     @Override
     public LanguageCoordinateImpl deepClone() {
         LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConcept,
-                dialectAssemblageSpecPreferenceList.clone(),
+                dialectAssemblageSpecPreferenceList == null ? null : dialectAssemblageSpecPreferenceList.clone(),
                 descriptionTypeSpecPreferenceList.clone(),
                 moduleSpecPreferenceList == null ? null : moduleSpecPreferenceList.clone());
         if (this.nextPriorityLanguageCoordinate != null) {

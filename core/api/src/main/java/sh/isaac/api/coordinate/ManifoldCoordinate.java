@@ -106,7 +106,7 @@ public interface ManifoldCoordinate
    PremiseType getTaxonomyPremiseType();
    
    /**
-    * @return The optional destination stamp coordinate,
+    * @return The destination stamp coordinate,
     * 
     * In most cases, this coordinate will be the same object that is returned by {@link #getStampCoordinate()}, 
     * But, it may be a different coordinate, depending on the construction - for example, a use case like returning inactive concepts
@@ -219,7 +219,7 @@ public interface ManifoldCoordinate
     * @return preferred description text.
     * 
     * Note that this method gives no indication when the preferred text isn't available, instead silently 
-    * falling back to a fully specified description, and if that is not present, returns a "no description for {conceptid}"
+    * falling back to a fully specified description, and if that is not present, returns a "[no description for {uuid}]"
     * text string
     * 
     * One should really use the method {@link #getDescription(int, StampCoordinate)} instead of this method which will
@@ -228,7 +228,7 @@ public interface ManifoldCoordinate
    default String getPreferredDescriptionText(int conceptId) {
       return getLanguageCoordinate().getRegularName(conceptId, getStampCoordinate())
             .orElse(getLanguageCoordinate().getFullyQualifiedName(conceptId, getStampCoordinate())
-               .orElse("no description for " + conceptId));
+               .orElse("[no description for " + Get.identifierService().getUuidPrimordialStringForNid(conceptId) + "]"));
    }
    
    /**
@@ -310,7 +310,7 @@ public interface ManifoldCoordinate
     * @return fully qualified description text.
     * 
     * Note that this method gives no indication when the fully specified text isn't available, instead silently 
-    * falling back to a regular name description, and if that is not present, returns a "no description for {conceptid}"
+    * falling back to a regular name description, and if that is not present, returns a "[no description for {uuid}]"
     * text string
     * 
     * One should really use the method {@link #getDescription(int, StampCoordinate)} instead of this method which will
@@ -319,7 +319,7 @@ public interface ManifoldCoordinate
    default String getFullySpecifiedDescriptionText(int conceptId) {
          return getLanguageCoordinate().getFullyQualifiedName(conceptId, getStampCoordinate())
             .orElse(getLanguageCoordinate().getRegularName(conceptId, getStampCoordinate())
-               .orElse("no description for " + conceptId));
+               .orElse("[no description for " + Get.identifierService().getUuidPrimordialStringForNid(conceptId) + "]"));
    }
 
   /**

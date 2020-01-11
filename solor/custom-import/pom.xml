@@ -36,7 +36,6 @@
             <artifactId>model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.derby/derby -->
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>

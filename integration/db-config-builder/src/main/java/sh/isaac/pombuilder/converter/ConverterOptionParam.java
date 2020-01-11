@@ -232,12 +232,13 @@ public class ConverterOptionParam
 
 			if (localMavenPath != null && localMavenPath.isDirectory())
 			{
-				File browseFolder = new File(localMavenPath, "sh/isaac/uts-core/misc/importers");
+				String temp = converter.converterGroupId.replaceAll("\\.", "/");
+				File browseFolder = new File(localMavenPath, temp + "/" + converter.converterArtifactId);
 				for (File versionFolder : browseFolder.listFiles())
 				{
 					if (versionFolder.isDirectory() && versionFolder.getName().equals(converterVersion))
 					{
-						File zippedJsonFile = new File(versionFolder, "importers-" + converterVersion + ".options.json.zip");
+						File zippedJsonFile = new File(versionFolder, converter.converterArtifactId + "-" + converterVersion + "." + MAVEN_FILE_TYPE + ".zip");
 						if (zippedJsonFile.exists())
 						{
 							try

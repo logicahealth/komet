@@ -56,36 +56,26 @@ import org.w3c.dom.Node;
  */
 public class VersionFinder {
    private static final Logger LOG = LogManager.getLogger();
+   private static String version = null;
 
    /**
-    * Note that while this finds the project version from either the metadata embedded in the jar that contains this, 
-    * or from the pom.xml file, if we are running in eclipse - it will not return SNAPSHOT versions, rather, it 
-    * removes -SNAPSHOT and decrements the versions by 1, to simplify testing in AITC.
-    * calls {@link #findProjectVersion(boolean)} with false
-    * @return the string
+    * This finds the project version from either the metadata embedded in the jar that contains this, 
+    * or from the pom.xml file if we are running from a dev enviornment.
+    * 
+    * @return the string version
     */
    public static String findProjectVersion() {
-	   return findProjectVersion(false);
-   }
-   
-   /**
-    * Note that while this finds the project version from either the metadata embedded in the jar that contains this, 
-    * or from the pom.xml file if we are running from a dev enviornment, see notes on allowSNAPSHOT.
-    * 
-    * @param allowSNAPSHOT if set to false, and we are running in eclipse - it will not return SNAPSHOT versions, rather, it 
-    * removes -SNAPSHOT and decrements the versions by 1, to simplify testing in AITC.
-    * @return the string
-    */
-   public static String findProjectVersion(boolean allowSNAPSHOT) {
-      try (InputStream is =
-            VersionFinder.class.getResourceAsStream("/META-INF/maven/sh.isaac.core/api/pom.xml");) {
+      if (version != null) {
+         return version;
+      }
+      try (InputStream is = VersionFinder.class.getResourceAsStream("/META-INF/maven/sh.isaac.uts-core.core/api/pom.xml");) {
          final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 
          // added to avoid XXE injections
          domFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 
          final DocumentBuilder builder = domFactory.newDocumentBuilder();
-         Document              dDoc;
+         Document dDoc;
 
          if (is != null) {
             dDoc = builder.parse(is);
@@ -93,9 +83,8 @@ public class VersionFinder {
             dDoc = builder.parse(new File("pom.xml"));  // running in eclipse, this should work.
          }
 
-         final XPath xPath = XPathFactory.newInstance()
-                                         .newXPath();
-         
+         final XPath xPath = XPathFactory.newInstance().newXPath();
+
          String temp;
          boolean fromParent = false;
          try {
@@ -107,39 +96,7 @@ public class VersionFinder {
          }
          LOG.debug("VersionFinder finds {} from {}", temp, (fromParent ? "parent pom" : "project pom"));
 
-         // Parse 3.42-SNAPSHOT and turn it into '3.41', so we don't write content converters or db builders with SNAPSHOT
-         // refs that won't be resolvable in AITC
-
-         try {
-            if (!allowSNAPSHOT && temp.endsWith("-SNAPSHOT")) {
-               String subString = temp.substring(0, temp.indexOf("-SNAPSHOT"));
-               // remove feature branch tags on version since this version finder expects only numeric versions.
-               if (subString.lastIndexOf('-') > 0) {
-                  LOG.warn("Stripping feature branch tag to create numeric-only version: " + temp);
-                  int dashIndex = subString.lastIndexOf('-');
-                  subString = subString.substring(0, dashIndex);
-
-               }
-
-               String[] parts = subString.split("\\.");
-
-               int endDigit = Integer.parseInt(parts[parts.length - 1]);
-               if (endDigit >= 0) {
-                  endDigit--;
-               }
-               String replacement = "";
-               for (int i = 0; i < parts.length - 1; i++) {
-                  replacement += parts[i];
-                  replacement += ".";
-               }
-               replacement += endDigit;
-               LOG.debug("VersionFinder returns {} (for the version of this release of the converter library) after removing SNAPSHOT", replacement);
-               return replacement;
-            }
-         } catch (Exception e) {
-            LOG.error("Unexpected error trying to remove -SNAPSHOT from detected version number - returning found version number", e);
-         }
-
+         version = temp;
          return temp;
       } catch (final Exception e) {
          throw new RuntimeException(e);

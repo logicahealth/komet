@@ -2,22 +2,20 @@ package sh.isaac.solor.direct.clinvar;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.solor.direct.clinvar.model.ConceptArtifact;
-import sh.isaac.solor.direct.clinvar.model.DescriptionArtifact;
-import sh.isaac.solor.direct.clinvar.model.NonDefiningTaxonomyArtifact;
-import sh.isaac.solor.direct.clinvar.writers.GenomicConceptWriter;
-import sh.isaac.solor.direct.clinvar.writers.GenomicDescriptionWriter;
-import sh.isaac.solor.direct.clinvar.writers.GenomicNonDefiningTaxonomyWriter;
+import sh.isaac.solor.direct.generic.GenericImporter;
+import sh.isaac.solor.direct.generic.artifact.ConceptArtifact;
+import sh.isaac.solor.direct.generic.artifact.DescriptionArtifact;
+import sh.isaac.solor.direct.generic.artifact.NonDefiningTaxonomyArtifact;
+import sh.isaac.solor.direct.generic.writer.GenericConceptWriter;
+import sh.isaac.solor.direct.generic.writer.GenericDescriptionWriter;
+import sh.isaac.solor.direct.generic.writer.GenericNonDefiningTaxonomyWriter;
 
 import java.io.BufferedReader;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.regex.Matcher;
@@ -27,15 +25,14 @@ import java.util.regex.Pattern;
  * 2019-03-07
  * aks8m - https://github.com/aks8m
  */
-public class ClinvarImporter {
+public class ClinvarImporter extends GenericImporter<BufferedReader> {
 
-    private final HashSet<ConceptArtifact> genomicConcepts = new HashSet<>();
-    private final HashSet<DescriptionArtifact> genomicDescriptions = new HashSet<>();
-    private final HashSet<NonDefiningTaxonomyArtifact> genomicNonDefiningTaxonomyArtifacts = new HashSet<>();
+    private final ArrayList<ConceptArtifact> genomicConcepts = new ArrayList<>();
+    private final ArrayList<DescriptionArtifact> genomicDescriptions = new ArrayList<>();
+    private final ArrayList<NonDefiningTaxonomyArtifact> genomicNonDefiningTaxonomyArtifacts = new ArrayList<>();
     private final UUID variantNamespaceUUID = UuidT5Generator.get("gov.nih.nlm.ncbi.clinvar.variant.");
     private final UUID geneNamespaceUUID = UuidT5Generator.get("gov.nih.nlm.ncbi.clinvar.gene.");
     private  Semaphore writeSemaphore;
-    private int WRITE_PERMITS;
     private long time = System.currentTimeMillis();
 
     private final int VARIANT_ID_INDEX = 2;
@@ -44,19 +41,20 @@ public class ClinvarImporter {
     private final int PHENOTYPE_IDs_INDEX = 12;
 
     public ClinvarImporter(Semaphore writeSemaphore, int WRITE_PERMITS) {
+        super(writeSemaphore, WRITE_PERMITS);
 
         this.writeSemaphore = writeSemaphore;
-        this.WRITE_PERMITS = WRITE_PERMITS;
     }
 
-    public void runImport(BufferedReader bufferedReader){
+    @Override
+    public void runImport(BufferedReader data) {
 
         try {
 
             String rowString;
-            bufferedReader.readLine();
+            data.readLine();
 
-            while ((rowString = bufferedReader.readLine()) != null) {
+            while ((rowString = data.readLine()) != null) {
 
                 String[] columns = rowString.split("\t");
 
@@ -68,31 +66,34 @@ public class ClinvarImporter {
                     UUID variantComponentUUID = UuidT5Generator.get(this.variantNamespaceUUID, columns[VARIANT_ID_INDEX]);
                     UUID geneComponentUUID = UuidT5Generator.get(this.geneNamespaceUUID, columns[GENE_ID_INDEX]);
 
-                    this.genomicConcepts.add(new ConceptArtifact(
+
+                    super.checkForArtifactUniqueness (new ConceptArtifact(
                             variantComponentUUID,
                             Status.ACTIVE,
                             this.time,
                             MetaData.CLINVAR_USER____SOLOR.getNid(),
                             MetaData.SOLOR_GENOMIC_MODULE____SOLOR.getNid(),
                             TermAux.DEVELOPMENT_PATH.getNid(),
+                            TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid(),
                             columns[VARIANT_ID_INDEX],
                             MetaData.CLINVAR_VARIANT_ID____SOLOR.getPrimordialUuid(),
                             MetaData.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION____SOLOR.getNid(),
-                            MetaData.CLINVAR_DEFINITION_ASSEMBLAGE____SOLOR.getPrimordialUuid()));
+                            MetaData.CLINVAR_DEFINITION_ASSEMBLAGE____SOLOR.getPrimordialUuid()), this.genomicConcepts);
 
-                    this.genomicConcepts.add(new ConceptArtifact(
+                    super.checkForArtifactUniqueness(new ConceptArtifact(
                             geneComponentUUID,
                             Status.ACTIVE,
                             this.time,
                             MetaData.CLINVAR_USER____SOLOR.getNid(),
                             MetaData.SOLOR_GENOMIC_MODULE____SOLOR.getNid(),
                             TermAux.DEVELOPMENT_PATH.getNid(),
+                            TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid(),
                             columns[GENE_ID_INDEX],
                             MetaData.NCBI_GENE_ID____SOLOR.getPrimordialUuid(),
                             MetaData.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION____SOLOR.getNid(),
-                            MetaData.CLINVAR_DEFINITION_ASSEMBLAGE____SOLOR.getPrimordialUuid()));
+                            MetaData.CLINVAR_DEFINITION_ASSEMBLAGE____SOLOR.getPrimordialUuid()), this.genomicConcepts);
 
-                    this.genomicDescriptions.add(new DescriptionArtifact(
+                    super.checkForArtifactUniqueness( new DescriptionArtifact(
                             Status.ACTIVE,
                             this.time,
                             MetaData.CLINVAR_USER____SOLOR.getNid(),
@@ -104,9 +105,9 @@ public class ClinvarImporter {
                             columns[VARIANT_ID_INDEX],
                             MetaData.CASE_INSENSITIVE_EVALUATION____SOLOR.getNid(),
                             UuidT5Generator.get(columns[VARIANT_ID_INDEX]).toString(),
-                            MetaData.CLINVAR_DESCRIPTION_ID____SOLOR.getPrimordialUuid()));
+                            MetaData.CLINVAR_DESCRIPTION_ID____SOLOR.getPrimordialUuid()), this.genomicDescriptions);
 
-                    this.genomicDescriptions.add(new DescriptionArtifact(
+                   super.checkForArtifactUniqueness(new DescriptionArtifact(
                             Status.ACTIVE,
                             this.time,
                             MetaData.CLINVAR_USER____SOLOR.getNid(),
@@ -118,9 +119,9 @@ public class ClinvarImporter {
                             columns[GENE_SYMBOL_INDEX],
                             MetaData.CASE_INSENSITIVE_EVALUATION____SOLOR.getNid(),
                             UuidT5Generator.get(columns[GENE_SYMBOL_INDEX]).toString(),
-                            MetaData.CLINVAR_DESCRIPTION_ID____SOLOR.getPrimordialUuid()));
+                            MetaData.CLINVAR_DESCRIPTION_ID____SOLOR.getPrimordialUuid()),this.genomicDescriptions);
 
-                    this.genomicNonDefiningTaxonomyArtifacts.add(new NonDefiningTaxonomyArtifact(
+                   super.checkForArtifactUniqueness(new NonDefiningTaxonomyArtifact(
                             Status.ACTIVE,
                             this.time,
                             MetaData.CLINVAR_USER____SOLOR.getNid(),
@@ -128,13 +129,14 @@ public class ClinvarImporter {
                             TermAux.DEVELOPMENT_PATH.getNid(),
                             variantComponentUUID,
                             geneComponentUUID,
-                            MetaData.CLINVAR_VARIANT_TO_GENE_NON_DEFINING_TAXONOMY____SOLOR.getPrimordialUuid()));
+                            MetaData.CLINVAR_VARIANT_TO_GENE_NON_DEFINING_TAXONOMY____SOLOR.getPrimordialUuid()),this.genomicNonDefiningTaxonomyArtifacts);
 
                     if(columns[PHENOTYPE_IDs_INDEX].contains("SNOMED CT:")) {
                         Matcher matcher = Pattern.compile("(SNOMED CT:\\d*)").matcher(columns[PHENOTYPE_IDs_INDEX]);
                         while (matcher.find()) {
 
-                            this.genomicNonDefiningTaxonomyArtifacts.add(new NonDefiningTaxonomyArtifact(
+
+                           super.checkForArtifactUniqueness(new NonDefiningTaxonomyArtifact(
                                     Status.ACTIVE,
                                     this.time,
                                     MetaData.CLINVAR_USER____SOLOR.getNid(),
@@ -142,68 +144,25 @@ public class ClinvarImporter {
                                     TermAux.DEVELOPMENT_PATH.getNid(),
                                     geneComponentUUID,
                                     UuidT3Generator.fromSNOMED(matcher.group().split(":")[1]),
-                                    MetaData.CLINVAR_GENE_TO_PHENOTYPE_NON_DEFINING_TAXONOMY____SOLOR.getPrimordialUuid()));
+                                    MetaData.CLINVAR_GENE_TO_PHENOTYPE_NON_DEFINING_TAXONOMY____SOLOR.getPrimordialUuid()), this.genomicNonDefiningTaxonomyArtifacts);
+
                         }
                     }
                 }
             }
 
-            writeGenomicConcepts();
-            writeGenomicDescriptions();
-            writeNonDefiningRelationships();
+            Get.executor().submit(new GenericConceptWriter(this.genomicConcepts, this.writeSemaphore));
+            super.syncConceptsAndSemantics();
+
+            Get.executor().submit(new GenericDescriptionWriter(this.genomicDescriptions, this.writeSemaphore));
+            super.syncSemantics();
+
+            Get.executor().submit(new GenericNonDefiningTaxonomyWriter(this.genomicNonDefiningTaxonomyArtifacts, this.writeSemaphore));
+            super.syncSemantics();
 
         }catch (Exception e){
             e.printStackTrace();
+            LOG.error(e.getMessage());
         }
-
-    }
-
-    private void writeGenomicConcepts(){
-
-        Get.executor().submit(new GenomicConceptWriter(this.genomicConcepts, this.writeSemaphore));
-
-        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-            try {
-                indexer.sync().get();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        Get.conceptService().sync();
-        Get.assemblageService().sync();
-        this.writeSemaphore.release(WRITE_PERMITS);
-    }
-
-    private void writeGenomicDescriptions(){
-
-        Get.executor().submit(new GenomicDescriptionWriter(this.genomicDescriptions, this.writeSemaphore));
-
-        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-            try {
-                indexer.sync().get();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        Get.assemblageService().sync();
-        this.writeSemaphore.release(WRITE_PERMITS);
-    }
-
-    private void writeNonDefiningRelationships(){
-
-        Get.executor().submit(new GenomicNonDefiningTaxonomyWriter(this.genomicNonDefiningTaxonomyArtifacts, this.writeSemaphore));
-
-        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-            try {
-                indexer.sync().get();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        Get.assemblageService().sync();
-        this.writeSemaphore.release(WRITE_PERMITS);
     }
 }

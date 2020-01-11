@@ -331,7 +331,7 @@ public class VetsExporter {
                xmlMapSet.setVUID(Frills.getVuId(concept.getNid(), STAMP_COORDINATES).orElse(null));
 
                // Source and Target CodeSystem
-               LatestVersion<DynamicVersion<?>> mappingSemanticVersion = mappingSemantic.getLatestVersion(STAMP_COORDINATES);
+               LatestVersion<DynamicVersion> mappingSemanticVersion = mappingSemantic.getLatestVersion(STAMP_COORDINATES);
 
                if (mappingSemanticVersion.isPresent()) 
                {
@@ -344,7 +344,7 @@ public class VetsExporter {
                   {
                      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(cv.get().getChronology().getNid(),
                            IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getNid()).forEach(mappingStrExt -> {
-                        LatestVersion<DynamicVersion<?>> mappingStrExtVersion = mappingStrExt.getLatestVersion(STAMP_COORDINATES);
+                        LatestVersion<DynamicVersion> mappingStrExtVersion = mappingStrExt.getLatestVersion(STAMP_COORDINATES);
 
                         // TODO:DA review
                         if (mappingStrExtVersion.isPresent())
@@ -567,7 +567,7 @@ public class VetsExporter {
       
       Get.assemblageService().getSemanticChronologyStream(componentNid).forEach(semantic ->
       {
-         LatestVersion<DynamicVersion<?>> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES);
+         LatestVersion<DynamicVersion> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES);
          if (semanticVersion.isPresent() && semanticVersion.get().getData() != null && semanticVersion.get().getData().length > 0)
          {
             try {
@@ -685,13 +685,13 @@ public class VetsExporter {
       boolean isActive = false;
       if (semantic.getVersionType() == VersionType.DYNAMIC)
       {
-         LatestVersion<DynamicVersion<?>> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES);
+         LatestVersion<DynamicVersion> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES);
          if (semanticVersion.isPresent() && semanticVersion.get().getData() != null && semanticVersion.get().getData().length > 0)
          {
             newValue = semanticVersion.get().getData()[0] == null ? null : semanticVersion.get().getData()[0].dataToString();
-            List<DynamicVersion<?>> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES);
+            List<DynamicVersion> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES);
             Collections.reverse(coll);
-            for(DynamicVersion<?> s : coll)
+            for(DynamicVersion s : coll)
             {
                if (s.getTime() < startDate)
                {
@@ -970,9 +970,9 @@ public class VetsExporter {
             else if (action != ActionType.ADD)
             {
                // Get the old target value
-               List<DynamicVersion<?>> coll = sc.getVisibleOrderedVersionList(STAMP_COORDINATES);
+               List<DynamicVersion> coll = sc.getVisibleOrderedVersionList(STAMP_COORDINATES);
                Collections.reverse(coll);
-               for(DynamicVersion<?> s : coll)
+               for(DynamicVersion s : coll)
                {
                   if (s.getTime() < startDate) {
                      AssociationInstance assocInst = AssociationInstance.read(s, null);
@@ -1232,7 +1232,7 @@ public class VetsExporter {
          }
          else if (sc.get().getVersionType() == VersionType.DYNAMIC)  //this path will become dead code, after the data is fixed.
          {
-            LatestVersion<DynamicVersion<?>> sv = sc.get().getLatestVersion(STAMP_COORDINATES);
+            LatestVersion<DynamicVersion> sv = sc.get().getLatestVersion(STAMP_COORDINATES);
             if (sv.isPresent())
             {
                if (sv.get().getData() != null && sv.get().getData().length == 1)

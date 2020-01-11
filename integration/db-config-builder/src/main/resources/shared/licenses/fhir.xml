@@ -1,0 +1,8 @@
+		<license>
+			<name>FHIR License</name>
+			<url>https://www.hl7.org/fhir/license.html</url>
+			<comments>This specification (specifically the set of materials included in the fhir-spec.zip file available from the Downloads page of this 
+                specification) is produced by HL7 under the terms of HL7® Governance and Operations Manual relating to Intellectual Property (Section 16), 
+                specifically its copyright, trademark and patent provisions. 
+            </comments>
+		</license>

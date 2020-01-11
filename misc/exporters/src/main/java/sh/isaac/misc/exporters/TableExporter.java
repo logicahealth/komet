@@ -247,7 +247,6 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 						break;
 						
 					//These could be supported dynamically, with the mocking info available in the 'brittle' types.  but don't care right now.
-					case LOINC_RECORD:
 					case MEASURE_CONSTRAINTS:
 					case Nid1_Int2:
 					case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
@@ -311,7 +310,7 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 						data.add(((LongVersion)semanticVersion).getLongValue());
 						break;
 					case DYNAMIC:
-						for (DynamicData dd : ((DynamicVersion<?>)semanticVersion).getData())
+						for (DynamicData dd : ((DynamicVersion)semanticVersion).getData())
 						{
 							if (dd == null)
 							{
@@ -340,7 +339,6 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 						break;
 						
 					//These could be supported dynamically, with the mocking info available in the 'brittle' types.  but don't care right now.
-					case LOINC_RECORD:
 					case MEASURE_CONSTRAINTS:
 					case Nid1_Int2:
 					case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:

@@ -152,7 +152,7 @@ public interface ConceptBuilder
      * @param componentUuid
      * @param fieldIndex
      * @param assemblage
-     * @return the ConceptBuilder for a fluent interface. 
+     * @return the ConceptBuilder for a fluent interface.
      */
     ConceptBuilder addComponentIntSemantic(UUID semanticUuid, ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage);
 

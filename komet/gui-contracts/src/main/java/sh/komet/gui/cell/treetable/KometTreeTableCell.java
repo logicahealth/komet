@@ -16,7 +16,6 @@
  */
 package sh.komet.gui.cell.treetable;
 
-import javafx.scene.control.IndexedCell;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableRow;
 import sh.isaac.api.chronicle.Version;

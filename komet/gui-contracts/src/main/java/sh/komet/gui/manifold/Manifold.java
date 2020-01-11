@@ -470,11 +470,6 @@ public class Manifold
     }
 
     @Override
-    public StampCoordinate getImmutableAllStateAnalog() {
-        return getStampCoordinate().getImmutableAllStateAnalog();
-    }
-
-    @Override
     public int[] getModulePreferenceListForLanguage() {
         return this.observableManifoldCoordinate.getModulePreferenceListForLanguage();
     }

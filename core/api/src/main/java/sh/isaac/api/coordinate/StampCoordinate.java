@@ -47,7 +47,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import javax.xml.bind.annotation.XmlElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -84,7 +83,7 @@ public interface StampCoordinate
      * always have different uuids.
      */
     default UUID getStampCoordinateUuid() {
-        ArrayList<UUID> uuidList = new ArrayList();
+        ArrayList<UUID> uuidList = new ArrayList<>();
         for (Status status: getAllowedStates()) {
             UUIDUtil.addSortedUuids(uuidList, status.getSpecifyingConcept().getNid());
         }
@@ -154,7 +153,7 @@ public interface StampCoordinate
    
    
    @Override
-   StampCoordinate deepClone();
+   public StampCoordinate deepClone();
    
    /**
     * Create a new Stamp Coordinate identical to the this coordinate, but with the modules modified.
@@ -163,7 +162,7 @@ public interface StampCoordinate
     * supplied modules should replace the existing modules
     * @return the new coordinate
     */
-    StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add);
+    public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add);
 
     /**
      * Create a new Stamp Coordinate identical to the this coordinate, but with the path for position replaced.

@@ -16,8 +16,9 @@
 package sh.komet.gui.search.extended;
 
 import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.Predicate;
+import org.apache.logging.log4j.LogManager;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -38,10 +39,10 @@ public class TimeStatusRestriction {
 
     Long afterTime;
     Long beforeTime;
-    EnumSet<Status> allowedStatus;
+    Set<Status> allowedStatus;
     ManifoldCoordinate manifold;
 
-    public TimeStatusRestriction(Long afterTime, Long beforeTime, EnumSet<Status> allowedStatus, ManifoldCoordinate manifold) {
+    public TimeStatusRestriction(Long afterTime, Long beforeTime, Set<Status> allowedStatus, ManifoldCoordinate manifold) {
         this.afterTime = afterTime;
         this.beforeTime = beforeTime;
         this.allowedStatus = allowedStatus;
@@ -56,7 +57,7 @@ public class TimeStatusRestriction {
         return beforeTime;
     }
 
-    public EnumSet<Status> getAllowedStates() {
+    public Set<Status> getAllowedStates() {
         return allowedStatus;
     }
 
@@ -70,6 +71,7 @@ public class TimeStatusRestriction {
                     //Each integer passed in here is a semantic nid, of something that was indexed.  True 
                     //if we want it to be allowed for the query, false if not.
                     //We will return true, if there is any version which meets all present criteria.
+                    try {
                         SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
                         LatestVersion<Version> latest = sc.getLatestVersion(manifold);
                         if (latest.isPresent()) {
@@ -91,10 +93,16 @@ public class TimeStatusRestriction {
                                 return true;
                             }
                         }
+                    } catch (Exception e) {
+                        FxGet.dialogs().showErrorDialog("Error testing: " + nid + " " +
+                                Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)) +
+                                "\n\n Query will continue with other matching components", e);
+                        LogManager.getLogger().error("unexpected", e);
+                    }
                     return false;
 
                 }
             };
         }
-    }
+    } 
 }

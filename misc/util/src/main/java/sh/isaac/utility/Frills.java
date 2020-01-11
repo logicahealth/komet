@@ -157,6 +157,7 @@ import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.api.TaxonomySnapshot;
+import sh.isaac.api.Util;
 
 /**
  * The Class Frills.
@@ -171,8 +172,10 @@ public class Frills
 
    private static final Cache<Integer, Boolean> IS_ASSOCIATION_CLASS = Caffeine.newBuilder().maximumSize(50).build();
    private static final Cache<Integer, Boolean> IS_MAPPING_CLASS = Caffeine.newBuilder().maximumSize(50).build();
+   private static final Cache<Integer, Boolean> IS_SEMANTIC_ASSEMBLAGE = Caffeine.newBuilder().maximumSize(50).build();
    private static final Cache<Integer, Integer> MODULE_TO_TERM_TYPE_CACHE = Caffeine.newBuilder().maximumSize(50).build();
    private static final Cache<Integer, Integer> EDIT_MODULE_FOR_TERMINOLOGY_CACHE = Caffeine.newBuilder().maximumSize(50).build();
+   private static final Cache<Integer, Integer> DESC_CORE_TYPE_CACHE = Caffeine.newBuilder().maximumSize(50).build();
 
 
    /**
@@ -359,6 +362,8 @@ public class Frills
     *
     * @param conceptNid the concept nid
     * @return true, if the concept is properly defined as a semantic which represents an association.  See {@link DynamicConstants#DYNAMIC_ASSOCIATION}
+    * 
+    * Returns cached answers (true or false)
     */
    public static boolean definesAssociation(int conceptNid) {
       return IS_ASSOCIATION_CLASS.get(conceptNid, nid -> {
@@ -381,34 +386,43 @@ public class Frills
    /**
     * Returns true if a concept has a {@link MetaData#IDENTIFIER_SOURCE____SOLOR} semantic attached to it (at any coordinate)
     * @param assemblageNid
-    * @return true, if it is a semantic definition
+    * @return true, if it is a semantic definition that defines a string semantic identifier
     */
-   public static boolean definesIdentifierSemantic(int assemblageNid) 
-   {
-      if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) 
-      {
+   public static boolean definesIdentifierSemantic(int assemblageNid) {
+      if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT) {
          Optional<SemanticChronology> semantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
                assemblageNid, MetaData.IDENTIFIER_SOURCE____SOLOR.getNid()).findAny();
-      if (semantic.isPresent())
-         {
+         if (semantic.isPresent()) {
             return true;
          }
       }
       return false;
    }
+   
 
    /**
-    * Defines dynamic element.  See {@link DynamicUsageDescriptionImpl#isDynamicSemantic(int)}
+    * Checks if the concept is specified in such a way that it defines a semantic - static or dynamic.  Returns cached answers.
+    * (true or false)
     *
     * @param conceptNid the concept nid
     * @return true, if successful
     */
-   public static boolean definesDynamicSemantic(int conceptNid) {
-      return DynamicUsageDescriptionImpl.isDynamicSemantic(conceptNid);
+   public static boolean definesSemantic(int conceptNid) {
+
+      return IS_SEMANTIC_ASSEMBLAGE.get(conceptNid, nid -> {
+         try {
+            DynamicUsageDescriptionImpl.mockOrRead(conceptNid);
+            return true;
+         }
+         catch (Exception e) {
+            return false;
+         }
+      });
    }
 
    /**
     * Checks if the concept is specified in such a way that it defines a mapping assemblage.  See {@link IsaacMappingConstants#DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE}
+    * Returns cached answers (true or false)
     *
     * @param conceptNid the concept nid
     * @return true, if successful
@@ -486,7 +500,10 @@ public class Frills
     * 
     * @param conceptModuleNid the module to look up
     * @param stamp - optional - uses default if not provided.  If provided, and doesn't include the metadata modules, it will use a modified stamp
-    * that includes the metadata module, since that module is required to read the module hierarchy.
+    * that includes the metadata module, since that module is required to read the module hierarchy.  It also modifies the time, to always use the latest 
+    * time when evaluating the parents, because 1) the parent hierarchy of the modules shouldn't ever change from one version to another and 
+    * 2) often times, the metadata hierarchy gets built with a timestamp that is later than the version in the content, since metadata is loaded at DB build time
+    * not content conversion time.
     */
    private static Integer findTermTypeConcept(int conceptModuleNid, StampCoordinate stamp) {
       StampCoordinate stampToUse = stamp == null ? StampCoordinates.getDevelopmentLatest() : stamp;
@@ -497,10 +514,14 @@ public class Frills
          {
             stampToUse = stamp.makeModuleAnalog(Arrays.asList(new ConceptSpecification[] {MetaData.CORE_METADATA_MODULE____SOLOR}), true);
          }
+         if (stamp.getStampPosition().getTime() != Long.MAX_VALUE)
+         {
+             stampToUse = stampToUse.makeCoordinateAnalog(Long.MAX_VALUE);
+         }
       }
       
       int[] parents = Get.taxonomyService().getSnapshotNoTree(
-            new ManifoldCoordinateImpl(stampToUse, LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
+            new ManifoldCoordinateImpl(stampToUse, null))
             .getTaxonomyParentConceptNids(conceptModuleNid);
       for (int current : parents)
       {
@@ -614,7 +635,7 @@ public class Frills
             return Optional.empty();   
          }
          
-         DynamicData[] dataColumns = ((DynamicVersion<?>)lsv.get()).getData();
+         DynamicData[] dataColumns = ((DynamicVersion)lsv.get()).getData();
          if (dataColumns.length != 1)
          {
             throw new RuntimeException("Invalidly specified DYNAMIC_SEMANTIC_EXTENDED_DESCRIPTION_TYPE.  Should always have a column size of 1");
@@ -718,7 +739,7 @@ public class Frills
    public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate,
          int requiredModuleSequence,
          int... optionalModuleSequences) {
-      final HashSet<ConceptSpecification> moduleSet = new HashSet();
+      final HashSet<ConceptSpecification> moduleSet = new HashSet<>();
 
       moduleSet.add(Get.conceptSpecification(requiredModuleSequence));
 
@@ -728,16 +749,12 @@ public class Frills
          }
       }
 
-      final EnumSet<Status> allowedStates = EnumSet.allOf(Status.class);
-
-      allowedStates.addAll(existingStampCoordinate.getAllowedStates());
-
       final StampCoordinate newStampCoordinate = new StampCoordinateImpl(
                                                      existingStampCoordinate.getStampPrecedence(),
                                                            existingStampCoordinate.getStampPosition(),
                                                            moduleSet,
-                                                           new ArrayList(),
-                                                           allowedStates);
+                                                           existingStampCoordinate.getModulePreferenceOrderForVersions(),
+                                                           existingStampCoordinate.getAllowedStates());
 
       return newStampCoordinate;
    }
@@ -772,19 +789,17 @@ public class Frills
 
             if (descriptionVersion.isPresent()) {
                final DescriptionVersion d = descriptionVersion.get();
+               final int descriptionType = getDescriptionType(d.getDescriptionTypeConceptNid(), null); 
 
-               if (d.getDescriptionTypeConceptNid() ==
-                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
+               if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                   fqn = d.getText();
-               } else if (d.getDescriptionTypeConceptNid() ==
-                          TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
+               } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
                   if (Frills.isDescriptionPreferred(d.getNid(), null)) {
                      columnName = d.getText();
                   } else {
                      acceptableSynonym = d.getText();
                   }
-               } else if (d.getDescriptionTypeConceptNid() ==
-                          TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+               } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                   if (Frills.isDescriptionPreferred(d.getNid(), null)) {
                      columnDescription = d.getText();
                   } else {
@@ -798,25 +813,22 @@ public class Frills
       }
 
       if (columnName == null) {
-         LOG.warn(
-             "No preferred synonym found on '" + columnDescriptionConcept + "' to use " +
-             "for the column name - using FQN");
-         columnName = ((fqn == null) ? "ERROR - see log"
-                                     : fqn);
+         if (StringUtils.isNotBlank(acceptableSynonym)) {
+            columnName = acceptableSynonym;
+         }
+         else {
+            LOG.warn("No preferred or acceptible synonym found on '" + columnDescriptionConcept + "' to use " + "for the column name - using FQN");
+            columnName = ((fqn == null) ? "ERROR - see log" : fqn);
+         }
       }
 
-      if ((columnDescription == null) && (acceptableDefinition != null)) {
+      if ((columnDescription == null) && StringUtils.isNotBlank(acceptableDefinition)) {
          columnDescription = acceptableDefinition;
       }
 
-      if ((columnDescription == null) && (acceptableSynonym != null)) {
-         columnDescription = acceptableSynonym;
-      }
-
       if (columnDescription == null) {
-         LOG.debug(
-             "No preferred or acceptable definition or acceptable synonym found on '" + columnDescriptionConcept +
-             "' to use for the column description- re-using the the columnName, instead.");
+         LOG.debug("No preferred or acceptable definition found on '" + columnDescriptionConcept 
+               + "' to use for the column description - re-using the the columnName, instead.");
          columnDescription = columnName;
       }
 
@@ -1063,8 +1075,7 @@ public class Frills
       public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
       
       TaxonomySnapshot tss = Get.taxonomyService().getSnapshotNoTree(
-            new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp),
-                  LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()));
+            new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp), null));
       
       Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptNid, recursive, leafOnly, tss);
       if (leafOnly && temp.size() == 1) {
@@ -1279,7 +1290,6 @@ public class Frills
     * service
     * @return the codes, if found, or empty (will not return null)
     */
-   @SuppressWarnings("rawtypes")
    public static List<String> getCodes(int componentNid, StampCoordinate stamp) {
       try 
       {
@@ -1477,50 +1487,52 @@ public class Frills
     * Determine the "core" description type for a given description type.  If the given description type is already a core type, this 
     * method is essentially a no-op.  Otherwise, reads the annotations to determine the core type linked to the external description type.
     * 
-    * @param descriptionVersion the description to check the type on.
+    * @param descriptionType the description type to check the core type on.
     * @param stamp optional - used system defaults if not provided.
     * @return the nid of the core description type, one of {@link MetaData#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, 
     *     {@link MetaData#REGULAR_NAME_DESCRIPTION_TYPE____SOLOR}, or {@link MetaData#DEFINITION_DESCRIPTION_TYPE____SOLOR}.
     *     In the case of a data error, and the core type is missing, a runtime exception is thrown.
     */
-   public static int getDescriptionType(DescriptionVersion descriptionVersion, StampCoordinate stamp) {
-      if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
-         return MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid();
+   public static int getDescriptionType(int descriptionType, StampCoordinate stamp) {
+      if (descriptionType == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return descriptionType;
       }
-      else if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
-         return MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid();
+      else if (descriptionType == MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return descriptionType;
       }
-      else if (descriptionVersion.getDescriptionTypeConceptNid() == MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()) {
-         return MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid();
+      else if (descriptionType == MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid()) {
+         return descriptionType;
       }
       else {
-         //This must be an external description type.  External description types should have an annotation on them that links them to a core
-         //type description.
-         StampCoordinate stampToUse = (stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
-         AtomicReference<UUID> type = new AtomicReference<>();
-         Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionVersion.getDescriptionTypeConceptNid(),
-               DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(semanticChronlogy ->
-               {
-                  //This semantic is defined as a dynamic semantic with a single column of UUID data, which MUST be one of the three
-                  //core description types.  There should only be one active core type ref on a description type.
-                  LatestVersion<DynamicVersion<? extends DynamicVersion<?>>> lv =  semanticChronlogy.getLatestVersion(stampToUse);
-                  if (lv.isPresent()) {
-                     DynamicUUID uuid = (DynamicUUID)lv.get().getData(0);
-                     if (type.get() != null) {
-                        LOG.error("Description {} has multiple active core type annotations!  Result will be arbitrary", descriptionVersion);
+         return DESC_CORE_TYPE_CACHE.get(descriptionType, typeAgain -> {
+            //This must be an external description type.  External description types should have an annotation on them that links them to a core
+            //type description.
+            StampCoordinate stampToUse = (stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
+            AtomicReference<UUID> type = new AtomicReference<>();
+            Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionType,
+                  DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(semanticChronlogy ->
+                  {
+                     //This semantic is defined as a dynamic semantic with a single column of UUID data, which MUST be one of the three
+                     //core description types.  There should only be one active core type ref on a description type.
+                     LatestVersion<DynamicVersion> lv =  semanticChronlogy.getLatestVersion(stampToUse);
+                     if (lv.isPresent()) {
+                        DynamicUUID uuid = (DynamicUUID)lv.get().getData(0);
+                        if (type.get() != null) {
+                           LOG.error("Description type {} has multiple active core type annotations!  Result will be arbitrary", descriptionType);
+                        }
+                        else {
+                           type.set(uuid.getDataUUID());
+                        }
                      }
-                     else {
-                        type.set(uuid.getDataUUID());
-                     }
-                  }
-               });
-         if (type.get() == null) {
-            LOG.error("External typed description {} has no active core type annotation on the specified stamp: {}", descriptionVersion, stampToUse);
-            throw new RuntimeException("Core description type is unknown due to a data error");
-         }
-         else {
-            return Get.identifierService().getNidForUuids(type.get());
-         }
+                  });
+            if (type.get() == null) {
+               LOG.error("External description type {} has no active core type annotation on the specified stamp: {}", descriptionType, stampToUse);
+               throw new RuntimeException("Core description type is unknown due to a data error");
+            }
+            else {
+               return Get.identifierService().getNidForUuids(type.get());
+            }
+         });
       }
    }
 
@@ -1530,9 +1542,9 @@ public class Frills
     *
     * @param conceptNid The concept to read descriptions for
     * @param descriptionType expected to be one of
-    * {@link MetaData#REGULAR_NAME____SOLOR} or
-    * {@link MetaData#FULLY_QUALIFIED_NAME____SOLOR} or
-    * {@link MetaData#DEFINITION____SOLOR}
+    * {@link MetaData#REGULAR_NAME_DESCRIPTION_TYPE____SOLOR} or
+    * {@link MetaData#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR} or
+    * {@link MetaData#DEFINITION_DESCRIPTION_TYPE____SOLOR}
     * @param stamp - optional - if not provided gets the default from the config service
     * @return the descriptions - may be empty, will not be null
     */
@@ -1548,12 +1560,8 @@ public class Frills
                    final LatestVersion<DescriptionVersion> latest = ((SemanticChronology) descriptionC).getLatestVersion((stamp == null)? 
                          Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
 
-                   if (latest.isPresent()) {
-                      final DescriptionVersion ds = latest.get();
-
-                      if (ds.getDescriptionTypeConceptNid() == descriptionType.getNid()) {
-                         results.add(ds);
-                      }
+                   if (latest.isPresentAnd(dv -> dv.getDescriptionTypeConceptNid() == descriptionType.getNid())) {
+                         results.add(latest.get());
                    }
                 }
              });
@@ -1619,13 +1627,13 @@ public class Frills
    /**
     * 
     * @param id String identifier may parse to int NID, or UUID
-    * @param sc The stamp coordinate to use, when looking up descriptions - uses dev latest if not passed
+    * @param stampCoordinate The stamp coordinate to use, when looking up descriptions - uses dev latest if not passed
     * @param lc the language coordinate to use, when looking up descriptions.  Uses us english, if not provided.
     * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
     * 
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
     */
-   private static IdInfo getIdInfo(String id, StampCoordinate sc, LanguageCoordinate lc) {
+   private static IdInfo getIdInfo(String id, final StampCoordinate stampCoordinate, final LanguageCoordinate languageCoordinate) {
       Map<String, Object> idInfo = new HashMap<>();
 
       Long sctId = null;
@@ -1633,15 +1641,9 @@ public class Frills
       UUID[] uuids = null;
       IsaacObjectType typeOfPassedId = null;
       
-      if (sc == null)
-      {
-         sc = StampCoordinates.getDevelopmentLatest();
-      }
+      StampCoordinate sc = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate; 
       
-      if (lc == null)
-      {
-         lc = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
-      }
+      LanguageCoordinate lc = languageCoordinate == null ? LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate() : languageCoordinate; 
 
       try {
          OptionalInt intId = NumericUtils.getInt(id);
@@ -1699,9 +1701,7 @@ public class Frills
     */
    public static Optional<SemanticChronology> getInferredDefinitionChronology(int conceptId,
          LogicCoordinate logicCoordinate) {
-      return Get.assemblageService()
-                .getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageNid())
-                .findAny();
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageNid()).findAny();
    }
 
    /**
@@ -1730,7 +1730,7 @@ public class Frills
 
          return Optional.of(semanticChronology);
       } else {
-         LOG.warn("NO {} logic graph chronology for {}", (stated ? "stated"
+         LOG.debug("NO {} logic graph chronology for {}", (stated ? "stated"
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
          return Optional.empty();
       }
@@ -1751,25 +1751,22 @@ public class Frills
          StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
          LogicCoordinate logicCoordinate) {
-      LOG.debug("Getting {} logic graph chronology for {}", (stated ? "stated"
-            : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
+      LOG.debug("Getting {} logic graph chronology for {}", (stated ? "stated" : "inferred"), 
+            Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
-      final Optional<SemanticChronology> defChronologyOptional = stated ? getStatedDefinitionChronology(
-                                                                                              id,
-                                                                                                    logicCoordinate)
+      final Optional<SemanticChronology> defChronologyOptional = stated ? getStatedDefinitionChronology(id, logicCoordinate)
             : getInferredDefinitionChronology(id, logicCoordinate);
 
       if (defChronologyOptional.isPresent()) {
-         LOG.debug("Got {} logic graph chronology for {}", (stated ? "stated"
-               : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
+         LOG.debug("Got {} logic graph chronology for {}", (stated ? "stated": "inferred"), 
+               Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
-         final SemanticChronology semanticChronology =
-            (SemanticChronology) defChronologyOptional.get();
+         final SemanticChronology semanticChronology = (SemanticChronology) defChronologyOptional.get();
 
          return Optional.of(semanticChronology);
       } else {
-         LOG.warn("NO {} logic graph chronology for {}", (stated ? "stated"
-               : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
+         LOG.debug("NO {} logic graph chronology for {}", (stated ? "stated" : "inferred"), 
+               Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
          return Optional.empty();
       }
    }
@@ -1794,7 +1791,7 @@ public class Frills
          LOG.debug("Got logic graph semantic for {}",
              Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
       } else {
-         LOG.warn("NO logic graph semantic for {}",
+         LOG.debug("NO logic graph semantic for {}",
              Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
       }
 
@@ -1815,28 +1812,11 @@ public class Frills
    /**
     * Convenience method to find the nearest concept related to a semantic.  Recursively walks referenced components until it finds a concept.
     * @param nid 
-    * @return the nearest concept nid, or -1, if no concept can be found.
+    * @return the nearest concept nid, or empty, if no concept can be found.
     */
    public static Optional<Integer> getNearestConcept(int nid)
    {
-      Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(nid);
-      
-      if (c.isPresent())
-      {
-         if (c.get().getIsaacObjectType() == IsaacObjectType.SEMANTIC)
-         {
-            return getNearestConcept(((SemanticChronology)c.get()).getReferencedComponentNid());
-         }
-         else if (c.get().getIsaacObjectType() == IsaacObjectType.CONCEPT)
-         {
-            return Optional.of(((ConceptChronology)c.get()).getNid());
-         }
-         else
-         {
-            LOG.warn("Unexpected object type: " + c.get().getIsaacObjectType());
-         }
-      }
-      return Optional.empty();
+      return Util.getNearestConcept(nid);
    }
 
    /**
@@ -1898,17 +1878,18 @@ public class Frills
    /**
     * Retrieve the set of integer parent concept nids stored in the logic graph necessary sets
     * 
-    * @param logicGraph
+    * @param logicalExpression
     * @return the parents
     */
-   public static Set<Integer> getParentConceptNidsFromLogicGraph(LogicGraphVersion logicGraph) {
+   public static Set<Integer> getParentConceptNidsFromLogicGraph(LogicalExpression logicalExpression) {
       Set<Integer> parentConceptSequences = new HashSet<>();
-      List<LogicNode> necessarySets = logicGraph.getLogicalExpression().getNodesOfType(NodeSemantic.NECESSARY_SET);
+      List<LogicNode> necessarySets = logicalExpression.getNodesOfType(NodeSemantic.NECESSARY_SET);
       for (LogicNode necessarySetNode: necessarySets) {
          for (LogicNode childOfNecessarySetNode : necessarySetNode.getChildren()) {
             if (null == childOfNecessarySetNode.getNodeSemantic()) {
-                String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of NecessarySet logic graph node of unexpected type \""
-                        + childOfNecessarySetNode.getNodeSemantic() + "\". Expected AndNode or ConceptNode in " + logicGraph;
+                String msg = "Logic graph for concept NID=" + logicalExpression.getConceptBeingDefinedNid() 
+                   + " has child of NecessarySet logic graph node of unexpected type \""
+                        + childOfNecessarySetNode.getNodeSemantic() + "\". Expected AndNode or ConceptNode in " + logicalExpression;
                 LOG.error(msg);
                 throw new RuntimeException(msg);
             } else switch (childOfNecessarySetNode.getNodeSemantic()) {
@@ -1924,8 +1905,9 @@ public class Frills
                                  parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
                              } else {
                                  // Should never happen
-                                 String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of AndNode logic graph node of unexpected type \""
-                                         + childOfAndNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicGraph;
+                                 String msg = "Logic graph for concept NID=" + logicalExpression.getConceptBeingDefinedNid() 
+                                    + " has child of AndNode logic graph node of unexpected type \""
+                                         + childOfAndNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicalExpression;
                                  LOG.error(msg);
                                  throw new RuntimeException(msg);
                              }
@@ -1940,14 +1922,16 @@ public class Frills
                          parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
                      } else {
                          // Should never happen
-                         String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of NecessarySet logic graph node of unexpected type \""
-                                 + childOfNecessarySetNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicGraph;
+                         String msg = "Logic graph for concept NID=" + logicalExpression.getConceptBeingDefinedNid() 
+                            + " has child of NecessarySet logic graph node of unexpected type \""
+                                 + childOfNecessarySetNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + logicalExpression;
                          LOG.error(msg);
                          throw new RuntimeException(msg);
                      }     break;
                  default:
-                     String msg = "Logic graph for concept NID=" + logicGraph.getReferencedComponentNid() + " has child of NecessarySet logic graph node of unexpected type \""
-                             + childOfNecessarySetNode.getNodeSemantic() + "\". Expected AndNode or ConceptNode in " + logicGraph;
+                     String msg = "Logic graph for concept NID=" + logicalExpression.getConceptBeingDefinedNid() 
+                        + " has child of NecessarySet logic graph node of unexpected type \""
+                             + childOfNecessarySetNode.getNodeSemantic() + "\". Expected AndNode or ConceptNode in " + logicalExpression;
                      LOG.error(msg);
                      throw new RuntimeException(msg);
              }
@@ -2044,26 +2028,16 @@ public class Frills
     * @param editCoordinate - ensure that the returned stamp coordinate includes the module and path from this edit coordinate.
     * @return a new stamp coordinate
     */
-   public static StampCoordinate getStampCoordinateFromEditCoordinate(StampCoordinate stampCoordinate,
+   public static StampCoordinate getStampCoordinateFromEditCoordinate(final StampCoordinate stampCoordinate,
          EditCoordinate editCoordinate) {
-      if (stampCoordinate == null) {
-         stampCoordinate = Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate();
-      }
+      StampCoordinate scLocal = stampCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stampCoordinate;
 
-      final StampPosition stampPosition = new StampPositionImpl(
-                                              stampCoordinate.getStampPosition().getTime(),
-                                                    editCoordinate.getPathNid());
-      final StampCoordinateImpl temp = new StampCoordinateImpl(
-                                           stampCoordinate.getStampPrecedence(),
-                                                 stampPosition,
-                                                 stampCoordinate.getModuleSpecifications(),
-                                                 new ArrayList(),
-                                                 stampCoordinate.getAllowedStates());
+      final StampPosition stampPosition = new StampPositionImpl(scLocal.getStampPosition().getTime(), editCoordinate.getPathNid());
+      final StampCoordinateImpl temp = new StampCoordinateImpl(scLocal.getStampPrecedence(), stampPosition, scLocal.getModuleSpecifications(), 
+            new ArrayList<>(), scLocal.getAllowedStates());
 
-      if (temp.getModuleNids()
-              .size() > 0) {
-         temp.getModuleNids()
-             .add(editCoordinate.getModuleNid());
+      if (temp.getModuleNids().size() > 0) {
+         temp.getModuleNids().add(editCoordinate.getModuleNid());
       }
 
       return temp;
@@ -2149,11 +2123,8 @@ public class Frills
     * @return the stated definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SemanticChronology> getStatedDefinitionChronology(int conceptId,
-         LogicCoordinate logicCoordinate) {
-      return Get.assemblageService()
-                .getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageNid())
-                .findAny();
+   public static Optional<SemanticChronology> getStatedDefinitionChronology(int conceptId, LogicCoordinate logicCoordinate) {
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageNid()).findAny();
    }
    
    /**
@@ -2175,7 +2146,9 @@ public class Frills
       } else {
          oc.getVersionList().stream().filter(version -> {
             return stamp.getAllowedStates().contains(version.getStatus())
-                  && (stamp.getModuleNids().size() == 0 ? true : stamp.getModuleNids().contains(version.getModuleNid()));
+                  && (stamp.getModuleNids().size() == 0 ? true : stamp.getModuleNids().contains(version.getModuleNid())
+                  && (version.getTime() <= stamp.getStampPosition().getTime())
+                  && (version.getPathNid() == stamp.getStampPosition().getPathNid()));
          }).forEach(version -> {
             modules.add(version.getModuleNid());
          });
@@ -2329,7 +2302,7 @@ public class Frills
       vhatModules.forEach((moduleNid) -> {
           vhatModulesConceptSpecSet.add(Get.conceptSpecification(moduleNid));
        });
-      final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, vhatModulesConceptSpecSet, new ArrayList(), Status.ACTIVE_ONLY_SET);
+      final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, vhatModulesConceptSpecSet, new ArrayList<>(), Status.ACTIVE_ONLY_SET);
 
       final Set<Integer> matchingVuidSemanticNids = new HashSet<>();
 
@@ -2414,6 +2387,7 @@ public class Frills
          return cr.get();
       }
       catch (RuntimeException e) {
+         LOG.error("Commit Failure", e);
          throw e;
       }
       catch (Exception e) {
@@ -2465,8 +2439,25 @@ public class Frills
    {
       IS_ASSOCIATION_CLASS.invalidateAll();
       IS_MAPPING_CLASS.invalidateAll();
+      IS_SEMANTIC_ASSEMBLAGE.invalidateAll();
       MODULE_TO_TERM_TYPE_CACHE.invalidateAll();
       EDIT_MODULE_FOR_TERMINOLOGY_CACHE.invalidateAll();
+      DESC_CORE_TYPE_CACHE.invalidateAll();
+   }
+
+   /**
+    * Returns true if the passed in concept is the root solor concept {@link MetaData#SOLOR_CONCEPT____SOLOR}, 
+    * the metadata root concept {@link MetaData#METADATA____SOLOR}, or some child of the that tree (at any point in history)
+    * 
+    * Note, this method doesn't perform great, so it should be used for one-offs, not batch processing.  See the lucene description 
+    * indexer for an example of doing this in batch. 
+    * @param conceptNid a conceptNid
+    * @return true or false
+    */
+   public static boolean isMetadata(int conceptNid)
+   {
+      return (conceptNid == MetaData.SOLOR_CONCEPT____SOLOR.getNid() || conceptNid == MetaData.METADATA____SOLOR.getNid() || 
+            Get.taxonomyService().wasEverKindOf(conceptNid, MetaData.METADATA____SOLOR.getNid()));
    }
 }
 

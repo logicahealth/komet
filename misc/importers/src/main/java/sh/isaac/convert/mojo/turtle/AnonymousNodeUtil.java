@@ -137,12 +137,12 @@ public class AnonymousNodeUtil
 		{
 			if (data.get(i).hasMoreThanOneValue())
 			{
-				dci[i] = new DynamicColumnInfo(i, data.get(i).getColumnLabelConcept(), DynamicDataType.ARRAY, null, data.get(i).columnRequired(), true);
+				dci[i] = new DynamicColumnInfo(i, data.get(i).getColumnLabelConcept(), DynamicDataType.ARRAY, null, data.get(i).columnRequired());
 			}
 			else
 			{
 				dci[i] = new DynamicColumnInfo(i, data.get(i).getColumnLabelConcept(), data.get(i).getDynamicTypeMap().getDynamicDataType(), null, 
-						data.get(i).columnRequired(), true);
+						data.get(i).columnRequired());
 			}
 		}
 		return dci;

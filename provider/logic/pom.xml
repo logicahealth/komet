@@ -30,9 +30,5 @@
             <groupId>au.csiro</groupId>
             <artifactId>snorocket-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>se.liu.imt.mi.snomedct</groupId>
-            <artifactId>SnomedCTParser</artifactId>
-        </dependency>
     </dependencies>
 </project>

@@ -94,7 +94,7 @@ public class SolorMojo extends AbstractMojo {
             //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
             //be configured at the assemblage level.
             LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(true);
-            DirectImporter rf2Importer = new DirectImporter(ImportType.valueOf(importType));
+            DirectImporter rf2Importer = new DirectImporter(transaction, ImportType.valueOf(importType));
             getLog().info("  Importing RF2 files.");
             rf2Importer.run();
             LookupService.syncAll();

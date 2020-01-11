@@ -355,7 +355,7 @@ public enum ObservableFields
 ;
    // this, ObservableFields..toExternalString()
 
-    /** The Constant namespace. */
+   /** The Constant namespace. */
    private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");
 
    //~--- fields --------------------------------------------------------------

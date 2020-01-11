@@ -15,22 +15,11 @@
  */
 package sh.komet.fx.stage;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 import javafx.event.ActionEvent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -40,19 +29,31 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.RemoteServiceInfo;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
+import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
-import sh.isaac.solor.direct.*;
+import sh.isaac.solor.direct.ImportType;
+import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
-import sh.isaac.komet.gui.exporter.ExportView;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
+
+import javax.inject.Singleton;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  *
@@ -97,20 +98,6 @@ public class KometBaseMenus implements MenuProvider {
                 MenuItem selectiveExport = new MenuItemWithText("Selective export");
                 selectiveExport.setOnAction(event -> ExportView.show(FxGet.manifold(Manifold.ManifoldGroup.UNLINKED)));
 
-                MenuItem importTransformFull = new MenuItemWithText("Import and transform - FULL");
-
-                importTransformFull.setOnAction((ActionEvent event) -> {
-                    ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.manifold(Manifold.ManifoldGroup.TAXONOMY),
-                            ImportType.FULL);
-                    Get.executor().submit(itcTask);
-
-                });
-
-                MenuItem importSourcesFull = new MenuItemWithText("Import terminology content - FULL");
-                importSourcesFull.setOnAction((ActionEvent event) -> {
-                    DirectImporter importerFull = new DirectImporter(ImportType.FULL);
-                    Get.executor().submit(importerFull);
-                });
 
                 Menu synchronize = new Menu("Synchronize");
 
@@ -130,7 +117,7 @@ public class KometBaseMenus implements MenuProvider {
                     if (!syncService.isRootLocationConfiguredForSCM()) {
                         try {
                             LOG.info("Initializing for git: " + changeSetFolder);
-                            syncService.initialize();
+                            syncService.initializeLocalRepository();
                         } catch (IOException ex) {
                             LOG.error(ex.getLocalizedMessage(), ex);
                         }
@@ -199,8 +186,8 @@ public class KometBaseMenus implements MenuProvider {
                 MenuItem executeRxNormOwl = new MenuItemWithText("Test RxNorm OWL");
                 executeRxNormOwl.setOnAction(this::executeRxNormOwl);
 
-                return new MenuItem[]{selectiveImport, selectiveExport, importTransformFull,
-                    importSourcesFull, synchronize, exportNative, importNative, splitChangeSet, executeFlwor,
+                return new MenuItem[]{selectiveImport, selectiveExport,
+                    synchronize, exportNative, importNative, splitChangeSet, executeFlwor,
                         executeSctOwl, executeRxNormOwl
                 };
             }
@@ -213,9 +200,9 @@ public class KometBaseMenus implements MenuProvider {
                     Get.executor().submit(transformer);
                 });
 
-                MenuItem transformSourcesActiveOnly = new MenuItemWithText("Transform RF2 to EL++ - ACTIVE");
+                MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - SNAPSHOT ACTIVE ONLY");
                 transformSourcesActiveOnly.setOnAction((ActionEvent event) -> {
-                    Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.ACTIVE_ONLY);
+                    Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.SNAPSHOT_ACTIVE_ONLY);
                     Get.executor().submit(transformer);
                 });
 
@@ -364,7 +351,7 @@ public class KometBaseMenus implements MenuProvider {
                 
                 List<List<String>> results = queryFromDisk.executeQuery();
                 
-                try (FileWriter writer = new FileWriter(resultsFile)) {
+                try (FileWriter writer = new FileWriter(resultsFile, Charset.forName(StandardCharsets.UTF_8.name()))) {
                     for (List<String> row: results) {
                         for (int i = 0; i < row.size(); i++) {
                             writer.append(row.get(i));

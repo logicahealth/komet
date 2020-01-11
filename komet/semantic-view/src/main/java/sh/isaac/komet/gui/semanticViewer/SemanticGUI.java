@@ -434,7 +434,7 @@ public class SemanticGUI
 			}
 			else if (oc.get() instanceof ConceptChronology)
 			{
-				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampCoordinate(), null);
+				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampCoordinate(), manifold_.getLanguageCoordinate());
 				text = (conDesc.isPresent() ? conDesc.get() : "off path [NID]:" + oc.get().getNid());
 			}
 			else if (oc.get() instanceof SemanticChronology)
@@ -467,7 +467,6 @@ public class SemanticGUI
 						break;
 
 					case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-					case LOINC_RECORD:
 					case MEASURE_CONSTRAINTS:
 					case Nid1_Int2:
 					case Nid1_Int2_Str3_Str4_Nid5_Nid6:
@@ -493,10 +492,10 @@ public class SemanticGUI
 						break;
 				}
 			}
-			else if (oc.get() instanceof DynamicVersion<?>)
+			else if (oc.get() instanceof DynamicVersion)
 			{
 				//TODO I don't think this is necessary / in use?
-				DynamicVersion<?> nds = (DynamicVersion<?>) oc.get();
+				DynamicVersion nds = (DynamicVersion) oc.get();
 				text = "Nested Semantic Dynamic: using assemblage " + Frills.getDescription(nds.getAssemblageNid(), null);
 			}
 			else
@@ -632,11 +631,11 @@ public class SemanticGUI
 				return new DynamicData[] {new DynamicNidImpl(((ComponentNidVersion)semantic).getComponentNid())};
 			case DESCRIPTION:
 				return new DynamicData[] {new DynamicStringImpl(((DescriptionVersion)semantic).getText()), 
-						new DynamicNidImpl(((DescriptionVersion)semantic).getDescriptionTypeConceptNid()),
 						new DynamicNidImpl(((DescriptionVersion)semantic).getLanguageConceptNid()),
+						new DynamicNidImpl(((DescriptionVersion)semantic).getDescriptionTypeConceptNid()),
 						new DynamicNidImpl(((DescriptionVersion)semantic).getCaseSignificanceConceptNid())};
 			case DYNAMIC:
-				return ((DynamicVersion<?>)semantic).getData();
+				return ((DynamicVersion)semantic).getData();
 			case LONG:
 				return new DynamicData[] {new DynamicLongImpl(((LongVersion)semantic).getLongValue())};
 			case MEMBER:
@@ -658,7 +657,6 @@ public class SemanticGUI
 			case Str1_Str2_Nid3_Nid4_Nid5:
 			case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
 			case RF2_RELATIONSHIP:
-			case LOINC_RECORD:
 			case MEASURE_CONSTRAINTS:
 				//Handle all brittle types
 				if (semantic instanceof BrittleVersion)

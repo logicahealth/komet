@@ -214,6 +214,7 @@ public class StampProvider
                     new File(this.stampManagerFolder.toFile(),
                              STAMP_MANAGER_DATA_SEQUENCE_TO_UNCOMMITTED_STAMP_FILENAME));
         }
+        
     }
 
     //~--- methods -------------------------------------------------------------

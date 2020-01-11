@@ -46,6 +46,7 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ListProperty;
@@ -89,13 +90,13 @@ public class ObservableStampCoordinateImpl
    /** The stamp position property. */
    ObjectProperty<ObservableStampPosition> stampPositionProperty;
 
-    /** The module specifications property. */
-    SimpleSetProperty<ConceptSpecification> moduleSpecificationsProperty;
+   /** The module specifications property. */
+   SimpleSetProperty<ConceptSpecification> moduleSpecificationsProperty;
 
-    /** The author specifications property. */
-    SimpleSetProperty<ConceptSpecification> authorSpecificationsProperty;
+   /** The author specifications property. */
+   SimpleSetProperty<ConceptSpecification> authorSpecificationsProperty;
 
-    /** The allowed states. */
+   /** The allowed states. */
    SetProperty<Status> allowedStates;
 
    //~--- constructors --------------------------------------------------------
@@ -151,7 +152,6 @@ public class ObservableStampCoordinateImpl
    @Override
    public ObservableStampCoordinateImpl makeCoordinateAnalog(long stampPositionTime) {
       final StampCoordinate analog = this.stampCoordinate.makeCoordinateAnalog(stampPositionTime);
-
       return new ObservableStampCoordinateImpl(analog);
    }
 
@@ -164,12 +164,11 @@ public class ObservableStampCoordinateImpl
    @Override
    public ObservableStampCoordinate makeCoordinateAnalog(Status... state) {
       final StampCoordinate analog = this.stampCoordinate.makeCoordinateAnalog(state);
-
       return new ObservableStampCoordinateImpl(analog);
    }
    
    @Override
-   public ObservableStampCoordinate makeCoordinateAnalog(EnumSet<Status> states) {
+   public ObservableStampCoordinate makeCoordinateAnalog(Set<Status> states) {
       StampCoordinate analog = stampCoordinate.makeCoordinateAnalog(states);
       return new ObservableStampCoordinateImpl(analog);
    }
@@ -291,11 +290,6 @@ public class ObservableStampCoordinateImpl
    public ObservableStampCoordinateImpl deepClone() {
       return new ObservableStampCoordinateImpl(stampCoordinate.deepClone());
    }
-
-    @Override
-    public StampCoordinate getImmutableAllStateAnalog() {
-        return this.stampCoordinate.getImmutableAllStateAnalog();
-    }
 
     @Override
     public ObservableList<ConceptSpecification> getModulePreferenceOrderForVersions() {

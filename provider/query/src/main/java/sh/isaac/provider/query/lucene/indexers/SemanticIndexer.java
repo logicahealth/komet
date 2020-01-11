@@ -1,11 +1,11 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
  *
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
  * 
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
@@ -35,88 +35,54 @@
  *
  */
 
-
-
 package sh.isaac.provider.query.lucene.indexers;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-import javax.inject.Inject;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoublePoint;
-import org.apache.lucene.document.Field;
+import javafx.concurrent.Task;
+import org.apache.lucene.document.*;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.FloatPoint;
-import org.apache.lucene.document.IntPoint;
-import org.apache.lucene.document.LongPoint;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.mahout.math.set.OpenIntHashSet;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import org.roaringbitmap.IntConsumer;
 import org.roaringbitmap.RoaringBitmap;
+import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
-import sh.isaac.api.component.semantic.version.DynamicVersion;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.LongVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
 import sh.isaac.api.component.semantic.version.brittle.BrittleVersion.BrittleDataTypes;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicBoolean;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicByteArray;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicDouble;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicFloat;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNumeric;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.component.semantic.version.dynamic.types.*;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
-import sh.isaac.model.index.SemanticIndexerConfiguration;
-import sh.isaac.model.semantic.types.DynamicBooleanImpl;
-import sh.isaac.model.semantic.types.DynamicFloatImpl;
-import sh.isaac.model.semantic.types.DynamicIntegerImpl;
-import sh.isaac.model.semantic.types.DynamicLongImpl;
-import sh.isaac.model.semantic.types.DynamicNidImpl;
-import sh.isaac.model.semantic.types.DynamicStringImpl;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
+import sh.isaac.model.semantic.types.*;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 
-//~--- classes ----------------------------------------------------------------
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Predicate;
 
 /**
  * This class provides indexing for all String, Nid, Long and Logic Graph semantic types.
  *
- * Additionally, this class provides flexible indexing of all DynamicVersion data types, 
+ * Additionally, this class provides flexible indexing of all DynamicVersion data types,
  * including all columns within each type..
  * 
  * This indexer does NOT index descriptions, as those are better handled by the {@link DescriptionIndexer}
@@ -126,31 +92,39 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
  */
 @Service(name = "semantic index")
 @RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
-public class SemanticIndexer
-        extends LuceneIndexer implements IndexSemanticQueryService {
-
-   /** The Constant INDEX_NAME. */
+public class SemanticIndexer extends LuceneIndexer implements IndexSemanticQueryService
+{
    public static final String INDEX_NAME = "semantics-index";
 
-   /** The Constant COLUMN_STRING_FIELD_DATA. */
    private static final String COLUMN_STRING_FIELD_DATA = "sColData";
    private static final String COLUMN_INT_FIELD_DATA = "iColData";
    private static final String COLUMN_LONG_FIELD_DATA = "lColData";
    private static final String COLUMN_FLOAT_FIELD_DATA = "fColData";
    private static final String COLUMN_DOUBLE_FIELD_DATA = "dColData";
 
-   @Inject
-   private SemanticIndexerConfiguration lric;
+	private static final String INDEX_CONFIG = "INDEX_CONFIG_STORE";
+
+	/**
+	 * A cache that records the columns to be indexed for each assemblage in the system. This is dynamically created as needed.
+	 * The only data that is stored, is the information about what columns to NOT index, which is stored in the database metadata store.
+	 */
+	private ConcurrentHashMap<Integer, Integer[]> columnsToIndexCache = new ConcurrentHashMap<>();
+
+	/**
+	 * Ref to the metacontent store instanced that stores our exclude configs
+	 */
+	private ConcurrentMap<Integer, Integer[]> store;
 
    /**
     * Instantiates a new semantic indexer.
     *
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private SemanticIndexer()
-            throws IOException {
+	private SemanticIndexer() throws IOException
+	{
       // For HK2
       super(INDEX_NAME);
+		store = Get.metaContentService().<Integer, Integer[]> openStore(INDEX_CONFIG);
    }
 
    /**
@@ -164,10 +138,12 @@ public class SemanticIndexer
                             semanticChronology.getAssemblageNid() + "",
                             Field.Store.NO));
 
-      for (final Version sv: semanticChronology.getVersionList()) {
-         if (sv instanceof DynamicVersion) {
-            final DynamicVersion<?> dsv     = (DynamicVersion<?>) sv;
-            final Integer[]        columns = this.lric.whatColumnsToIndex(dsv.getAssemblageNid());
+		for (final Version sv : semanticChronology.getVersionList())
+		{
+			if (sv instanceof DynamicVersion)
+			{
+				final DynamicVersion dsv = (DynamicVersion) sv;
+				final Integer[] columns = getColumnsToIndex(semanticChronology, dsv.getAssemblageNid());
 
             if (columns != null) {
                final int dataColCount = dsv.getData().length;
@@ -202,15 +178,15 @@ public class SemanticIndexer
             incrementIndexedItemCount("Semantic Component Nid");
          } else if (sv instanceof LogicGraphVersion) {
             final LogicGraphVersion lgsv = (LogicGraphVersion) sv;
-            final RoaringBitmap css  = new RoaringBitmap();
+				final RoaringBitmap css = new RoaringBitmap();
 
             lgsv.getLogicalExpression().processDepthFirst((LogicNode logicNode,TreeNodeVisitData data) -> {
                                       logicNode.addConceptsReferencedByNode(css);
                                    });
-            css.forEach((IntConsumer) sequence -> {
-                           handleType(doc, new DynamicNidImpl(sequence), -1);
-                        });
-         } 
+               Arrays.stream(css.toArray()).forEach(sequence -> {
+                  handleType(doc, new DynamicNidImpl(sequence), -1);
+               });
+         }
          else if (sv instanceof BrittleVersion) {
             BrittleVersion bv = (BrittleVersion)sv;
             
@@ -543,8 +519,10 @@ public class SemanticIndexer
             if ((assemblageConceptNid == null) || (assemblageConceptNid.length != 1)) {
                throw new RuntimeException(
                    "If a list of search columns is provided, then the assemblageConceptNid variable must contain 1 (and only 1) assemblage id");
-            } else {
-               assemblageIndexedColumns = SemanticIndexer.this.lric.whatColumnsToIndex(assemblageConceptNid[0]);
+				}
+				else
+				{
+					assemblageIndexedColumns = getColumnsToIndex(assemblageConceptNid[0]);
             }
          }
 
@@ -726,5 +704,81 @@ public class SemanticIndexer
          Long targetGeneration) {
       return queryData(new DynamicStringImpl(queryString), prefixSearch, assemblageConcept, null, filter, amp, pageNum, sizeLimit, targetGeneration);
    }
-}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public Task<Void> setColumnsToExclude(int assemblageConceptNid, Integer[] columnsToExclude)
+	{
+		Integer[] old;
+		if (columnsToExclude == null || columnsToExclude.length == 0)
+		{
+			old = store.remove(assemblageConceptNid);
+		}
+		else
+		{
+			old = store.put(assemblageConceptNid, columnsToExclude);
+		}
+
+		columnsToIndexCache.remove(assemblageConceptNid);
+
+		LOG.info("Set exclude columns for semantic {} to {}.  Old value was {}", assemblageConceptNid,
+				columnsToExclude == null ? "none" : Arrays.toString(columnsToExclude), old == null ? "none" : Arrays.toString(old));
+
+		fireIndexConfigurationChanged();
+		return Get.startIndexTask(new Class[] { IndexSemanticQueryService.class });
+	}
+
+	@Override
+	public Integer[] getColumnsToIndex(int assemblageConceptNid)
+	{
+		return getColumnsToIndex(null, assemblageConceptNid);
+	}
+
+	/**
+	 * @param sc - optional - more efficient if provided
+	 * @param assemblageConceptNid
+	 * @return
+	 */
+	private Integer[] getColumnsToIndex(final SemanticChronology sc, final int assemblageConceptNid)
+	{
+		return columnsToIndexCache.computeIfAbsent(assemblageConceptNid, nidAgain -> {
+			try
+			{
+				DynamicUsageDescription dud = sc == null ? DynamicUsageDescriptionImpl.mockOrRead(assemblageConceptNid) : DynamicUsageDescriptionImpl.mockOrRead(sc);
+
+				HashSet<Integer> exclude = new HashSet<>();
+				Integer[] exclusions = store.get(assemblageConceptNid);
+				if (exclusions != null)
+				{
+					for (Integer i : exclusions)
+					{
+						exclude.add(i);
+					}
+				}
+
+				ArrayList<Integer> colsToIndex = new ArrayList<>(dud.getColumnInfo().length);
+				for (DynamicColumnInfo dci : dud.getColumnInfo())
+				{
+					if (!exclude.contains(Integer.valueOf(dci.getColumnOrder())) && !getUnsupportedDataTypes().contains(dci.getColumnDataType()))
+					{
+						colsToIndex.add(dci.getColumnOrder());
+					}
+				}
+				return colsToIndex.toArray(new Integer[colsToIndex.size()]);
+			}
+			catch (Exception e)
+			{
+				LOG.error("Error determining columns to index, semantic {}, {}, will not be indexed.  Error was: {}", sc, assemblageConceptNid, e);
+				return new Integer[] {};
+			}
+		});
+	}
+
+	@Override
+	@PreDestroy
+	protected void stopMe()
+	{
+		columnsToIndexCache.clear();
+		super.stopMe();
+	}
+}

@@ -65,7 +65,7 @@ public interface MeasureConstraints extends SemanticVersion, BrittleVersion {
                 BrittleDataTypes.BOOLEAN,
                 BrittleDataTypes.BOOLEAN,
                 BrittleDataTypes.BOOLEAN,
-                BrittleDataTypes.INTEGER};
+                BrittleDataTypes.NID};
     }
 
     /** 

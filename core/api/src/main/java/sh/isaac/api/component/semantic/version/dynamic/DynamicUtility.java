@@ -61,23 +61,15 @@ import sh.isaac.api.transaction.Transaction;
 /**
  * {@link DynamicUtility}
  *
- * This class exists as an interface primarily to allow classes in ochre-api and ochre-impl to have access to these methods
+ * This class exists as an interface primarily to allow classes in api and impl to have access to these methods
  * that need to be implemented further down the dependency tree (with access to metadata, etc)
  *
- *  Code in ochre-util and ochre-api will access the impl via HK2.
+ *  Code in util and api will access the impl via HK2.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Contract
 public interface DynamicUtility {
-   /**
-    * This will return the column index configuration that will mark each supplied column that is indexable, for indexing.
-    * Returns null, if no columns need indexing.
-    *
-    * @param columns the columns
-    * @return the dynamic array
-    */
-   public DynamicArray<DynamicData> configureColumnIndexInfo(DynamicColumnInfo[] columns);
 
    /**
     * Configure dynamic definition data for column.
@@ -144,7 +136,12 @@ public interface DynamicUtility {
                                                                  IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, EditCoordinate editCoord);
    
    /**
-    * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
+    * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage.
+    * 
+    * NOTE!!! If this concept lives outside of the metadata tree, in order to get the proper markers into the lucene indes on ALL of the descriptions 
+    * for this concept, once should reindex all of the descriptions attached to the passed in conceptNid, after writing the results of this call to the 
+    * system.
+    * 
     * See {@link DynamicUsageDescription} class for more details on this format.
     * @param conceptNid - The concept that will define a dynamic semantic
     * @param semanticDescription - The description that describes the purpose of this dynamic semantic
@@ -152,7 +149,7 @@ public interface DynamicUtility {
     * @param referencedComponentTypeRestriction - optional - any component type restriction info for the columns
     * @param referencedComponentTypeSubRestriction - optional - any compont sub-type restrictions for the columns
     * @param stampSequence - the stamp to construct this on
-    * @return all of the created (but unwritten) SemanticChronologies.  It is up to the caller to write the chronologies to the appropriate store.
+    * @return all of the created (but unwritten) Chronology.  It is up to the caller to write the chronologies to the appropriate store.
     */
    public List<Chronology> configureConceptAsDynamicSemantic(Transaction transaction, int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
          IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, int stampSequence);

@@ -16,22 +16,8 @@
  */
 package sh.isaac.solor.direct;
 
-import java.time.format.DateTimeFormatter;
-import static java.time.temporal.ChronoField.INSTANT_SECONDS;
-
-import java.time.temporal.TemporalAccessor;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
-import java.util.concurrent.Semaphore;
 import org.apache.mahout.math.Arrays;
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
+import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.StampService;
@@ -43,18 +29,14 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.*;
+
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.*;
+import java.util.concurrent.Semaphore;
+
+import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 
 /**
  *
@@ -69,19 +51,6 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    private static final int RF2_REFERENCED_CONCEPT_SCT_ID_INDEX = 5;
    private static final int RF2_VARIABLE_FIELD_START = 5;
 
-    private static final int SRF_ID_INDEX = 0;
-    private static final int SRF_STATUS_INDEX = 1;
-    private static final int SRF_TIME_INDEX = 2;
-    private static final int SRF_AUTHOR_INDEX = 3;
-    private static final int SRF_MODULE_INDEX = 4;
-    private static final int SRF_PATH_INDEX = 5;
-    private static final int SRF_ASSEMBLAGE_ID_INDEX = 6;
-    private static final int SRF_REFERENCED_COMPONENT_ID_INDEX = 7;
-    private static final int SRF_VARIABLE_FIELD_START = 7;
-
-
-
-
    private final List<String[]> refsetRecords;
    private final Semaphore writeSemaphore;
    private final List<IndexBuilderService> indexers;
@@ -91,26 +60,20 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
    private final IdentifierService identifierService = Get.identifierService();
    private final StampService stampService = Get.stampService();
    private final HashSet<String> refsetsToIgnore = new HashSet<>();
-   private final boolean solorReleaseFormat;
    private final int VARIABLE_FIELD_START;
 
-   public BrittleRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, 
-           ImportSpecification importSpecification, ImportType importType, boolean solorReleaseFormat) {
-      this.refsetRecords = semanticRecords;
+   public BrittleRefsetWriter(List<String[]> refsetRecords, Semaphore writeSemaphore, String message,
+           ImportSpecification importSpecification, ImportType importType) {
+      this.refsetRecords = refsetRecords;
       this.writeSemaphore = writeSemaphore;
       this.importSpecification = importSpecification;
       this.importType = importType;
       this.writeSemaphore.acquireUninterruptibly();
-      this.solorReleaseFormat = solorReleaseFormat;
-      if (solorReleaseFormat) {
-          VARIABLE_FIELD_START = SRF_VARIABLE_FIELD_START;
-      } else {
-          VARIABLE_FIELD_START = RF2_VARIABLE_FIELD_START;
-      }
+      VARIABLE_FIELD_START = RF2_VARIABLE_FIELD_START;
       indexers = LookupService.get().getAllServices(IndexBuilderService.class);
-      updateTitle("Importing semantic batch of size: " + semanticRecords.size());
+      updateTitle("Importing semantic batch of size: " + refsetRecords.size());
       updateMessage(message);
-      addToTotalWork(semanticRecords.size());
+      addToTotalWork(refsetRecords.size());
       Get.activeTasks().add(this);
       
       // TODO move these to an import preference... 
@@ -130,26 +93,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
       refsetsToIgnore.add("900000000000490003");  // 900000000000490003 | Description inactivation indicator attribute value reference set (foundation metadata concept) |
       refsetsToIgnore.add("900000000000489007");  // 900000000000489007 | Concept inactivation indicator attribute value reference set (foundation metadata concept)
 //      refsetsToIgnore.add("900000000000527005");  // 900000000000527005 | SAME AS association reference set (foundation metadata concept)
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-//      refsetsToIgnore.add("");  
-      
-//
-      //
-      
+
    }
    private void index(Chronology chronicle) {
       for (IndexBuilderService indexer: indexers) {
@@ -173,23 +117,17 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
          int authorNid = 1;
          int pathNid = 1;
 
-         if(!this.solorReleaseFormat){
-             authorNid = TermAux.USER.getNid();
-             pathNid = TermAux.DEVELOPMENT_PATH.getNid();
-         }
+         authorNid = TermAux.USER.getNid();
+         pathNid = TermAux.DEVELOPMENT_PATH.getNid();
 
          List<String[]> noSuchElementList = new ArrayList<>();
 
          boolean skippedAny = false;
          for (String[] refsetRecord : refsetRecords) {
              try {
-                 UUID referencedComponentUuid = this.solorReleaseFormat
-                         ? UUID.fromString(refsetRecord[SRF_REFERENCED_COMPONENT_ID_INDEX])
-                         : UuidT3Generator.fromSNOMED(refsetRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
-                 final Status state = this.solorReleaseFormat
-                         ? Status.fromZeroOneToken(refsetRecord[SRF_STATUS_INDEX])
-                         : Status.fromZeroOneToken(refsetRecord[RF2_ACTIVE_INDEX]);
-                 if (importType == ImportType.ACTIVE_ONLY) {
+                 UUID referencedComponentUuid = UuidT3Generator.fromSNOMED(refsetRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
+                 final Status state = Status.fromZeroOneToken(refsetRecord[RF2_ACTIVE_INDEX]);
+                 if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                     if (state == Status.INACTIVE) {
                         continue;
                     }
@@ -199,9 +137,7 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                         if (!skippedAny) {
                             skippedAny = true;
                             StringBuilder builder = new StringBuilder();
-                            int assemblageNid = this.solorReleaseFormat
-                                    ? identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_ASSEMBLAGE_ID_INDEX]))
-                                    : nidFromSctid(refsetRecord[RF2_ASSEMBLAGE_SCT_ID_INDEX]);
+                            int assemblageNid = nidFromSctid(refsetRecord[RF2_ASSEMBLAGE_SCT_ID_INDEX]);
                             builder.append("Skipping at least one record in: ");
                             builder.append(Get.conceptDescriptionText(assemblageNid));
                             builder.append("\n");
@@ -211,39 +147,23 @@ public class BrittleRefsetWriter extends TimedTaskWithProgressTracker<Void> {
                         continue;
                     }
                  }
-                 if (!this.solorReleaseFormat && refsetsToIgnore.contains(refsetRecord[RF2_ASSEMBLAGE_SCT_ID_INDEX])) {
+                 if (refsetsToIgnore.contains(refsetRecord[RF2_ASSEMBLAGE_SCT_ID_INDEX])) {
                      continue;
                  }
 
-                 UUID elementUuid;
-                 int moduleNid, assemblageNid, referencedComponentNid;
-                 TemporalAccessor accessor;
+                 UUID elementUuid = UUID.fromString(refsetRecord[RF2_REFSET_MEMBER_UUID]);
+                 int moduleNid;
 
-                 if (this.solorReleaseFormat) {
-                     authorNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_AUTHOR_INDEX]));
-                     pathNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_PATH_INDEX]));
-                     elementUuid = UUID.fromString(refsetRecord[SRF_ID_INDEX]);
-                     moduleNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_MODULE_INDEX]));
-                     
-                     assemblageNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_ASSEMBLAGE_ID_INDEX]));
-                     referencedComponentNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[SRF_REFERENCED_COMPONENT_ID_INDEX]));
-                     accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(refsetRecord[SRF_TIME_INDEX]));
+                 if (UUIDUtil.isUUID(refsetRecord[RF2_MODULE_SCTID_INDEX])) {
+                     moduleNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[RF2_MODULE_SCTID_INDEX]));
                  } else {
-                     elementUuid = UUID.fromString(refsetRecord[RF2_REFSET_MEMBER_UUID]);
-                     if (UUIDUtil.isUUID(refsetRecord[RF2_MODULE_SCTID_INDEX])) {
-                         moduleNid = identifierService.getNidForUuids(UUID.fromString(refsetRecord[RF2_MODULE_SCTID_INDEX]));
-                     } else {
-                         moduleNid = nidFromSctid(refsetRecord[RF2_MODULE_SCTID_INDEX]);
-                     }
-                     
-                     assemblageNid = nidFromSctid(refsetRecord[RF2_ASSEMBLAGE_SCT_ID_INDEX]);
-                     referencedComponentNid = nidFromSctid(refsetRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
-                     accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(refsetRecord[RF2_EFFECTIVE_TIME_INDEX]));
+                     moduleNid = nidFromSctid(refsetRecord[RF2_MODULE_SCTID_INDEX]);
                  }
 
-
+                 int assemblageNid = nidFromSctid(refsetRecord[RF2_ASSEMBLAGE_SCT_ID_INDEX]);
+                 int referencedComponentNid = nidFromSctid(refsetRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
+                 TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(refsetRecord[RF2_EFFECTIVE_TIME_INDEX]));
                  long time = accessor.getLong(INSTANT_SECONDS) * 1000;
-
                  int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
                  
                  SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(

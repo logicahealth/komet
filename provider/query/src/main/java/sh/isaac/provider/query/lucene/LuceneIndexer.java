@@ -1,11 +1,11 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
  *
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
  * 
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
@@ -35,18 +35,18 @@
  *
  */
 
-
-
 package sh.isaac.provider.query.lucene;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -114,12 +114,14 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.ConceptSearchResult;
 import sh.isaac.api.index.GenerateIndexes;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.index.IndexQueryService;
+import sh.isaac.api.index.IndexStatusListener;
 import sh.isaac.api.index.IndexedGenerationCallable;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
@@ -132,7 +134,6 @@ import sh.isaac.api.util.WorkExecutors;
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-
 public abstract class LuceneIndexer
          implements IndexBuilderService {
 
@@ -209,7 +210,9 @@ public abstract class LuceneIndexer
    private final String indexName;
    
    private final ReentrantLock reindexLock = new ReentrantLock();
-   
+
+   protected List<WeakReference<IndexStatusListener>> statusListeners = new ArrayList<>();
+
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -338,20 +341,25 @@ public abstract class LuceneIndexer
     * {@inheritDoc}
     */
    @Override
-   public List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult) {
+   public List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult, StampCoordinate stampForMerge)
+   {
       final HashMap<Integer, ConceptSearchResult> merged = new HashMap<>();
-      final List<ConceptSearchResult>             result = new ArrayList<>();
+      final List<ConceptSearchResult> result = new ArrayList<>();
 
       searchResult.forEach((sr) -> {
          final OptionalInt conNid = findConcept(sr.getNid());
 
-         if (!conNid.isPresent()) {
+         if (!conNid.isPresent())
+         {
             LOG.error("Failed to find a concept that references nid " + sr.getNid());
-         } else if (merged.containsKey(conNid.getAsInt())) {
-            merged.get(conNid.getAsInt())
-                    .merge(sr);
-         } else {
-            final ConceptSearchResult csr = new ConceptSearchResult(conNid.getAsInt(), sr.getNid(), sr.getScore());
+         }
+         else if (merged.containsKey(conNid.getAsInt()))
+         {
+            merged.get(conNid.getAsInt()).merge(sr);
+         }
+         else
+         {
+            final ConceptSearchResult csr = new ConceptSearchResult(conNid.getAsInt(), sr.getNid(), sr.getScore(), stampForMerge);
 
             merged.put(conNid.getAsInt(), csr);
             result.add(csr);
@@ -360,7 +368,6 @@ public abstract class LuceneIndexer
 
       return result;
    }
-
    /**
     * Convenience method to find the nearest concept related to a semantic.  Recursively walks referenced components until it finds a concept.
     *
@@ -1121,7 +1128,7 @@ public abstract class LuceneIndexer
     * Stop me.
     */
    @PreDestroy
-   private void stopMe() {
+   protected void stopMe() {
       LOG.info("Stopping " + getIndexerName() + " pre-destroy. ");
       if (!Get.useLuceneIndexes()) {
          return;
@@ -1270,6 +1277,53 @@ public abstract class LuceneIndexer
    @Override
    public int getIndexMemoryInUse() {
        return (int) indexWriter.ramBytesUsed();
+   }
+
+
+   @Override
+   public void registerListener(IndexStatusListener statusListener)
+   {
+      synchronized (statusListeners)
+      {
+         statusListeners.add(new WeakReference<IndexStatusListener>(statusListener));
+      }
+   }
+
+   @Override
+   public void unregisterListener(IndexStatusListener statusListener)
+   {
+      synchronized (statusListeners)
+      {
+         Iterator<WeakReference<IndexStatusListener>> it = statusListeners.iterator();
+         while (it.hasNext())
+         {
+            IndexStatusListener isl = it.next().get();
+            if (isl == null || isl.getId().equals(statusListener.getId()))
+            {
+               it.remove();
+            }
+         }
+      }
+   }
+
+   protected void fireIndexConfigurationChanged()
+   {
+      synchronized (statusListeners)
+      {
+         Iterator<WeakReference<IndexStatusListener>> it = statusListeners.iterator();
+         while (it.hasNext())
+         {
+            IndexStatusListener isl = it.next().get();
+            if (isl == null)
+            {
+               it.remove();
+            }
+            else
+            {
+               isl.indexConfigurationChanged(this);
+            }
+         }
+      }
    }
 
    //~--- inner classes -------------------------------------------------------

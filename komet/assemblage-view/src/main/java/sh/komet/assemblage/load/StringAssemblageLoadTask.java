@@ -92,7 +92,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         int writePermits = 4;
         Semaphore writeSemaphore = new Semaphore(writePermits);
-        ImportSpecification importSpecification = new ImportSpecification(null, ImportStreamType.STR1_REFSET, true);
+        ImportSpecification importSpecification = new ImportSpecification(null, ImportStreamType.STR1_REFSET, false);
         String rowString;
         try (BufferedReader reader = new BufferedReader(new FileReader(fileToImport))) {
             while ((rowString = reader.readLine()) != null) {
@@ -112,7 +112,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
                 if (columnsToWrite.size() == writeSize) {
                     BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, writeSemaphore,
                             "Processing s semantics from: " + fileToImport.getName(),
-                            importSpecification, ImportType.ACTIVE_ONLY, true);
+                            importSpecification, ImportType.SNAPSHOT_ACTIVE_ONLY);
                     columnsToWrite = new ArrayList<>(writeSize);
                     Get.executor()
                             .submit(writer);
@@ -121,7 +121,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
             if (!columnsToWrite.isEmpty()) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, writeSemaphore,
                         "Processing s semantics from: " + fileToImport.getName(),
-                        importSpecification, ImportType.ACTIVE_ONLY, true);
+                        importSpecification, ImportType.SNAPSHOT_ACTIVE_ONLY);
                 Get.executor()
                         .submit(writer);
             }

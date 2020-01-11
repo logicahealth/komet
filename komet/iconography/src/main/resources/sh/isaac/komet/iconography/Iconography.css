@@ -530,6 +530,11 @@ limitations under the License.
    -glyph-size: 18;
 }
 
+.import-glyph {
+   -glyph-name: "IMPORT";
+   -glyph-size: 75;
+}
+
 .icon-goto-link {
    -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_goToLink.png");
    -my-height: 14;

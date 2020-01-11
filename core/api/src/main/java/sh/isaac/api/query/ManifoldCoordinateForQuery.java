@@ -16,17 +16,12 @@
  */
 package sh.isaac.api.query;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import javafx.beans.property.SimpleObjectProperty;
+import java.util.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.aopalliance.instrument.UndoNotSupportedException;
+import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -184,11 +179,6 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     @Override
     public ManifoldCoordinate deepClone() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public StampCoordinate getImmutableAllStateAnalog() {
-        return getStampCoordinate().getImmutableAllStateAnalog(); 
     }
 
     @Override

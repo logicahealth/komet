@@ -36,6 +36,14 @@
  */
 package sh.isaac.model.taxonomy;
 
+import static sh.isaac.api.commit.StampService.FIRST_STAMP_SEQUENCE;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 import org.roaringbitmap.RoaringBitmap;
@@ -48,13 +56,8 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.IntFunction;
-import java.util.stream.IntStream;
-
-import static sh.isaac.api.commit.StampService.FIRST_STAMP_SEQUENCE;
 
 //~--- JDK imports ------------------------------------------------------------
 //~--- non-JDK imports --------------------------------------------------------
@@ -390,10 +393,10 @@ public class TaxonomyRecord {
     public int length() {
         int length = 0;
 
-        length = this.conceptNidRecordMap.values()
-                .stream()
-                .map((record) -> record.length())
-                .reduce(length, Integer::sum);
+        for (TypeStampTaxonomyRecords value : this.conceptNidRecordMap.values())
+        {
+            length += value.length();
+        }
         return length + this.conceptNidRecordMap.size();
     }
 
@@ -677,7 +680,7 @@ public class TaxonomyRecord {
         this.conceptNidRecordMap.forEachPair((int destinationSequence,
                 TypeStampTaxonomyRecords stampRecords) -> {
             stampRecords.forEach((typeStampFlag) -> {
-                if (typeSet.contains(typeStampFlag.typeNid)) {
+                if (typeSet.contains(typeStampFlag.getTypeNid())) {
                     conceptSequenceIntStream.accept(destinationSequence);
                 }
             });
@@ -785,7 +788,7 @@ public class TaxonomyRecord {
         this.conceptNidRecordMap.forEachPair((int possibleParentNid,
                 TypeStampTaxonomyRecords stampRecords) -> {
             stampRecords.forEach((typeStampFlag) -> {
-                if (typeStampFlag.typeNid == isaNid) {
+                if (typeStampFlag.getTypeNid() == isaNid) {
                     conceptNidIntStream.accept(possibleParentNid);
                 }
             });
@@ -818,11 +821,11 @@ public class TaxonomyRecord {
                 stampRecords.forEach((record) -> {
                     if ((record.getTaxonomyFlags() & flags) == flags) {
                         if (computer.onRoute(record.getStampSequence())) {
-                            if (!typeStampStreamMap.containsKey(record.typeNid)) {
-                                typeStampStreamMap.put(record.typeNid, new OpenIntHashSet());
+                            if (!typeStampStreamMap.containsKey(record.getTypeNid())) {
+                                typeStampStreamMap.put(record.getTypeNid(), new OpenIntHashSet());
                             }
 
-                            typeStampStreamMap.get((record.typeNid))
+                            typeStampStreamMap.get((record.getTypeNid()))
                                     .add(record.getStampSequence());
                         }
                     }

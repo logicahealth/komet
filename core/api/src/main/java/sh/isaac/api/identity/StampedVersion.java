@@ -43,8 +43,6 @@ package sh.isaac.api.identity;
 
 import sh.isaac.api.Status;
 
-import java.util.UUID;
-
 //~--- interfaces -------------------------------------------------------------
 
 /**

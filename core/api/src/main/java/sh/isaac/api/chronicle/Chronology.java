@@ -176,13 +176,13 @@ public interface Chronology
     */
    default <V extends Version> CategorizedVersions<V> getCategorizedVersions(StampCoordinate coordinate) {
       LatestVersion<V> latestVersion = getLatestCommittedVersion(coordinate);
-      return new CategorizedVersions(latestVersion, this);
+      return new CategorizedVersions<>(latestVersion, this);
    }
 
    /**
     * Determine if the latest version is active, on a given stamp coordinate.  This method ignores the
- state attribute of the provided StampCoordinate - allowing all Status types -
- it returns true if the latest version is {@link Status#ACTIVE}
+    * state attribute of the provided StampCoordinate - allowing all Status types -
+    * it returns true if the latest version is {@link Status#ACTIVE}
     *
     * @param coordinate the coordinate
     * @return true, if latest version active

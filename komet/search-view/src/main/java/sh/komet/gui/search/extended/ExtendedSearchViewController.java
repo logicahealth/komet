@@ -107,7 +107,6 @@ import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.ManifoldCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
-import sh.isaac.model.index.SemanticIndexerConfiguration;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.NumericUtilsDynamic;
@@ -350,7 +349,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                     DynamicUsageDescription rdud = LookupService.get().getService(DynamicUtility.class).readDynamicUsageDescription(newValue.getNid());
                     displayIndexConfigMenu_.set(true);
                     currentlyEnteredAssemblageNid = rdud.getDynamicUsageDescriptorNid();
-                    Integer[] indexedColumns = SemanticIndexerConfiguration.readIndexInfo(currentlyEnteredAssemblageNid);
+                    Integer[] indexedColumns = Get.indexSemanticService().getColumnsToIndex(currentlyEnteredAssemblageNid);
                     if (indexedColumns == null || indexedColumns.length == 0) {
                         searchInSemantics.isValid().setInvalid("Sememe searches can only be performed on indexed columns in the semantic.  The selected "
                                 + "semantic does not contain any indexed data columns.  Please configure the indexes to search this semantic.");
@@ -512,7 +511,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                             box.getChildren().add(attachedData);
 
                                             if (versions.get(i).getSemanticType() == VersionType.DYNAMIC) {
-                                                DynamicVersion<?> dv = ((DynamicVersion<?>) versions.get(i));
+                                                DynamicVersion dv = ((DynamicVersion) versions.get(i));
                                                 DynamicUsageDescription dud = dv.getDynamicUsageDescription();
                                                 for (DynamicColumnInfo dci : dud.getColumnInfo()) {
                                                     DynamicData dd = dv.getData(dci.getColumnOrder());
@@ -833,6 +832,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
             ssh = null;  //force a null ptr in taskComplete, so an error is displayed.
             taskComplete(null, 0, null);
         }
+        Get.service(IndexSemanticQueryService.class).registerListener(this);
     }
 
     //TODO a listener to trigger this after a user makes a new one...

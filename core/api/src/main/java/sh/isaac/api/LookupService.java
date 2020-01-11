@@ -195,6 +195,13 @@ public class LookupService {
                      }
                      System.setProperty("javafxHack", i + "");
                      System.setProperty("javafx.version", "mavenHack" + i);
+                     if (!GraphicsEnvironment.isHeadless())
+                     {
+                        //We are probably running the content manager with a GUI, but trying to run maven in a different classloader.
+                        //The world just works a lot better if we make that classloader think it is headless.
+                         LOG.info("Installing headless toolkit in maven classloader");
+                         HeadlessToolkit.installToolkit();
+                     }
                   }
                   PlatformImpl.startup(() -> {
                      // No need to do anything here
@@ -267,11 +274,8 @@ public class LookupService {
          }
          
          //Make sure metadata is imported, if the user prefs said to import metadata.
-         if (Get.useLuceneIndexes()) {
-            get().getService(MetadataService.class).importMetadata();
-         }
+         get().getService(MetadataService.class).importMetadata();
 
-         
          //Now, check and make sure every provider has the same DB ID
          UUID expected = get().getService(MetadataService.class).getDataStoreId().get();
          

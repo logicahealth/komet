@@ -16,16 +16,18 @@
  */
 package sh.isaac.solor.direct;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChangeCheckerMode;
@@ -35,13 +37,15 @@ import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -161,6 +165,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     private final IdentifierService identifierService = Get.identifierService();
     private final AssemblageService assemblageService = Get.assemblageService();
     private final Transaction transaction;
+    private final Logger LOG = LogManager.getLogger();
 
     public LoincWriter(Transaction transaction, List<String[]> loincRecordsRecords,
             Semaphore writeSemaphore, String message, long commitTime) {
@@ -198,13 +203,14 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
             List<String[]> noSuchElementList = new ArrayList<>();
 
+            int count = 0;
 
             for (String[] loincRecord : loincRecords) {
                 try {
 
-                    //if (!loincRecord[STATUS].equals("DEPRECATED")) {
+                    Status status = mapStatus(loincRecord[STATUS]);
 
-                        int recordStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
+                    int recordStamp = stampService.getStampSequence(status, commitTime, authorNid, moduleNid, pathNid);
                         // See if the concept is created (from the SNOMED/LOINC expressions. 
                         UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincRecord[LOINC_NUM]);
                         int conceptNid = Get.nidWithAssignment(conceptUuid);
@@ -239,7 +245,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                             shortName = longCommonName + " with no sn";
                         }
 
+                    if (!shortName.equals(longCommonName)){
                         addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, false);
+                    }
 
                         // make a LOINC semantic
                         UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
@@ -260,13 +268,15 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         recordVersion.setSystem(loincRecord[SYSTEM]);
                         recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
                         assemblageService.writeSemanticChronology(recordToWrite);
+                    count++;
 
-                    //}
                 } catch (NoSuchElementException ex) {
                     noSuchElementList.add(loincRecord);
                 }
                 completedUnitOfWork();
             }
+
+            LOG.info("Created " + count + " concepts for loinc");
             if (!noSuchElementList.isEmpty()) {
                 LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size());
             }
@@ -290,9 +300,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     private void addDescription(String[] loincRecord, String description, ConceptSpecification descriptionType,
             UUID conceptUuid, int recordStamp, boolean preferredInDialect) {
 
-        UUID descriptionUuid
-                = UuidT5Generator.get(MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(),
-                        descriptionType.toString() + conceptUuid.toString() + description);
+        UUID descriptionUuid = UuidFactory.getUuidForDescriptionSemantic(MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(),
+                conceptUuid, MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), descriptionType.getPrimordialUuid(),
+                MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid(), description, null);
 
         int descriptionTypeNid = descriptionType.getNid();
         int conceptNid = identifierService.getNidForUuids(conceptUuid);
@@ -310,8 +320,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         index(descriptionToWrite);
         assemblageService.writeSemanticChronology(descriptionToWrite);
 
-        UUID acceptabilityUuid = UuidT5Generator.get(TermAux.US_DIALECT_ASSEMBLAGE.getPrimordialUuid(),
-                loincRecord[LOINC_NUM] + description);
+        UUID acceptabilityUuid = UuidFactory.getUuidForComponentNidSemantic(TermAux.US_DIALECT_ASSEMBLAGE.getPrimordialUuid(), TermAux.US_DIALECT_ASSEMBLAGE.getPrimordialUuid(), 
+                descriptionUuid, preferredInDialect ? TermAux.PREFERRED.getPrimordialUuid() : TermAux.ACCEPTABLE.getPrimordialUuid(), null); 
+
         SemanticChronologyImpl dialectToWrite = new SemanticChronologyImpl(
                 VersionType.COMPONENT_NID,
                 acceptabilityUuid,
@@ -353,8 +364,9 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             index(conceptToWrite);
 
             // add to loinc identifier assemblage
-            UUID loincIdentifierUuid = UuidT5Generator.get(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getPrimordialUuid(),
-                    loincCode);
+            UUID loincIdentifierUuid = UuidFactory.getUuidForStringSemantic(MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getPrimordialUuid(), 
+                    MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getPrimordialUuid(), conceptUuid, loincCode, null); 
+
             SemanticChronologyImpl loincIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                     loincIdentifierUuid,
                     MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
@@ -368,19 +380,20 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
         int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
 
-        final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
+        final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
               Get.identifierService().getNidForUuids(conceptUuid),
                 graphAssemblageNid);
 
         UUID nameSpace = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid();
 
         // Create UUID from seed and assign SemanticBuilder the value
-        final UUID generatedGraphPrimordialUuid
-                = UuidT5Generator.get(nameSpace, conceptUuid.toString());
+        //Dan is leaving this one as it, rather than using the UuidFactory, in case some other code is trying to align logic graph creation for 
+        //loinc.  
+        final UUID generatedGraphPrimordialUuid = UuidT5Generator.get(nameSpace, conceptUuid.toString());
 
         sb.setPrimordialUuid(generatedGraphPrimordialUuid);
 
-        final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+        final ArrayList<Chronology> builtObjects = new ArrayList<>();
 
         final SemanticChronology sci = (SemanticChronology) sb.build(transaction, stamp,
                 builtObjects);
@@ -393,7 +406,21 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         Get.assemblageService().writeSemanticChronology(sci);
 
         return sci;
-
     }
     
+    private Status mapStatus(String status) throws IOException {
+        switch (status) {
+            case "ACTIVE":
+            case "TRIAL":
+            case "DISCOURAGED":
+                return Status.ACTIVE;
+
+            case "DEPRECATED":
+                return Status.INACTIVE;
+
+            default :
+                LOG.error("No mapping for status: " + status);
+                return Status.ACTIVE;
+        }
+    }
 }

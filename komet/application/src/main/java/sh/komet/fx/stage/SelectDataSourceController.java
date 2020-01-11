@@ -82,7 +82,11 @@ public class SelectDataSourceController {
                 System.setProperty("ISAAC_PSQL_URL", databaseLoginController.getDatabaseUrl());
                 System.setProperty("ISAAC_PSQL_UNAME", databaseLoginController.getUsername());
                 System.setProperty("ISAAC_PSQL_UPWD", databaseLoginController.getPassword());
-                Get.setUseLuceneIndexes(false);
+                //Dan notes, this is all happening at the wrong RunLevel... this code should really only be running 
+                //after we reach a runlevel of 0, so that the configuration service is available.   But as of now
+                //its running at runlevel -1, which makes the config unavailable.  Have to use the system property hatchet...
+                System.setProperty(SystemPropertyConstants.ENABLE_LUCENE, "false");
+                //Get.configurationService().getGlobalDatastoreConfiguration().setEnableLuceneIndexs(false);
                 new Thread(new StartupAfterSelection(this.getMainApp(), false), "Startup service").start();
                 break;
             case Folder:

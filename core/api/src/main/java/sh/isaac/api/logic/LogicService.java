@@ -69,6 +69,8 @@ import java.util.Optional;
 public interface LogicService {
    /**
     * Gets the classifier service.
+    * 
+    * Implementors should likely override the provided StampCoordinate time with NOW, if it is passed in with latest.
     *
     * @param stampCoordinate the stamp coordinate
     * @param logicCoordinate the logic coordinate

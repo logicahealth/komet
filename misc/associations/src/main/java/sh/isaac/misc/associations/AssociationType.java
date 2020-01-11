@@ -58,8 +58,8 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
-import sh.isaac.model.index.SemanticIndexerConfiguration;
 import sh.isaac.utility.Frills;
 
 
@@ -179,4 +179,58 @@ public class AssociationType
    }
    
 
+   /**
+    * Create and store a new mapping set in the DB.
+    * @param associationName - The name of the association (used for the FSN and preferred term of the underlying concept)
+    * @param associationInverseName - (optional) inverse name of the association (if it makes sense for the association)
+    * @param description - (optional) description that describes the purpose of the association
+    * @param referencedComponentRestriction - (optional) - may be null - if provided - this restricts the type of object referenced by the nid or 
+    * UUID that is set for the referenced component in an instance of this semantic.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as 
+    * if it were null.
+    * @param referencedComponentSubRestriction - (optional) - may be null - subtype restriction for {@link IsaacObjectType#SEMANTIC} restrictions
+    * @param stampCoord - optional - used during the readback to create the return object.  See {@link #read(int, StampCoordinate, LanguageCoordinate)}
+    * @param editCoord - optional - the edit coordinate to use when creating the association.  Uses the system default if not provided.
+    * @return the concept nid of the created concept that carries the association definition
+    */
+      public static AssociationType createAssociation(String associationName, String associationInverseName, String description,
+                                                      IsaacObjectType referencedComponentRestriction, VersionType referencedComponentSubRestriction, StampCoordinate stampCoord, EditCoordinate editCoord) {
+         try {
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("create assoication steps"), ChangeCheckerMode.ACTIVE);
+            EditCoordinate localEditCoord = (editCoord == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate() : editCoord);
+
+            //We need to create a new concept - which itself is defining a dynamic semantic - so set that up here.
+            DynamicUsageDescription rdud = Frills.createNewDynamicSemanticUsageDescriptionConcept(
+                    associationName, associationName, StringUtils.isBlank(description) ? "Defines the association type " + associationInverseName : description,
+                    new DynamicColumnInfo[]{
+                            new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(),
+                                    DynamicDataType.UUID, null, false)},
+                    DynamicConstants.get().DYNAMIC_ASSOCIATION.getNid(), referencedComponentRestriction, referencedComponentSubRestriction,
+                    editCoord);
+
+            //Then add the inverse name, if present.
+            if (!StringUtils.isBlank(associationInverseName)) {
+               Chronology builtDesc = LookupService.get().getService(DescriptionBuilderService.class)
+                       .getDescriptionBuilder(associationInverseName, rdud.getDynamicUsageDescriptorNid(),
+                               MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, MetaData.ENGLISH_LANGUAGE____SOLOR).build(transaction, localEditCoord).getNoThrow();
+
+               Get.semanticBuilderService().getDynamicBuilder(builtDesc.getNid(), DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getAssemblageNid())
+                       .build(transaction, localEditCoord).getNoThrow();
+            }
+
+            //Add the association marker semantic
+            Get.semanticBuilderService().getDynamicBuilder(rdud.getDynamicUsageDescriptorNid(),
+                    DynamicConstants.get().DYNAMIC_ASSOCIATION.getNid())
+                    .build(transaction, localEditCoord).getNoThrow();
+
+            transaction.commit();
+            //final get is to wait for commit completion
+
+         return read(rdud.getDynamicUsageDescriptorNid(), stampCoord, Get.languageCoordinateService().getUsEnglishLanguagePreferredTermCoordinate());
+      }
+      catch (Exception e)
+      {
+         log.error("Unexpected error creating association", e);
+         throw new RuntimeException(e);
+         }
+      }
 }

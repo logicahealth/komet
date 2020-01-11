@@ -39,11 +39,7 @@
 
 package sh.isaac.api.sync;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.Set;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * {@link MergeFailure}
@@ -53,18 +49,12 @@ import java.util.Set;
  */
 public class MergeFailure
         extends Exception {
-   /** The Constant serialVersionUID. */
+
    private static final long serialVersionUID = 1L;
 
-   //~--- fields --------------------------------------------------------------
-
-   /** The files with merge failures. */
    private final Set<String> filesWithMergeFailures;
 
-   /** The files changed during merge attempt. */
    private final Set<String> filesChangedDuringMergeAttempt;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new merge failure.
@@ -78,8 +68,6 @@ public class MergeFailure
       this.filesChangedDuringMergeAttempt = filesChangedDuringMergeAttempt;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the files changed during merge attempt.
     *
@@ -90,10 +78,7 @@ public class MergeFailure
    }
 
    /**
-    * Gets the localized message.
-    *
-    * @return the localized message
-    * @see java.lang.Throwable#getLocalizedMessage()
+    * {@inheritDoc}
     */
    @Override
    public String getLocalizedMessage() {
@@ -110,4 +95,3 @@ public class MergeFailure
       return this.filesWithMergeFailures;
    }
 }
-

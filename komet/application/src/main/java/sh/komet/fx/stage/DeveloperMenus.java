@@ -15,6 +15,7 @@
  */
 package sh.komet.fx.stage;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;

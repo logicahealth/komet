@@ -17,6 +17,7 @@
 package sh.isaac.solor.direct;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -36,7 +37,9 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.  logic.LogicalExpressionBuilder;
@@ -69,13 +72,14 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     ConceptProxy methodProxy = new ConceptProxy("Method (attribute)",
             UUID.fromString("d0f9e3b1-29e4-399f-b129-36693ba4acbc"));
+    
+    private HashSet<Integer> processedObservedBy = new HashSet<>();
 
  ;
 
     private final List<IndexBuilderService> indexers;
     private final TaxonomyService taxonomyService;
     private final long commitTime = System.currentTimeMillis();
-
 
     private final NidSet components = new NidSet();
     private final NidSet systems = new NidSet();
@@ -106,10 +110,18 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
             }
             Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).parallel().forEach((semanticChronology) -> {
                 for (Version version : semanticChronology.getVersionList()) {
-                    Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
-
-                    String loincCode = loincVersion.getStr1(); // "48023-6"
-                    String sctExpression = loincVersion.getStr2();
+                    String loincCode;
+                    String sctExpression;
+                    if (version instanceof Str1_Str2_Nid3_Nid4_Nid5_Version) {
+                        Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
+                        loincCode = loincVersion.getStr1(); // "48023-6"
+                        sctExpression = loincVersion.getStr2();
+                    }
+                    else {
+                        DynamicVersion loincVersion = (DynamicVersion) version;
+                        loincCode = ((DynamicString)loincVersion.getData()[0]).getDataString();
+                        sctExpression = ((DynamicString)loincVersion.getData()[1]).getDataString();
+                    }
 
                     //  "363787002:246093002=720113009,370134009=123029007,246501002=702675006,704327008=122592007,370132008=117363000,704319004=50863008,704318007=705057003"
                     StringTokenizer tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
@@ -545,7 +557,6 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(transaction, new ConceptProxy("Sevier-Munger stain method (procedure)", UUID.fromString("a36ec319-f341-3af5-a71f-e5c320f28774")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Dieterle's stain", UUID.fromString("636e4cd3-08ae-334d-b9aa-a8bf3e568ba9")).getNid(), builderService, stamp);
 
-
                 //ObservedByMethod Set 3
                 addObservedByMethod(transaction, new ConceptProxy("Silver stain method (procedure)", UUID.fromString("223baa52-cbb8-3247-beb5-1ec499715a90")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Fontana Masson silver stain method (procedure)", UUID.fromString("84ec165e-b9fa-3147-8dc6-d5e12d8ac0bf")).getNid(), builderService, stamp);
@@ -631,7 +642,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addObservedByMethod(Transaction transaction, int methodNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
                 
@@ -643,11 +654,11 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addObservesComponent(Transaction transaction, int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
         
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
         
@@ -660,7 +671,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addInheresInConcept(Transaction transaction, int inheresInNid, ConceptBuilderService builderService, int stamp) throws IllegalStateException, NoSuchElementException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
         

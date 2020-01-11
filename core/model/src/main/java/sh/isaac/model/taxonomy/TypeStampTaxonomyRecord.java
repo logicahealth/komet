@@ -52,8 +52,6 @@ public class TypeStampTaxonomyRecord {
    public long getTypeStampKey() {
        return (long)this.typeNid << 32 | this.stamp & 0xFFFFFFFFL;
    }
-
-   //~--- methods ----------------------------------------------------------
    /**
     * Equals.
     *
@@ -83,6 +81,7 @@ public class TypeStampTaxonomyRecord {
       int hash = 7;
       hash = 89 * hash + this.typeNid;
       hash = 89 * hash + this.stamp;
+      hash = 89 * hash + this.taxonomyFlagBits;
       return hash;
    }
 
@@ -108,8 +107,6 @@ public class TypeStampTaxonomyRecord {
       return sb.toString();
    }
 
-   //~--- get methods ------------------------------------------------------
-
    /**
     * Gets the stamp sequence.
     *
@@ -129,7 +126,7 @@ public class TypeStampTaxonomyRecord {
    }
 
    /**
-    * Gets the taxonomy flags as enum.
+    * Gets the taxonomy flags as enum.  Do NOT modify the contents of the returned enumset!
     *
     * @return the taxonomy flags as enum
     */

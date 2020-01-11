@@ -35,24 +35,25 @@
  *
  */
 
-
-
 package sh.isaac.api.chronicle;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.security.InvalidParameterException;
-
 import java.util.Locale;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.commons.lang3.StringUtils;
-
-import sh.isaac.api.component.semantic.version.*;
-import sh.isaac.api.observable.semantic.version.*;
-
-//~--- enums ------------------------------------------------------------------
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.ImageVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableImageVersion;
+import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 
 /**
  * The Enum VersionType.
@@ -83,45 +84,45 @@ public enum VersionType {
 
    /* A relationship adaptor version -- deprecated/removed. */
    //RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
-   
+
    /** A concept version */
    CONCEPT((byte) 9, "Concept", "CON"),
-   
+
    /** An RF2 relationship for backwards compatibility. */
    RF2_RELATIONSHIP((byte) 10, "RF2 Relationship", "REL"),
-   
+
    /** An LOINC record. */
    LOINC_RECORD((byte) 11, "LOINC Record", "LOINC"),
 
    IMAGE((byte) 12, "Image", "IMG"),
-   
-   // Ideally, all of the below would be represented as dynamic semantics, 
+
+   // Ideally, all of the below would be represented as dynamic semantics,
    // but quick, removable implementation for now. 
-   
+
    MEASURE_CONSTRAINTS((byte) (Byte.MAX_VALUE - 13), "Measure constraints", "Measure constraints"),
-   
+
    Str1_Nid2_Nid3_Nid4((byte) (Byte.MAX_VALUE - 12), "String Component Component Component", "Str1_C2_C3_C4"),
-   
+
    Str1_Str2_Nid3_Nid4_Nid5((byte) (Byte.MAX_VALUE - 11), "String String Component Component Component", "Str1_Str2_C3_C4_C5"),
-   
+
    Nid1_Nid2((byte) (Byte.MAX_VALUE - 10), "Component Component", "C1_C2"),
-   
+
    Nid1_Nid2_Int3((byte) (Byte.MAX_VALUE - 9), "Component Component Integer", "C1_C2_Int3"),
-   
+
    Nid1_Nid2_Str3((byte) (Byte.MAX_VALUE - 8), "Component Component String", "C1_C2_Str3"),
-   
+
    Nid1_Int2((byte) (Byte.MAX_VALUE - 7), "Component Integer", "C1_Int2"),
-   
+
    Nid1_Str2((byte) (Byte.MAX_VALUE - 6), "Component String", "C1_Str2"),
 
    Nid1_Int2_Str3_Str4_Nid5_Nid6((byte) (Byte.MAX_VALUE - 5), "Component Integer String String Component Component", "C1_Int2_Str3_Str4_C5_C6"),
-   
+
    Int1_Int2_Str3_Str4_Str5_Nid6_Nid7((byte) (Byte.MAX_VALUE - 4), "Integer Integer String String String Component Component", "Int1_Int2_Str3_Str4_Str5_C6_C7"),
-   
+
    Str1_Str2((byte) (Byte.MAX_VALUE - 3), "String String", "Str1_Str2"),
 
    Str1_Str2_Nid3_Nid4((byte) (Byte.MAX_VALUE - 2), "String String Component Component", "Str1_Str2_C3_C4"),
-   
+
    Str1_Str2_Str3_Str4_Str5_Str6_Str7((byte) (Byte.MAX_VALUE - 1), "String String String String String String String", "Str1_Str2_Str3_Str4_Str5_Str6_Str7"),
    
    /** An unknown type of version. */
@@ -157,22 +158,28 @@ public enum VersionType {
    }
 
    /**
-    * Parses the.
+    * Parses a passed in string or enum id info a {@link VersionType}
     *
-    * @param nameOrEnumId the name or enum id
-    * @param exceptionOnParseFail the exception on parse fail
-    * @return the version type
+    * @param nameOrEnumId the value to parse
+    * @param exceptionOnParseFail if true, will throw an exception if the passed in string isn't parseable.
+    * @return the parsed {@link VersionType}, or {@link VersionType#UNKNOWN} if exceptionParseOnFail is false 
+    * @throws IllegalArgumentException  if the passed in value is null, empty, or unparseable, and exceptionParseOnFail is true
     */
-   public static VersionType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
+   public static VersionType parse(String nameOrEnumId, boolean exceptionOnParseFail) throws IllegalArgumentException {
       if (nameOrEnumId == null) {
-         return null;
+         if (exceptionOnParseFail) {
+            throw new IllegalArgumentException("Could not determine VersionType from 'null'");
+         }
+         return UNKNOWN;
       }
 
-      final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
-              .trim();
+      final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH).trim();
       
       if (StringUtils.isBlank(clean)) {
-         return null;
+         if (exceptionOnParseFail) {
+            throw new IllegalArgumentException("Could not determine VersionType from 'null'");
+         }
+         return UNKNOWN;
       }
 
       for (final VersionType ct: values()) {
@@ -184,7 +191,7 @@ public enum VersionType {
       }
 
       if (exceptionOnParseFail) {
-         throw new InvalidParameterException("Could not determine VersionType from " + nameOrEnumId);
+         throw new InvalidParameterException("Could not determine VersionType from '" + nameOrEnumId + "'");
       }
 
       return UNKNOWN;
@@ -199,8 +206,6 @@ public enum VersionType {
    public String toString() {
       return this.niceName;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the from token.
@@ -302,25 +307,20 @@ public enum VersionType {
       case MEMBER:
          return ObservableSemanticVersion.class;
 
-         case LONG:
+      case LONG:
+         return ObservableLongVersion.class;
 
-            return ObservableLongVersion.class;
+      case STRING:
+         return ObservableStringVersion.class;
 
-         case STRING:
-
-            return ObservableStringVersion.class;
-
-         case IMAGE:
-            return ObservableStringVersion.class;
-            
+      case IMAGE:
+         return ObservableImageVersion.class;
+      
+      // TODO implement Observable pattern
       case DYNAMIC:
-
-      // TODO implement Observable pattern
       case LOGIC_GRAPH:
-
-      // TODO implement Observable pattern
       default:
-         throw new RuntimeException("f Can't handle: " + this);
+         throw new RuntimeException("No Observable class available for " + this);
       }
    }
 
@@ -365,7 +365,7 @@ public enum VersionType {
           return ImageVersion.class;
 
       default:
-         throw new RuntimeException("g Can't handle: " + this);
+         throw new RuntimeException("No Version Class avaiable for: " + this);
       }
    }
 }
