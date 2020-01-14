@@ -205,7 +205,7 @@ public class Stamp
    public int hashCode() {
       if (this.hashCode == Integer.MAX_VALUE) {
          this.hashCode = Hashcode.compute(new int[] { this.authorNid, this.status.ordinal(), this.pathNid,
-               (int) this.time });
+               (int) this.time, this.moduleNid});
       }
 
       return this.hashCode;
