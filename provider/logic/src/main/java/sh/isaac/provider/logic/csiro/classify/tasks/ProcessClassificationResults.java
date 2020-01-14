@@ -152,7 +152,7 @@ public class ProcessClassificationResults
             final Node node = classifiedResult.getNode(Integer.toString(conceptNid));
 
             if (node == null) {
-                throw new RuntimeException("Null node for: " + conceptNid);
+                log.error("Null node for: {} will be skipped in classifier results collect", conceptNid);
             }
 
             final Set<String> equivalentConcepts = node.getEquivalentConcepts();
