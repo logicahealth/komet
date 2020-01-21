@@ -152,7 +152,7 @@ public class CommitTaskGlobal extends CommitTask{
       addToTotalWork(this.semanticNidsToCommit.size());
       updateTitle("Commit");
       updateMessage(commitComment);
-      LOG.info("Spawning CommitTask " + taskSequenceId);
+      LOG.info("Spawning CommitTask " + taskId);
       Get.activeTasks().add(this);
    }
 
@@ -247,7 +247,7 @@ public class CommitTaskGlobal extends CommitTask{
       } finally {
          Get.activeTasks().remove(this);
          this.commitProvider.getPendingCommitTasks().remove(this);
-         LOG.info("Finished CommitTask " + taskSequenceId);
+         LOG.info("Finished CommitTask " + taskId);
       }
    }
 

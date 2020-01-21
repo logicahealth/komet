@@ -36,29 +36,17 @@
  */
 package sh.isaac.api.task;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.time.Duration;
 import java.time.Instant;
-
-import java.util.concurrent.Callable;
+import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.concurrent.atomic.AtomicInteger;
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.application.Platform;
-
-import javafx.concurrent.Task;
-
-import javafx.concurrent.Worker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import sh.isaac.api.util.FxTimer;
-
 import sh.isaac.api.util.time.DurationUtil;
 
-import static javafx.concurrent.Worker.State.*;
-
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class TimedTask.
  *
@@ -68,9 +56,6 @@ import static javafx.concurrent.Worker.State.*;
 public abstract class TimedTask<T>
         extends Task<T> {
 
-    /**
-     * The Constant log.
-     */
     protected static final Logger LOG = LogManager.getLogger();
 
     /**
@@ -93,9 +78,6 @@ public abstract class TimedTask<T>
      */
     static final int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 
-    static final AtomicInteger TASK_SEQUENCE = new AtomicInteger();
-
-    //~--- fields --------------------------------------------------------------
     /**
      * The update ticker.
      */
@@ -121,7 +103,7 @@ public abstract class TimedTask<T>
      */
     Consumer<TimedTask<T>> progressMessageGenerator;
 
-    protected final int taskSequenceId = TASK_SEQUENCE.incrementAndGet();
+    protected final UUID taskId = UUID.randomUUID();
 
     private boolean canCancel = false;
 
@@ -137,9 +119,6 @@ public abstract class TimedTask<T>
         this.progressUpdateDuration = progressUpdateDuration;
     }
 
-    /**
-     * Done.
-     */
     @Override
     protected void done() {
         super.done();
@@ -151,7 +130,7 @@ public abstract class TimedTask<T>
                 updateMessage(getSimpleName() + " in " + DurationUtil.format(getDuration()));
             });
         }
-        LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
+        LOG.info(getSimpleName() + " " + taskId + " completed in: " + DurationUtil.format(getDuration()));
 
         Platform.runLater(() -> {
             if (exceptionProperty().get() != null) {
@@ -170,9 +149,6 @@ public abstract class TimedTask<T>
         return getClass().getSimpleName();
     }
 
-    /**
-     * Failed.
-     */
     @Override
     protected void failed() {
         LOG.warn("Timed task failed!", this.getException());
@@ -184,9 +160,6 @@ public abstract class TimedTask<T>
         }
     }
 
-    /**
-     * Running.
-     */
     @Override
     protected void running() {
         super.running();
@@ -253,15 +226,15 @@ public abstract class TimedTask<T>
     }
     
     /**
-     * @return a unique ID (within this JVM) for the task being executed.
+     * @return a unique ID for the task being executed.
      */
-    public int getTaskId() {
-        return taskSequenceId;
+    public UUID getTaskId() {
+        return taskId;
     }
 
+    @Override
     public String toString() {
-
-        return simpleTitle + " " + taskSequenceId + " " + getState();
+        return simpleTitle + " " + taskId + " " + getState();
     }
 
     public boolean canCancel() {
