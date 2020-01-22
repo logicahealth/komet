@@ -72,10 +72,10 @@ public class ClassifierData
      */
     private static final Logger LOG = LogManager.getLogger();
 
-    /**
-     * The Constant singletonReference.
-     */
-    private static final AtomicReference<ClassifierData> SINGLETON = new AtomicReference<>();
+//    /**
+//     * The Constant singletonReference.
+//     */
+//    private static final AtomicReference<ClassifierData> SINGLETON = new AtomicReference<>();
 
     /**
      * The listener uuid.
@@ -330,26 +330,27 @@ public class ClassifierData
      * @return the classifier data
      */
     public static ClassifierData get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-        if (SINGLETON.get() == null) {
-            SINGLETON.compareAndSet(null, new ClassifierData(stampCoordinate, logicCoordinate));
-        } else {
-            ClassifierData classifierData = SINGLETON.get();
-
-            while (!classifierData.stampCoordinate.equals(stampCoordinate)
-                    || !classifierData.logicCoordinate.equals(logicCoordinate)) {
-                Get.commitService()
-                        .removeChangeListener(classifierData);
-
-                final ClassifierData newClassifierData = new ClassifierData(stampCoordinate, logicCoordinate);
-
-                SINGLETON.compareAndSet(classifierData, newClassifierData);
-                classifierData = SINGLETON.get();
-            }
-        }
-
-        Get.commitService()
-                .addChangeListener(SINGLETON.get());
-        return SINGLETON.get();
+//        if (SINGLETON.get() == null) {
+//            SINGLETON.compareAndSet(null, new ClassifierData(stampCoordinate, logicCoordinate));
+//        } else {
+//            ClassifierData classifierData = SINGLETON.get();
+//
+//            while (!classifierData.stampCoordinate.equals(stampCoordinate)
+//                    || !classifierData.logicCoordinate.equals(logicCoordinate)) {
+//                Get.commitService()
+//                        .removeChangeListener(classifierData);
+//
+//                final ClassifierData newClassifierData = new ClassifierData(stampCoordinate, logicCoordinate);
+//
+//                SINGLETON.compareAndSet(classifierData, newClassifierData);
+//                classifierData = SINGLETON.get();
+//            }
+//        }
+//
+//        Get.commitService()
+//                .addChangeListener(SINGLETON.get());
+//        return SINGLETON.get();
+        return new ClassifierData(stampCoordinate, logicCoordinate);
     }
 
     /**
