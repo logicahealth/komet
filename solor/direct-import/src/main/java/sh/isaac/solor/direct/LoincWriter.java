@@ -47,8 +47,10 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.metadata.source.DirectImportDynamicConstants;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
@@ -166,11 +168,14 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     private final AssemblageService assemblageService = Get.assemblageService();
     private final Transaction transaction;
     private final Logger LOG = LogManager.getLogger();
+    private final AxiomsFromLoincRecord loincAxiomMaker;
 
-    public LoincWriter(Transaction transaction, List<String[]> loincRecordsRecords,
+
+    public LoincWriter(Transaction transaction, List<String[]> loincRecordsRecords, AxiomsFromLoincRecord loincAxiomMaker,
             Semaphore writeSemaphore, String message, long commitTime) {
         this.transaction = transaction;
         this.loincRecords = loincRecordsRecords;
+        this.loincAxiomMaker = loincAxiomMaker;
         this.writeSemaphore = writeSemaphore;
         this.writeSemaphore.acquireUninterruptibly();
         this.commitTime = commitTime;
@@ -199,7 +204,6 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
             int moduleNid = MetaData.LOINC_MODULES____SOLOR.getNid();
             int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
-            AxiomsFromLoincRecord loincAxiomMaker = new AxiomsFromLoincRecord();
 
             List<String[]> noSuchElementList = new ArrayList<>();
 
@@ -211,11 +215,12 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                     Status status = mapStatus(loincRecord[STATUS]);
 
                     int recordStamp = stampService.getStampSequence(status, commitTime, authorNid, moduleNid, pathNid);
+                    int descriptionStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
                         // See if the concept is created (from the SNOMED/LOINC expressions. 
                         UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincRecord[LOINC_NUM]);
                         int conceptNid = Get.nidWithAssignment(conceptUuid);
                         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
-                        if (!optionalConcept.isPresent()) {
+                        if (optionalConcept.isEmpty()) {
 
                             // Need to create new concept, and a stated definition...
                             LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
@@ -235,10 +240,10 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         }
 
                         addDescription(loincRecord, longCommonName,
-                                TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, true);
+                                TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, conceptUuid, descriptionStamp, true);
 
                         addDescription(loincRecord, longCommonName,
-                                TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, true);
+                                TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, descriptionStamp, true);
 
                         String shortName = loincRecord[SHORTNAME];
                         if (shortName == null || shortName.isEmpty()) {
@@ -246,12 +251,13 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         }
 
                     if (!shortName.equals(longCommonName)){
-                        addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, recordStamp, false);
+                        addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, descriptionStamp, false);
                     }
 
                         // make a LOINC semantic
                         UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
                                 loincRecord[LOINC_NUM]);
+                    // brittle representation
 
                         SemanticChronologyImpl recordToWrite
                                 = new SemanticChronologyImpl(VersionType.LOINC_RECORD, loincRecordUuid,
@@ -268,6 +274,28 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         recordVersion.setSystem(loincRecord[SYSTEM]);
                         recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
                         assemblageService.writeSemanticChronology(recordToWrite);
+
+                        // dynamic representation
+
+                    UUID dynamicLoincRecordUuid = UuidT5Generator.get(DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
+                            loincRecord[LOINC_NUM]);
+
+                    recordToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, dynamicLoincRecordUuid,
+                            DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
+                    MutableDynamicVersion dynamicRecordVersion = recordToWrite.createMutableVersion(recordStamp);
+                    DynamicData[] data = new DynamicData[] {
+                            new DynamicStringImpl(loincRecord[COMPONENT]),
+                            new DynamicStringImpl(loincRecord[LOINC_NUM]),
+                            new DynamicStringImpl(loincRecord[STATUS]),
+                            new DynamicStringImpl(loincRecord[LONG_COMMON_NAME]),
+                            new DynamicStringImpl(loincRecord[METHOD_TYP]),
+                            new DynamicStringImpl(loincRecord[PROPERTY]),
+                            new DynamicStringImpl(loincRecord[SCALE_TYP]),
+                            new DynamicStringImpl(loincRecord[SHORTNAME]),
+                            new DynamicStringImpl(loincRecord[SYSTEM]),
+                            new DynamicStringImpl(loincRecord[TIME_ASPCT])};
+                    dynamicRecordVersion.setData(data);
+                    assemblageService.writeSemanticChronology(recordToWrite);
                     count++;
 
                 } catch (NoSuchElementException ex) {
@@ -280,7 +308,6 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
             if (!noSuchElementList.isEmpty()) {
                 LOG.error("Continuing after import failed with no such element exception for record count: " + noSuchElementList.size());
             }
-            loincAxiomMaker.listMethods();
             return null;
         } finally {
             this.writeSemaphore.release();

@@ -183,6 +183,27 @@ public class ConceptBuilderImpl
       this.defaultLanguageForDescriptions = defaultLanguageForDescriptions;
       this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
       this.defaultLogicCoordinate = defaultLogicCoordinate;
+      setupConceptBuilder(conceptName, semanticTag, logicalExpression, defaultLanguageForDescriptions, defaultDialectAssemblageForDescriptions, defaultLogicCoordinate);
+   }
+
+   public ConceptBuilderImpl(String conceptName,
+                             UUID primordialUuid,
+                             String semanticTag,
+                             LogicalExpression logicalExpression,
+                             ConceptSpecification defaultLanguageForDescriptions,
+                             ConceptSpecification defaultDialectAssemblageForDescriptions,
+                             LogicCoordinate defaultLogicCoordinate,
+                             int assemblageId) {
+      super(primordialUuid, assemblageId);
+      this.conceptName = SemanticTags.stripSemanticTagIfPresent(conceptName);
+      this.semanticTag = SemanticTags.findSemanticTagIfPresent(conceptName).orElse(semanticTag);
+      this.defaultLanguageForDescriptions = defaultLanguageForDescriptions;
+      this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
+      this.defaultLogicCoordinate = defaultLogicCoordinate;
+      setupConceptBuilder(conceptName, semanticTag, logicalExpression, defaultLanguageForDescriptions, defaultDialectAssemblageForDescriptions, defaultLogicCoordinate);
+   }
+
+   private void setupConceptBuilder(String conceptName, String semanticTag, LogicalExpression logicalExpression, ConceptSpecification defaultLanguageForDescriptions, ConceptSpecification defaultDialectAssemblageForDescriptions, LogicCoordinate defaultLogicCoordinate) {
       if (this.defaultLogicCoordinate.getStatedAssemblageNid() != TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid()) {
          throw new IllegalStateException("Incorrect stated assemblage: " + Get.conceptDescriptionText(this.defaultLogicCoordinate.getStatedAssemblageNid()));
       }

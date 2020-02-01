@@ -66,7 +66,7 @@ import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
-import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
+import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.preferences.window.WindowPreferencePanel;
@@ -335,9 +335,9 @@ public class KometStageController
                 convertBeer.setOnAction((ActionEvent event) -> {
                     Get.executor().execute(() -> {
                         try {
-                            TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
-                            timd.configure(null, beer.toPath(), "0.8", null);
                             Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+                            TurtleImportHK2Direct timd = new TurtleImportHK2Direct(transaction);
+                            timd.configure(null, beer.toPath(), "0.8", null);
                             timd.convertContent(transaction, update -> {
                             }, (work, totalWork) -> {
                             });

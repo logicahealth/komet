@@ -81,7 +81,12 @@ public interface TaxonomySnapshot {
     * @param parentConceptNid the parent id
     * @return true, if kind of
     */
-   boolean isKindOf(int childConceptNid, int parentConceptNid);
+   default boolean isKindOf(int childConceptNid, int parentConceptNid) {
+      if (childConceptNid == parentConceptNid) {
+         return true;
+      }
+      return isDescendentOf(childConceptNid, parentConceptNid);
+   }
    
    /**
     * Checks if descendant  of.
@@ -90,12 +95,7 @@ public interface TaxonomySnapshot {
     * @param parentConceptNid the parent id
     * @return true, if kind of
     */
-   default boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
-       if (descendantConceptNid == parentConceptNid) {
-           return false;
-       }
-       return isKindOf(descendantConceptNid, parentConceptNid);
-   }
+   boolean isDescendentOf(int descendantConceptNid, int parentConceptNid);
 
    /**
     * Gets the kind of nid set.

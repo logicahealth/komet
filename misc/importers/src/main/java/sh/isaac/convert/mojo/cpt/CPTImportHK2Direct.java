@@ -64,6 +64,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -86,10 +87,16 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	/**
 	 * This constructor is for HK2 and should not be used at runtime.  You should 
 	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+
+	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
-	protected CPTImportHK2Direct()
+	protected CPTImportHK2Direct() {
+
+	}
+	protected CPTImportHK2Direct(Transaction transaction)
 	{
 		//for HK2 and the maven extension class
+		super(transaction);
 	}
 	
 	@Override
@@ -127,11 +134,11 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdates) throws IOException 
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdates) throws IOException
 	{
 		long contentTime;
 		try
@@ -211,24 +218,24 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		setupModule("CPT", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://www.ama-assn.org/go/cpt"), contentTime);
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
+		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept(null, "LONGULT", null, "Long Description Upper/Lower Case",
+		dwh.makeDescriptionTypeConcept(transaction, null, "LONGULT", null, "Long Description Upper/Lower Case",
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(null, "MEDU", null, "Medium Description Upper Case",
+		dwh.makeDescriptionTypeConcept(transaction, null, "MEDU", null, "Medium Description Upper Case",
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(null, "SHORTU", null, "Short Description Upper Case",
+		dwh.makeDescriptionTypeConcept(transaction, null, "SHORTU", null, "Short Description Upper Case",
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept(null, "All CPT Concepts", null, null, contentTime);
+		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept(transaction, null, "All CPT Concepts", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-		final UUID cptRootConcept = dwh.makeConceptEnNoDialect(null, "CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		final UUID cptRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 
 		log.info("Metadata load stats");
@@ -265,7 +272,7 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 			{
 				// Make a new grouping concept
 				firstThree = d.code.substring(0, 3);
-				parent = dwh.makeConceptEnNoDialect(null, firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				parent = dwh.makeConceptEnNoDialect(transaction, null, firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {cptRootConcept}, Status.ACTIVE, contentTime);
 				dwh.makeDescriptionEnNoDialect(parent, "Grouping concept for all codes that start with " + firstThree, 
 						MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, contentTime);
@@ -285,7 +292,7 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 			
 			UUID concept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(d.code), Status.ACTIVE, contentTime);
 
-			dwh.makeParentGraph(concept, parent, Status.ACTIVE, contentTime);
+			dwh.makeParentGraph(transaction, concept, parent, Status.ACTIVE, contentTime);
 			dwh.makeBrittleStringAnnotation(MetaData.CODE____SOLOR.getPrimordialUuid(), concept, d.code, contentTime);
 
 			dwh.makeDynamicRefsetMember(allCPTConceptsRefset, concept, contentTime);

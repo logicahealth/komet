@@ -155,7 +155,9 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
             throws IOException {
         long commitTime = System.currentTimeMillis();
         AssemblageService assemblageService = Get.assemblageService();
-        final int writeSize = 102400;
+        AxiomsFromLoincRecord loincAxiomMaker = new AxiomsFromLoincRecord();
+
+        final int writeSize = 1024;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String[] columns;
 
@@ -173,7 +175,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
 
             if (columnsToWrite.size() == writeSize) {
                 LoincWriter loincWriter = new LoincWriter(transaction,
-                        columnsToWrite,
+                        columnsToWrite, loincAxiomMaker,
                         this.writeSemaphore,
                         "Processing LOINC records from: " + DirectImporter.trimZipName(
                                 readingFrom),
@@ -189,7 +191,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
         }
         if (!columnsToWrite.isEmpty()) {
             LoincWriter loincWriter = new LoincWriter(transaction,
-                    columnsToWrite,
+                    columnsToWrite, loincAxiomMaker,
                     this.writeSemaphore,
                     "Reading LOINC records from: " + DirectImporter.trimZipName(
                             readingFrom), commitTime);
@@ -199,6 +201,8 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
 
         updateMessage("Waiting for LOINC file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+        loincAxiomMaker.listMethods();
+
         for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
            try {
                indexer.sync().get();

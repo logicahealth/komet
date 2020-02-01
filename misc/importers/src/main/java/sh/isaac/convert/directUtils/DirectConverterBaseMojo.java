@@ -70,6 +70,7 @@ import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.configuration.StampCoordinates;
@@ -173,6 +174,19 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 	@Parameter(required = false, defaultValue = "${skipUUIDDebug}")
 	private String skipUUIDDebugMap;
 
+	protected Transaction transaction;
+
+	public DirectConverterBaseMojo(Transaction transaction) {
+		this.transaction = transaction;
+	}
+	public DirectConverterBaseMojo() {
+		//noarg constructor for HK2. Must set transaction via setTransaction method. ;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
 	/**
 	 * Execute.
 	 *
@@ -258,8 +272,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 			// we register this after the metadata has already been written.
 			LookupService.get().getService(DataStore.class).registerDataWriteListener(listener);
 
-			convertContent(statusUpdate -> {}, (workDone, workTotal) -> {});
-
+			convertContent(transaction, statusUpdate -> {}, (workDone, workTotal) -> {});
 			LookupService.shutdownSystem();
 
 			listener.close();
@@ -274,17 +287,18 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 
 	/**
 	 * Where the logic should be implemented to actually do the conversion
+	 * @param transaction - the transaction controling the conversion.
 	 * @param statusUpdates - the converter should post status updates here.
 	 * @param progresUpdates - optional - if provided, the converter should post progress on workDone here, the first argument
 	 * is work done, the second argument is work total.
 	 * @throws IOException 
 	 */
-	protected abstract void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
+	protected abstract void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
 	
 	
 	/**
 	 * Implementors should override this method, if they have IBDF files that should be pre-loaded, prior to the callback to 
-	 * {@link #convertContent(Consumer)}, and prior to the injection of the IBDF change set listener.
+	 * {@link #convertContent(Transaction, Consumer, BiConsumer)}, and prior to the injection of the IBDF change set listener.
 	 * 
 	 * This is only used by loaders that cannot execute without having another terminology preloaded - such as snomed extensions
 	 * that need to do snomed lookups, or loinc tech preview, which requires snomed, and loinc, for example.
@@ -361,7 +375,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 					Status.ACTIVE, releaseTime);
 		}
-		dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
+		dwh.makeParentGraph(transaction, versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 		
 		dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, moduleVersionString.orElse(converterSourceArtifactVersion), 
 				Optional.of(new Date(releaseTime).toString()),Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), 

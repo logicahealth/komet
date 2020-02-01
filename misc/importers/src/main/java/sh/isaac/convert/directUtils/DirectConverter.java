@@ -58,6 +58,12 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 public interface DirectConverter
 {
 	/**
+	 * Used to set the transaction in the case of a no-arg constructor.
+	 * @param transaction
+	 */
+	void setTransaction(Transaction transaction);
+
+	/**
 	 * @param outputDirectory - optional - if provided, debug info will be written here
 	 * @param inputFolder - the folder to search for the source file(s).  Implementors should only utilize 
 	 * {@link Path} operations on the inputFolder, incase the input folder is coming from a {@link FileSystems} that
@@ -65,7 +71,7 @@ public interface DirectConverter
 	 * @param converterSourceArtifactVersion - the version number of the source file being passed in
 	 * @param stampCoordinate - the coordinate to use for readback in cases where content merges into existing content
 	 */
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate);
+	void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate);
 
 	/**
 	 * Run the actual conversion
@@ -74,23 +80,23 @@ public interface DirectConverter
 	 * is work done, the second argument is work total.
 	 * @throws IOException
 	 */
-	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
+	void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
 	
 	/**
 	 * @return the type of content this converter can handle
 	 */
-	public SupportedConverterTypes[] getSupportedTypes();
+	SupportedConverterTypes[] getSupportedTypes();
 	
 	/**
 	 * Return any options that must be set, prior to executing this converter
 	 * @return the list of required options
 	 */
-	public ConverterOptionParam[] getConverterOptions();
+	ConverterOptionParam[] getConverterOptions();
 	
 	/**
 	 * Set a value (or values) corresponding to one of the options from {@link #getConverterOptions()}.
 	 * @param internalName - Align with {@link ConverterOptionParam#getInternalName()}
 	 * @param values 1 or more values for this option.
 	 */
-	public void setConverterOption(String internalName, String ... values);
+	void setConverterOption(String internalName, String ... values);
 }

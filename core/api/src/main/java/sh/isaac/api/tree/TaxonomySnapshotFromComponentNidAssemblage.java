@@ -111,6 +111,10 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
     public NidSet getKindOfConceptNidSet(int rootConceptNid) {
         throw new UnsupportedOperationException("Not supported by assemblage."); 
     }
+    @Override
+    public boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public Tree getTaxonomyTree() {

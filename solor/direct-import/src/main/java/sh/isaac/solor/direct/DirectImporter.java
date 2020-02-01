@@ -37,7 +37,6 @@
 package sh.isaac.solor.direct;
 
 //~--- JDK imports ------------------------------------------------------------
-import com.opencsv.CSVReader;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -78,30 +77,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.IOUtils;
-import com.opencsv.CSVReader;
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
-import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.api.progress.PersistTaskResult;
-import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
-import sh.isaac.solor.ContentProvider;
-import sh.isaac.solor.ContentStreamProvider;
 import sh.isaac.solor.direct.clinvar.ClinvarImporter;
 import sh.isaac.solor.direct.cvx.CVXImporter;
 import sh.isaac.solor.direct.livd.LIVDImporter;
 import sh.isaac.solor.direct.srf.SRFImporter;
-import sh.isaac.utility.Frills;
 
 /**
  * Loader code to convert RF2 format fileCount into the ISAAC format.
@@ -115,7 +100,7 @@ public class DirectImporter
 
     public static HashSet<String> watchTokens = new HashSet<>();
 
-    public static Boolean importDynamic = true;
+    public static Boolean importDynamic = false;
 
     /**
      * The date format parser.
@@ -191,7 +176,7 @@ public class DirectImporter
                 for (ContentProvider entry : this.entriesToImport) {
                     processEntry(entry, specificationsToImport, solorReleaseFormat);
                 }
-                doImport(specificationsToImport, time);
+                doRf2Import(specificationsToImport, time);
             } else {
                 File importDirectory = this.importDirectory == null ? Get.configurationService().getIBDFImportPath().toFile() : this.importDirectory;
 
@@ -330,18 +315,20 @@ public class DirectImporter
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
-                    String entryName = entry.getName().toLowerCase();
-                    if (entryName.matches(importPrefixRegex.toString())) {
-                        processEntry(new ContentProvider(zipFilePath.toFile(), entry), specificationsToImport, solorReleaseFormat);
+                    if (!entry.isDirectory()) {
+                        String entryName = entry.getName().toLowerCase();
+                        if (entryName.matches(importPrefixRegex.toString())) {
+                            processEntry(new ContentProvider(zipFilePath.toFile(), entry), specificationsToImport, solorReleaseFormat);
+                        }
                     }
                 }
             }
         }
 
-        return doImport(specificationsToImport, time);
+        return doRf2Import(specificationsToImport, time);
     }
 
-    protected int doImport(ArrayList<ImportSpecification> specificationsToImport, final long time) throws ExecutionException, IOException, UnsupportedOperationException, InterruptedException {
+    protected int doRf2Import(ArrayList<ImportSpecification> specificationsToImport, final long time) throws ExecutionException, IOException, UnsupportedOperationException, InterruptedException {
         int fileCount = 0;
         Collections.sort(specificationsToImport);
         StringBuilder builder = new StringBuilder();
@@ -457,20 +444,22 @@ public class DirectImporter
                             break;
 
                         case LOINC:
-                            readLOINC(transaction, br, importSpecification);
-                            break;
+                            throw new IllegalStateException("LOINC file is not an RF2 file...");
 
                         case CLINVAR:
+                            // throw new IllegalStateException("CLINVAR file is not an RF2 file...");
                             ClinvarImporter clinvarImporter = new ClinvarImporter(this.writeSemaphore, WRITE_PERMITS);
                             clinvarImporter.runImport(br);
                             break;
 
                         case CVX:
+                            // throw new IllegalStateException("CVX file is not an RF2 file...");
                             CVXImporter cvxImporter = new CVXImporter(this.writeSemaphore, WRITE_PERMITS);
                             cvxImporter.runImport(csp.get());
 
                             break;
                         case LIVD:
+                            // throw new IllegalStateException("LIVD file is not an RF2 file...");
                             LIVDImporter livdImporter = new LIVDImporter(this.transaction, this.writeSemaphore, WRITE_PERMITS);
                             livdImporter.runImport(csp.get());
                             break;
@@ -705,96 +694,6 @@ public class DirectImporter
         } else {
             LOG.info("Ignoring: " + contentProvider.getStreamSourceName());
         }
-    }
-
-    private void readLOINC(Transaction transaction, BufferedReader br, ImportSpecification importSpecification) throws IOException, InterruptedException, ExecutionException {
-        // TODO: is this redundant with subsequent call to
-        // TODO: is THIS DEAD CODE?
-        LOG.warn("### RUNNING OBSOLETE CODE? ");
-        updateMessage("Transforming LOINC expressions...");
-        LoincExpressionToConcept expressionToConceptTask = new LoincExpressionToConcept(transaction);
-        Get.executor().submit(expressionToConceptTask).get();
-
-        updateMessage("Importing LOINC data...");
-        long commitTime = System.currentTimeMillis();
-        AssemblageService assemblageService = Get.assemblageService();
-        boolean empty = true;
-
-        try (CSVReader reader = new CSVReader(br)) {
-            reader.readNext();  // discard header row
-
-            final int writeSize = 102400;
-            ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
-            String[] columns;
-            while ((columns = reader.readNext()) != null) {
-                empty = false;
-                for (int i = 0; i < columns.length; i++) {
-                    if (columns[i] == null) {
-                        columns[i] = "null";
-                    }
-                }
-
-                columnsToWrite.add(columns);
-
-                if (columnsToWrite.size() == writeSize) {
-                    LoincWriter loincWriter = new LoincWriter(transaction,
-                            columnsToWrite,
-                            this.writeSemaphore,
-                            "Processing LOINC records from: " + DirectImporter.trimZipName(
-                                    importSpecification.contentProvider.getStreamSourceName()),
-                            commitTime);
-
-                    columnsToWrite = new ArrayList<>(writeSize);
-                    Get.executor()
-                            .submit(loincWriter);
-                }
-            }
-            if (empty) {
-                LOG.warn("No data in file: "
-                        + importSpecification.contentProvider.getStreamSourceName());
-            }
-
-            if (empty) {
-                LOG.warn("No data in file: "
-                        + importSpecification.contentProvider.getStreamSourceName());
-            }
-            if (!columnsToWrite.isEmpty()) {
-                LoincWriter loincWriter = new LoincWriter(transaction,
-                        columnsToWrite,
-                        this.writeSemaphore,
-                        "Reading LOINC records from: " + DirectImporter.trimZipName(
-                                importSpecification.contentProvider.getStreamSourceName()), commitTime);
-
-                Get.executor()
-                        .submit(loincWriter);
-            }
-
-            updateMessage("Waiting for LOINC file completion...");
-            this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-            for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-                try {
-                    indexer.sync().get();
-                } catch (Exception e) {
-                    LOG.error("problem calling sync on index", e);
-                }
-            }
-            updateMessage("Synchronizing LOINC records to database...");
-            assemblageService.sync();
-            this.writeSemaphore.release(WRITE_PERMITS);
-        }
-
-        updateMessage("Synchronizing indexes...");
-        this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-            try {
-                indexer.sync().get();
-            } catch (Exception e) {
-                LOG.error("problem calling sync on index", e);
-            }
-        }
-        updateMessage("Synchronizing LOINC to database...");
-        assemblageService.sync();
-        this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readRXNORM_CONSO(BufferedReader br,

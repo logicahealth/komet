@@ -414,6 +414,9 @@ public class SemanticChronologyImpl
       case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
          return (M) new Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl((SemanticChronology) this, stampSequence);
          
+      case LOINC_RECORD:
+         return (M) new LoincVersionImpl((SemanticChronology) this, stampSequence);
+
       case Str1_Nid2_Nid3_Nid4:
           return (M) new Str1_Nid2_Nid3_Nid4_VersionImpl((SemanticChronology) this, stampSequence);
           

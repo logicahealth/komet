@@ -46,6 +46,8 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 
+import java.util.UUID;
+
 //~--- interfaces -------------------------------------------------------------
 
 /**
@@ -97,6 +99,8 @@ public interface ConceptBuilderService {
     * @return the default concept builder
     */
    ConceptBuilder getDefaultConceptBuilder(String conceptName, String semanticTag, LogicalExpression logicalExpression, int assemblageId);
+
+   ConceptBuilder getDefaultConceptBuilder(String conceptName, UUID primordialUuid, String semanticTag, LogicalExpression logicalExpression, int assemblageId);
 
    //~--- set methods ---------------------------------------------------------
 

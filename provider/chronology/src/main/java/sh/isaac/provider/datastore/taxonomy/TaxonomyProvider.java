@@ -725,6 +725,9 @@ public class TaxonomyProvider
          */
         @Override
         public boolean isKindOf(int childId, int kindofNid) {
+            if (childId == kindofNid) {
+                return true;
+            }
             if (treeSnapshot != null) {
                 return this.treeSnapshot.isDescendentOf(childId, kindofNid);
             }
@@ -741,6 +744,15 @@ public class TaxonomyProvider
 
             return false;
         }
+
+        @Override
+        public boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
+            if (descendantConceptNid != parentConceptNid) {
+                return isKindOf(descendantConceptNid, parentConceptNid);
+            }
+            return false;
+        }
+
 
         private boolean isKindOf(int childId, int kindofNid, int depth) {
             if (depth > 40) {
@@ -907,6 +919,14 @@ public class TaxonomyProvider
                 if (isKindOf(parentNid, kindofNid, 0)) {
                     return true;
                 }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
+            if (descendantConceptNid != parentConceptNid) {
+                return isKindOf(descendantConceptNid, parentConceptNid);
             }
             return false;
         }

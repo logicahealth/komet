@@ -62,6 +62,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -91,13 +92,18 @@ import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements DirectConverter
 {
 	private Logger log = LogManager.getLogger();
-	
+
 	/**
-	 * For maven and HK2
+	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
+	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
-	protected RF2ImportHK2Direct()
+	protected RF2ImportHK2Direct() {
+	}
+
+	protected RF2ImportHK2Direct(Transaction transaction)
 	{
-		
+		super(transaction);
 	}
 	
 	@Override
@@ -158,7 +164,7 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	}
 
 	@Override
-	public void convertContent(Consumer<String> messages, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Transaction transaction, Consumer<String> messages, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		try
 		{
@@ -186,7 +192,7 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 				}
 			});
 			
-			DirectImporter importer = new DirectImporter(it, items);
+			DirectImporter importer = new DirectImporter(transaction, it, items);
 			
 			log.info("Importing");
 			Future<?> f = Get.executor().submit(importer);
@@ -200,12 +206,12 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 			if (processLoincCoop)
 			{
 				log.info("Convert LOINC expressions...");
-				LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
+				LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept(transaction);
 				Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
 				convertLoincTask.get();
 	
 				log.info("Adding navigation concepts...");
-				LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(
+				LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction,
 						new ManifoldCoordinateImpl(readbackCoordinate, LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()));
 				Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
 				addNavigationConceptsTask.get();

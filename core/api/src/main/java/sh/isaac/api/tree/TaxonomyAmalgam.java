@@ -125,6 +125,11 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
     }
 
     @Override
+    public boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Tree getTaxonomyTree() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

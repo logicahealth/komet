@@ -143,6 +143,16 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
             ConceptBuilderService builderService = Get.conceptBuilderService();
             
             {
+                addInheresInConcept(transaction, "Inherence phenomenon", new ConceptProxy("Health concept (SOLOR)",
+                                UUID.fromString("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8")).getNid(),
+                        builderService, stamp);
+                addObservedByMethod(transaction, "Phenomenon observed by method", new ConceptProxy("Health concept (SOLOR)",
+                                UUID.fromString("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8")).getNid(),
+                        builderService, stamp);
+                addObservesComponent(transaction, "Phenomenon observing component", new ConceptProxy("Health concept (SOLOR)",
+                                UUID.fromString("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8")).getNid(),
+                        builderService, stamp);
+
                 addInheresInConcept(transaction, new ConceptProxy("Medication (SOLOR)", 
                         UUID.fromString("5032532f-6b58-31f9-84c1-4a365dde4449")).getNid(), 
                         builderService, stamp);
@@ -155,7 +165,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addInheresInConcept(transaction, new ConceptProxy("Organism (SOLOR)", 
                         UUID.fromString("0bab48ac-3030-3568-93d8-aee0f63bf072")).getNid(), 
                         builderService, stamp);
-                addObservesComponent(transaction, new ConceptProxy("Organism (SOLOR)", 
+                addObservesComponent(transaction, new ConceptProxy("Organism (SOLOR)",
                         UUID.fromString("0bab48ac-3030-3568-93d8-aee0f63bf072")).getNid(), 
                         builderService, stamp);
                 addObservesComponent(transaction, new ConceptProxy("Body structure (SOLOR)", 
@@ -269,7 +279,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(transaction, new ConceptProxy("Bioassay (procedure)", UUID.fromString("355bddcb-8518-33d5-81e2-48f36dd982e1")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Mallory's bleach stain", UUID.fromString("c51326d7-2f37-3aa7-87d8-bf465a97f1ee")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Bodian stain method (procedure)", UUID.fromString("bea92c40-83fb-3c1e-97b4-46183a5c8126")).getNid(), builderService, stamp);
-                addObservedByMethod(transaction, new ConceptProxy("Acquired brain injury (disorder)", UUID.fromString("b587cb55-69e1-322b-8989-5736b87cfd93")).getNid(), builderService, stamp);
+                addObservedByMethod(transaction, new ConceptProxy("Traumatic AND/OR non-traumatic brain injury (disorder)", UUID.fromString("10016f21-8dee-3d46-93e2-5f9f68dcd83d")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Cresyl blue BBS", UUID.fromString("9734f183-78f0-38e4-8027-86321f3547c6")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Tracheobronchial endoscopy", UUID.fromString("a7e01789-b882-3563-8521-dfe073a53798")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Brown-Brenn stain method (procedure)", UUID.fromString("4e333536-5077-3a5f-889c-1230bbc48b12")).getNid(), builderService, stamp);
@@ -284,7 +294,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                 addObservedByMethod(transaction, new ConceptProxy("Calculation from oxygen partial pressure (qualifier value)", UUID.fromString("c70e7ec7-62f8-3696-b339-810e46ba370e")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Capillary electrophoresis (procedure)", UUID.fromString("bc3b7254-de8e-3dc1-bc45-2233f35020e3")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Product containing carbol-fuchsin (medicinal product)", UUID.fromString("94732756-cdb3-3cc7-8b31-05d12b986c6b")).getNid(), builderService, stamp);
-                addObservedByMethod(transaction, new ConceptProxy("PCO>2<, blood", UUID.fromString("cfc0d49a-0fa2-3c68-ae50-468436073fed")).getNid(), builderService, stamp);
+                addObservedByMethod(transaction, new ConceptProxy("Measurement of partial pressure of carbon dioxide in blood (procedure)", UUID.fromString("4cc1b810-22e3-3a9b-8db6-48a53a7f21da")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Insertion of catheter into heart chamber", UUID.fromString("21a5e5c5-7d51-3ce6-90d2-df08b6450d05")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Operative procedure on heart", UUID.fromString("3300a761-a95d-3565-a0f6-19a73ee6962a")).getNid(), builderService, stamp);
                 addObservedByMethod(transaction, new ConceptProxy("Disorder of cardiovascular system (disorder)", UUID.fromString("98e3486c-c855-32ff-9052-dfe3790ac8d6")).getNid(), builderService, stamp);
@@ -642,23 +652,48 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addObservedByMethod(Transaction transaction, int methodNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
-                
+
         StringBuilder conceptNameBuilder = new StringBuilder();
         conceptNameBuilder.append("Phenomenon observed by ");
         conceptNameBuilder.append(manifold.getPreferredDescriptionText(methodNid));
         buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
     }
 
+    private void addObservedByMethod(Transaction transaction, String conceptName, int methodNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
+        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                        eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
+
+        StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
+        buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+    }
+    private void addObservesComponent(Transaction transaction, String conceptName, int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
+        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                        eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
+
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                        eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
+
+
+        StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
+        buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+    }
+
+
     private void addObservesComponent(Transaction transaction, int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
         
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
         
@@ -671,7 +706,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
 
     private void addInheresInConcept(Transaction transaction, int inheresInNid, ConceptBuilderService builderService, int stamp) throws IllegalStateException, NoSuchElementException {
         LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.LOINC_PHENOMENON____SOLOR),
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
                 eb.someRole(MetaData.ROLE_GROUP____SOLOR,
                         eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
         
@@ -681,14 +716,24 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
         conceptNameBuilder.append(" phenomenon");
         buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
     }
+    private void addInheresInConcept(Transaction transaction, String conceptName, int inheresInNid, ConceptBuilderService builderService, int stamp) throws IllegalStateException, NoSuchElementException {
+        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                        eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
+
+        StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
+        buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+    }
+
 
     private void buildConcept(Transaction transaction, ConceptBuilderService builderService, StringBuilder conceptNameBuilder, LogicalExpressionBuilder eb, int stamp) throws IllegalStateException, NoSuchElementException {
         String conceptName = conceptNameBuilder.toString();
-        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
+        UUID primordialUuid = UuidT5Generator.get(UUID.fromString("d96cb408-b9ae-473d-a08d-ece06dbcedf9"), conceptName);
+        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName, primordialUuid,
                 "OP",
                 eb.build(),
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-        builder.setPrimordialUuid(UuidT5Generator.get(UUID.fromString("d96cb408-b9ae-473d-a08d-ece06dbcedf9"), conceptName));
         List<Chronology> builtObjects = new ArrayList<>();
         builder.build(transaction, stamp, builtObjects);
         for (Chronology chronology : builtObjects) {

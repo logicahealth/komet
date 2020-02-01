@@ -60,6 +60,7 @@ import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.model.observable.version.brittle.*;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -74,32 +75,8 @@ import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.isaac.model.observable.version.ObservableLongVersionImpl;
 import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.ObservableStringVersionImpl;
-import sh.isaac.model.observable.version.brittle.ObservableRf2RelationshipImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_Int3_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_Str3_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Nid1_Str2_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Str1_Nid2_Nid3_Nid4_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Nid3_Nid4_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_VersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
-import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.*;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -224,6 +201,8 @@ public class ObservableSemanticChronologyImpl
             return (OV) new Observable_Str1_Str2_VersionImpl((Str1_Str2_VersionImpl) semanticVersion, this);
          case Str1_Str2_Nid3_Nid4:
             return (OV) new Observable_Str1_Str2_Nid3_Nid4_VersionImpl((Str1_Str2_Nid3_Nid4_VersionImpl) semanticVersion, this);
+         case LOINC_RECORD:
+            return (OV) new ObservableLoincVersionImpl((LoincVersionImpl) semanticVersion, this);
          case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
             return (OV) new Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl((Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl) semanticVersion, this);
          case Str1_Nid2_Nid3_Nid4:

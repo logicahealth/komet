@@ -51,6 +51,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 
+import java.util.UUID;
+
 //~--- classes ----------------------------------------------------------------
 
 /**
@@ -111,6 +113,21 @@ public class ConceptBuilderProvider
                                          this.defaultDialectAssemblageForDescriptions,
                                          this.defaultLogicCoordinate,
                                          assemblageId);
+   }
+   @Override
+   public ConceptBuilder getDefaultConceptBuilder(String conceptName,
+                                                  UUID primordialUuid,
+                                                  String semanticTag,
+                                                  LogicalExpression logicalExpression,
+                                                  int assemblageId) {
+      return new ConceptBuilderImpl(conceptName,
+              primordialUuid,
+              semanticTag,
+              logicalExpression,
+              this.defaultLanguageForDescriptions,
+              this.defaultDialectAssemblageForDescriptions,
+              this.defaultLogicCoordinate,
+              assemblageId);
    }
 
    //~--- set methods ---------------------------------------------------------

@@ -120,6 +120,8 @@ public class ArtifactImporter
 				protected Void call() throws Exception
 				{
 					Get.activeTasks().add(this);
+					Transaction transaction = Get.commitService().newTransaction(Optional.of("importing " + local),ChangeCheckerMode.INACTIVE );
+					dc.setTransaction(transaction);
 					try
 					{
 						this.updateTitle("Importing " + sdo.toString());
@@ -150,7 +152,6 @@ public class ArtifactImporter
 								}
 							}
 						}
-						Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 
 						dc.convertContent(transaction, string -> updateTitle(string), (work, total) -> updateProgress(work, total));
 						transaction.commit();
@@ -168,6 +169,7 @@ public class ArtifactImporter
 					}
 					catch (Exception e)
 					{
+						transaction.cancel();
 						LOG.error("Import failure", e);
 					}
 					Get.activeTasks().remove(this);

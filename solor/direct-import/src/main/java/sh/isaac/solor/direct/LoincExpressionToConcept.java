@@ -166,7 +166,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             }
             // substitute procedure for observation...
             
-            assertions.add(builder.conceptAssertion(MetaData.LOINC_PROCEDURE____SOLOR.getNid()));
+            assertions.add(builder.conceptAssertion(MetaData.PHENOMENON____SOLOR.getNid()));
             if (tokenizer.hasMoreTokens()) {
                 String delimiter = tokenizer.nextToken();
                 switch (delimiter) {
@@ -244,7 +244,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                 handleMissingIdentifier(token);
             }
             if (nid == MetaData.OBSERVATION____SOLOR.getNid()) {
-                nid = MetaData.LOINC_PHENOMENON____SOLOR.getNid();
+                nid = MetaData.PHENOMENON____SOLOR.getNid();
             }
             assertions.add(builder.conceptAssertion(nid));
             if (tokenizer.hasMoreTokens()) {

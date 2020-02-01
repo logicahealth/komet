@@ -177,26 +177,26 @@ public class DescriptionIndexer extends LuceneIndexer
 		String lastDescText = null;
 		String lastDescType = null;
 
-		boolean isMetadata = false;
-		if (metadataConcepts.size() > 0) {
-			isMetadata = metadataConcepts.contains(semanticChronology.getReferencedComponentNid());
-		}
+//		boolean isMetadata = false;
+//		if (metadataConcepts.size() > 0) {
+//			isMetadata = metadataConcepts.contains(semanticChronology.getReferencedComponentNid());
+//		}
 		
 		//This is an if instead of an else, to guard against the metadataConcepts cache being emptied during a one-off index op.
-		if (!isMetadata && metadataConcepts.size() == 0){
-			isMetadata = Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
-			
-			if (!isMetadata) {
-				//See if it defines a dynamic semantic, even if outside the metadata tree.
-				isMetadata = DynamicUsageDescriptionImpl.isDynamicSemanticNoRead(semanticChronology.getReferencedComponentNid());
-			}
-			//For full correctness, this should check if it defines a static semantic, outside the metadata tree, but we don't in the rest API, 
-			//and komet doesn't currently use queries that depend on the metadata flag
-		}
-		
-		if (isMetadata) {
-			doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
-		}
+//		if (!isMetadata && metadataConcepts.size() == 0){
+//			isMetadata = Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
+//
+//			if (!isMetadata) {
+//				//See if it defines a dynamic semantic, even if outside the metadata tree.
+//				isMetadata = DynamicUsageDescriptionImpl.isDynamicSemanticNoRead(semanticChronology.getReferencedComponentNid());
+//			}
+//			//For full correctness, this should check if it defines a static semantic, outside the metadata tree, but we don't in the rest API,
+//			//and komet doesn't currently use queries that depend on the metadata flag
+//		}
+//
+//		if (isMetadata) {
+//			doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
+//		}
 		
 		final Set<Integer> uniqueDescriptionTypes = new HashSet<>();
 

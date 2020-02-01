@@ -105,6 +105,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
             case STRING:
             case COMPONENT_NID:
             case LOGIC_GRAPH:
+            case LOINC_RECORD:
             case LONG:
             case MEMBER:
             case CONCEPT:

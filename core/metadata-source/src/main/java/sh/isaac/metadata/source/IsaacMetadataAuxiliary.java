@@ -135,14 +135,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Uncategorized phenomenon");
                createConcept("Finding").addUuids(UUID.fromString("bd83b1dd-5a82-34fa-bb52-06f666420a1c"));
                createConcept("Observation").addUuids(UUID.fromString("d678e7a6-5562-3ff1-800e-ab070e329824"));
-               createConcept("Loinc Phenomenon");
             popParent();
             createConcept(TermAux.ORGANISM);
             createConcept(TermAux.OBJECT);
             createConcept(TermAux.PROCEDURE);
-            pushParent(current());
-                createConcept("Loinc Procedure");
-                popParent();
             createConcept(TermAux.SPECIMEN);
             createConcept(TermAux.SUBSTANCE);
          popParent();
@@ -161,8 +157,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 createConcept(TermAux.INTEGER_SEMANTIC).addComponentIntSemantic(UUID.fromString("55ca0d0d-95e7-50d9-b871-d16c251e2632"), TermAux.INTEGER_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.STRING_SEMANTIC).addComponentIntSemantic(UUID.fromString("562af392-6ff2-5c01-82f5-381b3a6a332b"), TermAux.STRING_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.DESCRIPTION_SEMANTIC)
-                        .addComponentIntSemantic(UUID.fromString("b3f0c79e-4dbb-54cc-a461-c09b054d768e"), TermAux.CONCEPT_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
-                        .addComponentIntSemantic(UUID.fromString("95cd1755-b789-51e7-a706-8de4e382b00a"), TermAux.CONCEPT_FIELD, 1, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
+                        .addComponentIntSemantic(UUID.fromString("b3f0c79e-4dbb-54cc-a461-c09b054d768e"), TermAux.CONCEPT_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE) //TODO Dan notes - 99% sure this order is wrong, but no idea what it is being used for....
+                        .addComponentIntSemantic(UUID.fromString("95cd1755-b789-51e7-a706-8de4e382b00a"), TermAux.CONCEPT_FIELD, 1, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE) //The string should be in position 0, not 3.....
                         .addComponentIntSemantic(UUID.fromString("4eabf660-571c-5424-86c0-33a30fe537d5"), TermAux.CONCEPT_FIELD, 2, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE)
                         .addComponentIntSemantic(UUID.fromString("94b6759d-f6f3-5d5c-a37c-b7c78cabbf07"), TermAux.STRING_FIELD, 3, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.IMAGE_SEMANTIC)

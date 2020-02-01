@@ -71,6 +71,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -126,12 +127,15 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 	HashMap<Long, UUID> subsetVuidToConceptIdMap = new HashMap<>();
 
 	/**
-	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
+	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
 	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
-	protected VHATImportHK2Direct()
+	protected VHATImportHK2Direct() {
+	}
+	protected VHATImportHK2Direct(Transaction transaction)
 	{
-		
+		super(transaction);
 	}
 	
 	@Override
@@ -169,11 +173,11 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		statusUpdates.accept("Setting up metadata");
 		
@@ -189,7 +193,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			setupModule("VHAT", MetaData.VHAT_MODULES____SOLOR.getPrimordialUuid(), Optional.empty(), time);
 			
 			//Set up our metadata hierarchy
-			dwh.makeMetadataHierarchy(true, true, true, true, true, true, time);
+			dwh.makeMetadataHierarchy(transaction, true, true, true, true, true, true, time);
 			
 			statusUpdates.accept("Reading content");
 			TerminologyDataReader importer = new TerminologyDataReader(inputFileLocationPath);
@@ -197,7 +201,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 
 			List<TypeImportDTO> dto = terminology.getTypes();
 
-			dwh.makeAttributeTypeConcept(null, "Version Effective Date", null, null, false, DynamicDataType.STRING, null, time);
+			dwh.makeAttributeTypeConcept(transaction, null, "Version Effective Date", null, null, false, DynamicDataType.STRING, null, time);
 			dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, time, readbackCoordinate);
 			dwh.linkToExistingAttributeTypeConcept(MetaData.VUID____SOLOR, time, readbackCoordinate);
 			
@@ -210,12 +214,12 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 					// Add some rankings for FSN / synonym handling
 					if (typeImportDTO.getName().equals("Fully Specified Name"))
 					{
-						dwh.makeDescriptionTypeConcept(null, typeImportDTO.getName(), null, null, 
+						dwh.makeDescriptionTypeConcept(transaction, null, typeImportDTO.getName(), null, null,
 								MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
 					}
 					else
 					{
-						dwh.makeDescriptionTypeConcept(null, typeImportDTO.getName(), null, null, 
+						dwh.makeDescriptionTypeConcept(transaction, null, typeImportDTO.getName(), null, null,
 								MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
 					}
 				}
@@ -228,7 +232,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 						additionalParents.add(dwh.getRelationTypesNode().get());
 					}
 					
-					dwh.makeAssociationTypeConcept(null, typeImportDTO.getName(), null, null, null, null, IsaacObjectType.CONCEPT, null, additionalParents, time);
+					dwh.makeAssociationTypeConcept(transaction, null, typeImportDTO.getName(), null, null, null, null, IsaacObjectType.CONCEPT, null, additionalParents, time);
 				}
 				else if (typeImportDTO.getKind().equals("PropertyType"))
 				{
@@ -238,7 +242,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 					}
 					else
 					{
-						dwh.makeAttributeTypeConcept(null, typeImportDTO.getName(), null, null, false, DynamicDataType.STRING, null, time);
+						dwh.makeAttributeTypeConcept(transaction, null, typeImportDTO.getName(), null, null, false, DynamicDataType.STRING, null, time);
 					}
 				}
 				else
@@ -250,11 +254,11 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			// get the refset names
 			for (SubsetImportDTO subset : terminology.getSubsets())
 			{
-				dwh.makeRefsetTypeConcept(null, subset.getSubsetName(), null, null, time);
+				dwh.makeRefsetTypeConcept(transaction, null, subset.getSubsetName(), null, null, time);
 			}
 
 			// Every time concept created add membership to "All VHAT Concepts"
-			allVhatConceptsRefset = dwh.makeRefsetTypeConcept(VHATConstants.VHAT_ALL_CONCEPTS.getPrimordialUuid(), 
+			allVhatConceptsRefset = dwh.makeRefsetTypeConcept(transaction, VHATConstants.VHAT_ALL_CONCEPTS.getPrimordialUuid(),
 					VHATConstants.VHAT_ALL_CONCEPTS.getRegularName().get(), null, null, time);
 
 			log.info("Metadata load stats");
@@ -335,11 +339,11 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 
 			if (missingConcepts.size() > 0)
 			{
-				UUID missingParent = dwh.makeConceptEnNoDialect(null, "Missing Concepts", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+				UUID missingParent = dwh.makeConceptEnNoDialect(transaction, null, "Missing Concepts", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {rootConceptUUID}, Status.ACTIVE, time);
 				for (UUID refUUID : missingConcepts)
 				{
-					dwh.makeConceptEnNoDialect(refUUID, "-MISSING-", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+					dwh.makeConceptEnNoDialect(transaction, refUUID, "-MISSING-", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 							new UUID[] {missingParent}, Status.ACTIVE, time);
 				}
 			}
@@ -347,7 +351,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			log.info("Creating placeholder concepts for " + associationOrphanConcepts.size() + " association orphans");
 			// We currently don't have these association targets, so need to invent placeholder concepts.
 			
-			UUID missingSDORefset = dwh.makeRefsetTypeConcept(VHATConstants.VHAT_MISSING_SDO_CODE_SYSTEM_CONCEPTS.getPrimordialUuid(), 
+			UUID missingSDORefset = dwh.makeRefsetTypeConcept(transaction, VHATConstants.VHAT_MISSING_SDO_CODE_SYSTEM_CONCEPTS.getPrimordialUuid(),
 					VHATConstants.VHAT_MISSING_SDO_CODE_SYSTEM_CONCEPTS.getRegularName().get(), null, 
 					"A simple refset to store the missing concepts we have to create during import because"
 							+ " we don't yet have the SDO code systems in place", time);
@@ -356,8 +360,8 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			{
 				if (loadedConcepts.get(item.getKey()) == null)
 				{
-					dwh.makeDynamicRefsetMember(VHATConstants.VHAT_MISSING_SDO_CODE_SYSTEM_CONCEPTS.getPrimordialUuid(), 
-							dwh.makeConceptEnNoDialect(item.getKey(), item.getValue(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, 
+					dwh.makeDynamicRefsetMember(VHATConstants.VHAT_MISSING_SDO_CODE_SYSTEM_CONCEPTS.getPrimordialUuid(),
+							dwh.makeConceptEnNoDialect(transaction, item.getKey(), item.getValue(), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null,
 									Status.ACTIVE, time), 
 							time);
 				}
@@ -454,7 +458,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 				dwh.makeDescriptionEnNoDialect(concept, "VHA Terminology", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time);
 				dwh.makeDescriptionEnNoDialect(concept, "VHAT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time);
 				log.info("Root concept FSN is 'VHAT' and the UUID is " + concept);
-				dwh.makeParentGraph(concept, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid(), Status.ACTIVE, time);
+				dwh.makeParentGraph(transaction, concept, MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid(), Status.ACTIVE, time);
 				rootConceptUUID = concept;
 			}
 			return description;
@@ -530,7 +534,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			}
 			if (parents.size() > 0)
 			{
-				UUID graph = dwh.makeParentGraph(concept, parents, graphStatus, time);
+				UUID graph = dwh.makeParentGraph(transaction, concept, parents, graphStatus, time);
 				dwh.makeExtendedRelationshipTypeAnnotation(graph, isANativeType, time);
 			}
 		}
@@ -552,7 +556,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			
 
 			// place it in two places - refsets under VHAT Metadata, and the dynamic semantic mapping semantic type.
-			dwh.makeParentGraph(concept, Arrays.asList(new UUID[] {dwh.getRefsetTypesNode().get(), 
+			dwh.makeParentGraph(transaction, concept, Arrays.asList(new UUID[] {dwh.getRefsetTypesNode().get(),
 					IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid()}), Status.ACTIVE, time);
 			
 			MapSetImportDTO mapSet = ((MapSetImportDTO) conceptOrMapSet);
@@ -597,7 +601,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 						DynamicDataType.STRING, null, false);
 			}
 
-			dwh.configureConceptAsDynamicAssemblage(concept, mapSet.getName(), columns, IsaacObjectType.CONCEPT, null, time);
+			dwh.configureConceptAsDynamicAssemblage(transaction, concept, mapSet.getName(), columns, IsaacObjectType.CONCEPT, null, time);
 
 			// Annotate this concept as a mapset definition concept.
 			dwh.makeDynamicRefsetMember(IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), concept, time);

@@ -53,6 +53,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -78,14 +79,17 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 public class MVXImportHK2Direct extends DirectConverterBaseMojo implements DirectConverter
 {
 	private int conceptCount = 0;
-	
+
 	/**
-	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
+	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
 	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
-	protected MVXImportHK2Direct()
+	protected MVXImportHK2Direct() {
+	}
+	protected MVXImportHK2Direct(Transaction transaction)
 	{
-		
+		super(transaction);
 	}
 	
 	@Override
@@ -123,11 +127,11 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		
 		final MVXReader importer = new MVXReader(inputFileLocationPath);
@@ -173,15 +177,15 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		setupModule("MVX", MetaData.MVX_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://hl7.org/fhir/sid/mvx"), date.getTime());
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(true, true, true, false, true, false, date.getTime());
+		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, date.getTime());
 		
-		dwh.makeDescriptionTypeConcept(null, "Manufacturer Name", null, null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "Manufacturer Name", null, null,
 				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, date.getTime());
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, date.getTime(), readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		dwh.makeRefsetTypeConcept(null, "All MVX Concepts", null, null, date.getTime());
+		dwh.makeRefsetTypeConcept(transaction, null, "All MVX Concepts", null, null, date.getTime());
 
 		log.info("Metadata load stats");
 		for (String line : dwh.getLoadStats().getSummary())
@@ -194,7 +198,7 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		statusUpdates.accept("Loading content");
 
 		// Create MVX root concept under SOLOR_CONCEPT____SOLOR
-		final UUID mvxRootConcept = dwh.makeConceptEnNoDialect(null, "MVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		final UUID mvxRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "MVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, date.getTime());
 
 		for (MVXInfo row : terminology.getMVXInfo())
@@ -208,7 +212,7 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 
 				// Create row concept
 				final UUID rowConcept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(code), status, lastUpdated);
-				dwh.makeParentGraph(rowConcept, mvxRootConcept, Status.ACTIVE, lastUpdated);
+				dwh.makeParentGraph(transaction, rowConcept, mvxRootConcept, Status.ACTIVE, lastUpdated);
 				
 				dwh.makeDescriptionEnNoDialect(rowConcept, manfName, dwh.getDescriptionType("Manufacturer Name"), status, lastUpdated);
 

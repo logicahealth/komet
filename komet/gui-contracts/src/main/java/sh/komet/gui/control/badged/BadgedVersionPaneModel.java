@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.controlsfx.control.PropertySheet;
 import javafx.application.Platform;
@@ -91,6 +92,7 @@ public abstract class BadgedVersionPaneModel {
     protected final StackLabelText componentText = new StackLabelText();
     private final BorderPane primaryPane = new BorderPane();
     private boolean primaryPaneWrappedForAttachment = false;
+
     {
 
         componentText.setWrapText(true);
@@ -115,6 +117,7 @@ public abstract class BadgedVersionPaneModel {
         this.badgeTiles.setPrefTileWidth(BADGE_WIDTH);
 
     }
+
     private final VBox outerPane = new VBox(primaryPane);
     protected final Text componentType = new Text();
     protected final MenuButton editControl = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
@@ -125,6 +128,7 @@ public abstract class BadgedVersionPaneModel {
     protected final ObservableList<ComponentPaneModel> extensionPaneModels = FXCollections.observableArrayList();
     protected final ObservableList<VersionPaneModel> versionPanes = FXCollections.observableArrayList();
     protected final Button redoButton = new Button("", Iconography.REDO.getIconographic());
+
     {
         redoButton.setOnAction(this::redo);
     }
@@ -132,12 +136,15 @@ public abstract class BadgedVersionPaneModel {
     private final Button cancelButton = new Button("Cancel");
     private final Button commitButton = new Button("Commit");
     private final Region spacer = new Region();
+
     {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         spacer.setMinWidth(Region.USE_PREF_SIZE);
     }
+
     private final ToolBar editToolBar = new ToolBar(spacer, cancelButton, commitButton);
     private final BorderPane editBorderPane = new BorderPane();
+
     {
         editBorderPane.setTop(editToolBar);
     }
@@ -247,7 +254,7 @@ public abstract class BadgedVersionPaneModel {
             Platform.runLater(() -> {
                 this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
             });
-         }
+        }
         this.expandControl.expandActionProperty().addListener((observable, oldValue, newValue) -> {
             switch (newValue) {
                 case HIDE_CHILDREN:
@@ -279,7 +286,7 @@ public abstract class BadgedVersionPaneModel {
             TilePane clipPane = new TilePane();
             clipPane.setPrefTileWidth(BADGE_WIDTH);
             clipPane.setPrefTileWidth(BADGE_WIDTH);
-            TilePane.setMargin(paperClip, new Insets(7,10,0,5));
+            TilePane.setMargin(paperClip, new Insets(7, 10, 0, 5));
             clipPane.getChildren().add(paperClip);
 
 
@@ -288,6 +295,7 @@ public abstract class BadgedVersionPaneModel {
         }
 
     }
+
     protected abstract boolean isLatestPanel();
 
     protected final void setupConcept(ConceptVersion conceptVersion) {
@@ -452,7 +460,39 @@ public abstract class BadgedVersionPaneModel {
                     }
                     componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
                     break;
-                    
+
+                case LOINC_RECORD: {
+                    if (isLatestPanel()) {
+                        componentType.setText("LNC");
+                    } else {
+                        componentType.setText("");
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
+                    LoincVersion lv = (LoincVersion) semanticVersion;
+                    sb.append("\nstatus: ");
+                    sb.append(lv.getLoincStatus());
+                    sb.append("\nlcn: ");
+                    sb.append(lv.getLongCommonName());
+                    sb.append("\nshort name: ");
+                    sb.append(lv.getShortName());
+                    sb.append("\ncomponent: ");
+                    sb.append(lv.getComponent());
+                    sb.append("\nmethod: ");
+                    sb.append(lv.getMethodType());
+                    sb.append("\nproperty: ");
+                    sb.append(lv.getProperty());
+                    sb.append("\nscale: ");
+                    sb.append(lv.getScaleType());
+                    sb.append("\nsystem: ");
+                    sb.append(lv.getSystem());
+                    sb.append("\ntiming: ");
+                    sb.append(lv.getTimeAspect());
+                    componentText.setText(sb.toString());
+
+                }
+                break;
+
                 case DYNAMIC:
                     if (isLatestPanel()) {
                         componentType.setText("DYN");
@@ -461,37 +501,13 @@ public abstract class BadgedVersionPaneModel {
                     }
                     StringBuilder sb = new StringBuilder();
                     sb.append(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
-
-                    if (semanticVersion instanceof LoincVersion) {
-                        LoincVersion lv = (LoincVersion) semanticVersion;
-                        sb.append("\nstatus: ");
-                        sb.append(lv.getLoincStatus());
-                        sb.append("\nlcn: ");
-                        sb.append(lv.getLongCommonName());
-                        sb.append("\nshort name: ");
-                        sb.append(lv.getShortName());
-                        sb.append("\ncomponent: ");
-                        sb.append(lv.getComponent());
-                        sb.append("\nmethod: ");
-                        sb.append(lv.getMethodType());
-                        sb.append("\nproperty: ");
-                        sb.append(lv.getProperty());
-                        sb.append("\nscale: ");
-                        sb.append(lv.getScaleType());
-                        sb.append("\nsystem: ");
-                        sb.append(lv.getSystem());
-                        sb.append("\ntiming: ");
-                        sb.append(lv.getTimeAspect());
-                    } else if (semanticVersion instanceof DynamicVersion) {
-                        DynamicVersion dv = (DynamicVersion) semanticVersion;
-                        DynamicUsageDescription dud = DynamicUsageDescriptionImpl.read(version.getAssemblageNid());
-
-                        for (DynamicColumnInfo dci : dud.getColumnInfo()) {
-                            sb.append("\n");
-                            sb.append(dci.getColumnName());
-                            sb.append(": ");
-                            sb.append(dv.getData()[dci.getColumnOrder()] == null ? "" : dv.getData()[dci.getColumnOrder()].dataToString());
-                        }
+                    DynamicVersion dv = (DynamicVersion) semanticVersion;
+                    DynamicUsageDescription dud = DynamicUsageDescriptionImpl.read(version.getAssemblageNid());
+                    for (DynamicColumnInfo dci : dud.getColumnInfo()) {
+                        sb.append("\n");
+                        sb.append(dci.getColumnName());
+                        sb.append(": ");
+                        sb.append(dv.getData()[dci.getColumnOrder()] == null ? "" : dv.getData()[dci.getColumnOrder()].dataToString());
                     }
                     componentText.setText(sb.toString());
                     break;
@@ -537,7 +553,7 @@ public abstract class BadgedVersionPaneModel {
 
             setComponentDescriptionType(descriptionType);
             if (description instanceof ObservableDescriptionVersion) {
-                ((ObservableDescriptionVersion)description).descriptionTypeConceptNidProperty().addListener((observable, oldValue, newValue) -> {
+                ((ObservableDescriptionVersion) description).descriptionTypeConceptNidProperty().addListener((observable, oldValue, newValue) -> {
                     setComponentDescriptionType(newValue.intValue());
                 });
             }
@@ -595,6 +611,7 @@ public abstract class BadgedVersionPaneModel {
             }
         }
     }
+
     public void doExpandAllAction(ExpandAction action) {
         expandControl.setExpandAction(action);
         extensionPaneModels.forEach((panel) -> panel.doExpandAllAction(action));
@@ -611,6 +628,7 @@ public abstract class BadgedVersionPaneModel {
                                 ExpandAction newValue) {
         redoLayout();
     }
+
     private void redoLayout() {
         setupBadges();
         setupEditControls();
@@ -624,6 +642,7 @@ public abstract class BadgedVersionPaneModel {
             this.editControlTiles.getChildren().add(this.editControl);
         }
     }
+
     private void setupBadges() {
         this.badgeFlow.getChildren().clear();
         this.badgeTiles.getChildren().clear();
@@ -632,9 +651,9 @@ public abstract class BadgedVersionPaneModel {
         this.badgeFlow.getChildren().add(this.componentType);
         this.badgeFlow.getChildren().add(this.badgeTiles);
         badgeTiles.setPrefColumns(3);
-        badgeTiles.setPrefRows(badges.size()/3 + 1);
+        badgeTiles.setPrefRows(badges.size() / 3 + 1);
 
-        for (Node badge: badges) {
+        for (Node badge : badges) {
             badgeTiles.getChildren().add(badge);
         }
     }
@@ -646,6 +665,7 @@ public abstract class BadgedVersionPaneModel {
             itemToExecute.getOnAction().handle(event);
         }
     }
+
     private void cancel(ActionEvent event) {
         primaryPane.setTop(null);
         if (optionalPropertySheetMenuItem.isPresent()) {
@@ -687,6 +707,7 @@ public abstract class BadgedVersionPaneModel {
             redoLayout();
         });
     }
+
     public final List<MenuItem> getEditMenuItems() {
         return FxGet.rulesDrivenKometService().getEditVersionMenuItems(manifold, this.categorizedVersion, (propertySheetMenuItem) -> {
             addEditingPropertySheet(propertySheetMenuItem);
@@ -735,6 +756,7 @@ public abstract class BadgedVersionPaneModel {
         });
         redoLayout();
     }
+
     /**
      * @return the manifold
      */

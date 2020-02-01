@@ -124,6 +124,8 @@ public class UpdateTaxonomyAfterCommitTask
 
         try {
             final AtomicBoolean atLeastOneFailed = new AtomicBoolean(false);
+            final int WRITE_PERMITS = Runtime.getRuntime().availableProcessors() * 2;
+            Semaphore updateTaxonomySemaphore = new Semaphore(WRITE_PERMITS);
 
             this.semanticNidsForUnhandledChanges.stream().parallel().forEach((semanticNid) -> {
                 if (TestConcept.WATCH_NID_SET.contains(semanticNid)) {
@@ -136,8 +138,20 @@ public class UpdateTaxonomyAfterCommitTask
                     if (this.commitRecord.getSemanticNidsInCommit()
                             .contains(semanticNid)) {
                         this.updateMessage("Updating taxonomy for: " + semanticNid);
-                        this.taxonomyProvider.updateTaxonomy((SemanticChronology) Get.assemblageService()
-                                .getSemanticChronology(semanticNid));
+                        updateTaxonomySemaphore.acquire();
+                        Get.executor().execute(() -> {
+                            try {
+                                this.taxonomyProvider.updateTaxonomy((SemanticChronology) Get.assemblageService()
+                                        .getSemanticChronology(semanticNid));
+                            } catch (Throwable t) {
+                                LOG.error(t);
+                                throw t;
+                            } finally {
+                                updateTaxonomySemaphore.release();
+                            }
+
+                        });
+
                         this.semanticNidsForUnhandledChanges.remove(semanticNid);
                     }
                 } catch (final Exception e) {
@@ -149,6 +163,8 @@ public class UpdateTaxonomyAfterCommitTask
             if (atLeastOneFailed.get()) {
                 throw new RuntimeException("There were errors during taxonomy update after commit");
             }
+            updateMessage("Waiting for update taxonomy completion...");
+            updateTaxonomySemaphore.acquireUninterruptibly(WRITE_PERMITS);
 
             this.updateMessage("complete");
             return null;

@@ -214,7 +214,7 @@ public class StampProvider
                     new File(this.stampManagerFolder.toFile(),
                              STAMP_MANAGER_DATA_SEQUENCE_TO_UNCOMMITTED_STAMP_FILENAME));
         }
-        
+
     }
 
     //~--- methods -------------------------------------------------------------
@@ -910,14 +910,14 @@ public class StampProvider
             final Integer temp = uncommittedStampIntegerConcurrentHashMap.get(usp);
 
             if (temp != null) {
-                LOG.info("Created stamp (1): " + temp);
+                //LOG.info("Created stamp (1): " + temp);
                 return temp;
             } else {
                 this.stampLock.lock();
 
                 try {
                     if (uncommittedStampIntegerConcurrentHashMap.containsKey(usp)) {
-                        LOG.info("Created stamp (2): " + uncommittedStampIntegerConcurrentHashMap.get(usp));
+                        //LOG.info("Created stamp (2): " + uncommittedStampIntegerConcurrentHashMap.get(usp));
                         return uncommittedStampIntegerConcurrentHashMap.get(usp);
                     }
 
@@ -930,7 +930,7 @@ public class StampProvider
                     if (dataStore != null) {
                         dataStore.putSharedStoreLong(DEFAULT_STAMP_MANAGER_FOLDER + "-nextStampSequence", nextStampSequence.get());
                     }
-                    LOG.info("Created stamp (3): " + stampSequence);
+                    //LOG.info("Created stamp (3): " + stampSequence);
                     return stampSequence;
                 } finally {
                     this.stampLock.unlock();
@@ -959,7 +959,7 @@ public class StampProvider
             } finally {
                 this.stampLock.unlock();
             }
-            LOG.info("Created stamp (4b): " + Arrays.toString(this.stampMap.get(stampKey)));
+            //LOG.info("Created stamp (4b): " + Arrays.toString(this.stampMap.get(stampKey)));
         }
         return this.stampMap.get(stampKey)[0];
     }

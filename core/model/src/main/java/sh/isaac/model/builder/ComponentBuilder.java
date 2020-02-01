@@ -86,8 +86,13 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    protected Status state = Status.ACTIVE;
    
    private ConceptSpecification moduleSpecification = null;
-   
+
    public ComponentBuilder(int assemblageId) {
+      this.assemblageId = assemblageId;
+   }
+
+   public ComponentBuilder(UUID primordialUuid, int assemblageId) {
+      this.primordialUuid = primordialUuid;
       this.assemblageId = assemblageId;
    }
 
@@ -192,7 +197,8 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    @Override
    public IdentifiedComponentBuilder<T> setPrimordialUuid(UUID uuid) {
       if (isPrimordialUuidSet()) {
-         throw new RuntimeException("Attempting to set primordial UUID which has already been set.");
+         throw new RuntimeException("Attempting to set primordial UUID to: " + uuid.toString() +
+                 " which has already been set to: " + getPrimordialUuid().toString());
       }
       this.primordialUuid = uuid;
       return this;

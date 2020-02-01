@@ -57,6 +57,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
@@ -89,14 +90,18 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	 */
 	@Parameter(required = true)
 	protected String sourceType;
-	
+
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
 	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
-	protected ICD10ImportHK2Direct()
+	protected ICD10ImportHK2Direct() {
+	}
+	protected ICD10ImportHK2Direct(Transaction transaction)
 	{
 		//For HK2 / maven
+		super(transaction);
 	}
 	
 	@Override
@@ -141,11 +146,11 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	}
 	
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException 
+	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		this.statusUpdates = statusUpdates;
 		
@@ -181,24 +186,23 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		converterUUID.configureNamespace(Get.identifierService().getUuidPrimordialForNid(dwh.getModuleNid()));
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
+		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept(null, "Short Description", null, null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "Short Description", null, null,
 				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(null, "Long Description", null, null,
+		dwh.makeDescriptionTypeConcept(transaction, null, "Long Description", null, null,
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeAttributeTypeConcept(null, "ICD-10 Order Number", null, null, true, null, null, contentTime);
+		dwh.makeAttributeTypeConcept(transaction, null, "ICD-10 Order Number", null, null, true, null, null, contentTime);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		allICDConceptsRefset = dwh.makeRefsetTypeConcept(null, "All " + termName + " Concepts", null, null, contentTime);
-		HIPPA_Valid = dwh.makeRefsetTypeConcept(null, "HIPAA Valid", null, null, contentTime);
+		HIPPA_Valid = dwh.makeRefsetTypeConcept(transaction, null, "HIPAA Valid", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-		icdRootConcept = dwh.makeConceptEnNoDialect(null, termName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
+		icdRootConcept = dwh.makeConceptEnNoDialect(transaction, null, termName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 
 		log.info("Metadata load stats");
@@ -288,7 +292,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			if (code.length() <= 3)
 			{
 				// Hang it on root
-				dwh.makeParentGraph(concept, icdRootConcept, status, contentTime);
+				dwh.makeParentGraph(transaction, concept, icdRootConcept, status, contentTime);
 			}
 			else
 			{
@@ -307,7 +311,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 					}
 					else
 					{
-						dwh.makeParentGraph(concept, temp, status, contentTime);
+						dwh.makeParentGraph(transaction, concept, temp, status, contentTime);
 						break;
 					}
 				}
