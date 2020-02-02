@@ -19,8 +19,7 @@ package sh.isaac.komet.gui.treeview;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import sh.isaac.api.Get;
@@ -39,7 +38,6 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
    private static final AtomicInteger FETCHER_SEQUENCE = new AtomicInteger(1);
    private static final ConcurrentHashMap<Integer, FetchChildren> FETCHER_MAP = new ConcurrentHashMap<>();
 
-   private static final int CHILD_BATCH_SIZE = 25;
     private final CountDownLatch childrenLoadedLatch;
     private final MultiParentTreeItemImpl treeItemImpl;
     private final int fetcherId = FETCHER_SEQUENCE.incrementAndGet();
@@ -79,73 +77,56 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 LOG.debug("addChildren(): conceptChronology={}", conceptChronology);
             } else {  // if (conceptChronology != null)
                 // Gather the children
-                TreeSet<MultiParentTreeItemImpl> childrenToAdd = new TreeSet<>();
+                ConcurrentSkipListSet<MultiParentTreeItemImpl> childrenToAdd = new ConcurrentSkipListSet<>();
                 TaxonomySnapshot taxonomySnapshot = treeItemImpl.getTreeView().getTaxonomySnapshot();
                 Manifold manifold = treeItemImpl.getTreeView().getManifold();
                 Collection<TaxonomyLink>  children = taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
-                int batchCount = children.size()/CHILD_BATCH_SIZE;
-                addToTotalWork(children.size() + batchCount);
-                
-                
-                for (TaxonomyLink childLink : children) {
-                    ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
-                    MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeItemImpl.getTreeView(), childLink.getTypeNid(), null);
-                    childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
-                    childItem.toString();
-                    childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
-                    childItem.isLeaf();
+                addToTotalWork(children.size() + 1);
 
-                    if (childItem.shouldDisplay()) {
-                        childrenToAdd.add(childItem);
-                    } else {
-                        LOG.debug(
-                                "item.shouldDisplay() == false: not adding " + childItem.getConceptUuid() + " as child of "
-                                + treeItemImpl.getConceptUuid());
-                    }
+                Semaphore taskSemaphore = Get.taskSemaphore();
+                int maxTaskCount = taskSemaphore.availablePermits();
+                for (TaxonomyLink childLink : children) {
+                    taskSemaphore.acquire();
+                    Get.executor().execute(() -> {
+                        try {
+                            ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
+                            MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeItemImpl.getTreeView(), childLink.getTypeNid(), null);
+                            childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
+                            childItem.toString();
+                            childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
+                            childItem.isLeaf();
+
+                            if (childItem.shouldDisplay()) {
+                                childrenToAdd.add(childItem);
+                            } else {
+                                LOG.debug(
+                                        "item.shouldDisplay() == false: not adding " + childItem.getConceptUuid() + " as child of "
+                                                + treeItemImpl.getConceptUuid());
+                            }
+                        } finally {
+                            taskSemaphore.release();
+                        }
+                    });
+
                     completedUnitOfWork();
                     if (isCancelled()) return null;
                 }
-                
-                int counter = 0;
-                ArrayList<ArrayList<MultiParentTreeItemImpl>> itemListList = new ArrayList<>();
-                ArrayList<MultiParentTreeItemImpl> itemList = new ArrayList<>();
-                itemListList.add(itemList);
-                for (MultiParentTreeItemImpl treeItem: childrenToAdd) {
-                    
-                    if (counter <= CHILD_BATCH_SIZE) {
-                        counter++;
-                        itemList.add(treeItem);
-                    } else {
-                        counter = 0;
-                        itemList = new ArrayList<>();
-                        itemListList.add(itemList);
-                    }
-                    if (isCancelled()) return null;
-                }
-                    Platform.runLater(
-                        () -> {
-                            if (!FetchChildren.this.isCancelled()) {
-                                LOG.debug("###Clearing children for: " + treeItemImpl.getValue().getNid()
-                                    + " from: " + fetcherId);
-                                treeItemImpl.getChildren().clear();
-                                completedUnitOfWork();
-                            }
-                            
-                        });
-                
-                for (ArrayList<MultiParentTreeItemImpl> items: itemListList) {
-                    if (isCancelled()) return null;
-                    Platform.runLater(
+                taskSemaphore.acquire(maxTaskCount);
+                if (isCancelled()) return null;
+                Platform.runLater(() -> {
+                    treeItemImpl.setExpanded(false);
+                });
+                Platform.runLater(
                         () -> {
                             if (!FetchChildren.this.isCancelled()) {
                                 LOG.debug("###Adding children for: " + treeItemImpl.getValue().getNid()
-                                    + " from: " + fetcherId);
-                                treeItemImpl.getChildren().addAll(items);
+                                        + " from: " + fetcherId);
+                                treeItemImpl.getChildren().setAll(childrenToAdd);
+                                treeItemImpl.setExpanded(true);
                                 completedUnitOfWork();
                             }
-                            
+
                         });
-                }
 
                 childrenFound = childrenToAdd.size();
             }

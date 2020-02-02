@@ -50,6 +50,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -1013,6 +1014,19 @@ public class Get
 
    public static String conceptDescriptionText(UUID conceptUuid) {
       return conceptDescriptionText(Get.nidForUuids(conceptUuid));
+   }
+
+   public static int permitCount() {
+      return Runtime.getRuntime().availableProcessors() * 2;
+   }
+
+   /**
+    * Use when multi threading a task, to ensure that queue resources don't get overwhelmed.
+    * Search for usages for examples. Semaphore count is from the permitCount() method on this class.
+    * @return a Semaphore for governing task execution.
+    */
+   public static Semaphore taskSemaphore() {
+      return new Semaphore(permitCount());
    }
 }
 

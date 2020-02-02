@@ -78,6 +78,10 @@ public class MultiParentTreeItemImpl
         extends TreeItem<ConceptChronology>
         implements MultiParentTreeItem, Comparable<MultiParentTreeItemImpl> {
 
+    enum LeafStatus {
+        UNKNOWN, IS_LEAF, NOT_LEAF
+    }
+
     /**
      * The Constant LOG.
      */
@@ -97,6 +101,7 @@ public class MultiParentTreeItemImpl
     private final int nid;
     private final int typeNid;
     private Collection<TaxonomyLink> childLinks;
+    private LeafStatus leafStatus = LeafStatus.UNKNOWN;
 
     //~--- constructors --------------------------------------------------------
     MultiParentTreeItemImpl(int conceptSequence, MultiParentTreeView treeView, int typeNid) {
@@ -335,14 +340,27 @@ public class MultiParentTreeItemImpl
 
     @Override
     public boolean isLeaf() {
+        if (leafStatus != LeafStatus.UNKNOWN) {
+            return leafStatus == LeafStatus.IS_LEAF;
+        }
         if (multiParentDepth > 0) {
+            leafStatus = LeafStatus.IS_LEAF;
             return true;
         }
         if (this.childLinks == null) {
-            this.childLinks = this.treeView.getTaxonomySnapshot().getTaxonomyChildLinks(nid);
+            if (this.treeView.getTaxonomySnapshot().isLeaf(nid)) {
+                leafStatus = LeafStatus.IS_LEAF;
+            } else {
+                leafStatus = LeafStatus.NOT_LEAF;
+            }
+            return leafStatus == LeafStatus.IS_LEAF;
         }
-
-        return this.childLinks.isEmpty();
+        if (this.childLinks.isEmpty()) {
+            leafStatus = LeafStatus.IS_LEAF;
+        } else {
+            leafStatus = LeafStatus.NOT_LEAF;
+        }
+        return leafStatus == LeafStatus.IS_LEAF;
     }
 
     @Override

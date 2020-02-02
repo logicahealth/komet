@@ -22,7 +22,6 @@ import javafx.scene.control.TreeCell;
 import sh.isaac.api.component.concept.ConceptChronology;
 
 /**
- *
  * @author kec
  */
 public class MultiParentTreeCellBehavior extends TreeCellBehavior<ConceptChronology> {
@@ -33,25 +32,30 @@ public class MultiParentTreeCellBehavior extends TreeCellBehavior<ConceptChronol
 
     @Override
     protected boolean handleDisclosureNode(double x, double y) {
-
-        if (!super.handleDisclosureNode(x, y)) {
-            MultiParentTreeCell treeCell = (MultiParentTreeCell) getNode();
-            MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) treeCell.getTreeItem();
-            if (treeItem.isMultiParent() || treeItem.getMultiParentDepth() > 0) {
-                Node multiParentDisclosureNode = treeCell.getGraphic();
-                if (multiParentDisclosureNode != null) {
-                    if (multiParentDisclosureNode.getBoundsInParent().contains(x, y)) {
-                        if (treeCell.getTreeItem() != null) {
-                            treeCell.openOrCloseParent(treeItem);
-                            return true;
-                        }
-
+        MultiParentTreeCell treeCell = (MultiParentTreeCell) getNode();
+        Node disclosureNode = treeCell.getDisclosureNode();
+        if (disclosureNode != null) {
+            if (disclosureNode.getBoundsInParent().contains(x, y)) {
+                if (treeCell.getTreeItem() != null) {
+                    treeCell.getTreeItem().setExpanded(!treeCell.getTreeItem().isExpanded());
+                }
+                return true;
+            }
+        }
+        MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) treeCell.getTreeItem();
+        if (treeItem.isMultiParent() || treeItem.getMultiParentDepth() > 0) {
+            Node multiParentDisclosureNode = treeCell.getGraphic();
+            if (multiParentDisclosureNode != null) {
+                if (multiParentDisclosureNode.getBoundsInParent().contains(x, y)) {
+                    if (treeCell.getTreeItem() != null) {
+                        treeCell.openOrCloseParent(treeItem);
+                        return true;
                     }
+
                 }
             }
-            return false;
         }
-        return true;
+        return false;
     }
 
 }
