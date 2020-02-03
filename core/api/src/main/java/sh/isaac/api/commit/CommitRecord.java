@@ -93,7 +93,7 @@ public class CommitRecord {
     *
     * @param commitTime the commit time
     * @param stampsInCommit the stamps in commit
-    * @param stampAliases the stamp aliases
+    * @param stampAliases the stamp aliases - optional - null allowed
     * @param conceptNidsInCommit the concepts in commit
     * @param semanticNidsInCommit the semantics in commit
     * @param commitComment the commit comment
@@ -106,7 +106,7 @@ public class CommitRecord {
                        String commitComment) {
       this.commitTime       = commitTime;
       this.stampsInCommit   = StampSequenceSet.of(stampsInCommit);
-      this.stampAliases     = stampAliases.copy();
+      this.stampAliases     = stampAliases == null ? new OpenIntIntHashMap() : stampAliases.copy();
       this.conceptNidsInCommit = NidSet.of(conceptNidsInCommit);
       this.semanticNidsInCommit  = NidSet.of(semanticNidsInCommit);
       this.commitComment    = commitComment;
