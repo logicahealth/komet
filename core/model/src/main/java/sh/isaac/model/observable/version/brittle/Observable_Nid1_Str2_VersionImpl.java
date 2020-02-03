@@ -39,8 +39,6 @@
 
 package sh.isaac.model.observable.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.IntegerProperty;
@@ -63,8 +61,6 @@ import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
@@ -74,8 +70,6 @@ public class Observable_Nid1_Str2_VersionImpl
          implements Observable_Nid1_Str2_Version {
    IntegerProperty nid1Property;
    StringProperty  str2Property;
-
-   //~--- constructors --------------------------------------------------------
 
    public Observable_Nid1_Str2_VersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
@@ -87,6 +81,7 @@ public class Observable_Nid1_Str2_VersionImpl
       setStr2(versionToClone.getStr2());
    }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         Observable_Nid1_Str2_VersionImpl analog = new Observable_Nid1_Str2_VersionImpl(this, getChronology());
@@ -96,8 +91,6 @@ public class Observable_Nid1_Str2_VersionImpl
         analog.setPathNid(ec.getPathNid());
         return (V) analog;
     }
-
-   //~--- methods -------------------------------------------------------------
 
    @Override
    public IntegerProperty nid1Property() {
@@ -133,8 +126,6 @@ public class Observable_Nid1_Str2_VersionImpl
       return this.str2Property;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid1() {
       if (this.nid1Property != null) {
@@ -143,8 +134,6 @@ public class Observable_Nid1_Str2_VersionImpl
 
       return getNid1_Str2_Version().getNid1();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setNid1(int nid) {
@@ -160,8 +149,6 @@ public class Observable_Nid1_Str2_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    private Nid1_Str2_VersionImpl getNid1_Str2_Version() {
       return (Nid1_Str2_VersionImpl) this.stampedVersionProperty.get();
    }
@@ -174,8 +161,6 @@ public class Observable_Nid1_Str2_VersionImpl
 
       return getNid1_Str2_Version().getStr2();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr2(String value) {
@@ -245,9 +230,10 @@ public class Observable_Nid1_Str2_VersionImpl
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      Nid1_Str2_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+    public <V extends Version> V makeAnalog(int stampSequence) {
+      Nid1_Str2_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
       Observable_Nid1_Str2_VersionImpl newObservableVersion = 
               new Observable_Nid1_Str2_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
       ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);

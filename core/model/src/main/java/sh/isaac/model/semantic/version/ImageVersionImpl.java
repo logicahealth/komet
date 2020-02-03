@@ -1,10 +1,7 @@
 package sh.isaac.model.semantic.version;
 
-import sh.isaac.api.DataTarget;
-import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.MutableImageVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
@@ -13,7 +10,7 @@ import java.util.Arrays;
 public class ImageVersionImpl
         extends AbstractVersionImpl
         implements MutableImageVersion {
-    /** The image data. */
+
     byte[] imageData = null;
 
 
@@ -82,19 +79,13 @@ public class ImageVersionImpl
         return Arrays.equals(this.imageData, otherImpl.imageData);
     }
 
-    @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        final int stampSequence = Get.stampService()
-                .getStampSequence(
-                        this.getStatus(),
-                        Long.MAX_VALUE,
-                        ec.getAuthorNid(),
-                        this.getModuleNid(),
-                        ec.getPathNid());
+   @SuppressWarnings("unchecked")
+   @Override
+   public <V extends Version> V makeAnalog(int stampSequence) {
         SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
         final ImageVersionImpl newVersion = new ImageVersionImpl(this, stampSequence);
 
         chronologyImpl.addVersion(newVersion);
         return (V) newVersion;
-    }
+   }
 }

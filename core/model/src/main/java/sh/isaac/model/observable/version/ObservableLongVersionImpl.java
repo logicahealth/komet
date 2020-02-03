@@ -39,19 +39,13 @@
 
 package sh.isaac.model.observable.version;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Chronology;
-
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.LongVersion;
@@ -67,8 +61,6 @@ import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
@@ -76,10 +68,7 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 public class ObservableLongVersionImpl
         extends ObservableAbstractSemanticVersionImpl
          implements ObservableLongVersion {
-   /** The long property. */
    LongProperty longProperty;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new observable component nid version impl.
@@ -98,8 +87,8 @@ public class ObservableLongVersionImpl
     public ObservableLongVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
         super(VersionType.LONG, primordialUuid, referencedComponentUuid, assemblageNid);
     }
-   
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         ObservableLongVersionImpl analog = new ObservableLongVersionImpl(this, getChronology());
@@ -110,13 +99,6 @@ public class ObservableLongVersionImpl
         return (V) analog;
     }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Case significance concept nid property.
-    *
-    * @return the integer property
-    */
    @Override
    public LongProperty longValueProperty() {
       if (this.stampedVersionProperty == null && this.longProperty == null) {
@@ -139,9 +121,10 @@ public class ObservableLongVersionImpl
       return this.longProperty;
    }
 
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      LongVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      LongVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
       ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(
                                                            newVersion,
                                                                  (ObservableSemanticChronology) chronology);
@@ -163,13 +146,6 @@ public class ObservableLongVersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the long value.
-    *
-    * @return the case significance concept nid
-    */
    @Override
    public long getLongValue() {
       if (this.longProperty != null) {
@@ -179,13 +155,6 @@ public class ObservableLongVersionImpl
       return ((LongVersion) this.stampedVersionProperty.get()).getLongValue();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the long value.
-    *
-    * @param longValue the new long value
-    */
    @Override
    public final void setLongValue(long longValue) {
        if (this.stampedVersionProperty == null) {
@@ -199,8 +168,6 @@ public class ObservableLongVersionImpl
          ((MutableLongVersion) this.stampedVersionProperty.get()).setLongValue(longValue);
       }
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public List<ReadOnlyProperty<?>> getProperties() {
@@ -239,4 +206,3 @@ public class ObservableLongVersionImpl
         return sc;
     }
 }
-

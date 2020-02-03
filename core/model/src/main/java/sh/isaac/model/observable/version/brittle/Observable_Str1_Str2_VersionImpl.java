@@ -39,8 +39,6 @@
 
 package sh.isaac.model.observable.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.Property;
@@ -61,8 +59,6 @@ import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
@@ -72,8 +68,6 @@ public class Observable_Str1_Str2_VersionImpl
          implements Observable_Str1_Str2_Version {
    StringProperty str1Property;
    StringProperty str2Property;
-
-   //~--- constructors --------------------------------------------------------
 
    public Observable_Str1_Str2_VersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
@@ -85,6 +79,7 @@ public class Observable_Str1_Str2_VersionImpl
       setStr2(versionToClone.getStr2());
    }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         Observable_Str1_Str2_VersionImpl analog = new Observable_Str1_Str2_VersionImpl(this, getChronology());
@@ -94,7 +89,6 @@ public class Observable_Str1_Str2_VersionImpl
         analog.setPathNid(ec.getPathNid());
         return (V) analog;
     }
-   //~--- methods -------------------------------------------------------------
 
    @Override
    public StringProperty str1Property() {
@@ -130,8 +124,6 @@ public class Observable_Str1_Str2_VersionImpl
       return this.str2Property;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr1() {
       if (this.str1Property != null) {
@@ -140,8 +132,6 @@ public class Observable_Str1_Str2_VersionImpl
 
       return getStr1_Str2_Version().getStr1();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr1(String value) {
@@ -157,8 +147,6 @@ public class Observable_Str1_Str2_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    private Str1_Str2_VersionImpl getStr1_Str2_Version() {
       return (Str1_Str2_VersionImpl) this.stampedVersionProperty.get();
    }
@@ -171,8 +159,6 @@ public class Observable_Str1_Str2_VersionImpl
 
       return getStr1_Str2_Version().getStr2();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr2(String value) {
@@ -239,15 +225,14 @@ public class Observable_Str1_Str2_VersionImpl
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      Str1_Str2_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+    public <V extends Version> V makeAnalog(int stampSequence) {
+      Str1_Str2_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
       Observable_Str1_Str2_VersionImpl newObservableVersion = 
               new Observable_Str1_Str2_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
       ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
     }
-    
-    
 }
 

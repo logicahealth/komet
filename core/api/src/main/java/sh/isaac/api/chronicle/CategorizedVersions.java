@@ -39,19 +39,14 @@
 
 package sh.isaac.api.chronicle;
 
-//~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
 import java.util.List;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -64,8 +59,6 @@ public class CategorizedVersions<V extends Version> {
    private final LatestVersion<V> latestVersion;
    private final StampSequenceSet latestStampSequences;
    private final StampSequenceSet allStampSequences;
-
-   //~--- constructors --------------------------------------------------------
 
    public CategorizedVersions(LatestVersion<V> latestVersion, Chronology chronology) {
       boolean observableWrap = false;
@@ -90,8 +83,6 @@ public class CategorizedVersions<V extends Version> {
       this.latestVersion = wrap(chronology, observableWrap);
    }
 
-   //~--- methods -------------------------------------------------------------
-
    @Override
    public String toString() {
       return "CategorizedVersions{" + "uncommittedVersions=\n" + uncommittedVersions + "historicVersions=\n" + 
@@ -101,7 +92,7 @@ public class CategorizedVersions<V extends Version> {
    }
 
    private LatestVersion<V> wrap(Chronology chronology, boolean observableWrap) {
-      LatestVersion<V> wrappedLatestVersion = new LatestVersion();
+      LatestVersion<V> wrappedLatestVersion = new LatestVersion<>();
 
       for (Version version: chronology.getVersionList()) {
          if (version.isUncommitted()) {
@@ -116,15 +107,14 @@ public class CategorizedVersions<V extends Version> {
       return wrappedLatestVersion;
    }
 
+   @SuppressWarnings("unchecked")
    private V wrap(Version version, boolean observableWrap) {
       if (observableWrap) {
-         return (V) new ObservableCategorizedVersion((ObservableVersion) version, this);
+         return (V) new ObservableCategorizedVersion((ObservableVersion) version, (CategorizedVersions<CategorizedVersion>) this);
       }
 
-      return (V) new CategorizedVersion(version, this);
+      return (V) new CategorizedVersion(version, (CategorizedVersions<CategorizedVersion>) this);
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    public List<V> getUncommittedVersions() {
       return uncommittedVersions;

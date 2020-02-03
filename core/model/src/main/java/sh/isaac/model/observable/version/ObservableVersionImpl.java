@@ -36,15 +36,12 @@
  */
 package sh.isaac.model.observable.version;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -56,7 +53,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
-
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Version;
@@ -70,9 +66,7 @@ import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableFields;
-import static sh.isaac.model.observable.ObservableFields.NATIVE_ID_FOR_COMPONENT;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class ObservableVersionImpl.
  *
@@ -164,7 +158,7 @@ public abstract class ObservableVersionImpl
         this.chronology = null;
         this.versionType = versionType;
         assemblageNidProperty(assemblageNid);
-        this.primordialUuidProperty = new SimpleObjectProperty(
+        this.primordialUuidProperty = new SimpleObjectProperty<>(
                 this,
                 ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT.toExternalString(),
                 primordialUuid);
@@ -173,7 +167,7 @@ public abstract class ObservableVersionImpl
 
     protected ObjectProperty<UUID> primordialUuidProperty() {
         if (this.primordialUuidProperty == null) {
-            this.primordialUuidProperty = new SimpleObjectProperty(
+            this.primordialUuidProperty = new SimpleObjectProperty<>(
                     this,
                     ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT.toExternalString());
             this.primordialUuidProperty.set(chronology.getPrimordialUuid());
@@ -307,7 +301,7 @@ public abstract class ObservableVersionImpl
     @Override
     public final ObjectProperty<CommitStates> commitStateProperty() {
         if (this.stampedVersionProperty == null && this.commitStateProperty == null) {
-            this.commitStateProperty = new SimpleObjectProperty(
+            this.commitStateProperty = new SimpleObjectProperty<>(
                     this,
                     TermAux.COMMITTED_STATE_FOR_VERSION.toExternalString(),
                     CommitStates.UNCOMMITTED);
@@ -330,7 +324,7 @@ public abstract class ObservableVersionImpl
             this.timeProperty().addListener((observable) -> {
                 this.commitStateBinding.invalidate();
             });
-            this.commitStateProperty = new SimpleObjectProperty(
+            this.commitStateProperty = new SimpleObjectProperty<>(
                     this,
                     TermAux.COMMITTED_STATE_FOR_VERSION.toExternalString(),
                     this.commitStateBinding.get());
@@ -777,7 +771,7 @@ public abstract class ObservableVersionImpl
 
     @Override
     public final List<Property<?>> getEditableProperties() {
-        ArrayList<Property<?>> propertyList = new ArrayList();
+        ArrayList<Property<?>> propertyList = new ArrayList<>();
         propertyList.add(stateProperty());
         propertyList.addAll(getEditableProperties2());
         propertyList.addAll(Arrays.asList(new Property<?>[]{
@@ -903,6 +897,7 @@ public abstract class ObservableVersionImpl
         return this.versionType;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> Optional<T> getUserObject(String objectKey) {
         if (userObjectMap == null) {
@@ -919,6 +914,7 @@ public abstract class ObservableVersionImpl
         userObjectMap.put(objectKey, object);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> Optional<T> removeUserObject(String objectKey) {
         T value = null;

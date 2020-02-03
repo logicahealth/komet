@@ -97,6 +97,7 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 		super(VersionType.STRING, primordialUuid, referencedComponentUuid, assemblageNid);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec)
 	{
@@ -108,10 +109,11 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 		return (V) analog;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <V extends Version> V makeAnalog(EditCoordinate ec)
+	public <V extends Version> V makeAnalog(int stampSequence)
 	{
-		DynamicVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+		DynamicVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
 		ObservableDynamicVersionImpl newObservableVersion = new ObservableDynamicVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
 
 		((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);

@@ -46,12 +46,12 @@ import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
  */
 public class ObservableDescriptionDialect implements ObservableVersion {
     SimpleObjectProperty<ObservableDescriptionVersionImpl> descriptionProperty = 
-            new SimpleObjectProperty(
+            new SimpleObjectProperty<>(
                  this,
                  ObservableFields.DESCRIPTION_DIALECT_DESCRIPTION.toExternalString(),
                  null);
     SimpleObjectProperty<ObservableComponentNidVersionImpl> dialectProperty = 
-            new SimpleObjectProperty(
+            new SimpleObjectProperty<>(
                  this,
                  ObservableFields.DESCRIPTION_DIALECT_DIALECT.toExternalString(),
                  null);
@@ -170,7 +170,7 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     }
 
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+    public <V extends Version> V makeAnalog(int stampSequence) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

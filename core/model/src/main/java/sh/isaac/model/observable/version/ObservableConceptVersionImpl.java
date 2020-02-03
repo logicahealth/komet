@@ -36,7 +36,6 @@
  */
 package sh.isaac.model.observable.version;
 
-//~--- non-JDK imports --------------------------------------------------------
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -57,7 +56,6 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptVersionImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class ObservableConceptVersionImpl.
  *
@@ -92,6 +90,7 @@ public class ObservableConceptVersionImpl
         this.setStatus(versionToClone.getStatus());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         ObservableConceptVersionImpl analog = new ObservableConceptVersionImpl(this, getChronology());
@@ -101,9 +100,10 @@ public class ObservableConceptVersionImpl
         return (V) analog;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        ConceptVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+    public <V extends Version> V makeAnalog(int stampSequence) {
+        ConceptVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
         ObservableConceptVersionImpl newObservableVersion
                 = new ObservableConceptVersionImpl(newVersion, (ObservableConceptChronology) chronology);
         ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
@@ -112,7 +112,6 @@ public class ObservableConceptVersionImpl
 
     @Override
     protected void updateVersion() {
-
         // nothing to update. 
     }
 
@@ -121,12 +120,6 @@ public class ObservableConceptVersionImpl
         return new ArrayList<>();
     }
 
-    //~--- get methods ---------------------------------------------------------
-    /**
-     * Gets the chronology.
-     *
-     * @return the chronology
-     */
     @Override
     public ObservableConceptChronology getChronology() {
         return (ObservableConceptChronology) this.chronology;
@@ -160,5 +153,4 @@ public class ObservableConceptVersionImpl
         independentChronology.addVersion(newVersion);
         return independentChronology;
     }
-
 }

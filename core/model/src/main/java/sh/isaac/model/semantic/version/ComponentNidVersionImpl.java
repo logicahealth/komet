@@ -39,11 +39,7 @@
 
 package sh.isaac.model.semantic.version;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.Optional;
-
-//~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
@@ -51,10 +47,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.api.component.semantic.version.MutableComponentNidVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * Used for description dialect preferences.
@@ -66,8 +59,6 @@ public class ComponentNidVersionImpl
          implements MutableComponentNidVersion {
    /** The component nid. */
    int componentNid = Integer.MAX_VALUE;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new component nid semantic impl.
@@ -93,29 +84,21 @@ public class ComponentNidVersionImpl
       super(container, stampSequence);
       this.componentNid = data.getNid();
    }
+   
    private ComponentNidVersionImpl(ComponentNidVersionImpl other, int stampSequence) {
       super(other.getChronology(), stampSequence);
       this.componentNid = other.componentNid;
    }
 
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       this.getStatus(),
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       this.getModuleNid(),
-                                       ec.getPathNid());
+   public <V extends Version> V makeAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final ComponentNidVersionImpl newVersion = new ComponentNidVersionImpl(this, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;   
    }
-
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * To string.
@@ -174,8 +157,6 @@ public class ComponentNidVersionImpl
       data.putNid(this.componentNid);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the component nid.
     *
@@ -185,8 +166,6 @@ public class ComponentNidVersionImpl
    public int getComponentNid() {
       return this.componentNid;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Sets the component nid.
@@ -201,8 +180,6 @@ public class ComponentNidVersionImpl
 
       this.componentNid = componentNid;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the semantic type.
@@ -232,6 +209,4 @@ public class ComponentNidVersionImpl
       ComponentNidVersionImpl otherImpl = (ComponentNidVersionImpl) other;
       return this.componentNid == otherImpl.componentNid;
    }
-      
 }
-

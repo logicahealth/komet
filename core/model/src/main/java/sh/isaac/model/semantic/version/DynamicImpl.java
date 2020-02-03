@@ -59,7 +59,6 @@ import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicTypeToClassUtility;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
@@ -150,20 +149,14 @@ public class DynamicImpl
    /**
     * {@inheritDoc}
     */
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       this.getStatus(),
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       this.getModuleNid(),
-                                       ec.getPathNid());
+   public <V extends Version> V makeAnalog(int stampSequence)
+   {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final DynamicImpl newVersion = new DynamicImpl(this, stampSequence);
-
       chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;   
+      return (V) newVersion;
    }
 
    /**

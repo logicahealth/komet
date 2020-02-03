@@ -39,18 +39,13 @@
 
 package sh.isaac.model.semantic.version;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -64,8 +59,6 @@ public class Rf2RelationshipImpl
    int relationshipGroup = Integer.MAX_VALUE;
    int characteristicNid = Integer.MAX_VALUE;
    int modifierNid       = Integer.MAX_VALUE;
-
-   //~--- constructors --------------------------------------------------------
 
    public Rf2RelationshipImpl(Rf2RelationshipImpl another, int stampSequence) {
       super(another.getChronology(), stampSequence);
@@ -89,17 +82,12 @@ public class Rf2RelationshipImpl
       this.modifierNid       = data.getNid();
    }
 
-   //~--- methods -------------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       this.getStatus(),
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       this.getModuleNid(),
-                                       ec.getPathNid());
+   public <V extends Version> V makeAnalog(int stampSequence) {
       SemanticChronologyImpl    chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Rf2RelationshipImpl newVersion     = new Rf2RelationshipImpl(this, stampSequence);
 
@@ -108,9 +96,7 @@ public class Rf2RelationshipImpl
    }
 
    /**
-    * To string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String toString() {
@@ -144,6 +130,9 @@ public class Rf2RelationshipImpl
       return sb.toString();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
       if (!(other instanceof LogicGraphVersionImpl)) {
@@ -171,6 +160,9 @@ public class Rf2RelationshipImpl
       return this.modifierNid == otherImpl.modifierNid;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected int editDistance3(AbstractVersionImpl other, int editDistance) {
       Rf2RelationshipImpl otherImpl = (Rf2RelationshipImpl) other;
@@ -199,9 +191,7 @@ public class Rf2RelationshipImpl
    }
 
    /**
-    * Write version data.
-    *
-    * @param data the data
+    * {@inheritDoc}
     */
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {
@@ -213,79 +203,91 @@ public class Rf2RelationshipImpl
       data.putNid(this.modifierNid);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public int getCharacteristicNid() {
       return characteristicNid;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void setCharacteristicNid(int nid) {
       this.characteristicNid = nid;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public int getDestinationNid() {
       return destinationNid;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void setDestinationNid(int nid) {
       this.destinationNid = nid;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public int getModifierNid() {
       return modifierNid;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void setModifierNid(int nid) {
       this.modifierNid = nid;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public int getRelationshipGroup() {
       return relationshipGroup;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void setRelationshipGroup(int group) {
       this.relationshipGroup = group;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public VersionType getSemanticType() {
       return VersionType.RF2_RELATIONSHIP;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public int getTypeNid() {
       return typeNid;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void setTypeNid(int nid) {
       this.typeNid = nid;
    }
 }
-

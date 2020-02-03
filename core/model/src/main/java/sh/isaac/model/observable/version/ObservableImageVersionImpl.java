@@ -22,10 +22,8 @@ import java.util.UUID;
 public class ObservableImageVersionImpl
         extends ObservableAbstractSemanticVersionImpl
         implements ObservableImageVersion {
-    /** The long property. */
-    SimpleObjectProperty<byte[]> imageDataProperty;
 
-    //~--- constructors --------------------------------------------------------
+    SimpleObjectProperty<byte[]> imageDataProperty;
 
     /**
      * Instantiates a new observable component nid version impl.
@@ -45,7 +43,7 @@ public class ObservableImageVersionImpl
         super(VersionType.IMAGE, primordialUuid, referencedComponentUuid, assemblageNid);
     }
 
-
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         ObservableImageVersionImpl analog = new ObservableImageVersionImpl(this, getChronology());
@@ -56,23 +54,16 @@ public class ObservableImageVersionImpl
         return (V) analog;
     }
 
-    //~--- methods -------------------------------------------------------------
-
-    /**
-     * Case significance concept nid property.
-     *
-     * @return the integer property
-     */
     @Override
     public ObjectProperty<byte[]> imageDataProperty() {
         if (this.stampedVersionProperty == null && this.imageDataProperty == null) {
-            this.imageDataProperty = new CommitAwareObjectProperty(
+            this.imageDataProperty = new CommitAwareObjectProperty<>(
                     this,
                     ObservableFields.IMAGE_DATA_FOR_SEMANTIC.toExternalString(),
-                    0);
+                    new byte[0]);
         }
         if (this.imageDataProperty == null) {
-            this.imageDataProperty = new CommitAwareObjectProperty(
+            this.imageDataProperty = new CommitAwareObjectProperty<>(
                     this,
                     ObservableFields.IMAGE_DATA_FOR_SEMANTIC.toExternalString(),
                     getImageData());
@@ -85,9 +76,10 @@ public class ObservableImageVersionImpl
         return this.imageDataProperty;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        ImageVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+    public <V extends Version> V makeAnalog(int stampSequence) {
+        ImageVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
         ObservableImageVersionImpl newObservableVersion = new ObservableImageVersionImpl(
                 newVersion,
                 (ObservableSemanticChronology) chronology);
@@ -109,13 +101,6 @@ public class ObservableImageVersionImpl
         }
     }
 
-    //~--- get methods ---------------------------------------------------------
-
-    /**
-     * Gets the long value.
-     *
-     * @return the case significance concept nid
-     */
     @Override
     public byte[] getImageData() {
         if (this.imageDataProperty != null) {
@@ -125,13 +110,6 @@ public class ObservableImageVersionImpl
         return ((ImageVersion) this.stampedVersionProperty.get()).getImageData();
     }
 
-    //~--- set methods ---------------------------------------------------------
-
-    /**
-     * Sets the long value.
-     *
-     * @param imageData the new long value
-     */
     @Override
     public final void setImageData(byte[] imageData) {
         if (this.stampedVersionProperty == null) {
@@ -145,8 +123,6 @@ public class ObservableImageVersionImpl
             ((MutableImageVersion) this.stampedVersionProperty.get()).setImageData(imageData);
         }
     }
-
-    //~--- get methods ---------------------------------------------------------
 
     @Override
     public List<ReadOnlyProperty<?>> getProperties() {

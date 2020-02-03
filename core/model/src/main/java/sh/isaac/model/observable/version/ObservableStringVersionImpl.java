@@ -39,19 +39,14 @@
 
 package sh.isaac.model.observable.version;
 
-//~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import javafx.beans.property.Property;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 import sh.isaac.api.chronicle.Chronology;
-
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.MutableStringVersion;
@@ -67,8 +62,6 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
@@ -76,10 +69,8 @@ import sh.isaac.model.semantic.version.StringVersionImpl;
 public class ObservableStringVersionImpl
         extends ObservableAbstractSemanticVersionImpl
          implements ObservableStringVersion {
-   /** The string property. */
-   StringProperty stringProperty;
 
-   //~--- constructors --------------------------------------------------------
+   StringProperty stringProperty;
 
    /**
     * Instantiates a new observable description impl.
@@ -100,7 +91,7 @@ public class ObservableStringVersionImpl
       super(VersionType.STRING, primordialUuid, referencedComponentUuid, assemblageNid);
    }
    
-
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         ObservableStringVersionImpl analog = new ObservableStringVersionImpl(this, getChronology());
@@ -111,12 +102,10 @@ public class ObservableStringVersionImpl
         return (V) analog;
     }
 
-
-   //~--- methods -------------------------------------------------------------
-
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      StringVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      StringVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
       ObservableStringVersionImpl newObservableVersion = new ObservableStringVersionImpl(
                                                              newVersion,
                                                                    (ObservableSemanticChronology) chronology);
@@ -126,11 +115,6 @@ public class ObservableStringVersionImpl
       return (V) newObservableVersion;
    }
 
-   /**
-    * string property.
-    *
-    * @return the string property
-    */
    @Override
    public StringProperty stringProperty() {
       if (this.stampedVersionProperty == null && this.stringProperty == null) {
@@ -161,8 +145,6 @@ public class ObservableStringVersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public List<ReadOnlyProperty<?>> getProperties() {
       List<ReadOnlyProperty<?>> properties = super.getProperties();
@@ -178,11 +160,6 @@ public class ObservableStringVersionImpl
       return properties;
     }
 
-   /**
-    * Gets the string.
-    *
-    * @return the string
-    */
    @Override
    public String getString() {
       if (this.stringProperty != null) {
@@ -192,13 +169,6 @@ public class ObservableStringVersionImpl
       return ((StringVersion) this.stampedVersionProperty.get()).getString();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the string.
-    *
-    * @param string the new string
-    */
    @Override
    public final void setString(String string) {
        if (this.stampedVersionProperty == null) {

@@ -37,7 +37,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
  */
 public class ObservableCategorizedVersion extends CategorizedVersion implements ObservableVersion {
 
-   public ObservableCategorizedVersion(ObservableVersion delegate, CategorizedVersions categorizedVersions) {
+   public ObservableCategorizedVersion(ObservableVersion delegate, CategorizedVersions<CategorizedVersion> categorizedVersions) {
       super(delegate, categorizedVersions);
    }
       
