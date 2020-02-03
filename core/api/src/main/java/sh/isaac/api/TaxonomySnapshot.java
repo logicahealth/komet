@@ -66,7 +66,7 @@ public interface TaxonomySnapshot {
    boolean isLeaf(int conceptNid);
    
    /**
-    * Checks if child of.
+    * true if child is an immediate descendent of parent, and child != parent
     *
     * @param childConceptNid the child id
     * @param parentConceptNid the parent id
@@ -75,7 +75,7 @@ public interface TaxonomySnapshot {
    boolean isChildOf(int childConceptNid, int parentConceptNid);
 
    /**
-    * Checks if kind of.
+    * true if child is any level descendent of parent, or child == parent
     *
     * @param childConceptNid the child id
     * @param parentConceptNid the parent id
@@ -84,11 +84,11 @@ public interface TaxonomySnapshot {
    boolean isKindOf(int childConceptNid, int parentConceptNid);
    
    /**
-    * Checks if descendant  of.
+    * same as {@link #isKindOf(int, int)}, except doesn't allow descendentConceptNid == parentConceptNid
     *
     * @param descendantConceptNid the descendant id
     * @param parentConceptNid the parent id
-    * @return true, if kind of
+    * @return true, if descendent of
     */
    default boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
        if (descendantConceptNid == parentConceptNid) {

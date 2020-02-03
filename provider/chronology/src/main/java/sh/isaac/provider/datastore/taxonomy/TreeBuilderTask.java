@@ -78,6 +78,7 @@ public class TreeBuilderTask
    
    //~--- constructors --------------------------------------------------------
 
+   //TODO this tree builder doesn't properly pay attention to the DestinationStampCoordiante
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
                           ManifoldCoordinate manifoldCoordinate) {
       if (taxonomyDataProvider == null) {
