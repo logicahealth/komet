@@ -62,6 +62,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
+import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.tree.TaxonomyLinkage;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -99,11 +100,9 @@ public class TaxonomyProvider
      * The Constant LOG.
      */
     private static final Logger LOG = LogManager.getLogger();
-    private static final int MAX_AVAILABLE = Runtime.getRuntime()
-            .availableProcessors() * 2;
 
     //~--- fields --------------------------------------------------------------
-    private final Semaphore updatePermits = new Semaphore(MAX_AVAILABLE);
+    private final TaskCountManager taskCountManager = Get.taskCountManager();
 
     /**
      * The semantic nids for unhandled changes.
@@ -172,11 +171,11 @@ public class TaxonomyProvider
             this.noTreeSnapshotCache.clear();
         }
 
-        this.updatePermits.acquireUninterruptibly();
-        UpdateTaxonomyAfterCommitTask updateTask
-                = UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.updatePermits);
         try {
-            //wait for completion
+        this.taskCountManager.acquire();
+        UpdateTaxonomyAfterCommitTask updateTask
+                = UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.semanticNidsForUnhandledChanges, this.taskCountManager);
+             //wait for completion
             updateTask.get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Unexpected error waiting for taxonomy update after commit", e);
@@ -285,8 +284,7 @@ public class TaxonomyProvider
             }
             this.sync().get();
             // make sure updates are done prior to allowing other services to stop.
-            this.updatePermits.acquireUninterruptibly(MAX_AVAILABLE);
-            this.updatePermits.release(MAX_AVAILABLE);
+            this.taskCountManager.waitForCompletion();
             this.semanticNidsForUnhandledChanges.clear();
             this.pendingUpdateTasks.clear();
             this.snapshotCache.clear();

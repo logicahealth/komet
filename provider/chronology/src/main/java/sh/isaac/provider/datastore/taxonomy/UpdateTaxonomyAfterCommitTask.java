@@ -46,6 +46,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 
 //~--- classes ----------------------------------------------------------------
@@ -86,25 +87,25 @@ public class UpdateTaxonomyAfterCommitTask
     /**
      * The lock.
      */
-    Semaphore permit;
+    TaskCountManager taskCountManager;
 
     //~--- constructors --------------------------------------------------------
     /**
      * Instantiates a new update taxonomy after commit task.
      *
-     * @param taxonomyService the taxonomy service
+     * @param taxonomyProvider the taxonomy service
      * @param commitRecord the commit record
      * @param semanticNidsForUnhandledChanges the semantic sequences for unhandled
      * changes
-     * @param permit the lock
+     * @param taskCountManager the lock
      */
     private UpdateTaxonomyAfterCommitTask(TaxonomyProvider taxonomyProvider,
             CommitRecord commitRecord,
             ConcurrentSkipListSet<Integer> semanticNidsForUnhandledChanges,
-            Semaphore permit) {
+            TaskCountManager taskCountManager) {
         this.commitRecord = commitRecord;
         this.semanticNidsForUnhandledChanges = semanticNidsForUnhandledChanges;
-        this.permit = permit;
+        this.taskCountManager = taskCountManager;
         this.taxonomyProvider = taxonomyProvider;
         this.totalWork.set(semanticNidsForUnhandledChanges.size());
         this.updateTitle("Update taxonomy after commit");
@@ -124,8 +125,7 @@ public class UpdateTaxonomyAfterCommitTask
 
         try {
             final AtomicBoolean atLeastOneFailed = new AtomicBoolean(false);
-            final int WRITE_PERMITS = Runtime.getRuntime().availableProcessors() * 2;
-            Semaphore updateTaxonomySemaphore = new Semaphore(WRITE_PERMITS);
+            TaskCountManager taskCountManager = Get.taskCountManager();
 
             this.semanticNidsForUnhandledChanges.stream().parallel().forEach((semanticNid) -> {
                 if (TestConcept.WATCH_NID_SET.contains(semanticNid)) {
@@ -138,7 +138,7 @@ public class UpdateTaxonomyAfterCommitTask
                     if (this.commitRecord.getSemanticNidsInCommit()
                             .contains(semanticNid)) {
                         this.updateMessage("Updating taxonomy for: " + semanticNid);
-                        updateTaxonomySemaphore.acquire();
+                        taskCountManager.acquire();
                         Get.executor().execute(() -> {
                             try {
                                 this.taxonomyProvider.updateTaxonomy((SemanticChronology) Get.assemblageService()
@@ -147,7 +147,7 @@ public class UpdateTaxonomyAfterCommitTask
                                 LOG.error(t);
                                 throw t;
                             } finally {
-                                updateTaxonomySemaphore.release();
+                                taskCountManager.release();
                             }
 
                         });
@@ -164,12 +164,12 @@ public class UpdateTaxonomyAfterCommitTask
                 throw new RuntimeException("There were errors during taxonomy update after commit");
             }
             updateMessage("Waiting for update taxonomy completion...");
-            updateTaxonomySemaphore.acquireUninterruptibly(WRITE_PERMITS);
+            taskCountManager.waitForCompletion();
 
             this.updateMessage("complete");
             return null;
         } finally {
-            this.permit.release();
+            this.taskCountManager.release();
             Get.activeTasks()
                     .remove(this);
             this.taxonomyProvider.getPendingUpdateTasks().remove(this);
@@ -183,7 +183,7 @@ public class UpdateTaxonomyAfterCommitTask
      * @param taxonomyService the service to update
      * @param commitRecord the commitRecord to process
      * @param unhandledChanges the changes to look for
-     * @param permit permit for the update
+     * @param taskCountManager permit for the update
      * @return a task, submitted to an executor, and added to the active task
      * set.
      *
@@ -191,11 +191,11 @@ public class UpdateTaxonomyAfterCommitTask
     public static UpdateTaxonomyAfterCommitTask get(TaxonomyProvider taxonomyService,
             CommitRecord commitRecord,
             ConcurrentSkipListSet<Integer> unhandledChanges,
-            Semaphore permit) {
+            TaskCountManager taskCountManager) {
         final UpdateTaxonomyAfterCommitTask task = new UpdateTaxonomyAfterCommitTask(taxonomyService,
                 commitRecord,
                 unhandledChanges,
-                permit);
+                taskCountManager);
         Get.activeTasks().add(task);
         taxonomyService.getPendingUpdateTasks().add(task);
         Get.workExecutors()

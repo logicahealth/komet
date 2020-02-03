@@ -95,6 +95,7 @@ public class DirectImporter
         extends TimedTaskWithProgressTracker<Void>
         implements PersistTaskResult {
 
+    // TODO consider replacing readSemaphore with TaskCountManager
     private static final int WRITE_PERMITS = Runtime.getRuntime()
             .availableProcessors() * 2;
 

@@ -38,6 +38,7 @@ public class RF2DirectExporter extends TimedTaskWithProgressTracker<Void> implem
     private final String exportMessage;
     private final LocalDateTime localDateTimeNow;
     private List<RF2Configuration> exportConfigurations;
+    // TODO consider replacing readSemaphore with TaskCountManager
     private static final int READ_PERMITS = Runtime.getRuntime().availableProcessors() * 2;
     private final Semaphore readSemaphore = new Semaphore(READ_PERMITS);
     private final RF2ExportHelper rf2ExportHelper;

@@ -6,6 +6,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.progress.PersistTaskResult;
+import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.solor.direct.DirectImporter;
@@ -27,16 +28,12 @@ import java.util.zip.ZipFile;
 public class RxNormDirectImporter extends TimedTaskWithProgressTracker<Void>
         implements PersistTaskResult {
 
-    private static final int WRITE_PERMITS = Runtime.getRuntime()
-            .availableProcessors() * 2;
 
     public static HashSet<String> watchTokens = new HashSet<>();
 
     public boolean foundRxNorm = false;
 
     //~--- fields --------------------------------------------------------------
-    protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
-
     private final Transaction transaction;
 
     public RxNormDirectImporter(Transaction transaction) {

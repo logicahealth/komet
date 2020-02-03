@@ -53,6 +53,7 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
     
     private boolean foundLoinc = false;
     private ArrayList<ContentProvider> contentProviders = new ArrayList<>();
+    // TODO consider replacing readSemaphore with TaskCountManager
     private final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
 
     private final Transaction transaction;

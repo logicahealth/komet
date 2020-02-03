@@ -102,6 +102,7 @@ import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.api.query.QueryHandler;
+import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.WorkExecutors;
 
@@ -1016,6 +1017,11 @@ public class Get
       return conceptDescriptionText(Get.nidForUuids(conceptUuid));
    }
 
+   /**
+    * Provides a standard size for concurrent additions to queues for multi-threaded tasks. The size prevents
+    * the queues from being overwhelmed, but also is large enough to keep the CPU occupied.
+    * @return Runtime.getRuntime().availableProcessors() * 2
+    */
    public static int permitCount() {
       return Runtime.getRuntime().availableProcessors() * 2;
    }
@@ -1025,8 +1031,8 @@ public class Get
     * Search for usages for examples. Semaphore count is from the permitCount() method on this class.
     * @return a Semaphore for governing task execution.
     */
-   public static Semaphore taskSemaphore() {
-      return new Semaphore(permitCount());
+   public static TaskCountManager taskCountManager() {
+      return new TaskCountManager(permitCount());
    }
 }
 

@@ -40,6 +40,7 @@ import sh.isaac.model.collections.store.ByteArrayArrayStore;
  */
 public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
 
+    // TODO Consider replacement with TaskCountManager
     private static final int SEMAPHORE_COUNT = Runtime.getRuntime().availableProcessors() * 2;
     private final Semaphore readWriteSemaphore = new Semaphore(SEMAPHORE_COUNT);
 

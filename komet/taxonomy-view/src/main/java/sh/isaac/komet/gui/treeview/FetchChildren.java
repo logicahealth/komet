@@ -16,15 +16,14 @@
  */
 package sh.isaac.komet.gui.treeview;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.TreeSet;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.TaxonomySnapshot;
@@ -83,10 +82,9 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 Collection<TaxonomyLink>  children = taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
                 addToTotalWork(children.size() + 1);
 
-                Semaphore taskSemaphore = Get.taskSemaphore();
-                int maxTaskCount = taskSemaphore.availablePermits();
+                TaskCountManager taskCountManager = Get.taskCountManager();
                 for (TaxonomyLink childLink : children) {
-                    taskSemaphore.acquire();
+                    taskCountManager.acquire();
                     Get.executor().execute(() -> {
                         try {
                             ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
@@ -104,14 +102,14 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                                                 + treeItemImpl.getConceptUuid());
                             }
                         } finally {
-                            taskSemaphore.release();
+                            taskCountManager.release();
                         }
                     });
 
                     completedUnitOfWork();
                     if (isCancelled()) return null;
                 }
-                taskSemaphore.acquire(maxTaskCount);
+                taskCountManager.waitForCompletion();
                 if (isCancelled()) return null;
                 Platform.runLater(() -> {
                     treeItemImpl.setExpanded(false);

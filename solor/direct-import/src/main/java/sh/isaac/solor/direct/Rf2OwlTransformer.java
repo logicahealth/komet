@@ -18,6 +18,7 @@ import java.util.concurrent.Semaphore;
 public class Rf2OwlTransformer extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
 
     private static final int WRITE_PERMITS = Runtime.getRuntime().availableProcessors() * 2;
+    // TODO consider replacing readSemaphore with TaskCountManager
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
     final int transformSize = 10240;
     final IdentifierService identifierService = ModelGet.identifierService();
