@@ -39,14 +39,12 @@ package sh.isaac.model.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.function.IntFunction;
 
 import org.apache.mahout.math.list.IntArrayList;
-import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.Status;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -110,6 +108,219 @@ public class TaxonomyRecordPrimitive {
     */
    public void addConceptNidStampRecord(int[] conceptNidStampRecord) {
       conceptNidStampRecord[0] = conceptNidStampRecord[0] + (conceptNidStampRecord.length << 24);
+   }
+
+   /**
+    * The even indexes are the nids... 0, 2, 4, ...
+    * The odd indexes are the position within the array... 1, 3, 5, ...
+    * @return
+    */
+   public static int[][] getDestinationNidPositionArray(int[] data) {
+      int index = 0;
+      IntArrayList destNidList = new IntArrayList();
+      IntArrayList positionList = new IntArrayList();
+      IntArrayList lengthList = new IntArrayList();
+      while (index < data.length) {
+         // the destination nid
+         destNidList.add(data[index]);
+         // the position in the array
+         positionList.add(index);
+         index++;
+         final int length = data[index];
+         lengthList.add(length);
+         //final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(recordArray, index);
+         //this.conceptNidRecordMap.put(conceptNid, records);
+
+         index += length;
+         if (index < 0) {
+            throw new IllegalStateException("Index: " + index);
+         }
+      }
+      destNidList.trimToSize();
+      positionList.trimToSize();
+      lengthList.trimToSize();
+      int[][] results = new int[3][];
+      results[0] = destNidList.elements();
+      results[1] = positionList.elements();
+      results[2] = lengthList.elements();
+      return results;
+   }
+
+   public static int[] merge(int[] thisArray, int[] thatArray) {
+      int[][] thisDnpa = getDestinationNidPositionArray(thisArray);
+      int[][] thatDnpa = getDestinationNidPositionArray(thatArray);
+      IntArrayList solution = new IntArrayList(thisDnpa.length + thatDnpa.length);
+
+      // find differences
+      int thisIndex = 0;
+      int thatIndex = 0;
+      while (true) {
+         if (thisDnpa[0][thisIndex] == thatDnpa[0][thatIndex]) {
+            // Nids are the same... Is the length the same?
+            int thisStart = thisDnpa[1][thisIndex];
+            int thisEnd = thisStart +  thisDnpa[2][thisIndex] + 1;
+            int thatStart = thatDnpa[1][thatIndex];
+            int thatEnd = thatStart +  thatDnpa[2][thatIndex] + 1;
+            if (thisDnpa[2][thisIndex] == thatDnpa[2][thatIndex]) {
+               // the length is the same, is the content the same?
+
+               if (Arrays.compare(thisArray, thisStart, thisEnd, thatArray, thatStart, thatEnd) == 0) {
+                  // Copy the content to the solution.
+                  for (int i = thisStart; i < thisEnd; i++) {
+                     solution.add(thisArray[i]);
+                  }
+               } else {
+                  // content is not the same... Must merge the two arrays.
+                  // add the nid
+                  solution.add(thisArray[thisStart]);
+                  // the + 2 is to skip the nid and length ints.
+                  solution.addAllOf(lengthAndMergedArrays(thisArray, thisStart + 2, thisEnd, thatArray, thatStart + 2, thatEnd));
+               }
+            } else {
+               // length is not the same... Must merge the two arrays.
+               // add the nid
+               solution.add(thisArray[thisStart]);
+               // the + 2 is to skip the nid and length ints.
+               solution.addAllOf(lengthAndMergedArrays(thisArray, thisStart + 2, thisEnd, thatArray, thatStart + 2, thatEnd));
+            }
+            thisIndex++;
+            thatIndex++;
+         } else {
+            // nids are not the same... Copy data from one array or the other...
+            // since nids are sorted, copy the data from the array with the smaller nid
+            // and increment the counter from the array with the smaller nid.
+            if (thisDnpa[0][thisIndex] < thatDnpa[0][thatIndex]) {
+               int thisStart = thisDnpa[1][thisIndex];
+               int thisEnd = thisStart +  thisDnpa[2][thisIndex] + 1;
+               for (int i = thisStart; i < thisEnd; i++) {
+                  solution.add(thisArray[i]);
+               }
+               thisIndex++;
+            } else {
+               int thatStart = thatDnpa[1][thatIndex];
+               int thatEnd = thatStart +  thatDnpa[2][thatIndex] + 1;
+               for (int i = thatStart; i < thatEnd; i++) {
+                  solution.add(thatArray[i]);
+               }
+               thatIndex++;
+            }
+         }
+         if (thisIndex == thisDnpa[0].length) {
+            // this is done, copy remaining that if any...
+            while (thatIndex < thatDnpa[0].length) {
+               int thatStart = thatDnpa[1][thatIndex];
+               int thatEnd = thatStart +  thatDnpa[2][thatIndex] + 1;
+               for (int i = thatStart; i < thatEnd; i++) {
+                  solution.add(thatArray[i]);
+               }
+               thatIndex++;
+            }
+
+            break;
+         }
+         if (thatIndex == thatDnpa[0].length) {
+            // that is done, copy remaining this if any
+            while (thisIndex < thisDnpa[0].length) {
+               int thisStart = thisDnpa[1][thisIndex];
+               int thisEnd = thisStart +  thisDnpa[2][thisIndex] + 1;
+               for (int i = thisStart; i < thisEnd; i++) {
+                  solution.add(thisArray[i]);
+               }
+               thisIndex++;
+            }
+            break;
+         }
+      }
+      solution.trimToSize();
+      return solution.elements();
+   }
+
+   /**
+    *
+    * @param array1
+    * @param array1Start
+    * @param array1End
+    * @param array2
+    * @param array2Start
+    * @param array2End
+    * @return merged array, with int[0] being the length of the merged array.
+    */
+   private static IntArrayList lengthAndMergedArrays(int[] array1, int array1Start, int array1End, int[] array2, int array2Start, int array2End) {
+      // records fixed three integer sequence: int typeNid, int stampSequence, int taxonomyFlags
+      IntArrayList solution = new IntArrayList((array1End - array1Start) + (array2End - array2Start) + 1);
+      solution.add(-1); // reserve space for length.
+      int array1Index = array1Start;
+      int array2Index = array2Start;
+      while (true) {
+         if (array1[array1Index] == array2[array2Index]) {
+            // typeNid is the same... Is the stampSequence the same?
+            if (array1[array1Index + 1] == array2[array2Index + 1]) {
+               // stampSequences are the same... Are the taxonomyFlags the same?
+               if (array1[array1Index + 2] == array2[array2Index + 2]) {
+                  // taxonomyFlags are the same
+                  solution.add(array1[array1Index]);
+                  solution.add(array1[array1Index + 1]);
+                  solution.add(array1[array1Index + 2]);
+                  array1Index += 3;
+                  array2Index += 3;
+               } else {
+                  solution.add(array1[array1Index]);
+                  solution.add(array1[array1Index + 1]);
+                  solution.add(array1[array1Index + 2] | array2[array2Index + 2]);
+                  array1Index += 3;
+                  array2Index += 3;
+               }
+            } else {
+               // stampSequences are not the same
+               if (array1[array1Index + 1] < array2[array2Index + 1]) {
+                  solution.add(array1[array1Index]);
+                  solution.add(array1[array1Index + 1]);
+                  solution.add(array1[array1Index + 2]);
+                  array1Index += 3;
+               } else {
+                  solution.add(array2[array2Index]);
+                  solution.add(array2[array2Index + 1]);
+                  solution.add(array2[array2Index + 2]);
+                  array2Index += 3;
+               }
+            }
+         } else {
+            // typeNids are not the same...
+            if (array1[array1Index] < array2[array2Index]) {
+               solution.add(array1[array1Index]);
+               solution.add(array1[array1Index + 1]);
+               solution.add(array1[array1Index + 2]);
+               array1Index += 3;
+            } else {
+               solution.add(array2[array2Index]);
+               solution.add(array2[array2Index + 1]);
+               solution.add(array2[array2Index + 2]);
+               array2Index += 3;
+            }
+         }
+         if (array1Index == array1End) {
+            // need to finish here
+            while (array2Index < array2End) {
+               solution.add(array2[array2Index]);
+               solution.add(array2[array2Index + 1]);
+               solution.add(array2[array2Index + 2]);
+               array2Index += 3;
+            }
+            break;
+         }
+         if (array2Index == array2End) {
+            // need to finish here
+            while (array1Index < array1End) {
+               solution.add(array1[array1Index]);
+               solution.add(array1[array1Index + 1]);
+               solution.add(array1[array1Index + 2]);
+               array1Index += 3;
+            }
+            break;
+         }
+      }
+      solution.set(0, solution.size());
+      return solution;
    }
 
    /**

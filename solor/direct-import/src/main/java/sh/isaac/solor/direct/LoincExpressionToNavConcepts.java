@@ -43,6 +43,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.  logic.LogicalExpressionBuilder;
+import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT3Generator;
@@ -85,6 +86,8 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
     private final NidSet systems = new NidSet();
     private final ManifoldCoordinate manifold;
     private final Transaction transaction;
+
+    private final TaskCountManager taskCountManager = Get.taskCountManager();
 
     public LoincExpressionToNavConcepts(Transaction transaction, ManifoldCoordinate manifold) {
         this.transaction = transaction;
@@ -644,6 +647,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
                     addObservesComponent(transaction, componentNid, builderService, stamp);
                 }
             }
+            taskCountManager.waitForCompletion();
             return null;
         } finally {
             Get.activeTasks().remove(this);
@@ -651,79 +655,133 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
     }
 
     private void addObservedByMethod(Transaction transaction, int methodNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
-        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                        eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
+        try {
+            taskCountManager.acquire();
+            Get.executor().execute(() -> {
+                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
 
-        StringBuilder conceptNameBuilder = new StringBuilder();
-        conceptNameBuilder.append("Phenomenon observed by ");
-        conceptNameBuilder.append(manifold.getPreferredDescriptionText(methodNid));
-        buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                StringBuilder conceptNameBuilder = new StringBuilder();
+                conceptNameBuilder.append("Phenomenon observed by ");
+                conceptNameBuilder.append(manifold.getPreferredDescriptionText(methodNid));
+                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+            });
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+        } finally {
+            taskCountManager.release();
+        }
     }
 
     private void addObservedByMethod(Transaction transaction, String conceptName, int methodNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
-        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                        eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
+        try {
+            taskCountManager.acquire();
+            Get.executor().execute(() -> {
+                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
 
-        StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
-        buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
+                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+            });
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+        } finally {
+            taskCountManager.release();
+        }
     }
     private void addObservesComponent(Transaction transaction, String conceptName, int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
-        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                        eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
+        try {
+            taskCountManager.acquire();
+            Get.executor().execute(() -> {
+                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
 
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                        eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
+                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
 
 
-        StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
-        buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
+                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+            });
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+        } finally {
+            taskCountManager.release();
+        }
     }
 
 
     private void addObservesComponent(Transaction transaction, int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
-        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                        eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
-        
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                        eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
-        
-        
-        StringBuilder conceptNameBuilder = new StringBuilder();
-        conceptNameBuilder.append(manifold.getPreferredDescriptionText(componentNid));
-        conceptNameBuilder.append(" phenomenon");
-        buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+        try {
+            taskCountManager.acquire();
+            Get.executor().execute(() -> {
+                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
+
+                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
+
+
+                StringBuilder conceptNameBuilder = new StringBuilder();
+                conceptNameBuilder.append(manifold.getPreferredDescriptionText(componentNid));
+                conceptNameBuilder.append(" phenomenon");
+                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+            });
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+        } finally {
+            taskCountManager.release();
+        }
     }
 
     private void addInheresInConcept(Transaction transaction, int inheresInNid, ConceptBuilderService builderService, int stamp) throws IllegalStateException, NoSuchElementException {
-        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                        eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
-        
-        StringBuilder conceptNameBuilder = new StringBuilder();
-        conceptNameBuilder.append("Inheres in ");
-        conceptNameBuilder.append(manifold.getPreferredDescriptionText(inheresInNid));
-        conceptNameBuilder.append(" phenomenon");
-        buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+        try {
+            taskCountManager.acquire();
+            Get.executor().execute(() -> {
+                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
+
+                StringBuilder conceptNameBuilder = new StringBuilder();
+                conceptNameBuilder.append("Inheres in ");
+                conceptNameBuilder.append(manifold.getPreferredDescriptionText(inheresInNid));
+                conceptNameBuilder.append(" phenomenon");
+                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+            });
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+        } finally {
+            taskCountManager.release();
+        }
     }
     private void addInheresInConcept(Transaction transaction, String conceptName, int inheresInNid, ConceptBuilderService builderService, int stamp) throws IllegalStateException, NoSuchElementException {
-        LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-        eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                        eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
+        try {
+            taskCountManager.acquire();
+            Get.executor().execute(() -> {
+                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
 
-        StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
-        buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
+                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+            });
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+        } finally {
+            taskCountManager.release();
+        }
     }
 
 

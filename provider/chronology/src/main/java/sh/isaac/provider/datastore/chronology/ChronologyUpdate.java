@@ -76,6 +76,7 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.taxonomy.TaxonomyFlag;
 import sh.isaac.model.taxonomy.TaxonomyRecord;
+import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.model.taxonomy.TypeStampTaxonomyRecords;
 import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 
@@ -201,16 +202,29 @@ public class ChronologyUpdate implements StaticIsaacCache {
     }
 
     private static int[] merge(int[] existing, int[] update) {
+        if (existing == null || existing.length == 0) {
+            return update;
+        }
         if (update == null || update.length == 0) {
             return existing;
         }
-        if (existing == null) {
-            existing = new int[0];
-        }
-        TaxonomyRecord existingRec = new TaxonomyRecord(existing);
-        TaxonomyRecord updateRec = new TaxonomyRecord(update);
-        existingRec.merge(updateRec);
-        return existingRec.pack();
+        //TaxonomyRecord existingRec = new TaxonomyRecord(existing);
+        //TaxonomyRecord updateRec = new TaxonomyRecord(update);
+        //existingRec.merge(updateRec);
+        //int[] oldMethod = existingRec.pack();
+        int[] newMethod = TaxonomyRecordPrimitive.merge(existing, update);
+
+//        if (!Arrays.equals(oldMethod, newMethod)) {
+//            StringBuilder builder = new StringBuilder("ERROR! Merge gives different results: \n");
+//            builder.append("existing: ").append(Arrays.toString(existing)).append("\n");
+//            builder.append("update: ").append(Arrays.toString(update)).append("\n");
+//            builder.append("oldMethod: ").append(Arrays.toString(oldMethod)).append("\n");
+//            builder.append("newMethod: ").append(Arrays.toString(newMethod)).append("\n");
+//            builder.append("mergedRec: ").append(existingRec.toString()).append("\n");
+//            System.out.println(builder.toString());
+//            newMethod = TaxonomyRecordPrimitive.merge(existing, update);
+//        }
+        return newMethod;
     }
 
     /**
