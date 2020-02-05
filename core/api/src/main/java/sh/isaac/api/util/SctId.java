@@ -38,6 +38,7 @@
 
 package sh.isaac.api.util;
 
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -133,7 +134,8 @@ public class SctId {
 	{
 		CONCEPT("00"), DESCRIPTION("01"), RELATIONSHIP("02"), 
 		CONCEPT_LF("10"), DESCRIPTION_LF("11"), RELATIONSHIP_LF("12"),
-		//Old RF1 stuff
+		
+		//Old RF1 stuff, not likely to be used...
 		SUBSET("03"), CROSS_MAP_SET("04"), CROSS_MAP_TARGET("05"),
 		SUBSET_LF("13"), CROSS_MAP_SET_LF("14"), CROSS_MAP_TARGET_LF("15");
 
@@ -176,6 +178,48 @@ public class SctId {
 			throw new RuntimeException("Invalid Partition ID");
 		}
 	}
+	
+	private long itemId;
+	private Optional<String> namespace;
+	private TYPE type;
+	
+	public SctId(String sctid)
+	{
+		if (!isValidSctId(sctid))
+		{
+			throw new IllegalArgumentException("Invalid SCTID string");
+		}
+		type = TYPE.parse(sctid.substring(sctid.length() - 3, sctid.length() - 1));
+		
+		if (type.isLongForm())
+		{
+			namespace = Optional.of(sctid.substring(sctid.length() - 10, sctid.length() - 3));
+		}
+		else
+		{
+			namespace = Optional.empty();
+		}
+		
+		itemId = Long.valueOf(sctid.substring(0, (sctid.length() - (namespace.isEmpty() ? 3 : 10))));
+	}
+	
+
+	public long getItemId()
+	{
+		return itemId;
+	}
+
+	public Optional<String> getNamespace()
+	{
+		return namespace;
+	}
+
+	public TYPE getType()
+	{
+		return type;
+	}
+
+
 
 	/**
 	 * see {@link #isValidSctId(String)}.

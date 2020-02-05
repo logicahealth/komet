@@ -63,6 +63,30 @@ public class SctIdTests
 	}
 	
 	@Test
+	public void constructTests() throws Exception
+	{
+		//valid SCTIDs from https://confluence.ihtsdotools.org/display/DOCRELFMT/6.8+Example+SNOMED+CT+identifiers
+		long[] results = new long[] {100005,100014, 100022, 1290023401004l, 1290023401015l, 9940000001029l,
+				11000001102l, 10989121108l, 1290989121103l, 1290000001117l, 9940000001126l, 999999990989121104l};
+		
+		TYPE[] inputTypes = new TYPE[] {TYPE.CONCEPT, TYPE.DESCRIPTION, TYPE.RELATIONSHIP, TYPE.CONCEPT, TYPE.DESCRIPTION, TYPE.RELATIONSHIP,
+				TYPE.CONCEPT_LF, TYPE.CONCEPT_LF, TYPE.CONCEPT_LF, TYPE.DESCRIPTION_LF, TYPE.RELATIONSHIP_LF, TYPE.CONCEPT_LF};
+		long[] inputIDs = new long[] {100, 100, 100, 1290023401l, 1290023401l, 9940000001l,
+				1, 1, 129, 129, 994, 99999999};
+		String[] inputNamespaces = new String[] {"", "", "", "", "", "",
+				"1000001", "0989121", "0989121", "0000001", "0000001", "0989121"};
+		
+		for (int i = 0; i < results.length; i++)
+		{
+			SctId id = new SctId(results[i] + "");
+			Assert.assertEquals(inputTypes[i], id.getType());
+			Assert.assertEquals((long)inputIDs[i], id.getItemId());
+			Assert.assertEquals(inputNamespaces[i], id.getNamespace().orElseGet(() -> ""));
+		}
+	}
+
+	
+	@Test
 	public void genTests() throws Exception
 	{
 		//valid SCTIDs from https://confluence.ihtsdotools.org/display/DOCRELFMT/6.8+Example+SNOMED+CT+identifiers
