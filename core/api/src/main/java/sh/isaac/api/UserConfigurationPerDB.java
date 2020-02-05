@@ -24,6 +24,13 @@ import org.jvnet.hk2.annotations.Contract;
  * so any changes made persist and move along with the database, if the database folder
  * is copied or moved to a new location.
  * 
+ * It is currently not required by this interface, that implementations persist DB specific 
+ * items into the GIT changeset store so they can be recovered, users of this API should assume
+ * that data stored here is lost, if the DB is rebuilt from changesets.  
+ * 
+ * One should assume that the implementation of this does NOT persist data to git, unless it 
+ * specifically documents that it does...
+ * 
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
 @Contract

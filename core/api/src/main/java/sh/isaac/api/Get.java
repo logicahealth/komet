@@ -97,6 +97,7 @@ import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.progress.CompletedTasks;
@@ -254,6 +255,15 @@ public class Get
        return getService(QueryHandler.class);
    }
    
+   /**
+    * @return The {@link PreferencesService} provider, which is pref store based on the java preferences API, which provides access 
+    * to the {@link IsaacPreferences} which allows storage of arbitrary data.  
+    * 
+    * This is primarily used by the Komet FX gui, and unless you know you specifically want this service, you will likely be much better
+    * served by using the {@link #configurationService()} API to get access to the {@link UserConfiguration} for storage of non-terminology 
+    * data, as it provides typed access to API specific parameters, and automatically handles passthru of different store types  - 
+    * userConfigPerDB -> user Config per OS -> Global config per DB
+    */
    public static PreferencesService preferencesService() {
       if (preferencesService == null) {
          preferencesService = getService(PreferencesService.class);
@@ -537,7 +547,10 @@ public class Get
 
    
    /**
-    * Configuration service.
+    * Get a reference to the {@link ConfigurationService} which also provides access to the {@link UserConfiguration}
+    * 
+    * These interfaces provide access to the global system configuration, and allow the reading and persisting of user and 
+    * database specific options.
     *
     * @return the configuration service
     */
@@ -707,9 +720,8 @@ public class Get
    }
 
    /**
-    * Meta content service.
-    *
-    * @return the meta content service
+    * @return the implementation of the {@link MetaContentService} (if available) which allows for the storing of arbitrary data 
+    * that resides along-side the terminology data.
     */
    public static MetaContentService metaContentService() {
       if (metaContentService == null) {
@@ -864,6 +876,9 @@ public class Get
       return getServices(clazz);
    }
    
+   /**
+    * @return The service that manages the importation of terminology metadata content into the database
+    */
    public static MetadataService metadataService() {
       return service(MetadataService.class);
    }

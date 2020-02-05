@@ -343,7 +343,7 @@ public class UserConfigurationPerOSProvider implements UserConfigurationPerOSUse
 			OptionalInt oi = dataStore.getInt("customI:" + custom);
 			if (oi.isPresent())
 			{
-				return (T) new Integer(oi.getAsInt());
+				return (T) Integer.valueOf(oi.getAsInt());
 			}
 			else
 			{
