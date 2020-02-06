@@ -31,7 +31,6 @@
  */
 package sh.isaac.api.qa;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -40,7 +39,7 @@ public class QAInfo
 	private Severity severity;
 	private int component;
 	private String message;
-	private String failureContext = null;
+	private String failureContext;
 
 	/**
 	 * Used to specify a QA failure
@@ -88,8 +87,8 @@ public class QAInfo
 		return message;
 	}
 
-	public Optional<String> getFailureContext()
+	public String getFailureContext()
 	{
-		return Optional.ofNullable(failureContext);
+		return failureContext;
 	}
 }
