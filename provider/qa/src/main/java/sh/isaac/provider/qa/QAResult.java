@@ -74,6 +74,10 @@ public class QAResult implements Comparable<QAResult>
 		//For jaxb
 	}
 	
+	//TODO after we merge upstream with Keith, need to store the ManifoldCoordinate here as well, waiting till 
+	//after ther merge, because the current coordinate structure has no serialization support, and I don't want 
+	// to implement it, or try to port it.  His branch has an API that will write it to a byte[], which we can hatchet 
+	//job into our json serialization here, as part of the QAResult.
 	public QAResult(UUID qaId)
 	{
 		this.qaId = qaId;
