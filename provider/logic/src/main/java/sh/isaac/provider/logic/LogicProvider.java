@@ -36,7 +36,6 @@
  */
 package sh.isaac.provider.logic;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,18 +43,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javafx.concurrent.Task;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
-
+import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -66,12 +60,13 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.model.coordinate.EditCoordinateImpl;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
-//~--- classes ----------------------------------------------------------------
+
 /**
  * The Class LogicProvider.
  *
@@ -82,21 +77,13 @@ import sh.isaac.api.component.semantic.SemanticSnapshotService;
 public class LogicProvider
         implements LogicService {
 
-   /**
-    * The Constant LOG.
-    */
+
    private static final Logger LOG = LogManager.getLogger();
 
-   /**
-    * The Constant classifierServiceMap.
-    */
    private static final Map<ClassifierServiceKey, ClassifierService> classifierServiceMap = new ConcurrentHashMap<>();
 
    private final Set<Task<?>> pendingLogicTasks = ConcurrentHashMap.newKeySet();
-   //~--- constructors --------------------------------------------------------
-   /**
-    * Instantiates a new logic provider.
-    */
+
    private LogicProvider() {
       // For HK2
       LOG.info("logic provider constructed");
@@ -105,8 +92,6 @@ public class LogicProvider
     public Set<Task<?>> getPendingLogicTasks() {
         return pendingLogicTasks;
     }
-
-   //~--- methods -------------------------------------------------------------
    /**
     * Start me.
     */
@@ -138,8 +123,9 @@ public class LogicProvider
 
 
    /**
-    * See {@ LogicService#getClassifierService(StampCoordinate, LogicCoordinate, EditCoordinate)}
+    * See {@link LogicService#getClassifierService(StampCoordinate, LogicCoordinate, EditCoordinate)}
     * This implementation overrides the provided StampCoordinate time with NOW, if it is passed in with latest.
+    * This implementation overrides the provided EditCoordinate author with the IHTSDO_CLASSIFIER concept.
     */
    @Override
    public ClassifierService getClassifierService(final StampCoordinate stampCoordinate,
@@ -153,11 +139,20 @@ public class LogicProvider
       else {
          sc = stampCoordinate;
       }
-      final ClassifierServiceKey key = new ClassifierServiceKey(sc, logicCoordinate, editCoordinate);
+      
+      EditCoordinate ec;
+      if (editCoordinate.getAuthorNid() != MetaData.IHTSDO_CLASSIFIER____SOLOR.getNid()){
+         ec = new EditCoordinateImpl(MetaData.IHTSDO_CLASSIFIER____SOLOR.getNid(), editCoordinate.getModuleNid(), editCoordinate.getPathNid());
+      }
+      else {
+         ec = editCoordinate;
+      }
+      
+      final ClassifierServiceKey key = new ClassifierServiceKey(sc, logicCoordinate, ec);
 
       if (!classifierServiceMap.containsKey(key)) {
          classifierServiceMap.putIfAbsent(key,
-                 new ClassifierProvider(sc, logicCoordinate, editCoordinate));
+                 new ClassifierProvider(sc, logicCoordinate, ec));
       }
 
       return classifierServiceMap.get(key);
@@ -216,28 +211,15 @@ public class LogicProvider
       return latestExpressions.get(0);
    }
 
-   //~--- inner classes -------------------------------------------------------
    /**
     * The Class ClassifierServiceKey.
     */
    private static class ClassifierServiceKey {
 
-      /**
-       * The stamp coordinate.
-       */
       StampCoordinate stampCoordinate;
-
-      /**
-       * The logic coordinate.
-       */
       LogicCoordinate logicCoordinate;
-
-      /**
-       * The edit coordinate.
-       */
       EditCoordinate editCoordinate;
 
-      //~--- constructors -----------------------------------------------------
       /**
        * Instantiates a new classifier service key.
        *
@@ -253,7 +235,6 @@ public class LogicProvider
          this.editCoordinate = editCoordinate;
       }
 
-      //~--- methods ----------------------------------------------------------
       /**
        * Equals.
        *
@@ -293,6 +274,8 @@ public class LogicProvider
          int hash = 3;
 
          hash = 59 * hash + Objects.hashCode(this.logicCoordinate);
+         hash = 59 * hash + Objects.hashCode(this.stampCoordinate);
+         hash = 59 * hash + Objects.hashCode(this.editCoordinate);
          return hash;
       }
    }

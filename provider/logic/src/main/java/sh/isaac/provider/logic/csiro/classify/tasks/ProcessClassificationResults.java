@@ -68,6 +68,9 @@ import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
@@ -75,7 +78,6 @@ import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.api.task.AggregateTaskInput;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 
 /**
@@ -91,15 +93,22 @@ public class ProcessClassificationResults
 
     int classificationDuplicateCount = -1;
     int classificationCountDuplicatesToNote = 10;
+    
+    private final StampCoordinate stampCoordinate;
+    private final LogicCoordinate logicCoordinate;
+    private final EditCoordinate editCoordinate;
 
     /**
      * Instantiates a new process classification results.
-     *
-     * @param stampCoordinate the stamp coordinate
-     * @param logicCoordinate the logic coordinate
+     * @param stampCoordinate 
+     * @param logicCoordinate 
+     * @param editCoordinate
      */
-    public ProcessClassificationResults() {
+    public ProcessClassificationResults(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate) {
         updateTitle("Retrieve inferred axioms");
+        this.stampCoordinate = stampCoordinate;
+        this.logicCoordinate = logicCoordinate;
+        this.editCoordinate = editCoordinate;
     }
     
     /**
@@ -182,7 +191,7 @@ public class ProcessClassificationResults
                 }
             }
         });
-        return new ClassifierResults(affectedConcepts,
+        return new ClassifierResults(stampCoordinate, logicCoordinate, affectedConcepts,
                 equivalentSets,
                 writeBackInferred(classifiedResult, affectedConcepts));
     }
@@ -333,9 +342,7 @@ public class ProcessClassificationResults
                                                 conceptNid,
                                                 this.inputData.getLogicCoordinate().getInferredAssemblageNid());
 
-                                // get classifier edit coordinate...
-                                builder.build(EditCoordinates.getClassifierSolorOverlay(),
-                                        ChangeCheckerMode.INACTIVE);
+                                builder.build(editCoordinate, ChangeCheckerMode.INACTIVE);
                                 
                                 if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
                                     LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
@@ -358,7 +365,7 @@ public class ProcessClassificationResults
                                         final MutableLogicGraphVersion newVersion
                                                 = ((SemanticChronology) inferredChronology).createMutableVersion(
                                                         sh.isaac.api.Status.ACTIVE,
-                                                        EditCoordinates.getClassifierSolorOverlay());
+                                                        editCoordinate);
 
                                         newVersion.setGraphData(
                                                 inferredExpression.getData(DataTarget.INTERNAL));
@@ -383,7 +390,7 @@ public class ProcessClassificationResults
         });
 
         final Task<Optional<CommitRecord>> commitTask = commitService.commit(
-                EditCoordinates.getClassifierSolorOverlay(), "classifier run");
+                editCoordinate, "classifier run");
 
         try {
             final Optional<CommitRecord> commitRecord = commitTask.get();

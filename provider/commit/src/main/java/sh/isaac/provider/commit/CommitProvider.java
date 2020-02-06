@@ -452,7 +452,7 @@ public class CommitProvider
     @Override
     public CommitTask commit(EditCoordinate editCoordinate, String commitComment) {
         // TODO, make this only commit those components with changes from the provided edit coordinate.
-        // Also do we need to lock around the CommitTask creation to makre sure the uncommitted lists are consistent during copy?
+        // Also do we need to lock around the CommitTask creation to make sure the uncommitted lists are consistent during copy?
         Semaphore pendingWrites = writePermitReference.getAndSet(new Semaphore(WRITE_POOL_SIZE));
         pendingWrites.acquireUninterruptibly(WRITE_POOL_SIZE);
 

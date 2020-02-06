@@ -39,21 +39,13 @@
 
 package sh.isaac.api.logic;
 
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
-
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface LogicService.
@@ -66,6 +58,7 @@ public interface LogicService {
     * Gets the classifier service.
     * 
     * Implementors should likely override the provided StampCoordinate time with NOW, if it is passed in with latest.
+    * Implementors may want to override the user of the provided edit coordinate with a implementation specific user.
     *
     * @param stampCoordinate the stamp coordinate
     * @param logicCoordinate the logic coordinate
@@ -92,6 +85,5 @@ public interface LogicService {
    LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
          int logicAssemblageId,
          StampCoordinate stampCoordinate);
-
 }
 

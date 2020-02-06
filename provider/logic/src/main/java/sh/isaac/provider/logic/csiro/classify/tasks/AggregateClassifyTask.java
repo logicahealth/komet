@@ -47,6 +47,7 @@ import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.classifier.ClassifierResults;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.memory.MemoryManagementService;
@@ -73,10 +74,12 @@ public class AggregateClassifyTask
     *
     * @param stampCoordinate the stamp coordinate
     * @param logicCoordinate the logic coordinate
+    * @param editCoodinate
     */
-   private AggregateClassifyTask(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, boolean cycleCheckFirst) {
+   private AggregateClassifyTask(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
       super("Classify",
-            new Task[] { new ExtractAxioms(stampCoordinate,logicCoordinate), new LoadAxioms(), new ClassifyAxioms(), new ProcessClassificationResults()});
+            new Task[] { new ExtractAxioms(stampCoordinate,logicCoordinate), new LoadAxioms(), new ClassifyAxioms(), 
+                   new ProcessClassificationResults(stampCoordinate, logicCoordinate, editCoordinate)});
       if (cycleCheckFirst) {
          cc = new CycleCheck(stampCoordinate, logicCoordinate);
       }
@@ -124,11 +127,12 @@ public class AggregateClassifyTask
      *
      * @param stampCoordinate the stamp coordinate
      * @param logicCoordinate the logic coordinate
+     * @param editCoordinate 
      * @param cycleCheckFirst true, to do a cycle check on the stated taxonomy prior to classify.  Will abort classify if a cycle is detected.
      * @return an {@code AggregateClassifyTask} already submitted to an executor.
      */
-    public static AggregateClassifyTask get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, boolean cycleCheckFirst) {
-        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate, cycleCheckFirst);
+    public static AggregateClassifyTask get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
+        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate, editCoordinate, cycleCheckFirst);
         //The execution of this classify operation may block, if another classification is already running.
         //Don't want to (potentially) lose all of the work executor slots to blocked classifications - so spawn a new thread here, if necessary, 
         //to wait.

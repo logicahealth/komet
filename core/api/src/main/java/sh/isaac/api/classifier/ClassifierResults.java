@@ -45,6 +45,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
 import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
 
 /**
  * The Class ClassifierResults.
@@ -67,17 +69,25 @@ public class ClassifierResults {
    private Optional<Map<Integer, Set<int[]>>> conceptsWithCycles = Optional.empty();
    
    private HashSet<Integer> orphanedConcepts = new HashSet<>();
+   
+   private final StampCoordinate stampCoordinate;
+   private final LogicCoordinate logicCoordinate;
 
    /**
     * Instantiates a new classifier results.
-    *
+    * @param stampCoordinate coord used for execution 
+    * @param logicCoordinate coord used for execution
     * @param affectedConcepts the affected concepts
     * @param equivalentSets the equivalent sets
     * @param commitRecord the commit record
     */
-   public ClassifierResults(Set<Integer> affectedConcepts,
+   public ClassifierResults(StampCoordinate stampCoordinate, 
+                            LogicCoordinate logicCoordinate, 
+                            Set<Integer> affectedConcepts,
                             Set<IntArrayList> equivalentSets,
                             Optional<CommitRecord> commitRecord) {
+      this.stampCoordinate = stampCoordinate;
+      this.logicCoordinate = logicCoordinate;
       this.affectedConcepts = affectedConcepts;
       this.equivalentSets   = equivalentSets;
       this.commitRecord     = commitRecord;
@@ -85,10 +95,17 @@ public class ClassifierResults {
    
    /**
     * This constructor is only intended to be used when a classification wasn't performed, because there were cycles present.
+    * @param stampCoordinate coord used for execution 
+    * @param logicCoordinate coord used for execution
     * @param conceptsWithCycles
     * @param orphans
     */
-   public ClassifierResults(Map<Integer, Set<int[]>> conceptsWithCycles, Set<Integer> orphans) {
+   public ClassifierResults(StampCoordinate stampCoordinate, 
+           LogicCoordinate logicCoordinate,
+           Map<Integer, Set<int[]>> conceptsWithCycles, 
+           Set<Integer> orphans) {
+      this.stampCoordinate = stampCoordinate;
+      this.logicCoordinate = logicCoordinate;
       this.affectedConcepts = new HashSet<>();
       this.equivalentSets   = new HashSet<>();
       this.commitRecord     = Optional.empty();
@@ -157,5 +174,13 @@ public class ClassifierResults {
     */
    public Set<Integer> getOrphans() {
       return orphanedConcepts;
+   }
+
+   public StampCoordinate getStampCoordinate() {
+      return stampCoordinate;
+   }
+   
+   public LogicCoordinate getLogicCoordinate() {
+      return logicCoordinate;
    }
 }

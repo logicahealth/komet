@@ -105,7 +105,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 			if (results.size() > 0)
 			{
 				log.info("Found {} concepts with cycles in their path to root", results.size());
-				return new ClassifierResults(results, orphans);
+				return new ClassifierResults(mc.getStampCoordinate(), mc.getLogicCoordinate(), results, orphans);
 			}
 			else
 			{
