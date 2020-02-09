@@ -240,7 +240,7 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         List<BusinessRulesResource> resources = new ArrayList<>();
 
         resources.add(new BusinessRulesResource(
-                "src/main/resources/rules/sh/isaac/provider/drools/" + preferencesNode.name() + ".drl",
+                "sh/isaac/provider/drools/" + preferencesNode.name() + ".drl",
                 getRuleBytes()));
 
         return resources.toArray(new BusinessRulesResource[resources.size()]);

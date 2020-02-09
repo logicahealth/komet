@@ -25,9 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.geometry.HPos;
@@ -43,9 +40,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import sh.isaac.api.Get;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.toggle.OnOffToggleSwitch;
 import sh.komet.gui.manifold.Manifold;
@@ -95,9 +89,15 @@ public class ConceptLabelToolbar {
          Rectangle rect = new Rectangle(16, 16, Color.TRANSPARENT);
          combinedGraphic.getChildren().addAll(linkBroken,rect);
       } else {
-         combinedGraphic.getChildren().addAll(
-              Iconography.LINK.getIconographic(), 
-         Manifold.getIconographic(manifoldGroup));
+         Optional<Node> optionalIcon = Manifold.getOptionalIconographic(manifoldGroup);
+         if (optionalIcon.isPresent()) {
+            combinedGraphic.getChildren().addAll(
+                    Iconography.LINK.getIconographic(),
+                    optionalIcon.get());
+         } else {
+            combinedGraphic.getChildren().addAll(
+                    Iconography.LINK.getIconographic());
+         }
       }
       return combinedGraphic;
    }

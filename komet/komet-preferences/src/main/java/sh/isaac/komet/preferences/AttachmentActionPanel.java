@@ -241,7 +241,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         List<BusinessRulesResource> resources = new ArrayList<>();
 
         resources.add(new BusinessRulesResource(
-                "src/main/resources/rules/sh/isaac/provider/drools/" + preferencesNode.name() + ".drl",
+                "sh/komet/rules/user" + preferencesNode.name() + ".drl",
                 getRuleBytes()));
 
         return resources.toArray(new BusinessRulesResource[resources.size()]);
@@ -249,7 +249,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
 
     private byte[] getRuleBytes() {
         StringBuilder b = new StringBuilder();
-        b.append("package sh.isaac.provider.drools;\n");
+        b.append("package sh.komet.rules.user;\n");
         b.append("import java.util.ArrayList;\n");
         b.append("import java.util.List;\n");
         b.append("import java.util.Map;\n");

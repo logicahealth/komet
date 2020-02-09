@@ -64,6 +64,7 @@ public class ConceptNode extends Label {
             controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
                     Status.PRIMORDIAL, manifold, premiseType));
         }
+        ;
 
         this.setGraphic(controlBox);
         setOnDragDetected(this::handleDragDetected);

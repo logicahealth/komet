@@ -1,4 +1,4 @@
-package sh.isaac.provider.drools;
+package sh.komet.rules;
 
 import java.util.ArrayList;
 import java.util.List;

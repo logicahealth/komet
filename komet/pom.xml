@@ -21,7 +21,8 @@
         <module>concept-detail</module>
         <module>progress-view</module>
         <module>assemblage-view</module>
-        <module>scripting</module>
+         <module>scripting</module>
+         <module>rules</module>
         <module>statement-view</module>
 <!--        <module>semantic-view</module>-->
         <module>countries-flags</module>

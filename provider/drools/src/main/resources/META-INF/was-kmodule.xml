@@ -3,7 +3,7 @@
   <configuration>
     <property key="drools.evaluator.supersetOf" value="sh.isaac.provider.drools.IsKindOfEvaluatorDefinition"/>
   </configuration>
-   <kbase name="rules" packages="rules.sh.isaac.provider.drools">
+   <kbase name="rules" packages="sh.isaac.provider.drools">
       <ksession name="komet-rules" type="stateless" default="true"/>
    </kbase>
 </kmodule>

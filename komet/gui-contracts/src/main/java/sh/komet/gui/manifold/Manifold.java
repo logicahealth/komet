@@ -42,18 +42,12 @@ package sh.komet.gui.manifold;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -65,7 +59,6 @@ import javafx.scene.control.Label;
 import sh.isaac.MetaData;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -413,14 +406,16 @@ public class Manifold
         return manifoldHistory;
     }
 
-    public Node getIconographic() {
-        return ICONOGRAPHIC_SUPPLIER.get(getGroupName())
-                .get();
+    public Optional<Node> getOptionalIconographic() {
+        return getOptionalIconographic(getGroupName());
     }
 
-    public static Node getIconographic(String groupName) {
-        return ICONOGRAPHIC_SUPPLIER.get(groupName)
-                .get();
+    public static Optional<Node> getOptionalIconographic(String groupName) {
+        if (ICONOGRAPHIC_SUPPLIER.get(groupName) != null) {
+            return Optional.of(ICONOGRAPHIC_SUPPLIER.get(groupName)
+                    .get());
+        }
+        return Optional.empty();
     }
 
     @Override

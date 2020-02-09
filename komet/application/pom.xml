@@ -170,6 +170,11 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
+            <groupId>sh.komet</groupId>
+            <artifactId>rules</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
             <groupId>sh.isaac.komet</groupId>
             <artifactId>gui-contracts</artifactId>
             <version>${project.parent.version}</version>

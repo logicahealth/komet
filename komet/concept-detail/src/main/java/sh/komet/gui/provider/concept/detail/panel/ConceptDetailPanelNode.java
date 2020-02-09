@@ -284,7 +284,12 @@ public class ConceptDetailPanelNode
         if (newValue.equals(Manifold.ManifoldGroup.UNLINKED.getGroupName())) {
             menuIconProperty.set(IconographyHelper.combine(Iconography.CONCEPT_DETAILS.getIconographic(), Iconography.LINK_BROKEN.getIconographic()));
         } else {
-            menuIconProperty.set(IconographyHelper.combine(Iconography.CONCEPT_DETAILS.getIconographic(), this.manifoldProperty.get().getIconographic()));
+            Optional<Node> optionalIcon = this.manifoldProperty.get().getOptionalIconographic();
+            if (optionalIcon.isPresent()) {
+                menuIconProperty.set(IconographyHelper.combine(Iconography.CONCEPT_DETAILS.getIconographic(), optionalIcon.get()));
+            } else {
+                menuIconProperty.set(Iconography.CONCEPT_DETAILS.getIconographic());
+            }
         }
     }
 

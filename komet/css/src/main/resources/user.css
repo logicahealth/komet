@@ -983,12 +983,12 @@ limitations under the License.
     -fx-border-style:solid;
     -fx-background-insets:4 0 2 0;
  }
- 
+
 .def-feature .open-concept-button {
-    -fx-padding:-3 6 0 0;
+    -fx-padding:0 0 0 0;
  } 
 .def-role .open-concept-button {
-    -fx-padding:-3 6 0 0;
+    -fx-padding:0 0 0 0;
  } 
 .def-feature .toggle-button {
     -fx-background-color: transparent;
@@ -1021,7 +1021,7 @@ limitations under the License.
  }
  
  .open-concept-button {
-    -fx-padding:-4 1 0 2;
+    -fx-padding:0 0 0 0;
  }
  
 
