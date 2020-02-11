@@ -138,7 +138,7 @@
       <drools.version>7.31.0.Final</drools.version>
       <org.apache.lucene.version>7.2.1</org.apache.lucene.version>
       <xodus.version>1.1.0</xodus.version>
-      <fontawesome.version>4.7.0-9.1.2</fontawesome.version>
+      <fontawesome.version>4.7.0-11</fontawesome.version>
        <fontawesome.commons.version>11.0</fontawesome.commons.version>
       <repackage-mojo.version>1.0</repackage-mojo.version>
       <sisu-guice.version>3.2.6</sisu-guice.version>

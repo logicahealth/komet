@@ -28,10 +28,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.api.ComponentProxy;
@@ -64,6 +61,7 @@ public class AssemblageDetailController {
    private ResourceBundle resources;
    @FXML  // URL location of the FXML file that was given to the FXMLLoader
    private URL location;
+
    @FXML  // fx:id="assemblageExtensionTreeTable"
    private TreeTableView<ObservableCategorizedVersion> assemblageExtensionTreeTable;
    @FXML
@@ -121,6 +119,7 @@ public class AssemblageDetailController {
       assemblageAuthorTimeColumn.setText("author\ntime");
       assemblageModulePathColumn.setText("module\npath");
       assemblageExtensionTreeTable.setTableMenuButtonVisible(true);
+      assemblageExtensionTreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
    }
 
    private void addChildren(TreeItem<ObservableCategorizedVersion> parent,
@@ -237,6 +236,10 @@ public class AssemblageDetailController {
       this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(newManifold);
       this.assemblageAuthorTimeColumn.setCellValueFactory(this.authorTimeCellFactory::getCellValue);
       this.assemblageAuthorTimeColumn.setCellFactory(this.authorTimeCellFactory::call);
+   }
+
+   public TreeTableView<ObservableCategorizedVersion> getAssemblageExtensionTreeTable() {
+      return assemblageExtensionTreeTable;
    }
 
 }

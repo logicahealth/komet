@@ -216,7 +216,10 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
                     int recordStamp = stampService.getStampSequence(status, commitTime, authorNid, moduleNid, pathNid);
                     int descriptionStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
-                        // See if the concept is created (from the SNOMED/LOINC expressions. 
+                        // See if the concept is created (from the SNOMED/LOINC expressions.
+                    if (loincRecord[LOINC_NUM].contains("14749-6")) {
+                        LOG.info("Found 14749-6");
+                    }
                         UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincRecord[LOINC_NUM]);
                         int conceptNid = Get.nidWithAssignment(conceptUuid);
                         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);

@@ -203,5 +203,19 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
    public void setStr2(String str2) {
       this.str2 = str2;
    }
+
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{Str1: ").append(str1).append(" ")
+              .append(", Str2: ").append(str2).append(" ")
+              .append(", Nid3: ").append(Get.conceptDescriptionText(nid3))
+              .append(", Nid4: ").append(Get.conceptDescriptionText(nid4))
+              .append(", Nid5: ").append(Get.conceptDescriptionText(nid5))
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
+
 }
 

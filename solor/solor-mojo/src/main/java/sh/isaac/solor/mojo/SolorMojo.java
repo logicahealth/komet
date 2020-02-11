@@ -20,6 +20,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.Future;
+
 import javafx.concurrent.Task;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -41,7 +42,6 @@ import sh.isaac.solor.direct.*;
 import sh.isaac.solor.direct.rxnorm.RxNormDirectImporter;
 
 /**
- *
  * @author kec
  */
 @Mojo(
@@ -104,14 +104,24 @@ public class SolorMojo extends AbstractMojo {
             rxNormDirectImporter.run();
             LookupService.syncAll();
 
+            getLog().info("Convert LOINC expressions...");
+            LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept(transaction);
+            Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
+            convertLoincTask.get();
+
+            getLog().info("Adding navigation concepts...");
+            //TODO change how we get the edit coordinates.
+            ManifoldCoordinate coordinate = Get.coordinateFactory().createDefaultStatedManifoldCoordinate();
+            EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
+            LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction, coordinate);
+            Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
+            addNavigationConceptsTask.get();
+
             LoincDirectImporter loincImporter = new LoincDirectImporter(transaction);
             getLog().info("  Importing LOINC files.");
             loincImporter.run();
             LookupService.syncAll();
             if (transform) {
-                //TODO change how we get the edit coordinates. 
-                ManifoldCoordinate coordinate = Get.coordinateFactory().createDefaultStatedManifoldCoordinate();
-                EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
 
                 getLog().info("  Transforming RF2 relationships to SOLOR.");
                 Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.valueOf(importType));
@@ -119,22 +129,10 @@ public class SolorMojo extends AbstractMojo {
                 transformTask.get();
 
                 getLog().info(" Converting SNOMED OWL expressions...");
-                Rf2OwlTransformer rf2OwlTransformer = new  Rf2OwlTransformer(ImportType.parseFromString(importType));
+                Rf2OwlTransformer rf2OwlTransformer = new Rf2OwlTransformer(ImportType.parseFromString(importType));
                 Future<?> rf2OwlTransformTask = Get.executor().submit(rf2OwlTransformer);
                 rf2OwlTransformTask.get();
 
-
-                if (loincImporter.foundLoinc()) {
-                    getLog().info("Convert LOINC expressions...");
-                    LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept(transaction);
-                    Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
-                    convertLoincTask.get();
-
-                    getLog().info("Adding navigation concepts...");
-                    LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction, coordinate);
-                    Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
-                    addNavigationConceptsTask.get();
-                }
                 getLog().info("Classifying new content...");
                 Task<ClassifierResults> classifierResultsTask
                         = Get.logicService().getClassifierService(coordinate, editCoordinate).classify();

@@ -98,6 +98,10 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     if (version instanceof Str1_Str2_Nid3_Nid4_Nid5_Version) {
                         Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
                         loincCode = loincVersion.getStr1(); // "48023-6"
+                        if (loincCode.contains("14749-6")) {
+                            LOG.info("Found 14749-6");
+                        }
+
                         sctExpression = loincVersion.getStr2();
                         nid3 = loincVersion.getNid3();
                     }
