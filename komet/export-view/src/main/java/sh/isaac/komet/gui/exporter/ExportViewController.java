@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.CheckListView;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.solor.DirectExporterFactory;
+import sh.isaac.solor.rf2.RF2DirectExporter;
 import sh.komet.gui.exportation.ExportFormatType;
 import sh.komet.gui.manifold.Manifold;
 
@@ -65,7 +65,7 @@ public class ExportViewController {
         Get.assemblageService().getSemanticNidStream(MetaData.LIVD_ASSEMBLAGE____SOLOR.getNid())
                 .forEach(nid -> {
 
-                    System.out.println("break");
+//                    System.out.println("break");
 
 
         });
@@ -88,14 +88,16 @@ public class ExportViewController {
     public void exportData(){
         switch(this.exportTypeChoiceBox.getSelectionModel().getSelectedItem()){
             case RF2:
-                Get.executor().execute(DirectExporterFactory.GetRF2DirectExporter(
+                Get.executor().execute(new RF2DirectExporter(
                         this.manifold,
                         this.selectedDirectory,
                         this.exportTypeChoiceBox.getSelectionModel().getSelectedItem().toString()
                 ));
                 break;
             case SRF:
-                break;
+            case SOF:
+            default :
+                throw new RuntimeException("Unsupported type");
         }
         this.exportStage.close();
     }

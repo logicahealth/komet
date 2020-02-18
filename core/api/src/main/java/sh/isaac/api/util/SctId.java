@@ -166,7 +166,7 @@ public class SctId {
 			return Integer.parseInt(digits) >= 10;
 		}
 		
-		public static TYPE parse(String input)
+		public static TYPE parse(String input) throws IllegalArgumentException
 		{
 			for (TYPE t : TYPE.values())
 			{
@@ -175,7 +175,7 @@ public class SctId {
 					return t;
 				}
 			}
-			throw new RuntimeException("Invalid Partition ID");
+			throw new IllegalArgumentException("Invalid Partition ID");
 		}
 	}
 	
@@ -183,7 +183,7 @@ public class SctId {
 	private Optional<String> namespace;
 	private TYPE type;
 	
-	public SctId(String sctid)
+	public SctId(String sctid) throws IllegalArgumentException
 	{
 		if (!isValidSctId(sctid))
 		{
