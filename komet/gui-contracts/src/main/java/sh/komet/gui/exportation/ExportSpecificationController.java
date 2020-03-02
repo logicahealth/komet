@@ -20,6 +20,7 @@ import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.solor.sof.SofExporter;
 import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;

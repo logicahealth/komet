@@ -79,18 +79,24 @@ public class RxNormDirectImporter extends TimedTaskWithProgressTracker<Void>
                 .collect(Collectors.toList());
         for (Path zipFilePath : zipFiles) {
             try (ZipFile zipFile = new ZipFile(zipFilePath.toFile(), Charset.forName("UTF-8"))) {
+                LOG.info("Processing file: " + zipFilePath.toFile().getAbsolutePath());
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
                     String entryName = entry.getName()
                             .toLowerCase();
-                    if (entryName.endsWith(".owl")) {
-                        foundRxNorm = true;
-                        fileCount++;
-                        RxNormDomImporter.importRxNorm(new BufferedInputStream(zipFile.getInputStream(entry)),
-                            this.transaction, Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate()
-                        );
+                    if (entryName.endsWith(".rdf.xml")) {
+                        try {
+                            foundRxNorm = true;
+                            fileCount++;
+                            RxNormDomImporter.importRxNorm(new BufferedInputStream(zipFile.getInputStream(entry)),
+                                this.transaction, Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate()
+                            );
+                        } catch (Exception e) {
+                            LOG.error("Processing: " + entry.getName(), e);
+                            e.printStackTrace();
+                        }
 
                     }
                 }

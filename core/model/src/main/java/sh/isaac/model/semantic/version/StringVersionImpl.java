@@ -62,6 +62,14 @@ public class StringVersionImpl
     * The string.
     */
    private String string = null;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{string: ").append(string).append(" ")
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
    /**

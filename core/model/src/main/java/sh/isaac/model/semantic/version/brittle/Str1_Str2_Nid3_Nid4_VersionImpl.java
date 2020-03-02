@@ -64,6 +64,17 @@ public class Str1_Str2_Nid3_Nid4_VersionImpl
    String str2 = null;
    int    nid3 = Integer.MAX_VALUE;
    int    nid4 = Integer.MAX_VALUE;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{Str1: ").append(str1).append(" ")
+              .append(", Str2: ").append(str2).append(" ")
+              .append(", Nid3: ").append(Get.conceptDescriptionText(nid3))
+              .append(", Nid4: ").append(Get.conceptDescriptionText(nid4))
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 

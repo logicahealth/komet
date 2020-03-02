@@ -2,15 +2,17 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.ToolBar?>
 <?import org.controlsfx.control.textfield.CustomTextField?>
 
 <ToolBar fx:id="searchToolbar" prefHeight="40.0" prefWidth="482.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.SearchBarController">
   <items>
-    <Button fx:id="closeSearchButton" mnemonicParsing="false" onAction="#closeSearch" text="X" />
+    <Button fx:id="closeSearchButton" mnemonicParsing="false" onAction="#closeSearch" />
       <CustomTextField fx:id="searchTextField" onAction="#startSearch" prefWidth="300.0" />
-      <Button fx:id="nextMatchButton" mnemonicParsing="false" onAction="#nextMatch" text="ˇ" />
-      <Button fx:id="previousMatchButton" mnemonicParsing="false" onAction="#previousMatch" text="^" />
-      <Label fx:id="matchLabel" text="Label" />
+      <ProgressIndicator fx:id="progressIndicator" progress="0.0" />
+      <Button fx:id="nextMatchButton" mnemonicParsing="false" onAction="#nextMatch" />
+      <Button fx:id="previousMatchButton" mnemonicParsing="false" onAction="#previousMatch" />
+      <Label fx:id="matchLabel" />
   </items>
 </ToolBar>

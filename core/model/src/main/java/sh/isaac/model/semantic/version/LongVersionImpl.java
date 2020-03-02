@@ -61,6 +61,14 @@ public class LongVersionImpl
          implements MutableLongVersion {
    /** The long value. */
    long longValue = Long.MAX_VALUE;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{longValue: ").append(longValue).append(" ")
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 

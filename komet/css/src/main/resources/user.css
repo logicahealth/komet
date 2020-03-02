@@ -1112,3 +1112,27 @@ limitations under the License.
     /* -fx-skin: "sh.isaac.komet.openjdk.KometTabPaneSkin"; */
 }
 
+.search-magnify {
+    -fx-padding: 4 4 4 4;
+}
+
+.reset-search {
+    -glyph-size: 15;
+    -glyph-name: CLOSE;
+}
+
+.next-match {
+
+}
+
+.previous-match {
+
+}
+.progress-indicator .percentage {
+    -fx-fill:null;
+}
+
+.progress-indicator  {
+    -fx-padding: 5 0 -16 0;
+
+}

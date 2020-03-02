@@ -1,85 +1,78 @@
 package sh.komet.gui.control.text;
 
 
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.HitInfo;
-import sh.isaac.komet.openjdk.TextAreaNoScrollerSkin;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import org.fxmisc.richtext.StyleClassedTextArea;
 
 public class StackLabelText extends StackPane {
 
+    private static class MyStyleClassedTextArea extends StyleClassedTextArea {
+
+        double computePreferredHeight(double width) {
+            return this.computePrefHeight(width);
+        }
+    }
+
+    private static class MyTextFlow extends TextFlow {
+
+        double computePreferredHeight(double width) {
+            return this.computePrefHeight(width);
+        }
+    }
+
+
     Label label = new Label();
-    TextArea textArea;
-    ChangeListener<Boolean> listener = (ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) ->
-            this.textAreaFocusListener(observable, oldValue, newValue);
+    MyStyleClassedTextArea textArea = new MyStyleClassedTextArea();
+    MyTextFlow textFlow = new MyTextFlow();
 
     public StackLabelText() {
         StackPane.setAlignment(label, Pos.TOP_LEFT);
         label.setAlignment(Pos.TOP_LEFT);
         getChildren().add(label);
+
+        StackPane.setAlignment(textArea, Pos.TOP_LEFT);
+        textArea.setEditable(false);
+        getChildren().add(textArea);
+
         getStyleClass().addListener((ListChangeListener<? super String>) change -> {
             label.getStyleClass().setAll(change.getList());
         });
-        label.setOnMouseClicked(this::mouseClickedInLabel);
-    }
+        textArea.widthProperty().addListener((observable, oldValue, newValue) -> {
+            textFlow.setMaxWidth(newValue.doubleValue());
+            textFlow.setPrefWidth(newValue.doubleValue());
+            textFlow.setMinWidth(newValue.doubleValue());
+            double preferredHeight = textFlow.computePreferredHeight(newValue.doubleValue());
+            preferredHeight += 30;
+            System.out.println("Pref height for: " + newValue.doubleValue() + " is: " + preferredHeight);
 
-    private void mouseClickedInLabel(MouseEvent mouseEvent) {
-        if (label.getGraphic() != null) {
-            return;
-        }
-        textArea = new TextArea();
-
-        textArea.setEditable(false);
-        TextAreaNoScrollerSkin skin = new TextAreaNoScrollerSkin(textArea);
-        textArea.setSkin(skin);
-
-        StackPane.setAlignment(textArea, Pos.TOP_LEFT);
-
-        textArea.setText(label.getText());
-        textArea.getStyleClass().setAll(label.getStyleClass());
-        textArea.setMinSize(label.getWidth(), label.getHeight());
-        textArea.setPrefSize(label.getWidth(), label.getHeight());
-        textArea.setMaxSize(label.getWidth(), label.getHeight());
-        getChildren().add(textArea);
-        textArea.requestFocus();
-        HitInfo hitInfo = skin.getIndex(mouseEvent.getX(), mouseEvent.getY());
-        skin.positionCaret(hitInfo, false);
-
-        textArea.focusedProperty().addListener(this.listener);
-    }
-
-    private void textAreaFocusListener(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        if (!newValue) {
-            textArea.focusedProperty().removeListener(this.listener);
-            textArea = null;
-            getChildren().clear();
-            getChildren().add(label);
-         }
-    }
-
-    public StringProperty textProperty() {
-        return label.textProperty();
+            textArea.setMinHeight(preferredHeight);
+            textArea.setPrefHeight(preferredHeight);
+            textArea.setMaxHeight(preferredHeight);
+            //System.out.println("Pref width for: " + textArea.getTotalWidthEstimate());
+        });
     }
 
     public void setText(String s) {
-        label.setText(s);
+        textFlow.getChildren().clear();
+        textFlow.getChildren().add(new Text(s));
+        textArea.clear();
+        textArea.appendText(s);
     }
 
     public String getText() {
-        return label.getText();
+        return textArea.getText();
     }
 
     public void setWrapText(boolean b) {
-        label.setWrapText(b);
+        textArea.setWrapText(b);
+
     }
 
     public void setImage(Node graphic) {

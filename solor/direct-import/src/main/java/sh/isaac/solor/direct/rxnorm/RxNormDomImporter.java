@@ -57,18 +57,22 @@ public class RxNormDomImporter {
                     tagNames.add(childElement.getTagName());
                     switch (childElement.getTagName()) {
                         case "Ontology":
+                        case "owl:Ontology":
                             // nothing to do...
                             break;
 
                         case "ObjectProperty":
+                        case "owl:ObjectProperty":
                             handleObjectProperty(childElement);
                             break;
 
                         case "AnnotationProperty":
+                        case "owl:AnnotationProperty":
                             handleAnnotationProperty(childElement);
                             break;
 
                         case "Class":
+                        case "owl:Class":
                             handleClass(childElement);
                             break;
 

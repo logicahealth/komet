@@ -277,7 +277,7 @@ public class LetPropertySheet {
 
         ManifoldCoordinateForQuery manifoldCoordinate = new ManifoldCoordinateForQuery();
         if (!this.stampCoordinateKeys.isEmpty()) {
-            manifoldCoordinate.setStampCoordinateKey(this.stampCoordinateKeys.get(0));
+            manifoldCoordinate.setOriginStampCoordinateKey(this.stampCoordinateKeys.get(0));
         }
         if (!this.languageCoordinateKeys.isEmpty()) {
             manifoldCoordinate.setLanguageCoordinateKey(this.languageCoordinateKeys.get(0));

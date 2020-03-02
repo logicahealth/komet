@@ -8,11 +8,18 @@ public class UuidStringKey implements Comparable<UuidStringKey> {
     final UUID uuid;
     String string;
 
-    public UuidStringKey(UUID uuid, String string) {
+     public UuidStringKey(UUID uuid, String string) {
         this.uuid = uuid;
         this.string = string;
     }
+    public UuidStringKey(String[] data) {
+        this.uuid = UUID.fromString(data[0]);
+        this.string = data[1];
+    }
 
+    public String[] toStringArray() {
+        return new String[] {uuid.toString(), string};
+    }
     @Override
     public int compareTo(UuidStringKey o) {
         int comparison = NaturalOrder.compareStrings(this.string, o.string);

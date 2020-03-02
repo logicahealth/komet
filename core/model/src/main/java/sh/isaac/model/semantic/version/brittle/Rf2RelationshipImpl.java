@@ -67,6 +67,18 @@ public class Rf2RelationshipImpl
    int relationshipGroup = Integer.MAX_VALUE;
    int characteristicNid = Integer.MAX_VALUE;
    int modifierNid       = Integer.MAX_VALUE;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{typeNid: ").append(Get.conceptDescriptionText(typeNid))
+              .append(", destinationNid: ").append(Get.conceptDescriptionText(destinationNid))
+              .append(", relationshipGroup: ").append(relationshipGroup)
+              .append(", characteristicNid: ").append(Get.conceptDescriptionText(characteristicNid))
+              .append(", modifierNid: ").append(Get.conceptDescriptionText(modifierNid))
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 

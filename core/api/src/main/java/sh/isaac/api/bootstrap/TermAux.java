@@ -509,13 +509,16 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy TIME_PRECEDENCE = new ConceptProxy("Time precedence", "Time precedence", UUID.fromString("cd5ccb52-9a7c-5e35-9d82-4d936bc3b086"));
     public static ConceptProxy PATH_PRECEDENCE = new ConceptProxy("Path precedence", "Path precedence", UUID.fromString("fba850b7-de84-5df2-ab0b-d1caa6a358ff"));
 
-    public static ConceptProxy STAMP_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Stamp coordinate key for manifold", "Stamp coordinate key", UUID.fromString("bb3bfeb0-5090-5512-9281-c2ce60927820"));
+    public static ConceptProxy ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Origin Stamp coordinate key for manifold", "Stamp coordinate key", UUID.fromString("bb3bfeb0-5090-5512-9281-c2ce60927820"));
+    public static ConceptProxy DESTINATION_STAMP_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Destination Stamp coordinate key for manifold", "Stamp coordinate key", UUID.fromString("bb3bfeb0-5090-5512-9281-c2ce60927820"));
     public static ConceptProxy LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Language coordinate key for manifold", "Language coordiante key", UUID.fromString("2621ca26-8efb-56e2-9b1c-61313c40c27f"));
     public static ConceptProxy LOGIC_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Logic coordinate key for manifold", "Logic coordinate key", UUID.fromString("300bf628-b40d-534f-9072-7b38c4f6f1b5"));
     public static ConceptProxy PREMISE_TYPE_FOR_MANIFOLD = new ConceptProxy("Premise type for manifold", "Premise type", UUID.fromString("7df6c6cb-9f91-5515-a05b-6b2886938363"));
     public static ConceptProxy REFLECTION_CLASS_ASSEMBLAGE = new ConceptProxy("Reflection class assemblage", "Reflection class", UUID.fromString("43f5bdcb-c902-5ea2-9ed7-2572fa468bae"));
     public static ConceptProxy PROVIDER_CLASS_ASSEMBLAGE = new ConceptProxy("Provider class assemblage", "Provider classs", UUID.fromString("8551edb2-6e34-52fe-9113-d25b742b303a"));
     public static ConceptProxy ANY_ASSEMBLAGE = new ConceptProxy("Any assemblage", "Any assemblage", UUID.fromString("6b8b1f01-9da2-585e-828c-eb1c7b93d250"));
+    public static ConceptProxy MANIFOLD_COORDINATE_KEY = new ConceptProxy("Manifold coordinate key", "Manifold key", UUID.fromString("64d9dea8-aafd-5c8a-bce6-a208f91eb82e"));
+
 
     public static ConceptProxy CONCEPT_HAS_TAXONOMY_DISTANCE_FROM = new ConceptProxy("Concept has taxonomy distance from", "Within taxonomy distance", UUID.fromString("9533dce4-efde-51a3-94f8-a4fb06b9d08c"));
     public static ConceptProxy INTEGER_REFERENCE = new ConceptProxy("Integer reference", "Integer reference", UUID.fromString("11d47ca2-4207-5aaa-a068-196038aeee4c"));
@@ -541,7 +544,6 @@ public static ConceptProxy SPEC95 = new ConceptProxy("", "", UUID.fromString("4f
 public static ConceptProxy SPEC96 = new ConceptProxy("", "", UUID.fromString("1063412d-207c-57bd-abd9-60b31691507d"));
 public static ConceptProxy SPEC97 = new ConceptProxy("", "", UUID.fromString("126e5d77-bd9a-53e8-9260-76aba9613288"));
 public static ConceptProxy SPEC98 = new ConceptProxy("", "", UUID.fromString("786afd5d-9f6b-52cb-8d71-f2e0564b621d"));
-public static ConceptProxy SPEC99 = new ConceptProxy("", "", UUID.fromString("64d9dea8-aafd-5c8a-bce6-a208f91eb82e"));
     */
    // J+
 

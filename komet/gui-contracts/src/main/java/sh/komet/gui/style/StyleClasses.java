@@ -36,8 +36,9 @@ public enum StyleClasses {
    
    OPEN_CONCEPT_BUTTON,
    
-   INTERVAL_BOUND, MEASURE
-   ;
+   INTERVAL_BOUND, MEASURE,
+
+   RESET_SEARCH, NEXT_MATCH, PREVIOUS_MATCH, SEARCH_MAGNIFY;
    
    @Override   
    public String toString() {

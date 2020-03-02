@@ -913,7 +913,6 @@ public interface IsaacPreferences {
      * an <tt>IOException</tt>.
      * @throws BackingStoreException if preference data cannot be read from
      * backing store.
-     * @see #importPreferences(InputStream)
      * @throws IllegalStateException if this node (or an ancestor) has been
      * removed with the {@link #removeNode()} method.
      */
@@ -947,7 +946,6 @@ public interface IsaacPreferences {
      * backing store.
      * @throws IllegalStateException if this node (or an ancestor) has been
      * removed with the {@link #removeNode()} method.
-     * @see #importPreferences(InputStream)
      * @see #exportNode(OutputStream)
      */
     void exportSubtree(OutputStream os)
@@ -983,12 +981,8 @@ public interface IsaacPreferences {
         put(key, value.name());
     }
 
-    default boolean hasKey(Class clazz) {
-        return get(clazz.getCanonicalName()).isPresent();
-    }
-
     default boolean hasKey(Enum enumDefault) {
-        return get(enumDefault.getClass().getCanonicalName()).isPresent();
+        return get(enumToGeneralKey(enumDefault)).isPresent();
     }
 
     default boolean hasKey(String key) {
@@ -997,6 +991,21 @@ public interface IsaacPreferences {
 
     default void putList(Enum key, List<String> list) {
         putList(enumToGeneralKey(key), list);
+    }
+    default void putArray(Enum key, String[] array) {
+        putList(key, Arrays.asList(array));
+    }
+
+    default void putArray(String key, String[] array) {
+        putList(key, Arrays.asList(array));
+    }
+
+    default String[] getArray(Enum key) {
+        return getList(enumToGeneralKey(key)).toArray(new String[2]);
+    }
+
+    default String[] getArray(String key) {
+        return getList(key).toArray(new String[2]);
     }
 
     default void putList(String key, List<String> list) {

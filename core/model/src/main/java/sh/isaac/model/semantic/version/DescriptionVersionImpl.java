@@ -73,6 +73,17 @@ public class DescriptionVersionImpl
 
    /** The description type concept nid. */
    protected int descriptionTypeConceptNid;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{text: ").append(text).append(" ")
+              .append(", caseSignificanceConceptNid: ").append(Get.conceptDescriptionText(caseSignificanceConceptNid))
+              .append(", languageConceptNid: ").append(Get.conceptDescriptionText(languageConceptNid))
+              .append(", descriptionTypeConceptNid: ").append(Get.conceptDescriptionText(descriptionTypeConceptNid))
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 

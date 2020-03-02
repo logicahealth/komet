@@ -19,6 +19,8 @@ package sh.isaac.api.tree;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
@@ -30,9 +32,21 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  * @author kec
  */
 public class TaxonomyAmalgam implements TaxonomySnapshot {
+    TaxonomySnapshot definingTaxonomy;
     ArrayList<TaxonomySnapshot> taxonomies = new ArrayList<>();
     ArrayList<TaxonomySnapshot> inverseTaxonomies = new ArrayList<>();
     ArrayList<ConceptSpecification> taxonomyRoots = new ArrayList<>();
+    final ManifoldCoordinate manifoldCoordinate;
+
+    public TaxonomyAmalgam(ManifoldCoordinate manifoldCoordinate, boolean includeDefiningTaxonomy) {
+        this.manifoldCoordinate = manifoldCoordinate;
+        if (includeDefiningTaxonomy) {
+            this.definingTaxonomy = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+            this.taxonomies.add(definingTaxonomy);
+        } else {
+            this.definingTaxonomy = null;
+        }
+    }
 
     public ArrayList<ConceptSpecification> getTaxonomyRoots() {
         return taxonomyRoots;
@@ -116,12 +130,18 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
 
     @Override
     public boolean isKindOf(int childConceptNid, int parentConceptNid) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (definingTaxonomy != null) {
+            return definingTaxonomy.isKindOf(childConceptNid, parentConceptNid);
+        }
+        return false;
     }
 
     @Override
     public NidSet getKindOfConceptNidSet(int rootConceptNid) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (definingTaxonomy != null) {
+            return getKindOfConceptNidSet(rootConceptNid);
+        }
+        return new NidSet();
     }
 
     @Override
@@ -131,23 +151,17 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
 
     @Override
     public Tree getTaxonomyTree() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public ManifoldCoordinate getManifoldCoordinate() {
-        for (TaxonomySnapshot tree: taxonomies) {
-            return tree.getManifoldCoordinate();
-        }
-        for (TaxonomySnapshot tree: inverseTaxonomies) {
-            return tree.getManifoldCoordinate();
-        }
-        throw new IllegalStateException("No taxonomies in amalgam");
+        return this.manifoldCoordinate;
     }
 
     @Override
     public TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate) {
-        TaxonomyAmalgam analog = new TaxonomyAmalgam();
+        TaxonomyAmalgam analog = new TaxonomyAmalgam(manifoldCoordinate, this.definingTaxonomy != null);
         for (TaxonomySnapshot tree: taxonomies) {
             analog.taxonomies.add(tree.makeAnalog(manifoldCoordinate));
         }

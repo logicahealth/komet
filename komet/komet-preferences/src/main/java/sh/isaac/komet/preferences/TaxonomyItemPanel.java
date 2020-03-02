@@ -20,12 +20,14 @@ import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.TaxonomySnapshot;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.preferences.IsaacPreferences;
@@ -39,10 +41,12 @@ import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.TREES;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.TaxonomyItem;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
+import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.UuidStringKey;
 
 /**
  *
@@ -55,7 +59,8 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
         TREES,
         INVERSE_TREES,
         INCLUDE_DEFINING_TAXONOMY,
-        ROOTS
+        ROOTS,
+        MANIFOLD_COORDINATE_KEY
     };
 
     private final SimpleStringProperty nameProperty
@@ -70,6 +75,10 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
     private final SimpleBooleanProperty includeDefiningTaxonomyProperty = 
             new SimpleBooleanProperty(this, MetaData.INCLUDE_DEFINING_TAXONOMY____SOLOR.toExternalString());
 
+    private final SimpleObjectProperty<UuidStringKey> manifoldCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.MANIFOLD_COORDINATE_KEY.toExternalString());
+    private final PropertySheetItemObjectListWrapper<UuidStringKey> manifoldCoordinateKeyWrapper;
+
+
     public TaxonomyItemPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(preferencesNode,
@@ -79,13 +88,18 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
         });
-        revertFields();
-        save();
         getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
         getItemList().add(new PropertySheetBooleanWrapper(manifold, includeDefiningTaxonomyProperty));
+
+        this.manifoldCoordinateKeyWrapper = new PropertySheetItemObjectListWrapper("Manifold coordinate",
+                manifoldCoordinateKeyProperty, FxGet.manifoldCoordinateKeys());
+        getItemList().add(manifoldCoordinateKeyWrapper);
+
         getItemList().add(new PropertySheetConceptListWrapper(manifold, taxonomyRootListProperty));
         getItemList().add(new PropertySheetConceptListWrapper(manifold, treeListProperty));
         getItemList().add(new PropertySheetConceptListWrapper(manifold, inverseTreeListProperty));
+        revertFields();
+        save();
 
     }
 
@@ -104,26 +118,26 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
         getPreferencesNode().putConceptList(INVERSE_TREES, inverseTreeListProperty);
 
         getPreferencesNode().putBoolean(INCLUDE_DEFINING_TAXONOMY, this.includeDefiningTaxonomyProperty.get());
-        
-        TaxonomyAmalgam amalgam = new TaxonomyAmalgam();
-        if (this.includeDefiningTaxonomyProperty.get()) {
-            amalgam.getTaxonomies().add(new DefiningTaxonomyProxy());
+
+        if (this.manifoldCoordinateKeyProperty.getValue() != null) {
+            TaxonomyAmalgam amalgam = new TaxonomyAmalgam(FxGet.manifoldCoordinates().get(this.manifoldCoordinateKeyProperty.getValue()),
+                    this.includeDefiningTaxonomyProperty.get());
+            // TODO add support for other types of assemblage...
+            for (ConceptSpecification proxy: treeListProperty.get()) {
+                SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold());
+                TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
+                amalgam.getTaxonomies().add(taxonomySnapshot);
+            }
+            for (ConceptSpecification proxy: inverseTreeListProperty.get()) {
+                SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold());
+                TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
+                amalgam.getInverseTaxonomies().add(taxonomySnapshot);
+            }
+            for (ConceptSpecification proxy: taxonomyRootListProperty) {
+                amalgam.getTaxonomyRoots().add(proxy);
+            }
+            FxGet.addTaxonomyConfiguration(nameProperty.get(), amalgam);
         }
-        // TODO add support for other types of assemblage...
-        for (ConceptSpecification proxy: treeListProperty.get()) {
-            SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold());
-            TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
-            amalgam.getTaxonomies().add(taxonomySnapshot);
-        }        
-        for (ConceptSpecification proxy: inverseTreeListProperty.get()) {
-            SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold());
-            TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
-            amalgam.getInverseTaxonomies().add(taxonomySnapshot);
-        }
-        for (ConceptSpecification proxy: taxonomyRootListProperty) {
-            amalgam.getTaxonomyRoots().add(proxy);
-        }
-        FxGet.addTaxonomyConfiguration(nameProperty.get(), amalgam);
     }
 
     @Override 

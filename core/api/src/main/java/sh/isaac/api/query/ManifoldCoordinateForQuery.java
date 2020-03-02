@@ -40,7 +40,9 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
 
     private SimpleObjectProperty<PremiseType> premiseTypeProperty = new SimpleObjectProperty<>(this, TermAux.PREMISE_TYPE_FOR_MANIFOLD.toExternalString(), PremiseType.INFERRED);
 
-    private SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.STAMP_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
+    private SimpleObjectProperty<LetItemKey> originStampCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
+
+    private SimpleObjectProperty<LetItemKey> destinationStampCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.DESTINATION_STAMP_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
 
     private SimpleObjectProperty<LetItemKey> languageCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
 
@@ -48,7 +50,8 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
 
     {
         premiseTypeProperty.addListener(observable -> this.cachedUuid = null);
-        stampCoordinateKeyProperty.addListener(observable -> this.cachedUuid = null);
+        originStampCoordinateKeyProperty.addListener(observable -> this.cachedUuid = null);
+        destinationStampCoordinateKeyProperty.addListener(observable -> this.cachedUuid = null);
         languageCoordinateKeyProperty.addListener(observable -> this.cachedUuid = null);
         logicCoordinateKeyProperty.addListener(observable -> this.cachedUuid = null);
     }
@@ -63,7 +66,13 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
         for (Map.Entry<LetItemKey, Object> entry: this.query.getLetDeclarations().entrySet()) {
             if (entry.getValue() instanceof StampCoordinate && 
                     !(entry.getValue() instanceof ManifoldCoordinate)) {
-                stampCoordinateKeyProperty.set(entry.getKey());
+                if (entry.getKey().itemName.toLowerCase().contains("dest")) {
+                    // TODO need a better way of determining origin and destination coordinates.
+                    destinationStampCoordinateKeyProperty.setValue(entry.getKey());
+                } else {
+                    originStampCoordinateKeyProperty.set(entry.getKey());
+                }
+
             } else if (entry.getValue() instanceof LanguageCoordinate && 
                     !(entry.getValue() instanceof ManifoldCoordinate)) {
                 languageCoordinateKeyProperty.set(entry.getKey());
@@ -113,16 +122,29 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     }
 
     @XmlElement
-    public LetItemKey getStampCoordinateKey() {
-        return stampCoordinateKeyProperty.get();
+    public LetItemKey getOriginStampCoordinateKey() {
+        return originStampCoordinateKeyProperty.get();
     }
 
-    public SimpleObjectProperty<LetItemKey> stampCoordinateKey() {
-        return stampCoordinateKeyProperty;
+    public SimpleObjectProperty<LetItemKey> originStampCoordinateKey() {
+        return originStampCoordinateKeyProperty;
     }
 
-    public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
-        this.stampCoordinateKeyProperty.set(stampCoordinateKey);
+    public void setOriginStampCoordinateKey(LetItemKey stampCoordinateKey) {
+        this.originStampCoordinateKeyProperty.set(stampCoordinateKey);
+    }
+
+    @XmlElement
+    public LetItemKey getDestinationStampCoordinateKey() {
+        return destinationStampCoordinateKeyProperty.get();
+    }
+
+    public SimpleObjectProperty<LetItemKey> destinationStampCoordinateKey() {
+        return destinationStampCoordinateKeyProperty;
+    }
+
+    public void setDestinationStampCoordinateKey(LetItemKey stampCoordinateKey) {
+        this.destinationStampCoordinateKeyProperty.set(stampCoordinateKey);
     }
 
     @XmlElement
@@ -153,7 +175,7 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
 
     @Override
     public StampCoordinate getStampCoordinate() {
-        return (StampCoordinate) this.query.getLetDeclarations().get(stampCoordinateKeyProperty.get());
+        return (StampCoordinate) this.query.getLetDeclarations().get(originStampCoordinateKeyProperty.get());
     }
 
     @Override
@@ -168,6 +190,9 @@ public class ManifoldCoordinateForQuery extends ObservableCoordinateImpl impleme
     
     @Override
     public Optional<StampCoordinate> optionalDestinationStampCoordinate() {
+       if (destinationStampCoordinateKeyProperty.get() != null) {
+           return Optional.of((StampCoordinate) this.query.getLetDeclarations().get(destinationStampCoordinateKeyProperty.get()));
+       }
         return Optional.empty();
     }
 

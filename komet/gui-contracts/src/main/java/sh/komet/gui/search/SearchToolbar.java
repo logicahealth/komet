@@ -47,4 +47,8 @@ public class SearchToolbar {
     public SimpleObjectProperty<Object> selectedObjectProperty() {
         return searchBarController.selectedObjectProperty();
     }
+
+    public void setProgress(double value) {
+        this.searchBarController.setProgress(value);
+    }
 }

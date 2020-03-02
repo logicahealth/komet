@@ -15,6 +15,14 @@ public class ImageVersionImpl
         implements MutableImageVersion {
     /** The image data. */
     byte[] imageData = null;
+    @Override
+    public StringBuilder toString(StringBuilder builder) {
+        builder.append(" ")
+                .append("{imageData: ").append(imageData).append(" ")
+                .append(Get.stampService()
+                        .describeStampSequence(this.getStampSequence())).append("}");
+        return builder;
+    }
 
 
     /**

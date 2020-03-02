@@ -62,6 +62,15 @@ public class Nid1_Nid2_VersionImpl
          implements Nid1_Nid2_Version {
    int nid1 = Integer.MAX_VALUE;
    int nid2 = Integer.MAX_VALUE;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{Nid1: ").append(Get.conceptDescriptionText(nid1))
+              .append(", Nid2: ").append(Get.conceptDescriptionText(nid2))
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 

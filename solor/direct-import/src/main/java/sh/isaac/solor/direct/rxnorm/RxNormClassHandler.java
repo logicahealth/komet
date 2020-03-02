@@ -17,11 +17,14 @@ import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import static sh.isaac.solor.direct.rxnorm.RxNormDomImporter.childElements;
 
 public class RxNormClassHandler {
     private static final Logger LOG = LogManager.getLogger();
+
+    private static final ConcurrentSkipListSet<String> forwardReferences =  new ConcurrentSkipListSet<>();
 
 
     public static UUID aboutToUuid(String aboutString) {
@@ -41,7 +44,8 @@ public class RxNormClassHandler {
         try {
             return Get.nidForUuids(aboutToUuid(aboutString));
         } catch (NoSuchElementException e) {
-            throw new NoSuchElementException(e.getLocalizedMessage() + " processing " + aboutString);
+            forwardReferences.add(aboutString);
+            return Get.nidWithAssignment(aboutToUuid(aboutString));
         }
     }
 
@@ -91,8 +95,9 @@ public class RxNormClassHandler {
 
             switch (childElement.getTagName()) {
                 case "equivalentClass":
+                case "owl:equivalentClass":
                     // a sufficient set?
-                    if (childElements(childElement).size() == 0) {
+                    if (childElements(childElement).isEmpty()) {
 /* Example with no children, but an rdf:resource
 
     <Class rdf:about="https://mor.nlm.nih.gov/Rx108088">
@@ -153,6 +158,15 @@ Another example to handle...
                 case "id:ValuesDifferent":
                 case "id:Asserted":
                 case "id:IsPrescribable":
+                case "id:Inferred":
+                case "id:UnitsDifferent":
+                case "id:MapsToCode":
+                case "id:MapsToName":
+                case "id:PresUnitDifferent":
+                case "id:CountOfBaseDifferent":
+                case "skos:prefLabel":
+                case "skos:altLabel":
+
                     assemblageElements.add(childElement);
                     break;
 
@@ -162,6 +176,7 @@ Another example to handle...
         }
 
         if (newConcept) {
+            forwardReferences.remove(rdfAbout);
             LogicalExpressionBuilder expressionBuilder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
 
             for (Element equivalentClass: equivalentClassElements) {
@@ -270,6 +285,36 @@ Another example to handle...
                         addStringSemantic(conceptBuilder, rdfAbout, MetaData.PRESCRIBABLE____SOLOR, assemblageElement.getTextContent());
                         break;
 
+                    case "id:Inferred":
+//         <id:Inferred>true</id:Inferred>
+                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.RXNORM_INFERRED____SOLOR, assemblageElement.getTextContent());
+                        break;
+                    case "id:UnitsDifferent":
+//         <id:UnitsDifferent>sct: Capsule (unit of presentation)</id:UnitsDifferent>
+                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.UNITS_DIFFERENT____SOLOR, assemblageElement.getTextContent());
+                        break;
+                    case "id:MapsToCode":
+//        <id:MapsToCode>703368006</id:MapsToCode>
+                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.MAPS_TO_CODE____SOLOR, assemblageElement.getTextContent());
+                        break;
+                    case "id:MapsToName":
+//         <id:MapsToName>Medroxyprogesterone acetate (substance)</id:MapsToName>
+                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.MAPS_TO_NAME____SOLOR, assemblageElement.getTextContent());
+                        break;
+                    case "id:PresUnitDifferent":
+//        <id:PresUnitDifferent>sct: Tablet (unit of presentation)</id:PresUnitDifferent>
+                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.PRESENTATION_UNIT_DIFFERENT____SOLOR, assemblageElement.getTextContent());
+                        break;
+                    case "id:CountOfBaseDifferent":
+//         <id:CountOfBaseDifferent>sct: 1</id:CountOfBaseDifferent>
+                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.COUNT_OF_BASE_DIFFERENT____SOLOR, assemblageElement.getTextContent());
+                        break;
+                    case "skos:prefLabel":
+                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.SKOS_PREFERRED_LABEL____SOLOR, assemblageElement.getTextContent());
+                        break;
+                    case "skos:altLabel":
+                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.SKOS_ALTERNATE_LABEL____SOLOR, assemblageElement.getTextContent());
+                        break;
                     default:
                         LOG.error("Can't handle: " + assemblageElement.getTagName() + " in " + rdfAbout);
 
@@ -306,6 +351,7 @@ Another example to handle...
         for (Element childElement : childElements(element)) {
             switch (childElement.getTagName()) {
                 case "Class":
+                case "owl:Class":
                     handleClassInEquivalentClass(eb, childElement);
                     break;
 
@@ -316,21 +362,26 @@ Another example to handle...
     }
 
     private Assertion handleRestrictionClass(LogicalExpressionBuilder eb, Element element) {
+        List<String> cantHandleElementList = new ArrayList<>();
         for (Element childElement : childElements(element)) {
             switch (childElement.getTagName()) {
                 case "Class":
+                case "owl:Class":
                     return handleClassInRestriction(eb, childElement);
 
                 default:
+                    cantHandleElementList.add(childElement.getTagName());
                     LOG.error("Can't handle: " + childElement.getTagName());
             }
         }
-        throw new IllegalStateException("Expecting Class element. ");
+
+        throw new IllegalStateException("Expecting Class element. Found elements: " + cantHandleElementList);
     }
     private Assertion handleClassInRestriction(LogicalExpressionBuilder eb, Element element) {
         for (Element childElement : childElements(element)) {
             switch (childElement.getTagName()) {
                 case "intersectionOf":
+                case "owl:intersectionOf":
                     return eb.and(handleIntersectionOf(eb, childElement));
                 default:
                     LOG.error("Can't handle: " + childElement.getTagName());
@@ -343,6 +394,7 @@ Another example to handle...
         classInEquivalentClassChildTags.processElement(element);
         for (Element childElement : childElements(element)) {
             switch (childElement.getTagName()) {
+                case "owl:intersectionOf":
                 case "intersectionOf":
                     eb.sufficientSet(eb.and(handleIntersectionOf(eb, childElement)));
                     break;
@@ -358,6 +410,7 @@ Another example to handle...
         for (Element childElement : childElements) {
             switch (childElement.getTagName()) {
                 case "Restriction":
+                case "owl:Restriction":
                     // some restriction
                     assertionList.add(handleRestriction(eb, childElement));
                     break;
@@ -382,12 +435,14 @@ Another example to handle...
             String rdfResource = childElement.getAttribute("rdf:resource");
             switch (childElement.getTagName()) {
                 case "onProperty":
+                case "owl:onProperty":
                     // some restriction. Always has an rdf:resource:
                     // <onProperty rdf:resource="http://snomed.info/id/732943007"/>
                     roleTypeNid = OptionalInt.of(aboutToNid(rdfResource));
                     break;
 
                 case "someValuesFrom":
+                case "owl:someValuesFrom":
                     // someValuesFrom either has a child of <Class>, or an rdf:resource="http://snomed.info/id/609096000"
                     if (rdfResource.isBlank()) {
                         // should have a child <Class>
@@ -412,6 +467,7 @@ Another example to handle...
         LOG.info(equivalentClassChildTags);
         LOG.info(classInEquivalentClassChildTags);
         LOG.info(intersectionOfChildTags);
+        LOG.info("Unresolved forward references: " + forwardReferences);
     }
 
 }

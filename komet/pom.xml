@@ -27,7 +27,7 @@
 <!--        <module>semantic-view</module>-->
         <module>countries-flags</module>
         <module>export-view</module>
-        <module>open-jdk-fixes</module>
+<!--        <module>open-jdk-fixes</module>-->
         <module>komet-preferences</module>
         <module>changeset-view</module>
         <module>batch</module>

@@ -128,7 +128,8 @@ public class LetItemPanel {
                 FXCollections.observableArrayList(PremiseType.INFERRED, PremiseType.STATED);
         this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Premise type", setupManifoldCoordinate.premiseTypeProperty(), 
                 premiseTypes));
-        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Stamp coordinate", setupManifoldCoordinate.stampCoordinateKey(), letPropertySheet.getStampCoordinateKeys()));
+        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("STAMP for origin", setupManifoldCoordinate.originStampCoordinateKey(), letPropertySheet.getStampCoordinateKeys()));
+        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("STAMP for destination", setupManifoldCoordinate.destinationStampCoordinateKey(), letPropertySheet.getStampCoordinateKeys()));
         this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Language coordinate", setupManifoldCoordinate.languageCoordinateKeyProperty(), letPropertySheet.getLanguageCoordinateKeys()));
         this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Logic coordinate", setupManifoldCoordinate.logicCoordinateKeyProperty(), letPropertySheet.getLogicCoordinateKeys()));
     }

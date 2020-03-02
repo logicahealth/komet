@@ -67,6 +67,20 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
    String str5 = null;
    int    nid6 = Integer.MAX_VALUE;
    int    nid7 = Integer.MAX_VALUE;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{int1: ").append(int1).append(" ")
+              .append(", int2: ").append(int2).append(" ")
+              .append(", str3: ").append(str3).append(" ")
+              .append(", str4: ").append(str4).append(" ")
+              .append(", str5: ").append(str5).append(" ")
+              .append(", nid6: ").append(Get.conceptDescriptionText(nid6))
+              .append(", nid7: ").append(Get.conceptDescriptionText(nid7))
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 

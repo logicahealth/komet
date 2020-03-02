@@ -62,6 +62,15 @@ public class Str1_Str2_VersionImpl
          implements Str1_Str2_Version {
    String str1 = null;
    String str2 = null;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{Str1: ").append(str1).append(" ")
+              .append(", Str2: ").append(str2).append(" ")
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 

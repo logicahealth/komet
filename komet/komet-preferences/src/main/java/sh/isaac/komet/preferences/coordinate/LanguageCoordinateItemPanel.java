@@ -55,6 +55,12 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
     }
 
 
+    /**
+     * Constructure used via reflection when reading preferences.
+     * @param preferencesNode
+     * @param manifold
+     * @param kpc
+     */
     public LanguageCoordinateItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME).get(), manifold, kpc);
         Optional<byte[]> optionalBytes = preferencesNode.getByteArray(Keys.LANGUAGE_COORDINATE_DATA);

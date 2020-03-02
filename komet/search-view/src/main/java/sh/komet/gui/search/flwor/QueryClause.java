@@ -256,7 +256,7 @@ public class QueryClause {
     }
 
     private PropertySheet setupStampKeyProperty(Supplier<LetItemKey> supplier, Consumer<LetItemKey> consumer, String label) {
-        SimpleObjectProperty<LetItemKey> stampKeyForClauseProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
+        SimpleObjectProperty<LetItemKey> stampKeyForClauseProperty = new SimpleObjectProperty<>(this, MetaData.ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
         this.clauseSpecificProperties.add(stampKeyForClauseProperty);
         if (supplier.get() == null & !letPropertySheet.getStampCoordinateKeys().isEmpty()) {
             consumer.accept(letPropertySheet.getStampCoordinateKeys().get(0));

@@ -76,6 +76,14 @@ public class LogicGraphVersionImpl
 
    /** The graph data. */
    byte[][] graphData = null;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{graphData: ").append(graphData).append(" ")
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 

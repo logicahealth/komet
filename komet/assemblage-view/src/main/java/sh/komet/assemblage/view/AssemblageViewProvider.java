@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -197,9 +198,19 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
 
     public class Searcher implements Runnable {
         final String searchString;
+        final AtomicDouble nodeCount = new AtomicDouble();
+        final AtomicDouble testedNodes = new AtomicDouble();
 
         public Searcher(String searchString) {
             this.searchString = searchString;
+            countNodes(assemblageDetailController.getAssemblageExtensionTreeTable().getRoot());
+        }
+
+        private void countNodes(TreeItem<ObservableCategorizedVersion>  treeNode) {
+            nodeCount.addAndGet(1.0);
+            for (TreeItem<ObservableCategorizedVersion>  child : treeNode.getChildren()) {
+                countNodes(child);
+            }
         }
 
         @Override
@@ -208,18 +219,19 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
         }
 
         private void handleTreeItem(TreeItem<ObservableCategorizedVersion> item) {
-            if (item.getValue() != null) {
+            if (item != null && item.getValue() != null) {
                 ObservableCategorizedVersion version = item.getValue();
                 if (version.unwrap().toString().contains(searchString)) {
                     searchToolbar.addResult(item);
                 }
+                Platform.runLater(() -> {
+                    for (TreeItem<ObservableCategorizedVersion> child : item.getChildren()) {
+                        Get.executor().execute(() -> handleTreeItem(child));
+                    }
+                });
             }
-            Platform.runLater(() -> {
-                for (TreeItem<ObservableCategorizedVersion> child : item.getChildren()) {
-                    Get.executor().execute(() -> handleTreeItem(child));
-                }
-            });
-
+            testedNodes.addAndGet(1.0);
+            searchToolbar.setProgress(testedNodes.doubleValue()/nodeCount.doubleValue());
         }
     }
 }

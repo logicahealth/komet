@@ -70,6 +70,23 @@ public class LoincVersionImpl
    private String loincStatus    = null;
    private String system         = null;
    private String timeAspect     = null;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{component: ").append(component).append(" ")
+              .append(", loincNum: ").append(loincNum).append(" ")
+              .append(", longCommonName: ").append(longCommonName).append(" ")
+              .append(", methodType: ").append(methodType).append(" ")
+              .append(", property: ").append(property).append(" ")
+              .append(", scaleType: ").append(scaleType).append(" ")
+              .append(", shortName: ").append(shortName).append(" ")
+              .append(", loincStatus: ").append(loincStatus).append(" ")
+              .append(", system: ").append(system).append(" ")
+              .append(", timeAspect: ").append(timeAspect).append(" ")
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 

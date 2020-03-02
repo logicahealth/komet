@@ -41,7 +41,7 @@ public class JoinSpecificationObservable implements JoinSpecification {
             = new SimpleObjectProperty<>(this, MetaData.FIELD_2_TO_JOIN____SOLOR.toExternalString());
 
     SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty 
-            = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
+            = new SimpleObjectProperty<>(this, MetaData.ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
 
     public JoinSpecificationObservable() {
     }

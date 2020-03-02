@@ -364,6 +364,15 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept("RxNorm Asserted").setModule(TermAux.KOMET_MODULE);
                     createConcept("Prescribable").setModule(TermAux.KOMET_MODULE);
 
+                    createConcept("RxNorm inferred").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Units different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Maps to code").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Maps to name").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Presentation unit different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("Count of base different").setModule(TermAux.KOMET_MODULE);
+                    createConcept("SKOS alternate label").setModule(TermAux.KOMET_MODULE);
+                    createConcept("SKOS preferred label").setModule(TermAux.KOMET_MODULE);
+
                     popParent();
                createConcept("Issue management assemblage").addComponentSemantic(UUID.fromString("6b0a4de8-e2db-54a1-9c87-fb365df15662"), STRING_SEMANTIC, SEMANTIC_TYPE);
                pushParent(current());
@@ -1184,10 +1193,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.ASSOCIATED_PARAMETER_QUERY_CLAUSE).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.JOIN_QUERY_CLAUSE).setModule(TermAux.KOMET_MODULE);
                createConcept(ASSEMBLAGE_LIST_FOR_QUERY).setModule(TermAux.KOMET_MODULE);
-               createConcept(STAMP_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
+               createConcept(ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
                createConcept(LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
                createConcept(LOGIC_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
                createConcept(PREMISE_TYPE_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
+               createConcept(MANIFOLD_COORDINATE_KEY).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.CONCEPT_HAS_TAXONOMY_DISTANCE_FROM).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.INTEGER_REFERENCE).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.BOOLEAN_REFERENCE).setModule(TermAux.KOMET_MODULE);

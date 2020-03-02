@@ -67,6 +67,14 @@ public class ComponentNidVersionImpl
          implements MutableComponentNidVersion {
    /** The component nid. */
    int componentNid = Integer.MAX_VALUE;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{componentNid: ").append(componentNid).append(" ")
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 

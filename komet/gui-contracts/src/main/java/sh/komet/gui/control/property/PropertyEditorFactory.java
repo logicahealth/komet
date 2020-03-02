@@ -18,6 +18,8 @@ package sh.komet.gui.control.property;
 
 import java.time.LocalDateTime;
 import sh.isaac.api.ComponentProxy;
+import sh.komet.gui.control.component.ComponentListEditor;
+import sh.komet.gui.control.component.PropertySheetComponentListWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import sh.komet.gui.control.concept.ConceptLabel;
 import sh.komet.gui.control.concept.ConceptForControlWrapper;
@@ -144,6 +146,8 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return createPasswordEditor(propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetConceptListWrapper) {
             return createConceptListEditor((PropertySheetConceptListWrapper) propertySheetItem);
+        } else if (propertySheetItem instanceof PropertySheetComponentListWrapper) {
+            return createComponentListEditor((PropertySheetComponentListWrapper) propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetItemAssemblageListWrapper) {
             return createAssemblageListEditor((PropertySheetItemAssemblageListWrapper) propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetConceptSetWrapper) {
@@ -315,6 +319,12 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
     private PropertyEditor<?> createConceptListEditor(PropertySheetConceptListWrapper propertySheetConceptListWrapper) {
         ConceptListEditor editor = new ConceptListEditor(manifoldForDisplay);
         editor.setValue(propertySheetConceptListWrapper.getValue());
+        return editor;
+    }
+
+    private PropertyEditor<?> createComponentListEditor(PropertySheetComponentListWrapper propertySheetComponentListWrapper) {
+        ComponentListEditor editor = new ComponentListEditor(manifoldForDisplay);
+        editor.setValue(propertySheetComponentListWrapper.getValue());
         return editor;
     }
 

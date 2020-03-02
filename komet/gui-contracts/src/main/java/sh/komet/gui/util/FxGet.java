@@ -296,6 +296,44 @@ public class FxGet implements StaticIsaacCache {
     private static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> LANGUAGE_COORDINATES = FXCollections.observableMap(new TreeMap<>());
     private static ObservableMap<UuidStringKey, ObservableLogicCoordinate>    LOGIC_COORDINATES = FXCollections.observableMap(new TreeMap<>());
     private static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> MANIFOLD_COORDINATES = FXCollections.observableMap(new TreeMap<>());
+    private static final ObservableList<UuidStringKey> STAMP_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
+    private static final ObservableList<UuidStringKey> LANGUAGE_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
+    private static final ObservableList<UuidStringKey> LOGIC_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
+    private static final ObservableList<UuidStringKey> MANIFOLD_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
+    static {
+        STAMP_COORDINATES.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableStampCoordinate> change) -> {
+            if (change.wasAdded()) {
+                STAMP_COORDINATE_KEY_LIST.add(change.getKey());
+            }
+            if (change.wasRemoved()) {
+                STAMP_COORDINATE_KEY_LIST.remove(change.getKey());
+            }
+        });
+        LANGUAGE_COORDINATES.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableLanguageCoordinate> change) -> {
+            if (change.wasAdded()) {
+                LANGUAGE_COORDINATE_KEY_LIST.add(change.getKey());
+            }
+            if (change.wasRemoved()) {
+                LANGUAGE_COORDINATE_KEY_LIST.remove(change.getKey());
+            }
+        });
+        LOGIC_COORDINATES.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableLogicCoordinate> change) -> {
+            if (change.wasAdded()) {
+                LOGIC_COORDINATE_KEY_LIST.add(change.getKey());
+            }
+            if (change.wasRemoved()) {
+                LOGIC_COORDINATE_KEY_LIST.remove(change.getKey());
+            }
+        });
+        MANIFOLD_COORDINATES.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableManifoldCoordinate> change) -> {
+            if (change.wasAdded()) {
+                MANIFOLD_COORDINATE_KEY_LIST.add(change.getKey());
+            }
+            if (change.wasRemoved()) {
+                MANIFOLD_COORDINATE_KEY_LIST.remove(change.getKey());
+            }
+        });
+    }
 
     public static ObservableMap<UuidStringKey, ObservableStampCoordinate> stampCoordinates() {
         return STAMP_COORDINATES;
@@ -309,6 +347,19 @@ public class FxGet implements StaticIsaacCache {
     public static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> manifoldCoordinates() {
         return MANIFOLD_COORDINATES;
     }
+    public static ObservableList<UuidStringKey> stampCoordinateKeys() {
+        return STAMP_COORDINATE_KEY_LIST;
+    }
+    public static ObservableList<UuidStringKey> languageCoordinateKeys() {
+        return LANGUAGE_COORDINATE_KEY_LIST;
+    }
+    public static ObservableList<UuidStringKey> logicCoordinateKeys() {
+        return LOGIC_COORDINATE_KEY_LIST;
+    }
+    public static ObservableList<UuidStringKey> manifoldCoordinateKeys() {
+        return MANIFOLD_COORDINATE_KEY_LIST;
+    }
+
 
     
     public static ObservableList<String> taxonomyConfigurationNames() {

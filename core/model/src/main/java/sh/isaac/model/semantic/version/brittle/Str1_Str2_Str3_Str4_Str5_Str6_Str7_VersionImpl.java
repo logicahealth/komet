@@ -67,6 +67,20 @@ public class Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    String str5 = null;
    String str6 = null;
    String str7 = null;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{Str1: ").append(str1).append(" ")
+              .append(", Str2: ").append(str2).append(" ")
+              .append(", str3: ").append(str3).append(" ")
+              .append(", str4: ").append(str4).append(" ")
+              .append(", str5: ").append(str5).append(" ")
+              .append(", str6: ").append(str6).append(" ")
+              .append(", str7: ").append(str7).append(" ")
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    //~--- constructors --------------------------------------------------------
 
