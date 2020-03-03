@@ -28,7 +28,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.GlobalDatastoreConfiguration;
 import sh.isaac.api.LookupService;
@@ -153,8 +152,8 @@ public class ConfigurationTests {
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultDialectAssemblagePreferenceList(new int[] { -4 });
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultInferredAssemblage(-5);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultLanguage( -6 );
-		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultModule(-7);
-		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPath(-8);
+		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultEditModule(-7);
+		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultEditPath(-8);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPremiseType(PremiseType.STATED);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultStatedAssemblage(-9);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultTime(10);

@@ -267,13 +267,13 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	}
 
 	@Override
-	public void setDefaultModule(int conceptId)
+	public void setDefaultEditModule(int conceptId)
 	{
 		write(ConfigurationOption.EDIT_MODULE, conceptId);
 	}
 
 	@Override
-	public void setDefaultPath(int pathConceptId)
+	public void setDefaultEditPath(int pathConceptId)
 	{
 		write(ConfigurationOption.EDIT_PATH, pathConceptId);
 	}
