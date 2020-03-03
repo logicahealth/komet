@@ -510,6 +510,10 @@
                   <groupId>xml-apis</groupId>
                   <artifactId>xml-apis-ext</artifactId>
                </exclusion>
+               <exclusion>
+                  <groupId>org.apache.xmlgraphics</groupId>
+                  <artifactId>batik-dom</artifactId>
+               </exclusion>
             </exclusions>
          </dependency>
          <dependency>
