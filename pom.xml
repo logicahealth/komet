@@ -142,7 +142,7 @@
       <testng.version>6.13.1</testng.version>
       <tilesfx.version>1.5.2</tilesfx.version>
       <wagon-provider-api.version>3.0.0</wagon-provider-api.version>
-      <jackson-databind.version>2.9.9</jackson-databind.version>
+      <jackson-databind.version>2.9.10.3</jackson-databind.version>
    </properties>
 
    <developers>
