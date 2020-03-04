@@ -31,12 +31,16 @@
  */
 package sh.isaac.provider.qa;
 
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
@@ -49,8 +53,10 @@ public class SimpleQA extends QATask
 {
 	ManifoldCoordinate coordinate;
 
-	Pattern illegalChars = Pattern.compile(".*[\\t\\r\\n@$#\\\\].*");
-	QAResults results = new QAResults();
+	private final Pattern illegalChars = Pattern.compile(".*[\\t\\r\\n@$#\\\\].*");
+	private final QAResults results = new QAResults();
+	
+	private HashMap<String, Integer> uniqueFQNs = new HashMap<>();
 
 	public SimpleQA(ManifoldCoordinate coordinate)
 	{
@@ -61,13 +67,51 @@ public class SimpleQA extends QATask
 	protected QAResults call() throws Exception
 	{
 		//Just a one-off rule for now, for testing the overall API flow
-		Get.assemblageService().getSemanticChronologyStream().parallel().forEach((SemanticChronology semantic) -> {
-			if (semantic.getVersionType() == VersionType.DESCRIPTION)
+		
+		Get.conceptService().getConceptChronologyStream().parallel().forEach((ConceptChronology concept) -> {
+			
+			LatestVersion<ConceptVersion> cv = concept.getLatestVersion(coordinate);
+			if (cv.isPresent() && cv.get().isActive())
 			{
-				LatestVersion<DescriptionVersion> dv = semantic.getLatestVersion(coordinate);
-				if (dv.isPresent() && dv.get().isActive())
+				final int termType = Frills.getTerminologyTypeForModule(cv.get().getModuleNid(), coordinate);
+				if ((termType == MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getNid() || termType == MetaData.US_EXTENSION_MODULES____SOLOR.getNid() 
+						|| termType == MetaData.SOLOR_MODULE____SOLOR.getNid()))
 				{
-					checkVersion(dv.get());
+					AtomicInteger fqnCount = new AtomicInteger();
+					AtomicInteger rnCount = new AtomicInteger();
+					Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).forEach((SemanticChronology semantic) -> {
+						if (semantic.getVersionType() == VersionType.DESCRIPTION)
+						{
+							LatestVersion<DescriptionVersion> dv = semantic.getLatestVersion(coordinate);
+							if (dv.isPresent() && dv.get().isActive())
+							{
+								checkVersion(dv.get());
+								
+								if (dv.get().getDescriptionTypeConceptNid() == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid())
+								{
+									fqnCount.getAndIncrement();
+									Integer existing = uniqueFQNs.put(dv.get().getText() + dv.get().getLanguageConceptNid(), dv.get().getNid());
+									if (existing != null)
+									{
+										addResult(new QAInfo(Severity.ERROR, existing, "Duplicate Fully Qualified Name", dv.get().getText()));
+									}
+								}
+								else if (dv.get().getDescriptionTypeConceptNid() == MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid())
+								{
+									rnCount.getAndIncrement();
+								}
+							}
+						}
+					});
+					
+					if (fqnCount.get() < 1)
+					{
+						addResult(new QAInfo(Severity.ERROR, concept.getNid(), "No active Fully Quallifed Name"));
+					}
+					if (rnCount.get() < 1)
+					{
+						addResult(new QAInfo(Severity.ERROR, concept.getNid(), "No active Regular Name"));
+					}
 				}
 			}
 		});
@@ -77,16 +121,28 @@ public class SimpleQA extends QATask
 	@Override
 	public QAResults checkVersion(Version v)
 	{
-		if (v instanceof DescriptionVersion
-				&& Frills.getTerminologyTypeForModule(v.getModuleNid(), coordinate) == MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getNid()
-				&& illegalChars.matcher(((DescriptionVersion)v).getText()).matches())
+		if (v instanceof DescriptionVersion)
 		{
-			synchronized (results)
+			//TODO I need a list of parent modules that snomed QA rules should apply to
+			final String descriptionText = ((DescriptionVersion)v).getText();
+			if (illegalChars.matcher(descriptionText).matches())
 			{
-				results.addResult(new QAInfo(Severity.ERROR, v.getNid(),
-						"An active term should not contain tabs, newlines, or characters @, $, #, \\\\.", ((DescriptionVersion)v).getText()));
+				addResult(new QAInfo(Severity.ERROR, v.getNid(),
+						"An active term should not contain tabs, newlines, or characters @, $, #, \\\\.", descriptionText));
+			}
+			if (descriptionText.contains("  "))
+			{
+				addResult(new QAInfo(Severity.WARNING, v.getNid(), "An active term should not contain double spaces", descriptionText));
 			}
 		}
 		return results;
+	}
+	
+	private void addResult(QAInfo result)
+	{
+		synchronized (results)
+		{
+			results.addResult(result);
+		}
 	}
 }
