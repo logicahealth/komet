@@ -419,7 +419,7 @@ public class DirectWriteHelper
 
 	/**
 	 * Calls {@link #makeDescription(UUID, String, UUID, UUID, UUID, Status, long, UUID, UUID)} with
-	 * {@link MetaData#ENGLISH_DIALECT_ASSEMBLAGE____SOLOR}
+	 * {@link MetaData#ENGLISH_LANGUAGE____SOLOR}
 	 * and {@link MetaData#US_ENGLISH_DIALECT____SOLOR}
 	 * 
 	 * @param concept The concept to attach the description onto
