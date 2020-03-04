@@ -499,11 +499,13 @@ public class Frills
     * @return the "Edit" module for this terminology type, which will be created, if necessary.  This concept will also be used for the namespace
     * when generating the UUID(s) for the new concept.
     */
-   public static int createAndGetDefaultEditModule(int module) {
+   public static int createAndGetDefaultEditModule(final int module) {
 
       return EDIT_MODULE_FOR_TERMINOLOGY_CACHE.get(module, moduleAgain -> {
-         
-         final int termTypeConcept = findTermTypeConcept(moduleAgain, null);
+         final Integer termTypeConcept = findTermTypeConcept(module, null);
+         if (termTypeConcept == null) {
+             throw new RuntimeException("Couldn't determine term type of module " + module);
+         }
          final StampCoordinate stamp = StampCoordinates.getDevelopmentLatest();
          final LanguageCoordinate fqnCoord = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
          
@@ -513,7 +515,7 @@ public class Frills
             String fqn = fqnCoord.getFullyQualifiedName(nid, stamp).orElseGet(() -> "");
             int index = fqn.indexOf("Edit (" + ConceptProxy.METADATA_SEMANTIC_TAG + ")"); 
             if (index > 0) {
-               LOG.debug("Returning existing default edit module nid of {} for {}", Get.conceptDescriptionText(nid), Get.conceptDescriptionText(moduleAgain));
+               LOG.debug("Returning existing default edit module nid of {} for {}", Get.conceptDescriptionText(nid), Get.conceptDescriptionText(module));
                return nid;
             }
          }
