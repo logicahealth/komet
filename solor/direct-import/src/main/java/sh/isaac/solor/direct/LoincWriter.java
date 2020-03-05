@@ -50,6 +50,7 @@ import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.metadata.source.DirectImportDynamicConstants;
 import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
@@ -219,9 +220,16 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                         
                         LogicalExpression logicalExpression = builder.build();
                         logicalExpression.getNodeCount();
-                        addLogicGraph(loincRecord[LOINC_NUM],
-                                logicalExpression);
+                        addLogicGraph(loincRecord[LOINC_NUM], logicalExpression, moduleNid, status);
 
+                    }
+                    else if (status != Status.ACTIVE && optionalConcept.get().getLatestVersion(StampCoordinates.getDevelopmentLatest())
+                          .isPresentAnd(v -> v.getStatus() == Status.ACTIVE))
+                    {
+                        //Concept is present, but is active when our record says it shouldn't be.
+                         optionalConcept.get().createMutableVersion(recordStamp);
+                         Get.conceptService().writeConcept(optionalConcept.get());
+                         index(optionalConcept.get());
                     }
                     // make 2 LOINC descriptions
                     String longCommonName = loincRecord[LONG_COMMON_NAME];
@@ -343,7 +351,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
      * @return the semantic chronology
      */
     public SemanticChronology addLogicGraph(String loincCode,
-            LogicalExpression logicalExpression) {
+            LogicalExpression logicalExpression, int module, Status status) {
 
         int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
                 commitTime, TermAux.USER.getNid(),
@@ -352,9 +360,10 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
         if (!optionalConcept.isPresent()) {
+            int conceptStamp = Get.stampService().getStampSequence(status, commitTime, TermAux.USER.getNid(), module,TermAux.DEVELOPMENT_PATH.getNid()); 
             ConceptChronologyImpl conceptToWrite
                     = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-            conceptToWrite.createMutableVersion(stamp);
+            conceptToWrite.createMutableVersion(conceptStamp);
             Get.conceptService().writeConcept(conceptToWrite);
             index(conceptToWrite);
 
@@ -367,7 +376,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                     MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
                     conceptToWrite.getNid());
 
-            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);
+            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(conceptStamp);
             loincIdVersion.setString(loincCode);
             index(loincIdentifierToWrite);
             Get.assemblageService().writeSemanticChronology(loincIdentifierToWrite);

@@ -316,9 +316,13 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         final int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
         if (!optionalConcept.isPresent()) {
+            int conceptStamp = Get.stampService().getStampSequence(Status.ACTIVE,
+                    commitTime, TermAux.USER.getNid(),
+                    MetaData.LOINC_MODULES____SOLOR.getNid(),
+                    TermAux.DEVELOPMENT_PATH.getNid());
             ConceptChronologyImpl conceptToWrite
                     = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-            conceptToWrite.createMutableVersion(stamp);
+            conceptToWrite.createMutableVersion(conceptStamp);
             Get.conceptService().writeConcept(conceptToWrite);
             index(conceptToWrite);
 
@@ -330,7 +334,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
                     conceptToWrite.getNid());
 
-            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);
+            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(conceptStamp);
             loincIdVersion.setString(loincCode);
             index(loincIdentifierToWrite);
             Get.assemblageService().writeSemanticChronology(loincIdentifierToWrite);
