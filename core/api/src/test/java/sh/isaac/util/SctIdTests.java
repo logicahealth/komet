@@ -54,7 +54,7 @@ public class SctIdTests
 	{
 		//valid SCTIDs from https://confluence.ihtsdotools.org/display/DOCRELFMT/6.8+Example+SNOMED+CT+identifiers
 		long[] tests = new long[] { 100005,100014, 100022, 1290023401004l, 1290023401015l, 9940000001029l, 11000001102l, 10989121108l,
-				1290989121103l, 1290000001117l, 9940000001126l, 999999990989121104l};
+				1290989121103l, 1290000001117l, 9940000001126l, 999999990989121104l, 4491000124102l};
 
 		for (long l : tests)
 		{

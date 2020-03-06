@@ -335,7 +335,7 @@ public class SctId {
 		//validate it has a valid partition
 		try
 		{
-			TYPE t = TYPE.parse(idAsString.substring(idAsString.length() - 4, idAsString.length() - 2));
+			TYPE t = TYPE.parse(idAsString.substring(idAsString.length() - 3, idAsString.length() - 1));
 			//Anything that is a long format must have a namespace, which brings our min length up to 11.
 			if (t.isLongForm() && idAsString.length() < 11)
 			{
