@@ -48,7 +48,6 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -92,7 +91,7 @@ public class KometBaseMenus implements MenuProvider {
             case FILE: {
                 MenuItem selectiveImport = new MenuItemWithText("Selective import and transform");
                 selectiveImport.setOnAction((ActionEvent event) -> {
-                    ImportView.show(FxGet.manifold(Manifold.ManifoldGroup.TAXONOMY));
+                    ImportView.show(FxGet.manifold(Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
                 });
 
                 MenuItem selectiveExport = new MenuItemWithText("Selective export");

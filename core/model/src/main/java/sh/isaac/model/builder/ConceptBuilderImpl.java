@@ -489,7 +489,10 @@ public class ConceptBuilderImpl
 
    @Override
    public String toString() {
-      return "ConceptBuilderImpl{" + conceptName + (StringUtils.isNotBlank(semanticTag) ? " (" + semanticTag + ") " : " ") + this.getPrimordialUuid() + '}';
+      if (this.isPrimordialUuidSet()) {
+         return "ConceptBuilderImpl{" + conceptName + (StringUtils.isNotBlank(semanticTag) ? " (" + semanticTag + ") " : " ") + this.getPrimordialUuid() + '}';
+      }
+      return "ConceptBuilderImpl{" + conceptName + (StringUtils.isNotBlank(semanticTag) ? " (" + semanticTag + ") " : " ") + "Primordial UUID not set" + '}';
    }
    
    @Override

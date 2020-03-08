@@ -127,6 +127,27 @@ public abstract class AbstractPreferences implements PreferenceGroup {
 
     public AbstractPreferences(IsaacPreferences preferencesNode, String groupName, Manifold manifold,
             KometPreferencesController kpc) {
+        if (preferencesNode == null) {
+            throw new NullPointerException("preferencesNode cannot be null.");
+        }
+        if (groupName == null) {
+            throw new NullPointerException("groupName cannot be null.");
+        }
+        if (manifold == null) {
+            throw new NullPointerException("Manifold cannot be null.");
+        }
+        if (manifold.getStampCoordinate() == null) {
+            throw new NullPointerException("Manifold.getStampCoordinate() cannot be null.");
+        }
+        if (manifold.getLanguageCoordinate() == null) {
+            throw new NullPointerException("Manifold.getLanguageCoordinate() cannot be null.");
+        }
+        if (manifold.getLogicCoordinate() == null) {
+            throw new NullPointerException("Manifold.getLogicCoordinate() cannot be null.");
+        }
+        if (kpc == null) {
+            throw new NullPointerException("KometPreferencesController cannot be null.");
+        }
         this.preferencesNode = preferencesNode;
         this.initialized.setValue(preferencesNode.getBoolean(INITIALIZED, false));
         this.groupNameProperty.set(groupName);

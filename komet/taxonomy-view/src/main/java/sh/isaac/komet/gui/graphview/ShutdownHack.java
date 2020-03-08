@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui.treeview;
+package sh.isaac.komet.gui.graphview;
 
 import org.jvnet.hk2.annotations.Service;
 
@@ -44,6 +44,6 @@ public class ShutdownHack //implements ServicesToPreloadI
 //	@Override
 //	public void shutdown()
 //	{
-//		MultiParentTreeView.globalShutdownRequested();
+//		MultiParentGraphView.globalShutdownRequested();
 //	}
 }

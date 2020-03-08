@@ -42,6 +42,14 @@ public class UuidStringKey implements Comparable<UuidStringKey> {
         return uuid.equals(that.uuid);
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public String getString() {
+        return string;
+    }
+
     @Override
     public String toString() {
         return string;

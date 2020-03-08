@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui.treeview;
+package sh.isaac.komet.gui.graphview;
 
 import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
@@ -35,14 +35,14 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 @Service(name = "Multi-Parent Tree View Provider")
 @Singleton
 
-public class TreeViewExplorationNodeFactory 
+public class GraphViewExplorationNodeFactory
         implements ExplorationNodeFactory {
    public static final String MENU_TEXT  = "Taxonomy";
 
    @Override
    public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      MultiParentTreeView multiParentTreeView = new MultiParentTreeView(manifold, MetaData.SOLOR_CONCEPT____SOLOR);
-      return multiParentTreeView;
+      MultiParentGraphView multiParentGraphView = new MultiParentGraphView(manifold, MetaData.SOLOR_CONCEPT____SOLOR);
+      return multiParentGraphView;
    }
 
    @Override
@@ -60,7 +60,7 @@ public class TreeViewExplorationNodeFactory
     */
    @Override
    public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.TAXONOMY};
+      return new ManifoldGroup[] {ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE};
    }
 
    @Override

@@ -25,14 +25,14 @@ public class ConceptDetailTaxonomyLinkedPanelProviderFactory extends ConceptDeta
     @Override
     public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
         preferencesNode.put(ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME,
-                preferencesNode.get(ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME, Manifold.ManifoldGroup.TAXONOMY.getGroupName()));
+                preferencesNode.get(ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME, Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE.getGroupName()));
 
         return new ConceptDetailPanelNode(manifold, preferencesNode);
     }
 
     @Override
     public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.TAXONOMY, Manifold.ManifoldGroup.UNLINKED, Manifold.ManifoldGroup.SEARCH};
+        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE, Manifold.ManifoldGroup.UNLINKED, Manifold.ManifoldGroup.SEARCH};
     }
 
 }

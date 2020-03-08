@@ -1,52 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import org.controlsfx.control.textfield.CustomTextField?>
 <?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.textfield.CustomTextField?>
 
-<AnchorPane id="AnchorPane" fx:id="mainAnchorPane" prefHeight="723.0" prefWidth="341.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.simple.SimpleSearchController">
+<AnchorPane id="AnchorPane" fx:id="mainAnchorPane" prefHeight="723.0" prefWidth="341.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.simple.SimpleSearchController">
     <stylesheets>
         <URL value="@/styles/search.css" />
     </stylesheets>
     <children>
         <BorderPane layoutX="68.0" layoutY="41.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <center>
-                <SplitPane orientation="VERTICAL" BorderPane.alignment="CENTER">
+         <top>
+            <VBox prefHeight="131.0" prefWidth="341.0" BorderPane.alignment="CENTER">
+               <children>
+                  <ToolBar prefHeight="40.0" prefWidth="200.0">
                     <items>
-                  <VBox prefHeight="262.0" prefWidth="339.0">
-                     <children>
-                        <ToolBar prefHeight="40.0" prefWidth="200.0">
-                          <items>
-                              <CustomTextField fx:id="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="325.0" styleClass="searchTextField">
-                                  <left>
-                                      <Label fx:id="searchTextFieldLabel" styleClass="searchTextFieldLabel">
-                                          <graphic>
-                                              <FontAwesomeIconView styleClass="searchTextFieldLabelIcon" />
-                                          </graphic>
-                                      </Label>
-                                  </left>
-                              </CustomTextField>
-                          </items>
-                        </ToolBar>
-                        <FlowPane fx:id="searchTagFlowPane" prefHeight="184.0" prefWidth="339.0" >
-                        </FlowPane>
-                                <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
-                                    <content>
-                                        <TableView fx:id="resultTable" maxHeight="700.0" prefHeight="425.0" prefWidth="337.0">
-                                            <columns>
-                                                <TableColumn fx:id="resultColumn" editable="false" prefWidth="336.0" text="Result" />
-                                            </columns>
-                                        </TableView>
-                                    </content>
-                                </ScrollPane>
-                         <ProgressBar fx:id="searchProgressBar" prefHeight="20.0" prefWidth="345.0" progress="0.0" />
-                     </children>
-                  </VBox>
+                        <CustomTextField fx:id="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="325.0" styleClass="searchTextField">
+                            <left>
+                                <Label fx:id="searchTextFieldLabel" styleClass="searchTextFieldLabel">
+                                    <graphic>
+                                        <FontAwesomeIconView styleClass="searchTextFieldLabelIcon" />
+                                    </graphic>
+                                </Label>
+                            </left>
+                        </CustomTextField>
                     </items>
-                </SplitPane>
-            </center>
+                  </ToolBar>
+                  <FlowPane fx:id="searchTagFlowPane" prefHeight="80.0" prefWidth="341.0">
+                        </FlowPane>
+               </children>
+            </VBox>
+         </top>
+         <center>
+            <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <bottom>
+                  <AnchorPane>
+                     <children>
+                         <ProgressBar fx:id="searchProgressBar" prefHeight="20.0" prefWidth="345.0" progress="0.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="1.0" />
+                     </children>
+                  </AnchorPane>
+               </bottom>
+               <center>
+                            <TableView fx:id="resultTable" prefHeight="1000.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
+                                <columns>
+                                    <TableColumn fx:id="resultColumn" editable="false" prefWidth="-1.0" text="Result" />
+                                </columns>
+                            </TableView>
+               </center>
+            </BorderPane>
+         </center>
         </BorderPane>
     </children>
 </AnchorPane>

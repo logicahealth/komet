@@ -61,7 +61,7 @@ public class LogicDetailProviderFactory implements DetailNodeFactory {
     */
    @Override
    public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.TAXONOMY};
+      return new ManifoldGroup[] {ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE};
    }
 
    @Override

@@ -32,4 +32,36 @@ public class VersionTable {
     public TableView<ObservableChronology> getRootNode() {
         return tableView;
     }
+
+    public void setWhatColumnVisible(boolean value) {
+        controller.setWhatColumnVisible(value);
+    }
+
+    public void setStatusColumnVisible(boolean value) {
+        controller.setStatusColumnVisible(value);
+    }
+
+    public void setTimeColumnVisible(boolean value) {
+        controller.setTimeColumnVisible(value);
+    }
+
+    public void setModulePathColumnVisible(boolean value) {
+        controller.setModulePathColumnVisible(value);
+    }
+
+    public void setAuthorTimeColumnVisible(boolean value) {
+        controller.setAuthorTimeColumnVisible(value);
+    }
+
+    public void setAuthorColumnVisible(boolean value) {
+        controller.setAuthorColumnVisible(value);
+    }
+
+    public void setModuleColumnVisible(boolean value) {
+        controller.setModuleColumnVisible(value);
+    }
+
+    public void setPathColumnVisible(boolean value) {
+        controller.setPathColumnVisible(value);
+    }
 }

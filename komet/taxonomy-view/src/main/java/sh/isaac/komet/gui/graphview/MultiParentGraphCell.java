@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.komet.gui.treeview;
+package sh.isaac.komet.gui.graphview;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -75,7 +75,6 @@ import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.komet.iconography.Iconography2;
 import sh.komet.gui.interfaces.DraggableWithImage;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
@@ -92,7 +91,7 @@ import sh.komet.gui.menu.MenuItemWithText;
  * @author ocarlsen
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-final public class MultiParentTreeCell
+final public class MultiParentGraphCell
         extends TreeCell<ConceptChronology>
          implements DraggableWithImage {
    /**
@@ -108,10 +107,10 @@ final public class MultiParentTreeCell
    
    //~--- constructors --------------------------------------------------------
 
-   MultiParentTreeCell(TreeView<ConceptChronology> treeView) {
+   MultiParentGraphCell(TreeView<ConceptChronology> treeView) {
       super();
       updateTreeView(treeView);
-      setSkin(new MultiParentTreeCellSkin(this));
+      setSkin(new MultiParentGraphCellSkin(this));
 
       // Allow drags
       
@@ -137,7 +136,7 @@ final public class MultiParentTreeCell
             conceptDescriptionText = null;
             setGraphic(null);
          } else {
-            final MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) getTreeItem();
+            final MultiParentGraphItemImpl treeItem = (MultiParentGraphItemImpl) getTreeItem();
             conceptDescriptionText = treeItem.toString();
 
                if (!treeItem.isLeaf()) {
@@ -147,7 +146,7 @@ final public class MultiParentTreeCell
                     setDisclosureNode(iv);
                }
 
-               ConceptSnapshotService conceptSnapshotService = treeItem.getTreeView().getManifold().getConceptSnapshotService();
+               ConceptSnapshotService conceptSnapshotService = treeItem.getGraphView().getManifold().getConceptSnapshotService();
 
             if (concept != null) {
                if (conceptSnapshotService.isConceptActive(concept.getNid())) {
@@ -169,8 +168,8 @@ final public class MultiParentTreeCell
 
    private ContextMenu buildContextMenu(ConceptChronology concept) {
       if (concept != null) {
-         MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) getTreeItem();
-         MultiParentTreeView treeView = treeItem.getTreeView();
+         MultiParentGraphItemImpl treeItem = (MultiParentGraphItemImpl) getTreeItem();
+         MultiParentGraphView treeView = treeItem.getGraphView();
          Manifold menuManifold = treeView.getManifold();
          
       ContextMenu cm    = new ContextMenu();
@@ -178,8 +177,8 @@ final public class MultiParentTreeCell
 
       item1.setOnAction(
           (ActionEvent e) -> {
-             int conceptNid = ((MultiParentTreeItemImpl) getTreeItem()).getConceptNid();
-             Manifold manifold = ((MultiParentTreeItemImpl) getTreeItem()).getTreeView().getManifold();
+             int conceptNid = ((MultiParentGraphItemImpl) getTreeItem()).getConceptNid();
+             Manifold manifold = ((MultiParentGraphItemImpl) getTreeItem()).getGraphView().getManifold();
              treeItem.getValue();
           });
 
@@ -196,28 +195,28 @@ final public class MultiParentTreeCell
       return null;
    }
 
-   protected void openOrCloseParent(MultiParentTreeItemImpl treeItem) {
+   protected void openOrCloseParent(MultiParentGraphItemImpl treeItem) {
       ConceptChronology value = treeItem.getValue();
 
       if (value != null) {
          treeItem.setValue(null);
 
-         MultiParentTreeItemImpl parentItem = (MultiParentTreeItemImpl) treeItem.getParent();
+         MultiParentGraphItemImpl parentItem = (MultiParentGraphItemImpl) treeItem.getParent();
          ObservableList<TreeItem<ConceptChronology>> siblings = parentItem.getChildren();
 
          if (treeItem.isSecondaryParentOpened()) {
             removeExtraParents(treeItem, siblings);
          } else {
-            Collection<TaxonomyLink> allParents = treeItem.getTreeView()
+            Collection<TaxonomyLink> allParents = treeItem.getGraphView()
                                        .getTaxonomySnapshot()
                                        .getTaxonomyParentLinks(value.getNid());
-            ArrayList<MultiParentTreeItemImpl> secondaryParentItems = new ArrayList<>();
+            ArrayList<MultiParentGraphItemImpl> secondaryParentItems = new ArrayList<>();
 
             for (TaxonomyLink parentLink: allParents) {
                if ((allParents.size() == 1) || (parentLink.getDestinationNid() != parentItem.getValue().getNid())) {
                   ConceptChronology parentChronology = Get.concept(parentLink.getDestinationNid());
-                  MultiParentTreeItemImpl extraParentItem = new MultiParentTreeItemImpl(parentChronology, treeItem.getTreeView(), parentLink.getTypeNid(), null);
-                  Manifold manifold = treeItem.getTreeView().getManifold();
+                  MultiParentGraphItemImpl extraParentItem = new MultiParentGraphItemImpl(parentChronology, treeItem.getGraphView(), parentLink.getTypeNid(), null);
+                  Manifold manifold = treeItem.getGraphView().getManifold();
                   extraParentItem.setDefined(parentChronology.isSufficientlyDefined(manifold, manifold));
                   extraParentItem.setMultiParentDepth(treeItem.getMultiParentDepth() + 1);
                   secondaryParentItems.add(extraParentItem);
@@ -229,7 +228,7 @@ final public class MultiParentTreeCell
 
             int startIndex = siblings.indexOf(treeItem);
 
-            for (MultiParentTreeItemImpl extraParentItem: secondaryParentItems) {
+            for (MultiParentGraphItemImpl extraParentItem: secondaryParentItems) {
                parentItem.getChildren()
                          .add(startIndex++, extraParentItem);
                treeItem.getExtraParents()
@@ -243,7 +242,7 @@ final public class MultiParentTreeCell
       }
    }
 
-   private void removeExtraParents(MultiParentTreeItemImpl treeItem,
+   private void removeExtraParents(MultiParentGraphItemImpl treeItem,
                                    ObservableList<TreeItem<ConceptChronology>> siblings) {
       treeItem.getExtraParents().stream().map((extraParent) -> {
          removeExtraParents(extraParent, siblings);
@@ -307,7 +306,7 @@ final public class MultiParentTreeCell
    @Override
    public String toString() {
       if (conceptDescriptionText == null) {
-         MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) getTreeItem();
+         MultiParentGraphItemImpl treeItem = (MultiParentGraphItemImpl) getTreeItem();
          conceptDescriptionText = treeItem.toString();
       }
       return conceptDescriptionText;

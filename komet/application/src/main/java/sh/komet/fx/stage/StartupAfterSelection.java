@@ -131,7 +131,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
         protected Void call() throws Exception {
             try {
                 kometPreferences = FxGet.kometPreferences();
-                kometPreferences.loadPreferences(FxGet.manifold(Manifold.ManifoldGroup.TAXONOMY));
+                kometPreferences.loadPreferences(FxGet.manifold(Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
 
 
                 if (Get.metadataService()

@@ -15,11 +15,9 @@
  */
 package sh.komet.fx.stage;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
-import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -28,16 +26,12 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LogicGraphTransformerAndWriter;
 import sh.isaac.solor.direct.TransformationGroup;
-import sh.isaac.solor.direct.rxnorm.RxNormDomImporter;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.manifold.Manifold;
@@ -249,7 +243,7 @@ public class DeveloperMenus implements MenuProvider {
         ConceptProxy concept1 = new ConceptProxy("Renal anasarca (disorder)", UUID.fromString("fb334dc1-c6fd-3136-9f56-0b1dfeb417c2"));
         ConceptProxy concept2 = new ConceptProxy("Hearing loss of bilateral ears caused by noise (disorder)", UUID.fromString("749ad125-b01a-3973-afbb-04bb9d599e98"));
 
-        TaxonomySnapshot snapshot = Get.taxonomyService().getSnapshot(FxGet.manifold(Manifold.ManifoldGroup.TAXONOMY));
+        TaxonomySnapshot snapshot = Get.taxonomyService().getSnapshot(FxGet.manifold(Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
 
         Tree snapshotTree = snapshot.getTaxonomyTree();
 

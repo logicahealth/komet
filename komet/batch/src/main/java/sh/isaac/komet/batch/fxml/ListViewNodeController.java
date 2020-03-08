@@ -84,6 +84,9 @@ public class ListViewNodeController implements ComponentList {
                 this::addIdentifiedObject, dragEvent -> true, dragAndDropRowFactory::isDragging);
 
         this.batchBorderPane.setCenter(this.versionTable.getRootNode());
+        //TODO get the visible columns from preferences, and write them to preferences when changed...
+        this.versionTable.setAuthorTimeColumnVisible(false);
+        this.versionTable.setModulePathColumnVisible(false);
     }
 
     private void selectionChanged(ListChangeListener.Change<? extends ObservableChronology> c) {
@@ -156,7 +159,7 @@ public class ListViewNodeController implements ComponentList {
                 try (FileWriter writer = new FileWriter(exportFile)) {
                     writer.write(listName.getText() + "\n");
                     for (ObservableChronology item: versionTable.getRootNode().getItems()) {
-                        writer.write(item.getPrimordialUuid().toString() + "\n");
+                        writer.write(item.getPrimordialUuid().toString() + "\t" + item.toUserString() + "\n");
                     }
                     writer.flush();
                 }
@@ -182,10 +185,11 @@ public class ListViewNodeController implements ComponentList {
                 items.clear();
                 int lineCount = 0;
                 bufferedReader.lines().forEach(lineString -> {
+                    String[] columns = lineString.split("\t");
                     if (lineCount == 0 &! UUIDUtil.isUUID(lineString)) {
                         listName.setText(lineString);
                     } else {
-                        newList.add(Get.observableChronology(UUID.fromString(lineString)));
+                        newList.add(Get.observableChronology(UUID.fromString(columns[0])));
                         //items.add(Get.observableChronology(UUID.fromString(lineString)));
                     }
                 });
@@ -196,6 +200,31 @@ public class ListViewNodeController implements ComponentList {
         }
 
     }
+
+    @FXML
+    void deDupe(ActionEvent event) {
+        HashSet<Integer> uniqueComponents = new HashSet<>();
+        for (int i = 0; i < getComponents().size(); i++) {
+            ObservableChronology item = getComponents().get(i);
+            if (uniqueComponents.contains(item.getNid())) {
+                while (item != null && uniqueComponents.contains(item.getNid())) {
+                    getComponents().remove(i);
+                    if (i < getComponents().size()) {
+                        item = getComponents().get(i);
+                    } else {
+                        item = null;
+                    }
+                }
+                if (item != null) {
+                    uniqueComponents.add(item.getNid());
+                }
+
+            } else {
+                uniqueComponents.add(item.getNid());
+            }
+        }
+    }
+
 
     public void close() {
         System.out.println("Closing ListViewNodeController");

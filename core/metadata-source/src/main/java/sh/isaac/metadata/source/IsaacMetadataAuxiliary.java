@@ -372,6 +372,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept("Count of base different").setModule(TermAux.KOMET_MODULE);
                     createConcept("SKOS alternate label").setModule(TermAux.KOMET_MODULE);
                     createConcept("SKOS preferred label").setModule(TermAux.KOMET_MODULE);
+                    createConcept("SKOS definition").setModule(TermAux.KOMET_MODULE);
 
                     popParent();
                createConcept("Issue management assemblage").addComponentSemantic(UUID.fromString("6b0a4de8-e2db-54a1-9c87-fb365df15662"), STRING_SEMANTIC, SEMANTIC_TYPE);

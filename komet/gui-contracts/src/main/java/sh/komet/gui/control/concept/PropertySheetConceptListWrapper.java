@@ -20,6 +20,7 @@ import java.util.Optional;
 import javafx.beans.property.ListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import org.apache.commons.lang.ObjectUtils;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -35,6 +36,12 @@ public class PropertySheetConceptListWrapper implements PropertySheet.Item {
     private final String name;
 
     public PropertySheetConceptListWrapper(Manifold manifold, ListProperty<ConceptSpecification> conceptListProperty) {
+        if (manifold == null) {
+            throw new NullPointerException("Manifold cannot be null");
+        }
+        if (conceptListProperty == null) {
+            throw new NullPointerException("conceptListProperty cannot be null");
+        }
         this.conceptListProperty = conceptListProperty;
         this.name = manifold.getPreferredDescriptionText(new ConceptProxy(conceptListProperty.getName()));
     }

@@ -19,8 +19,10 @@ package sh.isaac.api.tree;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.RefreshListener;
 import sh.isaac.api.TaxonomyLink;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
@@ -32,19 +34,22 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  * @author kec
  */
 public class TaxonomyAmalgam implements TaxonomySnapshot {
-    TaxonomySnapshot definingTaxonomy;
-    ArrayList<TaxonomySnapshot> taxonomies = new ArrayList<>();
-    ArrayList<TaxonomySnapshot> inverseTaxonomies = new ArrayList<>();
-    ArrayList<ConceptSpecification> taxonomyRoots = new ArrayList<>();
+    final DefiningTaxonomy definingTaxonomy;
+    final ArrayList<TaxonomySnapshot> taxonomies = new ArrayList<>();
+    final ArrayList<TaxonomySnapshot> inverseTaxonomies = new ArrayList<>();
+    final ArrayList<ConceptSpecification> taxonomyRoots = new ArrayList<>();
     final ManifoldCoordinate manifoldCoordinate;
+    final boolean includeDefiningTaxonomy;
 
     public TaxonomyAmalgam(ManifoldCoordinate manifoldCoordinate, boolean includeDefiningTaxonomy) {
+        if (includeDefiningTaxonomy == false) {
+            throw new IllegalStateException();
+        }
         this.manifoldCoordinate = manifoldCoordinate;
+        this.includeDefiningTaxonomy = includeDefiningTaxonomy;
+        this.definingTaxonomy = new DefiningTaxonomy();
         if (includeDefiningTaxonomy) {
-            this.definingTaxonomy = Get.taxonomyService().getSnapshot(manifoldCoordinate);
-            this.taxonomies.add(definingTaxonomy);
-        } else {
-            this.definingTaxonomy = null;
+            taxonomies.add(this.definingTaxonomy);
         }
     }
 
@@ -130,7 +135,7 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
 
     @Override
     public boolean isKindOf(int childConceptNid, int parentConceptNid) {
-        if (definingTaxonomy != null) {
+        if (includeDefiningTaxonomy) {
             return definingTaxonomy.isKindOf(childConceptNid, parentConceptNid);
         }
         return false;
@@ -138,14 +143,14 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
 
     @Override
     public NidSet getKindOfConceptNidSet(int rootConceptNid) {
-        if (definingTaxonomy != null) {
+        if (includeDefiningTaxonomy) {
             return getKindOfConceptNidSet(rootConceptNid);
         }
         return new NidSet();
     }
 
     @Override
-    public boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
+    public boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid) {
         throw new UnsupportedOperationException();
     }
 
@@ -161,7 +166,7 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
 
     @Override
     public TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate) {
-        TaxonomyAmalgam analog = new TaxonomyAmalgam(manifoldCoordinate, this.definingTaxonomy != null);
+        TaxonomyAmalgam analog = new TaxonomyAmalgam(manifoldCoordinate, this.includeDefiningTaxonomy);
         for (TaxonomySnapshot tree: taxonomies) {
             analog.taxonomies.add(tree.makeAnalog(manifoldCoordinate));
         }
@@ -194,6 +199,96 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
         }
         return links;
     }
-    
+
+    public void reset() {
+        this.taxonomies.clear();
+        this.inverseTaxonomies.clear();
+        this.taxonomyRoots.clear();
+        if (includeDefiningTaxonomy) {
+            taxonomies.add(this.definingTaxonomy);
+        }
+    }
+
+    private class DefiningTaxonomy implements TaxonomySnapshot, RefreshListener {
+
+        UUID listenerUuid = UUID.randomUUID();
+
+        TaxonomySnapshot definingTaxonomySnapshot;
+
+        public DefiningTaxonomy() {
+            this.definingTaxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+            Get.taxonomyService().addTaxonomyRefreshListener(this);
+        }
+
+        @Override
+        public boolean isLeaf(int conceptNid) {
+            return definingTaxonomySnapshot.isLeaf(conceptNid);
+        }
+
+        @Override
+        public boolean isChildOf(int childConceptNid, int parentConceptNid) {
+            return definingTaxonomySnapshot.isChildOf(childConceptNid, parentConceptNid);
+        }
+
+        @Override
+        public boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid) {
+            return definingTaxonomySnapshot.isDescendentOf(descendantConceptNid, ancestorConceptNid);
+        }
+
+        @Override
+        public NidSet getKindOfConceptNidSet(int rootConceptNid) {
+            return definingTaxonomySnapshot.getKindOfConceptNidSet(rootConceptNid);
+        }
+
+        @Override
+        public int[] getRootNids() {
+            return definingTaxonomySnapshot.getRootNids();
+        }
+
+        @Override
+        public int[] getTaxonomyChildConceptNids(int parentConceptNid) {
+            return definingTaxonomySnapshot.getTaxonomyChildConceptNids(parentConceptNid);
+        }
+
+        @Override
+        public int[] getTaxonomyParentConceptNids(int childConceptNid) {
+            return definingTaxonomySnapshot.getTaxonomyParentConceptNids(childConceptNid);
+        }
+
+        @Override
+        public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
+            return definingTaxonomySnapshot.getTaxonomyParentLinks(parentConceptNid);
+        }
+
+        @Override
+        public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
+            return  definingTaxonomySnapshot.getTaxonomyChildLinks(childConceptNid);
+        }
+
+        @Override
+        public Tree getTaxonomyTree() {
+            return definingTaxonomySnapshot.getTaxonomyTree();
+        }
+
+        @Override
+        public ManifoldCoordinate getManifoldCoordinate() {
+            return TaxonomyAmalgam.this.manifoldCoordinate;
+        }
+
+        @Override
+        public TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public UUID getListenerUuid() {
+            return listenerUuid;
+        }
+
+        @Override
+        public void refresh() {
+            this.definingTaxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+        }
+    }
     
 }

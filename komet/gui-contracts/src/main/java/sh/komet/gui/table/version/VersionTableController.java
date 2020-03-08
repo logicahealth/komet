@@ -1,18 +1,31 @@
 package sh.komet.gui.table.version;
 
+import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
+import sh.isaac.api.Get;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.util.UUIDUtil;
+import sh.komet.gui.cell.CellHelper;
 import sh.komet.gui.cell.table.*;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
+
+import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
 public class VersionTableController {
+    private static final KeyCodeCombination keyCodePaste = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
+    private static final KeyCodeCombination keyCodeCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
 
      @FXML // fx:id="assemblageDetailRootPane"
     private BorderPane assemblageDetailRootPane;
@@ -42,6 +55,16 @@ public class VersionTableController {
     private TableColumn<ObservableChronology, ObservableVersion> pathColumn;
     private Manifold manifold;
     private KometTableCellValueFactory valueFactory;
+    private final ContextMenu copyPasteMenu = new ContextMenu();
+    private final MenuItem copySelectedItems = new MenuItem("Copy selected items");
+    private final MenuItem pasteClipboard = new MenuItem("Paste clipboard");
+    {
+        // add menu items to menu
+        copySelectedItems.setOnAction(this::copySelectionToClipboard);
+        pasteClipboard.setOnAction(this::pasteClipboard);
+        copyPasteMenu.getItems().add(pasteClipboard);
+        copyPasteMenu.getItems().add(copySelectedItems);
+    }
 
     //~--- methods -------------------------------------------------------------
     @FXML  // This method is called by the FXMLLoader when initialization is complete
@@ -68,6 +91,75 @@ public class VersionTableController {
         authorTimeColumn.setText("author\ntime");
         modulePathColumn.setText("module\npath");
         listTable.setTableMenuButtonVisible(true);
+
+        listTable.setContextMenu(copyPasteMenu);
+
+        listTable.widthProperty().addListener((observable, oldValue, newValue) -> {
+            if (listTable.getVisibleLeafColumns().size() == 2) {
+                this.generalColumn.setMaxWidth(newValue.doubleValue() - 20 - whatColumn.getWidth());
+                this.generalColumn.setMinWidth(newValue.doubleValue() - 20 - whatColumn.getWidth());
+                this.generalColumn.setPrefWidth(newValue.doubleValue() - 20 - whatColumn.getWidth());
+            } else {
+                this.generalColumn.setMaxWidth(newValue.doubleValue() - 20 -  - whatColumn.getWidth());
+                this.generalColumn.setMinWidth(100);
+                this.generalColumn.setPrefWidth(USE_COMPUTED_SIZE);
+            }
+        });
+
+        generalColumn.setComparator((o1, o2) -> {
+            return CellHelper.getTextForComponent(this.getManifold(), o1)
+                    .compareTo(CellHelper.getTextForComponent(this.getManifold(), o2));
+        });
+
+        listTable.setOnKeyPressed(event -> {
+            if (keyCodePaste.match(event)) {
+                pasteClipboard(event);
+            }
+            if (keyCodeCopy.match(event)) {
+                copySelectionToClipboard(event);
+            }
+        });
+    }
+
+    public void pasteClipboard(Event event) {
+        final Clipboard clipboard = Clipboard.getSystemClipboard();
+        if (clipboard.hasContent(DataFormat.PLAIN_TEXT)) {
+            String[] clipboardRows = clipboard.getString().split("\\r?\\n");
+            if (clipboardRows.length > 0) {
+                String[] testColumns = clipboardRows[0].split("\t");
+                if (UUIDUtil.isUUID(testColumns[0])) {
+                    for (String clipboardRow: clipboardRows) {
+                        String[] rowColumns = clipboardRow.split("\t");
+                        listTable.getItems().add(Get.observableChronology(UUID.fromString(rowColumns[0])));
+                    }
+                } else {
+                    FxGet.statusMessageService().reportStatus("Attempt to paste, but clipboard does not contain UUID: " + clipboardRows[0]);
+                }
+            } else {
+                FxGet.statusMessageService().reportStatus("Attempt to paste, but clipboard is empty.");
+            }
+        } else {
+            FxGet.statusMessageService().reportStatus("Attempt to paste, but no plain text on clipboard.");
+        }
+        event.consume();
+    }
+
+    //TODO centralize copy and paste (see also SimpleSearchController
+    public void copySelectionToClipboard(Event event) {
+        final Set<Integer> rows = new TreeSet<>();
+        for (final TablePosition tablePosition : listTable.getSelectionModel().getSelectedCells()) {
+            rows.add(tablePosition.getRow());
+        }
+        final StringBuilder strb = new StringBuilder();
+        for (final Integer row : rows) {
+            IdentifiedObject object = (IdentifiedObject) listTable.getItems().get(row);
+            strb.append(object.getPrimordialUuid().toString()).append("\t");
+            strb.append(object.toUserString()).append("\n");
+        }
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(strb.toString());
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        event.consume();
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -120,5 +212,30 @@ public class VersionTableController {
         pathColumn.setCellValueFactory(this.valueFactory::getCellValue);
         pathColumn.setCellFactory(tableColumn -> new TableConceptCell(this.manifold, ObservableVersion::getPathNid));
 
+    }
+
+    public void setWhatColumnVisible(boolean value) {
+        whatColumn.setVisible(value);
+    }
+    public void setStatusColumnVisible(boolean value) {
+        statusColumn.setVisible(value);
+    }
+    public void setTimeColumnVisible(boolean value) {
+        timeColumn.setVisible(value);
+    }
+    public void setModulePathColumnVisible(boolean value) {
+        modulePathColumn.setVisible(value);
+    }
+    public void setAuthorTimeColumnVisible(boolean value) {
+        authorTimeColumn.setVisible(value);
+    }
+    public void setAuthorColumnVisible(boolean value) {
+        authorColumn.setVisible(value);
+    }
+    public void setModuleColumnVisible(boolean value) {
+        moduleColumn.setVisible(value);
+    }
+    public void setPathColumnVisible(boolean value) {
+        pathColumn.setVisible(value);
     }
 }

@@ -40,7 +40,7 @@ public interface KometPreferences {
     ObservableList<ConfigurationPreference> getConfigurationPreferences();
     ObservableList<LogicItem> getLogicItems();
     ObservableList<SynchronizationItem> getSynchronizationItems();
-    ObservableList<TaxonomyItem> getTaxonomyItems();
+    ObservableList<GraphConfigurationItem> getGraphConfigurationItems();
     ObservableList<UserPreferenceItems> getUserPreferenceItems();
     ObservableList<WindowPreferencesItem> getWindowPreferenceItems();
     WindowsParentPreferences getWindowParentPreferences();

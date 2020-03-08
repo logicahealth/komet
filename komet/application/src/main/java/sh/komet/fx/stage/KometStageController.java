@@ -38,7 +38,6 @@ package sh.komet.fx.stage;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -62,7 +61,6 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
@@ -70,9 +68,6 @@ import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.preferences.window.WindowPreferencePanel;
-import sh.isaac.solor.direct.DirectImporter;
-import sh.isaac.solor.direct.ImportType;
-import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.komet.gui.contract.preferences.PersonaItem;
@@ -272,7 +267,7 @@ public class KometStageController
 
         MenuItem selectiveImport = new MenuItemWithText("Selective import and transform");
         selectiveImport.setOnAction((ActionEvent event) -> {
-            ImportView.show(FxGet.manifold(ManifoldGroup.TAXONOMY));
+            ImportView.show(FxGet.manifold(ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
         });
         items.add(selectiveImport);
 

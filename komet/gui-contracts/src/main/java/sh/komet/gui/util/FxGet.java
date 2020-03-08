@@ -50,6 +50,7 @@ import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.SessionProperty;
 import sh.komet.gui.interfaces.ComponentList;
 import sh.komet.gui.interfaces.ExplorationNode;
+import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.provider.StatusMessageProvider;
 
@@ -65,6 +66,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Singleton
 public class FxGet implements StaticIsaacCache {
     private static final HashMap<Manifold.ManifoldGroup, Manifold> MANIFOLDS = new HashMap<>();
+    private static final HashMap<UuidStringKey, Manifold> MANIFOLD_FOR_MANIFOLD_COORDINATE = new HashMap<>();
 
 
     private static final ConcurrentSkipListSet<ComponentList> componentList = new ConcurrentSkipListSet();
@@ -81,13 +83,12 @@ public class FxGet implements StaticIsaacCache {
     private static final List<GuiConceptBuilder> BUILDER_LIST = new ArrayList<>();
     
     private static final SimpleStringProperty CONFIGURATION_NAME_PROPERTY = new SimpleStringProperty(null, MetaData.CONFIGURATION_NAME____SOLOR.toExternalString(), "viewer");
-    private static final ObservableMap<String, TaxonomyAmalgam> TAXONOMY_CONFIGURATIONS = FXCollections.observableHashMap();
-    private static final ObservableList<String> TAXONOMY_CONFIGURATION_KEY_LIST = FXCollections.observableArrayList();
+    private static final ObservableMap<UuidStringKey, GraphAmalgamWithManifold> GRAPH_CONFIGURATIONS = FXCollections.observableHashMap();
+    private static final ObservableList<UuidStringKey> TAXONOMY_CONFIGURATION_KEY_LIST = FXCollections.observableArrayList();
     private static ObservableSet<PersonaChangeListener> PERSONA_CHANGE_LISTENERS = FXCollections.observableSet(new HashSet<>());
 
-    private static final String DEFAULT_TAXONOMY_CONFIGURATION = "Defining";
     static {
-        TAXONOMY_CONFIGURATIONS.addListener((MapChangeListener.Change<? extends String, ? extends TaxonomySnapshot> change) -> {
+        GRAPH_CONFIGURATIONS.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends TaxonomySnapshot> change) -> {
             if (change.wasAdded()) {
                 TAXONOMY_CONFIGURATION_KEY_LIST.add(change.getKey());
             }
@@ -95,7 +96,6 @@ public class FxGet implements StaticIsaacCache {
                 TAXONOMY_CONFIGURATION_KEY_LIST.remove(change.getKey());
             }
         });
-        TAXONOMY_CONFIGURATIONS.put(DEFAULT_TAXONOMY_CONFIGURATION, null);
     }
 
     public static List<GuiSearcher> searchers() {
@@ -160,7 +160,7 @@ public class FxGet implements StaticIsaacCache {
         STATUS_MESSAGE_PROVIDER = null;
         FX_CONFIGURATION = null;
         Platform.runLater(() -> {
-            TAXONOMY_CONFIGURATIONS.clear();
+            GRAPH_CONFIGURATIONS.clear();
             TAXONOMY_CONFIGURATION_KEY_LIST.clear();
             PERSONA_CHANGE_LISTENERS.clear();
         });
@@ -362,32 +362,32 @@ public class FxGet implements StaticIsaacCache {
 
 
     
-    public static ObservableList<String> taxonomyConfigurationNames() {
+    public static ObservableList<UuidStringKey> taxonomyConfigurationNames() {
         return TAXONOMY_CONFIGURATION_KEY_LIST;
     }
     
-    public static TaxonomyAmalgam taxonomyConfiguration(String configurationName) {
-        return TAXONOMY_CONFIGURATIONS.get(configurationName);
+    public static GraphAmalgamWithManifold graphConfiguration(UuidStringKey configurationName) {
+        return GRAPH_CONFIGURATIONS.get(configurationName);
     }
 
-    public static void addTaxonomyConfiguration(String configurationName, TaxonomyAmalgam taxonomyConfiguration) {
-        TAXONOMY_CONFIGURATIONS.put(configurationName, taxonomyConfiguration);
+    public static Manifold manifoldForManifoldCoordinate(UuidStringKey configurationName) {
+        return MANIFOLD_FOR_MANIFOLD_COORDINATE.get(configurationName);
+    }
+    public static void setManifoldForManifoldCoordinate(UuidStringKey manifoldCoordinateKey, Manifold manifold) {
+        MANIFOLD_FOR_MANIFOLD_COORDINATE.put(manifoldCoordinateKey, manifold);
     }
 
-    public static void removeTaxonomyConfiguration(String configurationName) {
-        TAXONOMY_CONFIGURATIONS.remove(configurationName);
+    public static void addGraphConfiguration(UuidStringKey configurationName, GraphAmalgamWithManifold taxonomyConfiguration) {
+        GRAPH_CONFIGURATIONS.put(configurationName, taxonomyConfiguration);
     }
 
-    public static String defaultTaxonomyConfiguration() {
-        return DEFAULT_TAXONOMY_CONFIGURATION;
+    public static void removeGraphConfiguration(String configurationName) {
+        GRAPH_CONFIGURATIONS.remove(configurationName);
     }
-    
-    public static TaxonomySnapshot taxonomySnapshot(Manifold manifold, String configurationName) {
-        if (configurationName.equals(DEFAULT_TAXONOMY_CONFIGURATION)) {
-            return Get.taxonomyService().getSnapshot(manifold);
-        }
-        TaxonomyAmalgam amalgam = taxonomyConfiguration(configurationName);
-        return amalgam.makeAnalog(manifold);
+
+
+    public static TaxonomySnapshot graphSnapshot(UuidStringKey configurationName) {
+        return graphConfiguration(configurationName);
     }
 
 

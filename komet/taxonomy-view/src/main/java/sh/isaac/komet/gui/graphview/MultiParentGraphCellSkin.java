@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui.treeview;
+package sh.isaac.komet.gui.graphview;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +39,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
  *
  * @author kec
  */
-public class MultiParentTreeCellSkin extends CellSkinBase<TreeCell<ConceptChronology>> {
+public class MultiParentGraphCellSkin extends CellSkinBase<TreeCell<ConceptChronology>> {
 
     /**
      * The amount of space to multiply by the methodTreeItem.level to get the left
@@ -52,7 +52,7 @@ public class MultiParentTreeCellSkin extends CellSkinBase<TreeCell<ConceptChrono
         if (indent == null) {
             indent = new StyleableDoubleProperty(10.0) {
                 @Override public Object getBean() {
-                    return MultiParentTreeCellSkin.this;
+                    return MultiParentGraphCellSkin.this;
                 }
 
                 @Override public String getName() {
@@ -60,7 +60,7 @@ public class MultiParentTreeCellSkin extends CellSkinBase<TreeCell<ConceptChrono
                 }
 
                 @Override public CssMetaData<TreeCell<?>,Number> getCssMetaData() {
-                    return MultiParentTreeCellSkin.StyleableProperties.INDENT;
+                    return MultiParentGraphCellSkin.StyleableProperties.INDENT;
                 }
             };
         }
@@ -74,9 +74,9 @@ public class MultiParentTreeCellSkin extends CellSkinBase<TreeCell<ConceptChrono
 
     private final double defaultDisclosureWidth = 18;
 
-    public MultiParentTreeCellSkin(TreeCell control) {
+    public MultiParentGraphCellSkin(TreeCell control) {
         super(control);
-        new MultiParentTreeCellBehavior(control);
+        new MultiParentGraphCellBehavior(control);
 
         this.fixedCellSize = control.getTreeView().getFixedCellSize();
         this.fixedCellSizeEnabled = fixedCellSize > 0;
@@ -105,7 +105,7 @@ public class MultiParentTreeCellSkin extends CellSkinBase<TreeCell<ConceptChrono
         if (tree == null) {
             return;
         }
-        MultiParentTreeItemImpl methodTreeItem = (MultiParentTreeItemImpl) getSkinnable().getTreeItem();
+        MultiParentGraphItemImpl methodTreeItem = (MultiParentGraphItemImpl) getSkinnable().getTreeItem();
 
         if (disclosureNodeDirty) {
             updateDisclosureNode();
@@ -172,7 +172,7 @@ public class MultiParentTreeCellSkin extends CellSkinBase<TreeCell<ConceptChrono
         if (tree == null) {
             return pw;
         }
-        MultiParentTreeItemImpl methodTreeItem = (MultiParentTreeItemImpl) getSkinnable().getTreeItem();
+        MultiParentGraphItemImpl methodTreeItem = (MultiParentGraphItemImpl) getSkinnable().getTreeItem();
 
         if (methodTreeItem == null) {
             return pw;
@@ -204,7 +204,7 @@ public class MultiParentTreeCellSkin extends CellSkinBase<TreeCell<ConceptChrono
         if (disclosureNode == null) {
             return;
         }
-        MultiParentTreeItemImpl methodTreeItem = (MultiParentTreeItemImpl) getSkinnable().getTreeItem();
+        MultiParentGraphItemImpl methodTreeItem = (MultiParentGraphItemImpl) getSkinnable().getTreeItem();
 
         boolean disclosureVisible = methodTreeItem != null && !methodTreeItem.isLeaf();
         disclosureNode.setVisible(disclosureVisible);
@@ -245,7 +245,7 @@ public class MultiParentTreeCellSkin extends CellSkinBase<TreeCell<ConceptChrono
             return fixedCellSize;
         }
 
-        final MultiParentTreeCell cell = (MultiParentTreeCell) getSkinnable();
+        final MultiParentGraphCell cell = (MultiParentGraphCell) getSkinnable();
 
         final double pref = super.computePrefHeight(width, topInset, rightInset, bottomInset, leftInset);
         final Node d = cell.getDisclosureNode();
@@ -278,12 +278,12 @@ public class MultiParentTreeCellSkin extends CellSkinBase<TreeCell<ConceptChrono
                         SizeConverter.getInstance(), 10.0) {
 
                     @Override public boolean isSettable(TreeCell<?> n) {
-                        DoubleProperty p = ((MultiParentTreeCellSkin) n.getSkin()).indentProperty();
+                        DoubleProperty p = ((MultiParentGraphCellSkin) n.getSkin()).indentProperty();
                         return p == null || !p.isBound();
                     }
 
                     @Override public StyleableProperty<Number> getStyleableProperty(TreeCell<?> n) {
-                        final  MultiParentTreeCellSkin skin = (MultiParentTreeCellSkin) n.getSkin();
+                        final MultiParentGraphCellSkin skin = (MultiParentGraphCellSkin) n.getSkin();
                         return (StyleableProperty<Number>)(WritableValue<Number>)skin.indentProperty();
                     }
                 };

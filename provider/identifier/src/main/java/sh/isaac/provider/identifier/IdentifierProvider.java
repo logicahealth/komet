@@ -107,7 +107,7 @@ public class IdentifierProvider
     public void addUuidForNid(UUID uuid, int nid) {
         OptionalInt old = this.uuidIntMapMap.get(uuid);
         if (old.isPresent() && old.getAsInt() != nid) {
-            throw new RuntimeException("Reassignment of nid for " + uuid + " from " + old + " to " + nid);
+            throw new IllegalArgumentException("Reassignment of nid for " + uuid + " from " + old + " to " + nid);
         }
         this.uuidIntMapMap.put(uuid, nid);
     }
@@ -217,7 +217,6 @@ public class IdentifierProvider
         }
         throw new NoSuchElementException("No nid found for " + Arrays.toString(uuids));
     }
-
     @Override
     public int assignNid(UUID... uuids) throws IllegalArgumentException {
         int lastFoundNid = Integer.MAX_VALUE;

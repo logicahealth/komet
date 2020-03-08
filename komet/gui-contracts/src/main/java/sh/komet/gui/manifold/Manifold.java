@@ -114,9 +114,11 @@ public class Manifold
 
     public enum ManifoldGroup {
         UNLINKED("unlinked"), SEARCH("search"),
-        TAXONOMY("taxonomy"), FLWOR("flwor"), CLINICAL_STATEMENT("statement"),
+        INFERRED_GRAPH_NAVIGATION_ANY_NODE("inferred navigation-any node status"), FLWOR("flwor"), CLINICAL_STATEMENT("statement"),
         CORRELATION("correlation"), KOMET("KOMET"), CLASSIFICATON("classification"),
-        LIST("list");
+        LIST("list"), INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES("inferred navigation-active nodes"),
+        INFERRED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES("inferred navigation-active fqn nodes"),
+        STATED_GRAPH_NAVIGATION_ANY_NODE("stated navigation-any node status");
 
         private String groupName;
         private UUID groupUuid;
@@ -158,7 +160,7 @@ public class Manifold
     static {
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.UNLINKED.getGroupName(), () -> new Label());
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.SEARCH.getGroupName(), () -> Iconography.SIMPLE_SEARCH.getIconographic());
-        ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.TAXONOMY.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
+        ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.FLWOR.getGroupName(), () -> Iconography.FLWOR_SEARCH.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.CORRELATION.getGroupName(), () -> new Label("C"));
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.KOMET.getGroupName(), () -> new Label("K"));
@@ -169,7 +171,7 @@ public class Manifold
         for (ManifoldGroup group: ManifoldGroup.values()) {
             if (group != ManifoldGroup.UNLINKED) {
                 MANIFOLD_MAP.put(group, new Manifold(group.groupName, group.groupUuid, Get.configurationService()
-                        .getUserConfiguration(Optional.empty()).getManifoldCoordinate(),
+                        .getUserConfiguration(Optional.empty()).getManifoldCoordinate().deepClone(),
                         Get.configurationService()
                                 .getUserConfiguration(Optional.empty()).getEditCoordinate()));
             }
@@ -194,6 +196,15 @@ public class Manifold
                      UUID manifoldUuid,
                      ObservableManifoldCoordinate observableManifoldCoordinate,
                      ObservableEditCoordinate editCoordinate) {
+        if (observableManifoldCoordinate.getStampCoordinate() == null) {
+            throw new NullPointerException("Manifold.getStampCoordinate() cannot be null.");
+        }
+        if (observableManifoldCoordinate.getLanguageCoordinate() == null) {
+            throw new NullPointerException("Manifold.getLanguageCoordinate() cannot be null.");
+        }
+        if (observableManifoldCoordinate.getLogicCoordinate() == null) {
+            throw new NullPointerException("Manifold.getLogicCoordinate() cannot be null.");
+        }
         this.groupName = groupName;
         this.manifoldUuid = manifoldUuid;
         this.observableManifoldCoordinate = observableManifoldCoordinate;
@@ -292,13 +303,14 @@ public class Manifold
      * @return a new manifold on each call.
      */
     public static final Manifold create(String groupName, UUID manifoldUuid) {
-        return newManifold(
+        Manifold manifold = newManifold(
                 groupName,
                 manifoldUuid,
                 Get.configurationService()
-                        .getUserConfiguration(Optional.empty()).getManifoldCoordinate(),
+                        .getUserConfiguration(Optional.empty()).getManifoldCoordinate().deepClone(),
                 Get.configurationService()
                         .getUserConfiguration(Optional.empty()).getEditCoordinate());
+        return manifold;
     }
 
 
@@ -306,7 +318,17 @@ public class Manifold
                                        UUID manifoldUuid,
                                        ObservableManifoldCoordinate observableManifoldCoordinate,
                                        ObservableEditCoordinate editCoordinate) {
-        return new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate);
+        Manifold manifold = new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate);
+        if (manifold.getStampCoordinate() == null) {
+            throw new NullPointerException("Manifold.getStampCoordinate() cannot be null.");
+        }
+        if (manifold.getLanguageCoordinate() == null) {
+            throw new NullPointerException("Manifold.getLanguageCoordinate() cannot be null.");
+        }
+        if (manifold.getLogicCoordinate() == null) {
+            throw new NullPointerException("Manifold.getLogicCoordinate() cannot be null.");
+        }
+        return manifold;
     }
 
     public LatestVersion<String> getDescriptionText(int conceptNid) {

@@ -48,7 +48,7 @@ public class RootPreferences extends AbstractPreferences {
             addChild("Attachment actions", AttachmentItems.class);
             addChild("Logic actions", LogicItemPanels.class);
             addChild("Coordinates", CoordinateGroupPanel.class);
-            addChild("Taxonomy configurations", TaxonomyItems.class);
+            addChild("Taxonomy configurations", GraphConfigurationItems.class);
             addChild("Personas", PersonasPanel.class);
             addChild("Window configurations", WindowsPanel.class);
         }

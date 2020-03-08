@@ -56,7 +56,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     private final ObservableList<ConfigurationPreference> configurationPreferences = FXCollections.observableArrayList();
     private final ObservableList<LogicItem> logicItems = FXCollections.observableArrayList();
     private final ObservableList<SynchronizationItem> synchronizationItems = FXCollections.observableArrayList();
-    private final ObservableList<TaxonomyItem> taxonomyItems = FXCollections.observableArrayList();
+    private final ObservableList<GraphConfigurationItem> graphConfigurationItems = FXCollections.observableArrayList();
     private final ObservableList<UserPreferenceItems> userPreferenceItems = FXCollections.observableArrayList();
     private final ObservableList<WindowPreferencesItem> windowPreferenceItems = FXCollections.observableArrayList();
     private final ObservableList<PersonaItem> personaPreferences = FXCollections.observableArrayList();
@@ -150,7 +150,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
         configurationPreferences.clear();
         logicItems.clear();
         synchronizationItems.clear();
-        taxonomyItems.clear();
+        graphConfigurationItems.clear();
         userPreferenceItems.clear();
         windowPreferenceItems.clear();
         personaPreferences.clear();
@@ -213,8 +213,8 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
             logicItems.add((LogicItem) item);
         } else if (item instanceof SynchronizationItem) {
             synchronizationItems.add((SynchronizationItem) item);
-        } else if (item instanceof TaxonomyItem) {
-            taxonomyItems.add((TaxonomyItem) item);
+        } else if (item instanceof GraphConfigurationItem) {
+            graphConfigurationItems.add((GraphConfigurationItem) item);
         } else if (item instanceof UserPreferenceItems) {
             userPreferenceItems.add((UserPreferenceItems) item);
         } else if (item instanceof WindowPreferencesItem) {
@@ -236,8 +236,8 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
             logicItems.remove(item);
         } else if (item instanceof SynchronizationItem) {
             synchronizationItems.remove(item);
-        } else if (item instanceof TaxonomyItem) {
-            taxonomyItems.remove(item);
+        } else if (item instanceof GraphConfigurationItem) {
+            graphConfigurationItems.remove(item);
         } else if (item instanceof UserPreferenceItems) {
             userPreferenceItems.remove(item);
         } else if (item instanceof WindowPreferencesItem) {
@@ -282,8 +282,8 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     }
 
     @Override
-    public ObservableList<TaxonomyItem> getTaxonomyItems() {
-        return taxonomyItems;
+    public ObservableList<GraphConfigurationItem> getGraphConfigurationItems() {
+        return graphConfigurationItems;
     }
 
     @Override

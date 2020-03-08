@@ -7,9 +7,13 @@ import javafx.css.PseudoClass;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumnBase;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
 import sh.isaac.api.identity.IdentifiedObject;
@@ -52,8 +56,16 @@ public class DescriptionTableCell<T extends IdentifiedObject> extends TableCell<
 
    @Override
    protected void updateItem(String item, boolean empty) {
-      super.updateItem(item, empty); 
-      setText(item);
+      super.updateItem(item, empty);
+      this.setText(null);
+      Text text = new Text(item);
+      text.wrappingWidthProperty()
+              .bind(this.getTableView().widthProperty()
+                      .subtract(25));
+      setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+      text.getStyleClass()
+              .addAll(getStyleClass());
+      this.setGraphic(text);
    }
 
    @Override

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui.treeview;
+package sh.isaac.komet.gui.graphview;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,13 +32,13 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void> {
+public class ShowConceptInGraphTask extends TimedTaskWithProgressTracker<Void> {
 
-    private final MultiParentTreeView multiParentTreeView;
+    private final MultiParentGraphView multiParentGraphView;
     private final UUID conceptUUID;
 
-    public ShowConceptInTaxonomyTask(MultiParentTreeView multiParentTreeView, UUID conceptUUID) {
-        this.multiParentTreeView = multiParentTreeView;
+    public ShowConceptInGraphTask(MultiParentGraphView multiParentGraphView, UUID conceptUUID) {
+        this.multiParentGraphView = multiParentGraphView;
         this.conceptUUID = conceptUUID;
         Get.activeTasks().add(this);
         String conceptDescription
@@ -53,7 +53,7 @@ public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void
             // await() init() completion.
             LOG.debug("Looking for concept {} in tree", Get.conceptDescriptionText(Get.identifierService().getNidForUuids(conceptUUID)));
             FxGet.statusMessageService().reportStatus("Expanding taxonomy to: " + 
-                            multiParentTreeView.getManifold().getPreferredDescriptionText(Get.identifierService().getNidForUuids(conceptUUID)));
+                            multiParentGraphView.getManifold().getPreferredDescriptionText(Get.identifierService().getNidForUuids(conceptUUID)));
 
             final ArrayList<UUID> pathToRoot = new ArrayList<>();
 
@@ -79,7 +79,7 @@ public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void
                 // Look for an IS_A relationship to origin.
                 boolean found = false;
 
-                for (int parent : multiParentTreeView.getTaxonomySnapshot().getTaxonomyParentConceptNids(concept.getNid())) {
+                for (int parent : multiParentGraphView.getTaxonomySnapshot().getTaxonomyParentConceptNids(concept.getNid())) {
                     current = Get.identifierService()
                             .getUuidPrimordialForNid(parent);
                     pathToRoot.add(current);
@@ -91,7 +91,7 @@ public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void
                 if (!found) {
                     if (concept.getNid() != TermAux.SOLOR_ROOT.getNid()) {
                         FxGet.statusMessageService().reportStatus("No parents for concept: " + 
-                            multiParentTreeView.getManifold().getPreferredDescriptionText(concept));
+                            multiParentGraphView.getManifold().getPreferredDescriptionText(concept));
                     }
                     break;
                 }
@@ -100,7 +100,7 @@ public class ShowConceptInTaxonomyTask extends TimedTaskWithProgressTracker<Void
             Collections.reverse(pathToRoot);
             LOG.debug("Calculated root path {}", Arrays.toString(pathToRoot.toArray()));
             Platform.runLater(() -> {
-                this.multiParentTreeView.expandAndSelect(pathToRoot);
+                this.multiParentGraphView.expandAndSelect(pathToRoot);
             });
         } finally {
             Get.activeTasks().remove(this);

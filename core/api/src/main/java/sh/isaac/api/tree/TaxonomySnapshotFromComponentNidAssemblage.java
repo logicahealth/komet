@@ -112,7 +112,7 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
         throw new UnsupportedOperationException("Not supported by assemblage."); 
     }
     @Override
-    public boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
+    public boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid) {
         throw new UnsupportedOperationException();
     }
 

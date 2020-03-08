@@ -92,10 +92,10 @@ public interface TaxonomySnapshot {
     * Checks if descendant  of.
     *
     * @param descendantConceptNid the descendant id
-    * @param parentConceptNid the parent id
+    * @param ancestorConceptNid the parent id
     * @return true, if kind of
     */
-   boolean isDescendentOf(int descendantConceptNid, int parentConceptNid);
+   boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid);
 
    /**
     * Gets the kind of nid set.

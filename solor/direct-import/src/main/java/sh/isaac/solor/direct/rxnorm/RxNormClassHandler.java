@@ -3,15 +3,19 @@ package sh.isaac.solor.direct.rxnorm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
+import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
@@ -41,6 +45,9 @@ public class RxNormClassHandler {
     }
 
     public static int aboutToNid(String aboutString) {
+        if (aboutString == null || aboutString.isBlank()) {
+            throw new IllegalStateException("aboutString cannot be null or blank.");
+        }
         try {
             return Get.nidForUuids(aboutToUuid(aboutString));
         } catch (NoSuchElementException e) {
@@ -75,7 +82,21 @@ public class RxNormClassHandler {
             LOG.warn("Equivalent class encountered for: " + rdfAbout);
             return;
         }
+
+
         UUID conceptPrimordialUuid = aboutToUuid(rdfAbout);
+        if (rdfAbout.startsWith("http://snomed.info/id/")) {
+            if (!rdfAbout.contains("Rx")) {
+                // Verify a stated definition.
+                if (Get.identifierService().hasUuid(conceptPrimordialUuid)) {
+                    int nid = Get.identifierService().getNidForUuids(conceptPrimordialUuid);
+                    List<SemanticChronology> chronologies = Get.assemblageService().getSemanticChronologiesForComponent(nid);
+                    if (!chronologies.isEmpty()) {
+                        return; // Stop processing if SNOMED concept, they are already imported and have a stated definition...
+                    }
+                }
+            }
+        }
         String conceptName = null;
 
         boolean newConcept = true;
@@ -94,8 +115,8 @@ public class RxNormClassHandler {
             childTags.add(childElement.getTagName());
 
             switch (childElement.getTagName()) {
-                case "equivalentClass":
-                case "owl:equivalentClass":
+                case "deprecated--equivalentClass":
+                case "deprecated--owl:equivalentClass":
                     // a sufficient set?
                     if (childElements(childElement).isEmpty()) {
 /* Example with no children, but an rdf:resource
@@ -123,7 +144,11 @@ Another example to handle...
                         equivalentClassMap.put(rdfResource, rdfAbout);
                         UUID alternativeUuid = aboutToUuid(rdfResource);
                         if (Get.identifierService().hasUuid(conceptPrimordialUuid)) {
-                            Get.identifierService().addUuidForNid(alternativeUuid, Get.nidForUuids(conceptPrimordialUuid));
+                            try {
+                                Get.identifierService().addUuidForNid(alternativeUuid, Get.nidForUuids(conceptPrimordialUuid));
+                            } catch (IllegalArgumentException e) {
+                                LOG.error(e.getLocalizedMessage());
+                            }
                         } else if (Get.identifierService().hasUuid(alternativeUuid)) {
                             Get.identifierService().addUuidForNid(conceptPrimordialUuid, Get.nidForUuids(alternativeUuid));
                         } else {
@@ -141,6 +166,26 @@ Another example to handle...
                     conceptName = childElement.getTextContent();
                     break;
 
+                    // Change to treat equivalent classes as subclass relationships.
+                    // This example is a canonical reason (for saying it is equivalent to more than one concept):
+                /*
+    <!-- http://snomed.info/id/Rx119246 -->
+
+    <owl:Class rdf:about="http://snomed.info/id/Rx119246">
+        <owl:equivalentClass rdf:resource="http://snomed.info/id/120709004"/>
+        <owl:equivalentClass rdf:resource="http://snomed.info/id/767467006"/>
+        <rdfs:subClassOf rdf:resource="http://snomed.info/id/105590001"/>
+        <id:MapsToCode>120709004</id:MapsToCode>
+        <id:MapsToCode>767467006</id:MapsToCode>
+        <id:MapsToName>Respiratory syncytial virus antibody (substance)</id:MapsToName>
+        <id:MapsToName>Respiratory syncytial virus immune globulin (substance)</id:MapsToName>
+        <rdfs:label>respiratory syncytial virus immune globulin intravenous</rdfs:label>
+    </owl:Class>
+                 */
+                case "equivalentClass":
+                case "owl:equivalentClass":
+                    equivalentClassElements.add(childElement);
+                    break;
                 case "rdfs:subClassOf":
                     // for the necessary set...
                     subClassElements.add(childElement);
@@ -166,6 +211,7 @@ Another example to handle...
                 case "id:CountOfBaseDifferent":
                 case "skos:prefLabel":
                 case "skos:altLabel":
+                case "skos:definition":
 
                     assemblageElements.add(childElement);
                     break;
@@ -180,7 +226,11 @@ Another example to handle...
             LogicalExpressionBuilder expressionBuilder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
 
             for (Element equivalentClass: equivalentClassElements) {
-                handleEquivalentClass(expressionBuilder, equivalentClass);
+                try {
+                    handleEquivalentClass(expressionBuilder, equivalentClass);
+                } catch (IllegalStateException e) {
+                    LOG.error(e);
+                }
             }
             handleNecessarySet(expressionBuilder, subClassElements);
 
@@ -315,6 +365,9 @@ Another example to handle...
                     case "skos:altLabel":
                         addStringSemantic(conceptBuilder, rdfAbout, MetaData.SKOS_ALTERNATE_LABEL____SOLOR, assemblageElement.getTextContent());
                         break;
+                    case "skos:definition":
+                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.SKOS_DEFINITION____SOLOR, assemblageElement.getTextContent());
+                        break;
                     default:
                         LOG.error("Can't handle: " + assemblageElement.getTagName() + " in " + rdfAbout);
 
@@ -336,14 +389,37 @@ Another example to handle...
     }
 
     private void handleNecessarySet(LogicalExpressionBuilder eb, List<Element> subClassElements) {
-        Assertion[] subclasses = new Assertion[subClassElements.size()];
-        for (int i = 0; i < subclasses.length; i++) {
+        List<Assertion> subclasses = new ArrayList<Assertion>();
+        for (int i = 0; i < subClassElements.size(); i++) {
             Element subclass = subClassElements.get(i);
             String subclassAttribute = subclass.getAttribute("rdf:resource");
-
-            subclasses[i] = eb.conceptAssertion(aboutToNid(subclassAttribute));
+            if (subclassAttribute == null || subclassAttribute.isEmpty()) {
+                NodeList subClassChildren = subclass.getChildNodes();
+                for (int j = 0; j < subClassChildren.getLength(); j++) {
+                    Node possibleClass = subClassChildren.item(j);
+                    if (possibleClass.getNodeName().contains("Class")) {
+                        NodeList classChildren = possibleClass.getChildNodes();
+                        for (int k = 0; k < classChildren.getLength(); k++) {
+                            Node possibleIntersectionOf = classChildren.item(k);
+                            if (possibleIntersectionOf.getNodeName().contains("intersectionOf")) {
+                                NodeList intersectionOfChildren = possibleIntersectionOf.getChildNodes();
+                                for (int l = 0; l < intersectionOfChildren.getLength(); l++) {
+                                    Node possibleDescription = intersectionOfChildren.item(l);
+                                    if (possibleDescription.getNodeName().contains("Description")) {
+                                        String rdfAbout = possibleDescription.getAttributes().getNamedItem("rdf:about").getNodeValue();
+                                        ConceptAssertion subclassAssertion = eb.conceptAssertion(aboutToNid(rdfAbout));
+                                        subclasses.add(subclassAssertion);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                subclasses.add(eb.conceptAssertion(aboutToNid(subclassAttribute)));
+            }
         }
-        eb.necessarySet(eb.and(subclasses));
+        eb.necessarySet(eb.and(subclasses.toArray(new Assertion[subclasses.size()])));
     }
 
     private void handleEquivalentClass(LogicalExpressionBuilder eb, Element element) {

@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui.treeview;
+package sh.isaac.komet.gui.graphview;
 
 /**
  *
  * @author kec
  */
-public interface MultiParentTreeItem {
+public interface MultiParentGraphItem {
 	boolean isRoot();
 	boolean isDefined();
 	boolean isMultiParent();

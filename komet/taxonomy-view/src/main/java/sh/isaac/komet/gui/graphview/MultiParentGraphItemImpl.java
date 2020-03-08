@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.komet.gui.treeview;
+package sh.isaac.komet.gui.graphview;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
@@ -66,17 +66,17 @@ import sh.isaac.api.TaxonomySnapshot;
 /**
  * A {@link TreeItem} for modeling nodes in ISAAC taxonomies.
  *
- * The {@code MultiParentTreeItemImpl} is not a visual component. The
- * {@code MultiParentTreeCell} provides the rendering for this tree item.
+ * The {@code MultiParentGraphItemImpl} is not a visual component. The
+ * {@code MultiParentGraphCell} provides the rendering for this tree item.
  *
  * @author kec
  * @author ocarlsen
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
- * @see MultiParentTreeCell
+ * @see MultiParentGraphCell
  */
-public class MultiParentTreeItemImpl
+public class MultiParentGraphItemImpl
         extends TreeItem<ConceptChronology>
-        implements MultiParentTreeItem, Comparable<MultiParentTreeItemImpl> {
+        implements MultiParentGraphItem, Comparable<MultiParentGraphItemImpl> {
 
     enum LeafStatus {
         UNKNOWN, IS_LEAF, NOT_LEAF
@@ -88,7 +88,7 @@ public class MultiParentTreeItemImpl
     private static final Logger LOG = LogManager.getLogger();
 
     //~--- fields --------------------------------------------------------------
-    private final List<MultiParentTreeItemImpl> extraParents = new ArrayList<>();
+    private final List<MultiParentGraphItemImpl> extraParents = new ArrayList<>();
     private CountDownLatch childrenLoadedLatch = new CountDownLatch(1);
 
     private volatile boolean cancelLookup = false;
@@ -96,7 +96,7 @@ public class MultiParentTreeItemImpl
     private boolean multiParent = false;
     private int multiParentDepth = 0;
     private boolean secondaryParentOpened = false;
-    private MultiParentTreeView treeView;
+    private MultiParentGraphView graphView;
     private String conceptDescriptionText;  // Cached to speed up comparisons with toString method.
     private final int nid;
     private final int typeNid;
@@ -104,14 +104,14 @@ public class MultiParentTreeItemImpl
     private LeafStatus leafStatus = LeafStatus.UNKNOWN;
 
     //~--- constructors --------------------------------------------------------
-    MultiParentTreeItemImpl(int conceptSequence, MultiParentTreeView treeView, int typeNid) {
+    MultiParentGraphItemImpl(int conceptSequence, MultiParentGraphView graphView, int typeNid) {
         this(Get.conceptService()
-                .getConceptChronology(conceptSequence), treeView, typeNid, null);
+                .getConceptChronology(conceptSequence), graphView, typeNid, null);
     }
 
-    MultiParentTreeItemImpl(ConceptChronology conceptChronology, MultiParentTreeView treeView, int typeNid, Node graphic) {
+    MultiParentGraphItemImpl(ConceptChronology conceptChronology, MultiParentGraphView graphView, int typeNid, Node graphic) {
         super(conceptChronology, graphic);
-        this.treeView = treeView;
+        this.graphView = graphView;
         this.nid = conceptChronology.getNid();
         this.typeNid = typeNid;
     }
@@ -134,7 +134,7 @@ public class MultiParentTreeItemImpl
         childrenLoadedLatch.countDown();
         getChildren().forEach(
                 (child) -> {
-                    ((MultiParentTreeItemImpl) child).clearChildren();
+                    ((MultiParentGraphItemImpl) child).clearChildren();
                 });
         getChildren().clear();
         childLinks = null;
@@ -143,7 +143,7 @@ public class MultiParentTreeItemImpl
     }
 
     @Override
-    public int compareTo(MultiParentTreeItemImpl o) {
+    public int compareTo(MultiParentGraphItemImpl o) {
         if (this.toString().contains("Achilles tendon rupture")) {
             System.out.println("Found Achilles tendon rupture");
         }
@@ -155,7 +155,7 @@ public class MultiParentTreeItemImpl
     }
 
     public Node computeGraphic() {
-        return treeView.getDisplayPolicies()
+        return graphView.getDisplayPolicies()
                 .computeGraphic(this);
     }
 
@@ -163,7 +163,7 @@ public class MultiParentTreeItemImpl
         updateDescription();
 
         for (TreeItem<ConceptChronology> child : getChildren()) {
-            MultiParentTreeItemImpl multiParentTreeItem = (MultiParentTreeItemImpl) child;
+            MultiParentGraphItemImpl multiParentTreeItem = (MultiParentGraphItemImpl) child;
 
             multiParentTreeItem.invalidate();
         }
@@ -179,7 +179,7 @@ public class MultiParentTreeItemImpl
     }
 
     public boolean shouldDisplay() {
-        return treeView.getDisplayPolicies()
+        return graphView.getDisplayPolicies()
                 .shouldDisplay(this);
     }
 
@@ -206,7 +206,7 @@ public class MultiParentTreeItemImpl
     }
 
     private void updateDescription() {
-        LatestVersion<String> latestDescriptionText = treeView.getManifold()
+        LatestVersion<String> latestDescriptionText = graphView.getManifold()
                 .getDescriptionText(nid);
         latestDescriptionText.ifPresent((descriptionText) -> this.conceptDescriptionText = descriptionText)
                 .ifAbsent(() -> this.conceptDescriptionText = "no description for " + nid);
@@ -226,8 +226,8 @@ public class MultiParentTreeItemImpl
                 } else {  // if (conceptChronology != null)
                     // Gather the children
                     LOG.info("addChildrenNOW(): conceptChronology={}", conceptChronology);
-                    ArrayList<MultiParentTreeItemImpl> childrenToAdd = new ArrayList<>();
-                    TaxonomySnapshot taxonomySnapshot = treeView.getTaxonomySnapshot();
+                    ArrayList<MultiParentGraphItemImpl> childrenToAdd = new ArrayList<>();
+                    TaxonomySnapshot taxonomySnapshot = graphView.getTaxonomySnapshot();
 
                     if (childLinks == null) {
                         childLinks = taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
@@ -235,8 +235,8 @@ public class MultiParentTreeItemImpl
 
                     for (TaxonomyLink childLink : childLinks) {
                         ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
-                        MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeView, childLink.getTypeNid(), null);
-                        Manifold manifold = treeView.getManifold();
+                        MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, graphView, childLink.getTypeNid(), null);
+                        Manifold manifold = graphView.getManifold();
                         childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
                         childItem.toString();
                         childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
@@ -266,7 +266,7 @@ public class MultiParentTreeItemImpl
     }
 
     void addChildren() {
-        LOG.info("addChildren: conceptChronology={}", this.getValue());
+        LOG.debug("addChildren: conceptChronology={}", this.getValue());
         if (getChildren().isEmpty()) {
             if (shouldDisplay()) {
                 FetchChildren fetchTask = new FetchChildren(childrenLoadedLatch, this);
@@ -330,11 +330,11 @@ public class MultiParentTreeItemImpl
     }
 
     //~--- get methods ---------------------------------------------------------
-    MultiParentTreeItemDisplayPolicies getDisplayPolicies() {
-        return this.treeView.getDisplayPolicies();
+    MultiParentGraphItemDisplayPolicies getDisplayPolicies() {
+        return this.graphView.getDisplayPolicies();
     }
 
-    public List<MultiParentTreeItemImpl> getExtraParents() {
+    public List<MultiParentGraphItemImpl> getExtraParents() {
         return extraParents;
     }
 
@@ -348,7 +348,7 @@ public class MultiParentTreeItemImpl
             return true;
         }
         if (this.childLinks == null) {
-            if (this.treeView.getTaxonomySnapshot().isLeaf(nid)) {
+            if (this.graphView.getTaxonomySnapshot().isLeaf(nid)) {
                 leafStatus = LeafStatus.IS_LEAF;
             } else {
                 leafStatus = LeafStatus.NOT_LEAF;
@@ -423,7 +423,7 @@ public class MultiParentTreeItemImpl
         }
     }
 
-    public MultiParentTreeView getTreeView() {
-        return treeView;
+    public MultiParentGraphView getGraphView() {
+        return graphView;
     }
 }

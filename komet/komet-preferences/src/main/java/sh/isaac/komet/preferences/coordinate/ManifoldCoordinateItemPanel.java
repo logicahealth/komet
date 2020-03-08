@@ -45,6 +45,7 @@ public class ManifoldCoordinateItemPanel extends AbstractPreferences implements 
 
     private final SimpleObjectProperty<UuidStringKey> originStampCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
     private final PropertySheetItemObjectListWrapper<UuidStringKey> originStampCoordinateKeyWrapper;
+
     private final SimpleObjectProperty<UuidStringKey> destinationStampCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.DESTINATION_STAMP_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
     private final PropertySheetItemObjectListWrapper<UuidStringKey> destinationStampCoordinateKeyWrapper;
 
@@ -54,8 +55,10 @@ public class ManifoldCoordinateItemPanel extends AbstractPreferences implements 
     private final SimpleObjectProperty<UuidStringKey> logicCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.LOGIC_COORDINATE_KEY_FOR_MANIFOLD.toExternalString());
     private final PropertySheetItemObjectListWrapper<UuidStringKey> logicCoordinateKeyWrapper;
 
-    private final PropertySheetListWrapper<ComponentProxy> selectionWrapper;
-    private final PropertySheetListWrapper<ComponentProxy> historyWrapper;
+    private final PropertySheetItemObjectListWrapper<PremiseType> premiseTypeWrapper;
+
+    private final PropertySheetComponentListWrapper selectionWrapper;
+    private final PropertySheetComponentListWrapper historyWrapper;
 
     private final Manifold manifold;
 
@@ -76,8 +79,9 @@ public class ManifoldCoordinateItemPanel extends AbstractPreferences implements 
         ObservableList<PremiseType> premiseTypes =
                 FXCollections.observableArrayList(PremiseType.INFERRED, PremiseType.STATED);
 
-        getItemList().add(new PropertySheetItemObjectListWrapper("Premise type", manifold.getManifoldCoordinate().taxonomyPremiseTypeProperty(),
-                premiseTypes));
+        this.premiseTypeWrapper = new PropertySheetItemObjectListWrapper("Premise type", manifold.getManifoldCoordinate().taxonomyPremiseTypeProperty(),
+                premiseTypes);
+        getItemList().add(this.premiseTypeWrapper);
 
         this.originStampCoordinateKeyWrapper = new PropertySheetItemObjectListWrapper("STAMP for origin", originStampCoordinateKeyProperty, FxGet.stampCoordinateKeys());
         getItemList().add(this.originStampCoordinateKeyWrapper);
@@ -91,50 +95,45 @@ public class ManifoldCoordinateItemPanel extends AbstractPreferences implements 
         this.logicCoordinateKeyWrapper = new PropertySheetItemObjectListWrapper("Logic coordinate", logicCoordinateKeyProperty, FxGet.logicCoordinateKeys());
         getItemList().add(this.logicCoordinateKeyWrapper);
 
-        getItemList().add(new PropertySheetComponentListWrapper(manifold, manifold.manifoldSelectionProperty()));
-
-        this.selectionWrapper = new PropertySheetListWrapper(manifold, manifold.manifoldSelectionProperty(),
-                () -> new ComponentProxy(TermAux.UNINITIALIZED_COMPONENT_ID.getNid(), TermAux.UNINITIALIZED_COMPONENT_ID.getFullyQualifiedName()), manifold1 -> new ComponentProxyEditorStub(manifold1));
-
-
-        this.historyWrapper = new PropertySheetListWrapper(manifold, manifold.getHistoryRecords(),
-                () -> new ComponentProxy(TermAux.UNINITIALIZED_COMPONENT_ID.getNid(), TermAux.UNINITIALIZED_COMPONENT_ID.getFullyQualifiedName()), manifold1 -> new ComponentProxyEditorStub(manifold1));
+        this.selectionWrapper = new PropertySheetComponentListWrapper(manifold, manifold.manifoldSelectionProperty());
         getItemList().add(this.selectionWrapper);
+
+        this.historyWrapper = new PropertySheetComponentListWrapper(manifold, manifold.getHistoryRecords());
         getItemList().add(this.historyWrapper);
 
 
         this.itemKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.get());
         FxGet.manifoldCoordinates().put(itemKey, this.manifold.getManifoldCoordinate());
+        FxGet.setManifoldForManifoldCoordinate(itemKey, manifold);
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
             FxGet.languageCoordinates().remove(itemKey);
             itemKey.updateString(newValue);
             FxGet.manifoldCoordinates().put(itemKey, this.manifold.getManifoldCoordinate());
+            FxGet.setManifoldForManifoldCoordinate(itemKey, this.manifold);
         });
         this.manifold.manifoldSelectionProperty().setAll(getPreferencesNode().getComponentList(Keys.SELECTED_COMPONENTS));
         this.manifold.setSelectionPreferenceUpdater(this);
         revertFields();
         save();
-        if (originStampCoordinateKeyProperty.get() != null) {
-            this.manifold.getManifoldCoordinate().stampCoordinateProperty().setValue(FxGet.stampCoordinates().get(originStampCoordinateKeyProperty.get()));
-        } else {
-            this.manifold.getManifoldCoordinate().stampCoordinateProperty().setValue(null);
+        if (originStampCoordinateKeyProperty.get() == null) {
+            throw new NullPointerException("originStampCoordinateKeyProperty value cannot be null");
         }
-        if (destinationStampCoordinateKeyProperty.get() != null) {
-            this.manifold.getManifoldCoordinate().destinationStampCoordinateProperty().setValue(FxGet.stampCoordinates().get(destinationStampCoordinateKeyProperty.get()));
-        } else {
-            this.manifold.getManifoldCoordinate().destinationStampCoordinateProperty().setValue(null);
+        if (destinationStampCoordinateKeyProperty.get() == null) {
+            throw new NullPointerException("destinationStampCoordinateKeyProperty value cannot be null");
         }
-        if (languageCoordinateKeyProperty.get() != null) {
-            this.manifold.getManifoldCoordinate().languageCoordinateProperty().setValue(FxGet.languageCoordinates().get(languageCoordinateKeyProperty.get()));
-        } else {
-            this.manifold.getManifoldCoordinate().languageCoordinateProperty().setValue(null);
+        if (languageCoordinateKeyProperty.get() == null) {
+            throw new NullPointerException("languageCoordinateKeyProperty value cannot be null");
         }
-        if (logicCoordinateKeyProperty.get() != null) {
-            this.manifold.getManifoldCoordinate().logicCoordinateProperty().setValue(FxGet.logicCoordinates().get(logicCoordinateKeyProperty.get()));
-        } else {
-            this.manifold.getManifoldCoordinate().logicCoordinateProperty().setValue(null);
+        if (logicCoordinateKeyProperty.get() == null) {
+            throw new NullPointerException("logicCoordinateKeyProperty value cannot be null");
         }
+        this.premiseTypeWrapper.setValue(PremiseType.valueOf(getPreferencesNode().get(Keys.PREMISE_TYPE_KEY, PremiseType.INFERRED.name())));
+        this.manifold.getManifoldCoordinate().stampCoordinateProperty().setValue(FxGet.stampCoordinates().get(originStampCoordinateKeyProperty.get()));
+        this.manifold.getManifoldCoordinate().destinationStampCoordinateProperty().setValue(FxGet.stampCoordinates().get(destinationStampCoordinateKeyProperty.get()));
+        this.manifold.getManifoldCoordinate().languageCoordinateProperty().setValue(FxGet.languageCoordinates().get(languageCoordinateKeyProperty.get()));
+        this.manifold.getManifoldCoordinate().logicCoordinateProperty().setValue(FxGet.logicCoordinates().get(logicCoordinateKeyProperty.get()));
+
         originStampCoordinateKeyProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 this.manifold.getManifoldCoordinate().stampCoordinateProperty().setValue(FxGet.stampCoordinates().get(newValue));

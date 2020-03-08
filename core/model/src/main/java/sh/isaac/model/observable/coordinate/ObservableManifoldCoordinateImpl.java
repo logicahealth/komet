@@ -40,6 +40,7 @@
 package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
+import org.apache.commons.lang3.ObjectUtils;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -274,7 +275,15 @@ public class ObservableManifoldCoordinateImpl
                   new ObservableStampCoordinateImpl(this.manifoldCoordinate.getStampCoordinate()));
             }
             this.stampCoordinateProperty.addListener((invalidation) -> fireValueChangedEvent());
+            this.stampCoordinateProperty.addListener((observable, oldValue, newValue) -> {
+                if (newValue == null) {
+                    LOG.error("Stamp coordinate cannot be set to null");
+                }
+            });
          }
+      }
+      if (this.stampCoordinateProperty.get() == null) {
+          throw new NullPointerException("Stamp coordinate property value cannot be null.");
       }
       return this.stampCoordinateProperty;
    }

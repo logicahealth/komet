@@ -209,8 +209,10 @@ public interface ManifoldCoordinate
     * @return preferred description. 
     */
    default LatestVersion<DescriptionVersion> getPreferredDescription(ConceptSpecification conceptSpec) {
-      return getLanguageCoordinate().getPreferredDescription(conceptSpec.getNid(), 
-              getStampCoordinate());
+      return getLanguageCoordinate()
+              .getPreferredDescription(
+                      conceptSpec.getNid(),
+                      getStampCoordinate());
    }
    /**
     * DISCOURAGED METHOD!
@@ -226,8 +228,10 @@ public interface ManifoldCoordinate
     * properly use the language coordinate(s) to locate a description, or clearly return an empty.
     */
    default String getPreferredDescriptionText(int conceptId) {
-      return getLanguageCoordinate().getRegularName(conceptId, getStampCoordinate())
-            .orElse(getLanguageCoordinate().getFullyQualifiedName(conceptId, getStampCoordinate())
+      return getLanguageCoordinate()
+              .getRegularName(conceptId, getStampCoordinate())
+            .orElse(getLanguageCoordinate()
+                    .getFullyQualifiedName(conceptId, getStampCoordinate())
                .orElse("[no description for " + Get.identifierService().getUuidPrimordialStringForNid(conceptId) + "]"));
    }
    

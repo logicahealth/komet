@@ -50,7 +50,7 @@ public class StackLabelText extends StackPane {
             textFlow.setMinWidth(newValue.doubleValue());
             double preferredHeight = textFlow.computePreferredHeight(newValue.doubleValue());
             preferredHeight += 30;
-            System.out.println("Pref height for: " + newValue.doubleValue() + " is: " + preferredHeight);
+            //System.out.println("Pref height for: " + newValue.doubleValue() + " is: " + preferredHeight);
 
             textArea.setMinHeight(preferredHeight);
             textArea.setPrefHeight(preferredHeight);

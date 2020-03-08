@@ -43,25 +43,25 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.ComponentProxy;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.komet.gui.treeview.MultiParentTreeCell;
+import sh.isaac.komet.gui.graphview.MultiParentGraphCell;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
@@ -78,6 +78,7 @@ import sh.komet.gui.contract.GuiSearcher;
  * @author kec
  */
 public class SimpleSearchController implements ExplorationNode, GuiSearcher, ConceptExplorationNode {
+    private static final KeyCodeCombination keyCodeCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
     private static final Logger              LOG               = LogManager.getLogger();
     private final SimpleStringProperty       titleProperty     =
         new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
@@ -93,6 +94,23 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.SIMPLE_SEARCH.getIconographic());
 
     private final SimpleObjectProperty<ConceptSpecification> selectedConceptSpecificationProperty = new SimpleObjectProperty<>();
+
+    private final ContextMenu copyMenu = new ContextMenu();
+    private final MenuItem copySelectedDescriptions = new MenuItem("copy selected descriptions");
+    private final MenuItem copySelectedConcepts = new MenuItem("copy selected concepts");
+    private final MenuItem copyAllDescriptions = new MenuItem("copy all descriptions");
+    private final MenuItem copyAllConcepts = new MenuItem("copy all concepts");
+    {
+        // add menu items to menu
+        copySelectedDescriptions.setOnAction(this::copySelectedDescriptionsToClipboard);
+        copySelectedConcepts.setOnAction(this::copySelectedConceptsToClipboard);
+        copyAllDescriptions.setOnAction(this::copyAllDescriptionsToClipboard);
+        copyAllConcepts.setOnAction(this::copyAllConceptsToClipboard);
+        copyMenu.getItems().add(copySelectedConcepts);
+        copyMenu.getItems().add(copySelectedDescriptions);
+        copyMenu.getItems().add(copyAllConcepts);
+        copyMenu.getItems().add(copyAllDescriptions);
+    }
 
     @FXML
     AnchorPane                                                mainAnchorPane;
@@ -177,7 +195,14 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
         this.resultColumn.setCellFactory((TableColumn<ObservableDescriptionVersion,
                 String> stringText) -> new DescriptionTableCell());
 
+        resultTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        resultTable.widthProperty().addListener((observable, oldValue, newValue) -> {
+            this.resultColumn.setMaxWidth(newValue.doubleValue() - 20);
+            this.resultColumn.setMinWidth(newValue.doubleValue() - 20);
+            this.resultColumn.setPrefWidth(newValue.doubleValue() - 20);
+        });
 
+        this.resultTable.setContextMenu(copyMenu);
         this.resultTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<? super ObservableDescriptionVersion>)  c -> {
             while (c.next()) {
                 if (c.wasPermutated()) {
@@ -220,8 +245,69 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
                 FxGet.dialogs().showErrorDialog(e);
             }
         });
-    }
 
+        resultTable.setOnKeyPressed(event -> {
+            if (keyCodeCopy.match(event)) {
+                copySelectedDescriptionsToClipboard(event);
+            }
+        });
+
+    }
+    public void copySelectedConceptsToClipboard(Event event) {
+        final Set<Integer> rows = new TreeSet<>();
+        for (final TablePosition tablePosition : resultTable.getSelectionModel().getSelectedCells()) {
+            rows.add(tablePosition.getRow());
+        }
+        final StringBuilder strb = new StringBuilder();
+        for (final Integer row : rows) {
+            ObservableDescriptionVersion description = resultTable.getItems().get(row);
+            strb.append(Get.identifierService().getUuidPrimordialForNid(description.getReferencedComponentNid())).append("\t");
+            strb.append(description.getText()).append("\n");
+        }
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(strb.toString());
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        event.consume();
+    }
+    public void copyAllConceptsToClipboard(Event event) {
+
+        final StringBuilder strb = new StringBuilder();
+        for (final ObservableDescriptionVersion description : resultTable.getItems()) {
+            strb.append(Get.identifierService().getUuidPrimordialForNid(description.getReferencedComponentNid())).append("\t");
+            strb.append(description.getText()).append("\n");
+        }
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(strb.toString());
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        event.consume();
+    }
+    public void copyAllDescriptionsToClipboard(Event event) {
+        final StringBuilder strb = new StringBuilder();
+        for (final ObservableDescriptionVersion description : resultTable.getItems()) {
+            strb.append(description.getPrimordialUuid().toString()).append("\t");
+            strb.append(description.getText()).append("\n");
+        }
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(strb.toString());
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        event.consume();
+    }
+    public void copySelectedDescriptionsToClipboard(Event event) {
+        final Set<Integer> rows = new TreeSet<>();
+        for (final TablePosition tablePosition : resultTable.getSelectionModel().getSelectedCells()) {
+            rows.add(tablePosition.getRow());
+        }
+        final StringBuilder strb = new StringBuilder();
+        for (final Integer row : rows) {
+            ObservableDescriptionVersion description = resultTable.getItems().get(row);
+            strb.append(description.getPrimordialUuid().toString()).append("\t");
+            strb.append(description.getText()).append("\n");
+        }
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(strb.toString());
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        event.consume();
+    }
     private void initializeControls() {
         initializeSearchTextField();
         initializeProgressBar();
@@ -264,7 +350,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
         this.searchTagFlowPane.setOnDragDropped(event -> {
             Label labelFromDrop = new Label();
 
-            ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
+            ConceptChronology droppedChronology = ((MultiParentGraphCell)event.getGestureSource()).getTreeItem().getValue();
             labelFromDrop.setGraphic(Iconography.SEARCH_MINUS.getIconographic());
             labelFromDrop.setText(droppedChronology.getFullyQualifiedName());
             labelFromDrop.setStyle("-fx-background-color: transparent;" +"-fx-background-insets: 0;" + "-fx-padding:5;"
@@ -400,4 +486,5 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
     public void focusOnResults() {
         this.resultTable.requestFocus();
     }
+
 }

@@ -178,8 +178,12 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             };
             return dateTimePropertyEditor;
         } else if (propertySheetItem instanceof PropertySheetItemObjectListWrapper) {
-            return Editors.createChoiceEditor(propertySheetItem,
-                    ((PropertySheetItemObjectListWrapper) propertySheetItem).getAllowedValues());
+            PropertySheetItemObjectListWrapper wrapper = (PropertySheetItemObjectListWrapper) propertySheetItem;
+            Object value = wrapper.getValue();
+            PropertyEditor editor = Editors.createChoiceEditor(propertySheetItem,
+                    wrapper.getAllowedValues());
+            editor.setValue(value);
+            return editor;
         } else if (propertySheetItem instanceof PropertySheetImageWrapper) {
             return new ImageSourceEditor(((PropertySheetImageWrapper)propertySheetItem).imageDataProperty());
         }

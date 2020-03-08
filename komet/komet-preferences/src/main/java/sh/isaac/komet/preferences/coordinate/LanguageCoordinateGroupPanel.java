@@ -6,6 +6,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.preferences.ParentPanel;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.UuidStringKey;
 
 import java.util.UUID;
 import java.util.prefs.BackingStoreException;
@@ -14,23 +15,27 @@ import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
 public class LanguageCoordinateGroupPanel extends ParentPanel {
 
+    public static final UuidStringKey GB_ENGLISH_PREFERRED_COORDINATE_KEY = new UuidStringKey(UUID.fromString("a3ecd08c-5e5e-11ea-bc55-0242ac130003"), "GB English");
+    public static final UuidStringKey US_ENGLISH_FQN_COORDINATE_KEY = new UuidStringKey(UUID.fromString("a3ecd186-5e5e-11ea-bc55-0242ac130003"), "US English, fully qualified");
+    public static final UuidStringKey US_ENGLISH_PREFERRED_COORDINATE_KEY = new UuidStringKey(UUID.fromString("a3ecd258-5e5e-11ea-bc55-0242ac130003"), "US English");
+
     public LanguageCoordinateGroupPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "Language"), manifold, kpc);
         if (!initialized()) {
             // add each default manifold...
 
             LanguageCoordinate gbEnglishPreferredCoordinate = Get.coordinateFactory().getGbEnglishLanguagePreferredTermCoordinate();
-            IsaacPreferences childGbEnglishPreferences = addChild(UUID.randomUUID().toString(), LanguageCoordinateItemPanel.class);
-            new LanguageCoordinateItemPanel(gbEnglishPreferredCoordinate, "GB English", childGbEnglishPreferences, manifold, kpc);
+            IsaacPreferences childGbEnglishPreferences = addChild(GB_ENGLISH_PREFERRED_COORDINATE_KEY.getUuid().toString(), LanguageCoordinateItemPanel.class);
+            new LanguageCoordinateItemPanel(gbEnglishPreferredCoordinate, GB_ENGLISH_PREFERRED_COORDINATE_KEY.getString(), childGbEnglishPreferences, manifold, kpc);
 
             LanguageCoordinate usEnglishFullyQualifiedCoordinate = Get.coordinateFactory().getUsEnglishLanguageFullySpecifiedNameCoordinate();
-            IsaacPreferences childUsEnglishFullyQualifiedPreferences = addChild(UUID.randomUUID().toString(), LanguageCoordinateItemPanel.class);
-            new LanguageCoordinateItemPanel(usEnglishFullyQualifiedCoordinate, "US English, fully qualified", childUsEnglishFullyQualifiedPreferences, manifold, kpc);
+            IsaacPreferences childUsEnglishFullyQualifiedPreferences = addChild(US_ENGLISH_FQN_COORDINATE_KEY.getUuid().toString(), LanguageCoordinateItemPanel.class);
+            new LanguageCoordinateItemPanel(usEnglishFullyQualifiedCoordinate, US_ENGLISH_FQN_COORDINATE_KEY.getString(), childUsEnglishFullyQualifiedPreferences, manifold, kpc);
 
 
             LanguageCoordinate usEnglishPreferredCoordinate = Get.coordinateFactory().getUsEnglishLanguagePreferredTermCoordinate();
-            IsaacPreferences childUsEnglishPreferences = addChild(UUID.randomUUID().toString(), LanguageCoordinateItemPanel.class);
-            new LanguageCoordinateItemPanel(usEnglishPreferredCoordinate, "US English", childUsEnglishPreferences, manifold, kpc);
+            IsaacPreferences childUsEnglishPreferences = addChild(US_ENGLISH_PREFERRED_COORDINATE_KEY.getUuid().toString(), LanguageCoordinateItemPanel.class);
+            new LanguageCoordinateItemPanel(usEnglishPreferredCoordinate, US_ENGLISH_PREFERRED_COORDINATE_KEY.getString(), childUsEnglishPreferences, manifold, kpc);
 
             save();
         }

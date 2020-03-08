@@ -744,9 +744,9 @@ public class TaxonomyProvider
         }
 
         @Override
-        public boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
-            if (descendantConceptNid != parentConceptNid) {
-                return isKindOf(descendantConceptNid, parentConceptNid);
+        public boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid) {
+            if (descendantConceptNid != ancestorConceptNid) {
+                return isKindOf(descendantConceptNid, ancestorConceptNid);
             }
             return false;
         }
@@ -922,9 +922,9 @@ public class TaxonomyProvider
         }
 
         @Override
-        public boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
-            if (descendantConceptNid != parentConceptNid) {
-                return isKindOf(descendantConceptNid, parentConceptNid);
+        public boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid) {
+            if (descendantConceptNid != ancestorConceptNid) {
+                return isKindOf(descendantConceptNid, ancestorConceptNid);
             }
             return false;
         }

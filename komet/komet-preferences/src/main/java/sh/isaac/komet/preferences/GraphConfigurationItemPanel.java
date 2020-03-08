@@ -17,6 +17,7 @@
 package sh.isaac.komet.preferences;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -33,17 +34,19 @@ import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.tree.TaxonomyAmalgam;
 import sh.isaac.api.tree.TaxonomySnapshotFromComponentNidAssemblage;
-import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.INCLUDE_DEFINING_TAXONOMY;
-import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.INVERSE_TREES;
-import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.ROOTS;
-import static sh.isaac.komet.preferences.TaxonomyItemPanel.Keys.TREES;
+import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.INCLUDE_DEFINING_TAXONOMY;
+import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.INVERSE_TREES;
+import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.ROOTS;
+import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.TREES;
 
+import sh.isaac.komet.preferences.coordinate.ManifoldCoordinateItemPanel;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
-import sh.komet.gui.contract.preferences.TaxonomyItem;
+import sh.komet.gui.contract.preferences.GraphConfigurationItem;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
+import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.UuidStringKey;
@@ -52,7 +55,7 @@ import sh.komet.gui.util.UuidStringKey;
  *
  * @author kec
  */
-public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyItem {
+public class GraphConfigurationItemPanel extends AbstractPreferences implements GraphConfigurationItem {
     // TreeAmalgam
     public enum Keys {
         ITEM_NAME,
@@ -78,16 +81,21 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
     private final SimpleObjectProperty<UuidStringKey> manifoldCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.MANIFOLD_COORDINATE_KEY.toExternalString());
     private final PropertySheetItemObjectListWrapper<UuidStringKey> manifoldCoordinateKeyWrapper;
 
+    private final UuidStringKey graphConfigurationKey;
 
-    public TaxonomyItemPanel(IsaacPreferences preferencesNode, Manifold manifold,
-            KometPreferencesController kpc) {
+
+    public GraphConfigurationItemPanel(IsaacPreferences preferencesNode, Manifold manifold,
+                                       KometPreferencesController kpc) {
         super(preferencesNode,
-                getGroupName(preferencesNode, "Taxonomy configuration"),
+                getGroupName(preferencesNode, "Graph configuration"),
                 manifold, kpc);
         nameProperty.set(groupNameProperty().get());
+        this.graphConfigurationKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.getValue());
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
+            this.graphConfigurationKey.updateString(newValue);
         });
+
         getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
         getItemList().add(new PropertySheetBooleanWrapper(manifold, includeDefiningTaxonomyProperty));
 
@@ -108,7 +116,7 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
         // Delete old amalgam
         Optional<String> oldItemName = getPreferencesNode().get(Keys.ITEM_NAME);
         if (oldItemName.isPresent()) {
-            FxGet.removeTaxonomyConfiguration(oldItemName.get());
+            FxGet.removeGraphConfiguration(oldItemName.get());
         }
         
         getPreferencesNode().put(Keys.ITEM_NAME, nameProperty.get());
@@ -120,9 +128,16 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
         getPreferencesNode().putBoolean(INCLUDE_DEFINING_TAXONOMY, this.includeDefiningTaxonomyProperty.get());
 
         if (this.manifoldCoordinateKeyProperty.getValue() != null) {
-            TaxonomyAmalgam amalgam = new TaxonomyAmalgam(FxGet.manifoldCoordinates().get(this.manifoldCoordinateKeyProperty.getValue()),
-                    this.includeDefiningTaxonomyProperty.get());
+            // see if already exists
+            GraphAmalgamWithManifold amalgam = FxGet.graphConfiguration(graphConfigurationKey);
+            if (amalgam == null) {
+                UuidStringKey manifoldCoordinateKey = this.manifoldCoordinateKeyProperty.getValue();
+                amalgam = new GraphAmalgamWithManifold(FxGet.manifoldCoordinates().get(manifoldCoordinateKey),
+                        this.includeDefiningTaxonomyProperty.get(), FxGet.manifoldForManifoldCoordinate(manifoldCoordinateKey));
+                FxGet.addGraphConfiguration(graphConfigurationKey, amalgam);
+            }
             // TODO add support for other types of assemblage...
+            amalgam.reset();
             for (ConceptSpecification proxy: treeListProperty.get()) {
                 SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold());
                 TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
@@ -136,18 +151,21 @@ public class TaxonomyItemPanel extends AbstractPreferences implements TaxonomyIt
             for (ConceptSpecification proxy: taxonomyRootListProperty) {
                 amalgam.getTaxonomyRoots().add(proxy);
             }
-            FxGet.addTaxonomyConfiguration(nameProperty.get(), amalgam);
-        }
+         }
     }
 
     @Override 
     final protected void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(Keys.ITEM_NAME, getGroupName()));
 
-        taxonomyRootListProperty.setAll(getPreferencesNode().getConceptList(ROOTS));
-        inverseTreeListProperty.setAll(getPreferencesNode().getConceptList(INVERSE_TREES));
-        treeListProperty.setAll(getPreferencesNode().getConceptList(TREES));
+        this.taxonomyRootListProperty.setAll(getPreferencesNode().getConceptList(ROOTS));
+        this.inverseTreeListProperty.setAll(getPreferencesNode().getConceptList(INVERSE_TREES));
+        this.treeListProperty.setAll(getPreferencesNode().getConceptList(TREES));
 
+        if (getPreferencesNode().hasKey(Keys.MANIFOLD_COORDINATE_KEY)) {
+            this.manifoldCoordinateKeyProperty.setValue(new UuidStringKey(getPreferencesNode().getArray(Keys.MANIFOLD_COORDINATE_KEY)));
+            this.manifoldCoordinateKeyWrapper.setValue(this.manifoldCoordinateKeyProperty.get());
+        }
         this.includeDefiningTaxonomyProperty.set(getPreferencesNode().getBoolean(INCLUDE_DEFINING_TAXONOMY, true));
     }
     

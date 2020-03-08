@@ -33,7 +33,7 @@ public class ConceptDetailListLinkedPanelProviderFactory extends ConceptDetailPa
 
     @Override
     public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.LIST, Manifold.ManifoldGroup.UNLINKED, Manifold.ManifoldGroup.TAXONOMY, Manifold.ManifoldGroup.SEARCH};
+        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.LIST, Manifold.ManifoldGroup.UNLINKED, Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE, Manifold.ManifoldGroup.SEARCH};
     }
 
 }

@@ -2,7 +2,6 @@ package sh.komet.gui.cell;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -13,7 +12,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.*;
@@ -26,6 +27,7 @@ import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.contract.GuiSearcher;
 import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
@@ -160,6 +162,59 @@ public class CellHelper {
         setupWidth(textFlow);
     }
 
+    public static String getTextForComponent(Manifold manifold, Chronology component) {
+        switch (component.getVersionType()) {
+            case CONCEPT: {
+                LatestVersion<String> latestDescriptionText = manifold.getDescriptionText(component.getNid());
+                if (latestDescriptionText.isPresent()) {
+                    return latestDescriptionText.get();
+                } else if (!latestDescriptionText.versionList().isEmpty()) {
+                    return latestDescriptionText.versionList().get(0);
+                }
+                return "No description for concept: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(component.getNid()));
+            }
+            case DESCRIPTION: {
+                LatestVersion<DescriptionVersion> latest = component.getLatestVersion(manifold);
+                if (latest.isPresent()) {
+                    return latest.get().getText();
+                } else if (!latest.versionList().isEmpty()) {
+                    return latest.versionList().get(0).getText();
+                }
+                return "No versions for: " + component;
+            }
+
+            default:
+                LatestVersion<Version>  latest = component.getLatestVersion(manifold);
+                if (latest.isPresent()) {
+                    return latest.get().toUserString();
+                } else if (!latest.versionList().isEmpty()) {
+                    return latest.versionList().get(0).toUserString();
+                }
+                return "No versions for: " + component;
+
+        }
+    }
+    public static String getTextForComponent(Manifold manifold, Version version) {
+        switch (version.getSemanticType()) {
+            case CONCEPT: {
+                LatestVersion<String> latestDescriptionText = manifold.getDescriptionText(version.getNid());
+                if (latestDescriptionText.isPresent()) {
+                    return latestDescriptionText.get();
+                } else if (!latestDescriptionText.versionList().isEmpty()) {
+                    return latestDescriptionText.versionList().get(0);
+                }
+                return "No description for concept: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(version.getNid()));
+            }
+            case DESCRIPTION: {
+                return ((DescriptionVersion) version).getText();
+            }
+
+            default:
+                return version.toUserString();
+
+        }
+    }
+
     public void updateItem(ObservableVersion version, Labeled label, TableColumnBase tableColumn) {
         label.setWrapText(true);
 
@@ -176,14 +231,7 @@ public class CellHelper {
                 .add(StyleClasses.ASSEMBLAGE_NAME_TEXT.toString());
 
         if (version.getSemanticType() == VersionType.CONCEPT) {
-             LatestVersion<String> latestDescriptionText = this.cell.getManifold().getDescriptionText(version.getNid());
-             if (latestDescriptionText.isPresent()) {
-                 processDescriptionText(label, tableColumn, latestDescriptionText.get());
-             } else if (!latestDescriptionText.versionList().isEmpty()) {
-                 processDescriptionText(label, tableColumn, latestDescriptionText.versionList().get(0));
-             } else {
-                 processDescriptionText(label, tableColumn, "No description for concept: " + Arrays.toString(version.getUuids()));
-             }
+            processDescriptionText(label, tableColumn, getTextForComponent(this.cell.getManifold(), version));
         } else {
             SemanticVersion semanticVersion;
             if (version instanceof ObservableCategorizedVersion) {

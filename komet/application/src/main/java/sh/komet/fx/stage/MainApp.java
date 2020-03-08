@@ -41,7 +41,6 @@ import de.codecentric.centerdevice.MenuToolkit;
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
@@ -54,7 +53,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.MultiException;
@@ -68,7 +66,6 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.SystemUtils;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.RootPreferences;
-import sh.isaac.komet.preferences.UserPreferencesPanel;
 import sh.isaac.komet.statement.StatementView;
 import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
@@ -77,14 +74,12 @@ import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
 import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
-import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.*;
 import java.util.prefs.BackingStoreException;
@@ -432,7 +427,7 @@ public class MainApp
     }
 
     private void handlePrefs(ActionEvent event) {
-        Stage prefStage = FxGet.kometPreferences().showPreferences(FxGet.manifold(ManifoldGroup.TAXONOMY));
+        Stage prefStage = FxGet.kometPreferences().showPreferences(FxGet.manifold(ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
     }
 
     private void handleAbout(ActionEvent event) {

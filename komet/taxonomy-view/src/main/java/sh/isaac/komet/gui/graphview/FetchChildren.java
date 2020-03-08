@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui.treeview;
+package sh.isaac.komet.gui.graphview;
 
 import java.util.Collection;
 import java.util.concurrent.*;
@@ -38,16 +38,16 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
    private static final ConcurrentHashMap<Integer, FetchChildren> FETCHER_MAP = new ConcurrentHashMap<>();
 
     private final CountDownLatch childrenLoadedLatch;
-    private final MultiParentTreeItemImpl treeItemImpl;
+    private final MultiParentGraphItemImpl treeItemImpl;
     private final int fetcherId = FETCHER_SEQUENCE.incrementAndGet();
     private int childrenFound = 0;
     private final String parentName;
 
     public FetchChildren(CountDownLatch childrenLoadedLatch,
-            MultiParentTreeItemImpl treeItemImpl) {
+            MultiParentGraphItemImpl treeItemImpl) {
         this.childrenLoadedLatch = childrenLoadedLatch;
         this.treeItemImpl = treeItemImpl;
-        this.parentName = treeItemImpl.getTreeView()
+        this.parentName = treeItemImpl.getGraphView()
                 .getManifold().getPreferredDescriptionText(treeItemImpl.getValue());
         updateTitle("Fetching children for: " + this.parentName);
         Get.activeTasks().add(this);
@@ -76,9 +76,9 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 LOG.debug("addChildren(): conceptChronology={}", conceptChronology);
             } else {  // if (conceptChronology != null)
                 // Gather the children
-                ConcurrentSkipListSet<MultiParentTreeItemImpl> childrenToAdd = new ConcurrentSkipListSet<>();
-                TaxonomySnapshot taxonomySnapshot = treeItemImpl.getTreeView().getTaxonomySnapshot();
-                Manifold manifold = treeItemImpl.getTreeView().getManifold();
+                ConcurrentSkipListSet<MultiParentGraphItemImpl> childrenToAdd = new ConcurrentSkipListSet<>();
+                TaxonomySnapshot taxonomySnapshot = treeItemImpl.getGraphView().getTaxonomySnapshot();
+                Manifold manifold = treeItemImpl.getGraphView().getManifold();
                 Collection<TaxonomyLink>  children = taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
                 addToTotalWork(children.size() + 1);
 
@@ -88,7 +88,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                     Get.executor().execute(() -> {
                         try {
                             ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
-                            MultiParentTreeItemImpl childItem = new MultiParentTreeItemImpl(childChronology, treeItemImpl.getTreeView(), childLink.getTypeNid(), null);
+                            MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, treeItemImpl.getGraphView(), childLink.getTypeNid(), null);
                             childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
                             childItem.toString();
                             childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
@@ -111,9 +111,6 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 }
                 taskCountManager.waitForCompletion();
                 if (isCancelled()) return null;
-                Platform.runLater(() -> {
-                    treeItemImpl.setExpanded(false);
-                });
                 Platform.runLater(
                         () -> {
                             if (!FetchChildren.this.isCancelled()) {

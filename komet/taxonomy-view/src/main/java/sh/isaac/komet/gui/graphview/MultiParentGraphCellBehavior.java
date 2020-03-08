@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui.treeview;
+package sh.isaac.komet.gui.graphview;
 
 import com.sun.javafx.scene.control.behavior.TreeCellBehavior;
 import javafx.scene.Node;
@@ -24,15 +24,15 @@ import sh.isaac.api.component.concept.ConceptChronology;
 /**
  * @author kec
  */
-public class MultiParentTreeCellBehavior extends TreeCellBehavior<ConceptChronology> {
+public class MultiParentGraphCellBehavior extends TreeCellBehavior<ConceptChronology> {
 
-    public MultiParentTreeCellBehavior(TreeCell<ConceptChronology> control) {
+    public MultiParentGraphCellBehavior(TreeCell<ConceptChronology> control) {
         super(control);
     }
 
     @Override
     protected boolean handleDisclosureNode(double x, double y) {
-        MultiParentTreeCell treeCell = (MultiParentTreeCell) getNode();
+        MultiParentGraphCell treeCell = (MultiParentGraphCell) getNode();
         Node disclosureNode = treeCell.getDisclosureNode();
         if (disclosureNode != null) {
             if (disclosureNode.getBoundsInParent().contains(x, y)) {
@@ -42,7 +42,7 @@ public class MultiParentTreeCellBehavior extends TreeCellBehavior<ConceptChronol
                 return true;
             }
         }
-        MultiParentTreeItemImpl treeItem = (MultiParentTreeItemImpl) treeCell.getTreeItem();
+        MultiParentGraphItemImpl treeItem = (MultiParentGraphItemImpl) treeCell.getTreeItem();
         if (treeItem.isMultiParent() || treeItem.getMultiParentDepth() > 0) {
             Node multiParentDisclosureNode = treeCell.getGraphic();
             if (multiParentDisclosureNode != null) {
