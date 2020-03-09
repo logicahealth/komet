@@ -253,8 +253,8 @@ public class QueryProviderTest {
 		
 		Assert.assertEquals(di.query("whiskey", null, AuthorModulePathRestriction.restrictAuthor(NidSet.of(new Integer[] {userNid})), 
 				null, 13, null).size(), 13);
-		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictAuthor(NidSet.of(new Integer[] {MetaData.KEITH_EUGENE_CAMPBELL____SOLOR.getNid()})), 
-				null, 13, null).size(), 0);
+		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictAuthor(NidSet.of(new Integer[] {MetaData.USER____SOLOR.getNid()})), 
+				null, 13, null).size(), 2);
 	}
 	
 	@Test

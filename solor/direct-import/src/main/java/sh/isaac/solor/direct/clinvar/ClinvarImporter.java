@@ -71,7 +71,7 @@ public class ClinvarImporter extends GenericImporter<BufferedReader> {
                             variantComponentUUID,
                             Status.ACTIVE,
                             this.time,
-                            MetaData.CLINVAR_USER____SOLOR.getNid(),
+                            MetaData.USER____SOLOR.getNid(),
                             MetaData.SOLOR_GENOMIC_MODULE____SOLOR.getNid(),
                             TermAux.DEVELOPMENT_PATH.getNid(),
                             TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid(),
@@ -84,7 +84,7 @@ public class ClinvarImporter extends GenericImporter<BufferedReader> {
                             geneComponentUUID,
                             Status.ACTIVE,
                             this.time,
-                            MetaData.CLINVAR_USER____SOLOR.getNid(),
+                            MetaData.USER____SOLOR.getNid(),
                             MetaData.SOLOR_GENOMIC_MODULE____SOLOR.getNid(),
                             TermAux.DEVELOPMENT_PATH.getNid(),
                             TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid(),
@@ -96,7 +96,7 @@ public class ClinvarImporter extends GenericImporter<BufferedReader> {
                     super.checkForArtifactUniqueness( new DescriptionArtifact(
                             Status.ACTIVE,
                             this.time,
-                            MetaData.CLINVAR_USER____SOLOR.getNid(),
+                            MetaData.USER____SOLOR.getNid(),
                             MetaData.SOLOR_GENOMIC_MODULE____SOLOR.getNid(),
                             TermAux.DEVELOPMENT_PATH.getNid(),
                             variantComponentUUID,
@@ -110,7 +110,7 @@ public class ClinvarImporter extends GenericImporter<BufferedReader> {
                    super.checkForArtifactUniqueness(new DescriptionArtifact(
                             Status.ACTIVE,
                             this.time,
-                            MetaData.CLINVAR_USER____SOLOR.getNid(),
+                            MetaData.USER____SOLOR.getNid(),
                             MetaData.SOLOR_GENOMIC_MODULE____SOLOR.getNid(),
                             TermAux.DEVELOPMENT_PATH.getNid(),
                             geneComponentUUID,
@@ -124,7 +124,7 @@ public class ClinvarImporter extends GenericImporter<BufferedReader> {
                    super.checkForArtifactUniqueness(new NonDefiningTaxonomyArtifact(
                             Status.ACTIVE,
                             this.time,
-                            MetaData.CLINVAR_USER____SOLOR.getNid(),
+                            MetaData.USER____SOLOR.getNid(),
                             MetaData.SOLOR_GENOMIC_MODULE____SOLOR.getNid(),
                             TermAux.DEVELOPMENT_PATH.getNid(),
                             variantComponentUUID,
@@ -139,7 +139,7 @@ public class ClinvarImporter extends GenericImporter<BufferedReader> {
                            super.checkForArtifactUniqueness(new NonDefiningTaxonomyArtifact(
                                     Status.ACTIVE,
                                     this.time,
-                                    MetaData.CLINVAR_USER____SOLOR.getNid(),
+                                    MetaData.USER____SOLOR.getNid(),
                                     MetaData.SOLOR_GENOMIC_MODULE____SOLOR.getNid(),
                                     TermAux.DEVELOPMENT_PATH.getNid(),
                                     geneComponentUUID,

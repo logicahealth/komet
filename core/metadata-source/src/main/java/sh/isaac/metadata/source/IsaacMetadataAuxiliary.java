@@ -191,6 +191,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(TermAux.CORE_METADATA_MODULE);
                   createConcept(TermAux.KOMET_MODULE).setModule(TermAux.KOMET_MODULE);
+                  createConcept("users module");
                   popParent();
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
                pushParent(current());
@@ -227,15 +228,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("ICD10 modules", "ICD10").addDescription("Procedure Coding System Tenth Revision", TermAux.DEFINITION_DESCRIPTION_TYPE);
                popParent();
             createConcept(TermAux.USER);
-            pushParent(current());
-               createConcept(TermAux.KEITH_CAMPBELL);
-               createConcept(TermAux.DELOITTE_USER);
-               createConcept("Bootstrap administrator", "admin");
-               createConcept("Clinvar User");
-               createConcept("UMLS User");
-               createConcept("LIVD User");
-               createConcept("CVX User");
-               popParent();
             createConcept(TermAux.PATH);
             pushParent(current());
 
