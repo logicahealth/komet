@@ -54,15 +54,18 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.gui.graphview.MultiParentGraphCell;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.clipboard.ClipboardHelper;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
@@ -253,59 +256,54 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
         });
 
     }
+    @FXML
     public void copySelectedConceptsToClipboard(Event event) {
         final Set<Integer> rows = new TreeSet<>();
         for (final TablePosition tablePosition : resultTable.getSelectionModel().getSelectedCells()) {
             rows.add(tablePosition.getRow());
         }
-        final StringBuilder strb = new StringBuilder();
+        ArrayList<IdentifiedObject> objects = new ArrayList<>();
+        OpenIntHashSet addedObjectIds = new OpenIntHashSet();
         for (final Integer row : rows) {
             ObservableDescriptionVersion description = resultTable.getItems().get(row);
-            strb.append(Get.identifierService().getUuidPrimordialForNid(description.getReferencedComponentNid())).append("\t");
-            strb.append(description.getText()).append("\n");
+            if (!addedObjectIds.contains(description.getReferencedComponentNid())) {
+                objects.add(Get.concept(description.getReferencedComponentNid()));
+                addedObjectIds.add(description.getReferencedComponentNid());
+            }
         }
-        final ClipboardContent clipboardContent = new ClipboardContent();
-        clipboardContent.putString(strb.toString());
-        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        ClipboardHelper.copyToClipboard(objects);
         event.consume();
     }
+    @FXML
     public void copyAllConceptsToClipboard(Event event) {
 
-        final StringBuilder strb = new StringBuilder();
+        ArrayList<IdentifiedObject> objects = new ArrayList<>();
+        OpenIntHashSet addedObjectIds = new OpenIntHashSet();
         for (final ObservableDescriptionVersion description : resultTable.getItems()) {
-            strb.append(Get.identifierService().getUuidPrimordialForNid(description.getReferencedComponentNid())).append("\t");
-            strb.append(description.getText()).append("\n");
+            if (!addedObjectIds.contains(description.getReferencedComponentNid())) {
+                objects.add(Get.concept(description.getReferencedComponentNid()));
+                addedObjectIds.add(description.getReferencedComponentNid());
+            }
         }
-        final ClipboardContent clipboardContent = new ClipboardContent();
-        clipboardContent.putString(strb.toString());
-        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        ClipboardHelper.copyToClipboard(objects);
         event.consume();
     }
+    @FXML
     public void copyAllDescriptionsToClipboard(Event event) {
-        final StringBuilder strb = new StringBuilder();
-        for (final ObservableDescriptionVersion description : resultTable.getItems()) {
-            strb.append(description.getPrimordialUuid().toString()).append("\t");
-            strb.append(description.getText()).append("\n");
-        }
-        final ClipboardContent clipboardContent = new ClipboardContent();
-        clipboardContent.putString(strb.toString());
-        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        ClipboardHelper.copyToClipboard(resultTable.getItems());
         event.consume();
     }
+    @FXML
     public void copySelectedDescriptionsToClipboard(Event event) {
         final Set<Integer> rows = new TreeSet<>();
         for (final TablePosition tablePosition : resultTable.getSelectionModel().getSelectedCells()) {
             rows.add(tablePosition.getRow());
         }
-        final StringBuilder strb = new StringBuilder();
+        ArrayList<IdentifiedObject> objects = new ArrayList<>();
         for (final Integer row : rows) {
-            ObservableDescriptionVersion description = resultTable.getItems().get(row);
-            strb.append(description.getPrimordialUuid().toString()).append("\t");
-            strb.append(description.getText()).append("\n");
+            objects.add(resultTable.getItems().get(row));
         }
-        final ClipboardContent clipboardContent = new ClipboardContent();
-        clipboardContent.putString(strb.toString());
-        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        ClipboardHelper.copyToClipboard(objects);
         event.consume();
     }
     private void initializeControls() {

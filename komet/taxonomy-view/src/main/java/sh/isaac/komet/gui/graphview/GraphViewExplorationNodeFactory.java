@@ -32,16 +32,16 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
  *
  * @author kec
  */
-@Service(name = "Multi-Parent Tree View Provider")
+@Service(name = "Multi-Parent Graph View Provider")
 @Singleton
 
 public class GraphViewExplorationNodeFactory
         implements ExplorationNodeFactory {
-   public static final String MENU_TEXT  = "Taxonomy";
+   public static final String MENU_TEXT  = "Navigator";
 
    @Override
    public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      MultiParentGraphView multiParentGraphView = new MultiParentGraphView(manifold, MetaData.SOLOR_CONCEPT____SOLOR);
+      GraphViewExplorationNode multiParentGraphView = new GraphViewExplorationNode(manifold, preferencesNode);
       return multiParentGraphView;
    }
 

@@ -39,7 +39,6 @@ import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
-import sh.isaac.api.tree.TaxonomyAmalgam;
 import sh.komet.gui.contract.*;
 import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
@@ -57,6 +56,8 @@ import sh.komet.gui.provider.StatusMessageProvider;
 import javax.inject.Singleton;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+
+import static sh.komet.gui.contract.preferences.GraphConfigurationItem.DEFINING_ACTIVE;
 
 /**
  *
@@ -84,16 +85,16 @@ public class FxGet implements StaticIsaacCache {
     
     private static final SimpleStringProperty CONFIGURATION_NAME_PROPERTY = new SimpleStringProperty(null, MetaData.CONFIGURATION_NAME____SOLOR.toExternalString(), "viewer");
     private static final ObservableMap<UuidStringKey, GraphAmalgamWithManifold> GRAPH_CONFIGURATIONS = FXCollections.observableHashMap();
-    private static final ObservableList<UuidStringKey> TAXONOMY_CONFIGURATION_KEY_LIST = FXCollections.observableArrayList();
+    private static final ObservableList<UuidStringKey> GRAPH_CONFIGURATION_KEY_LIST = FXCollections.observableArrayList();
     private static ObservableSet<PersonaChangeListener> PERSONA_CHANGE_LISTENERS = FXCollections.observableSet(new HashSet<>());
 
     static {
         GRAPH_CONFIGURATIONS.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends TaxonomySnapshot> change) -> {
             if (change.wasAdded()) {
-                TAXONOMY_CONFIGURATION_KEY_LIST.add(change.getKey());
+                GRAPH_CONFIGURATION_KEY_LIST.add(change.getKey());
             }
             if (change.wasRemoved()) {            
-                TAXONOMY_CONFIGURATION_KEY_LIST.remove(change.getKey());
+                GRAPH_CONFIGURATION_KEY_LIST.remove(change.getKey());
             }
         });
     }
@@ -150,6 +151,20 @@ public class FxGet implements StaticIsaacCache {
         return FxGet.CONFIGURATION_NAME_PROPERTY.get();
     }
 
+    private static final SimpleObjectProperty<UuidStringKey> defaultViewKeyProperty = new SimpleObjectProperty<>(null,
+            TermAux.VIEW_COORDINATE_KEY.toExternalString(),
+            DEFINING_ACTIVE);
+
+    public static UuidStringKey defaultViewKey() {
+        return defaultViewKeyProperty.get();
+    }
+    public static SimpleObjectProperty<UuidStringKey> defaultViewKeyProperty() {
+        return defaultViewKeyProperty;
+    }
+    public static  void setDefaultViewKey(UuidStringKey defaultViewKey) {
+        defaultViewKeyProperty.set(defaultViewKey);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -161,7 +176,7 @@ public class FxGet implements StaticIsaacCache {
         FX_CONFIGURATION = null;
         Platform.runLater(() -> {
             GRAPH_CONFIGURATIONS.clear();
-            TAXONOMY_CONFIGURATION_KEY_LIST.clear();
+            GRAPH_CONFIGURATION_KEY_LIST.clear();
             PERSONA_CHANGE_LISTENERS.clear();
         });
         
@@ -362,8 +377,8 @@ public class FxGet implements StaticIsaacCache {
 
 
     
-    public static ObservableList<UuidStringKey> taxonomyConfigurationNames() {
-        return TAXONOMY_CONFIGURATION_KEY_LIST;
+    public static ObservableList<UuidStringKey> graphConfigurationKeys() {
+        return GRAPH_CONFIGURATION_KEY_LIST;
     }
     
     public static GraphAmalgamWithManifold graphConfiguration(UuidStringKey configurationName) {

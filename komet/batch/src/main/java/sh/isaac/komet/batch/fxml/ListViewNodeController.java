@@ -5,11 +5,11 @@ package sh.isaac.komet.batch.fxml;
 
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -18,23 +18,22 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
-import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.util.UUIDUtil;
 import sh.komet.gui.drag.drop.DropHelper;
 import sh.komet.gui.interfaces.ComponentList;
+import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.row.DragAndDropRowFactory;
 import sh.komet.gui.table.version.VersionTable;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.UuidStringKey;
 
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ListViewNodeController implements ComponentList {
 
@@ -53,6 +52,10 @@ public class ListViewNodeController implements ComponentList {
     @FXML
     private TextField listName;
 
+    @FXML
+    private ChoiceBox<UuidStringKey> viewChoiceBox;
+
+
     private VersionTable versionTable;
 
     private Manifold manifold;
@@ -66,14 +69,21 @@ public class ListViewNodeController implements ComponentList {
     void initialize() {
         assert batchAnchor != null : "fx:id=\"batchAnchor\" was not injected: check your FXML file 'ListViewNode.fxml'.";
         assert batchBorderPane != null : "fx:id=\"batchBorderPane\" was not injected: check your FXML file 'ListViewNode.fxml'.";
-        this.listName.setText("Unamed " + UUID.randomUUID().toString());
+        this.listName.setText("Unamed List");
         FxGet.addComponentList(this);
         this.listManifold = Manifold.get(Manifold.ManifoldGroup.LIST);
+
+        this.viewChoiceBox.setItems(FxGet.graphConfigurationKeys());
+        this.viewChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            GraphAmalgamWithManifold graphAmalgamWithManifold = FxGet.graphConfiguration(newValue);
+            this.manifold = graphAmalgamWithManifold.getManifold();
+            this.versionTable.setManifold(this.manifold);
+        });
+        this.viewChoiceBox.getSelectionModel().select(FxGet.defaultViewKey());
     }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
-        this.versionTable = new VersionTable(manifold);
+    public void setManifold(Manifold manifoldToIgnore) {
+        this.versionTable = new VersionTable(this.manifold);
         this.versionTable.getRootNode().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.versionTable.getRootNode().getSelectionModel().getSelectedItems().addListener(this::selectionChanged);
 
@@ -183,10 +193,10 @@ public class ListViewNodeController implements ComponentList {
                 List<ObservableChronology> newList = new ArrayList<>();
                 listName.setText(importFile.getName().substring(0, importFile.getName().lastIndexOf(".")));
                 items.clear();
-                int lineCount = 0;
+                final AtomicInteger lineCount = new AtomicInteger(0);
                 bufferedReader.lines().forEach(lineString -> {
                     String[] columns = lineString.split("\t");
-                    if (lineCount == 0 &! UUIDUtil.isUUID(lineString)) {
+                    if (lineCount.getAndIncrement() == 0 &! UUIDUtil.isUUID(lineString)) {
                         listName.setText(lineString);
                     } else {
                         newList.add(Get.observableChronology(UUID.fromString(columns[0])));
@@ -199,6 +209,20 @@ public class ListViewNodeController implements ComponentList {
             }
         }
 
+    }
+
+    @FXML
+    void deleteSelectedItems(ActionEvent event) {
+        versionTable.deleteSelectedItems(event);
+    }
+    @FXML
+    void copyItems(ActionEvent event) {
+        versionTable.copySelectionToClipboard(event);
+    }
+
+    @FXML
+    void pasteItems(ActionEvent event) {
+        versionTable.pasteClipboard(event);
     }
 
     @FXML
@@ -245,4 +269,6 @@ public class ListViewNodeController implements ComponentList {
     public UUID getListId() {
         return listId;
     }
+
+
 }

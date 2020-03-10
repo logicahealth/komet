@@ -1,5 +1,7 @@
 package sh.komet.gui.table.version;
 
+import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableView;
 import sh.isaac.api.identity.IdentifiedObject;
@@ -12,17 +14,22 @@ import java.net.URL;
 public class VersionTable {
     final VersionTableController controller;
     final TableView<ObservableChronology> tableView;
+
     public VersionTable(Manifold manifold) {
         try {
             URL resource = VersionTableController.class.getResource("VersionTable.fxml");
             FXMLLoader loader = new FXMLLoader(resource);
             loader.load();
             this.controller = loader.getController();
-            tableView = loader.getRoot();
-            controller.setManifold(manifold);
+            this.tableView = loader.getRoot();
+            this.controller.setManifold(manifold);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setManifold(Manifold manifold) {
+        controller.setManifold(manifold);
     }
 
     public VersionTableController getController() {
@@ -63,5 +70,17 @@ public class VersionTable {
 
     public void setPathColumnVisible(boolean value) {
         controller.setPathColumnVisible(value);
+    }
+
+    public void copySelectionToClipboard(Event event) {
+        getController().copySelectionToClipboard(event);
+    }
+
+    public void pasteClipboard(Event event) {
+        getController().pasteClipboard(event);
+    }
+
+    public void deleteSelectedItems(ActionEvent event) {
+        getController().deleteSelectedItems(event);
     }
 }

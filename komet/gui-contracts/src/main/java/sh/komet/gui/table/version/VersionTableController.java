@@ -1,5 +1,6 @@
 package sh.komet.gui.table.version;
 
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -12,16 +13,16 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.util.UUIDUtil;
 import sh.komet.gui.cell.CellHelper;
 import sh.komet.gui.cell.table.*;
+import sh.komet.gui.clipboard.ClipboardHelper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
+import javax.sound.sampled.Clip;
 import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
+import static sh.komet.gui.clipboard.ClipboardHelper.getUuidsFromClipboard;
 
 public class VersionTableController {
     private static final KeyCodeCombination keyCodePaste = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
@@ -122,43 +123,35 @@ public class VersionTableController {
     }
 
     public void pasteClipboard(Event event) {
-        final Clipboard clipboard = Clipboard.getSystemClipboard();
-        if (clipboard.hasContent(DataFormat.PLAIN_TEXT)) {
-            String[] clipboardRows = clipboard.getString().split("\\r?\\n");
-            if (clipboardRows.length > 0) {
-                String[] testColumns = clipboardRows[0].split("\t");
-                if (UUIDUtil.isUUID(testColumns[0])) {
-                    for (String clipboardRow: clipboardRows) {
-                        String[] rowColumns = clipboardRow.split("\t");
-                        listTable.getItems().add(Get.observableChronology(UUID.fromString(rowColumns[0])));
-                    }
-                } else {
-                    FxGet.statusMessageService().reportStatus("Attempt to paste, but clipboard does not contain UUID: " + clipboardRows[0]);
-                }
-            } else {
-                FxGet.statusMessageService().reportStatus("Attempt to paste, but clipboard is empty.");
-            }
-        } else {
-            FxGet.statusMessageService().reportStatus("Attempt to paste, but no plain text on clipboard.");
+        List<UUID> uuids = ClipboardHelper.getUuidsFromClipboard();
+        for (UUID uuid: uuids) {
+            listTable.getItems().add(Get.observableChronology(uuid));
         }
         event.consume();
     }
 
-    //TODO centralize copy and paste (see also SimpleSearchController
+    public void deleteSelectedItems(ActionEvent event) {
+        final TreeSet<Integer> rows = new TreeSet<>();
+        for (final TablePosition tablePosition : listTable.getSelectionModel().getSelectedCells()) {
+            rows.add(tablePosition.getRow());
+        }
+        Iterator<Integer> itr = rows.descendingIterator();
+        while (itr.hasNext()) {
+            int rowToDelete = itr.next();
+            listTable.getItems().remove(rowToDelete);
+        }
+    }
+
     public void copySelectionToClipboard(Event event) {
         final Set<Integer> rows = new TreeSet<>();
         for (final TablePosition tablePosition : listTable.getSelectionModel().getSelectedCells()) {
             rows.add(tablePosition.getRow());
         }
-        final StringBuilder strb = new StringBuilder();
+        ArrayList<IdentifiedObject> objects = new ArrayList<>();
         for (final Integer row : rows) {
-            IdentifiedObject object = (IdentifiedObject) listTable.getItems().get(row);
-            strb.append(object.getPrimordialUuid().toString()).append("\t");
-            strb.append(object.toUserString()).append("\n");
+            objects.add((IdentifiedObject) listTable.getItems().get(row));
         }
-        final ClipboardContent clipboardContent = new ClipboardContent();
-        clipboardContent.putString(strb.toString());
-        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        ClipboardHelper.copyToClipboard(objects);
         event.consume();
     }
 
@@ -173,9 +166,6 @@ public class VersionTableController {
 
     //~--- set methods ---------------------------------------------------------
     public void setManifold(Manifold manifold) {
-        if ((this.manifold != null) && (this.manifold != manifold)) {
-            throw new UnsupportedOperationException("Manifold previously set... " + manifold);
-        }
 
         this.manifold = manifold;
         this.valueFactory = new KometTableCellValueFactory(this.manifold);

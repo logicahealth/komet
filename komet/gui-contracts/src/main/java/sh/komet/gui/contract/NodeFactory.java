@@ -35,7 +35,8 @@ public interface NodeFactory<T extends ExplorationNode> {
    
    /**
     * Create the node
-    * @param manifold the manifold that determines the current coordinates and focus. 
+    * @param manifold the manifold that determines the current coordinates and focus.
+    * @param nodePreferences preferences node where the new node can store its preferences
     * @return the created node, not yet added to the scenegraph.  Call {@link ExplorationNode#getNode()} 
     * to get the appropriate node, when ready to add it to the scenegraph.
     */

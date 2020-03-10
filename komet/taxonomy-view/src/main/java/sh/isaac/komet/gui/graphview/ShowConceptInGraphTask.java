@@ -34,10 +34,10 @@ import sh.komet.gui.util.FxGet;
  */
 public class ShowConceptInGraphTask extends TimedTaskWithProgressTracker<Void> {
 
-    private final MultiParentGraphView multiParentGraphView;
+    private final MultiParentGraphViewController multiParentGraphView;
     private final UUID conceptUUID;
 
-    public ShowConceptInGraphTask(MultiParentGraphView multiParentGraphView, UUID conceptUUID) {
+    public ShowConceptInGraphTask(MultiParentGraphViewController multiParentGraphView, UUID conceptUUID) {
         this.multiParentGraphView = multiParentGraphView;
         this.conceptUUID = conceptUUID;
         Get.activeTasks().add(this);

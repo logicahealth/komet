@@ -2,8 +2,12 @@
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import java.net.URL?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.ToolBar?>
@@ -24,7 +28,19 @@
                <children>
                   <ToolBar prefHeight="40.0" prefWidth="200.0">
                     <items>
-                        <CustomTextField fx:id="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="325.0" styleClass="searchTextField">
+                        <MenuButton maxHeight="28.0" maxWidth="28.0" minHeight="28.0" minWidth="28.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="28.0">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#copySelectedDescriptionsToClipboard" text="Copy selected descriptions" />
+                            <MenuItem mnemonicParsing="false" onAction="#copySelectedConceptsToClipboard" text="Copy selected descriptions as concepts" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem mnemonicParsing="false" onAction="#copyAllDescriptionsToClipboard" text="Copy all descriptions" />
+                              <MenuItem mnemonicParsing="false" onAction="#copyAllConceptsToClipboard" text="Copy all descriptions as concepts" />
+                          </items>
+                           <padding>
+                              <Insets left="-8.0" />
+                           </padding>
+                        </MenuButton>
+                        <CustomTextField fx:id="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="293.0" promptText="Enter search terms..." styleClass="searchTextField">
                             <left>
                                 <Label fx:id="searchTextFieldLabel" styleClass="searchTextFieldLabel">
                                     <graphic>

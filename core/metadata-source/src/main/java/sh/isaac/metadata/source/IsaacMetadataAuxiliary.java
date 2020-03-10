@@ -1199,6 +1199,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(LOGIC_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
                createConcept(PREMISE_TYPE_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
                createConcept(MANIFOLD_COORDINATE_KEY).setModule(TermAux.KOMET_MODULE);
+               createConcept(VIEW_COORDINATE_KEY).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.CONCEPT_HAS_TAXONOMY_DISTANCE_FROM).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.INTEGER_REFERENCE).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.BOOLEAN_REFERENCE).setModule(TermAux.KOMET_MODULE);

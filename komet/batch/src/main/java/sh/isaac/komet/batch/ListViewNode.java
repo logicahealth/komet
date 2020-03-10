@@ -23,7 +23,6 @@ public class ListViewNode implements ExplorationNode {
     }
 
     final Manifold manifold;
-    final SimpleStringProperty title = new SimpleStringProperty(LIST_VIEW);
     final SimpleStringProperty toolTip = new SimpleStringProperty("List view to create batches of content for processing, export, or similar uses.");
     final AnchorPane root;
     final ListViewNodeController controller;
@@ -52,7 +51,7 @@ public class ListViewNode implements ExplorationNode {
 
     @Override
     public ReadOnlyProperty<String> getTitle() {
-        return title;
+        return controller.nameProperty();
     }
 
     @Override

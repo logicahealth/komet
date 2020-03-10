@@ -56,6 +56,7 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomyLink;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.util.NaturalOrder;
@@ -96,7 +97,7 @@ public class MultiParentGraphItemImpl
     private boolean multiParent = false;
     private int multiParentDepth = 0;
     private boolean secondaryParentOpened = false;
-    private MultiParentGraphView graphView;
+    private MultiParentGraphViewController graphView;
     private String conceptDescriptionText;  // Cached to speed up comparisons with toString method.
     private final int nid;
     private final int typeNid;
@@ -104,12 +105,19 @@ public class MultiParentGraphItemImpl
     private LeafStatus leafStatus = LeafStatus.UNKNOWN;
 
     //~--- constructors --------------------------------------------------------
-    MultiParentGraphItemImpl(int conceptSequence, MultiParentGraphView graphView, int typeNid) {
+    MultiParentGraphItemImpl(MultiParentGraphViewController graphView) {
+        super();
+        this.graphView = graphView;
+        this.nid = Integer.MAX_VALUE;
+        this.typeNid = TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
+    }
+
+    MultiParentGraphItemImpl(int conceptSequence, MultiParentGraphViewController graphView, int typeNid) {
         this(Get.conceptService()
                 .getConceptChronology(conceptSequence), graphView, typeNid, null);
     }
 
-    MultiParentGraphItemImpl(ConceptChronology conceptChronology, MultiParentGraphView graphView, int typeNid, Node graphic) {
+    MultiParentGraphItemImpl(ConceptChronology conceptChronology, MultiParentGraphViewController graphView, int typeNid, Node graphic) {
         super(conceptChronology, graphic);
         this.graphView = graphView;
         this.nid = conceptChronology.getNid();
@@ -144,9 +152,6 @@ public class MultiParentGraphItemImpl
 
     @Override
     public int compareTo(MultiParentGraphItemImpl o) {
-        if (this.toString().contains("Achilles tendon rupture")) {
-            System.out.println("Found Achilles tendon rupture");
-        }
         int compare = NaturalOrder.compareStrings(this.toString(), o.toString());
         if (compare != 0) {
            return compare; 
@@ -206,11 +211,14 @@ public class MultiParentGraphItemImpl
     }
 
     private void updateDescription() {
-        LatestVersion<String> latestDescriptionText = graphView.getManifold()
-                .getDescriptionText(nid);
-        latestDescriptionText.ifPresent((descriptionText) -> this.conceptDescriptionText = descriptionText)
-                .ifAbsent(() -> this.conceptDescriptionText = "no description for " + nid);
-
+        if (this.nid != Integer.MAX_VALUE) {
+            LatestVersion<String> latestDescriptionText = graphView.getManifold()
+                    .getDescriptionText(nid);
+            latestDescriptionText.ifPresent((descriptionText) -> this.conceptDescriptionText = descriptionText)
+                    .ifAbsent(() -> this.conceptDescriptionText = "no description for " + nid);
+        } else {
+            this.conceptDescriptionText = "hidden root";
+        }
     }
 
     void addChildrenNow() {
@@ -340,6 +348,9 @@ public class MultiParentGraphItemImpl
 
     @Override
     public boolean isLeaf() {
+        if (this.nid == Integer.MAX_VALUE) {
+            return false;
+        }
         if (leafStatus != LeafStatus.UNKNOWN) {
             return leafStatus == LeafStatus.IS_LEAF;
         }
@@ -387,19 +398,17 @@ public class MultiParentGraphItemImpl
     //~--- get methods ---------------------------------------------------------
     @Override
     public boolean isRoot() {
+        if (this.nid == Integer.MAX_VALUE) {
+            return true;
+        }
         if (MetaData.SOLOR_CONCEPT____SOLOR.isIdentifiedBy(this.getConceptUuid())) {
             return true;
         } else if (this.getParent() == null) {
             return true;
-        } else {
-            TreeItem<ConceptChronology> root = getTreeRoot(this);
-
-            if (this == root) {
-                return true;
-            } else {
-                return getConceptNid(root) == getConceptNid();
-            }
+        } else if (this.getParent() == graphView.getRoot()) {
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -423,7 +432,7 @@ public class MultiParentGraphItemImpl
         }
     }
 
-    public MultiParentGraphView getGraphView() {
+    public MultiParentGraphViewController getGraphView() {
         return graphView;
     }
 }

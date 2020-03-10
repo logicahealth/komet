@@ -29,6 +29,7 @@ import java.util.prefs.BackingStoreException;
 
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.*;
 import static sh.isaac.komet.preferences.coordinate.ManifoldCoordinateGroupPanel.*;
+import static sh.komet.gui.contract.preferences.GraphConfigurationItem.*;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
 /**
@@ -38,14 +39,9 @@ import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 public class GraphConfigurationItems extends ParentPanel  {
 
 
-    public static final UuidStringKey DEFINING_ALL = new UuidStringKey(UUID.fromString("51fc07d8-60ad-11ea-bc55-0242ac130003"), "Inferred, nodes of all status");
-    public static final UuidStringKey DEFINING_ACTIVE = new UuidStringKey(UUID.fromString("51fc0a3a-60ad-11ea-bc55-0242ac130003"), "Inferred, active nodes");
-    public static final UuidStringKey DEFINING_ACTIVE_FQN = new UuidStringKey(UUID.fromString("51fc0b48-60ad-11ea-bc55-0242ac130003"), "Inferred, active FQN nodes");
-    public static final UuidStringKey STATED_ALL = new UuidStringKey(UUID.fromString("8edb6ca6-60d1-11ea-bc55-0242ac130003"), "Stated, nodes of all status");
-
     public GraphConfigurationItems(IsaacPreferences preferencesNode, Manifold manifold,
                                    KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Graph configurations"),
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "View configurations"),
                 manifold, kpc);
         if (!initialized()) {
             // Add four defaults: defining all, defining active only, defining active only FQN, stated all...
@@ -109,7 +105,6 @@ public class GraphConfigurationItems extends ParentPanel  {
             save();
         }
     }
-
     @Override
     protected void saveFields() throws BackingStoreException {
         // nothing to save

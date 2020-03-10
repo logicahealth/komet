@@ -168,9 +168,9 @@ final public class MultiParentGraphCell
 
    private ContextMenu buildContextMenu(ConceptChronology concept) {
       if (concept != null) {
-         MultiParentGraphItemImpl treeItem = (MultiParentGraphItemImpl) getTreeItem();
-         MultiParentGraphView treeView = treeItem.getGraphView();
-         Manifold menuManifold = treeView.getManifold();
+         MultiParentGraphItemImpl graphItem = (MultiParentGraphItemImpl) getTreeItem();
+         MultiParentGraphViewController graphView = graphItem.getGraphView();
+         Manifold menuManifold = graphView.getManifold();
          
       ContextMenu cm    = new ContextMenu();
       MenuItem    item1 = new MenuItemWithText("About " + menuManifold.getPreferredDescriptionText(concept));
@@ -179,7 +179,7 @@ final public class MultiParentGraphCell
           (ActionEvent e) -> {
              int conceptNid = ((MultiParentGraphItemImpl) getTreeItem()).getConceptNid();
              Manifold manifold = ((MultiParentGraphItemImpl) getTreeItem()).getGraphView().getManifold();
-             treeItem.getValue();
+             graphItem.getValue();
           });
 
       MenuItem item2 = new MenuItemWithText("Preferences");

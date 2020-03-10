@@ -87,7 +87,7 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
     public GraphConfigurationItemPanel(IsaacPreferences preferencesNode, Manifold manifold,
                                        KometPreferencesController kpc) {
         super(preferencesNode,
-                getGroupName(preferencesNode, "Graph configuration"),
+                getGroupName(preferencesNode, "View configuration"),
                 manifold, kpc);
         nameProperty.set(groupNameProperty().get());
         this.graphConfigurationKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.getValue());

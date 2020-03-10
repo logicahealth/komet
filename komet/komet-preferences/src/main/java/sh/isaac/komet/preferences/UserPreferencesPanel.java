@@ -42,17 +42,21 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
+
+import static sh.komet.gui.contract.preferences.GraphConfigurationItem.DEFINING_ACTIVE;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import sh.isaac.model.coordinate.EditCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.UserPreferenceItems;
+import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.SessionProperty;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.UuidStringKey;
 
 /**
  *
@@ -66,7 +70,8 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         MODULE_CONCEPT_OPTIONS,
         PATH_CONCEPT,
         PATH_CONCEPT_OPTIONS,
-        SHIRO_INI
+        SHIRO_INI,
+        DEFAULT_VIEW_KEY
     }
     private static String iniConfig = "Shiro INI";
     private static SecurityManager securityManager = null;
@@ -86,8 +91,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
     final PropertySheetItemConceptWrapper pathConceptWrapper;
      
     final SimpleStringProperty shiroIniProperty = new SimpleStringProperty(this, "Shiro INI");
-    
-    
+
+     private final PropertySheetItemObjectListWrapper<UuidStringKey> viewCoordinateKeyWrapper;
+
     
     public UserPreferencesPanel(IsaacPreferences preferencesNode, Manifold manifold,
                                 KometPreferencesController kpc) {
@@ -101,14 +107,17 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         
         this.pathConceptWrapper = new PropertySheetItemConceptWrapper(manifold, pathConceptProperty);
         this.pathConceptWrapper.setAllowedValues(pathConceptOptions);
-        
+
+        this.viewCoordinateKeyWrapper = new PropertySheetItemObjectListWrapper("Default view",
+                FxGet.defaultViewKeyProperty(), FxGet.graphConfigurationKeys());
         revertFields();
         save();
         int[] userConceptOptionNids = new int[userConceptOptions.size()];
         for (int i = 0; i < userConceptOptionNids.length; i++) {
             userConceptOptionNids[i] = userConceptOptions.get(i).getNid();
         }
-        
+
+        getItemList().add(this.viewCoordinateKeyWrapper);
         getItemList().add(new PropertySheetItemConceptConstraintWrapper(userConceptWrapper, manifold, "User"));
         getItemList().add(new PropertySheetItemConceptConstraintWrapper(moduleConceptWrapper, manifold, "Module"));
         getItemList().add(new PropertySheetItemConceptConstraintWrapper(pathConceptWrapper, manifold, "Path"));
@@ -135,6 +144,7 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
 
     @Override
     protected void saveFields() throws BackingStoreException {
+        preferencesNode.putArray(Keys.DEFAULT_VIEW_KEY, FxGet.defaultViewKey().toStringArray());
         preferencesNode.put(Keys.SHIRO_INI, shiroIniProperty.get());
 
         preferencesNode.put(Keys.USER_CONCEPT, Get.concept(userConceptProperty.get()).toExternalString());
@@ -172,6 +182,12 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
 
     @Override
     protected void revertFields() {
+
+        if (preferencesNode.hasKey(Keys.DEFAULT_VIEW_KEY)) {
+            UuidStringKey viewKey = new UuidStringKey(preferencesNode.getArray(Keys.DEFAULT_VIEW_KEY));
+            FxGet.setDefaultViewKey(viewKey);
+        }
+
         shiroIniProperty.set(preferencesNode.get(Keys.SHIRO_INI, makeShiroIni()));
 
         List<String> userConceptOptionExternalStrings = preferencesNode.getList(Keys.USER_CONCEPT_OPTIONS);
@@ -212,9 +228,7 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         }
         String moduleConceptSpec = preferencesNode.get(Keys.MODULE_CONCEPT, MetaData.SOLOR_MODULE____SOLOR.toExternalString());
         moduleConceptProperty.set(new ConceptProxy(moduleConceptSpec));
-        
-        
-        
+
     }
     
     static String makeShiroIni() {
