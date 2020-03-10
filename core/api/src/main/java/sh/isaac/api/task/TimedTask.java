@@ -130,7 +130,7 @@ public abstract class TimedTask<T>
                 updateMessage(getSimpleName() + " in " + DurationUtil.format(getDuration()));
             });
         }
-        LOG.info(getSimpleName() + " " + taskId + " completed in: " + DurationUtil.format(getDuration()));
+        LOG.trace("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
 
         Platform.runLater(() -> {
             if (exceptionProperty().get() != null) {
