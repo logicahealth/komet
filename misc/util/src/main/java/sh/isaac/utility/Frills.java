@@ -560,32 +560,38 @@ public class Frills
    private static Integer findTermTypeConcept(int conceptModuleNid, StampCoordinate stamp) {
       StampCoordinate stampToUse = stamp == null ? StampCoordinates.getDevelopmentLatest() : stamp;
       
-      if (stamp!= null) {
-         //ensure the provided stamp includes the metadata module
-         if (stamp.getModuleNids().size() > 0 && !stamp.getModuleNids().contains(MetaData.CORE_METADATA_MODULE____SOLOR.getNid()))
-         {
-            stampToUse = stamp.makeModuleAnalog(Arrays.asList(new ConceptSpecification[] {MetaData.CORE_METADATA_MODULE____SOLOR}), true);
-         }
-         if (stamp.getStampPosition().getTime() != Long.MAX_VALUE)
-         {
-             stampToUse = stampToUse.makeCoordinateAnalog(Long.MAX_VALUE);
-         }
-      }
-      
-      int[] parents = Get.taxonomyService().getSnapshotNoTree(
-            new ManifoldCoordinateImpl(stampToUse, null))
-            .getTaxonomyParentConceptNids(conceptModuleNid);
-      for (int current : parents)
+      try
       {
-         if (current == MetaData.MODULE____SOLOR.getNid()) {
-            return conceptModuleNid;
-         }
-         else {
-            Integer recursive = findTermTypeConcept(current, stampToUse);
-            if (recursive != null) {  //only return this one if it had a path to MODULE_SOLOR, otherwise, let the loop continue.
-               return recursive;
+         if (stamp!= null) {
+            //ensure the provided stamp includes the metadata module
+            if (stamp.getModuleNids().size() > 0 && !stamp.getModuleNids().contains(MetaData.CORE_METADATA_MODULE____SOLOR.getNid()))
+            {
+               stampToUse = stamp.makeModuleAnalog(Arrays.asList(new ConceptSpecification[] {MetaData.CORE_METADATA_MODULE____SOLOR}), true);
+            }
+            if (stamp.getStampPosition().getTime() != Long.MAX_VALUE)
+            {
+                stampToUse = stampToUse.makeCoordinateAnalog(Long.MAX_VALUE);
             }
          }
+         
+         int[] parents = Get.taxonomyService().getSnapshotNoTree(
+               new ManifoldCoordinateImpl(stampToUse, null))
+               .getTaxonomyParentConceptNids(conceptModuleNid);
+         for (int current : parents)
+         {
+            if (current == MetaData.MODULE____SOLOR.getNid()) {
+               return conceptModuleNid;
+            }
+            else {
+               Integer recursive = findTermTypeConcept(current, stampToUse);
+               if (recursive != null) {  //only return this one if it had a path to MODULE_SOLOR, otherwise, let the loop continue.
+                  return recursive;
+               }
+            }
+         }
+      }
+      catch (Exception e) {
+         LOG.error("Problem looking up termTypeConcept for module {} at stamp {}", conceptModuleNid, stamp);
       }
       //None of the parents has a path to MODULE_SOLOR
       return null;
