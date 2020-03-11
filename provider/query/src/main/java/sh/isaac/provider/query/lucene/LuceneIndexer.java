@@ -81,7 +81,7 @@ import org.apache.lucene.index.IndexFormatTooOldException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.LogByteSizeMergePolicy;
+import org.apache.lucene.index.LogDocMergePolicy;
 import org.apache.lucene.index.MergePolicy;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -209,8 +209,7 @@ public abstract class LuceneIndexer implements IndexBuilderService
 	{
 		IndexWriterConfig config = new IndexWriterConfig(new PerFieldAnalyzer());
 		config.setRAMBufferSizeMB(256);
-		MergePolicy mergePolicy = new LogByteSizeMergePolicy();
-
+		MergePolicy mergePolicy = new LogDocMergePolicy();
 		config.setMergePolicy(mergePolicy);
 		config.setSimilarity(new ShortTextSimilarity());
 		return config;
@@ -282,8 +281,32 @@ public abstract class LuceneIndexer implements IndexBuilderService
 	{
 		try
 		{
-			this.indexWriter.forceMerge(1);
+			//We actually don't want to merge down lower than the IO executor size, otherwise, 
+			//we won't get parallel queries... queries are done in parallel per slice count.
+			IndexSearcher is = null;
+			try
+			{
+				is = this.referenceManager.acquire();
+				LOG.debug("Slice size before merge {}", is.getSlices().length);
+			}
+			finally
+			{
+				this.referenceManager.release(is);
+				is = null;
+			}
+			
+			this.indexWriter.forceMerge(Get.workExecutors().getIOExecutor().getMaximumPoolSize());
 			this.referenceManager.maybeRefreshBlocking();
+			try
+			{
+				is = this.referenceManager.acquire();
+				LOG.debug("Slice size after merge {}", is.getSlices().length);
+			}
+			finally
+			{
+				this.referenceManager.release(is);
+				is = null;
+			}
 		}
 		catch (final IOException ex)
 		{
