@@ -348,6 +348,8 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
      *
      * @param loincCode the LOINC code
      * @param logicalExpression the logical expression
+     * @param module to use to create a concept, if concept is needed
+     * @param status to use to create a concept, if concept is needed
      * @return the semantic chronology
      */
     public SemanticChronology addLogicGraph(String loincCode,
