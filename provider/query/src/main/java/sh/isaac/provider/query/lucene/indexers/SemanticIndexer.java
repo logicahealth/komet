@@ -515,7 +515,7 @@ public class SemanticIndexer extends LuceneIndexer implements IndexSemanticQuery
 		}
 		else if (dataCol instanceof DynamicNid)
 		{
-			// No need for ranges on a nid, no need for tokenization (so textField, instead of string field).
+			// No need for ranges on a nid, no need for tokenization (so string Field, instead of text field).
 			doc.add(new StringField(COLUMN_STRING_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, ((DynamicNid) dataCol).getDataNid() + "", Store.NO));
 
 			if (colNumber >= 0)
@@ -706,15 +706,6 @@ public class SemanticIndexer extends LuceneIndexer implements IndexSemanticQuery
 					// This is the only query type that needs tokenizing, etc.
 					String queryString = ((DynamicString) queryData).getDataString();
 
-					// '-' signs are operators to lucene... but we want to allow nid lookups. So escape any leading hyphens
-					// and any hyphens that are preceeded by spaces. This way, we don't mess up UUID handling.
-					// (lucene handles UUIDs ok, because the - sign is only treated special at the beginning, or when preceeded by a space)
-					if (queryString.startsWith("-"))
-					{
-						queryString = "\\" + queryString;
-					}
-
-					queryString = queryString.replaceAll("\\s-", " \\\\-");
 					LOG.debug("Modified search string is: ''{}''", queryString);
 					//We don't know if the string they are searching for was a string that was tokenized, or one that wasn't (like a UUID), so need to search both types.
 					BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();

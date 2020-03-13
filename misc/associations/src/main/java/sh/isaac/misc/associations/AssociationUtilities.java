@@ -152,13 +152,12 @@ public class AssociationUtilities
          throw new RuntimeException("Required index is not available");
       }
       
-      UUID uuid;
       ArrayList<Integer> associationTypes = new ArrayList<>();
 //      ArrayList<Integer> colIndex = new ArrayList<>();
       
       try
       {
-         uuid = Get.identifierService().getUuidPrimordialForNid(componentNid);
+         UUID uuid = Get.identifierService().getUuidPrimordialForNid(componentNid);
 
          for (Integer associationTypeSequenece : getAssociationConceptNids())
          {
@@ -167,11 +166,10 @@ public class AssociationUtilities
          }
          
          //TODO [DAN 3] when issue with colIndex restrictions is fixed, put it back.
-         List<SearchResult> refexes = indexer.queryData(new DynamicStringImpl(componentNid + (uuid == null ? "" : " OR " + uuid)),
+         List<SearchResult> refexes = indexer.queryData(new DynamicStringImpl(uuid.toString()),
                false, associationTypes.stream().mapToInt(i->i).toArray(), null, null, null, null, null, null);
          for (SearchResult sr : refexes)
          {
-            @SuppressWarnings("rawtypes")
             LatestVersion<DynamicVersion> latest = Get.assemblageService().getSnapshot(DynamicVersion.class, 
                   stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp).getLatestSemanticVersion(sr.getNid());
             

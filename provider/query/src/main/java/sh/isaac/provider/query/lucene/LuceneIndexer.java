@@ -513,16 +513,27 @@ public abstract class LuceneIndexer implements IndexBuilderService
 				}
 				else
 				{
+					// '-' signs are operators to lucene... but we want to allow nid lookups. So escape any leading hyphens
+					// and any hyphens that are preceeded by spaces. This way, we don't mess up UUID handling.
+					// (lucene handles UUIDs ok, because the - sign is only treated special at the beginning, or when preceeded by a space)
+					String queryString = query;
+					if (queryString.startsWith("-"))
+					{
+						queryString = "\\" + queryString;
+					}
+
+					queryString = queryString.replaceAll("\\s-", " \\\\-");
+
 					BooleanQuery.Builder bqParts = new BooleanQuery.Builder();
 					final QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
 	
 					qp1.setAllowLeadingWildcard(true);
-					bqParts.add(qp1.parse(query), Occur.SHOULD);
+					bqParts.add(qp1.parse(queryString), Occur.SHOULD);
 	
 					final QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer());
 	
 					qp2.setAllowLeadingWildcard(true);
-					bqParts.add(qp2.parse(query), Occur.SHOULD);
+					bqParts.add(qp2.parse(queryString), Occur.SHOULD);
 					booleanQueryBuilder.add(bqParts.build(), Occur.MUST);
 				}
 			}
