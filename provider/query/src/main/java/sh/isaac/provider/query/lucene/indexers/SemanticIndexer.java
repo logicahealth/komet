@@ -719,9 +719,11 @@ public class SemanticIndexer extends LuceneIndexer implements IndexSemanticQuery
 					//We don't know if the string they are searching for was a string that was tokenized, or one that wasn't (like a UUID), so need to search both types.
 					BooleanQuery.Builder booleanQueryBuilder = new BooleanQuery.Builder();
 					booleanQueryBuilder.add(
-							new BooleanClause(buildTokenizedStringQuery(queryString, COLUMN_STRING_FIELD_DATA_TOKENIZED + columnNamePostFixIfAny, prefixSearch, false), Occur.SHOULD));
+							new BooleanClause(buildTokenizedStringQuery(queryString, COLUMN_STRING_FIELD_DATA_TOKENIZED 
+									+ columnNamePostFixIfAny, prefixSearch, false, false), Occur.SHOULD));
 					booleanQueryBuilder.add(
-							new BooleanClause(buildTokenizedStringQuery(queryString, COLUMN_STRING_FIELD_DATA + columnNamePostFixIfAny, prefixSearch, false), Occur.SHOULD));
+							new BooleanClause(buildTokenizedStringQuery(queryString, COLUMN_STRING_FIELD_DATA 
+									+ columnNamePostFixIfAny, prefixSearch, false, true), Occur.SHOULD));
 					return booleanQueryBuilder.build();
 				}
 			}.buildColumnHandlingQuery(assemblageConcepts, searchColumns);

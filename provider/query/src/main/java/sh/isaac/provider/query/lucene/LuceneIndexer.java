@@ -156,9 +156,9 @@ public abstract class LuceneIndexer implements IndexBuilderService
 
 	// this isn't indexed
 	public static final String FIELD_COMPONENT_NID = "_component_nid_";
-	private static final String FIELD_INDEXED_MODULE_NID = "_module_content_";
-	private static final String FIELD_INDEXED_PATH_NID = "_path_content_";
-	private static final String FIELD_INDEXED_AUTHOR_NID = "_author_content_";
+	private static final String FIELD_INDEXED_MODULE_NID = "_module_content_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
+	private static final String FIELD_INDEXED_PATH_NID = "_path_content_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
+	private static final String FIELD_INDEXED_AUTHOR_NID = "_author_content_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
 
 	private final Cache<Integer, ScoreDoc> lastDocCache = Caffeine.newBuilder().maximumSize(100).build();
 
@@ -482,9 +482,10 @@ public abstract class LuceneIndexer implements IndexBuilderService
 	 * @param query the query
 	 * @param field the field
 	 * @param prefixSearch the prefix search
+	 * @param termQuery - if true, adds the query as a single term (for hits on nid, uuid, etc)  if false, use the lucene query parser
 	 * @return the query
 	 */
-	protected Query buildTokenizedStringQuery(String query, String field, boolean prefixSearch, boolean metadataOnly)
+	protected Query buildTokenizedStringQuery(String query, String field, boolean prefixSearch, boolean metadataOnly, boolean termQuery)
 	{
 		try
 		{
@@ -504,18 +505,26 @@ public abstract class LuceneIndexer implements IndexBuilderService
 			}
 			else
 			{
-				BooleanQuery.Builder bqParts = new BooleanQuery.Builder();
-
-				final QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
-
-				qp1.setAllowLeadingWildcard(true);
-				bqParts.add(qp1.parse(query), Occur.SHOULD);
-
-				final QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer());
-
-				qp2.setAllowLeadingWildcard(true);
-				bqParts.add(qp2.parse(query), Occur.SHOULD);
-				booleanQueryBuilder.add(bqParts.build(), Occur.MUST);
+				if (termQuery)
+				{
+					//termQuery flag is only for hits against fields that aren't tokenized (boolean, nid, etc) so should only have to query
+					//the WSA flagged fields.
+					booleanQueryBuilder.add(new TermQuery(new Term(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, query)), Occur.MUST);
+				}
+				else
+				{
+					BooleanQuery.Builder bqParts = new BooleanQuery.Builder();
+					final QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
+	
+					qp1.setAllowLeadingWildcard(true);
+					bqParts.add(qp1.parse(query), Occur.SHOULD);
+	
+					final QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer());
+	
+					qp2.setAllowLeadingWildcard(true);
+					bqParts.add(qp2.parse(query), Occur.SHOULD);
+					booleanQueryBuilder.add(bqParts.build(), Occur.MUST);
+				}
 			}
 
 			final BooleanQuery wrap = new BooleanQuery.Builder().add(booleanQueryBuilder.build(), Occur.MUST).build();
@@ -552,7 +561,7 @@ public abstract class LuceneIndexer implements IndexBuilderService
 
 			for (Integer authorNid : amp.getAuthors().asArray())
 			{
-				inner.add(new TermQuery(new Term(FIELD_INDEXED_AUTHOR_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, authorNid.toString())), Occur.SHOULD);
+				inner.add(new TermQuery(new Term(FIELD_INDEXED_AUTHOR_NID, authorNid.toString())), Occur.SHOULD);
 			}
 			bq.add(inner.build(), Occur.MUST);
 		}
@@ -563,7 +572,7 @@ public abstract class LuceneIndexer implements IndexBuilderService
 
 			for (Integer moduleNid : amp.getModules().asArray())
 			{
-				inner.add(new TermQuery(new Term(FIELD_INDEXED_MODULE_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, moduleNid.toString())), Occur.SHOULD);
+				inner.add(new TermQuery(new Term(FIELD_INDEXED_MODULE_NID, moduleNid.toString())), Occur.SHOULD);
 			}
 			bq.add(inner.build(), Occur.MUST);
 		}
@@ -574,7 +583,7 @@ public abstract class LuceneIndexer implements IndexBuilderService
 
 			for (Integer pathNid : amp.getPaths().asArray())
 			{
-				inner.add(new TermQuery(new Term(FIELD_INDEXED_PATH_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, pathNid.toString())), Occur.SHOULD);
+				inner.add(new TermQuery(new Term(FIELD_INDEXED_PATH_NID, pathNid.toString())), Occur.SHOULD);
 			}
 			bq.add(inner.build(), Occur.MUST);
 		}
@@ -1538,21 +1547,21 @@ public abstract class LuceneIndexer implements IndexBuilderService
 			{
 				if (!uniqAuthorNid.contains(sv.getAuthorNid()))
 				{
-					doc.add(new TextField(FIELD_INDEXED_AUTHOR_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, sv.getAuthorNid() + "", Field.Store.NO));
+					doc.add(new TextField(FIELD_INDEXED_AUTHOR_NID, sv.getAuthorNid() + "", Field.Store.NO));
 					incrementIndexedItemCount("Author");
 					uniqAuthorNid.add(sv.getAuthorNid());
 				}
 
 				if (!uniqModuleNid.contains(sv.getModuleNid()))
 				{
-					doc.add(new TextField(FIELD_INDEXED_MODULE_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, sv.getModuleNid() + "", Field.Store.NO));
+					doc.add(new TextField(FIELD_INDEXED_MODULE_NID, sv.getModuleNid() + "", Field.Store.NO));
 					incrementIndexedItemCount("Module");
 					uniqModuleNid.add(sv.getModuleNid());
 				}
 
 				if (!uniqPathNid.contains(sv.getPathNid()))
 				{
-					doc.add(new TextField(FIELD_INDEXED_PATH_NID + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, sv.getPathNid() + "", Field.Store.NO));
+					doc.add(new TextField(FIELD_INDEXED_PATH_NID, sv.getPathNid() + "", Field.Store.NO));
 					incrementIndexedItemCount("Path");
 					uniqPathNid.add(sv.getPathNid());
 				}

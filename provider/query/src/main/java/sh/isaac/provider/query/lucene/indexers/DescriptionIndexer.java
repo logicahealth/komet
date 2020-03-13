@@ -295,7 +295,7 @@ public class DescriptionIndexer extends LuceneIndexer
 			}
 		}
 		
-		Query q = buildTokenizedStringQuery(queryLocal, FIELD_INDEXED_STRING_VALUE, prefixSearch, metadataOnly);
+		Query q = buildTokenizedStringQuery(queryLocal, FIELD_INDEXED_STRING_VALUE, prefixSearch, metadataOnly, false);
 
 		q = restrictToSemantic(q, assemblageConcepts);
 
